@@ -41,11 +41,7 @@ jobs:
     # Build the Docker image
     - name: Build Python Image
       run: |-
-        docker build 
-          --tag "europe-west3-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_NAME/$IMAGE:latest" \
-          --build-arg GITHUB_SHA="$GITHUB_SHA" \
-          --build-arg GITHUB_REF="$GITHUB_REF" \
-          .
+        docker build --tag europe-west3-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_NAME/$IMAGE:latest .
     # Push the Docker image to Google Artifact Registry
     - name: Publish Python Image to GCR
       run: |-
