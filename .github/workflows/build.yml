@@ -2,14 +2,14 @@ name : nmrxiv-python-microservice application - Github Actions
 
 on:
   push:
-    branches: [development]
+    branches: [main]
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_CLUSTER: nmrxiv-dev-and-doc
+  GKE_CLUSTER: nmrxiv-prod
   GKE_ZONE: europe-west3-a
   DEPLOYMENT_NAME: nmrxiv-pythonmicroservice
-  REPOSITORY_NAME: nmrxiv-dev
+  REPOSITORY_NAME: nmrxiv-prod
   IMAGE: nmrxiv-python-microservice
 
 jobs:
@@ -45,7 +45,7 @@ jobs:
 
   setup-build-publish-deploy:
     name: Setup, Build, Publish, and Deploy
-    if: github.ref == 'refs/heads/development'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     #needs: test-lint
     steps:
