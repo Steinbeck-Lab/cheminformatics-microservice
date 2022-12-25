@@ -5,7 +5,7 @@ from helpers import*
 
 
 def main():
-    print('NMRShiftDB downloading script has started. Please find downloaded items in the folder "output."')
+    print('NMRShiftDB downloading script has started. Please find downloaded items in the folder "output."\n')
     
     if not os.path.exists('output'):
         os.makedirs('output')
@@ -32,6 +32,7 @@ def main():
 
     print('The number of molecules found in NMRShiftDB with raw NMR files, with duplicates, is: '+ str(len(with_raw)) + '\n')
     print('The number of molecules found in NMRShiftDB without raw NMR files, with duplicates, is: '+ str(len(without_raw)) + '\n')
+    print('Writing NMReData files, this might take a while.')
 
 
 
@@ -48,6 +49,7 @@ def main():
         os.makedirs('with_raw')
     os.chdir('./with_raw')
 
+    print('Downloading experimental NMR files, this might take a while. Here you can see the molecules IDs from NMRShiftDB: ')
     for molecule in with_raw:
         download_zips(molecule)
     
@@ -58,6 +60,5 @@ def main():
     structure_folders()
         
 
-        
 if __name__ == "__main__":
     sys.exit(main())
