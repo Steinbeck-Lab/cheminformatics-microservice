@@ -29,6 +29,7 @@ def write_nmredata(molecule):
 def download_zips(molecule):
     """download all the raw NMR files from the links found in the NMReData file."""
     name = get_name(molecule)
+    print(name)
     if not os.path.exists(name):
         os.makedirs(name)
         os.chdir('./'+ name)
@@ -86,7 +87,6 @@ def unzip_spec_files():
                         zip_ref.extractall(path)
                     os.remove(os.path.join(path, file))
                 except:
-                    print('unzipping the following files has failed. Please try to unzip them manually:')
                     print(os.path.join(path, file))
                     
           
@@ -96,22 +96,25 @@ def unzip_spec_files():
 def structure_folders():
     print('preparing the folders structure for proper submision to nmrXiv. This might take a while')
     for molecule in os.listdir("./"): 
-        if os.path.isdir(molecule):
+        if (molecule != '60001975') and (os.path.isdir(molecule)):
             print(molecule)
             molFolder = os.getcwd() + '/' + molecule
             for spectrum in os.listdir(molFolder):
                 specFolder = molFolder + '/' + spectrum
                 if os.path.isdir(specFolder):
                     innerFolder = specFolder
+                    #if "META-INF" not in os.listdir(innerFolder):
                     while ("acqu" not in os.listdir(innerFolder)) and ("fid" not in os.listdir(innerFolder)):
                         for item in os.listdir(innerFolder):
-                            if os.path.isdir(innerFolder + '/' + item):
-                                innerFolder +=  '/' + item
-
+                            if item != "META-INF":
+                                if os.path.isdir(innerFolder + '/' + item):
+                                    innerFolder +=  '/' + item
+                                    
 
                     for f in os.listdir(innerFolder):
                         try:
                             shutil.move(innerFolder + '/'+ f, specFolder) 
                         except:
                             print(innerFolder)
+                            
     pass
