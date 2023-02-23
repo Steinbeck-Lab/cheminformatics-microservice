@@ -7,6 +7,7 @@ RUN apt-get update \
     cmake \
     wget \
     python3-dev \
+    python3-setuptools \
     python-rdkit \
     librdkit1 \
     rdkit-data \
@@ -22,7 +23,7 @@ RUN apt-get update \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-ARG RDKIT_VERSION=Release_2022_03_1
+ARG RDKIT_VERSION=Release_2022_09_4
 RUN wget --quiet https://github.com/rdkit/rdkit/archive/${RDKIT_VERSION}.tar.gz \
  && tar -xzf ${RDKIT_VERSION}.tar.gz \
  && mv rdkit-${RDKIT_VERSION} rdkit \
@@ -83,6 +84,8 @@ COPY ./requirements.txt /code/requirements.txt
 
 RUN pip3 install --no-cache-dir --upgrade -r /code/requirements.txt
 
+RUN pip3 install chembl_structure_pipeline --no-deps
+
 COPY ./app /code/app
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
