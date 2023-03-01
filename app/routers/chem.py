@@ -1,7 +1,7 @@
 from fastapi import  Request, APIRouter, Depends, HTTPException
 from typing import Optional
 from rdkit import Chem
-from ..database import db
+# from ..database import db
 from fastapi_pagination import Page, add_pagination, paginate
 from rdkit.Chem.EnumerateStereoisomers import EnumerateStereoisomers, StereoEnumerationOptions
 from chembl_structure_pipeline import standardizer
@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from rdkit.Chem.Scaffolds import MurckoScaffold
 from rdkit.Chem.QED import properties
 from rdkit.Chem.rdMolDescriptors import Properties
+from STOUT import translate_forward, translate_reverse
 
 router = APIRouter(
     prefix="/chem",
@@ -84,6 +85,12 @@ async def smiles_descriptors(smiles: Optional[str]):
         m = Chem.MolFromSmiles(smiles)
         return properties(m)
 
+
+@router.get("/{smiles}/iupac")
+async def smiles_iupac(smiles: Optional[str]):
+    if smiles:
+        iupac = translate_forward(smiles)
+        return iupac
     
 # @app.get("/molecules/", response_model=List[schemas.Molecule])
 # def read_molecules(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):

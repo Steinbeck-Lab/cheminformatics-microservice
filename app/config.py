@@ -1,6 +1,5 @@
 from pydantic import BaseSettings, Field, PostgresDsn
 
-
 class Settings(BaseSettings):
     PGPASSWORD: str = Field(..., env="PGPASSWORD")
     POSTGRES_DB: str = Field(..., env="POSTGRES_DB")
