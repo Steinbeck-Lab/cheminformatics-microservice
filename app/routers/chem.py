@@ -92,6 +92,14 @@ async def smiles_iupac(smiles: Optional[str]):
         iupac = translate_forward(smiles)
         return iupac
     
+
+@router.post("/iupac/smiles")
+async def standardise_mol(request: Request):
+    body = await request.json()
+    query = body['query']
+    if query:
+        return translate_reverse(query)
+    
 # @app.get("/molecules/", response_model=List[schemas.Molecule])
 # def read_molecules(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 #     molecules = crud.get_molecules(db, skip=skip, limit=limit)
