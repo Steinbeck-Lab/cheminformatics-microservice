@@ -1,13 +1,12 @@
 from fastapi import Depends, FastAPI
+
 # from .config import settings
 from .routers import converters, chem, compose
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-origins = [
-    "*"
-]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
