@@ -94,6 +94,10 @@ COPY ./requirements.txt /code/requirements.txt
 
 RUN pip3 install --no-cache-dir --upgrade -r /code/requirements.txt
 
+RUN python3 -m pip uninstall uvicorn
+
+RUN python3 -m pip install uvicorn[standard]
+
 RUN pip3 install --no-cache-dir chembl_structure_pipeline --no-deps
 
 COPY ./app /code/app
