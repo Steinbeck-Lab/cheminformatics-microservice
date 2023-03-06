@@ -1,6 +1,7 @@
 from .config import settings
 import psycopg2
 
+
 class Database:
     def __init__(self):
         self.conn = self.connect()
@@ -12,16 +13,17 @@ class Database:
         print("Connecting to PostgreSQL Database...")
         try:
             conn = psycopg2.connect(
-                host = 'pgsql',
-                dbname = settings.POSTGRES_DB,
-                user = settings.POSTGRES_USER,
-                password = settings.POSTGRES_PASSWORD,
-                port = settings.POSTGRES_PORT
+                host="pgsql",
+                dbname=settings.POSTGRES_DB,
+                user=settings.POSTGRES_USER,
+                password=settings.POSTGRES_PASSWORD,
+                port=settings.POSTGRES_PORT,
             )
         except psycopg2.OperationalError as e:
             print(f"Could not connect to Database: {e}")
             sys.exit(1)
 
         return conn
+
 
 db = Database()
