@@ -15,6 +15,7 @@ from rdkit.Chem.QED import properties
 from rdkit.Chem.rdMolDescriptors import Properties
 from STOUT import translate_forward, translate_reverse
 from app.modules.npscorer import getnp_score
+from app.modules.descriptor_calculator import GetBasicDescriptors
 from app.modules.classyfire import classify, result
 
 router = APIRouter(
@@ -97,8 +98,7 @@ async def standardise_mol(request: Request):
 @router.get("/{smiles}/descriptors")
 async def smiles_descriptors(smiles: Optional[str]):
     if smiles:
-        m = Chem.MolFromSmiles(smiles)
-        return properties(m)
+        return GetBasicDescriptors(smiles)
 
 
 @router.get("/{smiles}/iupac")
