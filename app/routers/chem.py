@@ -14,7 +14,7 @@ from rdkit.Chem.Scaffolds import MurckoScaffold
 from rdkit.Chem.QED import properties
 from rdkit.Chem.rdMolDescriptors import Properties
 from STOUT import translate_forward, translate_reverse
-from app.routers.npscorer import getnp_score
+from app.modules.npscorer import getnp_score
 
 router = APIRouter(
     prefix="/chem",
