@@ -1,85 +1,39 @@
-name : nmrxiv-python-microservice application - Github Actions
-
-on:
-  push:
-    branches: [main]
-
-env:
-  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_CLUSTER: nmrxiv-prod
-  GKE_ZONE: europe-west3-a
-  DEPLOYMENT_NAME: nmrxiv-pythonmicroservice
-  REPOSITORY_NAME: nmrxiv-prod
-  IMAGE: nmrxiv-python-microservice
-
+name: CI
+on: [push, pull_request]
 jobs:
-  # test-lint:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     max-parallel: 5
-
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #   - name: Set up Python 3.10
-  #     uses: actions/setup-python@v3
-  #     with:
-  #       python-version: 3.9
-  #   - name: Add conda to system path
-  #     run: |
-  #       # $CONDA is an environment variable pointing to the root of the miniconda directory
-  #       echo $CONDA/bin >> $GITHUB_PATH
-  #   # - name: Install dependencies
-  #   #   run: |
-  #   #     conda env update --file environment.yml --name base
-  #   - name: Lint with flake8
-  #     run: |
-  #       conda install flake8
-  #       # stop the build if there are Python syntax errors or undefined names
-  #       flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-  #       # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-  #       flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-  #   - name: Test with pytest
-  #     run: |
-  #       conda install pytest
-  #       pytest
-
-  setup-build-publish-deploy:
-    name: Setup, Build, Publish, and Deploy
-    if: github.ref == 'refs/heads/main'
+  # test:
+  #   ...
+  deploy:
+    name: "Deploy"
     runs-on: ubuntu-latest
-    #needs: test-lint
+    #if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    # needs: test
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ~/.ssh/staging.key
+          chmod 600 ~/.ssh/staging.key
+          cat >>~/.ssh/config <<END
+          Host staging
+            HostName $SSH_HOST
+            User $SSH_USER
+            IdentityFile ~/.ssh/staging.key
+            StrictHostKeyChecking no
+          END
+        env:
+          SSH_USER: ${{ secrets.USERNAME }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_HOST: ${{ secrets.REMOTE_SERVER_HOST }}
 
-    # Setup gcloud CLI
-    - uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
-      with:
-        service_account_key: ${{ secrets.GKE_SA_KEY }}
-        project_id: ${{ secrets.GKE_PROJECT }}
+      - name: Run the command
+        run: | 
+          pwd
+          touch test.txt
 
-    # Configure docker to use the gcloud command-line tool as a credential helper
-    - run: |-
-        gcloud auth configure-docker europe-west3-docker.pkg.dev
-    # Get the GKE credentials so we can deploy to the cluster
-    - uses: google-github-actions/get-gke-credentials@v0.3.0
-      with:
-        cluster_name: ${{ env.GKE_CLUSTER }}
-        location: ${{ env.GKE_ZONE }}
-        credentials: ${{ secrets.GKE_SA_KEY }}
+      # - name: Check out the source
+      #   run: ssh staging 'cd my-application && git fetch && git reset --hard origin/master'
 
-    # Build the Docker image
-    - name: Build Image
-      run: |-
-        docker build --tag europe-west3-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_NAME/$IMAGE:latest .
-    # Push the Docker image to Google Artifact Registry
-    - name: Publish Python Image to Google Artifact Registry
-      run: |-
-        docker push "europe-west3-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_NAME/$IMAGE:latest"
-
-    # Deploy the latest Docker image to the GKE cluster
-    - name: Deploy
-      run: |-
-        kubectl rollout restart deployment/$DEPLOYMENT_NAME
-        kubectl rollout status deployment/$DEPLOYMENT_NAME --timeout=300s
-        kubectl get services -o wide
+      # - name: Start the server
+      #   if: ${{ always() }}
+      #   run: ssh staging 'sudo systemctl start my-application'
