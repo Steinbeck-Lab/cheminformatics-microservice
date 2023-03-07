@@ -27,7 +27,9 @@ jobs:
           SSH_HOST: ${{ secrets.REMOTE_SERVER_HOST }}
 
       - name: Run the command
-        run: ls -al
+        run: | 
+          cd /mnt/data/
+          sudo -u install -H sh -c "touch test.txt"
 
       # - name: Check out the source
       #   run: ssh staging 'cd my-application && git fetch && git reset --hard origin/master'
