@@ -28,8 +28,8 @@ jobs:
 
       - name: Run the command
         run: | 
-          cd /mnt/data/
-          sudo -u install -H sh -c "touch test.txt"
+          pwd
+          touch test.txt
 
       # - name: Check out the source
       #   run: ssh staging 'cd my-application && git fetch && git reset --hard origin/master'
