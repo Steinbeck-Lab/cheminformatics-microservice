@@ -1,19 +1,37 @@
-name: deploy to remote server
-on: [push]
-
+name: CI
+on: [push, pull_request]
 jobs:
-
-  build:
-    name: Build
+  # test:
+  #   ...
+  deploy:
+    name: "Deploy"
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    # needs: test
     steps:
-    - name: executing remote ssh commands using password
-      uses: appleboy/ssh-action@v0.1.8
-      with:
-        host: ${{ secrets.REMOTE_SERVER_HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
-        port: 22
-        script: |
-          whoami
-          ls -al
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ~/.ssh/staging.key
+          chmod 600 ~/.ssh/staging.key
+          cat >>~/.ssh/config <<END
+          Host staging
+            HostName $SSH_HOST
+            User $SSH_USER
+            IdentityFile ~/.ssh/staging.key
+            StrictHostKeyChecking no
+          END
+        env:
+          SSH_USER: ${{ secrets.USERNAME }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_HOST: ${{ secrets.REMOTE_SERVER_HOST }}
+
+      - name: Run the command
+        run: ls -al
+
+      # - name: Check out the source
+      #   run: ssh staging 'cd my-application && git fetch && git reset --hard origin/master'
+
+      # - name: Start the server
+      #   if: ${{ always() }}
+      #   run: ssh staging 'sudo systemctl start my-application'
