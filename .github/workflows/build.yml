@@ -12,6 +12,8 @@ jobs:
       with:
         host: ${{ secrets.REMOTE_SERVER_HOST }}
         username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}
-        #port: ${{ secrets.PORT }}
-        script: whoami
+        key: ${{ secrets.SSH_KEY }}
+        port: 22
+        script: |
+          whoami
+          ls -al
