@@ -27,7 +27,7 @@ jobs:
           SSH_HOST: ${{ secrets.REMOTE_SERVER_HOST }}
 
       - name: Run the command
-        run: ssh $SSH_USER@$SSH_HOST "cd /mnt/data/ && touch test.txt"
+        run: ssh ${{ secrets.USERNAME }}@${{ secrets.REMOTE_SERVER_HOST }} "cd /mnt/data/ && touch test.txt"
 
       # - name: Check out the source
       #   run: ssh staging 'cd my-application && git fetch && git reset --hard origin/master'
