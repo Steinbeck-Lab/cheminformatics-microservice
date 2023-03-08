@@ -2,7 +2,7 @@ name : Build, Test and Publish
 
 on:
   push:
-    branches: [main]
+    branches: [development]
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
@@ -37,7 +37,7 @@ jobs:
 
   setup-build-publish:
     name: Build & publish to registry
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/development'
     runs-on: ubuntu-latest
     # needs: test
     steps:
