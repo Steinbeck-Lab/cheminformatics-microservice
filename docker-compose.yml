@@ -1,0 +1,7 @@
+version: "3.9"
+services:
+  chem-py-microservice:
+    container_name: chem-py-microservice
+    image: europe-west3-docker.pkg.dev/coconut-366808/cheminformatics-python-microservice/chem-py-microservice:latest
+    ports:
+      - "8080:80"
