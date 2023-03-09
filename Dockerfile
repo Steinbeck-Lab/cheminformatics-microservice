@@ -1,54 +1,3 @@
-FROM debian:buster-slim AS rdkit-build-env
-
-RUN apt-get update \
- && apt-get install -yq --no-install-recommends \
-    ca-certificates \
-    build-essential \
-    cmake \
-    wget \
-    python3-dev \
-    python3-setuptools \
-    python-rdkit \
-    librdkit1 \
-    rdkit-data \
-    libboost-dev \
-    libboost-iostreams-dev \
-    libboost-python-dev \
-    libboost-regex-dev \
-    libboost-serialization-dev \
-    libboost-system-dev \
-    libboost-thread-dev \
-    libcairo2-dev \
-    libeigen3-dev \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
-
-ARG RDKIT_VERSION=Release_2022_09_4
-RUN wget --quiet https://github.com/rdkit/rdkit/archive/${RDKIT_VERSION}.tar.gz \
- && tar -xzf ${RDKIT_VERSION}.tar.gz \
- && mv rdkit-${RDKIT_VERSION} rdkit \
- && rm ${RDKIT_VERSION}.tar.gz
-
-RUN mkdir /rdkit/build
-WORKDIR /rdkit/build
-
-RUN cmake \
-    -D PYTHON_EXECUTABLE=/usr/bin/python3 \
-    -D CMAKE_BUILD_TYPE=Release \
-    -D CMAKE_INSTALL_PREFIX=/usr \
-    -D RDK_BUILD_AVALON_SUPPORT=ON \
-    -D RDK_BUILD_CAIRO_SUPPORT=ON \
-    -D RDK_BUILD_CPP_TESTS=OFF \
-    -D RDK_BUILD_INCHI_SUPPORT=ON \
-    -D RDK_BUILD_FREESASA_SUPPORT=ON \
-    -D RDK_INSTALL_INTREE=OFF \
-    -D RDK_INSTALL_STATIC_LIBS=OFF \
-    -D Boost_USE_STATIC_LIBS=OFF \
-    ..
-
-RUN make \
- && make install
-
 FROM debian:buster-slim AS nmrxiv-python-ms
 
 # Install runtime dependencies
@@ -78,13 +27,6 @@ RUN apt-get update && \
     
 ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 RUN export JAVA_HOME
-
-# Copy rdkit installation from rdkit-build-env
-COPY --from=rdkit-build-env /usr/lib/libRDKit* /usr/lib/
-COPY --from=rdkit-build-env /usr/lib/cmake/rdkit/* /usr/lib/cmake/rdkit/
-COPY --from=rdkit-build-env /usr/share/RDKit /usr/share/RDKit
-COPY --from=rdkit-build-env /usr/include/rdkit /usr/include/rdkit
-COPY --from=rdkit-build-env /usr/lib/python3/dist-packages/rdkit /usr/lib/python3.7/dist-packages/rdkit
 
 WORKDIR /code
 
