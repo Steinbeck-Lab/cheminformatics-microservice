@@ -1,9 +1,8 @@
 from rdkit import Chem
-from rdkit.Chem.Draw import IPythonConsole
 from rdkit.Chem import rdDepictor
 from rdkit.Chem.Draw import rdMolDraw2D
 import app.modules.cdkmodules as cdkmodules
-from IPython.display import SVG
+import xml.etree.ElementTree as ET
 
 
 def getCDKDepiction(smiles: str, size=512.0):
@@ -16,15 +15,16 @@ def getCDKDepiction(smiles: str, size=512.0):
             image (png): CDK Structure Depiction as a PNG image.
     """
     cdk_base = "org.openscience.cdk"
-    StandardGenerator = cdkmodules.JClass(
+    StandardGenerator = JClass(
         cdk_base + ".renderer.generators.standard.StandardGenerator"
     )
-    DepictionGenerator = cdkmodules.JClass(cdk_base + ".depict.DepictionGenerator")()
-    Color = cdkmodules.JClass("java.awt.Color")
-    UniColor = cdkmodules.JClass(cdk_base + ".renderer.color.UniColor")
+    DepictionGenerator = JClass(cdk_base + ".depict.DepictionGenerator")()
+    Color = JClass("java.awt.Color")
+    UniColor = JClass(cdk_base + ".renderer.color.UniColor")
+    print(size)
 
     DepictionGenerator.withSize(size, size).withAtomValues().withParam(
-        StandardGenerator.StrokeRatio.class_, 1.5
+        StandardGenerator.StrokeRatio.class_, 1.0
     ).withAnnotationColor(Color.BLACK).withParam(
         StandardGenerator.AtomColor.class_, UniColor(Color.BLACK)
     ).withBackgroundColor(
@@ -32,11 +32,21 @@ def getCDKDepiction(smiles: str, size=512.0):
     ).withZoom(
         2.0
     )
+    getString = JClass("java.lang.String")
+    moleculeSDG = getCDKSDG(smiles)
+    mol_image = DepictionGenerator.depict(moleculeSDG)
+    mol_imagex = mol_image.toSvgStr(getString("px")).getBytes()
 
-    moleculeSDG = cdkmodules.getCDKSDG(smiles)
-    mol_image = DepictionGenerator.depict(moleculeSDG).toSvgStr("px")
+    # Fix scaling
+    mol_root = ET.fromstring(mol_imagex)
+    new_width = new_height = size
+    mol_root.set("width", "{}px".format(new_width))
+    mol_root.set("height", "{}px".format(new_height))
 
-    return mol_image.getBytes()
+    # Write the modified SVG element to a string
+    rescaled_mol = ET.tostring(mol_root, encoding="unicode")
+
+    return rescaled_mol
 
 
 def getRDKitDepiction(smiles, molSize=(512, 512), kekulize=True):
@@ -61,4 +71,4 @@ def getRDKitDepiction(smiles, molSize=(512, 512), kekulize=True):
     drawer.DrawMolecule(mc)
     drawer.FinishDrawing()
     svg = drawer.GetDrawingText()
-    return SVG(svg.replace("svg:", ""))
+    return svg.replace("svg:", "")
