@@ -26,24 +26,38 @@ if not isJVMStarted():
 
 
 def getCDKSDG(smiles: str):
-    """This function takes the user input SMILES and Canonicalize it
-       using the CDK Canonicalisation algorthim.
+    """This function takes the user input SMILES and Creates a
+       Structure Diagram Layout using the CDK.
     Args:
             smiles (string): SMILES string given by the user.
     Returns:
-            mol object (string): CDK Structure Diagram Layout mol block.
+            mol object : mol object with CDK SDG.
     """
     cdk_base = "org.openscience.cdk"
     SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
-    StringW = JClass("java.io.StringWriter")()
     SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
     molecule = SmilesParser.parseSmiles(smiles)
     StructureDiagramGenerator = JClass(cdk_base + ".layout.StructureDiagramGenerator")()
     StructureDiagramGenerator.generateCoordinates(molecule)
     molecule_ = StructureDiagramGenerator.getMolecule()
 
+    return molecule_
+
+
+def getCDKSDGMol(smiles: str):
+    """This function takes the user input SMILES and returns a mol
+       block as a string with Structure Diagram Layout.
+    Args:
+            smiles (string): SMILES string given by the user.
+    Returns:
+            mol object (string): CDK Structure Diagram Layout mol block.
+    """
+    cdk_base = "org.openscience.cdk"
+    StringW = JClass("java.io.StringWriter")()
+
+    moleculeSDG = getCDKSDG(smiles)
     SDFW = JClass(cdk_base + ".io.SDFWriter")(StringW)
-    SDFW.write(molecule_)
+    SDFW.write(moleculeSDG)
     SDFW.close()
     mol_str = StringW.toString()
     return mol_str
