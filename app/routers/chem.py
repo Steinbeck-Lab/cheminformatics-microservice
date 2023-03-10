@@ -17,7 +17,7 @@ from STOUT import translate_forward, translate_reverse
 from app.modules.npscorer import getnp_score
 from app.modules.descriptor_calculator import GetBasicDescriptors
 from app.modules.classyfire import classify, result
-from app.modules.cdkmodules import getCDKSDG
+from app.modules.cdkmodules import getCDKSDGMol
 
 router = APIRouter(
     prefix="/chem",
@@ -141,7 +141,7 @@ async def classyfire_result(id: Optional[str]):
 @router.get("/{smiles}/cdk2d")
 async def cdk2d_coordinates(smiles: Optional[str]):
     if smiles:
-        return getCDKSDG(smiles)
+        return getCDKSDGMol(smiles)
 
 
 # @app.get("/molecules/", response_model=List[schemas.Molecule])
