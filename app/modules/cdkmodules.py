@@ -58,6 +58,6 @@ def getCDKSDGMol(smiles: str):
     moleculeSDG = getCDKSDG(smiles)
     SDFW = JClass(cdk_base + ".io.SDFWriter")(StringW)
     SDFW.write(moleculeSDG)
-    SDFW.close()
-    mol_str = StringW.toString()
+    SDFW.flush()
+    mol_str = str(StringW.toString())
     return mol_str
