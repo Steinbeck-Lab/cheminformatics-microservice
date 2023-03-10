@@ -2,6 +2,8 @@ from fastapi import Request, APIRouter
 from typing import Optional
 from rdkit import Chem
 import urllib.request
+import urlparse
+import mimetypes
 # from ..database import db
 # from fastapi_pagination import Page, add_pagination, paginate
 from rdkit.Chem.EnumerateStereoisomers import (
@@ -169,8 +171,9 @@ async def extract_chemicalinfo(request: Request):
     body = await request.json()
     image_path = body["path"]
     reference = body["reference"]
+    split = urlparse.urlsplit(image_path)
+    filename = "/tmp/" + split.path.split("/")[-1]
     if image_path:
-        filename = reference + ".png"
         urllib.request.urlretrieve(image_path, filename)
         smiles = predict_SMILES(filename)
         os.remove(filename)
