@@ -148,16 +148,17 @@ async def depick_molecule(
     generator: Optional[str] = "cdksdg",
     width: Optional[int] = 512,
     height: Optional[int] = 512,
+    rotate: Optional[int] = 0,
 ):
     if generator:
         if generator == "cdksdg":
             return Response(
-                content=getCDKDepiction(smiles, [width, height]),
+                content=getCDKDepiction(smiles, [width, height], rotate),
                 media_type="image/svg+xml",
             )
         else:
             return Response(
-                content=getRDKitDepiction(smiles, [width, height]),
+                content=getRDKitDepiction(smiles, [width, height], rotate),
                 media_type="image/svg+xml",
             )
 
