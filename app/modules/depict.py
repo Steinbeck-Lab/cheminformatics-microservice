@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 from jpype import JClass
 
 
-def getCDKDepiction(smiles: str, molSize=(512, 512)):
+def getCDKDepiction(smiles: str, molSize=(512, 512),rotate = 0):
     """This function takes the user input SMILES and Depicts it
        using the CDK Depiction Generator.
     Args:
