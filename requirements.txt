@@ -6,3 +6,4 @@ fastapi-pagination==0.10.0
 rdkit-pypi>=2022.09.4
 STOUT-pypi>=2.0.5
 websockets==10.4
+decimer>=2.2.0

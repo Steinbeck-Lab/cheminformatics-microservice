@@ -1,14 +1,15 @@
 from fastapi import Request, APIRouter
 from typing import Optional
 from rdkit import Chem
-
+import urllib.request
 # from ..database import db
 # from fastapi_pagination import Page, add_pagination, paginate
 from rdkit.Chem.EnumerateStereoisomers import (
     EnumerateStereoisomers,
 )
+import os
 from chembl_structure_pipeline import standardizer
-from fastapi.responses import Response
+from fastapi.responses import Response, JSONResponse
 from rdkit.Chem.Scaffolds import MurckoScaffold
 from STOUT import translate_forward, translate_reverse
 from app.modules.npscorer import getnp_score
@@ -16,6 +17,7 @@ from app.modules.descriptor_calculator import GetBasicDescriptors
 from app.modules.classyfire import classify, result
 from app.modules.cdkmodules import getCDKSDGMol
 from app.modules.depict import getRDKitDepiction, getCDKDepiction
+from DECIMER import predict_SMILES
 
 router = APIRouter(
     prefix="/chem",
@@ -161,7 +163,18 @@ async def depick_molecule(
                 content=getRDKitDepiction(smiles, [width, height], rotate),
                 media_type="image/svg+xml",
             )
-
+        
+@router.post("/process")
+async def extract_chemicalinfo(request: Request):
+    body = await request.json()
+    image_path = body["path"]
+    reference = body["reference"]
+    if image_path:
+        filename = reference + ".png"
+        urllib.request.urlretrieve(image_path, filename)
+        smiles = predict_SMILES(filename)
+        os.remove(filename)
+        return JSONResponse(content={ "reference" :  reference, "smiles": smiles.split(".")})
 
 # @app.get("/molecules/", response_model=List[schemas.Molecule])
 # def read_molecules(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
