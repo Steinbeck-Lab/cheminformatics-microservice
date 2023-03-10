@@ -22,6 +22,8 @@ def getCDKDepiction(smiles: str, molSize=(512, 512)):
     DepictionGenerator = JClass(cdk_base + ".depict.DepictionGenerator")()
     Color = JClass("java.awt.Color")
     UniColor = JClass(cdk_base + ".renderer.color.UniColor")
+
+    # Generate depiction with settings
     DepictionGenerator.withSize(molSize[0], molSize[1]).withAtomValues().withParam(
         StandardGenerator.StrokeRatio.class_, 1.0
     ).withAnnotationColor(Color.BLACK).withParam(
@@ -33,6 +35,13 @@ def getCDKDepiction(smiles: str, molSize=(512, 512)):
     )
     getString = JClass("java.lang.String")
     moleculeSDG = getCDKSDG(smiles)
+
+    # Rotate molecule
+    point = JClass(cdk_base + ".geometry.GeometryTools").get2DCenter(moleculeSDG)
+    JClass(cdk_base + ".geometry.GeometryTools").rotate(
+        moleculeSDG, point, (rotate * JClass("java.lang.Math").PI / 180.0)
+    )
+
     mol_image = DepictionGenerator.depict(moleculeSDG)
     mol_imagex = mol_image.toSvgStr(getString("px")).getBytes()
 
