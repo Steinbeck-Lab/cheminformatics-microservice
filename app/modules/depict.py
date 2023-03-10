@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 from jpype import JClass
 
 
-def getCDKDepiction(smiles: str, molSize=(512, 512),rotate = 0):
+def getCDKDepiction(smiles: str, molSize=(512, 512), rotate=0):
     """This function takes the user input SMILES and Depicts it
        using the CDK Depiction Generator.
     Args:
@@ -58,7 +58,7 @@ def getCDKDepiction(smiles: str, molSize=(512, 512),rotate = 0):
     return rescaled_mol
 
 
-def getRDKitDepiction(smiles, molSize=(512, 512), kekulize=True):
+def getRDKitDepiction(smiles, molSize=(512, 512), rotate=0, kekulize=True):
     """This function takes the user input SMILES and Canonicalize it
        using the RDKit.
     Args:
@@ -77,6 +77,7 @@ def getRDKitDepiction(smiles, molSize=(512, 512), kekulize=True):
     if not mc.GetNumConformers():
         rdDepictor.Compute2DCoords(mc)
     drawer = rdMolDraw2D.MolDraw2DSVG(molSize[0], molSize[1])
+    drawer.drawOptions().rotate = rotate
     drawer.DrawMolecule(mc)
     drawer.FinishDrawing()
     svg = drawer.GetDrawingText()
