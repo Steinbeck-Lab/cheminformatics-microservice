@@ -2,6 +2,7 @@ from fastapi import Request, APIRouter
 from typing import Optional
 from rdkit import Chem
 import urllib.request
+
 # from ..database import db
 # from fastapi_pagination import Page, add_pagination, paginate
 from rdkit.Chem.EnumerateStereoisomers import (
@@ -110,7 +111,7 @@ async def smiles_iupac(smiles: Optional[str]):
 
 
 @router.post("/iupac/smiles")
-async def standardise_mol(request: Request):
+async def iupac_smiles(request: Request):
     body = await request.json()
     query = body["query"]
     if query:
@@ -163,7 +164,8 @@ async def depick_molecule(
                 content=getRDKitDepiction(smiles, [width, height], rotate),
                 media_type="image/svg+xml",
             )
-        
+
+
 @router.post("/process")
 async def extract_chemicalinfo(request: Request):
     body = await request.json()
@@ -174,7 +176,10 @@ async def extract_chemicalinfo(request: Request):
         urllib.request.urlretrieve(image_path, filename)
         smiles = predict_SMILES(filename)
         os.remove(filename)
-        return JSONResponse(content={ "reference" :  reference, "smiles": smiles.split(".")})
+        return JSONResponse(
+            content={"reference": reference, "smiles": smiles.split(".")}
+        )
+
 
 # @app.get("/molecules/", response_model=List[schemas.Molecule])
 # def read_molecules(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):

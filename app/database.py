@@ -1,5 +1,6 @@
-from .config import settings
 import psycopg2
+import sys
+from .config import settings
 
 
 class Database:
