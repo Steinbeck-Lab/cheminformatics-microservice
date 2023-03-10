@@ -1,23 +1,21 @@
-from fastapi import Request, APIRouter, Depends, HTTPException
+from fastapi import Request, APIRouter
 from typing import Optional
 from rdkit import Chem
 
 # from ..database import db
-from fastapi_pagination import Page, add_pagination, paginate
+# from fastapi_pagination import Page, add_pagination, paginate
 from rdkit.Chem.EnumerateStereoisomers import (
     EnumerateStereoisomers,
-    StereoEnumerationOptions,
 )
 from chembl_structure_pipeline import standardizer
-from fastapi.responses import JSONResponse
+from fastapi.responses import Response
 from rdkit.Chem.Scaffolds import MurckoScaffold
-from rdkit.Chem.QED import properties
-from rdkit.Chem.rdMolDescriptors import Properties
 from STOUT import translate_forward, translate_reverse
 from app.modules.npscorer import getnp_score
 from app.modules.descriptor_calculator import GetBasicDescriptors
 from app.modules.classyfire import classify, result
 from app.modules.cdkmodules import getCDKSDGMol
+from app.modules.depict import getRDKitDepiction, getCDKDepiction
 
 router = APIRouter(
     prefix="/chem",
@@ -142,6 +140,26 @@ async def classyfire_result(id: Optional[str]):
 async def cdk2d_coordinates(smiles: Optional[str]):
     if smiles:
         return getCDKSDGMol(smiles)
+
+
+@router.get("/depict/{smiles}")
+async def depick_molecule(
+    smiles: Optional[str],
+    generator: Optional[str] = "cdksdg",
+    width: Optional[int] = 512,
+    height: Optional[int] = 512,
+):
+    if generator:
+        if generator == "cdksdg":
+            return Response(
+                content=getCDKDepiction(smiles, [width, height]),
+                media_type="image/svg+xml",
+            )
+        else:
+            return Response(
+                content=getRDKitDepiction(smiles, [width, height]),
+                media_type="image/svg+xml",
+            )
 
 
 # @app.get("/molecules/", response_model=List[schemas.Molecule])

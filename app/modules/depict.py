@@ -1,11 +1,12 @@
 from rdkit import Chem
 from rdkit.Chem import rdDepictor
 from rdkit.Chem.Draw import rdMolDraw2D
-import app.modules.cdkmodules as cdkmodules
+from app.modules.cdkmodules import getCDKSDG
 import xml.etree.ElementTree as ET
+from jpype import JClass
 
 
-def getCDKDepiction(smiles: str, size=512.0):
+def getCDKDepiction(smiles: str, molSize=(512, 512)):
     """This function takes the user input SMILES and Depicts it
        using the CDK Depiction Generator.
     Args:
@@ -21,9 +22,7 @@ def getCDKDepiction(smiles: str, size=512.0):
     DepictionGenerator = JClass(cdk_base + ".depict.DepictionGenerator")()
     Color = JClass("java.awt.Color")
     UniColor = JClass(cdk_base + ".renderer.color.UniColor")
-    print(size)
-
-    DepictionGenerator.withSize(size, size).withAtomValues().withParam(
+    DepictionGenerator.withSize(molSize[0], molSize[1]).withAtomValues().withParam(
         StandardGenerator.StrokeRatio.class_, 1.0
     ).withAnnotationColor(Color.BLACK).withParam(
         StandardGenerator.AtomColor.class_, UniColor(Color.BLACK)
@@ -39,7 +38,8 @@ def getCDKDepiction(smiles: str, size=512.0):
 
     # Fix scaling
     mol_root = ET.fromstring(mol_imagex)
-    new_width = new_height = size
+    new_width = molSize[0]
+    new_height = molSize[1]
     mol_root.set("width", "{}px".format(new_width))
     mol_root.set("height", "{}px".format(new_height))
 
