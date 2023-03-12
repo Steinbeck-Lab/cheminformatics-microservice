@@ -1,8 +1,10 @@
 from fastapi import Request, APIRouter
 from typing import Optional
 from rdkit import Chem
-import urllib.request
-import urlparse
+import base64
+
+from urllib.request import urlopen
+from urllib.parse import urlsplit
 import mimetypes
 # from ..database import db
 # from fastapi_pagination import Page, add_pagination, paginate
@@ -171,13 +173,17 @@ async def extract_chemicalinfo(request: Request):
     body = await request.json()
     image_path = body["path"]
     reference = body["reference"]
-    split = urlparse.urlsplit(image_path)
+    split = urlsplit(image_path)
     filename = "/tmp/" + split.path.split("/")[-1]
-    if image_path:
-        urllib.request.urlretrieve(image_path, filename)
-        smiles = predict_SMILES(filename)
-        os.remove(filename)
-        return JSONResponse(content={ "reference" :  reference, "smiles": smiles.split(".")})
+    imgDataURI = body["img"]
+    if imgDataURI:
+        response = urlopen(imgDataURI)
+        with open(filename, 'wb') as f:
+            f.write(response.file.read())
+            smiles = predict_SMILES(filename)
+            os.remove(filename)
+            return JSONResponse(content={ "reference" :  reference, "smiles": smiles.split(".")})
+
 
 # @app.get("/molecules/", response_model=List[schemas.Molecule])
 # def read_molecules(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
