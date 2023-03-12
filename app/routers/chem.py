@@ -2,7 +2,7 @@ from fastapi import Request, APIRouter
 from typing import Optional
 from rdkit import Chem
 import base64
-
+import requests
 from urllib.request import urlopen
 from urllib.parse import urlsplit
 import mimetypes
@@ -175,14 +175,23 @@ async def extract_chemicalinfo(request: Request):
     reference = body["reference"]
     split = urlsplit(image_path)
     filename = "/tmp/" + split.path.split("/")[-1]
-    imgDataURI = body["img"]
-    if imgDataURI:
-        response = urlopen(imgDataURI)
-        with open(filename, 'wb') as f:
-            f.write(response.file.read())
-            smiles = predict_SMILES(filename)
-            os.remove(filename)
-            return JSONResponse(content={ "reference" :  reference, "smiles": smiles.split(".")})
+    if 'img' in body:
+        imgDataURI = body["img"]
+        if imgDataURI:
+            response = urlopen(imgDataURI)
+            with open(filename, 'wb') as f:
+                f.write(response.file.read())
+                smiles = predict_SMILES(filename)
+                os.remove(filename)
+                return JSONResponse(content={ "reference" :  reference, "smiles": smiles.split(".")})
+    else:
+        response = requests.get(image_path)
+        if response.status_code == 200:
+            with open(filename, 'wb') as f:
+                f.write(response.content)
+                smiles = predict_SMILES(filename)
+                os.remove(filename)
+                return JSONResponse(content={ "reference" :  reference, "smiles": smiles.split(".")})
 
 
 # @app.get("/molecules/", response_model=List[schemas.Molecule])
