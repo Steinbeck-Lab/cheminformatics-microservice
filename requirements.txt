@@ -4,6 +4,15 @@ uvicorn>=0.15.0,<0.16.0
 psycopg2>=2.7,<2.8
 fastapi-pagination==0.10.0
 rdkit-pypi>=2022.09.4
-STOUT-pypi>=2.0.5
 websockets==10.4
-decimer>=2.2.0
+pillow
+opencv-python
+matplotlib
+scikit-image
+imantics
+pdf2image
+IPython
+pystow
+unicodedata2
+efficientnet
+tensorflow==2.10.0
