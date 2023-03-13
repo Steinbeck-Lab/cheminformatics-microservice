@@ -1,4 +1,4 @@
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 
 # from .config import settings
 from .routers import converters, chem, compose

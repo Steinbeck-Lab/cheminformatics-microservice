@@ -1,11 +1,10 @@
 from fastapi import Request, APIRouter
 from typing import Optional
 from rdkit import Chem
-import base64
 import requests
 from urllib.request import urlopen
 from urllib.parse import urlsplit
-import mimetypes
+
 # from ..database import db
 # from fastapi_pagination import Page, add_pagination, paginate
 from rdkit.Chem.EnumerateStereoisomers import (
@@ -69,6 +68,7 @@ async def smiles_stereoisomers(smiles: Optional[str]):
     return smilesArray
 
 
+"""
 @router.get("/search/{smiles}")
 async def smiles_search(smiles: Optional[str]):
     if smiles:
@@ -80,6 +80,7 @@ async def smiles_search(smiles: Optional[str]):
         )
         rows = paginate(curs.fetchall())
         return rows
+"""
 
 
 @router.post("/standardise")
@@ -176,23 +177,28 @@ async def extract_chemicalinfo(request: Request):
     reference = body["reference"]
     split = urlsplit(image_path)
     filename = "/tmp/" + split.path.split("/")[-1]
-    if 'img' in body:
+    if "img" in body:
         imgDataURI = body["img"]
         if imgDataURI:
             response = urlopen(imgDataURI)
-            with open(filename, 'wb') as f:
+            with open(filename, "wb") as f:
                 f.write(response.file.read())
                 smiles = predict_SMILES(filename)
                 os.remove(filename)
-                return JSONResponse(content={ "reference" :  reference, "smiles": smiles.split(".")})
+                return JSONResponse(
+                    content={"reference": reference, "smiles": smiles.split(".")}
+                )
     else:
         response = requests.get(image_path)
         if response.status_code == 200:
-            with open(filename, 'wb') as f:
+            with open(filename, "wb") as f:
                 f.write(response.content)
                 smiles = predict_SMILES(filename)
                 os.remove(filename)
-                return JSONResponse(content={ "reference" :  reference, "smiles": smiles.split(".")})
+                return JSONResponse(
+                    content={"reference": reference, "smiles": smiles.split(".")}
+                )
+
 
 # @app.get("/molecules/", response_model=List[schemas.Molecule])
 # def read_molecules(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
