@@ -20,7 +20,7 @@ from app.modules.descriptor_calculator import GetBasicDescriptors
 from app.modules.classyfire import classify, result
 from app.modules.cdkmodules import getCDKSDGMol
 from app.modules.depict import getRDKitDepiction, getCDKDepiction
-from DECIMER import predict_SMILES
+from app.modules.decimermodules import getPredictedSegments
 
 router = APIRouter(
     prefix="/chem",
@@ -183,7 +183,7 @@ async def extract_chemicalinfo(request: Request):
             response = urlopen(imgDataURI)
             with open(filename, "wb") as f:
                 f.write(response.file.read())
-                smiles = predict_SMILES(filename)
+                smiles = getPredictedSegments(filename)
                 os.remove(filename)
                 return JSONResponse(
                     content={"reference": reference, "smiles": smiles.split(".")}
@@ -193,7 +193,7 @@ async def extract_chemicalinfo(request: Request):
         if response.status_code == 200:
             with open(filename, "wb") as f:
                 f.write(response.content)
-                smiles = predict_SMILES(filename)
+                smiles = getPredictedSegments(filename)
                 os.remove(filename)
                 return JSONResponse(
                     content={"reference": reference, "smiles": smiles.split(".")}

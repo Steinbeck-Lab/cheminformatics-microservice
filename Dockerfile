@@ -33,8 +33,11 @@ WORKDIR /code
 RUN python3 -m pip install -U pip 
 
 COPY ./requirements.txt /code/requirements.txt
-
+RUN pip3 install --upgrade setuptools pip
 RUN pip3 install --no-cache-dir --upgrade -r /code/requirements.txt
+RUN pip3 install --no-deps decimer-segmentation
+RUN pip3 install --no-deps decimer>=2.2.0
+RUN pip3 install --no-deps STOUT-pypi>=2.0.5
 
 RUN python3 -m pip uninstall -y uvicorn
 
