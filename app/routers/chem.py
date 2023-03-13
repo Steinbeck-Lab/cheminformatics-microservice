@@ -114,7 +114,7 @@ async def smiles_iupac(smiles: Optional[str]):
 
 
 @router.post("/iupac/smiles")
-async def standardise_mol(request: Request):
+async def iupac_smiles(request: Request):
     body = await request.json()
     query = body["query"]
     if query:
@@ -167,7 +167,8 @@ async def depick_molecule(
                 content=getRDKitDepiction(smiles, [width, height], rotate),
                 media_type="image/svg+xml",
             )
-        
+
+
 @router.post("/process")
 async def extract_chemicalinfo(request: Request):
     body = await request.json()
@@ -192,7 +193,6 @@ async def extract_chemicalinfo(request: Request):
                 smiles = predict_SMILES(filename)
                 os.remove(filename)
                 return JSONResponse(content={ "reference" :  reference, "smiles": smiles.split(".")})
-
 
 # @app.get("/molecules/", response_model=List[schemas.Molecule])
 # def read_molecules(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):

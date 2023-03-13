@@ -1,6 +1,7 @@
 # calculation of natural product-likeness as described in:
 #
-# Natural Product-likeness Score and Its Application for Prioritization of Compound Libraries
+# Natural Product-likeness Score and Its Application for
+# Prioritization of Compound Libraries
 # Peter Ertl, Silvio Roggo, and Ansgar Schuffenhauer
 # Journal of Chemical Information and Modeling, 48, 68-74 (2008)
 # http://pubs.acs.org/doi/abs/10.1021/ci700286x
@@ -30,11 +31,6 @@ if not os.path.exists(model_path):
     pystow.ensure("NP_model", url=model_url)
 
 fscore = pickle.load(gzip.open(model_path))
-
-
-def getnp_model(model_path):
-    fscore = pickle.load(gzip.open(model_path.as_posix()))
-    return fscore
 
 
 def getnp_model(model_path):

@@ -72,7 +72,8 @@ def getRDKitDepiction(smiles, molSize=(512, 512), rotate=0, kekulize=True):
     if kekulize:
         try:
             Chem.Kekulize(mc)
-        except:
+        except Exception as e:
+            print(e, flush=True)
             mc = Chem.Mol(mol.ToBinary())
     if not mc.GetNumConformers():
         rdDepictor.Compute2DCoords(mc)

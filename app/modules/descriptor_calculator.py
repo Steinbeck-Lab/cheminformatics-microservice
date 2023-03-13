@@ -10,13 +10,13 @@ def checkRo5Violations(mol):
     """
     num_of_violations = 0
     if Descriptors.MolLogP(mol) > 5:
-        rule_break += 1
+        num_of_violations += 1
     if Descriptors.MolWt(mol) > 500:
-        rule_break += 1
+        num_of_violations += 1
     if Lipinski.NumHAcceptors(mol) > 10:
-        rule_break += 1
+        num_of_violations += 1
     if Lipinski.NumHDonors(mol) > 5:
-        rule_break += 1
+        num_of_violations += 1
     return num_of_violations
 
 
