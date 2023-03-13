@@ -1,8 +1,11 @@
 from fastapi import Request, APIRouter
 from typing import Optional
 from rdkit import Chem
-import urllib.request
-
+import base64
+import requests
+from urllib.request import urlopen
+from urllib.parse import urlsplit
+import mimetypes
 # from ..database import db
 # from fastapi_pagination import Page, add_pagination, paginate
 from rdkit.Chem.EnumerateStereoisomers import (
@@ -171,15 +174,25 @@ async def extract_chemicalinfo(request: Request):
     body = await request.json()
     image_path = body["path"]
     reference = body["reference"]
-    if image_path:
-        filename = reference + ".png"
-        urllib.request.urlretrieve(image_path, filename)
-        smiles = predict_SMILES(filename)
-        os.remove(filename)
-        return JSONResponse(
-            content={"reference": reference, "smiles": smiles.split(".")}
-        )
-
+    split = urlsplit(image_path)
+    filename = "/tmp/" + split.path.split("/")[-1]
+    if 'img' in body:
+        imgDataURI = body["img"]
+        if imgDataURI:
+            response = urlopen(imgDataURI)
+            with open(filename, 'wb') as f:
+                f.write(response.file.read())
+                smiles = predict_SMILES(filename)
+                os.remove(filename)
+                return JSONResponse(content={ "reference" :  reference, "smiles": smiles.split(".")})
+    else:
+        response = requests.get(image_path)
+        if response.status_code == 200:
+            with open(filename, 'wb') as f:
+                f.write(response.content)
+                smiles = predict_SMILES(filename)
+                os.remove(filename)
+                return JSONResponse(content={ "reference" :  reference, "smiles": smiles.split(".")})
 
 # @app.get("/molecules/", response_model=List[schemas.Molecule])
 # def read_molecules(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
