@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter
 
 router = APIRouter(
     prefix="/converters",
@@ -7,6 +7,7 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+
 @router.get("/")
 async def chem_index():
-    return  {"message": "Hello Converters Router!"}
+    return {"message": "Hello Converters Router!"}

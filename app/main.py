@@ -1,15 +1,12 @@
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
+
 # from .config import settings
 from .routers import converters, chem, compose
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-origins = [
-    "http://localhost",
-    "http://localhost:8080",
-    "http://localhost:80",
-]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,

@@ -1,4 +1,5 @@
-from pydantic import BaseSettings, Field, PostgresDsn
+from pydantic import BaseSettings, Field
+
 
 class Settings(BaseSettings):
     PGPASSWORD: str = Field(..., env="PGPASSWORD")
@@ -6,5 +7,6 @@ class Settings(BaseSettings):
     POSTGRES_USER: str = Field(..., env="POSTGRES_USER")
     POSTGRES_PASSWORD: str = Field(..., env="POSTGRES_PASSWORD")
     POSTGRES_PORT: str = Field(..., env="POSTGRES_PORT")
+
 
 settings = Settings()
