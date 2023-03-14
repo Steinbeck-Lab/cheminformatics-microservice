@@ -2,6 +2,6 @@ version: "3"
 services:
   chem-py-microservice:
     container_name: chem-py-microservice-dev
-    image: europe-west3-docker.pkg.dev/coconut-366808/cheminformatics-python-microservice/chem-py-microservice-dev:latest
+    image: europe-west3-docker.pkg.dev/coconut-366808/cheminformatics-python-microservice-dev/chem-py-microservice-dev:latest
     ports:
       - "8080:80"
