@@ -1,4 +1,4 @@
-name : Build, Test and Publish
+name : Dev Build, Test and Publish
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   GKE_ZONE: europe-west3-a
-  REPOSITORY_NAME: cheminformatics-python-microservice
-  APP_IMAGE: chem-py-microservice
+  REPOSITORY_NAME: cheminformatics-python-microservice-dev
+  APP_IMAGE: chem-py-microservice-dev
 
 jobs:
   test:
@@ -30,8 +30,8 @@ jobs:
       run: |
         flake8 --ignore E501,W503 $(git ls-files '*.py')
 
-  setup-build-publish:
-    name: Build & publish to registry
+  setup-build-publish-dev:
+    name: Build & publish to dev registry
     if: github.ref == 'refs/heads/development'
     runs-on: ubuntu-latest
     needs: test
