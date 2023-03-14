@@ -1,7 +1,9 @@
+import os
+import requests
 from fastapi import Request, APIRouter
 from typing import Optional
 from rdkit import Chem
-import requests
+
 from urllib.request import urlopen
 from urllib.parse import urlsplit
 
@@ -10,11 +12,11 @@ from urllib.parse import urlsplit
 from rdkit.Chem.EnumerateStereoisomers import (
     EnumerateStereoisomers,
 )
-import os
 from chembl_structure_pipeline import standardizer
 from fastapi.responses import Response, JSONResponse
 from rdkit.Chem.Scaffolds import MurckoScaffold
 from STOUT import translate_forward, translate_reverse
+import selfies as sf
 from app.modules.npscorer import getnp_score
 from app.modules.descriptor_calculator import GetBasicDescriptors
 from app.modules.classyfire import classify, result
@@ -127,6 +129,20 @@ async def nplikeliness_score(smiles: Optional[str]):
     if smiles:
         np_score = getnp_score(smiles)
         return np_score
+
+
+@router.get("/{smiles}/selfies")
+async def encodeselfies(smiles: Optional[str]):
+    if smiles:
+        selfies_e = sf.encoder(smiles)
+        return selfies_e
+
+
+@router.get("/{selfies}/smiles")
+async def decodeselfies(selfies: Optional[str]):
+    if selfies:
+        selfies_d = sf.encoder(selfies)
+        return selfies_d
 
 
 @router.get("/classyfire/{smiles}/classify")
