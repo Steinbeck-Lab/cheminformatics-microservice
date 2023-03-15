@@ -1,5 +1,6 @@
 import os
 import requests
+import selfies as sf
 from fastapi import Request, APIRouter
 from typing import Optional
 from rdkit import Chem
@@ -16,7 +17,6 @@ from chembl_structure_pipeline import standardizer
 from fastapi.responses import Response, JSONResponse
 from rdkit.Chem.Scaffolds import MurckoScaffold
 from STOUT import translate_forward, translate_reverse
-import selfies as sf
 from app.modules.npscorer import getnp_score
 from app.modules.descriptor_calculator import GetBasicDescriptors
 from app.modules.classyfire import classify, result
@@ -141,7 +141,7 @@ async def encodeselfies(smiles: Optional[str]):
 @router.get("/{selfies}/smiles")
 async def decodeselfies(selfies: Optional[str]):
     if selfies:
-        selfies_d = sf.encoder(selfies)
+        selfies_d = sf.decoder(selfies)
         return selfies_d
 
 
