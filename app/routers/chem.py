@@ -31,23 +31,76 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-
 @router.get("/")
 async def chem_index():
-    return {"message": "Hello Chem Router!"}
+    return {
+        "module"  : "chem",
+        "message" : "Successful",
+        "status"  : 200
+    }
 
 
-@router.get("/{smiles}/mol")
+@router.get("/mol")
 async def smiles_mol(smiles: str):
+    """
+    Convert smiles to mol block:
+
+    - **smiles**: required (query parameter)
+    """
     if smiles:
         m = Chem.MolFromSmiles(smiles)
         return Chem.MolToMolBlock(m)
     else:
         return None
+    
+@router.get("/cannonicalsmiles")
+async def smiles_mol(smiles: str):
+    """
+    Cannonicalise smiles:
+
+    - **smiles**: required (query parameter)
+    """
+    if smiles:
+        m = Chem.MolFromSmiles(smiles)
+        return Chem.MolToSmiles(m)
+    else:
+        return None
+    
+
+@router.get("/inchi")
+async def smiles_mol(smiles: str):
+    """
+    Convert smiles to InChI:
+
+    - **smiles**: required (query parameter)
+    """
+    if smiles:
+        m = Chem.MolFromSmiles(smiles)
+        return Chem.inchi.MolToInchi(m)
+    else:
+        return None
+    
+@router.get("/inchikey")
+async def smiles_mol(smiles: str):
+    """
+    Convert smiles to InChIKey:
+
+    - **smiles**: required (query parameter)
+    """
+    if smiles:
+        m = Chem.MolFromSmiles(smiles)
+        return Chem.inchi.MolToInchiKey(m)
+    else:
+        return None
 
 
-@router.get("/{smiles}/convert")
+@router.get("/convert")
 async def smiles_convert(smiles: str):
+    """
+    Convert smiles to mol block:
+
+    - **smiles**: required (query parameter)
+    """
     if smiles:
         m = Chem.MolFromSmiles(smiles)
         response = {}
@@ -60,8 +113,13 @@ async def smiles_convert(smiles: str):
         return None
 
 
-@router.get("/{smiles}/stereoisomers")
-async def smiles_stereoisomers(smiles: Optional[str]):
+@router.get("/stereoisomers")
+async def smiles_stereoisomers(smiles: str):
+    """
+    Enumerate all possible stereoisomers based on the chiral centers in the given smiles:
+
+    - **smiles**: required (query parameter)
+    """
     m = Chem.MolFromSmiles(smiles)
     isomers = tuple(EnumerateStereoisomers(m))
     smilesArray = []
@@ -70,23 +128,13 @@ async def smiles_stereoisomers(smiles: Optional[str]):
     return smilesArray
 
 
-"""
-@router.get("/search/{smiles}")
-async def smiles_search(smiles: Optional[str]):
-    if smiles:
-        curs = db.connect().cursor()
-        curs.execute(
-            "select id, standard_inchi from mols where smiles@>'"
-            + smiles
-            + "' limit 5;"
-        )
-        rows = paginate(curs.fetchall())
-        return rows
-"""
-
-
 @router.post("/standardise")
 async def standardise_mol(request: Request):
+    """
+    Standardize molblock using the ChEMBL curation pipeline routine:
+
+    - **mol**: required
+    """
     body = await request.json()
     mol = body["mol"]
     if mol:
@@ -103,71 +151,86 @@ async def standardise_mol(request: Request):
         return response
 
 
-@router.get("/{smiles}/descriptors")
-async def smiles_descriptors(smiles: Optional[str]):
+@router.get("/descriptors")
+async def smiles_descriptors(smiles: str):
+    """
+    Generate standard descriptors for the input molecules (smiles):
+
+    - **smiles**: required (query)
+    """
     if smiles:
         return GetBasicDescriptors(smiles)
 
 
-@router.get("/{smiles}/iupac")
-async def smiles_iupac(smiles: Optional[str]):
+@router.get("/iupac")
+async def smiles_iupac(smiles: str):
+    """
+    Generate IUPAC name using STOUT package:
+
+    - **smiles**: required (query)
+    """
     if smiles:
         iupac = translate_forward(smiles)
         return iupac
 
 
-@router.post("/iupac/smiles")
-async def iupac_smiles(request: Request):
-    body = await request.json()
-    query = body["query"]
-    if query:
-        return translate_reverse(query)
+@router.post("/smiles")
+async def iupac_smiles(iupac: Optional[str], selfies: Optional[str]):
+    """
+    Generate smiles from IUPAC name or selfies:
+
+    - **iupac**: optional
+    - **selfies**: optional
+    """
+    if iupac:
+        return translate_reverse(iupac)
+    elif selfies:
+        selfies_d = sf.decoder(selfies)
+        return selfies_d
 
 
-@router.get("/{smiles}/npscore")
-async def nplikeliness_score(smiles: Optional[str]):
+@router.get("/npscore")
+async def nplikeliness_score(smiles: str):
+    """
+    Generate natural product likeliness score based on RDKit implementation
+    
+    - **smiles**: required (query)
+    """
     if smiles:
         np_score = getnp_score(smiles)
         return np_score
 
 
-@router.get("/{smiles}/selfies")
-async def encodeselfies(smiles: Optional[str]):
+@router.get("/selfies")
+async def encodeselfies(smiles: str):
     if smiles:
         selfies_e = sf.encoder(smiles)
         return selfies_e
 
 
-@router.get("/{selfies}/smiles")
-async def decodeselfies(selfies: Optional[str]):
-    if selfies:
-        selfies_d = sf.decoder(selfies)
-        return selfies_d
-
-
-@router.get("/classyfire/{smiles}/classify")
-async def classyfire_classify(smiles: Optional[str]):
+@router.get("/classyfire/classify")
+async def classyfire_classify(smiles: str):
     if smiles:
         data = await classify(smiles)
         return data
 
 
 @router.get("/classyfire/{id}/result")
-async def classyfire_result(id: Optional[str]):
+async def classyfire_result(id: str):
     if id:
         data = await result(id)
         return data
 
 
-@router.get("/{smiles}/cdk2d")
-async def cdk2d_coordinates(smiles: Optional[str]):
+@router.get("/cdk2d")
+async def cdk2d_coordinates(smiles: str):
     if smiles:
         return getCDKSDGMol(smiles)
 
 
-@router.get("/depict/{smiles}")
+@router.get("/depict")
 async def depick_molecule(
-    smiles: Optional[str],
+    smiles: str,
     generator: Optional[str] = "cdksdg",
     width: Optional[int] = 512,
     height: Optional[int] = 512,
