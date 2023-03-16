@@ -9,5 +9,5 @@ router = APIRouter(
 
 
 @router.get("/")
-async def chem_index():
-    return {"message": "Hello Converters Router!"}
+async def converters_index():
+    return {"module": "converters", "message": "Successful", "status": 200}

@@ -31,30 +31,33 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+
 @router.get("/")
 async def chem_index():
-    return {
-        "module"  : "chem",
-        "message" : "Successful",
-        "status"  : 200
-    }
+    return {"module": "chem", "message": "Successful", "status": 200}
 
 
 @router.get("/mol")
-async def smiles_mol(smiles: str):
+async def smiles_mol(smiles: str, generator: Optional[str] = "cdk"):
     """
     Convert smiles to mol block:
 
     - **smiles**: required (query parameter)
+    - **generator**: optional (defaults: cdk)
     """
     if smiles:
-        m = Chem.MolFromSmiles(smiles)
-        return Chem.MolToMolBlock(m)
+        if generator:
+            if generator == "cdk":
+                return getCDKSDGMol(smiles)
+            else:
+                m = Chem.MolFromSmiles(smiles)
+                return Chem.MolToMolBlock(m)
     else:
         return None
-    
+
+
 @router.get("/cannonicalsmiles")
-async def smiles_mol(smiles: str):
+async def smiles_cannonicalise(smiles: str):
     """
     Cannonicalise smiles:
 
@@ -65,10 +68,10 @@ async def smiles_mol(smiles: str):
         return Chem.MolToSmiles(m)
     else:
         return None
-    
+
 
 @router.get("/inchi")
-async def smiles_mol(smiles: str):
+async def smiles_inchi(smiles: str):
     """
     Convert smiles to InChI:
 
@@ -79,9 +82,10 @@ async def smiles_mol(smiles: str):
         return Chem.inchi.MolToInchi(m)
     else:
         return None
-    
+
+
 @router.get("/inchikey")
-async def smiles_mol(smiles: str):
+async def smiles_inchikey(smiles: str):
     """
     Convert smiles to InChIKey:
 
@@ -174,7 +178,7 @@ async def smiles_iupac(smiles: str):
         return iupac
 
 
-@router.post("/smiles")
+@router.get("/smiles")
 async def iupac_smiles(iupac: Optional[str], selfies: Optional[str]):
     """
     Generate smiles from IUPAC name or selfies:
@@ -193,7 +197,7 @@ async def iupac_smiles(iupac: Optional[str], selfies: Optional[str]):
 async def nplikeliness_score(smiles: str):
     """
     Generate natural product likeliness score based on RDKit implementation
-    
+
     - **smiles**: required (query)
     """
     if smiles:
