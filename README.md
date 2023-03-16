@@ -7,7 +7,7 @@
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/blob/dev-kohulan/LICENSE) file for details
 
 ## Citation
-- To do
+- Venkata, C., Sharma, N., & Rajan, K. (2023). cheminformatics-python-microservice (Version v0.1.0 - prerelease) [Computer software]. https://doi.org/10.5281/zenodo.1234
 
 ## Maintained by
 Cheminformatics Micro Services and [Natural Products Online](https://naturalproducts.net) are developed and maintained by the Steinbeck group at the University Friedrich-Schiller in Jena, Germany. 
