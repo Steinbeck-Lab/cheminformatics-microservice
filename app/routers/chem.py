@@ -1,12 +1,6 @@
-import os
-import requests
-import selfies as sf
 from fastapi import Request, APIRouter
 from typing import Optional
 from rdkit import Chem
-
-from urllib.request import urlopen
-from urllib.parse import urlsplit
 
 # from ..database import db
 # from fastapi_pagination import Page, add_pagination, paginate
@@ -14,15 +8,14 @@ from rdkit.Chem.EnumerateStereoisomers import (
     EnumerateStereoisomers,
 )
 from chembl_structure_pipeline import standardizer
-from fastapi.responses import Response, JSONResponse
+from fastapi.responses import Response
 from rdkit.Chem.Scaffolds import MurckoScaffold
-from STOUT import translate_forward, translate_reverse
 from app.modules.npscorer import getnp_score
 from app.modules.descriptor_calculator import GetBasicDescriptors
 from app.modules.classyfire import classify, result
 from app.modules.cdkmodules import getCDKSDGMol
 from app.modules.depict import getRDKitDepiction, getCDKDepiction
-from app.modules.decimermodules import getPredictedSegments
+
 
 router = APIRouter(
     prefix="/chem",
@@ -35,86 +28,6 @@ router = APIRouter(
 @router.get("/")
 async def chem_index():
     return {"module": "chem", "message": "Successful", "status": 200}
-
-
-@router.get("/mol")
-async def smiles_mol(smiles: str, generator: Optional[str] = "cdk"):
-    """
-    Convert smiles to mol block:
-
-    - **smiles**: required (query parameter)
-    - **generator**: optional (defaults: cdk)
-    """
-    if smiles:
-        if generator:
-            if generator == "cdk":
-                return getCDKSDGMol(smiles)
-            else:
-                m = Chem.MolFromSmiles(smiles)
-                return Chem.MolToMolBlock(m)
-    else:
-        return None
-
-
-@router.get("/cannonicalsmiles")
-async def smiles_cannonicalise(smiles: str):
-    """
-    Cannonicalise smiles:
-
-    - **smiles**: required (query parameter)
-    """
-    if smiles:
-        m = Chem.MolFromSmiles(smiles)
-        return Chem.MolToSmiles(m)
-    else:
-        return None
-
-
-@router.get("/inchi")
-async def smiles_inchi(smiles: str):
-    """
-    Convert smiles to InChI:
-
-    - **smiles**: required (query parameter)
-    """
-    if smiles:
-        m = Chem.MolFromSmiles(smiles)
-        return Chem.inchi.MolToInchi(m)
-    else:
-        return None
-
-
-@router.get("/inchikey")
-async def smiles_inchikey(smiles: str):
-    """
-    Convert smiles to InChIKey:
-
-    - **smiles**: required (query parameter)
-    """
-    if smiles:
-        m = Chem.MolFromSmiles(smiles)
-        return Chem.inchi.MolToInchiKey(m)
-    else:
-        return None
-
-
-@router.get("/convert")
-async def smiles_convert(smiles: str):
-    """
-    Convert smiles to mol block:
-
-    - **smiles**: required (query parameter)
-    """
-    if smiles:
-        m = Chem.MolFromSmiles(smiles)
-        response = {}
-        response["mol"] = Chem.MolToMolBlock(m)
-        response["cannonicalsmiles"] = Chem.MolToSmiles(m)
-        response["inchi"] = Chem.inchi.MolToInchi(m)
-        response["inchikey"] = Chem.inchi.MolToInchiKey(m)
-        return response
-    else:
-        return None
 
 
 @router.get("/stereoisomers")
@@ -166,33 +79,6 @@ async def smiles_descriptors(smiles: str):
         return GetBasicDescriptors(smiles)
 
 
-@router.get("/iupac")
-async def smiles_iupac(smiles: str):
-    """
-    Generate IUPAC name using STOUT package:
-
-    - **smiles**: required (query)
-    """
-    if smiles:
-        iupac = translate_forward(smiles)
-        return iupac
-
-
-@router.get("/smiles")
-async def iupac_smiles(iupac: Optional[str], selfies: Optional[str]):
-    """
-    Generate smiles from IUPAC name or selfies:
-
-    - **iupac**: optional
-    - **selfies**: optional
-    """
-    if iupac:
-        return translate_reverse(iupac)
-    elif selfies:
-        selfies_d = sf.decoder(selfies)
-        return selfies_d
-
-
 @router.get("/npscore")
 async def nplikeliness_score(smiles: str):
     """
@@ -203,13 +89,6 @@ async def nplikeliness_score(smiles: str):
     if smiles:
         np_score = getnp_score(smiles)
         return np_score
-
-
-@router.get("/selfies")
-async def encodeselfies(smiles: str):
-    if smiles:
-        selfies_e = sf.encoder(smiles)
-        return selfies_e
 
 
 @router.get("/classyfire/classify")
@@ -251,36 +130,6 @@ async def depick_molecule(
                 content=getRDKitDepiction(smiles, [width, height], rotate),
                 media_type="image/svg+xml",
             )
-
-
-@router.post("/process")
-async def extract_chemicalinfo(request: Request):
-    body = await request.json()
-    image_path = body["path"]
-    reference = body["reference"]
-    split = urlsplit(image_path)
-    filename = "/tmp/" + split.path.split("/")[-1]
-    if "img" in body:
-        imgDataURI = body["img"]
-        if imgDataURI:
-            response = urlopen(imgDataURI)
-            with open(filename, "wb") as f:
-                f.write(response.file.read())
-                smiles = getPredictedSegments(filename)
-                os.remove(filename)
-                return JSONResponse(
-                    content={"reference": reference, "smiles": smiles.split(".")}
-                )
-    else:
-        response = requests.get(image_path)
-        if response.status_code == 200:
-            with open(filename, "wb") as f:
-                f.write(response.content)
-                smiles = getPredictedSegments(filename)
-                os.remove(filename)
-                return JSONResponse(
-                    content={"reference": reference, "smiles": smiles.split(".")}
-                )
 
 
 # @app.get("/molecules/", response_model=List[schemas.Molecule])
