@@ -19,18 +19,18 @@ This set of essential and valuable microservices is designed to be accessed via 
 
   - SMILES to IUPAC name
   ```fastapi
-  https://dev.api.naturalproducts.net/converters/iupac?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
+  https://dev.api.naturalproducts.net/convert/iupac?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
   ```
   - SMILES to SELFIES
   ```fastapi
-  https://dev.api.naturalproducts.net/converters/selfies?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
+  https://dev.api.naturalproducts.net/convert/selfies?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
   ```
   - SMILES to mol (default: CDK)
   ```fastapi
-  https://dev.api.naturalproducts.net/converters/mol?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
+  https://dev.api.naturalproducts.net/convert/mol?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
   ```
   ```fastapi
-  https://dev.api.naturalproducts.net/converters/mol?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C&generator=rdkit
+  https://dev.api.naturalproducts.net/convert/mol?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C&generator=rdkit
   ```
 
 - Chem
