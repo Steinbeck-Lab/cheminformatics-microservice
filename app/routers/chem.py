@@ -1,9 +1,6 @@
 from fastapi import Request, APIRouter
 from typing import Optional
 from rdkit import Chem
-
-# from ..database import db
-# from fastapi_pagination import Page, add_pagination, paginate
 from rdkit.Chem.EnumerateStereoisomers import (
     EnumerateStereoisomers,
 )
