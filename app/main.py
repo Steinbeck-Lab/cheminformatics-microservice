@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 # from .config import settings
-from .routers import converters, chem, compose
+from .routers import converters, chem, compose, decimer
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -19,3 +19,4 @@ app.add_middleware(
 app.include_router(converters.router)
 app.include_router(chem.router)
 app.include_router(compose.router)
+app.include_router(decimer.router)

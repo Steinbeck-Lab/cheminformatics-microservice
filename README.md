@@ -57,7 +57,7 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
 
 ## Citation
 
-Venkata, C., Sharma, N., & Rajan, K. (2023). cheminformatics-python-microservice (Version v0.1.0 - prerelease) [Computer software]. https://doi.org/10.5281/zenodo.1234
+Venkata, C., Sharma, N., & Rajan, K. (2023). cheminformatics-python-microservice (Version v0.1.0 - prerelease) [Computer software]. https://doi.org/10.5281/zenodo.7745988
 
 ## Maintained by
 
