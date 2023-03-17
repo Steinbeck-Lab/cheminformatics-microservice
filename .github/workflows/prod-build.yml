@@ -25,10 +25,20 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8
+        pip3 install --upgrade setuptools pip
+        pip3 install --no-cache-dir -r requirements.txt
+        python3 -m pip uninstall -y imantics
+        pip3 install imantics==0.1.12
+        pip3 install --no-deps decimer-segmentation
+        pip3 install --no-deps decimer>=2.2.0
+        pip3 install --no-deps STOUT-pypi>=2.0.5
+        pip install flake8 pytest
     - name: Analysing the code with pylint
       run: |
         flake8 --ignore E501,W503 $(git ls-files '*.py')
+    - name: Run test
+      run: |
+        pytest -p no:warnings
 
   setup-build-publish-prod:
     name: Build & publish to prod registry
