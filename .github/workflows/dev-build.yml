@@ -29,6 +29,9 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         flake8 --ignore E501,W503 $(git ls-files '*.py')
+    - name: Run test
+      run: |
+        pytest -p no:warnings
 
   setup-build-publish-dev:
     name: Build & publish to dev registry
