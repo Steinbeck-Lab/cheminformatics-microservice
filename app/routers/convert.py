@@ -52,6 +52,7 @@ async def smiles_generate3dconformer(smiles: str):
         AllChem.Compute2DCoords(m)
         m = Chem.AddHs(m)
         AllChem.EmbedMolecule(m, randomSeed=0xF00D)
+        AllChem.MMFFOptimizeMolecule(m)
         m = Chem.RemoveHs(m)
         return Chem.MolToMolBlock(m)
     else:
