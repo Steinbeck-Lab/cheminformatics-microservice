@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.2.0...v0.2.1) (2023-03-17)
+
+
+### Bug Fixes
+
+* added Decimer routes to the main ([b7df835](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/b7df835707d3424923f91c5748be1310e67222ce))
+
 ## [0.2.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.1.0...v0.2.0) (2023-03-17)
 
 
