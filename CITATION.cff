@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Venkata"
+  given-names: "Chandrasekhar"
+  orcid: "https://orcid.org/0000-0002-2564-3243"
+- family-names: "Sharma"
+  given-names: "Nisha"
+  orcid: "https://orcid.org/0000-0000-0000-0000"
+- family-names: "Rajan"
+  given-names: "Kohulan"
+  orcid: "https://orcid.org/0000-0003-1066-7792"
+title: "cheminformatics-python-microservice"
+version: v0.1.0 - prerelease
+doi: 10.5281/zenodo.1234
+date-released: 2023-03-16
+url: "https://github.com/Steinbeck-Lab/cheminformatics-python-microservice"
