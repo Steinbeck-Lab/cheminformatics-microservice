@@ -36,8 +36,7 @@ async def extract_chemicalinfo(request: Request):
                 smiles = getPredictedSegments(filename)
                 os.remove(filename)
                 return JSONResponse(
-                    content={"reference": reference, 
-                    "smiles": smiles.split(".")}
+                    content={"reference": reference, "smiles": smiles.split(".")}
                 )
     else:
         response = requests.get(image_path)
@@ -47,6 +46,5 @@ async def extract_chemicalinfo(request: Request):
                 smiles = getPredictedSegments(filename)
                 os.remove(filename)
                 return JSONResponse(
-                    content={"reference": reference, 
-                    "smiles": smiles.split(".")}
+                    content={"reference": reference, "smiles": smiles.split(".")}
                 )
