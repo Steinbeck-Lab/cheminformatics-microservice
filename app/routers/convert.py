@@ -7,8 +7,8 @@ from STOUT import translate_forward, translate_reverse
 from app.modules.cdkmodules import getCDKSDGMol
 
 router = APIRouter(
-    prefix="/converters",
-    tags=["converters"],
+    prefix="/convert",
+    tags=["convert"],
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )
