@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.2.1...v0.2.2) (2023-03-17)
+
+
+### Bug Fixes
+
+* links to examples ([73144f0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/73144f07b4ee3cb5d7d451bb7821744b5de72856))
+
 ## [0.2.1](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.2.0...v0.2.1) (2023-03-17)
 
 
