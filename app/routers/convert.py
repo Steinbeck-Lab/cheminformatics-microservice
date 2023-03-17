@@ -2,6 +2,7 @@ import selfies as sf
 
 from fastapi import APIRouter
 from rdkit import Chem
+from rdkit.Chem import AllChem
 from typing import Optional
 from STOUT import translate_forward, translate_reverse
 from app.modules.cdkmodules import getCDKSDGMol
@@ -33,7 +34,26 @@ async def smiles_mol(smiles: str, generator: Optional[str] = "cdk"):
                 return getCDKSDGMol(smiles)
             else:
                 m = Chem.MolFromSmiles(smiles)
+                AllChem.Compute2DCoords(m)
                 return Chem.MolToMolBlock(m)
+    else:
+        return None
+
+
+@router.get("/rdkit3d")
+async def smiles_generate3dconformer(smiles: str):
+    """
+    Generate a random 3D conformer from SMILES:
+
+    - **smiles**: required (query parameter)
+    """
+    if smiles:
+        m = Chem.MolFromSmiles(smiles)
+        AllChem.Compute2DCoords(m)
+        m = Chem.AddHs(m)
+        AllChem.EmbedMolecule(m, randomSeed=0xF00D)
+        m = Chem.RemoveHs(m)
+        return Chem.MolToMolBlock(m)
     else:
         return None
 
