@@ -1,5 +1,41 @@
 # Changelog
 
+## [0.2.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.1.0...v0.2.0) (2023-03-17)
+
+
+### Features
+
+* add converters and decimer modules ([91778b5](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/91778b5e4639e1f15e5da91df183cd9374405060))
+* add documentation ([fab28a9](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/fab28a98d75aa7d9c37f9763738d35f82255887c))
+* add logo ([f24a7ce](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/f24a7ce042789aa7b994a81968e3a83e164a8f80))
+* add MMFF94 optimization ([4ca0d01](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/4ca0d01e225da6868c9714d1448c0f8857f82372))
+* add pytest ([259f404](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/259f4046e9e2f5771ae70469ebd5e7ada421d4ab))
+* add pytest to dev-build ([ae067d8](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/ae067d8acb9a64fae4da6574794e5243ec32f2d8))
+* add RDKit random 3D conformer generation ([c78553b](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/c78553b7aa17d4d7a0065ccef4698452b5276c22))
+* add ReadMe ([d426803](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/d42680393258a4e94296f88e575473f2362dc5d1))
+* added code comment blocks, added additional endpoints for inchi, inchikey and cannonicalisation, merges smiles conversion from iupac / selfies ([81a6d3e](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/81a6d3e26090e544adbe3f866fe55cb619d18540))
+* Create CITATION.cff ([de4289d](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/de4289d35b4915685a3afeab51ce09155899f084))
+* Initial tests and fix selfies decoder ([839e908](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/839e9084564039bad4893386d61f578a096785cc))
+* linted code, merged mol end point and added extra query parameter to choose generator ([32cc977](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/32cc9779641a28fe2ecde039e780b137a59fe9c2))
+
+
+### Bug Fixes
+
+* add citation ([d0ec378](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/d0ec3781c4fee65549bbef79e2fc85534709d229))
+* file name mismatch issue fix (502 error) ([9fe53e5](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/9fe53e5ce39d0f2d550ac409a4ca9395c0c402d5))
+* GIF image conversion issue [#38](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/38) ([51817b8](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/51817b8ce0c41e56ebca526d5641b08a506c8f65))
+* hyperlinks of university ([007631b](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/007631b6ff0bd80459f5d9095eac27964af094c8))
+* install pytest ([a2a257b](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/a2a257b72bb6a8aa0ff963cd5f85b40287613232))
+* linter errors ([b720837](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/b7208375b24190ccd1150a84523bafaa1a80fe2a))
+* remove database.py ([dc59266](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/dc59266c057ee5b0265667cb03486b89670fca6f))
+* remove requirement installtion ([cf34a2c](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/cf34a2cdccda613c30ab09345141858bee19a701))
+* rename converters to convert ([563ceb7](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/563ceb7bf15b5d9f84e3426fc029ce1dea75027d))
+* replace branch reference ([04fbc92](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/04fbc92596140e7b29c0407a39bf8b07fcbc0a10))
+* resolve pytest issue ([2135952](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/21359526880de508866b27cdc2ead6bd815a3e37))
+* resolved import convert error ([421847b](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/421847b711a95a7e942beee29a69b81d862c685a))
+* Test indentation and linting issues ([424e09d](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/424e09d093c77ce57b19c8c79e5a0f2f72e501d4))
+* test installation ([50f10f0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/50f10f0247cef513bafd43ee1561b75a62d90f27))
+
 ## 0.1.0 (2023-03-14)
 
 
