@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.2.2...v0.3.0) (2023-03-18)
+
+
+### Features
+
+* customised fastapi swagger interface ([0b1f620](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/0b1f620296cff5b1b76fff291492650fd518f912))
+
+
+### Bug Fixes
+
+* scaling and atom colouring ([c6440bd](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/c6440bda7deef608d16e9c27b719900ebc69de6b))
+
 ## [0.2.2](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.2.1...v0.2.2) (2023-03-17)
 
 
