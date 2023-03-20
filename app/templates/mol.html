@@ -15,7 +15,7 @@ head, body {
 $(document).ready(function() {
     var viewer = $3Dmol.createViewer("viewer");
     viewer.setBackgroundColor(0xffffff);
-    viewer.addModel(`{{ molecule }}`, "sdf");
+    viewer.addModel(`{{ molecule }}`, "mol");
     viewer.setStyle({stick:{}});
     viewer.zoomTo();
     viewer.render();
