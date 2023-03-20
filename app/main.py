@@ -23,9 +23,11 @@ app.include_router(chem.router)
 app.include_router(compose.router)
 app.include_router(decimer.router)
 
+
 @app.get("/", include_in_schema=False)
 async def docs_redirect():
     return RedirectResponse(url='/docs')
+
 
 def custom_openapi():
     if app.openapi_schema:
