@@ -25,6 +25,7 @@ router = APIRouter(
 
 templates = Jinja2Templates(directory="app/templates")
 
+
 @router.get("/")
 async def chem_index():
     return {"module": "chem", "message": "Successful", "status": 200}
