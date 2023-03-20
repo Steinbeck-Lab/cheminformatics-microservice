@@ -5,14 +5,14 @@ from rdkit.Chem.EnumerateStereoisomers import (
     EnumerateStereoisomers,
 )
 from chembl_structure_pipeline import standardizer
-from fastapi.responses import Response
+from fastapi.responses import Response, HTMLResponse
 from rdkit.Chem.Scaffolds import MurckoScaffold
 from app.modules.npscorer import getnp_score
 from app.modules.descriptor_calculator import GetBasicDescriptors
 from app.modules.classyfire import classify, result
 from app.modules.cdkmodules import getCDKSDGMol
 from app.modules.depict import getRDKitDepiction, getCDKDepiction
-
+from app.modules.depict3D import get3DDepiction
 
 router = APIRouter(
     prefix="/chem",
@@ -109,7 +109,7 @@ async def cdk2d_coordinates(smiles: str):
 
 
 @router.get("/depict")
-async def depick_molecule(
+async def depict_molecule(
     smiles: str,
     generator: Optional[str] = "cdksdg",
     width: Optional[int] = 512,
@@ -127,6 +127,18 @@ async def depick_molecule(
                 content=getRDKitDepiction(smiles, [width, height], rotate),
                 media_type="image/svg+xml",
             )
+
+
+@router.get("/depict3D")
+async def depict3D_molecule(
+    smiles: str,
+    width: Optional[int] = 512,
+    height: Optional[int] = 512,
+    style: Optional[str] = "stick",
+):
+    if smiles:
+        content__ = get3DDepiction(smiles, [width, height], style)
+        return HTMLResponse(content=content__.render(), status_code=200)
 
 
 # @app.get("/molecules/", response_model=List[schemas.Molecule])
