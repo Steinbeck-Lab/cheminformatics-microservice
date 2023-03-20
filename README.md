@@ -47,6 +47,10 @@ This set of essential and valuable microservices is designed to be accessed via 
   ```fastapi
   https://api.naturalproducts.net/chem/depict?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C&generator=rdkit&width=256&height=256&rotate=75
   ```
+  - Visualize molecule in 3D
+  ```fastapi
+  https://api.naturalproducts.net/chem/depict3D?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
+  ```
 
 > **Note**
 > For detailed documentation on how to use the API check [here](https://api.naturalproducts.net/docs#/)
