@@ -12,7 +12,9 @@ from app.modules.descriptor_calculator import GetBasicDescriptors
 from app.modules.classyfire import classify, result
 from app.modules.cdkmodules import getCDKSDGMol
 from app.modules.depict import getRDKitDepiction, getCDKDepiction
-from app.modules.depict3D import get3DDepiction
+from app.modules.depict3D import get3Dconformers
+
+from fastapi.templating import Jinja2Templates
 
 router = APIRouter(
     prefix="/chem",
@@ -21,6 +23,7 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/")
 async def chem_index():
@@ -129,16 +132,16 @@ async def depict_molecule(
             )
 
 
-@router.get("/depict3D")
+@router.get("/depict3D", response_class=HTMLResponse)
 async def depict3D_molecule(
+    request: Request,
     smiles: str,
     width: Optional[int] = 512,
     height: Optional[int] = 512,
     style: Optional[str] = "stick",
 ):
     if smiles:
-        content__ = get3DDepiction(smiles, [width, height], style)
-        return HTMLResponse(content=content__.render(), status_code=200)
+        return templates.TemplateResponse("mol.html", {"request": request, "molecule": Chem.MolToMolBlock(get3Dconformers(smiles))})
 
 
 # @app.get("/molecules/", response_model=List[schemas.Molecule])
