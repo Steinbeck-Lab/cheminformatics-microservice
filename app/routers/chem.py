@@ -8,11 +8,10 @@ from chembl_structure_pipeline import standardizer
 from fastapi.responses import Response, HTMLResponse
 from rdkit.Chem.Scaffolds import MurckoScaffold
 from app.modules.npscorer import getnp_score
-from app.modules.descriptor_calculator import GetBasicDescriptors
 from app.modules.classyfire import classify, result
 from app.modules.cdkmodules import getCDKSDGMol
 from app.modules.depict import getRDKitDepiction, getCDKDepiction
-from app.modules.depict3D import get3Dconformers
+from app.modules.rdkitmodules import getBasicDescriptors, get3Dconformers
 
 from fastapi.templating import Jinja2Templates
 
@@ -77,7 +76,7 @@ async def smiles_descriptors(smiles: str):
     - **smiles**: required (query)
     """
     if smiles:
-        return GetBasicDescriptors(smiles)
+        return getBasicDescriptors(smiles)
 
 
 @router.get("/npscore")
@@ -137,12 +136,10 @@ async def depict_molecule(
 async def depict3D_molecule(
     request: Request,
     smiles: str,
-    width: Optional[int] = 512,
-    height: Optional[int] = 512,
-    style: Optional[str] = "stick",
 ):
     if smiles:
-        return templates.TemplateResponse("mol.html", {"request": request, "molecule": Chem.MolToMolBlock(get3Dconformers(smiles))})
+        content = {"request": request, "molecule": get3Dconformers(smiles)}
+        return templates.TemplateResponse("mol.html", content)
 
 
 # @app.get("/molecules/", response_model=List[schemas.Molecule])

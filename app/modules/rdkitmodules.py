@@ -1,5 +1,5 @@
 from rdkit import Chem
-from rdkit.Chem import Descriptors, QED, Lipinski, rdMolDescriptors, rdmolops
+from rdkit.Chem import AllChem, Descriptors, QED, Lipinski, rdMolDescriptors, rdmolops
 
 
 def checkRo5Violations(mol):
@@ -20,7 +20,7 @@ def checkRo5Violations(mol):
     return num_of_violations
 
 
-def GetBasicDescriptors(smiles):
+def getBasicDescriptors(smiles):
     """Take an input SMILES and generates a selected set of molecular
     descriptors as a dictionary
     Args (str): SMILES string
@@ -62,3 +62,21 @@ def GetBasicDescriptors(smiles):
     }
 
     return AllDescriptors
+
+
+def get3Dconformers(smiles):
+    """Convert SMILES to Mol with 3D coordinates
+    Args (str): SMILES string.
+    Returns (rdkil.mol): A mol object with 3D coodinates
+    optimized with MMFF94 forcefield.
+
+    """
+    mol = Chem.MolFromSmiles(smiles)
+    if mol:
+        AllChem.Compute2DCoords(mol)
+        mol = Chem.AddHs(mol)
+        AllChem.EmbedMolecule(mol, randomSeed=0xF00D)
+        AllChem.MMFFOptimizeMolecule(mol, maxIters=200)
+        return Chem.MolToMolBlock(mol)
+    else:
+        return None
