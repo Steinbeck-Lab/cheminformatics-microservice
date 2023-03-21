@@ -9,6 +9,7 @@
 ![Workflow](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/actions/workflows/dev-build.yml/badge.svg)
 [![framework](https://img.shields.io/badge/Framework-FastAPI-blue?style)](https://fastapi.tiangolo.com/)
 [![FastAPI Documentation](https://img.shields.io/badge/docs-fastapi-blue)](https://api.naturalproducts.net/docs#/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7747862.svg)](https://doi.org/10.5281/zenodo.7747862)
 ## Overview of Cheminformatics Micro Services
 
 This set of essential and valuable microservices is designed to be accessed via API calls to support cheminformatics. Generally, it is designed to work with SMILES-based inputs and could be used to translate between different machine-readable representations, get Natural Product (NP) likeliness scores, visualize chemical structures, and generate descriptors. In addition, the microservices also host an instance of [STOUT](https://github.com/Kohulan/Smiles-TO-iUpac-Translator) and another instance of [DECIMER](https://github.com/Kohulan/DECIMER-Image_Transformer) (two deep learning models for IUPAC name generation and optical chemical structure recognition, respectively).
@@ -61,7 +62,7 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
 
 ## Citation
 
-Venkata, C., Sharma, N., & Rajan, K. (2023). cheminformatics-python-microservice (Version v0.1.0 - prerelease) [Computer software]. https://doi.org/10.5281/zenodo.7745988
+Venkata, C., Sharma, N., & Rajan, K. (2023). cheminformatics-python-microservice (Version v0.3.0 - prerelease) [Computer software]. https://doi.org/10.5281/zenodo.7747862
 
 ## Maintained by
 
