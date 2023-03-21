@@ -5,14 +5,15 @@ from rdkit.Chem.EnumerateStereoisomers import (
     EnumerateStereoisomers,
 )
 from chembl_structure_pipeline import standardizer
-from fastapi.responses import Response
+from fastapi.responses import Response, HTMLResponse
 from rdkit.Chem.Scaffolds import MurckoScaffold
 from app.modules.npscorer import getnp_score
-from app.modules.descriptor_calculator import GetBasicDescriptors
 from app.modules.classyfire import classify, result
 from app.modules.cdkmodules import getCDKSDGMol
 from app.modules.depict import getRDKitDepiction, getCDKDepiction
+from app.modules.rdkitmodules import getBasicDescriptors, get3Dconformers
 
+from fastapi.templating import Jinja2Templates
 
 router = APIRouter(
     prefix="/chem",
@@ -20,6 +21,8 @@ router = APIRouter(
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )
+
+templates = Jinja2Templates(directory="app/templates")
 
 
 @router.get("/")
@@ -73,7 +76,7 @@ async def smiles_descriptors(smiles: str):
     - **smiles**: required (query)
     """
     if smiles:
-        return GetBasicDescriptors(smiles)
+        return getBasicDescriptors(smiles)
 
 
 @router.get("/npscore")
@@ -109,7 +112,7 @@ async def cdk2d_coordinates(smiles: str):
 
 
 @router.get("/depict")
-async def depick_molecule(
+async def depict_molecule(
     smiles: str,
     generator: Optional[str] = "cdksdg",
     width: Optional[int] = 512,
@@ -127,6 +130,16 @@ async def depick_molecule(
                 content=getRDKitDepiction(smiles, [width, height], rotate),
                 media_type="image/svg+xml",
             )
+
+
+@router.get("/depict3D", response_class=HTMLResponse)
+async def depict3D_molecule(
+    request: Request,
+    smiles: str,
+):
+    if smiles:
+        content = {"request": request, "molecule": get3Dconformers(smiles)}
+        return templates.TemplateResponse("mol.html", content)
 
 
 # @app.get("/molecules/", response_model=List[schemas.Molecule])

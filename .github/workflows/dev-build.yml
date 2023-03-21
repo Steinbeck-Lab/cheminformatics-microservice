@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.10"]
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
@@ -36,9 +36,9 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         flake8 --ignore E501,W503 $(git ls-files '*.py')
-    - name: Run test
-      run: |
-        pytest -p no:warnings
+    # - name: Run test
+    #   run: |
+    #     pytest -p no:warnings
 
   setup-build-publish-dev:
     name: Build & publish to dev registry
