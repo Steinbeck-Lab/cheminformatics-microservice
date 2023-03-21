@@ -59,10 +59,23 @@ jobs:
     - run: |-
         gcloud auth configure-docker europe-west3-docker.pkg.dev
 
+    #Fetch latest release
+    - name: Fetch latest release
+      id: fetch-latest-release
+      uses: InsonusK/get-latest-release@v1.0.1
+      with:
+        myToken: ${{ github.token }}
+        exclude_types: "draft|prerelease"
+        view_top: 10
+    - name: "Print release name"
+      run: |
+        echo "tag_name: ${{ steps.fetch-latest-release.outputs.tag_name }}"
+
     # Build the Docker image
     - name: Build App Image
       run: |-
         docker build \
+          --build-arg RELEASE_VERSION=${{ steps.fetch-latest-release.outputs.tag_name }}
           --tag "europe-west3-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_NAME/$APP_IMAGE:latest" \
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" \
