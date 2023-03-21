@@ -11,7 +11,7 @@ authors:
   given-names: "Kohulan"
   orcid: "https://orcid.org/0000-0003-1066-7792"
 title: "cheminformatics-python-microservice"
-version: v0.1.0 - prerelease
-doi: 10.5281/zenodo.7745988
+version: v0.3.0 - prerelease
+doi: 10.5281/zenodo.7747862
 date-released: 2023-03-16
 url: "https://github.com/Steinbeck-Lab/cheminformatics-python-microservice"
