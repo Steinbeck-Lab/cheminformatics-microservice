@@ -67,12 +67,7 @@ jobs:
     # Build the Docker image
     - name: Build App Image
       run: |-
-        docker build \
-          --build-arg RELEASE_VERSION=${{ steps.fetch-latest-release.outputs.tag_name }} -f Dockerfile
-          --tag "europe-west3-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_NAME/$APP_IMAGE:latest" \
-          --build-arg GITHUB_SHA="$GITHUB_SHA" \
-          --build-arg GITHUB_REF="$GITHUB_REF" \
-          .
+        docker build --build-arg RELEASE_VERSION=${{ steps.fetch-latest-release.outputs.tag_name }}  --tag "europe-west3-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_NAME/$APP_IMAGE:latest" .
     # Push the Docker image to Google Container Registry
     - name: Publish App Image to GCR
       run: |-
