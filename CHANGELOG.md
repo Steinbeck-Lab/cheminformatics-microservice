@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.4.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.3.0...v0.4.0) (2023-03-21)
+
+
+### Features
+
+* Add 3D depiction module ([5767a49](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/5767a495e6c0522d0c1e68a7ff1cbbf7358d4676))
+* add 3D visualization command to ReadMe ([7791a81](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/7791a81afcb29ddf23020240650642e0d5417d71))
+
+
+### Bug Fixes
+
+* add Zenodo entry and citation ([aa4f733](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/aa4f7334ea2380489dd1dae40b3866ed36531a5c))
+* enabled 3d viewer ([043d4ad](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/043d4ad658409703049ac05f05fc6f56fb7c2947))
+* linted code ([1e63fa4](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/1e63fa4453b0a5f6175e424c298bc5ac710e12fe))
+* Linter issues on depict3D ([0626491](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/0626491680275ed0a82edb5503f01dccf1445554))
+* linting error fix ([185ec4c](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/185ec4c6089d0a0bc9a632a3daf06ba686ff4aef))
+* logo padded, resolves [#52](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/52) ([df21d02](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/df21d0230dd3d7389374982b8573f2572c116344))
+* remove py3Dmol from requirements ([6ca6931](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/6ca69318116efdeddeaa87d5fa45a380822e93c1))
+* remove unused modules and imports ([1b7e1fe](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/1b7e1fe2352bcec88e73e1216f96efdc5dbc4f1e))
+* Removed matrix testing on prod and dev. Removed tests on dev build ([7268750](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/7268750b445b183e4ba05f67b6a2489a5febb43f))
+* update release version ([7945fbb](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/7945fbb845a1fe7b8363ef428870defc59f580bb))
+* updated readme urls to point to production, redirected root to docs ([7e2a5ae](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/7e2a5ae8da3ba965441ea6d383aa4c2c752a4de5))
+
 ## [0.3.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.2.2...v0.3.0) (2023-03-18)
 
 
