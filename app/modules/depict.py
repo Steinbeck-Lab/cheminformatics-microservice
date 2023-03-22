@@ -43,19 +43,22 @@ def getCDKDepiction(smiles: str, molSize=(512, 512), rotate=0, unicolor=False):
             .withFillToFit()
             .withBackgroundColor(Color.WHITE)
         )
+    mol = Chem.MolFromSmiles(smiles)
+    if mol:
+        moleculeSDG = getCDKSDG(smiles)
 
-    moleculeSDG = getCDKSDG(smiles)
+        # Rotate molecule
+        point = JClass(cdk_base + ".geometry.GeometryTools").get2DCenter(moleculeSDG)
+        JClass(cdk_base + ".geometry.GeometryTools").rotate(
+            moleculeSDG, point, (rotate * JClass("java.lang.Math").PI / 180.0)
+        )
 
-    # Rotate molecule
-    point = JClass(cdk_base + ".geometry.GeometryTools").get2DCenter(moleculeSDG)
-    JClass(cdk_base + ".geometry.GeometryTools").rotate(
-        moleculeSDG, point, (rotate * JClass("java.lang.Math").PI / 180.0)
-    )
+        mol_imageSVG = DepictionGenerator.depict(moleculeSDG).toSvgStr("px").getBytes()
+        encoded_image = ET.tostring(ET.fromstring(mol_imageSVG), encoding="unicode")
 
-    mol_imageSVG = DepictionGenerator.depict(moleculeSDG).toSvgStr("px").getBytes()
-    encoded_image = ET.tostring(ET.fromstring(mol_imageSVG), encoding="unicode")
-
-    return encoded_image
+        return encoded_image
+    else:
+        return "Error reading SMILES string, check again."
 
 
 def getRDKitDepiction(smiles, molSize=(512, 512), rotate=0, kekulize=True):
@@ -68,18 +71,21 @@ def getRDKitDepiction(smiles, molSize=(512, 512), rotate=0, kekulize=True):
             image (png): CDK Structure Depiction as a PNG image.
     """
     mol = Chem.MolFromSmiles(smiles)
-    mc = Chem.Mol(mol.ToBinary())
-    if kekulize:
-        try:
-            Chem.Kekulize(mc)
-        except Exception as e:
-            print(e, flush=True)
-            mc = Chem.Mol(mol.ToBinary())
-    if not mc.GetNumConformers():
-        rdDepictor.Compute2DCoords(mc)
-    drawer = rdMolDraw2D.MolDraw2DSVG(molSize[0], molSize[1])
-    drawer.drawOptions().rotate = rotate
-    drawer.DrawMolecule(mc)
-    drawer.FinishDrawing()
-    svg = drawer.GetDrawingText()
-    return svg.replace("svg:", "")
+    if mol:
+        mc = Chem.Mol(mol.ToBinary())
+        if kekulize:
+            try:
+                Chem.Kekulize(mc)
+            except Exception as e:
+                print(e, flush=True)
+                mc = Chem.Mol(mol.ToBinary())
+        if not mc.GetNumConformers():
+            rdDepictor.Compute2DCoords(mc)
+        drawer = rdMolDraw2D.MolDraw2DSVG(molSize[0], molSize[1])
+        drawer.drawOptions().rotate = rotate
+        drawer.DrawMolecule(mc)
+        drawer.FinishDrawing()
+        svg = drawer.GetDrawingText()
+        return svg.replace("svg:", "")
+    else:
+        return "Error reading SMILES string, check again."

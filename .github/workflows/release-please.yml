@@ -13,5 +13,5 @@ jobs:
         with:
           release-type: python
           package-name: release-please-action
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT }}
           prerelease: true

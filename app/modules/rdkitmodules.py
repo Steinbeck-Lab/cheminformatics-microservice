@@ -1,12 +1,28 @@
+from chembl_structure_pipeline import standardizer
 from rdkit import Chem
 from rdkit.Chem import AllChem, Descriptors, QED, Lipinski, rdMolDescriptors, rdmolops
 
 
+def checkSMILES(smiles: str):
+    """This functions checks whether or not the SMILES
+    is valid. If not, it attempts to standardize the molecule
+    using the ChEMBL standardization pipeline.
+    """
+    mol = Chem.MolFromSmiles(smiles)
+    try:
+        if mol:
+            return mol
+        elif standardizer.standardize_molblock(mol):
+            return standardizer.standardize_molblock(mol)
+    except Exception:
+        print("Error reading SMILES string, check again.")
+
+
 def checkRo5Violations(mol):
-    """Takes a molecules and checks whether the molecule violates
-    the Lipinski's Rule of Five.
-    Args : molecules rdkit.Chem.rdmol.Mol: rdkit_mol Objects
-    Returns (int): A number of violations on Lipinski Rules.
+    """Takes a molecule and checks whether the molecule violates
+    Lipinski's Rule of Five.
+        Args : molecules rdkit.Chem.rdmol.Mol: rdkit_mol Objects
+        Returns (int): A number of violations of Lipinski Rules.
     """
     num_of_violations = 0
     if Descriptors.MolLogP(mol) > 5:
@@ -20,58 +36,59 @@ def checkRo5Violations(mol):
     return num_of_violations
 
 
-def getDescriptors(smiles):
-    """Take an input SMILES and generates a selected set of molecular
-    descriptors as a dictionary
+def getDescriptors(smiles: str):
+    """Take an input SMILES and generate a selected set of molecular
+    descriptors as a dictionary.
     Args (str): SMILES string
     Returns (dict): a dictionary of calculated descriptors
     """
-    mol = Chem.MolFromSmiles(smiles)
-    AtomC = rdMolDescriptors.CalcNumAtoms(mol)
-    HeavyAtomsC = rdMolDescriptors.CalcNumHeavyAtoms(mol)
-    MolWt = "%.2f" % Descriptors.MolWt(mol)
-    ExactMolWt = "%.2f" % Descriptors.ExactMolWt(mol)
-    ALogP = "%.2f" % QED.properties(mol).ALOGP
-    NumRotatableBonds = rdMolDescriptors.CalcNumRotatableBonds(mol)
-    PSA = "%.2f" % rdMolDescriptors.CalcTPSA(mol)
-    HBA = Descriptors.NumHAcceptors(mol)
-    HBD = Descriptors.NumHDonors(mol)
-    Lipinski_HBA = Lipinski.NumHAcceptors(mol)
-    Lipinski_HBD = Lipinski.NumHDonors(mol)
-    Ro5Violations = checkRo5Violations(mol)
-    AromaticRings = rdMolDescriptors.CalcNumAromaticRings(mol)
-    QEDWeighted = "%.2f" % QED.qed(mol)
-    FormalCharge = "%.2f" % rdmolops.GetFormalCharge(mol)
-    fsp3 = "%.3f" % rdMolDescriptors.CalcFractionCSP3(mol)
-    NumRings = rdMolDescriptors.CalcNumRings(mol)
-
-    return (
-        AtomC,
-        HeavyAtomsC,
-        MolWt,
-        ExactMolWt,
-        ALogP,
-        NumRotatableBonds,
-        PSA,
-        HBA,
-        HBD,
-        Lipinski_HBA,
-        Lipinski_HBD,
-        Ro5Violations,
-        AromaticRings,
-        QEDWeighted,
-        FormalCharge,
-        fsp3,
-        NumRings,
-    )
+    mol = checkSMILES(smiles)
+    if mol:
+        AtomC = rdMolDescriptors.CalcNumAtoms(mol)
+        HeavyAtomsC = rdMolDescriptors.CalcNumHeavyAtoms(mol)
+        MolWt = "%.2f" % Descriptors.MolWt(mol)
+        ExactMolWt = "%.2f" % Descriptors.ExactMolWt(mol)
+        ALogP = "%.2f" % QED.properties(mol).ALOGP
+        NumRotatableBonds = rdMolDescriptors.CalcNumRotatableBonds(mol)
+        PSA = "%.2f" % rdMolDescriptors.CalcTPSA(mol)
+        HBA = Descriptors.NumHAcceptors(mol)
+        HBD = Descriptors.NumHDonors(mol)
+        Lipinski_HBA = Lipinski.NumHAcceptors(mol)
+        Lipinski_HBD = Lipinski.NumHDonors(mol)
+        Ro5Violations = checkRo5Violations(mol)
+        AromaticRings = rdMolDescriptors.CalcNumAromaticRings(mol)
+        QEDWeighted = "%.2f" % QED.qed(mol)
+        FormalCharge = "%.2f" % rdmolops.GetFormalCharge(mol)
+        fsp3 = "%.3f" % rdMolDescriptors.CalcFractionCSP3(mol)
+        NumRings = rdMolDescriptors.CalcNumRings(mol)
+        return (
+            AtomC,
+            HeavyAtomsC,
+            MolWt,
+            ExactMolWt,
+            ALogP,
+            NumRotatableBonds,
+            PSA,
+            HBA,
+            HBD,
+            Lipinski_HBA,
+            Lipinski_HBD,
+            Ro5Violations,
+            AromaticRings,
+            QEDWeighted,
+            FormalCharge,
+            fsp3,
+            NumRings,
+        )
+    else:
+        return "Error reading SMILES string, check again."
 
 
 def get3Dconformers(smiles):
     """Convert SMILES to Mol with 3D coordinates
     Args (str): SMILES string.
-    Returns (rdkil.mol): A mol object with 3D coodinates
+    Returns (rdkil.mol): A mol object with 3D coordinates.
     optimized with MMFF94 forcefield.
-
     """
     mol = Chem.MolFromSmiles(smiles)
     if mol:
@@ -81,4 +98,4 @@ def get3Dconformers(smiles):
         AllChem.MMFFOptimizeMolecule(mol, maxIters=200)
         return Chem.MolToMolBlock(mol)
     else:
-        return None
+        return "Error reading SMILES string, check again."
