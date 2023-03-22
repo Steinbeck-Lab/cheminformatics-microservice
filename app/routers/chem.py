@@ -37,16 +37,19 @@ async def smiles_stereoisomers(smiles: str):
 
     - **smiles**: required (query parameter)
     """
-    m = Chem.MolFromSmiles(smiles)
-    isomers = tuple(EnumerateStereoisomers(m))
-    smilesArray = []
-    for smi in sorted(Chem.MolToSmiles(x, isomericSmiles=True) for x in isomers):
-        smilesArray.append(smi)
-    return smilesArray
+    mol = Chem.MolFromSmiles(smiles)
+    if mol:
+        isomers = tuple(EnumerateStereoisomers(mol))
+        smilesArray = []
+        for smi in sorted(Chem.MolToSmiles(x, isomericSmiles=True) for x in isomers):
+            smilesArray.append(smi)
+        return smilesArray
+    else:
+        return "Error reading SMILES string, check again."
 
 
-@router.post("/standardise")
-async def standardise_mol(request: Request):
+@router.post("/standardize")
+async def standardize_mol(request: Request):
     """
     Standardize molblock using the ChEMBL curation pipeline routine:
 
@@ -55,15 +58,17 @@ async def standardise_mol(request: Request):
     body = await request.json()
     mol = body["mol"]
     if mol:
-        standardised_mol = standardizer.standardize_molblock(mol)
-        rdkit_mol = Chem.MolFromMolBlock(standardised_mol)
+        standardized_mol = standardizer.standardize_molblock(mol)
+        rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
         smiles = Chem.MolToSmiles(rdkit_mol)
         response = {}
-        response["standardised_mol"] = standardised_mol
+        response["standardized_mol"] = standardized_mol
         response["cannonical_smiles"] = smiles
         response["inchi"] = Chem.inchi.MolToInchi(rdkit_mol)
         response["inchikey"] = Chem.inchi.MolToInchiKey(rdkit_mol)
         return response
+    else:
+        return "Error reading SMILES string, check again."
 
 
 @router.get("/descriptors")
@@ -106,7 +111,11 @@ async def classyfire_result(id: str):
 @router.get("/cdk2d")
 async def cdk2d_coordinates(smiles: str):
     if smiles:
-        return getCDKSDGMol(smiles)
+        mol = Chem.MolFromSmiles(smiles)
+        if mol:
+            return getCDKSDGMol(smiles)
+        else:
+            return "Error reading SMILES string, check again."
 
 
 @router.get("/depict")
