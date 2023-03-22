@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.5.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.4.0...v0.5.0) (2023-03-22)
+
+
+### Features
+
+* add SRU, Murko framework and implement COCONUT related descriptors ([abf9991](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/abf9991815adbc98c48a0c1f19fdf1e0d162d326))
+
+
+### Bug Fixes
+
+* docker build command ([3da9cfb](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/3da9cfb20f39ba189049dc5009e70e550b77dbbe))
+* docker build syntax ([5b3f50f](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/5b3f50f7fa76ca6bceeee9107121b453f0f8e419))
+* dynamic version number fed into the swagger api from docker release ([961aa11](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/961aa119c54cc3e58c5c9b6d932b94fcfbccd9df))
+* fetch pre-release as well ([71d35fd](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/71d35fd4635a79e0481cda144a873b24ff33c03b))
+* fetch release tag while build ([0727dfc](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/0727dfc02f9dc30d3f594a078e12a7a48bbca228))
+* indentation issues ([7cf82d4](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/7cf82d477311e4179c1c380ac6c36d9d84ad1cf1))
+* linting issue resolution ([8537b83](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/8537b83d30084dff5c577c7ec86dbf92f3d86885))
+* module import ([fa7f5a8](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/fa7f5a8c38e456d8b4e5ee7340488feb5112bb72))
+* remove unnecessary instalaltion in dev-build ([245a188](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/245a1887bdf211b1f390803f4d7ec13fc89cf544))
+* SRU import ([988f76c](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/988f76c83c58d3ccb035c251544e0945bb14b029))
+* update trigger event for prod build workflow. ([e8cde48](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/e8cde48beb5122765a76dfbd606b83fb80bc6a71))
+
 ## [0.4.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.3.0...v0.4.0) (2023-03-21)
 
 
