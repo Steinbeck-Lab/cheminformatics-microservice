@@ -6,12 +6,12 @@ from rdkit.Chem.EnumerateStereoisomers import (
 )
 from chembl_structure_pipeline import standardizer
 from fastapi.responses import Response, HTMLResponse
-from rdkit.Chem.Scaffolds import MurckoScaffold
 from app.modules.npscorer import getnp_score
 from app.modules.classyfire import classify, result
 from app.modules.cdkmodules import getCDKSDGMol
 from app.modules.depict import getRDKitDepiction, getCDKDepiction
-from app.modules.rdkitmodules import getBasicDescriptors, get3Dconformers
+from app.modules.rdkitmodules import get3Dconformers
+from app.modules.coconutdescriptors import getCOCONUTDescriptors
 
 from fastapi.templating import Jinja2Templates
 
@@ -63,8 +63,6 @@ async def standardise_mol(request: Request):
         response["cannonical_smiles"] = smiles
         response["inchi"] = Chem.inchi.MolToInchi(rdkit_mol)
         response["inchikey"] = Chem.inchi.MolToInchiKey(rdkit_mol)
-        core = MurckoScaffold.GetScaffoldForMol(rdkit_mol)
-        response["murcko_scaffold"] = Chem.MolToSmiles(core)
         return response
 
 
@@ -76,7 +74,7 @@ async def smiles_descriptors(smiles: str):
     - **smiles**: required (query)
     """
     if smiles:
-        return getBasicDescriptors(smiles)
+        return getCOCONUTDescriptors(smiles)
 
 
 @router.get("/npscore")

@@ -1,5 +1,8 @@
 FROM debian:buster-20230227-slim AS cheminf-python-ms
 
+ARG RELEASE_VERSION
+ENV RELEASE_VERSION=${RELEASE_VERSION}
+
 # Install runtime dependencies
 RUN apt-get update \
  && apt-get upgrade -y \
