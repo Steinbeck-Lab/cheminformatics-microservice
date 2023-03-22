@@ -2,16 +2,16 @@ from rdkitmodules import getDescriptors
 from cdkmodules import getSugarInfo, getMurkoFramework
 
 
-def getCOCONUTDescriptors(smiles:str):
-	"""This function takes a user input as
-	SMILES string and returns descriptors
-	those are available in COCONUT. Uses
-	RDKit and CDK at the backend.
-	Args (str): SMILES input.
-	Returns (dict): Decriptor list as dictionary.
-	"""
+def getCOCONUTDescriptors(smiles: str):
+    """This function takes a user input as
+    SMILES string and returns descriptors
+    those are available in COCONUT. Uses
+    RDKit and CDK at the backend.
+    Args (str): SMILES input.
+    Returns (dict): Decriptor list as dictionary.
+    """
 
-	(
+    (
         AtomC,
         HeavyAtomsC,
         MolWt,
@@ -30,11 +30,10 @@ def getCOCONUTDescriptors(smiles:str):
         fsp3,
         NumRings,
     ) = getDescriptors(smiles)
-
     hasLinearSugar, hasCircularSugars = getSugarInfo(smiles)
     framework = getMurkoFramework(smiles)
 
-	AllDescriptors = {
+    AllDescriptors = {
         "Atom count": AtomC,
         "Heavy atom count": HeavyAtomsC,
         "Molecular weight": MolWt,
@@ -56,5 +55,5 @@ def getCOCONUTDescriptors(smiles:str):
         "Circular Sugars": hasCircularSugars,
         "Murko Framework": framework,
     }
-    
+
     return AllDescriptors
