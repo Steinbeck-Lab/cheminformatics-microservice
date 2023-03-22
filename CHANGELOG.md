@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.2](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.5.1...v0.5.2) (2023-03-22)
+
+
+### Bug Fixes
+
+* add CDK badge ([53f919a](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/53f919a58278c8dcc4085ab3f389f9a10d7d3060))
+* update token in release-please to use PAT ([12720ce](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/12720cea837c68c6f88dea3499d9e989c9a03906))
+
 ## [0.5.1](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.5.0...v0.5.1) (2023-03-22)
 
 
