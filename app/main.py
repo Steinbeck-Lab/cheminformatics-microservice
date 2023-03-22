@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 
 # from .config import settings
-from .routers import converters, chem, compose, decimer
+from .routers import chem, converters, compose, decimer
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 import os
@@ -19,8 +19,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(converters.router)
 app.include_router(chem.router)
+app.include_router(converters.router)
 app.include_router(compose.router)
 app.include_router(decimer.router)
 

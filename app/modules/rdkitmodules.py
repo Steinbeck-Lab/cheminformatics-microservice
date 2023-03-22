@@ -20,7 +20,7 @@ def checkRo5Violations(mol):
     return num_of_violations
 
 
-def getBasicDescriptors(smiles):
+def getDescriptors(smiles):
     """Take an input SMILES and generates a selected set of molecular
     descriptors as a dictionary
     Args (str): SMILES string
@@ -42,26 +42,28 @@ def getBasicDescriptors(smiles):
     AromaticRings = rdMolDescriptors.CalcNumAromaticRings(mol)
     QEDWeighted = "%.2f" % QED.qed(mol)
     FormalCharge = "%.2f" % rdmolops.GetFormalCharge(mol)
+    fsp3 = "%.3f" % rdMolDescriptors.CalcFractionCSP3(mol)
+    NumRings = rdMolDescriptors.CalcNumRings(mol)
 
-    AllDescriptors = {
-        "Atom count": AtomC,
-        "Heavy atom count": HeavyAtomsC,
-        "Molecular weight": MolWt,
-        "Exact molecular weight": ExactMolWt,
-        "ALogP": ALogP,
-        "Rotatable bond count": NumRotatableBonds,
-        "Topological polar surface area": PSA,
-        "Hydrogen bond acceptors": HBA,
-        "Hydrogen bond donors": HBD,
-        "Hydrogen bond acceptors(Lipinski)": Lipinski_HBA,
-        "Hydrogen bond donors(Lipinski)": Lipinski_HBD,
-        "Lipinski's rule of five violations": Ro5Violations,
-        "Aromatic rings count": AromaticRings,
-        "QED drug likeliness": QEDWeighted,
-        "Formal Charge": FormalCharge,
-    }
-
-    return AllDescriptors
+    return (
+        AtomC,
+        HeavyAtomsC,
+        MolWt,
+        ExactMolWt,
+        ALogP,
+        NumRotatableBonds,
+        PSA,
+        HBA,
+        HBD,
+        Lipinski_HBA,
+        Lipinski_HBD,
+        Ro5Violations,
+        AromaticRings,
+        QEDWeighted,
+        FormalCharge,
+        fsp3,
+        NumRings,
+    )
 
 
 def get3Dconformers(smiles):
