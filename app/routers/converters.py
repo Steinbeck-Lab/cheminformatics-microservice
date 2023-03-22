@@ -33,11 +33,14 @@ async def smiles_mol(smiles: str, generator: Optional[str] = "cdk"):
             if generator == "cdk":
                 return getCDKSDGMol(smiles)
             else:
-                m = Chem.MolFromSmiles(smiles)
-                AllChem.Compute2DCoords(m)
-                return Chem.MolToMolBlock(m)
+                mol = Chem.MolFromSmiles(smiles)
+                if mol:
+                    AllChem.Compute2DCoords(mol)
+                    return Chem.MolToMolBlock(mol)
+                else:
+                    return "Error reading SMILES string check again."
     else:
-        return None
+        return "Error reading SMILES string check again."
 
 
 @router.get("/rdkit3d")
@@ -48,15 +51,18 @@ async def smiles_generate3dconformer(smiles: str):
     - **smiles**: required (query parameter)
     """
     if smiles:
-        m = Chem.MolFromSmiles(smiles)
-        AllChem.Compute2DCoords(m)
-        m = Chem.AddHs(m)
-        AllChem.EmbedMolecule(m, randomSeed=0xF00D)
-        AllChem.MMFFOptimizeMolecule(m)
-        m = Chem.RemoveHs(m)
-        return Chem.MolToMolBlock(m)
+        mol = Chem.MolFromSmiles(smiles)
+        if mol:
+            AllChem.Compute2DCoords(mol)
+            mol = Chem.AddHs(mol)
+            AllChem.EmbedMolecule(mol, randomSeed=0xF00D)
+            AllChem.MMFFOptimizeMolecule(mol)
+            mol = Chem.RemoveHs(mol)
+            return Chem.MolToMolBlock(mol)
+        else:
+            return "Error reading SMILES string check again."
     else:
-        return None
+        return "Error reading SMILES string check again."
 
 
 @router.get("/canonicalsmiles")
@@ -67,10 +73,13 @@ async def smiles_canonicalise(smiles: str):
     - **smiles**: required (query parameter)
     """
     if smiles:
-        m = Chem.MolFromSmiles(smiles)
-        return Chem.MolToSmiles(m)
+        mol = Chem.MolFromSmiles(smiles)
+        if mol:
+            return Chem.MolToSmiles(mol)
+        else:
+            return "Error reading SMILES string check again."
     else:
-        return None
+        return "Error reading SMILES string check again."
 
 
 @router.get("/inchi")
@@ -81,10 +90,13 @@ async def smiles_inchi(smiles: str):
     - **smiles**: required (query parameter)
     """
     if smiles:
-        m = Chem.MolFromSmiles(smiles)
-        return Chem.inchi.MolToInchi(m)
+        mol = Chem.MolFromSmiles(smiles)
+        if mol:
+            return Chem.inchi.MolToInchi(mol)
+        else:
+            return "Error reading SMILES string check again."
     else:
-        return None
+        return "Error reading SMILES string check again."
 
 
 @router.get("/inchikey")
@@ -95,10 +107,13 @@ async def smiles_inchikey(smiles: str):
     - **smiles**: required (query parameter)
     """
     if smiles:
-        m = Chem.MolFromSmiles(smiles)
-        return Chem.inchi.MolToInchiKey(m)
+        mol = Chem.MolFromSmiles(smiles)
+        if mol:
+            return Chem.inchi.MolToInchiKey(mol)
+        else:
+            return "Error reading SMILES string check again."
     else:
-        return None
+        return "Error reading SMILES string check again."
 
 
 @router.get("/convert")
@@ -109,15 +124,18 @@ async def smiles_convert(smiles: str):
     - **smiles**: required (query parameter)
     """
     if smiles:
-        m = Chem.MolFromSmiles(smiles)
-        response = {}
-        response["mol"] = Chem.MolToMolBlock(m)
-        response["cannonicalsmiles"] = Chem.MolToSmiles(m)
-        response["inchi"] = Chem.inchi.MolToInchi(m)
-        response["inchikey"] = Chem.inchi.MolToInchiKey(m)
-        return response
+        mol = Chem.MolFromSmiles(smiles)
+        if mol:
+            response = {}
+            response["mol"] = Chem.MolToMolBlock(mol)
+            response["cannonicalsmiles"] = Chem.MolToSmiles(mol)
+            response["inchi"] = Chem.inchi.MolToInchi(mol)
+            response["inchikey"] = Chem.inchi.MolToInchiKey(mol)
+            return response
+        else:
+            return "Error reading SMILES string check again."
     else:
-        return None
+        return "Error reading SMILES string check again."
 
 
 @router.get("/iupac")
