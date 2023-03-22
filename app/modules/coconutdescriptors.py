@@ -1,5 +1,5 @@
-from rdkitmodules import getDescriptors
-from cdkmodules import getSugarInfo, getMurkoFramework
+from app.modules.rdkitmodules import getDescriptors
+from app.modules.cdkmodules import getSugarInfo, getMurkoFramework
 
 
 def getCOCONUTDescriptors(smiles: str):
