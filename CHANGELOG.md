@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.5.0...v0.5.1) (2023-03-22)
+
+
+### Bug Fixes
+
+* add prerelease condition to prod build ([fb34d7f](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/fb34d7fc1151e3e741356238bd775657c487ebc9))
+
 ## [0.5.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.4.0...v0.5.0) (2023-03-22)
 
 
