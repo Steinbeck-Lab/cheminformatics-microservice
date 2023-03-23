@@ -1,5 +1,6 @@
 from app.modules.rdkitmodules import getDescriptors, checkSMILES
 from app.modules.cdkmodules import getSugarInfo, getMurkoFramework
+from app.modules.npscorer import getNPScore
 
 
 def getCOCONUTDescriptors(smiles: str):
@@ -33,28 +34,30 @@ def getCOCONUTDescriptors(smiles: str):
         ) = getDescriptors(smiles)
         hasLinearSugar, hasCircularSugars = getSugarInfo(smiles)
         framework = getMurkoFramework(smiles)
+        nplikeliness = getNPScore(smiles)
 
         AllDescriptors = {
-            "Atom count": AtomC,
-            "Heavy atom count": HeavyAtomsC,
-            "Molecular weight": MolWt,
-            "Exact molecular weight": ExactMolWt,
-            "ALogP": ALogP,
-            "Rotatable bond count": NumRotatableBonds,
-            "Topological polar surface area": PSA,
-            "Hydrogen bond acceptors": HBA,
-            "Hydrogen bond donors": HBD,
-            "Hydrogen bond acceptors(Lipinski)": Lipinski_HBA,
-            "Hydrogen bond donors(Lipinski)": Lipinski_HBD,
-            "Lipinski's rule of five violations": Ro5Violations,
-            "Aromatic rings count": AromaticRings,
-            "QED drug likeliness": QEDWeighted,
-            "Formal Charge": FormalCharge,
-            "FractionCSP3": fsp3,
-            "Number of Minimal Rings": NumRings,
-            "Linear Sugars": hasLinearSugar,
-            "Circular Sugars": hasCircularSugars,
-            "Murko Framework": framework,
+            "atom_count": AtomC,
+            "heavy_atom_count": HeavyAtomsC,
+            "molecular_weight": MolWt,
+            "exact molecular_weight": ExactMolWt,
+            "alogp": ALogP,
+            "rotatable_bond_count": NumRotatableBonds,
+            "topological_polar_surface_area": PSA,
+            "hydrogen_bond_acceptors": HBA,
+            "hydrogen_bond_donors": HBD,
+            "hydrogen_bond_acceptors_lipinski": Lipinski_HBA,
+            "hydrogen_bond_donors_lipinski": Lipinski_HBD,
+            "lipinski_rule_of_five_violations": Ro5Violations,
+            "aromatic_rings_count": AromaticRings,
+            "qed_drug_likeliness": QEDWeighted,
+            "formal_charge": FormalCharge,
+            "fractioncsp3": fsp3,
+            "number_of_minimal_rings": NumRings,
+            "linear_sugars": hasLinearSugar,
+            "circular_sugars": hasCircularSugars,
+            "murko_framework": framework,
+            "nplikeliness": nplikeliness,
         }
 
         return AllDescriptors
