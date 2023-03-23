@@ -1,6 +1,7 @@
 import selfies as sf
 
 from fastapi import APIRouter
+from fastapi.responses import Response
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from typing import Optional
@@ -31,12 +32,14 @@ async def smiles_mol(smiles: str, generator: Optional[str] = "cdk"):
     if smiles:
         if generator:
             if generator == "cdk":
-                return getCDKSDGMol(smiles)
+                return Response(content=getCDKSDGMol(smiles), media_type="text/plain")
             else:
                 mol = Chem.MolFromSmiles(smiles)
                 if mol:
                     AllChem.Compute2DCoords(mol)
-                    return Chem.MolToMolBlock(mol)
+                    return Response(
+                        content=Chem.MolToMolBlock(mol), media_type="text/plain"
+                    )
                 else:
                     return "Error reading SMILES string check again."
     else:
@@ -58,7 +61,7 @@ async def smiles_generate3dconformer(smiles: str):
             AllChem.EmbedMolecule(mol, randomSeed=0xF00D)
             AllChem.MMFFOptimizeMolecule(mol)
             mol = Chem.RemoveHs(mol)
-            return Chem.MolToMolBlock(mol)
+            return Response(content=Chem.MolToMolBlock(mol), media_type="text/plain")
         else:
             return "Error reading SMILES string check again."
     else:
