@@ -30,6 +30,7 @@ if not isJVMStarted():
         jar_path = pystow.ensure("STOUT-V2", url=sru_path)
 
     startJVM("-ea", classpath=[cdkjar_path, srujar_path])
+    cdk_base = "org.openscience.cdk"
 
 
 def getCDKSDG(smiles: str):
@@ -40,7 +41,6 @@ def getCDKSDG(smiles: str):
     Returns:
             mol object : mol object with CDK SDG.
     """
-    cdk_base = "org.openscience.cdk"
     SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
     SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
     molecule = SmilesParser.parseSmiles(smiles)
@@ -59,7 +59,6 @@ def getSugarInfo(smiles: str):
     Returns:
         (boolean): True or false values whtehr or not molecule has sugar.
     """
-    cdk_base = "org.openscience.cdk"
     SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
     SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
     molecule = SmilesParser.parseSmiles(smiles)
@@ -111,3 +110,97 @@ def getCDKSDGMol(smiles: str):
     SDFW.flush()
     mol_str = str(StringW.toString())
     return mol_str
+
+
+def getCDKDescriptors(smiles: str):
+    """Take an input SMILES and generate a selected set of molecular
+    descriptors generated using CDK as a list.
+    Args (str): SMILES string
+    Returns (list): a list of calculated descriptors
+    """
+    Mol = getCDKSDG(smiles)
+    if Mol:
+        AtomCountDescriptor = (
+            JClass(cdk_base + ".qsar.descriptors.molecular.AtomCountDescriptor")()
+            .calculate(Mol)
+            .getValue()
+        )
+        HeavyAtomsC = Mol.getAtomCount()
+        WeightDescriptor = (
+            JClass(cdk_base + ".qsar.descriptors.molecular.WeightDescriptor")()
+            .calculate(Mol)
+            .getValue()
+            .toString()
+        )
+        TotalExactMass = JClass(
+            cdk_base + ".tools.manipulator.AtomContainerManipulator"
+        ).getTotalExactMass(Mol)
+        ALogP = (
+            JClass(cdk_base + ".qsar.descriptors.molecular.ALOGPDescriptor")()
+            .calculate(Mol)
+            .getValue()
+        )
+        NumRotatableBonds = (
+            JClass(
+                cdk_base + ".qsar.descriptors.molecular.RotatableBondsCountDescriptor"
+            )()
+            .calculate(Mol)
+            .getValue()
+        )
+        TPSADescriptor = (
+            JClass(cdk_base + ".qsar.descriptors.molecular.TPSADescriptor")()
+            .calculate(Mol)
+            .getValue()
+            .toString()
+        )
+        HBondAcceptorCountDescriptor = (
+            JClass(
+                cdk_base + ".qsar.descriptors.molecular.HBondAcceptorCountDescriptor"
+            )()
+            .calculate(Mol)
+            .getValue()
+        )
+        HBondDonorCountDescriptor = (
+            JClass(
+                cdk_base + ".qsar.descriptors.molecular.HBondAcceptorCountDescriptor"
+            )()
+            .calculate(Mol)
+            .getValue()
+        )
+        RuleOfFiveDescriptor = (
+            JClass(cdk_base + ".qsar.descriptors.molecular.RuleOfFiveDescriptor")()
+            .calculate(Mol)
+            .getValue()
+        )
+        AromaticRings = None
+        QEDWeighted = None
+        FormalCharge = JClass(
+            cdk_base + ".tools.manipulator.AtomContainerManipulator"
+        ).getTotalFormalCharge(Mol)
+        FractionalCSP3Descriptor = (
+            JClass(cdk_base + ".qsar.descriptors.molecular.FractionalCSP3Descriptor")()
+            .calculate(Mol)
+            .getValue()
+            .toString()
+        )
+        NumRings = JClass(cdk_base + ".graph.Cycles").mcb(Mol).numberOfCycles()
+
+        return (
+            str(AtomCountDescriptor),
+            HeavyAtomsC,
+            "{:.2f}".format(float(str(WeightDescriptor))),
+            "{:.2f}".format(float(str(TotalExactMass))),
+            "{:.2f}".format(float(str(ALogP).split(",")[0])),
+            str(NumRotatableBonds),
+            "{:.2f}".format(float(str(TPSADescriptor))),
+            str(HBondAcceptorCountDescriptor),
+            str(HBondDonorCountDescriptor),
+            str(HBondAcceptorCountDescriptor),
+            str(HBondDonorCountDescriptor),
+            str(RuleOfFiveDescriptor),
+            str(AromaticRings),
+            str(QEDWeighted),
+            FormalCharge,
+            "{:.2f}".format(float(str(FractionalCSP3Descriptor))),
+            NumRings,
+        )
