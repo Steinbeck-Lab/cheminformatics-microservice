@@ -26,8 +26,8 @@ def getAllRDKitDescriptors(smiles: str):
         Ro5Violations = checkRo5Violations(mol)
         AromaticRings = rdMolDescriptors.CalcNumAromaticRings(mol)
         QEDWeighted = "%.2f" % QED.qed(mol)
-        FormalCharge = "%.2f" % rdmolops.GetFormalCharge(mol)
-        fsp3 = "%.3f" % rdMolDescriptors.CalcFractionCSP3(mol)
+        FormalCharge = rdmolops.GetFormalCharge(mol)
+        fsp3 = "%.2f" % rdMolDescriptors.CalcFractionCSP3(mol)
         NumRings = rdMolDescriptors.CalcNumRings(mol)
         return (
             AtomC,
@@ -130,19 +130,19 @@ def getAllCDKDescriptors(smiles: str):
         NumRings = JClass(cdk_base + ".graph.Cycles").mcb(Mol).numberOfCycles()
 
         return (
-            str(AtomCountDescriptor),
-            str(BondCountDescriptor),
+            int(str(AtomCountDescriptor)),
+            int(str(BondCountDescriptor)),
             HeavyAtomsC,
             "{:.2f}".format(float(str(WeightDescriptor))),
             "{:.2f}".format(float(str(TotalExactMass))),
             "{:.2f}".format(float(str(ALogP).split(",")[0])),
-            str(NumRotatableBonds),
+            int(str(NumRotatableBonds)),
             "{:.2f}".format(float(str(TPSADescriptor))),
-            str(HBondAcceptorCountDescriptor),
-            str(HBondDonorCountDescriptor),
-            str(HBondAcceptorCountDescriptor),
-            str(HBondDonorCountDescriptor),
-            str(RuleOfFiveDescriptor),
+            int(str(HBondAcceptorCountDescriptor)),
+            int(str(HBondDonorCountDescriptor)),
+            int(str(HBondAcceptorCountDescriptor)),
+            int(str(HBondDonorCountDescriptor)),
+            int(str(RuleOfFiveDescriptor)),
             str(AromaticRings),
             str(QEDWeighted),
             FormalCharge,
@@ -159,7 +159,7 @@ def getCDKRDKitcombinedDescriptors(smiles: str):
     """
     RDKitDescriptors = getAllRDKitDescriptors(smiles)
     CDKDescriptors = getAllCDKDescriptors(smiles)
-    AllDescriptors = {
+    AllDescriptors = (
         "Atom count",
         "Bond count",
         "Heavy atom count",
@@ -178,10 +178,13 @@ def getCDKRDKitcombinedDescriptors(smiles: str):
         "Formal Charge",
         "FractionCSP3",
         "Number of Minimal Rings",
-    }
+    )
 
     if len(AllDescriptors) == len(RDKitDescriptors) == len(CDKDescriptors):
-        combinedDict = dict(zip(AllDescriptors, zip(RDKitDescriptors, CDKDescriptors)))
+        combinedDict = {
+            AllDescriptors[i]: (RDKitDescriptors[i], CDKDescriptors[i])
+            for i in range(len(AllDescriptors))
+        }
         return combinedDict
     else:
         return "Error dictionary lenth invalid"
