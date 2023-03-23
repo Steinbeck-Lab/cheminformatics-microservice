@@ -36,7 +36,7 @@ def checkRo5Violations(mol):
     return num_of_violations
 
 
-def getDescriptors(smiles: str):
+def getRDKitDescriptors(smiles: str):
     """Take an input SMILES and generate a selected set of molecular
     descriptors as a dictionary.
     Args (str): SMILES string

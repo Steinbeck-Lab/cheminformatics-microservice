@@ -1,9 +1,32 @@
-from app.modules.rdkitmodules import getDescriptors, checkSMILES
-from app.modules.cdkmodules import getSugarInfo, getMurkoFramework
+from app.modules.rdkitmodules import getRDKitDescriptors, checkSMILES
+from app.modules.cdkmodules import getSugarInfo, getMurkoFramework, getCDKDescriptors
+from app.modules.alldescriptors import getCDKRDKitcombinedDescriptors
 from app.modules.npscorer import getNPScore
 
+def getDescriptors(smiles: str, toolkit: str):
+    """This function takes a user input as
+    SMILES string and decides whether to get
+    Descriptor values from RDKit or CDK.
+    Args (str): SMILES input.
+    Returns (list): Decriptor list as list.
+    """    
+    mol = checkSMILES(smiles)
+    if mol:
+        if toolkit == "rdkit":
+            Descriptors = getRDKitDescriptors(smiles)
+            print("Im here R")
+            return Descriptors
+        elif toolkit == "cdk":
+            print("Im here C")
+            Descriptors = getCDKDescriptors(smiles)
+            return Descriptors
+        else:
+            return "Error calculating Descriptors"
+    else:
+        return "Error reading SMILES check again."
 
-def getCOCONUTDescriptors(smiles: str):
+
+def getCOCONUTDescriptors(smiles: str, toolkit: str):
     """This function takes a user input as
     SMILES string and returns descriptors
     those are available in COCONUT. Uses
@@ -11,55 +34,44 @@ def getCOCONUTDescriptors(smiles: str):
     Args (str): SMILES input.
     Returns (dict): Decriptor list as dictionary.
     """
-    mol = checkSMILES(smiles)
-    if mol:
-        (
-            AtomC,
-            HeavyAtomsC,
-            MolWt,
-            ExactMolWt,
-            ALogP,
-            NumRotatableBonds,
-            PSA,
-            HBA,
-            HBD,
-            Lipinski_HBA,
-            Lipinski_HBD,
-            Ro5Violations,
-            AromaticRings,
-            QEDWeighted,
-            FormalCharge,
-            fsp3,
-            NumRings,
-        ) = getDescriptors(smiles)
+    if toolkit == "all":
+        AllDescriptors = getCDKRDKitcombinedDescriptors(smiles)
+        return AllDescriptors
+    else:
+        Descriptors = getDescriptors(smiles,toolkit)
+
         hasLinearSugar, hasCircularSugars = getSugarInfo(smiles)
         framework = getMurkoFramework(smiles)
         nplikeliness = getNPScore(smiles)
+        CombinedDescriptors = list(Descriptors)
+        CombinedDescriptors.extend([hasLinearSugar,hasCircularSugars,framework,nplikeliness])
 
-        AllDescriptors = {
-            "atom_count": AtomC,
-            "heavy_atom_count": HeavyAtomsC,
-            "molecular_weight": MolWt,
-            "exact molecular_weight": ExactMolWt,
-            "alogp": ALogP,
-            "rotatable_bond_count": NumRotatableBonds,
-            "topological_polar_surface_area": PSA,
-            "hydrogen_bond_acceptors": HBA,
-            "hydrogen_bond_donors": HBD,
-            "hydrogen_bond_acceptors_lipinski": Lipinski_HBA,
-            "hydrogen_bond_donors_lipinski": Lipinski_HBD,
-            "lipinski_rule_of_five_violations": Ro5Violations,
-            "aromatic_rings_count": AromaticRings,
-            "qed_drug_likeliness": QEDWeighted,
-            "formal_charge": FormalCharge,
-            "fractioncsp3": fsp3,
-            "number_of_minimal_rings": NumRings,
-            "linear_sugars": hasLinearSugar,
-            "circular_sugars": hasCircularSugars,
-            "murko_framework": framework,
-            "nplikeliness": nplikeliness,
-        }
+        DescriptorList = (
+            "atom_count",
+            "heavy_atom_count",
+            "molecular_weight",
+            "exactmolecular_weight",
+            "alogp",
+            "rotatable_bond_count",
+            "topological_polar_surface_area",
+            "hydrogen_bond_acceptors",
+            "hydrogen_bond_donors",
+            "hydrogen_bond_acceptors_lipinski",
+            "hydrogen_bond_donors_lipinski",
+            "lipinski_rule_of_five_violations",
+            "aromatic_rings_count",
+            "qed_drug_likeliness",
+            "formal_charge",
+            "fractioncsp3",
+            "number_of_minimal_rings",
+            "linear_sugars",
+            "circular_sugars",
+            "murko_framework",
+            "nplikeliness",
+        )
 
-        return AllDescriptors
-    else:
-        return "Error reading SMILES check again."
+        if len(DescriptorList) == len(CombinedDescriptors):
+            combinedDict = dict(zip(DescriptorList, zip(CombinedDescriptors)))
+            return combinedDict
+        else:
+            return "Error Calculating Descriptors"
