@@ -3,21 +3,20 @@ from app.modules.cdkmodules import getSugarInfo, getMurkoFramework, getCDKDescri
 from app.modules.alldescriptors import getCDKRDKitcombinedDescriptors
 from app.modules.npscorer import getNPScore
 
+
 def getDescriptors(smiles: str, toolkit: str):
     """This function takes a user input as
     SMILES string and decides whether to get
     Descriptor values from RDKit or CDK.
     Args (str): SMILES input.
     Returns (list): Decriptor list as list.
-    """    
+    """
     mol = checkSMILES(smiles)
     if mol:
         if toolkit == "rdkit":
             Descriptors = getRDKitDescriptors(smiles)
-            print("Im here R")
             return Descriptors
         elif toolkit == "cdk":
-            print("Im here C")
             Descriptors = getCDKDescriptors(smiles)
             return Descriptors
         else:
@@ -38,13 +37,15 @@ def getCOCONUTDescriptors(smiles: str, toolkit: str):
         AllDescriptors = getCDKRDKitcombinedDescriptors(smiles)
         return AllDescriptors
     else:
-        Descriptors = getDescriptors(smiles,toolkit)
+        Descriptors = getDescriptors(smiles, toolkit)
 
         hasLinearSugar, hasCircularSugars = getSugarInfo(smiles)
         framework = getMurkoFramework(smiles)
         nplikeliness = getNPScore(smiles)
         CombinedDescriptors = list(Descriptors)
-        CombinedDescriptors.extend([hasLinearSugar,hasCircularSugars,framework,nplikeliness])
+        CombinedDescriptors.extend(
+            [hasLinearSugar, hasCircularSugars, framework, nplikeliness]
+        )
 
         DescriptorList = (
             "atom_count",

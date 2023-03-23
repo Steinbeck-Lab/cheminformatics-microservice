@@ -66,12 +66,17 @@ def getAllCDKDescriptors(smiles: str):
             .calculate(Mol)
             .getValue()
         )
-        BondCountDescriptor = JClass(cdk_base+".qsar.descriptors.molecular.BondCountDescriptor")().calculate(Mol).getValue()
+        BondCountDescriptor = (
+            JClass(cdk_base + ".qsar.descriptors.molecular.BondCountDescriptor")()
+            .calculate(Mol)
+            .getValue()
+        )
         HeavyAtomsC = Mol.getAtomCount()
         WeightDescriptor = (
             JClass(cdk_base + ".qsar.descriptors.molecular.WeightDescriptor")()
             .calculate(Mol)
-            .getValue().toString()
+            .getValue()
+            .toString()
         )
         TotalExactMass = JClass(
             cdk_base + ".tools.manipulator.AtomContainerManipulator"
@@ -91,7 +96,8 @@ def getAllCDKDescriptors(smiles: str):
         TPSADescriptor = (
             JClass(cdk_base + ".qsar.descriptors.molecular.TPSADescriptor")()
             .calculate(Mol)
-            .getValue().toString()
+            .getValue()
+            .toString()
         )
         HBondAcceptorCountDescriptor = (
             JClass(
@@ -101,9 +107,7 @@ def getAllCDKDescriptors(smiles: str):
             .getValue()
         )
         HBondDonorCountDescriptor = (
-            JClass(
-                cdk_base + ".qsar.descriptors.molecular.HBondDonorCountDescriptor"
-            )()
+            JClass(cdk_base + ".qsar.descriptors.molecular.HBondDonorCountDescriptor")()
             .calculate(Mol)
             .getValue()
         )
@@ -120,7 +124,8 @@ def getAllCDKDescriptors(smiles: str):
         FractionalCSP3Descriptor = (
             JClass(cdk_base + ".qsar.descriptors.molecular.FractionalCSP3Descriptor")()
             .calculate(Mol)
-            .getValue().toString()
+            .getValue()
+            .toString()
         )
         NumRings = JClass(cdk_base + ".graph.Cycles").mcb(Mol).numberOfCycles()
 
