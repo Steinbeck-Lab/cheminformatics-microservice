@@ -77,7 +77,7 @@ def score_mol(mol):
     return scoremol_with_confidence(mol).nplikeness
 
 
-def getnp_score(smiles):
+def getNPScore(smiles):
     """Converts SMILES to RDKit mol object and generates the NP Score
 
     Returns the NP Score"""

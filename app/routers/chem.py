@@ -6,7 +6,7 @@ from rdkit.Chem.EnumerateStereoisomers import (
 )
 from chembl_structure_pipeline import standardizer
 from fastapi.responses import Response, HTMLResponse
-from app.modules.npscorer import getnp_score
+from app.modules.npscorer import getNPScore
 from app.modules.classyfire import classify, result
 from app.modules.cdkmodules import getCDKSDGMol
 from app.modules.depict import getRDKitDepiction, getCDKDepiction
@@ -90,7 +90,7 @@ async def nplikeliness_score(smiles: str):
     - **smiles**: required (query)
     """
     if smiles:
-        np_score = getnp_score(smiles)
+        np_score = getNPScore(smiles)
         return np_score
 
 
