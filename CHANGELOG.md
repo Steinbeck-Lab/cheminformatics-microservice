@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.3](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.5.2...v0.5.3) (2023-03-23)
+
+
+### Bug Fixes
+
+* remove other release cond ([9e21ac0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/9e21ac027f410d3aa32123aa1c64759be24ad730))
+
 ## [0.5.2](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.5.1...v0.5.2) (2023-03-22)
 
 
