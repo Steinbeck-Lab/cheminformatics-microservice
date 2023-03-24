@@ -1,5 +1,6 @@
-from fastapi import Request, APIRouter
+from fastapi import Body, Request, APIRouter
 from typing import Optional
+from typing_extensions import Annotated
 from rdkit import Chem
 from rdkit.Chem.EnumerateStereoisomers import (
     EnumerateStereoisomers,
@@ -49,14 +50,12 @@ async def SMILES_stereoisomers(smiles: str):
 
 
 @router.post("/standardize")
-async def standardize_mol(request: Request):
+async def standardize_mol(mol: Annotated[str, Body(embed=True)]):
     """
     Standardize molblock using the ChEMBL curation pipeline routine:
 
     - **mol**: required
     """
-    body = await request.json()
-    mol = body["mol"]
     if mol:
         standardized_mol = standardizer.standardize_molblock(mol)
         rdkit_mol = Chem.MolFromMolBlock(standardized_mol)

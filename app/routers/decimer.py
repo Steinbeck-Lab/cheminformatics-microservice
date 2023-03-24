@@ -4,7 +4,8 @@ import requests
 from fastapi.responses import JSONResponse
 from urllib.request import urlopen
 from urllib.parse import urlsplit
-from fastapi import Request, APIRouter
+from fastapi import Body, APIRouter
+from typing_extensions import Annotated
 from app.modules.decimermodules import getPredictedSegments
 
 router = APIRouter(
@@ -21,25 +22,20 @@ async def decimer_index():
 
 
 @router.post("/process")
-async def extract_chemicalinfo(request: Request):
-    body = await request.json()
-    image_path = body["path"]
-    reference = body["reference"]
-    split = urlsplit(image_path)
+async def extract_chemicalinfo(path: Annotated[str, Body(embed=True)], reference: Annotated[str, Body(embed=True)], img: Annotated[str, Body(embed=True)]):
+    split = urlsplit(path)
     filename = "/tmp/" + split.path.split("/")[-1]
-    if "img" in body:
-        imgDataURI = body["img"]
-        if imgDataURI:
-            response = urlopen(imgDataURI)
-            with open(filename, "wb") as f:
-                f.write(response.file.read())
-                smiles = getPredictedSegments(filename)
-                os.remove(filename)
-                return JSONResponse(
-                    content={"reference": reference, "smiles": smiles.split(".")}
-                )
+    if img:
+        response = urlopen(img)
+        with open(filename, "wb") as f:
+            f.write(response.file.read())
+            smiles = getPredictedSegments(filename)
+            os.remove(filename)
+            return JSONResponse(
+                content={"reference": reference, "smiles": smiles.split(".")}
+            )
     else:
-        response = requests.get(image_path)
+        response = requests.get(path)
         if response.status_code == 200:
             with open(filename, "wb") as f:
                 f.write(response.content)
