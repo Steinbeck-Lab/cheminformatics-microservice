@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.7.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.6.0...v0.7.0) (2023-03-24)
+
+
+### Features
+
+* add CDK aromatic ring calculator [#84](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/84) ([0f762ae](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/0f762ae355b54d93228f4e052b7cdd2063a8dfba))
+
+
+### Bug Fixes
+
+* [#81](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/81) POST requests now parse body using fastapi interface and swagger UI ([47c9908](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/47c9908c23575ab105f603fdb46b0dfa9bc70886))
+* docker build command in prod ([c3433f9](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/c3433f94e2e2ee570de59d8713a5d8646ae9dccf))
+* move test job before creating a release. ([d4679cc](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/d4679cc5b4fd308db53735d725b5baf1e762da3e)), closes [#88](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/88)
+* updated default release version from "pre-release" to "latest" ([e086b19](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/e086b19f478ec7a64f57bcf15b57bbddeb46b736))
+
 ## [0.6.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.5.3...v0.6.0) (2023-03-24)
 
 
