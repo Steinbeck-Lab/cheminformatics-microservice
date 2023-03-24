@@ -6,13 +6,13 @@ from rdkit.Chem.EnumerateStereoisomers import (
 )
 from chembl_structure_pipeline import standardizer
 from fastapi.responses import Response, HTMLResponse
-from app.modules.npscorer import getnp_score
+from app.modules.npscorer import getNPScore
 from app.modules.classyfire import classify, result
 from app.modules.cdkmodules import getCDKSDGMol
 from app.modules.depict import getRDKitDepiction, getCDKDepiction
 from app.modules.rdkitmodules import get3Dconformers
 from app.modules.coconutdescriptors import getCOCONUTDescriptors
-
+import pandas as pd
 from fastapi.templating import Jinja2Templates
 
 router = APIRouter(
@@ -31,7 +31,7 @@ async def chem_index():
 
 
 @router.get("/stereoisomers")
-async def smiles_stereoisomers(smiles: str):
+async def SMILES_stereoisomers(smiles: str):
     """
     Enumerate all possible stereoisomers based on the chiral centers in the given smiles:
 
@@ -72,25 +72,42 @@ async def standardize_mol(request: Request):
 
 
 @router.get("/descriptors")
-async def smiles_descriptors(smiles: str):
+async def SMILES_descriptors(
+    smiles: str, format: Optional[str] = "json", toolkit: Optional[str] = "rdkit"
+):
     """
     Generate standard descriptors for the input molecules (smiles):
 
     - **smiles**: required (query)
     """
     if smiles:
-        return getCOCONUTDescriptors(smiles)
+        if format == "html":
+            data = getCOCONUTDescriptors(smiles, toolkit)
+            if toolkit == "all":
+                headers = ["Descriptor name", "RDKit Descriptors", "CDK Descriptors"]
+                df = pd.DataFrame.from_dict(data, orient="index", columns=headers[1:])
+                df.insert(0, headers[0], df.index)
+            else:
+                headers = ["Descriptor name", "Values"]
+                df = pd.DataFrame.from_dict(data, orient="index", columns=headers[1:])
+                df.insert(0, headers[0], df.index)
+            with open("app/templates/style.css", "r") as file:
+                css_style = file.read()
+            html_table = df.to_html(index=False)
+            return Response(content=css_style + html_table, media_type="text/html")
+        else:
+            return getCOCONUTDescriptors(smiles, toolkit)
 
 
 @router.get("/npscore")
-async def nplikeliness_score(smiles: str):
+async def NPlikeliness_score(smiles: str):
     """
     Generate natural product likeliness score based on RDKit implementation
 
     - **smiles**: required (query)
     """
     if smiles:
-        np_score = getnp_score(smiles)
+        np_score = getNPScore(smiles)
         return np_score
 
 
@@ -109,7 +126,7 @@ async def classyfire_result(id: str):
 
 
 @router.get("/cdk2d")
-async def cdk2d_coordinates(smiles: str):
+async def CDK2D_coordinates(smiles: str):
     if smiles:
         mol = Chem.MolFromSmiles(smiles)
         if mol:
