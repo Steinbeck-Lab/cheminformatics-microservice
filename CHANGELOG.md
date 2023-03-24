@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.6.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.5.3...v0.6.0) (2023-03-24)
+
+
+### Features
+
+* add All descriptor module for CDK and RDKit [#79](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/79) ([0e28187](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/0e28187ae6a3e64eb1ed8de12aa80d496839058b))
+* add CDK descriptors for COCONUT [#78](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/78) ([d850fde](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/d850fde603960d22cd1637cc5c8a0e2c40cefd9e))
+* add function to COCONUT descriptors based on toolkit [#80](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/80) ([a6db174](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/a6db1747bc712c1b6ff317b4dab12b2f3fe3461f))
+* Add table preview & JSON,HTML toggle [#76](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/76),[#77](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/77) ([7e2e063](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/7e2e0632f22f1bccee02dcbed387a6c67db8b3cc))
+
+
+### Bug Fixes
+
+* add nplikeliness for descriptors [#74](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/74) ([41eaa94](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/41eaa94436db835bd94918e55cdeb67c50e09995))
+* descriptor dictionary order ([fcdb1cb](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/fcdb1cb622fd5aab162b8fc60ef3811b846b75d2))
+* remove the if cond to check branch name ([85fcda0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/85fcda039ca34c7b925c31c011af446049b9f924))
+
 ## [0.5.3](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.5.2...v0.5.3) (2023-03-23)
 
 
