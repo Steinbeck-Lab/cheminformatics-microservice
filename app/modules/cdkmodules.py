@@ -112,6 +112,33 @@ def getCDKSDGMol(smiles: str):
     return mol_str
 
 
+def getAromaticRingCount(mol):
+    """This function is adapted from CDK to
+    calculate the number of Aromatic Rings
+    present in a given molecule.
+    Args (mol): CDK mol object as input.
+    Returns (int): Number if aromatic rings present
+    """
+    Cycles = JClass(cdk_base + ".graph.Cycles")
+    ElectronDonation = JClass(cdk_base + ".aromaticity.ElectronDonation")
+
+    Aromaticity = JClass(cdk_base + ".aromaticity.Aromaticity")(
+        ElectronDonation.daylight(), Cycles.cdkAromaticSet()
+    )
+    Aromaticity.apply(mol)
+    MCBRings = Cycles.mcb(mol).toRingSet()
+    NumberOfAromaticRings = 0
+    for RingContainer in MCBRings.atomContainers():
+        AreAllRingBondsAromatic = True
+        for Bond in RingContainer.bonds():
+            if not Bond.isAromatic():
+                AreAllRingBondsAromatic = False
+                break
+        if AreAllRingBondsAromatic:
+            NumberOfAromaticRings += 1
+    return NumberOfAromaticRings
+
+
 def getCDKDescriptors(smiles: str):
     """Take an input SMILES and generate a selected set of molecular
     descriptors generated using CDK as a list.
@@ -172,7 +199,7 @@ def getCDKDescriptors(smiles: str):
             .calculate(Mol)
             .getValue()
         )
-        AromaticRings = None
+        AromaticRings = getAromaticRingCount(Mol)
         QEDWeighted = None
         FormalCharge = JClass(
             cdk_base + ".tools.manipulator.AtomContainerManipulator"
@@ -198,7 +225,7 @@ def getCDKDescriptors(smiles: str):
             str(HBondAcceptorCountDescriptor),
             str(HBondDonorCountDescriptor),
             str(RuleOfFiveDescriptor),
-            str(AromaticRings),
+            AromaticRings,
             str(QEDWeighted),
             FormalCharge,
             "{:.2f}".format(float(str(FractionalCSP3Descriptor))),
