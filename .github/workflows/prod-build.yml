@@ -77,7 +77,7 @@ jobs:
     - name: Build docker image
       run: |-
         docker build --build-arg RELEASE_VERSION=${{ steps.fetch-latest-release.outputs.tag_name }}  --tag "europe-west3-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_NAME/$APP_IMAGE:latest" .
-          .
+        
     # Push the Docker image to Google Container Registry
     - name: Publish image to Google Artifact Registry
       run: |-
