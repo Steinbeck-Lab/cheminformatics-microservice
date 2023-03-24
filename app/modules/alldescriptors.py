@@ -1,6 +1,6 @@
 from rdkit.Chem import Descriptors, QED, Lipinski, rdMolDescriptors, rdmolops
 from app.modules.rdkitmodules import checkRo5Violations, checkSMILES
-from app.modules.cdkmodules import getCDKSDG, JClass, cdk_base
+from app.modules.cdkmodules import getCDKSDG, JClass, cdk_base, getAromaticRingCount
 
 
 def getAllRDKitDescriptors(smiles: str):
@@ -116,7 +116,7 @@ def getAllCDKDescriptors(smiles: str):
             .calculate(Mol)
             .getValue()
         )
-        AromaticRings = None
+        AromaticRings = getAromaticRingCount(Mol)
         QEDWeighted = None
         FormalCharge = JClass(
             cdk_base + ".tools.manipulator.AtomContainerManipulator"
@@ -143,7 +143,7 @@ def getAllCDKDescriptors(smiles: str):
             int(str(HBondAcceptorCountDescriptor)),
             int(str(HBondDonorCountDescriptor)),
             int(str(RuleOfFiveDescriptor)),
-            str(AromaticRings),
+            AromaticRings,
             str(QEDWeighted),
             FormalCharge,
             "{:.2f}".format(float(str(FractionalCSP3Descriptor))),
