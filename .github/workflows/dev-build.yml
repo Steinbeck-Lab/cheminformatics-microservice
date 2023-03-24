@@ -1,3 +1,14 @@
+
+# This worklflow will perform following actions when the code is pushed to development branch:
+# - Test linting with pylint.
+# - Fetch Latest release.
+# - Build the latest docker image in development which needs test to pass first.
+# - Push the docker image to Github Artifact Registry-Dev.
+# 
+# Maintainers:
+#   - name: Nisha Sharma
+#   - email: nisha.sharma@uni-jena.de
+
 name : Dev Build, Test and Publish
 
 on:
