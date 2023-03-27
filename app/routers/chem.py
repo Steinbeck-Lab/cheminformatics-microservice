@@ -85,7 +85,9 @@ async def SMILES_descriptors(
             data = getCOCONUTDescriptors(smiles, toolkit)
             if toolkit == "all":
                 headers = ["Descriptor name", "RDKit Descriptors", "CDK Descriptors"]
-                df = pd.DataFrame.from_dict(data, orient="index", columns=headers[1:])
+                df = pd.DataFrame.from_dict(
+                    data, orient="index", columns=headers[1:], dtype=object
+                )
                 df.insert(0, headers[0], df.index)
             else:
                 headers = ["Descriptor name", "Values"]
