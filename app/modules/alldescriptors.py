@@ -15,7 +15,7 @@ def getAllRDKitDescriptors(smiles: str):
         BondC = mol.GetNumBonds()
         HeavyAtomsC = rdMolDescriptors.CalcNumHeavyAtoms(mol)
         MolWt = "%.2f" % Descriptors.MolWt(mol)
-        ExactMolWt = "%.2f" % Descriptors.ExactMolWt(mol)
+        ExactMolWt = "%.5f" % Descriptors.ExactMolWt(mol)
         ALogP = "%.2f" % QED.properties(mol).ALOGP
         NumRotatableBonds = rdMolDescriptors.CalcNumRotatableBonds(mol)
         PSA = "%.2f" % rdMolDescriptors.CalcTPSA(mol)
@@ -33,20 +33,20 @@ def getAllRDKitDescriptors(smiles: str):
             AtomC,
             BondC,
             HeavyAtomsC,
-            MolWt,
-            ExactMolWt,
-            ALogP,
+            float(MolWt),
+            float(ExactMolWt),
+            float(ALogP),
             NumRotatableBonds,
-            PSA,
+            float(PSA),
             HBA,
             HBD,
             Lipinski_HBA,
             Lipinski_HBD,
             Ro5Violations,
             AromaticRings,
-            QEDWeighted,
+            float(QEDWeighted),
             FormalCharge,
-            fsp3,
+            float(fsp3),
             NumRings,
         )
     else:
@@ -133,11 +133,11 @@ def getAllCDKDescriptors(smiles: str):
             int(str(AtomCountDescriptor)),
             int(str(BondCountDescriptor)),
             HeavyAtomsC,
-            "{:.2f}".format(float(str(WeightDescriptor))),
-            "{:.2f}".format(float(str(TotalExactMass))),
-            "{:.2f}".format(float(str(ALogP).split(",")[0])),
+            float("{:.2f}".format(float(str(WeightDescriptor)))),
+            float("{:.5f}".format(float(str(TotalExactMass)))),
+            float("{:.2f}".format(float(str(ALogP).split(",")[0]))),
             int(str(NumRotatableBonds)),
-            "{:.2f}".format(float(str(TPSADescriptor))),
+            float("{:.2f}".format(float(str(TPSADescriptor)))),
             int(str(HBondAcceptorCountDescriptor)),
             int(str(HBondDonorCountDescriptor)),
             int(str(HBondAcceptorCountDescriptor)),
@@ -146,7 +146,7 @@ def getAllCDKDescriptors(smiles: str):
             AromaticRings,
             str(QEDWeighted),
             FormalCharge,
-            "{:.2f}".format(float(str(FractionalCSP3Descriptor))),
+            float("{:.2f}".format(float(str(FractionalCSP3Descriptor)))),
             NumRings,
         )
 
