@@ -47,7 +47,7 @@ def getRDKitDescriptors(smiles: str):
         AtomC = rdMolDescriptors.CalcNumAtoms(mol)
         HeavyAtomsC = rdMolDescriptors.CalcNumHeavyAtoms(mol)
         MolWt = "%.2f" % Descriptors.MolWt(mol)
-        ExactMolWt = "%.2f" % Descriptors.ExactMolWt(mol)
+        ExactMolWt = "%.5f" % Descriptors.ExactMolWt(mol)
         ALogP = "%.2f" % QED.properties(mol).ALOGP
         NumRotatableBonds = rdMolDescriptors.CalcNumRotatableBonds(mol)
         PSA = "%.2f" % rdMolDescriptors.CalcTPSA(mol)
@@ -58,26 +58,26 @@ def getRDKitDescriptors(smiles: str):
         Ro5Violations = checkRo5Violations(mol)
         AromaticRings = rdMolDescriptors.CalcNumAromaticRings(mol)
         QEDWeighted = "%.2f" % QED.qed(mol)
-        FormalCharge = "%.2f" % rdmolops.GetFormalCharge(mol)
+        FormalCharge = rdmolops.GetFormalCharge(mol)
         fsp3 = "%.3f" % rdMolDescriptors.CalcFractionCSP3(mol)
         NumRings = rdMolDescriptors.CalcNumRings(mol)
         return (
             AtomC,
             HeavyAtomsC,
-            MolWt,
-            ExactMolWt,
-            ALogP,
+            float(MolWt),
+            float(ExactMolWt),
+            float(ALogP),
             NumRotatableBonds,
-            PSA,
+            float(PSA),
             HBA,
             HBD,
             Lipinski_HBA,
             Lipinski_HBD,
             Ro5Violations,
             AromaticRings,
-            QEDWeighted,
+            float(QEDWeighted),
             FormalCharge,
-            fsp3,
+            float(fsp3),
             NumRings,
         )
     else:

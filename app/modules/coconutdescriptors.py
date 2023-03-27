@@ -41,7 +41,7 @@ def getCOCONUTDescriptors(smiles: str, toolkit: str):
 
         hasLinearSugar, hasCircularSugars = getSugarInfo(smiles)
         framework = getMurkoFramework(smiles)
-        nplikeliness = getNPScore(smiles)
+        nplikeliness = float(getNPScore(smiles))
         CombinedDescriptors = list(Descriptors)
         CombinedDescriptors.extend(
             [hasLinearSugar, hasCircularSugars, framework, nplikeliness]
@@ -72,7 +72,10 @@ def getCOCONUTDescriptors(smiles: str, toolkit: str):
         )
 
         if len(DescriptorList) == len(CombinedDescriptors):
-            combinedDict = dict(zip(DescriptorList, zip(CombinedDescriptors)))
+            combinedDict = {
+                DescriptorList[i]: CombinedDescriptors[i]
+                for i in range(len(DescriptorList))
+            }
             return combinedDict
         else:
             return "Error Calculating Descriptors"
