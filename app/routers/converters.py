@@ -7,6 +7,7 @@ from rdkit.Chem import AllChem
 from typing import Optional
 from STOUT import translate_forward, translate_reverse
 from app.modules.cdkmodules import getCDKSDGMol
+from app.modules.rdkitmodules import get3Dconformers
 
 router = APIRouter(
     prefix="/convert",
@@ -54,16 +55,9 @@ async def smiles_generate3dconformer(smiles: str):
     - **smiles**: required (query parameter)
     """
     if smiles:
-        mol = Chem.MolFromSmiles(smiles)
-        if mol:
-            AllChem.Compute2DCoords(mol)
-            mol = Chem.AddHs(mol)
-            AllChem.EmbedMolecule(mol, randomSeed=0xF00D)
-            AllChem.MMFFOptimizeMolecule(mol)
-            mol = Chem.RemoveHs(mol)
-            return Response(content=Chem.MolToMolBlock(mol), media_type="text/plain")
-        else:
-            return "Error reading SMILES string check again."
+        return Response(
+            content=get3Dconformers(smiles, depict=False), media_type="text/plain"
+        )
     else:
         return "Error reading SMILES string check again."
 
