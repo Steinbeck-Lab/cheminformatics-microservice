@@ -84,7 +84,7 @@ def getRDKitDescriptors(smiles: str):
         return "Error reading SMILES string, check again."
 
 
-def get3Dconformers(smiles):
+def get3Dconformers(smiles, depict=True):
     """Convert SMILES to Mol with 3D coordinates
     Args (str): SMILES string.
     Returns (rdkil.mol): A mol object with 3D coordinates.
@@ -96,6 +96,10 @@ def get3Dconformers(smiles):
         mol = Chem.AddHs(mol)
         AllChem.EmbedMolecule(mol, randomSeed=0xF00D)
         AllChem.MMFFOptimizeMolecule(mol, maxIters=200)
-        return Chem.MolToMolBlock(mol)
+        if depict:
+            return Chem.MolToMolBlock(mol)
+        else:
+            mol = Chem.RemoveHs(mol)
+            return Chem.MolToMolBlock(mol)
     else:
         return "Error reading SMILES string, check again."
