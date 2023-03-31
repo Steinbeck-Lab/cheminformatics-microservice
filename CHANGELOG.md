@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.7.1](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.7.0...v0.7.1) (2023-03-31)
+
+
+### Bug Fixes
+
+* checks the URL input string has a space if it is a SMILES [#101](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/101) ([0c2b4a3](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/0c2b4a36c3df369f72dd52a5a93b8d3da755547f))
+* display float/int instead of str/array [#95](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/95) ([076742b](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/076742b2b2fc37b383eaa6a13c31ca21b6193379))
+* import pillow-heif ([d756680](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/d756680c836543d6cb2a0e7d492fcdab407813fc))
+* reduce import RDKit 3D coordinate generation ([baa0029](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/baa00290d5584d95904dc093cb725d673e985550))
+* remove tag name in dev docker build ([0b70edf](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/0b70edfe3dd833c2f023896ac5698e81822cbf40))
+
 ## [0.7.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.6.0...v0.7.0) (2023-03-24)
 
 
