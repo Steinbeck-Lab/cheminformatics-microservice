@@ -8,6 +8,8 @@ def checkSMILES(smiles: str):
     is valid. If not, it attempts to standardize the molecule
     using the ChEMBL standardization pipeline.
     """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
     mol = Chem.MolFromSmiles(smiles)
     try:
         if mol:
@@ -90,6 +92,8 @@ def get3Dconformers(smiles, depict=True):
     Returns (rdkil.mol): A mol object with 3D coordinates.
     optimized with MMFF94 forcefield.
     """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
     mol = Chem.MolFromSmiles(smiles)
     if mol:
         AllChem.Compute2DCoords(mol)

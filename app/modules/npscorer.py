@@ -81,7 +81,8 @@ def getNPScore(smiles):
     """Converts SMILES to RDKit mol object and generates the NP Score
 
     Returns the NP Score"""
-
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
     mol = Chem.MolFromSmiles(smiles)
 
     if mol:

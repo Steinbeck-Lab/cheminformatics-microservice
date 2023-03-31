@@ -41,6 +41,8 @@ def getCDKSDG(smiles: str):
     Returns:
             mol object : mol object with CDK SDG.
     """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
     SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
     SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
     molecule = SmilesParser.parseSmiles(smiles)
@@ -59,6 +61,8 @@ def getSugarInfo(smiles: str):
     Returns:
         (boolean): True or false values whtehr or not molecule has sugar.
     """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
     SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
     SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
     molecule = SmilesParser.parseSmiles(smiles)
@@ -84,6 +88,8 @@ def getMurkoFramework(smiles: str):
     Returns:
             smiles (string) : Murko Framework as SMILES.
     """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
     cdk_base = "org.openscience.cdk"
     SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
     MurkoFragmenter = JClass(cdk_base + ".fragment.MurckoFragmenter")(True, 3)
@@ -101,6 +107,8 @@ def getCDKSDGMol(smiles: str):
     Returns:
             mol object (string): CDK Structure Diagram Layout mol block.
     """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
     cdk_base = "org.openscience.cdk"
     StringW = JClass("java.io.StringWriter")()
 

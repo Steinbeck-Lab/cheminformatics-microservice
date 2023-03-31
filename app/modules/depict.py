@@ -43,6 +43,8 @@ def getCDKDepiction(smiles: str, molSize=(512, 512), rotate=0, unicolor=False):
             .withFillToFit()
             .withBackgroundColor(Color.WHITE)
         )
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
     mol = Chem.MolFromSmiles(smiles)
     if mol:
         moleculeSDG = getCDKSDG(smiles)
@@ -70,6 +72,8 @@ def getRDKitDepiction(smiles, molSize=(512, 512), rotate=0, kekulize=True):
             imag (PIL): CDK Structure Depiction as a pillow image.
             image (png): CDK Structure Depiction as a PNG image.
     """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
     mol = Chem.MolFromSmiles(smiles)
     if mol:
         mc = Chem.Mol(mol.ToBinary())

@@ -37,6 +37,8 @@ async def SMILES_stereoisomers(smiles: str):
 
     - **smiles**: required (query parameter)
     """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
     mol = Chem.MolFromSmiles(smiles)
     if mol:
         isomers = tuple(EnumerateStereoisomers(mol))
@@ -60,7 +62,7 @@ async def standardize_mol(request: Request):
     if mol:
         standardized_mol = standardizer.standardize_molblock(mol)
         rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
-        smiles = Chem.MolToSmiles(rdkit_mol)
+        smiles = Chem.MolToSmiles(rdkit_mol, kekuleSmiles=True)
         response = {}
         response["standardized_mol"] = standardized_mol
         response["cannonical_smiles"] = smiles

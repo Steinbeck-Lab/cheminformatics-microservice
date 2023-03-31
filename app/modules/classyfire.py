@@ -3,6 +3,8 @@ import json
 
 
 async def classify(smiles):
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
     url = "http://classyfire.wishartlab.com/queries/?format=json"
 
     payload = json.dumps(
