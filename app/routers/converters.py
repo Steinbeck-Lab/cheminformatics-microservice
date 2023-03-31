@@ -69,6 +69,8 @@ async def smiles_canonicalise(smiles: str):
 
     - **smiles**: required (query parameter)
     """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
     if smiles:
         mol = Chem.MolFromSmiles(smiles)
         if mol:
@@ -86,6 +88,8 @@ async def smiles_inchi(smiles: str):
 
     - **smiles**: required (query parameter)
     """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
     if smiles:
         mol = Chem.MolFromSmiles(smiles)
         if mol:
@@ -103,6 +107,8 @@ async def smiles_inchikey(smiles: str):
 
     - **smiles**: required (query parameter)
     """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
     if smiles:
         mol = Chem.MolFromSmiles(smiles)
         if mol:
@@ -120,12 +126,14 @@ async def smiles_convert(smiles: str):
 
     - **smiles**: required (query parameter)
     """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
     if smiles:
         mol = Chem.MolFromSmiles(smiles)
         if mol:
             response = {}
             response["mol"] = Chem.MolToMolBlock(mol)
-            response["cannonicalsmiles"] = Chem.MolToSmiles(mol)
+            response["cannonicalsmiles"] = Chem.MolToSmiles(mol, kekuleSmiles=True)
             response["inchi"] = Chem.inchi.MolToInchi(mol)
             response["inchikey"] = Chem.inchi.MolToInchiKey(mol)
             return response
@@ -142,6 +150,8 @@ async def smiles_iupac(smiles: str):
 
     - **smiles**: required (query)
     """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
     if smiles:
         iupac = translate_forward(smiles)
         return iupac
@@ -164,6 +174,8 @@ async def iupac_smiles(iupac: Optional[str], selfies: Optional[str]):
 
 @router.get("/selfies")
 async def encodeselfies(smiles: str):
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
     if smiles:
         selfies_e = sf.encoder(smiles)
         return selfies_e
