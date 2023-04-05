@@ -45,9 +45,10 @@ def getCDKDepiction(smiles: str, molSize=(512, 512), rotate=0, unicolor=False):
         )
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
-    mol = Chem.MolFromSmiles(smiles)
-    if mol:
-        moleculeSDG = getCDKSDG(smiles)
+
+    moleculeSDG = getCDKSDG(smiles)
+
+    if moleculeSDG:
 
         # Rotate molecule
         point = JClass(cdk_base + ".geometry.GeometryTools").get2DCenter(moleculeSDG)
