@@ -1,6 +1,7 @@
 from chembl_structure_pipeline import standardizer
 from rdkit import Chem
 from rdkit.Chem import AllChem, Descriptors, QED, Lipinski, rdMolDescriptors, rdmolops
+from app.modules.cdkmodules import getCDKSDGMol
 
 
 def checkSMILES(smiles: str):
@@ -94,7 +95,11 @@ def get3Dconformers(smiles, depict=True):
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
-    mol = Chem.MolFromSmiles(smiles)
+    if smiles.__contains__("R"):
+        mol_str = getCDKSDGMol(smiles)
+        mol = Chem.MolFromMolBlock(mol_str)
+    else:
+        mol = Chem.MolFromSmiles(smiles)
     if mol:
         AllChem.Compute2DCoords(mol)
         mol = Chem.AddHs(mol)
