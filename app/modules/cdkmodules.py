@@ -90,7 +90,6 @@ def getMurkoFramework(smiles: str):
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
-    cdk_base = "org.openscience.cdk"
     SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
     MurkoFragmenter = JClass(cdk_base + ".fragment.MurckoFragmenter")(True, 3)
     SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
@@ -109,7 +108,6 @@ def getCDKSDGMol(smiles: str):
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
-    cdk_base = "org.openscience.cdk"
     StringW = JClass("java.io.StringWriter")()
 
     moleculeSDG = getCDKSDG(smiles)
