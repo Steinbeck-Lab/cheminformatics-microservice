@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.7.2](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.7.1...v0.7.2) (2023-04-05)
+
+
+### Bug Fixes
+
+* cleanup double imports CDK ([40fa345](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/40fa3454375142f405153883df4e0728403788db))
+* Depict SMILES with R-group in 3D ([e402b54](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/e402b5466f59b03ffdc37bf6af20bad7367d9292))
+* for CDK depiction only check using CDKSDG [#111](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/111) ([4d455a5](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/4d455a533a0c4455b62ecb4a94d4f46bcd2cb395))
+
 ## [0.7.1](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.7.0...v0.7.1) (2023-03-31)
 
 
