@@ -4,7 +4,7 @@ from rdkit import Chem
 from rdkit.Chem.EnumerateStereoisomers import (
     EnumerateStereoisomers,
 )
-from chembl_structure_pipeline import standardizer
+from chembl_structure_pipeline import standardizer, checker
 from fastapi.responses import Response, HTMLResponse
 from app.modules.npscorer import getNPScore
 from app.modules.classyfire import classify, result
@@ -169,6 +169,31 @@ async def depict_molecule(
                 content=getRDKitDepiction(smiles, [width, height], rotate),
                 media_type="image/svg+xml",
             )
+
+
+@router.get("/checkerrors")
+async def check_errors(smiles: str, fix: Optional[bool] = False):
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
+    if smiles:
+        mol = Chem.MolFromSmiles(smiles, sanitize=False)
+        if mol:
+            mol_block = Chem.MolToMolBlock(mol)
+            if len(checker.check_molblock(mol_block)) == 0:
+                return "No Errors Found"
+            else:
+                issues = checker.check_molblock(mol_block)
+                if fix:
+                    standardized_mol = standardizer.standardize_molblock(mol_block)
+                    rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
+                    standardizedsmiles = Chem.MolToSmiles(rdkit_mol)
+                    return "Standardized SMILES: ", standardizedsmiles
+                else:
+                    return issues
+        else:
+            return "Error reading SMILES string, check again."
+    else:
+        return "Error reading SMILES string, check again."
 
 
 @router.get("/depict3D", response_class=HTMLResponse)
