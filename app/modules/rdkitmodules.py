@@ -1,5 +1,5 @@
 from chembl_structure_pipeline import standardizer
-from rdkit import Chem
+from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem, Descriptors, QED, Lipinski, rdMolDescriptors, rdmolops
 from app.modules.cdkmodules import getCDKSDGMol
 
@@ -112,3 +112,25 @@ def get3Dconformers(smiles, depict=True):
             return Chem.MolToMolBlock(mol)
     else:
         return "Error reading SMILES string, check again."
+
+
+def getTanimoto(smiles1, smiles2):
+    """
+    Take two SMILES strings and calculate
+    Tanimoto similarity index using Morgan
+    Fingerprints.
+    Args (str,str): SMILES strings.
+    Returns (float): Tanimoto similarity.
+    """
+    # create two example molecules
+    mol1 = checkSMILES(smiles1)
+    mol2 = checkSMILES(smiles2)
+
+    # generate Morgan fingerprints for each molecule
+    fp1 = AllChem.GetMorganFingerprintAsBitVect(mol1, 2, nBits=1024)
+    fp2 = AllChem.GetMorganFingerprintAsBitVect(mol2, 2, nBits=1024)
+
+    # calculate the Tanimoto similarity between the fingerprints
+    similarity = DataStructs.TanimotoSimilarity(fp1, fp2)
+
+    return similarity

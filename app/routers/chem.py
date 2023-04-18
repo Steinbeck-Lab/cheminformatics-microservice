@@ -8,9 +8,9 @@ from chembl_structure_pipeline import standardizer
 from fastapi.responses import Response, HTMLResponse
 from app.modules.npscorer import getNPScore
 from app.modules.classyfire import classify, result
-from app.modules.cdkmodules import getCDKSDGMol
+from app.modules.cdkmodules import getCDKSDGMol, getTanimotoSimilarity
 from app.modules.depict import getRDKitDepiction, getCDKDepiction
-from app.modules.rdkitmodules import get3Dconformers
+from app.modules.rdkitmodules import get3Dconformers, getTanimoto
 from app.modules.coconutdescriptors import getCOCONUTDescriptors
 import pandas as pd
 from fastapi.templating import Jinja2Templates
@@ -137,6 +137,17 @@ async def CDK2D_coordinates(smiles: str):
             return getCDKSDGMol(smiles)
         else:
             return "Error reading SMILES string, check again."
+
+
+@router.get("/tanimoto")
+async def Tanimoto(smiles: str, toolkit: Optional[str] = "cdk"):
+    if smiles:
+        smiles1, smiles2 = smiles.split(",")
+        if toolkit == "rdkit":
+            Tanimoto = getTanimoto(smiles1, smiles2)
+        else:
+            Tanimoto = getTanimotoSimilarity(smiles1, smiles2)
+        return Tanimoto
 
 
 @router.get("/depict")
