@@ -32,11 +32,11 @@ async def chem_index():
 
 
 @router.get("/stereoisomers")
-async def SMILES_stereoisomers(smiles: str):
+async def SMILES_to_Stereo_Isomers(smiles: str):
     """
-    Enumerate all possible stereoisomers based on the chiral centers in the given smiles:
+    Enumerate all possible stereoisomers based on the chiral centers in the given SMILES:
 
-    - **smiles**: required (query parameter)
+    - **SMILES**: required (query parameter)
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
@@ -52,9 +52,10 @@ async def SMILES_stereoisomers(smiles: str):
 
 
 @router.post("/standardize")
-async def standardize_mol(mol: Annotated[str, Body(embed=True)]):
+async def Standardize_Mol(mol: Annotated[str, Body(embed=True)]):
     """
-    Standardize molblock using the ChEMBL curation pipeline routine:
+    Standardize molblock using the ChEMBL curation pipeline routine
+    and return the Standardized molecule, SMILES, InChI and InCHI-Key:
 
     - **mol**: required
     """
@@ -73,13 +74,13 @@ async def standardize_mol(mol: Annotated[str, Body(embed=True)]):
 
 
 @router.get("/descriptors")
-async def SMILES_descriptors(
+async def SMILES_Descriptors(
     smiles: str, format: Optional[str] = "json", toolkit: Optional[str] = "rdkit"
 ):
     """
-    Generate standard descriptors for the input molecules (smiles):
+    Generate standard descriptors for the input molecules (SMILES):
 
-    - **smiles**: required (query)
+    - **SMILES**: required (query)
     """
     if smiles:
         if format == "html":
@@ -103,11 +104,11 @@ async def SMILES_descriptors(
 
 
 @router.get("/npscore")
-async def NPlikeliness_score(smiles: str):
+async def NPlikeliness_Score(smiles: str):
     """
     Generate natural product likeliness score based on RDKit implementation
 
-    - **smiles**: required (query)
+    - **SMILES**: required (query)
     """
     if smiles:
         np_score = getNPScore(smiles)
@@ -115,21 +116,36 @@ async def NPlikeliness_score(smiles: str):
 
 
 @router.get("/classyfire/classify")
-async def classyfire_classify(smiles: str):
+async def ClassyFire_Classify(smiles: str):
+    """
+    Generate ClassyFire based classifications using SMILES as input.
+
+    - **SMILES**: required (query)
+    """
     if smiles:
         data = await classify(smiles)
         return data
 
 
 @router.get("/classyfire/{id}/result")
-async def classyfire_result(id: str):
+async def ClassyFire_result(id: str):
+    """
+    Get the ClassyFire classification results using ID.
+
+    - **ID**: required (query)
+    """
     if id:
         data = await result(id)
         return data
 
 
 @router.get("/cdk2d")
-async def CDK2D_coordinates(smiles: str):
+async def CDK2D_Coordinates(smiles: str):
+    """
+    Generate 2D Coordinates using CDK Strcture diagram generator and return the mol block.
+
+    - **SMILES**: required (query)
+    """
     if smiles:
         mol = Chem.MolFromSmiles(smiles)
         if mol:
@@ -139,7 +155,13 @@ async def CDK2D_coordinates(smiles: str):
 
 
 @router.get("/tanimoto")
-async def Tanimoto(smiles: str, toolkit: Optional[str] = "cdk"):
+async def Tanimoto_Similarity(smiles: str, toolkit: Optional[str] = "cdk"):
+    """
+    Generate Tanimoto similarity index for a given pair of SMILES strings.
+
+    - **SMILES**: required (query)
+    - **toolkit**: optional (defaults: cdk)
+    """
     if smiles:
         smiles1, smiles2 = smiles.split(",")
         if toolkit == "rdkit":
@@ -150,13 +172,22 @@ async def Tanimoto(smiles: str, toolkit: Optional[str] = "cdk"):
 
 
 @router.get("/depict")
-async def depict_molecule(
+async def Depict2D_molecule(
     smiles: str,
     generator: Optional[str] = "cdksdg",
     width: Optional[int] = 512,
     height: Optional[int] = 512,
     rotate: Optional[int] = 0,
 ):
+    """
+    Generate 2D Depictions using CDK or RDKit using given parameters.
+
+    - **SMILES**: required (query)
+    - **generator**: optional (defaults: cdk)
+    - **width**: optional (defaults: 512)
+    - **height**: optional (defaults: 512)
+    - **rotate**: optional (defaults: 0)
+    """
     if generator:
         if generator == "cdksdg":
             return Response(
@@ -171,7 +202,13 @@ async def depict_molecule(
 
 
 @router.get("/checkerrors")
-async def check_errors(smiles: str, fix: Optional[bool] = False):
+async def Check_Errors(smiles: str, fix: Optional[bool] = False):
+    """
+    Check issues for a given SMILES string and standardize it using ChEMBL curation pipeline.
+
+    - **SMILES**: required (query)
+    - **fix**: optional (defaults: False)
+    """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
     if smiles:
@@ -196,10 +233,15 @@ async def check_errors(smiles: str, fix: Optional[bool] = False):
 
 
 @router.get("/depict3D", response_class=HTMLResponse)
-async def depict3D_molecule(
+async def Depict3D_Molecule(
     request: Request,
     smiles: str,
 ):
+    """
+    Generate 3D Depictions using RDKit.
+
+    - **SMILES**: required (query)
+    """
     if smiles:
         content = {"request": request, "molecule": get3Dconformers(smiles)}
         return templates.TemplateResponse("mol.html", content)

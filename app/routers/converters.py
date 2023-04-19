@@ -23,11 +23,11 @@ async def converters_index():
 
 
 @router.get("/mol")
-async def smiles_mol(smiles: str, generator: Optional[str] = "cdk"):
+async def SMILES_Mol(smiles: str, generator: Optional[str] = "cdk"):
     """
     Convert SMILES to mol block:
 
-    - **smiles**: required (query parameter)
+    - **SMILES**: required (query parameter)
     - **generator**: optional (defaults: cdk)
     """
     if smiles:
@@ -48,11 +48,11 @@ async def smiles_mol(smiles: str, generator: Optional[str] = "cdk"):
 
 
 @router.get("/rdkit3d")
-async def smiles_generate3dconformer(smiles: str):
+async def SMILES_Generate3DConformer(smiles: str):
     """
-    Generate a random 3D conformer from SMILES:
+    Generate a random 3D conformer from SMILES using RDKit:
 
-    - **smiles**: required (query parameter)
+    - **SMILES**: required (query parameter)
     """
     if smiles:
         return Response(
@@ -63,11 +63,11 @@ async def smiles_generate3dconformer(smiles: str):
 
 
 @router.get("/canonicalsmiles")
-async def smiles_canonicalise(smiles: str):
+async def SMILES_Canonicalise(smiles: str):
     """
     Cannonicalise SMILES:
 
-    - **smiles**: required (query parameter)
+    - **SMILES**: required (query parameter)
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
@@ -82,11 +82,11 @@ async def smiles_canonicalise(smiles: str):
 
 
 @router.get("/inchi")
-async def smiles_inchi(smiles: str):
+async def SMILES_to_InChI(smiles: str):
     """
     Convert SMILES to InChI:
 
-    - **smiles**: required (query parameter)
+    - **SMILES**: required (query parameter)
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
@@ -101,11 +101,11 @@ async def smiles_inchi(smiles: str):
 
 
 @router.get("/inchikey")
-async def smiles_inchikey(smiles: str):
+async def SMILES_to_InChIKey(smiles: str):
     """
     Convert SMILES to InChIKey:
 
-    - **smiles**: required (query parameter)
+    - **SMILES**: required (query parameter)
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
@@ -119,12 +119,12 @@ async def smiles_inchikey(smiles: str):
         return "Error reading SMILES string check again."
 
 
-@router.get("/convert")
-async def smiles_convert(smiles: str):
+@router.get("/formats")
+async def SMILES_convert_to_Formats(smiles: str):
     """
     Convert SMILES to mol block:
 
-    - **smiles**: required (query parameter)
+    - **SMILES**: required (query parameter)
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
@@ -144,11 +144,11 @@ async def smiles_convert(smiles: str):
 
 
 @router.get("/iupac")
-async def smiles_iupac(smiles: str):
+async def SMILES_to_IUPACname(smiles: str):
     """
     Generate IUPAC name using STOUT package:
 
-    - **smiles**: required (query)
+    - **SMILES**: required (query)
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
@@ -158,12 +158,12 @@ async def smiles_iupac(smiles: str):
 
 
 @router.get("/smiles")
-async def iupac_smiles(iupac: Optional[str], selfies: Optional[str]):
+async def IUPACname_or_SELFIES_to_SMILES(iupac: Optional[str], selfies: Optional[str]):
     """
     Generate SMILES from IUPAC name or selfies:
 
-    - **iupac**: optional
-    - **selfies**: optional
+    - **IUPAC**: optional
+    - **SELFIES**: optional
     """
     if iupac:
         return translate_reverse(iupac)
@@ -173,7 +173,12 @@ async def iupac_smiles(iupac: Optional[str], selfies: Optional[str]):
 
 
 @router.get("/selfies")
-async def encodeselfies(smiles: str):
+async def encode_SELFIES(smiles: str):
+    """
+    Generate SELFIES from SMILES:
+
+    - **SELFIES**: required (query)
+    """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
     if smiles:
