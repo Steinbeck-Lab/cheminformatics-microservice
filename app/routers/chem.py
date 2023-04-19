@@ -163,12 +163,15 @@ async def Tanimoto_Similarity(smiles: str, toolkit: Optional[str] = "cdk"):
     - **toolkit**: optional (defaults: cdk)
     """
     if smiles:
-        smiles1, smiles2 = smiles.split(",")
-        if toolkit == "rdkit":
-            Tanimoto = getTanimoto(smiles1, smiles2)
-        else:
-            Tanimoto = getTanimotoSimilarity(smiles1, smiles2)
-        return Tanimoto
+        try:
+            smiles1, smiles2 = smiles.split(",")
+            if toolkit == "rdkit":
+                Tanimoto = getTanimoto(smiles1, smiles2)
+            else:
+                Tanimoto = getTanimotoSimilarity(smiles1, smiles2)
+            return Tanimoto
+        except ValueError:
+            return 'Please give a SMILES pair with "," seperated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
 
 
 @router.get("/depict")
@@ -220,10 +223,21 @@ async def Check_Errors(smiles: str, fix: Optional[bool] = False):
             else:
                 issues = checker.check_molblock(mol_block)
                 if fix:
+                    issues = checker.check_molblock(mol_block)
                     standardized_mol = standardizer.standardize_molblock(mol_block)
+                    issues_new = checker.check_molblock(standardized_mol)
                     rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
                     standardizedsmiles = Chem.MolToSmiles(rdkit_mol)
-                    return "Standardized SMILES: ", standardizedsmiles
+                    if len(issues_new) == 0:
+                        issues_new = "No Errors Found"
+
+                    parsed_data = {
+                        "Issue with Original SMILES": issues,
+                        "Standardized SMILES": standardizedsmiles,
+                        "Issues with Standardized SMILES": issues_new,
+                    }
+
+                    return parsed_data
                 else:
                     return issues
         else:
