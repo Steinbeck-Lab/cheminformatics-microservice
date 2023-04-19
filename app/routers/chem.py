@@ -232,13 +232,13 @@ async def Check_Errors(smiles: str, fix: Optional[bool] = False):
                         issues_new = "No Errors Found"
 
                     parsed_data = {
-                        "source" : {
-                            "SMILES"   : smiles,
-                            "messages" : issues,
+                        "source": {
+                            "SMILES": smiles,
+                            "messages": issues,
                         },
-                        "standardized" : {
-                            "SMILES" : standardizedsmiles,
-                            "messages" : issues_new,
+                        "standardized": {
+                            "SMILES": standardizedsmiles,
+                            "messages": issues_new,
                         },
                     }
                     return parsed_data
