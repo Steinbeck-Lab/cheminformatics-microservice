@@ -5,13 +5,13 @@ from rdkit import Chem
 from rdkit.Chem.EnumerateStereoisomers import (
     EnumerateStereoisomers,
 )
-from chembl_structure_pipeline import standardizer
+from chembl_structure_pipeline import standardizer, checker
 from fastapi.responses import Response, HTMLResponse
 from app.modules.npscorer import getNPScore
 from app.modules.classyfire import classify, result
-from app.modules.cdkmodules import getCDKSDGMol
+from app.modules.cdkmodules import getCDKSDGMol, getTanimotoSimilarity
 from app.modules.depict import getRDKitDepiction, getCDKDepiction
-from app.modules.rdkitmodules import get3Dconformers
+from app.modules.rdkitmodules import get3Dconformers, getTanimoto
 from app.modules.coconutdescriptors import getCOCONUTDescriptors
 import pandas as pd
 from fastapi.templating import Jinja2Templates
@@ -138,6 +138,17 @@ async def CDK2D_coordinates(smiles: str):
             return "Error reading SMILES string, check again."
 
 
+@router.get("/tanimoto")
+async def Tanimoto(smiles: str, toolkit: Optional[str] = "cdk"):
+    if smiles:
+        smiles1, smiles2 = smiles.split(",")
+        if toolkit == "rdkit":
+            Tanimoto = getTanimoto(smiles1, smiles2)
+        else:
+            Tanimoto = getTanimotoSimilarity(smiles1, smiles2)
+        return Tanimoto
+
+
 @router.get("/depict")
 async def depict_molecule(
     smiles: str,
@@ -157,6 +168,31 @@ async def depict_molecule(
                 content=getRDKitDepiction(smiles, [width, height], rotate),
                 media_type="image/svg+xml",
             )
+
+
+@router.get("/checkerrors")
+async def check_errors(smiles: str, fix: Optional[bool] = False):
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
+    if smiles:
+        mol = Chem.MolFromSmiles(smiles, sanitize=False)
+        if mol:
+            mol_block = Chem.MolToMolBlock(mol)
+            if len(checker.check_molblock(mol_block)) == 0:
+                return "No Errors Found"
+            else:
+                issues = checker.check_molblock(mol_block)
+                if fix:
+                    standardized_mol = standardizer.standardize_molblock(mol_block)
+                    rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
+                    standardizedsmiles = Chem.MolToSmiles(rdkit_mol)
+                    return "Standardized SMILES: ", standardizedsmiles
+                else:
+                    return issues
+        else:
+            return "Error reading SMILES string, check again."
+    else:
+        return "Error reading SMILES string, check again."
 
 
 @router.get("/depict3D", response_class=HTMLResponse)
