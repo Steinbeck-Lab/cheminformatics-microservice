@@ -16,12 +16,17 @@ router = APIRouter(
 
 
 @router.get("/")
-async def decimer_index():
+async def DECIMER_Index():
     return {"module": "decimer", "message": "Successful", "status": 200}
 
 
 @router.post("/process")
-async def extract_chemicalinfo(request: Request):
+async def Extract_ChemicalInfo(request: Request):
+    """
+    Extract chemical structure depictions and convert them into SMILES using DECIMER:
+
+    - **Images**: required (query)
+    """
     body = await request.json()
     image_path = body["path"]
     reference = body["reference"]
