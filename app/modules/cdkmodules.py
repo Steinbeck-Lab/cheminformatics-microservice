@@ -239,7 +239,7 @@ def getCDKDescriptors(smiles: str):
         )
 
 
-def getTanimotoSimilarity(smiles1: str, smiles2: str):
+def getTanimotoSimilarityCDK(smiles1: str, smiles2: str):
     """
     Take two SMILES strings and calculate
     Tanimoto similarity index using Pubchem
