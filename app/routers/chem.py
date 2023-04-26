@@ -9,10 +9,11 @@ from chembl_structure_pipeline import standardizer, checker
 from fastapi.responses import Response, HTMLResponse
 from app.modules.npscorer import getNPScore
 from app.modules.classyfire import classify, result
-from app.modules.cdkmodules import getCDKSDGMol, getTanimotoSimilarity
+from app.modules.cdkmodules import getCDKSDGMol, getTanimotoSimilarityCDK
 from app.modules.depict import getRDKitDepiction, getCDKDepiction
-from app.modules.rdkitmodules import get3Dconformers, getTanimoto
+from app.modules.rdkitmodules import get3Dconformers, getTanimotoSimilarityRDKit
 from app.modules.coconutdescriptors import getCOCONUTDescriptors
+from app.modules.alldescriptors import getTanimotoSimilarity
 import pandas as pd
 from fastapi.templating import Jinja2Templates
 
@@ -162,16 +163,24 @@ async def Tanimoto_Similarity(smiles: str, toolkit: Optional[str] = "cdk"):
     - **SMILES**: required (query)
     - **toolkit**: optional (defaults: cdk)
     """
-    if smiles:
+    if len(smiles.split(",")) == 2:
         try:
             smiles1, smiles2 = smiles.split(",")
             if toolkit == "rdkit":
-                Tanimoto = getTanimoto(smiles1, smiles2)
+                Tanimoto = getTanimotoSimilarityRDKit(smiles1, smiles2)
             else:
-                Tanimoto = getTanimotoSimilarity(smiles1, smiles2)
+                Tanimoto = getTanimotoSimilarityCDK(smiles1, smiles2)
             return Tanimoto
         except ValueError:
             return 'Please give a SMILES pair with "," seperated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
+    elif len(smiles.split(",")) > 2:
+        try:
+            matrix = getTanimotoSimilarity(smiles, toolkit)
+            return Response(content=matrix, media_type="text/html")
+        except ValueError:
+            return 'Please give a SMILES pair with "," seperated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
+    else:
+        return 'Please give a SMILES pair with "," seperated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
 
 
 @router.get("/depict")

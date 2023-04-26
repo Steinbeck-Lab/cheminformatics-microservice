@@ -114,7 +114,7 @@ def get3Dconformers(smiles, depict=True):
         return "Error reading SMILES string, check again."
 
 
-def getTanimoto(smiles1, smiles2):
+def getTanimotoSimilarityRDKit(smiles1, smiles2):
     """
     Take two SMILES strings and calculate
     Tanimoto similarity index using Morgan
