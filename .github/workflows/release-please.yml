@@ -43,7 +43,7 @@ jobs:
         flake8 --ignore E501,W503 $(git ls-files '*.py')
     - name: Run test
       run: |
-        pytest -p no:warnings
+        python3 -m pytest -p no:warnings
 
   release-please:
     runs-on: ubuntu-latest
