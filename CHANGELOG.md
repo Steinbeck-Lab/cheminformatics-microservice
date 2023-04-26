@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.8.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.7.2...v0.8.0) (2023-04-26)
+
+
+### Features
+
+* Add calculating Tanimoto similarity [#117](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/117) ([c64f931](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/c64f9314102b2ccbf69db1d6c15f51ed04c0f21b))
+* Add display Tanimoto similarity matrix [#131](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/131) ([2ed0db3](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/2ed0db3e5e6e1268bd42afda0f3834dda436f67f))
+* Add npscore and depict tests ([14be128](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/14be1280ff39a55a3f20a2f5c07cf001045837a7))
+* check and standardize molecules. [#118](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/118),[#119](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/119) ([a7f8548](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/a7f854893cbc97eb2e7cd7fd03651bbc7bc14cbd))
+* return standardized SMILES with more info as distionary, minor bug fixes ([a195543](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/a1955435bca0c6d4121fc5b830eefa14e04b7d16))
+
+
+### Bug Fixes
+
+* linter issues ([6e8a2e2](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/6e8a2e2ee0d6c6704c24e9bf5d9b0eff100d35cd))
+* Naming conventions and descriptions. Fixes: [#121](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/121),[#122](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/122) and [#123](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/123) ([112b68f](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/112b68fb2166e097f1ab33100415f851da5643f3))
+* update pytest run ([79f5fc4](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/79f5fc4a3a3b891690e5ee24e4eef7d97e0760c1))
+
 ## [0.7.2](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.7.1...v0.7.2) (2023-04-05)
 
 
