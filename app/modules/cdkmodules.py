@@ -237,3 +237,37 @@ def getCDKDescriptors(smiles: str):
             float("{:.2f}".format(float(str(FractionalCSP3Descriptor)))),
             int(NumRings),
         )
+
+
+def getTanimotoSimilarityCDK(smiles1: str, smiles2: str):
+    """
+    Take two SMILES strings and calculate
+    Tanimoto similarity index using Pubchem
+    Fingerprints.
+    Args (str,str): SMILES strings.
+    Returns (float): Tanimoto similarity.
+    """
+    if any(char.isspace() for char in smiles1):
+        smiles1 = smiles1.replace(" ", "+")
+    if any(char.isspace() for char in smiles2):
+        smiles2 = smiles2.replace(" ", "+")
+
+    Tanimoto = JClass(cdk_base + ".similarity.Tanimoto")
+    SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
+    SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
+    PubchemFingerprinter = JClass(cdk_base + ".fingerprint.PubchemFingerprinter")(
+        SCOB.getInstance()
+    )
+
+    # parse molecules to get IAtomContainers
+    mol1 = SmilesParser.parseSmiles(smiles1)
+    mol2 = SmilesParser.parseSmiles(smiles2)
+
+    # Generate BitSets using PubChemFingerprinter
+    fingerprint1 = PubchemFingerprinter.getBitFingerprint(mol1).asBitSet()
+    fingerprint2 = PubchemFingerprinter.getBitFingerprint(mol2).asBitSet()
+
+    # Calculate Tanimoto similarity
+    Similarity = Tanimoto.calculate(fingerprint1, fingerprint2)
+
+    return "{:.5f}".format(float(str(Similarity)))
