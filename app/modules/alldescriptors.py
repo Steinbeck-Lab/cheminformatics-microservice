@@ -175,7 +175,7 @@ def getCDKRDKitcombinedDescriptors(smiles: str):
         "Heavy atom count",
         "Molecular weight",
         "Exact molecular weight",
-        "ALogP",
+        "Calculated LogP",
         "Rotatable bond count",
         "Topological polar surface area",
         "Hydrogen bond acceptors",
