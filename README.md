@@ -13,7 +13,7 @@
 [![framework](https://img.shields.io/badge/Framework-FastAPI-blue?style)](https://fastapi.tiangolo.com/)
 [![FastAPI Documentation](https://img.shields.io/badge/docs-fastapi-blue)](https://api.naturalproducts.net/docs#/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7747862.svg)](https://doi.org/10.5281/zenodo.7747862)
-## Overview of Cheminformatics Micro Services
+## Overview of Cheminformatics Python Microservice
 
 This set of essential and valuable microservices is designed to be accessed via API calls to support cheminformatics. Generally, it is designed to work with SMILES-based inputs and could be used to translate between different machine-readable representations, get Natural Product (NP) likeliness scores, visualize chemical structures, and generate descriptors. In addition, the microservices also host an instance of [STOUT](https://github.com/Kohulan/Smiles-TO-iUpac-Translator) and another instance of [DECIMER](https://github.com/Kohulan/DECIMER-Image_Transformer) (two deep learning models for IUPAC name generation and optical chemical structure recognition, respectively).
 
@@ -65,10 +65,28 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
 
 ## Citation
 
-Venkata, C., Sharma, N., & Rajan, K. (2023). cheminformatics-python-microservice (Version v0.3.0 - prerelease) [Computer software]. https://doi.org/10.5281/zenodo.7747862
+Venkata, C., Sharma, N., & Rajan, K. (2023). Cheminformatics Python Microservice (Version v0.8.0 - prerelease) [Computer software]. https://doi.org/10.5281/zenodo.7747862
+
+## Version information
+<p align="center">
+  <b>Cheminformatics Python Microservice: V0.8.0</b>
+</p>
+
+<p align="center">
+  
+| Tools      | Version   |
+|------------|-----------|
+| RDKit      | 04.09.22  |
+| CDK        | 02.08.00  |
+| STOUT      | 0         |
+| DECIMER    | 0         |
+  
+</p>
+
+
 
 ## Maintained by
 
-Cheminformatics Micro Services and [Natural Products Online](https://naturalproducts.net) are developed and maintained by the [Steinbeck group](https://cheminf.uni-jena.de) at the [Friedrich Schiller University](https://www.uni-jena.de/en/) Jena, Germany. 
+Cheminformatics Python Microservice and [Natural Products Online](https://naturalproducts.net) are developed and maintained by the [Steinbeck group](https://cheminf.uni-jena.de) at the [Friedrich Schiller University](https://www.uni-jena.de/en/) Jena, Germany. 
 The code for this web application is released under the [MIT license](https://opensource.org/licenses/MIT). Copyright © CC-BY-SA 2023
 <p align="center"><a href="https://cheminf.uni-jena.de/" target="_blank"><img src="https://github.com/Kohulan/DECIMER-Image-to-SMILES/blob/master/assets/CheminfGit.png" width="800" alt="cheminf Logo"></a></p>

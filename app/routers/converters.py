@@ -33,7 +33,10 @@ async def SMILES_Mol(smiles: str, generator: Optional[str] = "cdk"):
     if smiles:
         if generator:
             if generator == "cdk":
-                return Response(content=getCDKSDGMol(smiles), media_type="text/plain")
+                return Response(
+                    content=getCDKSDGMol(smiles).replace("$$$$\n", ""),
+                    media_type="text/plain",
+                )
             else:
                 mol = Chem.MolFromSmiles(smiles)
                 if mol:
