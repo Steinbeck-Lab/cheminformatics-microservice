@@ -1,21 +1,19 @@
-FROM debian:buster-20230227-slim AS cheminf-python-ms
+FROM continuumio/miniconda3 AS cheminf-python-ms
+
+ENV PYTHON_VERSION=3.10
+ENV RDKIT_VERSION=2023.03.1
 
 ARG RELEASE_VERSION
 ENV RELEASE_VERSION=${RELEASE_VERSION}
 
 # Install runtime dependencies
-RUN apt-get update \
- && apt-get upgrade -y \
- && apt-get install -y --no-install-recommends \
-    python3 \
-    python3-pip \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
-
 RUN apt-get update && \
     apt-get install -y software-properties-common && \
     apt-get update -y && \
     apt-get install -y openjdk-11-jre
+
+RUN conda install -c conda-forge python>=$PYTHON_VERSION
+RUN conda install -c conda-forge rdkit>=RDKIT_VERSION
 
 RUN python3 -m pip install -U pip
 
