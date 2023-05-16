@@ -150,7 +150,10 @@ async def CDK2D_Coordinates(smiles: str):
     if smiles:
         mol = Chem.MolFromSmiles(smiles)
         if mol:
-            return getCDKSDGMol(smiles)
+            return Response(
+                content=getCDKSDGMol(smiles).replace("$$$$\n", ""),
+                media_type="text/plain",
+            )
         else:
             return "Error reading SMILES string, check again."
 
