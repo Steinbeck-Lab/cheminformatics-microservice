@@ -2,11 +2,13 @@ import xml.etree.ElementTree as ET
 from rdkit import Chem
 from rdkit.Chem import rdDepictor
 from rdkit.Chem.Draw import rdMolDraw2D
-from app.modules.cdkmodules import getCDKSDG
+from app.modules.cdkmodules import getCDKSDG, getCIPAnnotation
 from jpype import JClass
 
 
-def getCDKDepiction(smiles: str, molSize=(512, 512), rotate=0, unicolor=False):
+def getCDKDepiction(
+    smiles: str, molSize=(512, 512), rotate=0, CIP=True, unicolor=False
+):
     """This function takes the user input SMILES and Depicts it
        using the CDK Depiction Generator.
     Args:
@@ -25,7 +27,6 @@ def getCDKDepiction(smiles: str, molSize=(512, 512), rotate=0, unicolor=False):
         DepictionGenerator = (
             JClass(cdk_base + ".depict.DepictionGenerator")()
             .withSize(molSize[0], molSize[1])
-            .withAtomValues()
             .withParam(StandardGenerator.StrokeRatio.class_, 1.0)
             .withAnnotationColor(Color.BLACK)
             .withParam(StandardGenerator.AtomColor.class_, UniColor(Color.BLACK))
@@ -37,7 +38,6 @@ def getCDKDepiction(smiles: str, molSize=(512, 512), rotate=0, unicolor=False):
             JClass(cdk_base + ".depict.DepictionGenerator")()
             .withAtomColors(CDK2DAtomColors)
             .withSize(molSize[0], molSize[1])
-            .withAtomValues()
             .withParam(StandardGenerator.StrokeRatio.class_, 1.0)
             .withFillToFit()
             .withBackgroundColor(Color.WHITE)
@@ -45,7 +45,10 @@ def getCDKDepiction(smiles: str, molSize=(512, 512), rotate=0, unicolor=False):
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
 
-    moleculeSDG = getCDKSDG(smiles)
+    if CIP:
+        moleculeSDG = getCIPAnnotation(smiles)
+    else:
+        moleculeSDG = getCDKSDG(smiles)
 
     if moleculeSDG:
 
