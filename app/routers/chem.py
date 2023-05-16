@@ -150,10 +150,7 @@ async def CDK2D_Coordinates(smiles: str):
     if smiles:
         mol = Chem.MolFromSmiles(smiles)
         if mol:
-            return Response(
-                content=getCDKSDGMol(smiles).replace("$$$$\n", ""),
-                media_type="text/plain",
-            )
+            return getCDKSDGMol(smiles)
         else:
             return "Error reading SMILES string, check again."
 
@@ -193,6 +190,8 @@ async def Depict2D_molecule(
     width: Optional[int] = 512,
     height: Optional[int] = 512,
     rotate: Optional[int] = 0,
+    CIP: Optional[bool] = True,
+    unicolor: Optional[bool] = False,
 ):
     """
     Generate 2D Depictions using CDK or RDKit using given parameters.
@@ -206,7 +205,7 @@ async def Depict2D_molecule(
     if generator:
         if generator == "cdksdg":
             return Response(
-                content=getCDKDepiction(smiles, [width, height], rotate),
+                content=getCDKDepiction(smiles, [width, height], rotate, CIP, unicolor),
                 media_type="image/svg+xml",
             )
         else:
