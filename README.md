@@ -76,7 +76,7 @@ Venkata, C., Sharma, N., & Rajan, K. (2023). Cheminformatics Python Microservice
   
 | Tools      | Version   |
 |------------|-----------|
-| RDKit      | 2022.09.4 |
+| RDKit      | 2023.03.1 |
 | CDK        | 2.8.0     |
 | STOUT      | 2.0.0     |
 | DECIMER    | 2.2.0     |
