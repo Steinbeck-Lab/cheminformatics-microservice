@@ -35,7 +35,7 @@ async def chem_index():
 @router.get("/stereoisomers")
 async def SMILES_to_Stereo_Isomers(smiles: str):
     """
-    Enumerate all possible stereoisomers based on the chiral centers in the given SMILES:
+    Enumerate all possible stereoisomers based on the chiral centres in the given SMILES:
 
     - **SMILES**: required (query parameter)
     """
@@ -119,7 +119,7 @@ async def NPlikeliness_Score(smiles: str):
 @router.get("/classyfire/classify")
 async def ClassyFire_Classify(smiles: str):
     """
-    Generate ClassyFire based classifications using SMILES as input.
+    Generate ClassyFire-based classifications using SMILES as input.
 
     - **SMILES**: required (query)
     """
@@ -143,14 +143,35 @@ async def ClassyFire_result(id: str):
 @router.get("/cdk2d")
 async def CDK2D_Coordinates(smiles: str):
     """
-    Generate 2D Coordinates using CDK Strcture diagram generator and return the mol block.
+    Generate 2D Coordinates using the CDK Structure diagram generator and return the mol block.
 
     - **SMILES**: required (query)
     """
     if smiles:
         mol = Chem.MolFromSmiles(smiles)
         if mol:
-            return getCDKSDGMol(smiles)
+            return Response(
+                content=getCDKSDGMol(smiles).replace("$$$$\n", ""),
+                media_type="text/plain",
+            )
+        else:
+            return "Error reading SMILES string, check again."
+
+
+@router.get("/rdkit3d")
+async def RDKit3D_Mol(smiles: str):
+    """
+    Generate 3D Coordinates using RDKit and return the mol block.
+
+    - **SMILES**: required (query)
+    """
+    if smiles:
+        mol = Chem.MolFromSmiles(smiles)
+        if mol:
+            return Response(
+                content=get3Dconformers(smiles).replace("$$$$\n", ""),
+                media_type="text/plain",
+            )
         else:
             return "Error reading SMILES string, check again."
 
@@ -158,7 +179,7 @@ async def CDK2D_Coordinates(smiles: str):
 @router.get("/tanimoto")
 async def Tanimoto_Similarity(smiles: str, toolkit: Optional[str] = "cdk"):
     """
-    Generate Tanimoto similarity index for a given pair of SMILES strings.
+    Generate the Tanimoto similarity index for a given pair of SMILES strings.
 
     - **SMILES**: required (query)
     - **toolkit**: optional (defaults: cdk)
@@ -172,15 +193,15 @@ async def Tanimoto_Similarity(smiles: str, toolkit: Optional[str] = "cdk"):
                 Tanimoto = getTanimotoSimilarityCDK(smiles1, smiles2)
             return Tanimoto
         except ValueError:
-            return 'Please give a SMILES pair with "," seperated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
+            return 'Please give a SMILES pair with "," separated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
     elif len(smiles.split(",")) > 2:
         try:
             matrix = getTanimotoSimilarity(smiles, toolkit)
             return Response(content=matrix, media_type="text/html")
         except ValueError:
-            return 'Please give a SMILES pair with "," seperated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
+            return 'Please give a SMILES pair with "," separated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
     else:
-        return 'Please give a SMILES pair with "," seperated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
+        return 'Please give a SMILES pair with "," separated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
 
 
 @router.get("/depict")
@@ -190,7 +211,7 @@ async def Depict2D_molecule(
     width: Optional[int] = 512,
     height: Optional[int] = 512,
     rotate: Optional[int] = 0,
-    CIP: Optional[bool] = True,
+    CIP: Optional[bool] = False,
     unicolor: Optional[bool] = False,
 ):
     """
@@ -218,7 +239,7 @@ async def Depict2D_molecule(
 @router.get("/checkerrors")
 async def Check_Errors(smiles: str, fix: Optional[bool] = False):
     """
-    Check issues for a given SMILES string and standardize it using ChEMBL curation pipeline.
+    Check issues for a given SMILES string and standardize it using the ChEMBL curation pipeline.
 
     - **SMILES**: required (query)
     - **fix**: optional (defaults: False)
