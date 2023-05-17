@@ -211,7 +211,7 @@ async def Depict2D_molecule(
     width: Optional[int] = 512,
     height: Optional[int] = 512,
     rotate: Optional[int] = 0,
-    CIP: Optional[bool] = True,
+    CIP: Optional[bool] = False,
     unicolor: Optional[bool] = False,
 ):
     """
