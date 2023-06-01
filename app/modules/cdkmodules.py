@@ -376,3 +376,21 @@ def getCIPAnnotation(smiles: str):
             )
 
     return mol
+
+
+def getCXSMILES(smiles: str):
+    """This function takes the user input SMILES and creates a
+    CXSMILES string with 2D atom coordinates
+    Args:
+            smiles (string): SMILES string given by the user.
+    Returns:
+            smiles (string): CXSMILES string.
+
+    """
+    moleculeSDG = getCDKSDG(smiles)
+    SmiFlavor = JClass(cdk_base + ".smiles.SmiFlavor")
+    SmilesGenerator = JClass(cdk_base + ".smiles.SmilesGenerator")(
+        SmiFlavor.Absolute | SmiFlavor.CxSmilesWithCoords
+    )
+    CXSMILES = SmilesGenerator.create(moleculeSDG)
+    return str(CXSMILES)
