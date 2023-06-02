@@ -51,7 +51,6 @@ def getCDKDepiction(
         moleculeSDG = getCDKSDG(smiles)
 
     if moleculeSDG:
-
         # Rotate molecule
         point = JClass(cdk_base + ".geometry.GeometryTools").get2DCenter(moleculeSDG)
         JClass(cdk_base + ".geometry.GeometryTools").rotate(
