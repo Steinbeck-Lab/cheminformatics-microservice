@@ -6,7 +6,7 @@ from rdkit.Chem.EnumerateStereoisomers import (
     EnumerateStereoisomers,
 )
 from chembl_structure_pipeline import standardizer, checker
-from fastapi.responses import Response, HTMLResponse
+from fastapi.responses import Response, HTMLResponse, JSONResponse
 from app.modules.npscorer import getNPScore
 from app.modules.classyfire import classify, result
 from app.modules.cdkmodules import (
@@ -22,6 +22,7 @@ from app.modules.rdkitmodules import (
 )
 from app.modules.coconutdescriptors import getCOCONUTDescriptors
 from app.modules.alldescriptors import getTanimotoSimilarity
+from app.modules.coconutpreprocess import COCONUTpreprocessing
 import pandas as pd
 from fastapi.templating import Jinja2Templates
 
@@ -312,6 +313,20 @@ async def HOSE_Codes(framework: str, smiles: str, spheres: int, ringsize: bool =
             return await getCDKHOSECodes(smiles, spheres, ringsize)
         elif framework == "rdkit":
             return await getRDKitHOSECodes(smiles, spheres)
+    else:
+        return "Error reading SMILES string, check again."
+
+
+@router.get("/coconutpreprocessing")
+async def COCONUT_Preprocessing(smiles: str):
+    """
+    Generate Input JSON file for COCONUT.
+
+    - **SMILES**: required (query)
+    """
+    if smiles:
+        data = COCONUTpreprocessing(smiles)
+        return JSONResponse(content=data)
     else:
         return "Error reading SMILES string, check again."
 

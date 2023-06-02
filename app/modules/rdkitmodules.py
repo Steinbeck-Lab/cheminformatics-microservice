@@ -137,7 +137,14 @@ def getTanimotoSimilarityRDKit(smiles1, smiles2):
     return similarity
 
 
-async def getRDKitHOSECodes(smiles: str, noOfSpheres: int):
+def getRDKitHOSECodes(smiles: str, noOfSpheres: int):
+    """
+    This function takes a SMILES string as input and
+    returns the calculated HOSEcodes
+    Args (smiles: str, noOfSpheres: int): SMILES string and No of Spheres as int.
+    Returns: hosecodes
+
+    """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
     mol = Chem.MolFromSmiles(smiles)
@@ -147,3 +154,43 @@ async def getRDKitHOSECodes(smiles: str, noOfSpheres: int):
         hosecode = gen.get_Hose_codes(mol, i, noOfSpheres)
         hosecodes.append(hosecode)
     return hosecodes
+
+
+def is_valid_molecule(input_text):
+    """
+    This functions checks whether the input text
+    is a molblock or SMILES.
+    Args (str): SMILES string or molblock.
+    Returns (str): SMILES/Mol flag.
+    """
+    try:
+        molecule = Chem.MolFromSmiles(input_text)
+        if molecule:
+            return "smiles"
+        else:
+            molecule = Chem.MolFromMolBlock(input_text)
+            if molecule:
+                return "mol"
+            else:
+                return False
+    except Exception:
+        return False
+
+
+def has_stereochemistry(smiles: str):
+    """
+    This function checks whether the input has stereochemistry or not.
+    Args (str) : SMILES string.
+    Returns (bool): True or false.
+    """
+    mol = Chem.MolFromSmiles(smiles)
+
+    if mol is None:
+        return False
+
+    for atom in mol.GetAtoms():
+        chiral_tag = atom.GetChiralTag()
+        if chiral_tag != Chem.ChiralType.CHI_UNSPECIFIED:
+            return True
+
+    return False
