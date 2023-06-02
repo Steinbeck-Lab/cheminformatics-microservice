@@ -394,3 +394,27 @@ def getCXSMILES(smiles: str):
     )
     CXSMILES = SmilesGenerator.create(moleculeSDG)
     return str(CXSMILES)
+
+
+async def getCDKHOSECodes(smiles: str, noOfSpheres: int, ringsize: bool):
+    """This function takes the user input SMILES and returns a mol
+       block as a string with Structure Diagram Layout.
+    Args:
+            smiles (string): SMILES string given by the user.
+    Returns:
+            mol object (string): CDK Structure Diagram Layout mol block.
+    """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
+    SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
+    SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
+    molecule = SmilesParser.parseSmiles(smiles)
+    HOSECodeGenerator = JClass(cdk_base + ".tools.HOSECodeGenerator")()
+    HOSECodes = []
+    atoms = molecule.atoms()
+    for atom in atoms:
+        moleculeHOSECode = HOSECodeGenerator.getHOSECode(
+            molecule, atom, noOfSpheres, ringsize
+        )
+        HOSECodes.append(str(moleculeHOSECode))
+    return HOSECodes

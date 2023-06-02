@@ -9,9 +9,17 @@ from chembl_structure_pipeline import standardizer, checker
 from fastapi.responses import Response, HTMLResponse
 from app.modules.npscorer import getNPScore
 from app.modules.classyfire import classify, result
-from app.modules.cdkmodules import getCDKSDGMol, getTanimotoSimilarityCDK
+from app.modules.cdkmodules import (
+    getCDKSDGMol,
+    getTanimotoSimilarityCDK,
+    getCDKHOSECodes,
+)
 from app.modules.depict import getRDKitDepiction, getCDKDepiction
-from app.modules.rdkitmodules import get3Dconformers, getTanimotoSimilarityRDKit
+from app.modules.rdkitmodules import (
+    get3Dconformers,
+    getTanimotoSimilarityRDKit,
+    getRDKitHOSECodes,
+)
 from app.modules.coconutdescriptors import getCOCONUTDescriptors
 from app.modules.alldescriptors import getTanimotoSimilarity
 import pandas as pd
@@ -295,6 +303,17 @@ async def Depict3D_Molecule(
     if smiles:
         content = {"request": request, "molecule": get3Dconformers(smiles)}
         return templates.TemplateResponse("mol.html", content)
+
+
+@router.get("/hosecode")
+async def HOSE_Codes(framework: str, smiles: str, spheres: int, ringsize: bool = False):
+    if smiles:
+        if framework == "cdk":
+            return await getCDKHOSECodes(smiles, spheres, ringsize)
+        elif framework == "rdkit":
+            return await getRDKitHOSECodes(smiles, spheres)
+    else:
+        return "Error reading SMILES string, check again."
 
 
 # @app.get("/molecules/", response_model=List[schemas.Molecule])
