@@ -137,7 +137,14 @@ def getTanimotoSimilarityRDKit(smiles1, smiles2):
     return similarity
 
 
-async def getRDKitHOSECodes(smiles: str, noOfSpheres: int):
+def getRDKitHOSECodes(smiles: str, noOfSpheres: int):
+    """
+    This function takes a SMILES string as input and
+    returns the calculated HOSEcodes
+    Args (smiles: str, noOfSpheres: int): SMILES string and No of Spheres as int.
+    Returns: hosecodes
+
+    """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
     mol = Chem.MolFromSmiles(smiles)

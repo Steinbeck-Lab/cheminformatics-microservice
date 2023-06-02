@@ -102,14 +102,18 @@ def getMurkoFramework(smiles: str):
     SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
     molecule = SmilesParser.parseSmiles(smiles)
     MurkoFragmenter.generateFragments(molecule)
+    if len(MurkoFragmenter.getFrameworks()) == 0:
+        return "None"
+
     return str(MurkoFragmenter.getFrameworks()[0])
 
 
-def getCDKSDGMol(smiles: str):
+def getCDKSDGMol(smiles: str, V3000=False):
     """This function takes the user input SMILES and returns a mol
        block as a string with Structure Diagram Layout.
     Args:
             smiles (string): SMILES string given by the user.
+            V3000 (boolean): Gives an option to return V3000 mol.
     Returns:
             mol object (string): CDK Structure Diagram Layout mol block.
     """
@@ -119,6 +123,7 @@ def getCDKSDGMol(smiles: str):
 
     moleculeSDG = getCDKSDG(smiles)
     SDFW = JClass(cdk_base + ".io.SDFWriter")(StringW)
+    SDFW.setAlwaysV3000(V3000)
     SDFW.write(moleculeSDG)
     SDFW.flush()
     mol_str = str(StringW.toString())
@@ -396,13 +401,13 @@ def getCXSMILES(smiles: str):
     return str(CXSMILES)
 
 
-async def getCDKHOSECodes(smiles: str, noOfSpheres: int, ringsize: bool):
+def getCDKHOSECodes(smiles: str, noOfSpheres: int, ringsize: bool):
     """This function takes the user input SMILES and returns a mol
        block as a string with Structure Diagram Layout.
     Args:
-            smiles (string): SMILES string given by the user.
+            smiles(str), noOfSpheres(int), ringsize(bool): SMILES string, No of Spheres and the ringsize given by the user.
     Returns:
-            mol object (string): CDK Structure Diagram Layout mol block.
+            HOSECodes (string): CDK generted HOSECodes.
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
