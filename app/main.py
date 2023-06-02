@@ -1,13 +1,25 @@
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
+from fastapi_versioning import VersionedFastAPI
 
 # from .config import settings
-from .routers import chem, converters, compose, decimer
+from .routers import chem, converters, decimer
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.openapi.utils import get_openapi
-import os
 
-app = FastAPI()
+app = FastAPI(
+    title="Cheminf Micro Services",
+    description="This set of essential and valuable microservices is designed to be accessed via API calls to support cheminformatics. Generally, it is designed to work with SMILES-based inputs and could be used to translate between different machine-readable representations, get Natural Product (NP) likeliness scores, visualize chemical structures, and generate descriptors. In addition, the microservices also host an instance of STOUT and another instance of DECIMER (two deep learning models for IUPAC name generation and optical chemical structure recognition, respectively).",
+    terms_of_service="https://github.com/Steinbeck-Lab",
+    contact={
+        "name": "Steinbeck Lab",
+        "url": "https://cheminf.uni-jena.de/",
+        "email": "caffeine@listserv.uni-jena.de",
+    },
+    license_info={
+        "name": "CC BY 4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+    },
+)
 
 origins = ["*"]
 
@@ -21,7 +33,6 @@ app.add_middleware(
 
 app.include_router(chem.router)
 app.include_router(converters.router)
-app.include_router(compose.router)
 app.include_router(decimer.router)
 
 
@@ -30,20 +41,18 @@ async def docs_redirect():
     return RedirectResponse(url="/docs")
 
 
-def custom_openapi():
-    if app.openapi_schema:
-        return app.openapi_schema
-    openapi_schema = get_openapi(
-        title="Cheminf Micro Services",
-        version=os.getenv("RELEASE_VERSION", "latest"),
-        description="This set of essential and valuable microservices is designed to be accessed via API calls to support cheminformatics. Generally, it is designed to work with SMILES-based inputs and could be used to translate between different machine-readable representations, get Natural Product (NP) likeliness scores, visualize chemical structures, and generate descriptors. In addition, the microservices also host an instance of STOUT and another instance of DECIMER (two deep learning models for IUPAC name generation and optical chemical structure recognition, respectively).",
-        routes=app.routes,
-    )
-    openapi_schema["info"]["x-logo"] = {
-        "url": "https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/raw/main/public/img/logo.png"
-    }
-    app.openapi_schema = openapi_schema
-    return app.openapi_schema
-
-
-app.openapi = custom_openapi
+app = VersionedFastAPI(
+    app,
+    version_format="{major}",
+    prefix_format="/v{major}",
+    terms_of_service="https://github.com/Steinbeck-Lab",
+    contact={
+        "name": "Steinbeck Lab",
+        "url": "https://cheminf.uni-jena.de/",
+        "email": "caffeine@listserv.uni-jena.de",
+    },
+    license_info={
+        "name": "CC BY 4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+    },
+)

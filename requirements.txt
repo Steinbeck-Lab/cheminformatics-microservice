@@ -1,6 +1,7 @@
 fastapi>=0.80.0
 uvicorn>=0.15.0,<0.16.0
 fastapi-pagination==0.10.0
+fastapi-versioning>=0.10.0
 rdkit-pypi>=2022.09.4
 websockets==10.4
 pillow==9.4.0
@@ -18,3 +19,4 @@ pillow-heif==0.10.0
 selfies>=2.1.1
 jinja2
 pandas
+HOSE_code_generator @ git+https://github.com/Ratsemaat/HOSE_code_generator

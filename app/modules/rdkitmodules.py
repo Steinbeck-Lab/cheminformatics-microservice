@@ -2,6 +2,7 @@ from chembl_structure_pipeline import standardizer
 from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem, Descriptors, QED, Lipinski, rdMolDescriptors, rdmolops
 from app.modules.cdkmodules import getCDKSDGMol
+from hosegen import HoseGenerator
 
 
 def checkSMILES(smiles: str):
@@ -134,3 +135,15 @@ def getTanimotoSimilarityRDKit(smiles1, smiles2):
     similarity = DataStructs.TanimotoSimilarity(fp1, fp2)
 
     return similarity
+
+
+async def getRDKitHOSECodes(smiles: str, noOfSpheres: int):
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
+    mol = Chem.MolFromSmiles(smiles)
+    gen = HoseGenerator()
+    hosecodes = []
+    for i in range(0, len(mol.GetAtoms()) - 1):
+        hosecode = gen.get_Hose_codes(mol, i, noOfSpheres)
+        hosecodes.append(hosecode)
+    return hosecodes
