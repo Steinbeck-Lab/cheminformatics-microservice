@@ -1,0 +1,9 @@
+/* .vitepress/theme/custom.css */
+:root {
+  --vp-c-brand: #0086d9;
+  --vp-c-brand-light: #0086d9;
+}
+
+.logo{
+  min-height: 48px;
+}
