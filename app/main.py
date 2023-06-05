@@ -1,7 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi_versioning import VersionedFastAPI
-from fastapi.routing import APIRoute
 
 # from .config import settings
 from .routers import chem, converters, decimer
@@ -53,6 +52,7 @@ app = VersionedFastAPI(
     },
 )
 
+
 @app.get("/", include_in_schema=False)
 async def root():
-    return RedirectResponse(url="/docs")
+    return RedirectResponse(url="https://steinbeck-lab.github.io/cheminformatics-python-microservice")
