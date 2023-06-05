@@ -6,7 +6,7 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 from typing import Optional
 from STOUT import translate_forward, translate_reverse
-from app.modules.cdkmodules import getCDKSDGMol
+from app.modules.cdkmodules import getCDKSDGMol, getCXSMILES
 from app.modules.rdkitmodules import get3Dconformers
 
 router = APIRouter(
@@ -33,7 +33,10 @@ async def SMILES_Mol(smiles: str, generator: Optional[str] = "cdk"):
     if smiles:
         if generator:
             if generator == "cdk":
-                return Response(content=getCDKSDGMol(smiles), media_type="text/plain")
+                return Response(
+                    content=getCDKSDGMol(smiles).replace("$$$$\n", ""),
+                    media_type="text/plain",
+                )
             else:
                 mol = Chem.MolFromSmiles(smiles)
                 if mol:
@@ -115,6 +118,22 @@ async def SMILES_to_InChIKey(smiles: str):
             return Chem.inchi.MolToInchiKey(mol)
         else:
             return "Error reading SMILES string check again."
+    else:
+        return "Error reading SMILES string check again."
+
+
+@router.get("/cxsmiles")
+async def SMILES_to_CXSMILES(smiles: str):
+    """
+    Convert SMILES to CXSMILES:
+
+    - **SMILES**: required (query parameter)
+    """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
+    if smiles:
+        cxsmiles = getCXSMILES(smiles)
+        return cxsmiles
     else:
         return "Error reading SMILES string check again."
 

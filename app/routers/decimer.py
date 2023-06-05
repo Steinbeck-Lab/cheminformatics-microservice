@@ -23,9 +23,9 @@ async def DECIMER_Index():
 
 @router.post("/process")
 async def Extract_ChemicalInfo(
-    path: Annotated[str, Body(embed=True)],
-    reference: Annotated[str, Body(embed=True)],
-    img: Annotated[str, Body(embed=True)],
+    path: Annotated[str, Body(embed=True)] = None,
+    reference: Annotated[str, Body(embed=True)] = None,
+    img: Annotated[str, Body(embed=True)] = None,
 ):
     """
     Extract chemical structure depictions and convert them into SMILES using DECIMER:

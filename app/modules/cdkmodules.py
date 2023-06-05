@@ -18,10 +18,14 @@ except JVMNotFoundException:
 if not isJVMStarted():
     cdk_path = "https://github.com/cdk/cdk/releases/download/cdk-2.8/cdk-2.8.jar"
     sru_path = "https://github.com/JonasSchaub/SugarRemoval/releases/download/v1.3.2/SugarRemovalUtility-jar-with-dependencies.jar"
+    centres_path = (
+        "https://github.com/SiMolecule/centres/releases/download/1.0/centres.jar"
+    )
     cdkjar_path = str(pystow.join("STOUT-V2")) + "/cdk-2.8.jar"
     srujar_path = (
         str(pystow.join("STOUT-V2")) + "/SugarRemovalUtility-jar-with-dependencies.jar"
     )
+    centresjar_path = str(pystow.join("STOUT-V2")) + "/centres.jar"
 
     if not os.path.exists(cdkjar_path):
         jar_path = pystow.ensure("STOUT-V2", url=cdk_path)
@@ -29,7 +33,10 @@ if not isJVMStarted():
     if not os.path.exists(srujar_path):
         jar_path = pystow.ensure("STOUT-V2", url=sru_path)
 
-    startJVM("-ea", classpath=[cdkjar_path, srujar_path])
+    if not os.path.exists(centresjar_path):
+        jar_path = pystow.ensure("STOUT-V2", url=centres_path)
+
+    startJVM("-ea", classpath=[cdkjar_path, srujar_path, centresjar_path])
     cdk_base = "org.openscience.cdk"
 
 
@@ -95,14 +102,18 @@ def getMurkoFramework(smiles: str):
     SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
     molecule = SmilesParser.parseSmiles(smiles)
     MurkoFragmenter.generateFragments(molecule)
+    if len(MurkoFragmenter.getFrameworks()) == 0:
+        return "None"
+
     return str(MurkoFragmenter.getFrameworks()[0])
 
 
-def getCDKSDGMol(smiles: str):
+def getCDKSDGMol(smiles: str, V3000=False):
     """This function takes the user input SMILES and returns a mol
        block as a string with Structure Diagram Layout.
     Args:
             smiles (string): SMILES string given by the user.
+            V3000 (boolean): Gives an option to return V3000 mol.
     Returns:
             mol object (string): CDK Structure Diagram Layout mol block.
     """
@@ -112,6 +123,7 @@ def getCDKSDGMol(smiles: str):
 
     moleculeSDG = getCDKSDG(smiles)
     SDFW = JClass(cdk_base + ".io.SDFWriter")(StringW)
+    SDFW.setAlwaysV3000(V3000)
     SDFW.write(moleculeSDG)
     SDFW.flush()
     mol_str = str(StringW.toString())
@@ -271,3 +283,143 @@ def getTanimotoSimilarityCDK(smiles1: str, smiles2: str):
     Similarity = Tanimoto.calculate(fingerprint1, fingerprint2)
 
     return "{:.5f}".format(float(str(Similarity)))
+
+
+def getCIPAnnotation(smiles: str):
+    """
+    The function return the CIP annotations using the CDK
+    CIP toolkit.
+    Args: mol block
+    Returns: CIP annotated mol block
+    """
+    mol = getCDKSDG(smiles)
+    centres_base = "com.simolecule.centres"
+    Cycles = JClass(cdk_base + ".graph.Cycles")
+    IBond = JClass(cdk_base + ".interfaces.IBond")
+    IStereoElement = JClass(cdk_base + ".interfaces.IStereoElement")
+    Stereocenters = JClass(cdk_base + ".stereo.Stereocenters")
+    StandardGenerator = JClass(
+        cdk_base + ".renderer.generators.standard.StandardGenerator"
+    )
+
+    BaseMol = JClass(centres_base + ".BaseMol")
+    CdkLabeller = JClass(centres_base + ".CdkLabeller")
+    Descriptor = JClass(centres_base + ".Descriptor")
+
+    stereocenters = Stereocenters.of(mol)
+    for atom in mol.atoms():
+        if (
+            stereocenters.isStereocenter(atom.getIndex())
+            and stereocenters.elementType(atom.getIndex())
+            == Stereocenters.Type.Tetracoordinate
+        ):
+            atom.setProperty(StandardGenerator.ANNOTATION_LABEL, "(?)")
+
+    for bond in mol.bonds():
+        if bond.getOrder() != IBond.Order.DOUBLE:
+            continue
+        begIdx = bond.getBegin().getIndex()
+        endIdx = bond.getEnd().getIndex()
+        if (
+            stereocenters.elementType(begIdx) == Stereocenters.Type.Tricoordinate
+            and stereocenters.elementType(endIdx) == Stereocenters.Type.Tricoordinate
+            and stereocenters.isStereocenter(begIdx)
+            and stereocenters.isStereocenter(endIdx)
+        ):
+            # only if not in a small ring <7
+            if Cycles.smallRingSize(bond, 7) == 0:
+                bond.setProperty(StandardGenerator.ANNOTATION_LABEL, "(?)")
+    # no defined stereo?
+    if not mol.stereoElements().iterator().hasNext():
+        return mol
+
+    CdkLabeller.label(mol)
+
+    # update to label appropriately for racmic and relative stereochemistry
+    for se in mol.stereoElements():
+        if se.getConfigClass() == IStereoElement.TH and se.getGroupInfo() != 0:
+            focus = se.getFocus()
+            label = focus.getProperty(BaseMol.CIP_LABEL_KEY)
+            if (
+                isinstance(label, Descriptor)
+                and label != Descriptor.ns
+                and label != Descriptor.Unknown
+            ):
+                if (se.getGroupInfo() & IStereoElement.GRP_RAC) != 0:
+                    inv = None
+                    if label == Descriptor.R:
+                        inv = Descriptor.S
+                    elif label == Descriptor.S:
+                        inv = Descriptor.R
+                    if inv is not None:
+                        focus.setProperty(
+                            BaseMol.CIP_LABEL_KEY, label.toString() + inv.name()
+                        )
+                elif (se.getGroupInfo() & IStereoElement.GRP_REL) != 0:
+                    if label in [Descriptor.R, Descriptor.S]:
+                        focus.setProperty(BaseMol.CIP_LABEL_KEY, label.toString() + "*")
+
+    for atom in mol.atoms():
+        if atom.getProperty(BaseMol.CONF_INDEX) is not None:
+            atom.setProperty(
+                StandardGenerator.ANNOTATION_LABEL,
+                StandardGenerator.ITALIC_DISPLAY_PREFIX
+                + str(atom.getProperty(BaseMol.CONF_INDEX)),
+            )
+        elif atom.getProperty(BaseMol.CIP_LABEL_KEY) is not None:
+            atom.setProperty(
+                StandardGenerator.ANNOTATION_LABEL,
+                StandardGenerator.ITALIC_DISPLAY_PREFIX
+                + str(atom.getProperty(BaseMol.CIP_LABEL_KEY)),
+            )
+    for bond in mol.bonds():
+        if bond.getProperty(BaseMol.CIP_LABEL_KEY) is not None:
+            bond.setProperty(
+                StandardGenerator.ANNOTATION_LABEL,
+                StandardGenerator.ITALIC_DISPLAY_PREFIX
+                + bond.getProperty(BaseMol.CIP_LABEL_KEY),
+            )
+
+    return mol
+
+
+def getCXSMILES(smiles: str):
+    """This function takes the user input SMILES and creates a
+    CXSMILES string with 2D atom coordinates
+    Args:
+            smiles (string): SMILES string given by the user.
+    Returns:
+            smiles (string): CXSMILES string.
+
+    """
+    moleculeSDG = getCDKSDG(smiles)
+    SmiFlavor = JClass(cdk_base + ".smiles.SmiFlavor")
+    SmilesGenerator = JClass(cdk_base + ".smiles.SmilesGenerator")(
+        SmiFlavor.Absolute | SmiFlavor.CxSmilesWithCoords
+    )
+    CXSMILES = SmilesGenerator.create(moleculeSDG)
+    return str(CXSMILES)
+
+
+def getCDKHOSECodes(smiles: str, noOfSpheres: int, ringsize: bool):
+    """This function takes the user input SMILES and returns a mol
+       block as a string with Structure Diagram Layout.
+    Args:
+            smiles(str), noOfSpheres(int), ringsize(bool): SMILES string, No of Spheres and the ringsize given by the user.
+    Returns:
+            HOSECodes (string): CDK generted HOSECodes.
+    """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
+    SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
+    SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
+    molecule = SmilesParser.parseSmiles(smiles)
+    HOSECodeGenerator = JClass(cdk_base + ".tools.HOSECodeGenerator")()
+    HOSECodes = []
+    atoms = molecule.atoms()
+    for atom in atoms:
+        moleculeHOSECode = HOSECodeGenerator.getHOSECode(
+            molecule, atom, noOfSpheres, ringsize
+        )
+        HOSECodes.append(str(moleculeHOSECode))
+    return HOSECodes
