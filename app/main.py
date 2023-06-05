@@ -41,7 +41,7 @@ async def docs_redirect():
     return RedirectResponse(url="/docs")
 
 
-versioned_app = VersionedFastAPI(
+app = VersionedFastAPI(
     app,
     version_format="{major}",
     prefix_format="/v{major}",

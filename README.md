@@ -23,37 +23,37 @@ This set of essential and valuable microservices is designed to be accessed via 
 
   - SMILES to IUPAC name
   ```fastapi
-  https://api.naturalproducts.net/convert/iupac?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
+  https://api.naturalproducts.net/v1/convert/iupac?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
   ```
   - SMILES to SELFIES
   ```fastapi
-  https://api.naturalproducts.net/convert/selfies?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
+  https://api.naturalproducts.net/v1/convert/selfies?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
   ```
   - SMILES to mol (default: CDK)
   ```fastapi
-  https://api.naturalproducts.net/convert/mol?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
+  https://api.naturalproducts.net/v1/convert/mol?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
   ```
   ```fastapi
-  https://api.naturalproducts.net/convert/mol?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C&generator=rdkit
+  https://api.naturalproducts.net/v1/convert/mol?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C&generator=rdkit
   ```
 
 - Chem
 
   - Calculate Descriptors
   ```fastapi
-  https://api.naturalproducts.net/chem/descriptors?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
+  https://api.naturalproducts.net/v1/chem/descriptors?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
   ```
   - Depict molecule (default: CDK)
   ```fastapi
-  https://api.naturalproducts.net/chem/depict?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
+  https://api.naturalproducts.net/v1/chem/depict?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
   ```
   - Depict molecule with settings
   ```fastapi
-  https://api.naturalproducts.net/chem/depict?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C&generator=rdkit&width=256&height=256&rotate=75
+  https://api.naturalproducts.net/v1/chem/depict?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C&generator=rdkit&width=256&height=256&rotate=75
   ```
   - Visualize molecule in 3D
   ```fastapi
-  https://api.naturalproducts.net/chem/depict3D?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
+  https://api.naturalproducts.net/v1/chem/depict3D?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
   ```
 
 > **Note**
