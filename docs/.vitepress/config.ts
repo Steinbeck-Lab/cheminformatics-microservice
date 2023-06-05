@@ -17,7 +17,7 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Docs', link: '/introduction' },
-      { text: 'API', link: '/api' }
+      { text: 'API', link: 'https://api.naturalproducts.net/docs' }
     ],
 
     sidebar: [
