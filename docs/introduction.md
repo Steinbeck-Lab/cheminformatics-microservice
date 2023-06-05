@@ -49,6 +49,7 @@ It is strongly recommended that readers cite both the software and the correspon
 </div>
 
 - Citing software:
+
 ```md
 Venkata, C., Sharma, N., & Rajan, K. (2023). Cheminformatics Python Microservice (Version v0.8.0 - prerelease) [Computer software]. 
 https://doi.org/10.5281/zenodo.7747862
