@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.9.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.8.0...v0.9.0) (2023-06-05)
+
+
+### Features
+
+* Add CIP annotations [#136](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/136) ([15406fd](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/15406fdc1471097eb225870ad12a6425936305a0))
+* Add CXSMILES conversion with CDK [#156](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/156) ([683d5f2](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/683d5f2d707a5ec5b8df2416f8debc4cc56ec2c9))
+* Add minimal logos ([39ad833](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/39ad8332fe88f6206665332cefca10ad8b937c72))
+* Add RDKit 3D mol block [#153](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/153) ([0aa7836](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/0aa7836790239808ee18d2339a9187688e2e06be))
+* added docs ([1eff848](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/1eff848e0ce6af55cbb89a01281ab6f301c98339))
+* added versioning, HOSE codes and license details to the swagger docs. Fixes [#138](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/138) [#146](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/146) [#154](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/154) ([5ee91de](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/5ee91dec816c84de3d85e54724558a117d73e133))
+* COCONUT Preprocessing [#158](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/158) ([c956db3](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/c956db385095cdc27ff75493401b09a58491b062))
+
+
+### Bug Fixes
+
+* added base path to the vitepress config ([2ff35e5](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/2ff35e51a0c80abd693241d24db4b086be66ad15))
+* added default value (=None) to the query parameters decimer process end point ([edf302a](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/edf302a572b5f597e614968e0ba764aa43b68e43))
+* Display mol block not SDF [#139](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/139),[#141](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/141) ([180f734](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/180f7346b55c78ffbf8a406dfe464b515abe92ad))
+* Fastapi issues and coconut pipeline ([d3db65d](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/d3db65d9be76370fe145e3eea9fdaf5a51d6ba5d))
+* linting issues fixed ([d2d0fc5](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/d2d0fc52b9cdd5306a9bb6f275da564cfe8c36dc))
+* logo text [#140](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/140) ([a7344e8](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/a7344e8d14fac00b596ede501d89807e88a97576))
+* Move RDKit to use conda instead of PyPi [#147](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/147) ([d63ee30](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/d63ee30850f80900ff89ded8ffd2bf0b8e01d2f4))
+* rename to Calculated logP [#137](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/137) ([48defa0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/48defa0e5ec8d0c594419151011ef561ed8209c2))
+* reverted versioning changes and updated README ([2c361a8](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/2c361a8baf6e4d41dedaa0ad952871b5dad865bb))
+* typo Update README.md ([99cca68](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/99cca68abd54503f83ec9e5c792f3c7e395a6527))
+* Update CIP default = false ([1a91133](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/1a9113306181ebe6f089ab9d34877d740af36254))
+* Update README.md [#140](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/140) ([6ce9ccf](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/6ce9ccffe32d824561502b3f0e580b13077ad94e))
+* Version numbers README.md ([d893be2](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/d893be2f93aafb2c0efb0ab5646759dd90448cc3))
+
 ## [0.8.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.7.2...v0.8.0) (2023-04-26)
 
 
