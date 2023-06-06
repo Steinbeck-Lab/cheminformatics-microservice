@@ -5,46 +5,53 @@ from app.main import app
 
 client = TestClient(app)
 
+
 def test_converters_index():
     response = client.get("/v1/convert/")
     assert response.status_code == 200
-    assert response.json() == {"module": "converters", "message": "Successful", "status": 200}
+    assert response.json() == {
+        "module": "converters",
+        "message": "Successful",
+        "status": 200,
+    }
 
 
 def test_SMILES_Mol():
     response = client.get("/v1/convert/mol?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C")
     assert response.status_code == 200
-    assert response.headers["content-type"] == 'text/plain; charset=utf-8'
+    assert response.headers["content-type"] == "text/plain; charset=utf-8"
 
 
 def test_SMILES_Generate3DConformer():
     response = client.get("/v1/convert/rdkit3d?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C")
     assert response.status_code == 200
-    assert response.headers["content-type"] == 'text/plain; charset=utf-8'
+    assert response.headers["content-type"] == "text/plain; charset=utf-8"
 
 
 def test_SMILES_Canonicalise():
-    response = client.get("/v1/convert/canonicalsmiles?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C")
+    response = client.get(
+        "/v1/convert/canonicalsmiles?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
+    )
     assert response.status_code == 200
-    assert response.headers["content-type"] == 'application/json'
+    assert response.headers["content-type"] == "application/json"
 
 
 def test_SMILES_to_InChI():
     response = client.get("/v1/convert/inchi?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C")
     assert response.status_code == 200
-    assert response.headers["content-type"] == 'application/json'
+    assert response.headers["content-type"] == "application/json"
 
 
 def test_SMILES_to_InChIKey():
     response = client.get("/v1/convert/inchikey?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C")
     assert response.status_code == 200
-    assert response.headers["content-type"] == 'application/json'
+    assert response.headers["content-type"] == "application/json"
 
 
 def test_SMILES_to_CXSMILES():
     response = client.get("/v1/convert/cxsmiles?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C")
     assert response.status_code == 200
-    assert response.headers["content-type"] == 'application/json'
+    assert response.headers["content-type"] == "application/json"
 
 
 def test_SMILES_convert_to_Formats():
@@ -57,27 +64,37 @@ def test_SMILES_convert_to_Formats():
         "inchikey": "RYYVLZVUVIJVGH-UHFFFAOYSA-N",
     }
 
+
 def test_SMILES_to_IUPACname():
     response = client.get("/v1/convert/iupac?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C")
     assert response.status_code == 200
     assert response.text == '"1,3,7-trimethylpurine-2,6-dione"'
 
+
 def test_IUPACname_or_SELFIES_to_SMILES():
-    response = client.get("/v1/convert/smiles?input_text=1,3,7-trimethylpurine-2,6-dione&representation=iupac")
+    response = client.get(
+        "/v1/convert/smiles?input_text=1,3,7-trimethylpurine-2,6-dione&representation=iupac"
+    )
     assert response.status_code == 200
     assert response.text == '"CN1C=NC2=C1C(=O)N(C)C(=O)N2C"'
 
-    response = client.get("/v1/convert/smiles?input_text=[C][N][C][=N][C][=C][Ring1][Branch1][C][=Branch1][C][=O][N][Branch1][=Branch2][C][=Branch1][C][=O][N][Ring1][Branch2][C][C]&representation=selfies")
+    response = client.get(
+        "/v1/convert/smiles?input_text=[C][N][C][=N][C][=C][Ring1][Branch1][C][=Branch1][C][=O][N][Branch1][=Branch2][C][=Branch1][C][=O][N][Ring1][Branch2][C][C]&representation=selfies"
+    )
     assert response.status_code == 200
     assert response.text == '"CN1C=NC2=C1C(=O)N(C(=O)N2C)C"'
+
 
 def test_encode_SELFIES():
     response = client.get("/v1/convert/selfies?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C")
     assert response.status_code == 200
-    assert response.text == '"[C][N][C][=N][C][=C][Ring1][Branch1][C][=Branch1][C][=O][N][Branch1][=Branch2][C][=Branch1][C][=O][N][Ring1][Branch2][C][C]"'
+    assert (
+        response.text
+        == '"[C][N][C][=N][C][=C][Ring1][Branch1][C][=Branch1][C][=O][N][Branch1][=Branch2][C][=Branch1][C][=O][N][Ring1][Branch2][C][C]"'
+    )
+
 
 # Filter out DeprecationWarning messages
 @pytest.fixture(autouse=True)
 def ignore_deprecation_warnings():
     warnings.filterwarnings("ignore", category=DeprecationWarning)
-
