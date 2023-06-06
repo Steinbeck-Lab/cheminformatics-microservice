@@ -11,7 +11,7 @@
 ![Workflow](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/actions/workflows/prod-build.yml/badge.svg)
 ![Workflow](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/actions/workflows/release-please.yml/badge.svg)
 [![framework](https://img.shields.io/badge/Framework-FastAPI-blue?style)](https://fastapi.tiangolo.com/)
-[![FastAPI Documentation](https://img.shields.io/badge/docs-fastapi-blue)](https://api.naturalproducts.net/docs#/)
+[![FastAPI Documentation](https://img.shields.io/badge/docs-fastapi-blue)](https://api.naturalproducts.net/v1/docs#/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7747862.svg)](https://doi.org/10.5281/zenodo.7747862)
 ## Overview of Cheminformatics Python Microservices
 
@@ -57,7 +57,7 @@ This set of essential and valuable microservices is designed to be accessed via 
   ```
 
 > **Note**
-> For detailed documentation on how to use the API check [here](https://api.naturalproducts.net/docs#/)
+> For detailed documentation on how to use the API check [here](https://api.naturalproducts.net/v1/docs#/)
 
 ## License
 
@@ -65,7 +65,7 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
 
 ## Citation
 
-Venkata, C., Sharma, N., & Rajan, K. (2023). Cheminformatics Python Microservice (Version v0.8.0 - prerelease) [Computer software]. https://doi.org/10.5281/zenodo.7747862
+Venkata, C., Sharma, N., & Rajan, K. (2023). Cheminformatics Python Microservice (Version v0.9.0 - prerelease) [Computer software]. https://doi.org/10.5281/zenodo.7747862
 
 ## Version information
 <p align="center">

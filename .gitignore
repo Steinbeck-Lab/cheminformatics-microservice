@@ -125,6 +125,8 @@ venv.bak/
 dmypy.json1
 
 #docs
-.vitepress/dist
-.vitepress/cache
+docs/.vitepress/dist
+docs/.vitepress/dist/*
+docs/.vitepress/cache
+docs/.vitepress/cache/*
 node_modules
