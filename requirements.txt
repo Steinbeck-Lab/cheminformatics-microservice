@@ -17,6 +17,7 @@ efficientnet
 tensorflow==2.10.0
 pillow-heif==0.10.0
 selfies>=2.1.1
+httpx>=0.24.1
 jinja2
 pandas
 HOSE_code_generator @ git+https://github.com/Ratsemaat/HOSE_code_generator
