@@ -177,18 +177,21 @@ async def SMILES_to_IUPACname(smiles: str):
 
 
 @router.get("/smiles")
-async def IUPACname_or_SELFIES_to_SMILES(iupac: Optional[str], selfies: Optional[str]):
+async def IUPACname_or_SELFIES_to_SMILES(
+    input_text: str, representation: Optional[str] = "iupac"
+):
     """
     Generate SMILES from IUPAC name or selfies:
 
-    - **IUPAC**: optional
-    - **SELFIES**: optional
+    - **input_text**: required (query)
+    - **representation**: optional
     """
-    if iupac:
-        return translate_reverse(iupac)
-    elif selfies:
-        selfies_d = sf.decoder(selfies)
-        return selfies_d
+    if input_text:
+        if representation == "iupac":
+            return translate_reverse(input_text)
+        elif representation == "selfies":
+            selfies_d = sf.decoder(input_text)
+            return selfies_d
 
 
 @router.get("/selfies")
