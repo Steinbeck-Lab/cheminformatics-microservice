@@ -137,7 +137,7 @@ def getTanimotoSimilarityRDKit(smiles1, smiles2):
     return similarity
 
 
-def getRDKitHOSECodes(smiles: str, noOfSpheres: int):
+async def getRDKitHOSECodes(smiles: str, noOfSpheres: int):
     """
     This function takes a SMILES string as input and
     returns the calculated HOSEcodes
