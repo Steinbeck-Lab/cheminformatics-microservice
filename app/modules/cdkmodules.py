@@ -401,7 +401,7 @@ def getCXSMILES(smiles: str):
     return str(CXSMILES)
 
 
-def getCDKHOSECodes(smiles: str, noOfSpheres: int, ringsize: bool):
+async def getCDKHOSECodes(smiles: str, noOfSpheres: int, ringsize: bool):
     """This function takes the user input SMILES and returns a mol
        block as a string with Structure Diagram Layout.
     Args:

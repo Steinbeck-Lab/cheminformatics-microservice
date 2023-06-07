@@ -144,14 +144,17 @@ def test_depict3D_molecule(test_smiles):
     assert response.headers["content-type"] == "text/html; charset=utf-8"
 
 
-"""
 def test_hose_codes(test_smiles):
-    response = client.get(f"/v1/chem/hosecode?framework=cdk&smiles={test_smiles}")
+    response = client.get(
+        f"/v1/chem/hosecode?framework=cdk&smiles={test_smiles}&spheres=0&ringsize=false"
+    )
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/json"
-    assert response.text  == 
+    assert (
+        response.text
+        == '["C-4;(//)","N-3;(//)","C-3;(//)","N-2;(//)","C-3;(//)","C-3;(//)","C-3;(//)","O-1;(//)","N-3;(//)","C-3;(//)","O-1;(//)","N-3;(//)","C-4;(//)","C-4;(//)"]'
+    )
     # Add more assertions for the expected response data
-"""
 
 
 def test_coconut_preprocessing(test_smiles):
