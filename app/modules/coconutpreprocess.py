@@ -1,6 +1,6 @@
 from rdkit import Chem
-import app.modules.rdkitmodules as rdkitmodules
-import app.modules.cdkmodules as cdkmodules
+import app.modules.toolkits.rdkitmodules as rdkitmodules
+import app.modules.toolkits.cdkmodules as cdkmodules
 from app.modules.coconutdescriptors import getCOCONUTDescriptors
 
 

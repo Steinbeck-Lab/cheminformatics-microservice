@@ -1,10 +1,10 @@
 from rdkit.Chem import Descriptors, QED, Lipinski, rdMolDescriptors, rdmolops
-from app.modules.rdkitmodules import (
+from app.modules.toolkits.rdkitmodules import (
     checkRo5Violations,
     checkSMILES,
     getTanimotoSimilarityRDKit,
 )
-from app.modules.cdkmodules import (
+from app.modules.toolkits.cdkmodules import (
     getCDKSDG,
     JClass,
     cdk_base,
