@@ -10,7 +10,6 @@ from fastapi.responses import Response, HTMLResponse, JSONResponse
 from app.modules.npscorer import getNPScore
 from app.modules.classyfire import classify, result
 from app.modules.toolkits.cdkmodules import (
-    getCDKSDGMol,
     getTanimotoSimilarityCDK,
     getCDKHOSECodes,
 )
@@ -147,24 +146,6 @@ async def ClassyFire_result(id: str):
     if id:
         data = await result(id)
         return data
-
-
-@router.get("/cdk2d")
-async def CDK2D_Coordinates(smiles: str):
-    """
-    Generate 2D Coordinates using the CDK Structure diagram generator and return the mol block.
-
-    - **SMILES**: required (query)
-    """
-    if smiles:
-        mol = Chem.MolFromSmiles(smiles)
-        if mol:
-            return Response(
-                content=getCDKSDGMol(smiles).replace("$$$$\n", ""),
-                media_type="text/plain",
-            )
-        else:
-            return "Error reading SMILES string, check again."
 
 
 @router.get("/rdkit3d")
