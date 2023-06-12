@@ -221,11 +221,24 @@ async def Check_Errors(smiles: str, fix: Optional[bool] = False):
 
 
 @router.get("/hosecode")
-async def HOSE_Codes(framework: str, smiles: str, spheres: int, ringsize: bool = False):
+async def HOSE_Codes(
+    smiles: str,
+    spheres: int,
+    toolkit: Optional[str] = "cdk",
+    ringsize: Optional[bool] = False,
+):
+    """
+    Generates HOSE Codes using CDK/RDKit.
+
+    - **SMILES**: required (query)
+    - **spheres**: required (query)
+    - **toolkit**: Optional (default:CDK)
+    - **ringsize**: Optional (default:False)
+    """
     if smiles:
-        if framework == "cdk":
+        if toolkit == "cdk":
             return await getCDKHOSECodes(smiles, spheres, ringsize)
-        elif framework == "rdkit":
+        elif toolkit == "rdkit":
             return await getRDKitHOSECodes(smiles, spheres)
     else:
         return "Error reading SMILES string, check again."

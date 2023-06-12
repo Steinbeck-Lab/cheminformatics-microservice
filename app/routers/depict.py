@@ -1,6 +1,7 @@
-from fastapi import Body, Request, APIRouter
+from fastapi import Request, APIRouter
+from typing import Optional
 from fastapi.responses import Response, HTMLResponse
-from app.modules.depict import getRDKitDepiction, getCDKDepiction
+from app.modules.depiction import getRDKitDepiction, getCDKDepiction
 from app.modules.toolkits.rdkitmodules import get3Dconformers
 from fastapi.templating import Jinja2Templates
 
@@ -51,7 +52,7 @@ async def Depict2D_molecule(
             )
 
 
-@router.get("/depict3D", response_class=HTMLResponse)
+@router.get("/3D", response_class=HTMLResponse)
 async def Depict3D_Molecule(
     request: Request,
     smiles: str,

@@ -212,3 +212,20 @@ def get2Dmol(smiles: str):
         return molfile
     else:
         return "Error reading SMILES string, check again."
+
+
+def getRDKitCXSMILES(smiles: str):
+    """This function takes an input as a SMILES string and
+    returns a CXSMILES with coordinates.
+    Args (str): SMILES string.
+    Returns (str): CXSMILES with coordinates.
+    """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
+    mol = Chem.MolFromSmiles(smiles)
+
+    if mol:
+        AllChem.Compute2DCoords(mol)
+        return Chem.MolToCXSmiles(mol)
+    else:
+        return "Error reading SMILES string, check again."
