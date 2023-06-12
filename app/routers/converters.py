@@ -11,7 +11,11 @@ from app.modules.toolkits.cdkmodules import (
     getCanonSMILES,
     getInChI,
 )
-from app.modules.toolkits.rdkitmodules import get3Dconformers, get2Dmol
+from app.modules.toolkits.rdkitmodules import (
+    get3Dconformers,
+    get2Dmol,
+    getRDKitCXSMILES,
+)
 from app.modules.toolkits.openbabelmodules import (
     getOBMol,
     getOBCanonicalSMILES,
@@ -124,12 +128,12 @@ async def SMILES_to_InChI(smiles: str, generator: Optional[str] = "cdk"):
         if generator:
             if generator == "cdk":
                 return str(getInChI(smiles))
-        elif generator == "rdkit":
-            mol = Chem.MolFromSmiles(smiles)
-            if mol:
-                return Chem.inchi.MolToInchi(mol)
-        elif generator == "openbabel":
-            return getOBInChI(smiles)
+            elif generator == "rdkit":
+                mol = Chem.MolFromSmiles(smiles)
+                if mol:
+                    return Chem.inchi.MolToInchi(mol)
+            elif generator == "openbabel":
+                return getOBInChI(smiles)
         else:
             return "Error reading SMILES string check again."
     else:
@@ -149,12 +153,12 @@ async def SMILES_to_InChIKey(smiles: str, generator: Optional[str] = "cdk"):
         if generator:
             if generator == "cdk":
                 return str(getInChI(smiles, InChIKey=True))
-        elif generator == "rdkit":
-            mol = Chem.MolFromSmiles(smiles)
-            if mol:
-                return Chem.inchi.MolToInchiKey(mol)
-        elif generator == "openbabel":
-            return getOBInChI(smiles, InChIKey=True)
+            elif generator == "rdkit":
+                mol = Chem.MolFromSmiles(smiles)
+                if mol:
+                    return Chem.inchi.MolToInchiKey(mol)
+            elif generator == "openbabel":
+                return getOBInChI(smiles, InChIKey=True)
         else:
             return "Error reading SMILES string check again."
     else:
@@ -162,7 +166,7 @@ async def SMILES_to_InChIKey(smiles: str, generator: Optional[str] = "cdk"):
 
 
 @router.get("/cxsmiles")
-async def SMILES_to_CXSMILES(smiles: str):
+async def SMILES_to_CXSMILES(smiles: str, generator: Optional[str] = "cdk"):
     """
     Convert SMILES to CXSMILES:
 
@@ -171,8 +175,12 @@ async def SMILES_to_CXSMILES(smiles: str):
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
     if smiles:
-        cxsmiles = getCXSMILES(smiles)
-        return cxsmiles
+        if generator:
+            if generator == "cdk":
+                cxsmiles = getCXSMILES(smiles)
+                return cxsmiles
+            else:
+                return getRDKitCXSMILES(smiles)
     else:
         return "Error reading SMILES string check again."
 
