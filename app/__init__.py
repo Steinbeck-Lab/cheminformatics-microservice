@@ -9,4 +9,4 @@ For comments, bug reports or feature requests,
 please raise a issue on our Github repository.
 """
 
-__version__ = "0.8.0"
+__version__ = "0.10.0"

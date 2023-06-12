@@ -2,6 +2,7 @@ FROM continuumio/miniconda3 AS cheminf-python-ms
 
 ENV PYTHON_VERSION=3.10
 ENV RDKIT_VERSION=2023.03.1
+ENV OPENBABEL_VERSION=v3.1
 
 ARG RELEASE_VERSION
 ENV RELEASE_VERSION=${RELEASE_VERSION}
@@ -12,8 +13,9 @@ RUN apt-get update && \
     apt-get update -y && \
     apt-get install -y openjdk-11-jre
 
-RUN conda install -c conda-forge python>=$PYTHON_VERSION
+RUN conda install -c conda-forge python>=PYTHON_VERSION
 RUN conda install -c conda-forge rdkit>=RDKIT_VERSION
+RUN conda install -c conda-forge openbabel>=OPENBABEL_VERSION
 
 RUN python3 -m pip install -U pip
 
