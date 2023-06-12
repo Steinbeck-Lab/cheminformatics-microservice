@@ -1,17 +1,20 @@
+---
+outline: deep
+---
 
+<p align="center">
+  <img align="center" src="/logo_big.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="400">
+</p>
 
+<br/>
 
-# Cheminformatics Python Microservices
+# Cheminformatics Python Microservice
 
 <div style="text-align: justify;">
 
 This collection of vital and invaluable microservices is specifically crafted for cheminformatics support, accessible through API calls. Primarily optimized for SMILES-based inputs, these microservices facilitate tasks such as translating between various machine-readable representations, obtaining Natural Product (NP) likeliness scores, visualizing chemical structures, and generating descriptors. Additionally, within this microservice suite, there is an instance of [STOUT](https://github.com/Kohulan/Smiles-TO-iUpac-Translator) and another instance of [DECIMER](https://github.com/Kohulan/DECIMER-Image_Transformer), both of which are deep learning models utilized for IUPAC name generation and Optical Chemical Structure Recognition[(OCSR)](https://jcheminf.biomedcentral.com/articles/10.1186/s13321-020-00465-0), respectively.
 
 </div>
-
-<p align="center">
-  <img align="center" src="/logo_big.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="400">
-</p>
 
 ## Version Information
 
