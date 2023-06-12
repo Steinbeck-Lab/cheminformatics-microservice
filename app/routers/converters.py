@@ -6,8 +6,8 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 from typing import Optional
 from STOUT import translate_forward, translate_reverse
-from app.modules.cdkmodules import getCDKSDGMol, getCXSMILES
-from app.modules.rdkitmodules import get3Dconformers
+from app.modules.toolkits.cdkmodules import getCDKSDGMol, getCXSMILES
+from app.modules.toolkits.rdkitmodules import get3Dconformers
 
 router = APIRouter(
     prefix="/convert",
