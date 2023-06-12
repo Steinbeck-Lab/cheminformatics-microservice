@@ -1,7 +1,8 @@
 from openbabel import openbabel as ob
 from openbabel import pybel
 
-def getOBCanonicalSMILES(smiles:str):
+
+def getOBCanonicalSMILES(smiles: str):
     """This function takes an input as a SMILES string and
     returns a Canonical SMILES.
     Args (str): SMILES string.
@@ -9,20 +10,20 @@ def getOBCanonicalSMILES(smiles:str):
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
-        
+
     # Create an Open Babel molecule object
     mol = ob.OBMol()
-    
+
     conv = ob.OBConversion()
     conv.SetInAndOutFormats("smi", "can")
     conv.ReadString(mol, smiles)
-    
+
     canSMILES = conv.WriteString(mol)
     canSMILES = canSMILES.strip()  # Remove leading/trailing whitespace
-    return canSMILES   
+    return canSMILES
 
 
-def getOBInChI(smiles:str,InChIKey:bool=False):
+def getOBInChI(smiles: str, InChIKey: bool = False):
     """This function takes an input as a SMILES string and
     returns a InChI
     Args (str): SMILES string.
@@ -38,7 +39,7 @@ def getOBInChI(smiles:str,InChIKey:bool=False):
     conv = ob.OBConversion()
     conv.SetInAndOutFormats("smi", "inchi")
     conv.ReadString(mol, smiles)
-    
+
     inchi = conv.WriteString(mol)
     inchi = inchi.strip()  # Remove leading/trailing whitespace
     if InChIKey:
@@ -47,7 +48,8 @@ def getOBInChI(smiles:str,InChIKey:bool=False):
         return inchikey_
     return inchi
 
-def getOBMol(smiles:str, threeD:bool=False):
+
+def getOBMol(smiles: str, threeD: bool = False):
     """This function takes an input as a SMILES string and
     returns a 2D/3D mol block.
     Args (str): SMILES string.
@@ -62,21 +64,18 @@ def getOBMol(smiles:str, threeD:bool=False):
         mol.make3D()
         mol.removeh()
         return mol.write("mol")
-        
+
     # Create an Open Babel molecule object
     mol = ob.OBMol()
-    
+
     conv = ob.OBConversion()
     conv.SetInAndOutFormats("smi", "mol")
     conv.ReadString(mol, smiles)
-    
+
     # Generate 2D coordinates
     obBuilder = ob.OBBuilder()
-    obBuilder.Build(mol)    
-    
+    obBuilder.Build(mol)
+
     mol_block = conv.WriteString(mol)
     mol_block = mol_block.strip()  # Remove leading/trailing whitespace
     return mol_block
-
-
-
