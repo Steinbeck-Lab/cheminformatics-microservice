@@ -1,4 +1,4 @@
-from fastapi import Body, Request, APIRouter
+from fastapi import Body, APIRouter
 from typing import Optional
 from typing_extensions import Annotated
 from rdkit import Chem
@@ -6,16 +6,14 @@ from rdkit.Chem.EnumerateStereoisomers import (
     EnumerateStereoisomers,
 )
 from chembl_structure_pipeline import standardizer, checker
-from fastapi.responses import Response, HTMLResponse, JSONResponse
+from fastapi.responses import Response, JSONResponse
 from app.modules.npscorer import getNPScore
 from app.modules.classyfire import classify, result
 from app.modules.toolkits.cdkmodules import (
     getTanimotoSimilarityCDK,
     getCDKHOSECodes,
 )
-from app.modules.depict import getRDKitDepiction, getCDKDepiction
 from app.modules.toolkits.rdkitmodules import (
-    get3Dconformers,
     getTanimotoSimilarityRDKit,
     getRDKitHOSECodes,
 )
@@ -148,24 +146,6 @@ async def ClassyFire_result(id: str):
         return data
 
 
-@router.get("/rdkit3d")
-async def RDKit3D_Mol(smiles: str):
-    """
-    Generate 3D Coordinates using RDKit and return the mol block.
-
-    - **SMILES**: required (query)
-    """
-    if smiles:
-        mol = Chem.MolFromSmiles(smiles)
-        if mol:
-            return Response(
-                content=get3Dconformers(smiles).replace("$$$$\n", ""),
-                media_type="text/plain",
-            )
-        else:
-            return "Error reading SMILES string, check again."
-
-
 @router.get("/tanimoto")
 async def Tanimoto_Similarity(smiles: str, toolkit: Optional[str] = "cdk"):
     """
@@ -192,38 +172,6 @@ async def Tanimoto_Similarity(smiles: str, toolkit: Optional[str] = "cdk"):
             return 'Please give a SMILES pair with "," separated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
     else:
         return 'Please give a SMILES pair with "," separated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
-
-
-@router.get("/depict")
-async def Depict2D_molecule(
-    smiles: str,
-    generator: Optional[str] = "cdksdg",
-    width: Optional[int] = 512,
-    height: Optional[int] = 512,
-    rotate: Optional[int] = 0,
-    CIP: Optional[bool] = False,
-    unicolor: Optional[bool] = False,
-):
-    """
-    Generate 2D Depictions using CDK or RDKit using given parameters.
-
-    - **SMILES**: required (query)
-    - **generator**: optional (defaults: cdk)
-    - **width**: optional (defaults: 512)
-    - **height**: optional (defaults: 512)
-    - **rotate**: optional (defaults: 0)
-    """
-    if generator:
-        if generator == "cdksdg":
-            return Response(
-                content=getCDKDepiction(smiles, [width, height], rotate, CIP, unicolor),
-                media_type="image/svg+xml",
-            )
-        else:
-            return Response(
-                content=getRDKitDepiction(smiles, [width, height], rotate),
-                media_type="image/svg+xml",
-            )
 
 
 @router.get("/checkerrors")
@@ -270,21 +218,6 @@ async def Check_Errors(smiles: str, fix: Optional[bool] = False):
             return "Error reading SMILES string, check again."
     else:
         return "Error reading SMILES string, check again."
-
-
-@router.get("/depict3D", response_class=HTMLResponse)
-async def Depict3D_Molecule(
-    request: Request,
-    smiles: str,
-):
-    """
-    Generate 3D Depictions using RDKit.
-
-    - **SMILES**: required (query)
-    """
-    if smiles:
-        content = {"request": request, "molecule": get3Dconformers(smiles)}
-        return templates.TemplateResponse("mol.html", content)
 
 
 @router.get("/hosecode")
