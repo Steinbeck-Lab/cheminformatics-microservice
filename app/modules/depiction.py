@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 from rdkit import Chem
 from rdkit.Chem import rdDepictor
 from rdkit.Chem.Draw import rdMolDraw2D
-from app.modules.toolkits.cdkmodules import getCDKSDG, getCIPAnnotation
+from app.modules.toolkits.cdk import getCDKSDG, getCIPAnnotation
 from jpype import JClass
 
 

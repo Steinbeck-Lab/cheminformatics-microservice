@@ -1,7 +1,7 @@
 from chembl_structure_pipeline import standardizer
 from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem, Descriptors, QED, Lipinski, rdMolDescriptors, rdmolops
-from app.modules.toolkits.cdkmodules import getCDKSDGMol
+from app.modules.toolkits.cdk import getCDKSDGMol
 from hosegen import HoseGenerator
 
 

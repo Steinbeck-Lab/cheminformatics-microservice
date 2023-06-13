@@ -4,7 +4,7 @@ from app.modules.toolkits.rdkitmodules import (
     checkSMILES,
     getTanimotoSimilarityRDKit,
 )
-from app.modules.toolkits.cdkmodules import (
+from app.modules.toolkits.cdk import (
     getCDKSDG,
     JClass,
     cdk_base,
