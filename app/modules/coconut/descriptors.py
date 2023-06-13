@@ -1,11 +1,11 @@
 from app.modules.toolkits.rdkit_wrapper import getRDKitDescriptors, checkSMILES
 from app.modules.toolkits.cdk_wrapper import (
-    getSugarInfo,
     getMurkoFramework,
     getCDKDescriptors,
 )
 from app.modules.alldescriptors import getCDKRDKitcombinedDescriptors
 from app.modules.npscorer import getNPScore
+from app.modules.tools.sugarremoval import getSugarInfo
 
 
 def getDescriptors(smiles: str, toolkit: str):
