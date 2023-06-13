@@ -6,19 +6,19 @@ from urllib.request import urlopen
 from urllib.parse import urlsplit
 from fastapi import Body, APIRouter
 from typing_extensions import Annotated
-from app.modules.decimermodules import getPredictedSegments
+from app.modules.decimer import getPredictedSegments
 
 router = APIRouter(
-    prefix="/decimer",
-    tags=["decimer"],
+    prefix="/ocsr",
+    tags=["ocsr"],
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )
 
 
 @router.get("/")
-async def DECIMER_Index():
-    return {"module": "decimer", "message": "Successful", "status": 200}
+async def ocsr_index():
+    return {"module": "ocsr", "message": "Successful", "status": 200}
 
 
 @router.post("/process")

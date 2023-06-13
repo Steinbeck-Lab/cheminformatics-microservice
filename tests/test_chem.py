@@ -132,7 +132,7 @@ def test_depict2D_molecule(smiles, generator, width, height, rotate, CIP, unicol
     ],
 )
 def test_check_errors(smiles, fix, expected):
-    response = client.get(f"/v1/chem/checkerrors?smiles={smiles}&fix={fix}")
+    response = client.get(f"/v1/chem/errors?smiles={smiles}&fix={fix}")
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/json"
     assert response.text == expected
@@ -158,7 +158,7 @@ def test_hose_codes(test_smiles):
 
 
 def test_coconut_preprocessing(test_smiles):
-    response = client.get(f"/v1/chem/coconutpreprocessing?smiles={test_smiles}")
+    response = client.get(f"/v1/chem/coconut/pre-processing?smiles={test_smiles}")
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/json"
 

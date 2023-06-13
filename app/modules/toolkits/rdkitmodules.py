@@ -1,7 +1,7 @@
 from chembl_structure_pipeline import standardizer
 from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem, Descriptors, QED, Lipinski, rdMolDescriptors, rdmolops
-from app.modules.toolkits.cdkmodules import getCDKSDGMol
+from app.modules.toolkits.cdk import getCDKSDGMol
 from hosegen import HoseGenerator
 
 
@@ -194,3 +194,38 @@ def has_stereochemistry(smiles: str):
             return True
 
     return False
+
+
+def get2Dmol(smiles: str):
+    """This function takes an input as a SMILES string and
+    returns a 2D mol block.
+    Args (str): SMILES string.
+    Returns (str): 2D Mol block.
+    """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
+    mol = Chem.MolFromSmiles(smiles)
+
+    if mol:
+        AllChem.Compute2DCoords(mol)
+        molfile = Chem.MolToMolBlock(mol)
+        return molfile
+    else:
+        return "Error reading SMILES string, check again."
+
+
+def getRDKitCXSMILES(smiles: str):
+    """This function takes an input as a SMILES string and
+    returns a CXSMILES with coordinates.
+    Args (str): SMILES string.
+    Returns (str): CXSMILES with coordinates.
+    """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
+    mol = Chem.MolFromSmiles(smiles)
+
+    if mol:
+        AllChem.Compute2DCoords(mol)
+        return Chem.MolToCXSmiles(mol)
+    else:
+        return "Error reading SMILES string, check again."
