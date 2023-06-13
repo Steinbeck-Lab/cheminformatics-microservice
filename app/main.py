@@ -2,9 +2,10 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi_versioning import VersionedFastAPI
 
-# from .config import settings
-from .routers import chem, converters, decimer
+from .routers import chem, converters, depict, ocsr
 from fastapi.middleware.cors import CORSMiddleware
+
+from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI(
     title="Cheminf Micro Services",
@@ -33,7 +34,8 @@ app.add_middleware(
 
 app.include_router(chem.router)
 app.include_router(converters.router)
-app.include_router(decimer.router)
+app.include_router(depict.router)
+app.include_router(ocsr.router)
 
 app = VersionedFastAPI(
     app,
@@ -52,7 +54,11 @@ app = VersionedFastAPI(
     },
 )
 
+Instrumentator().instrument(app).expose(app)
+
 
 @app.get("/", include_in_schema=False)
 async def root():
-    return RedirectResponse(url="https://steinbeck-lab.github.io/cheminformatics-python-microservice")
+    return RedirectResponse(
+        url="https://steinbeck-lab.github.io/cheminformatics-python-microservice"
+    )

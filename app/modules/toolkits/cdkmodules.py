@@ -401,6 +401,46 @@ def getCXSMILES(smiles: str):
     return str(CXSMILES)
 
 
+def getCanonSMILES(smiles: str):
+    """This function takes the user input SMILES and creates a
+    Canonical SMILES string with 2D atom coordinates
+    Args:
+            smiles (string): SMILES string given by the user.
+    Returns:
+            smiles (string): Canonical SMILES string.
+
+    """
+    moleculeSDG = getCDKSDG(smiles)
+    SmiFlavor = JClass(cdk_base + ".smiles.SmiFlavor")
+    SmilesGenerator = JClass(cdk_base + ".smiles.SmilesGenerator")(SmiFlavor.Absolute)
+    CanonicalSMILES = SmilesGenerator.create(moleculeSDG)
+    return str(CanonicalSMILES)
+
+
+def getInChI(smiles: str, InChIKey=False):
+    """This function takes the user input SMILES and creates a
+    InChI string
+    Args:
+            smiles (string): SMILES string given by the user.
+    Returns:
+            smiles (string): InChI/InChIKey string.
+
+    """
+    moleculeSDG = getCDKSDG(smiles)
+    InChIGeneratorFactory = JClass(cdk_base + ".inchi.InChIGeneratorFactory")
+    InChI = (
+        InChIGeneratorFactory.getInstance().getInChIGenerator(moleculeSDG).getInchi()
+    )
+    if InChIKey:
+        InChIKey = (
+            InChIGeneratorFactory.getInstance()
+            .getInChIGenerator(moleculeSDG)
+            .getInchiKey()
+        )
+        return InChIKey
+    return InChI
+
+
 async def getCDKHOSECodes(smiles: str, noOfSpheres: int, ringsize: bool):
     """This function takes the user input SMILES and returns a mol
        block as a string with Structure Diagram Layout.

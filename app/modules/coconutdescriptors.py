@@ -1,5 +1,9 @@
-from app.modules.rdkitmodules import getRDKitDescriptors, checkSMILES
-from app.modules.cdkmodules import getSugarInfo, getMurkoFramework, getCDKDescriptors
+from app.modules.toolkits.rdkitmodules import getRDKitDescriptors, checkSMILES
+from app.modules.toolkits.cdkmodules import (
+    getSugarInfo,
+    getMurkoFramework,
+    getCDKDescriptors,
+)
 from app.modules.alldescriptors import getCDKRDKitcombinedDescriptors
 from app.modules.npscorer import getNPScore
 

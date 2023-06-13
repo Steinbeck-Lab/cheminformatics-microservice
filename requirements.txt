@@ -22,3 +22,4 @@ chembl_structure_pipeline
 jinja2
 pandas
 HOSE_code_generator @ git+https://github.com/Ratsemaat/HOSE_code_generator
+prometheus-fastapi-instrumentator
