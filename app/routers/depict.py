@@ -2,7 +2,7 @@ from fastapi import Request, APIRouter
 from typing import Optional
 from fastapi.responses import Response, HTMLResponse
 from app.modules.depiction import getRDKitDepiction, getCDKDepiction
-from app.modules.toolkits.rdkitmodules import get3Dconformers
+from app.modules.toolkits.rdkit_wrapper import get3Dconformers
 from fastapi.templating import Jinja2Templates
 
 templates = Jinja2Templates(directory="app/templates")

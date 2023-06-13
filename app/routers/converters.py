@@ -5,18 +5,18 @@ from fastapi.responses import Response
 from rdkit import Chem
 from typing import Optional
 from STOUT import translate_forward, translate_reverse
-from app.modules.toolkits.cdkmodules import (
+from app.modules.toolkits.cdk_wrapper import (
     getCDKSDGMol,
     getCXSMILES,
     getCanonSMILES,
     getInChI,
 )
-from app.modules.toolkits.rdkitmodules import (
+from app.modules.toolkits.rdkit_wrapper import (
     get3Dconformers,
     get2Dmol,
     getRDKitCXSMILES,
 )
-from app.modules.toolkits.openbabelmodules import (
+from app.modules.toolkits.openbabel_wrapper import (
     getOBMol,
     getOBCanonicalSMILES,
     getOBInChI,
@@ -63,7 +63,7 @@ async def Create2D_Coordinates(smiles: str, generator: Optional[str] = "cdk"):
             return "Error reading SMILES string, check again."
 
 
-@router.get("/mol3d")
+@router.get("/mol3D")
 async def Create3D_Coordinates(smiles: str, generator: Optional[str] = "rdkit"):
     """
     Generate a random 3D conformer from SMILES using RDKit/OpenBabel.
@@ -88,6 +88,24 @@ async def Create3D_Coordinates(smiles: str, generator: Optional[str] = "rdkit"):
         return "Error reading SMILES string check again."
 
 
+@router.get("/smiles")
+async def IUPACname_or_SELFIES_to_SMILES(
+    input_text: str, representation: Optional[str] = "iupac"
+):
+    """
+    Generate SMILES from IUPAC name or selfies:
+
+    - **input_text**: required (query)
+    - **representation**: optional
+    """
+    if input_text:
+        if representation == "iupac":
+            return translate_reverse(input_text)
+        elif representation == "selfies":
+            selfies_d = sf.decoder(input_text)
+            return selfies_d
+
+
 @router.get("/canonicalsmiles")
 async def SMILES_Canonicalise(smiles: str, generator: Optional[str] = "cdk"):
     """
@@ -110,6 +128,26 @@ async def SMILES_Canonicalise(smiles: str, generator: Optional[str] = "cdk"):
 
             else:
                 return "Error reading SMILES string check again."
+    else:
+        return "Error reading SMILES string check again."
+
+
+@router.get("/cxsmiles")
+async def SMILES_to_CXSMILES(smiles: str, generator: Optional[str] = "cdk"):
+    """
+    Convert SMILES to CXSMILES:
+
+    - **SMILES**: required (query parameter)
+    """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
+    if smiles:
+        if generator:
+            if generator == "cdk":
+                cxsmiles = getCXSMILES(smiles)
+                return cxsmiles
+            else:
+                return getRDKitCXSMILES(smiles)
     else:
         return "Error reading SMILES string check again."
 
@@ -165,24 +203,32 @@ async def SMILES_to_InChIKey(smiles: str, generator: Optional[str] = "cdk"):
         return "Error reading SMILES string check again."
 
 
-@router.get("/cxsmiles")
-async def SMILES_to_CXSMILES(smiles: str, generator: Optional[str] = "cdk"):
+@router.get("/iupac")
+async def SMILES_to_IUPACname(smiles: str):
     """
-    Convert SMILES to CXSMILES:
+    Generate IUPAC name using STOUT package:
 
-    - **SMILES**: required (query parameter)
+    - **SMILES**: required (query)
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
     if smiles:
-        if generator:
-            if generator == "cdk":
-                cxsmiles = getCXSMILES(smiles)
-                return cxsmiles
-            else:
-                return getRDKitCXSMILES(smiles)
-    else:
-        return "Error reading SMILES string check again."
+        iupac = translate_forward(smiles)
+        return iupac
+
+
+@router.get("/selfies")
+async def encode_SELFIES(smiles: str):
+    """
+    Generate SELFIES from SMILES:
+
+    - **SELFIES**: required (query)
+    """
+    if any(char.isspace() for char in smiles):
+        smiles = smiles.replace(" ", "+")
+    if smiles:
+        selfies_e = sf.encoder(smiles)
+        return selfies_e
 
 
 @router.get("/formats")
@@ -226,49 +272,3 @@ async def SMILES_convert_to_Formats(smiles: str, generator: Optional[str] = "cdk
                 return "Error reading SMILES string check again."
     else:
         return "Error reading SMILES string check again."
-
-
-@router.get("/iupac")
-async def SMILES_to_IUPACname(smiles: str):
-    """
-    Generate IUPAC name using STOUT package:
-
-    - **SMILES**: required (query)
-    """
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
-    if smiles:
-        iupac = translate_forward(smiles)
-        return iupac
-
-
-@router.get("/smiles")
-async def IUPACname_or_SELFIES_to_SMILES(
-    input_text: str, representation: Optional[str] = "iupac"
-):
-    """
-    Generate SMILES from IUPAC name or selfies:
-
-    - **input_text**: required (query)
-    - **representation**: optional
-    """
-    if input_text:
-        if representation == "iupac":
-            return translate_reverse(input_text)
-        elif representation == "selfies":
-            selfies_d = sf.decoder(input_text)
-            return selfies_d
-
-
-@router.get("/selfies")
-async def encode_SELFIES(smiles: str):
-    """
-    Generate SELFIES from SMILES:
-
-    - **SELFIES**: required (query)
-    """
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
-    if smiles:
-        selfies_e = sf.encoder(smiles)
-        return selfies_e

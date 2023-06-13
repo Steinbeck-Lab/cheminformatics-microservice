@@ -6,7 +6,7 @@ from urllib.request import urlopen
 from urllib.parse import urlsplit
 from fastapi import Body, APIRouter
 from typing_extensions import Annotated
-from app.modules.decimermodules import getPredictedSegments
+from app.modules.decimer import getPredictedSegments
 
 router = APIRouter(
     prefix="/ocsr",

@@ -9,17 +9,17 @@ from chembl_structure_pipeline import standardizer, checker
 from fastapi.responses import Response, JSONResponse
 from app.modules.npscorer import getNPScore
 from app.modules.classyfire import classify, result
-from app.modules.toolkits.cdkmodules import (
+from app.modules.toolkits.cdk_wrapper import (
     getTanimotoSimilarityCDK,
     getCDKHOSECodes,
 )
-from app.modules.toolkits.rdkitmodules import (
+from app.modules.toolkits.rdkit_wrapper import (
     getTanimotoSimilarityRDKit,
     getRDKitHOSECodes,
 )
-from app.modules.coconutdescriptors import getCOCONUTDescriptors
+from app.modules.coconut.descriptors import getCOCONUTDescriptors
 from app.modules.alldescriptors import getTanimotoSimilarity
-from app.modules.coconutpreprocess import COCONUTpreprocessing
+from app.modules.coconut.preprocess import COCONUTpreprocessing
 import pandas as pd
 from fastapi.templating import Jinja2Templates
 
@@ -58,28 +58,6 @@ async def SMILES_to_Stereo_Isomers(smiles: str):
         return "Error reading SMILES string, check again."
 
 
-@router.post("/standardize")
-async def Standardize_Mol(mol: Annotated[str, Body(embed=True)]):
-    """
-    Standardize molblock using the ChEMBL curation pipeline routine
-    and return the Standardized molecule, SMILES, InChI and InCHI-Key:
-
-    - **mol**: required
-    """
-    if mol:
-        standardized_mol = standardizer.standardize_molblock(mol)
-        rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
-        smiles = Chem.MolToSmiles(rdkit_mol, kekuleSmiles=True)
-        response = {}
-        response["standardized_mol"] = standardized_mol
-        response["cannonical_smiles"] = smiles
-        response["inchi"] = Chem.inchi.MolToInchi(rdkit_mol)
-        response["inchikey"] = Chem.inchi.MolToInchiKey(rdkit_mol)
-        return response
-    else:
-        return "Error reading SMILES string, check again."
-
-
 @router.get("/descriptors")
 async def SMILES_Descriptors(
     smiles: str, format: Optional[str] = "json", toolkit: Optional[str] = "rdkit"
@@ -110,71 +88,53 @@ async def SMILES_Descriptors(
             return getCOCONUTDescriptors(smiles, toolkit)
 
 
-@router.get("/npscore")
-async def NPlikeliness_Score(smiles: str):
+@router.get("/HOSEcode")
+async def HOSE_Codes(
+    smiles: str,
+    spheres: int,
+    toolkit: Optional[str] = "cdk",
+    ringsize: Optional[bool] = False,
+):
     """
-    Generate natural product likeliness score based on RDKit implementation
+    Generates HOSE Codes using CDK/RDKit.
 
     - **SMILES**: required (query)
+    - **spheres**: required (query)
+    - **toolkit**: Optional (default:CDK)
+    - **ringsize**: Optional (default:False)
     """
     if smiles:
-        np_score = getNPScore(smiles)
-        return np_score
-
-
-@router.get("/classyfire/classify")
-async def ClassyFire_Classify(smiles: str):
-    """
-    Generate ClassyFire-based classifications using SMILES as input.
-
-    - **SMILES**: required (query)
-    """
-    if smiles:
-        data = await classify(smiles)
-        return data
-
-
-@router.get("/classyfire/{id}/result")
-async def ClassyFire_result(id: str):
-    """
-    Get the ClassyFire classification results using ID.
-
-    - **ID**: required (query)
-    """
-    if id:
-        data = await result(id)
-        return data
-
-
-@router.get("/tanimoto")
-async def Tanimoto_Similarity(smiles: str, toolkit: Optional[str] = "cdk"):
-    """
-    Generate the Tanimoto similarity index for a given pair of SMILES strings.
-
-    - **SMILES**: required (query)
-    - **toolkit**: optional (defaults: cdk)
-    """
-    if len(smiles.split(",")) == 2:
-        try:
-            smiles1, smiles2 = smiles.split(",")
-            if toolkit == "rdkit":
-                Tanimoto = getTanimotoSimilarityRDKit(smiles1, smiles2)
-            else:
-                Tanimoto = getTanimotoSimilarityCDK(smiles1, smiles2)
-            return Tanimoto
-        except ValueError:
-            return 'Please give a SMILES pair with "," separated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
-    elif len(smiles.split(",")) > 2:
-        try:
-            matrix = getTanimotoSimilarity(smiles, toolkit)
-            return Response(content=matrix, media_type="text/html")
-        except ValueError:
-            return 'Please give a SMILES pair with "," separated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
+        if toolkit == "cdk":
+            return await getCDKHOSECodes(smiles, spheres, ringsize)
+        elif toolkit == "rdkit":
+            return await getRDKitHOSECodes(smiles, spheres)
     else:
-        return 'Please give a SMILES pair with "," separated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
+        return "Error reading SMILES string, check again."
 
 
-@router.get("/checkerrors")
+@router.post("/standardize")
+async def Standardize_Mol(mol: Annotated[str, Body(embed=True)]):
+    """
+    Standardize molblock using the ChEMBL curation pipeline routine
+    and return the Standardized molecule, SMILES, InChI and InCHI-Key:
+
+    - **mol**: required
+    """
+    if mol:
+        standardized_mol = standardizer.standardize_molblock(mol)
+        rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
+        smiles = Chem.MolToSmiles(rdkit_mol, kekuleSmiles=True)
+        response = {}
+        response["standardized_mol"] = standardized_mol
+        response["cannonical_smiles"] = smiles
+        response["inchi"] = Chem.inchi.MolToInchi(rdkit_mol)
+        response["inchikey"] = Chem.inchi.MolToInchiKey(rdkit_mol)
+        return response
+    else:
+        return "Error reading SMILES string, check again."
+
+
+@router.get("/errors")
 async def Check_Errors(smiles: str, fix: Optional[bool] = False):
     """
     Check issues for a given SMILES string and standardize it using the ChEMBL curation pipeline.
@@ -220,31 +180,47 @@ async def Check_Errors(smiles: str, fix: Optional[bool] = False):
         return "Error reading SMILES string, check again."
 
 
-@router.get("/hosecode")
-async def HOSE_Codes(
-    smiles: str,
-    spheres: int,
-    toolkit: Optional[str] = "cdk",
-    ringsize: Optional[bool] = False,
-):
+@router.get("/nplikeness/score")
+async def NPlikeliness_Score(smiles: str):
     """
-    Generates HOSE Codes using CDK/RDKit.
+    Generate natural product likeliness score based on RDKit implementation
 
     - **SMILES**: required (query)
-    - **spheres**: required (query)
-    - **toolkit**: Optional (default:CDK)
-    - **ringsize**: Optional (default:False)
     """
     if smiles:
-        if toolkit == "cdk":
-            return await getCDKHOSECodes(smiles, spheres, ringsize)
-        elif toolkit == "rdkit":
-            return await getRDKitHOSECodes(smiles, spheres)
+        np_score = getNPScore(smiles)
+        return np_score
+
+
+@router.get("/tanimoto")
+async def Tanimoto_Similarity(smiles: str, toolkit: Optional[str] = "cdk"):
+    """
+    Generate the Tanimoto similarity index for a given pair of SMILES strings.
+
+    - **SMILES**: required (query)
+    - **toolkit**: optional (defaults: cdk)
+    """
+    if len(smiles.split(",")) == 2:
+        try:
+            smiles1, smiles2 = smiles.split(",")
+            if toolkit == "rdkit":
+                Tanimoto = getTanimotoSimilarityRDKit(smiles1, smiles2)
+            else:
+                Tanimoto = getTanimotoSimilarityCDK(smiles1, smiles2)
+            return Tanimoto
+        except ValueError:
+            return 'Please give a SMILES pair with "," separated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
+    elif len(smiles.split(",")) > 2:
+        try:
+            matrix = getTanimotoSimilarity(smiles, toolkit)
+            return Response(content=matrix, media_type="text/html")
+        except ValueError:
+            return 'Please give a SMILES pair with "," separated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
     else:
-        return "Error reading SMILES string, check again."
+        return 'Please give a SMILES pair with "," separated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
 
 
-@router.get("/coconutpreprocessing")
+@router.get("/coconut/pre-processing")
 async def COCONUT_Preprocessing(smiles: str):
     """
     Generate Input JSON file for COCONUT.
@@ -258,7 +234,25 @@ async def COCONUT_Preprocessing(smiles: str):
         return "Error reading SMILES string, check again."
 
 
-# @app.get("/molecules/", response_model=List[schemas.Molecule])
-# def read_molecules(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-#     molecules = crud.get_molecules(db, skip=skip, limit=limit)
-#     return molecules
+@router.get("/classyfire/classify")
+async def ClassyFire_Classify(smiles: str):
+    """
+    Generate ClassyFire-based classifications using SMILES as input.
+
+    - **SMILES**: required (query)
+    """
+    if smiles:
+        data = await classify(smiles)
+        return data
+
+
+@router.get("/classyfire/{id}/result")
+async def ClassyFire_result(id: str):
+    """
+    Get the ClassyFire classification results using ID.
+
+    - **ID**: required (query)
+    """
+    if id:
+        data = await result(id)
+        return data
