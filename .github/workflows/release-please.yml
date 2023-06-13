@@ -34,7 +34,7 @@ jobs:
         pip3 install --no-cache-dir -r requirements.txt
         python3 -m pip uninstall -y imantics
         pip3 install imantics==0.1.12
-        pip3 install openbabel
+        pip3 install openbabel-wheel
         pip3 install --no-deps decimer-segmentation
         pip3 install --no-deps decimer>=2.2.0
         pip3 install --no-deps STOUT-pypi>=2.0.5
