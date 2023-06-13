@@ -2,10 +2,14 @@ version: "3.8"
 
 services:
   web:
-    container_name: chem-py-microservice-prod
-    image: europe-west3-docker.pkg.dev/coconut-366808/cheminformatics-python-microservice-prod/chem-py-microservice-prod:latest
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: cheminformatics-python-microservice
+    volumes:
+      - ./app:/code/app
     ports:
-      - "8080:80"
+      - "80:80"
   prometheus:
     image: prom/prometheus
     container_name: prometheus
@@ -21,21 +25,20 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - /mnt/data/grafana_data:/var/lib/grafana
+      - grafana_data:/var/lib/grafana
 volumes:
   prometheus_data:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: /mnt/data/prometheus_data
+      device: ./prometheus_data
   grafana_data:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: /mnt/data/grafana_data
-  postgres_data:
+      device: ./grafana_data
 networks:
-  default:
+  default: 
     name: cpm_fastapi
