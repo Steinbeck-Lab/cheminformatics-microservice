@@ -1,5 +1,6 @@
 import app.modules.toolkits.cdk_wrapper as cdk
 
+
 def getSugarInfo(smiles: str):
     """This function uses the sugar removal utility and checks
     whether a molecule has ring or linear sugars
@@ -16,7 +17,9 @@ def getSugarInfo(smiles: str):
 
     sru_base = "de.unijena.cheminf.deglycosylation"
 
-    SugarRemovalUtility = cdk.JClass(sru_base + ".SugarRemovalUtility")(SCOB.getInstance())
+    SugarRemovalUtility = cdk.JClass(sru_base + ".SugarRemovalUtility")(
+        SCOB.getInstance()
+    )
     hasCircularOrLinearSugars = SugarRemovalUtility.hasCircularOrLinearSugars(molecule)
 
     if hasCircularOrLinearSugars:
