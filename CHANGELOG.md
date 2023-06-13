@@ -1,5 +1,55 @@
 # Changelog
 
+## [0.10.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.9.0...v0.10.0) (2023-06-13)
+
+
+### Features
+
+* Add converter tests [#173](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/173) ([c9b0d57](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/c9b0d5748a328afa06dfcdd5125974bfb82ad482))
+* add depict router [#194](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/194) and [#199](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/199) ([1ff8959](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/1ff8959c9a2779693acda1816fbd61b29d212bce))
+* Add entry for descriptors, multiple mols [#142](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/142) ([50f7df0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/50f7df097f0d3629123113e0522b5a23a4ae9fbe))
+* Add openbabel modules [#185](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/185),[#186](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/186) and [#195](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/195) ([b5f5265](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/b5f526551523a589c964a34535a3f141b777e61d))
+* Add tests for chem router [#181](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/181) ([f41e9f7](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/f41e9f7a1742619b83ac67b6e47a3c87a62fc6a4))
+* Add tools and sugarremoval [#210](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/210) ([813fcb7](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/813fcb7942325f4e823ab5ec794a4581413d84f5))
+* enabled prometheus monitoring, grafana dashboards and docker-compose update to deploy the containers ([44ab42e](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/44ab42ecc02b8b5bf198d70820a828df825cf2dc))
+* end points order update, standardised endpoints naming and other formatting changes ([e6d5a6c](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/e6d5a6cafedfcd79097a75b81de326625f8eeb6a))
+* update deployment workflow to push ([bc2c992](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/bc2c99274f57b9a86d0de71d0f4e58c02e640f6c))
+
+
+### Bug Fixes
+
+* add chembl_structure_pipeline to requirements.txt ([296475e](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/296475e5233c61cc47f0d8a1474c8eecd289cb00))
+* add httpx to requirements.txt ([c2c4707](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/c2c47072b71c1b29f93478474dc9bc69edde7b3e))
+* add openbabel installation to release-please.yml ([2e67207](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/2e672076e930f9d8f89aabf83b36f71913ee8fa2))
+* api docs link fixed ([4f9572e](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/4f9572e4d2ce71f3aa43ddac9b12e5ffeb8a2b91))
+* cleared git cache and also redirecting root to docs site ([95f0aae](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/95f0aaef05afb5c0886b19a4a98f8b63764e2ae2))
+* failing tests ([cc69be5](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/cc69be5a0739a56c9cc7b3ebdb940da88cc58193))
+* format sugarremoval ([563d98b](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/563d98b87464cc597d73dc64669c813ded4dbca0))
+* Hose code issue and test [#182](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/182) ([971e611](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/971e611d0bb233bdb8131f8f82bf069059d0475f))
+* install openbabel-wheel release-please.yml ([fa5b848](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/fa5b8488699e735689546c376a9722fe0c487e2a))
+* linter issues ([ae92063](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/ae92063060cf5e576b5b6f5229ab7ccf8cdae26e))
+* Linter issues ([469eb43](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/469eb4314f5c857c5f5dfbf280187ecc8e87d8e9))
+* linter openbabel ([2221075](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/222107534edc630d81db8ade340236518a512e46))
+* Logo name ([90fdffc](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/90fdffc37d00830eed6dc987a09ed48c1aa16f37))
+* removed duplicate imports and structured dependencies ([16b55d0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/16b55d0e0721de99612b737cd72a14688220cb83))
+* resolved name issues and other small changes ([6676f5b](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/6676f5b14e2fdc9bf00cc0ce1698a0ffd01951a8))
+* update docker-compose file name ([e1e389b](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/e1e389b51216d1a17636e98d7e512de15d19b266))
+* update prod-build image tag ([62ece22](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/62ece22670b4aa3bcd8ad7d4c1920ddc2f8bac07))
+* update the tag in dev and prod ([2b65d1f](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/2b65d1f6886222d75cda89ba33a5b57c262ac281))
+* updated base path redirect to /docs page and terms link update ([f3882ae](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/f3882ae1ab43fbdfd76e9218b969fd6d3a4ba87b))
+* Updated README ([c6bf230](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/c6bf2303be49acce229a4e76afc09ad7829ba4df))
+* wrong update corrected ([7b6b043](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/7b6b043e9feb3bb74310cd2ed164fffa45744e6a))
+
+
+### Documentation
+
+* add docs for cluster deployment ([94b3ed2](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/94b3ed20509e264267619469ec46313131413bba))
+* Introduction added ([3f53d0b](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/3f53d0b12616bc81e7501609825537e30fd8d291))
+* Introduction added ([b7bdca7](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/b7bdca7ccb32a7f51eed3da5b9f84e00feea99a9))
+* test .gitignore ([4b90e23](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/4b90e23c6151c2e0784f2f6e496d41ff3b2172f9))
+* test .gitignore ([6f1f2b1](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/6f1f2b105160cdb333a19e31a6c30f8632f1c27f))
+* test .gitignore ([51dc704](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/51dc704598c859891d341b34da9d354b50b094f5))
+
 ## [0.9.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.8.0...v0.9.0) (2023-06-05)
 
 
