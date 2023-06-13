@@ -1,17 +1,17 @@
 from subprocess import Popen, PIPE
 
 
-def generateStructures(mf: str):
-    """This function uses the sugar removal utility and checks
-    whether a molecule has ring or linear sugars
+def generateStructures(molecular_formula: str):
+    """This function uses surge - chemical structure generator that generates
+    structures based on the canonical generation path method
     Args:
-        smiles (string): SMILES string given by the user.
+        molecular_formula (string): molecular_formula string given by the user.
     Returns:
-        (boolean): True or false values whtehr or not molecule has sugar.
+        (array): array of SMILEs generated for the given MF
     """
     smiles = []
     process = Popen(
-        ["surge", "-P", "-T", "-B1,2,3,4,5,7,9", "-t0", "-f0", "-S", mf],
+        ["surge", "-P", "-T", "-B1,2,3,4,5,7,9", "-t0", "-f0", "-S", molecular_formula],
         stdout=PIPE,
         stderr=PIPE,
     )

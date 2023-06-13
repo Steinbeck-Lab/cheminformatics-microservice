@@ -17,8 +17,8 @@ async def tools_index():
 @router.get("/generate-structures")
 async def Generate_Structures(molecular_formula: str):
     """
-    Extract chemical structure depictions and convert them into SMILES using DECIMER:
+    Generate structures using chemical structure generator based on the canonical generation path method
 
-    - **Images**: required (query)
+    - **Molecular Formula**: required (query)
     """
     return generateStructures(molecular_formula)
