@@ -15,49 +15,43 @@ on:
     types: [published]
 
 env:
-  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_ZONE: europe-west3-a
-  REPOSITORY_NAME: cheminformatics-python-microservice
-  APP_IMAGE: chem-py-microservice
+  DOCKER_HUB_USERNAME : ${{ secrets.DOCKER_USERNAME  }}
+  DOCKER_HUB_PASSWORD : ${{ secrets.DOCKER_PASSWORD  }}
+  REPOSITORY_NAME: cheminfo-microservice
+  REPOSITORY_NAMESPACE: caffeinejena
 
 jobs:
-  setup-build-publish-prod:
-    name: Build & publish to prod registry
+  push_to_registry:
+    name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
+    needs: test
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - name: Check out the repo
+        uses: actions/checkout@v3
 
-    # Setup gcloud CLI
-    - name: Setup CLI
-      uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
-      with:
-        service_account_key: ${{ secrets.GKE_SA_KEY }}
-        project_id: ${{ secrets.GKE_PROJECT }}
+      # - name: Fetch latest release
+      #   id: fetch-latest-release
+      #   uses: InsonusK/get-latest-release@v1.0.1
+      #   with:
+      #     myToken: ${{ github.token }}
+      #     exclude_types: "draft|prerelease"
+      #     view_top: 10
+      # - name: "Print release name"
+      #   run: |
+      #     echo "tag_name: ${{ steps.fetch-latest-release.outputs.tag_name }}"
 
-    # Configure docker to use the gcloud command-line tool as a credential helper
-    - name: Configure docker
-      run: |-
-        gcloud auth configure-docker europe-west3-docker.pkg.dev
-
-    #Fetch latest release
-    - name: Fetch latest release
-      id: fetch-latest-release
-      uses: InsonusK/get-latest-release@v1.0.1
-      with:
-        myToken: ${{ github.token }}
-        exclude_types: "draft"
-        view_top: 10
-    - name: "Print release name"
-      run: |
-        echo "tag_name: ${{ steps.fetch-latest-release.outputs.tag_name }}"
-
-    # Build the Docker image
-    - name: Build docker image
-      run: |-
-        docker build --build-arg RELEASE_VERSION=${{ steps.fetch-latest-release.outputs.tag_name }}  --tag "europe-west3-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_NAME/$APP_IMAGE:latest" .
-        
-    # Push the Docker image to Google Container Registry
-    - name: Publish image to Google Artifact Registry
-      run: |-
-        docker push "europe-west3-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_NAME/$APP_IMAGE:latest"
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+        with:
+          username: ${{ env.DOCKER_HUB_USERNAME  }}
+          password: ${{ env.DOCKER_HUB_PASSWORD  }}
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest
+          username: ${{ env.DOCKER_HUB_USERNAME  }}
+          password: ${{ env.DOCKER_HUB_PASSWORD  }}
