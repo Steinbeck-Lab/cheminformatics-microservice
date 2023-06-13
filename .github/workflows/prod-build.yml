@@ -29,16 +29,16 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v3
 
-      - name: Fetch latest release
-        id: fetch-latest-release
-        uses: InsonusK/get-latest-release@v1.0.1
-        with:
-          myToken: ${{ github.token }}
-          exclude_types: "draft|prerelease"
-          view_top: 10
-      - name: "Print release name"
-        run: |
-          echo "tag_name: ${{ steps.fetch-latest-release.outputs.tag_name }}"
+      # - name: Fetch latest release
+      #   id: fetch-latest-release
+      #   uses: InsonusK/get-latest-release@v1.0.1
+      #   with:
+      #     myToken: ${{ github.token }}
+      #     exclude_types: "draft|prerelease"
+      #     view_top: 10
+      # - name: "Print release name"
+      #   run: |
+      #     echo "tag_name: ${{ steps.fetch-latest-release.outputs.tag_name }}"
 
       - name: Log in to Docker Hub
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
@@ -52,6 +52,6 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:${{ steps.fetch-latest-release.outputs.tag_name }}
+          tags: ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest
           username: ${{ env.DOCKER_HUB_USERNAME  }}
           password: ${{ env.DOCKER_HUB_PASSWORD  }}
