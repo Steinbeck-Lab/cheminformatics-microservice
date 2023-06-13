@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi_versioning import VersionedFastAPI
 
-from .routers import chem, converters, depict, ocsr
+from .routers import chem, converters, depict , ocsr
 from fastapi.middleware.cors import CORSMiddleware
 
 from prometheus_fastapi_instrumentator import Instrumentator

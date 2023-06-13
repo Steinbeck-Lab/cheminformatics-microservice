@@ -9,11 +9,11 @@ from chembl_structure_pipeline import standardizer, checker
 from fastapi.responses import Response, JSONResponse
 from app.modules.npscorer import getNPScore
 from app.modules.classyfire import classify, result
-from app.modules.toolkits.cdk import (
+from app.modules.toolkits.cdk_wrapper import (
     getTanimotoSimilarityCDK,
     getCDKHOSECodes,
 )
-from app.modules.toolkits.rdkitmodules import (
+from app.modules.toolkits.rdkit_wrapper import (
     getTanimotoSimilarityRDKit,
     getRDKitHOSECodes,
 )
