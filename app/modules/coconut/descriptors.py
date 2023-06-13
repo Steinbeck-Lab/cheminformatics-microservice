@@ -1,5 +1,5 @@
 from app.modules.toolkits.rdkitmodules import getRDKitDescriptors, checkSMILES
-from app.modules.toolkits.cdkmodules import (
+from app.modules.toolkits.cdk import (
     getSugarInfo,
     getMurkoFramework,
     getCDKDescriptors,
