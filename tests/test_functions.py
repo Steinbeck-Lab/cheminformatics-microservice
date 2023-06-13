@@ -1,6 +1,6 @@
 import pytest
 import selfies as sf
-from app.modules.depict import getRDKitDepiction, getCDKDepiction
+from app.modules.depiction import getRDKitDepiction, getCDKDepiction
 from app.modules.npscorer import getNPScore
 from STOUT import translate_forward, translate_reverse
 from DECIMER import predict_SMILES

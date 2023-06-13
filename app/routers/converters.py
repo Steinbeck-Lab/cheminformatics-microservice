@@ -5,18 +5,18 @@ from fastapi.responses import Response
 from rdkit import Chem
 from typing import Optional
 from STOUT import translate_forward, translate_reverse
-from app.modules.toolkits.cdk import (
+from app.modules.toolkits.cdk_wrapper import (
     getCDKSDGMol,
     getCXSMILES,
     getCanonSMILES,
     getInChI,
 )
-from app.modules.toolkits.rdkitmodules import (
+from app.modules.toolkits.rdkit_wrapper import (
     get3Dconformers,
     get2Dmol,
     getRDKitCXSMILES,
 )
-from app.modules.toolkits.openbabelmodules import (
+from app.modules.toolkits.openbabel_wrapper import (
     getOBMol,
     getOBCanonicalSMILES,
     getOBInChI,
@@ -63,7 +63,7 @@ async def Create2D_Coordinates(smiles: str, generator: Optional[str] = "cdk"):
             return "Error reading SMILES string, check again."
 
 
-@router.get("/mol3d")
+@router.get("/mol3D")
 async def Create3D_Coordinates(smiles: str, generator: Optional[str] = "rdkit"):
     """
     Generate a random 3D conformer from SMILES using RDKit/OpenBabel.
