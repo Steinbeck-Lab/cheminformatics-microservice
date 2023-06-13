@@ -10,9 +10,14 @@
 
 name : Prod Build, Test and Publish
 
+# on:
+#   release:
+#     types: [published]
+
 on:
-  release:
-    types: [main]
+  push:
+    branches:
+      - main
 
 env:
   DOCKER_HUB_USERNAME : ${{ secrets.DOCKER_USERNAME  }}
