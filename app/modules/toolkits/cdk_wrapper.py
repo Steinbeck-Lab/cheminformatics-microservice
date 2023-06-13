@@ -60,33 +60,6 @@ def getCDKSDG(smiles: str):
     return molecule_
 
 
-def getSugarInfo(smiles: str):
-    """This function uses the sugar removal utility and checks
-    whether a molecule has ring or linear sugars
-    Args:
-        smiles (string): SMILES string given by the user.
-    Returns:
-        (boolean): True or false values whtehr or not molecule has sugar.
-    """
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
-    SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
-    SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
-    molecule = SmilesParser.parseSmiles(smiles)
-
-    sru_base = "de.unijena.cheminf.deglycosylation"
-
-    SugarRemovalUtility = JClass(sru_base + ".SugarRemovalUtility")(SCOB.getInstance())
-    hasCircularOrLinearSugars = SugarRemovalUtility.hasCircularOrLinearSugars(molecule)
-
-    if hasCircularOrLinearSugars:
-        hasLinearSugar = SugarRemovalUtility.hasLinearSugars(molecule)
-        hasCircularSugars = SugarRemovalUtility.hasCircularSugars(molecule)
-        return hasLinearSugar, hasCircularSugars
-    else:
-        return (False, False)
-
-
 def getMurkoFramework(smiles: str):
     """This function takes the user input SMILES and returns
     the Murko framework
