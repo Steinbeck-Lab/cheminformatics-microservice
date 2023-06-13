@@ -32,6 +32,7 @@ jobs:
         python -m pip install --upgrade pip
         pip3 install --upgrade setuptools pip
         pip3 install --no-cache-dir -r requirements.txt
+        pip3 install rdkit
         python3 -m pip uninstall -y imantics
         pip3 install imantics==0.1.12
         pip3 install --no-deps decimer-segmentation
