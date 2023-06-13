@@ -2,14 +2,10 @@ version: "3.8"
 
 services:
   web:
-    build:
-      context: ./
-      dockerfile: Dockerfile
-    container_name: cheminformatics-python-microservice
-    volumes:
-      - ./app:/code/app
+    container_name: chem-py-microservice
+    image: caffeinejena/cheminfo-microservice:latest
     ports:
-      - "80:80"
+      - "8080:80"
   prometheus:
     image: prom/prometheus
     container_name: prometheus
@@ -25,20 +21,21 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - grafana_data:/var/lib/grafana
+      - /mnt/data/grafana_data:/var/lib/grafana
 volumes:
   prometheus_data:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ./prometheus_data
+      device: /mnt/data/prometheus_data
   grafana_data:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ./grafana_data
+      device: /mnt/data/grafana_data
+  postgres_data:
 networks:
-  default: 
+  default:
     name: cpm_fastapi
