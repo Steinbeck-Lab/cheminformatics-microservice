@@ -13,6 +13,10 @@ RUN apt-get update && \
     apt-get update -y && \
     apt-get install -y openjdk-11-jre
 
+RUN wget -O surge "https://github.com/StructureGenerator/surge/releases/download/v1.0/surge-linux-v1.0"
+RUN chmod +x surge
+RUN mv surge /usr/bin
+
 RUN conda install -c conda-forge python>=PYTHON_VERSION
 RUN conda install -c conda-forge rdkit>=RDKIT_VERSION
 RUN conda install -c conda-forge openbabel>=OPENBABEL_VERSION
