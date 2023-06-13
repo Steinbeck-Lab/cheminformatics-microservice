@@ -12,7 +12,7 @@ name : Prod Build, Test and Publish
 
 on:
   release:
-    types: [published]
+    types: [main]
 
 env:
   DOCKER_HUB_USERNAME : ${{ secrets.DOCKER_USERNAME  }}
