@@ -88,6 +88,23 @@ async def SMILES_Descriptors(
             return getCOCONUTDescriptors(smiles, toolkit)
 
 
+@router.get("/descriptors/multiple")
+async def SMILES_Descriptors_multiple(smiles: str, toolkit: Optional[str] = "rdkit"):
+    """
+    Generate standard descriptors for the input molecules (SMILES):
+
+    - **SMILES**: required (query)
+    - **toolkit**: Optional (default:rdkit, allowed:cdk)
+    """
+    if len(smiles.split(",")) > 1:
+        combinedDict = {
+            entry: getCOCONUTDescriptors(entry, toolkit) for entry in smiles.split(",")
+        }
+        return combinedDict
+    else:
+        return "Error invalid SMILES"
+
+
 @router.get("/HOSEcode")
 async def HOSE_Codes(
     smiles: str,
@@ -100,7 +117,7 @@ async def HOSE_Codes(
 
     - **SMILES**: required (query)
     - **spheres**: required (query)
-    - **toolkit**: Optional (default:CDK)
+    - **toolkit**: Optional (default:cdk)
     - **ringsize**: Optional (default:False)
     """
     if smiles:
