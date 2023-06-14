@@ -35,7 +35,7 @@ templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/")
 async def chem_index():
-    return {"module": "chem", "message": "Successful", "status": 200}
+    return {"module": "chem/test", "message": "Successful", "status": 200}
 
 
 @router.get("/stereoisomers")
