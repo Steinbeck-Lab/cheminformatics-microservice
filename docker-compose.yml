@@ -10,6 +10,12 @@ services:
       - ./app:/code/app
     ports:
       - "80:80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/latest/chem"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
   prometheus:
     image: prom/prometheus
     container_name: prometheus
