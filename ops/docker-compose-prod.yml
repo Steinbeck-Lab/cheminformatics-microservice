@@ -15,7 +15,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   web:
-    image: caffeinejena/cheminfo-microservice:dev-latest
+    image: caffeinejena/cheminformatics-python-microservice:dev-latest
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.web.rule=Host(`api.naturalproducts.net`)"

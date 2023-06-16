@@ -2,8 +2,8 @@
 
 # Define variables
 COMPOSE_FILE="/mnt/data/cheminformatics-python-microservice/docker-compose-dev.yml"
-DOCKER_REPO_NAME="caffeinejena/cheminfo-microservice:dev-latest"
-IMAGE_NAME="caffeinejena/cheminfo-microservice:dev-latest"
+DOCKER_REPO_NAME="caffeinejena/cheminformatics-python-microservice:dev-latest"
+IMAGE_NAME="caffeinejena/cheminformatics-python-microservice:dev-latest"
 NEW_CONTAINER_ID=""
 IS_CONTAINER_HEALTHY=1
 
