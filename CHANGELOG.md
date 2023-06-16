@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.11.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.10.0...v0.11.0) (2023-06-16)
+
+
+### Features
+
+* add bash script for zero downtime deployment ([94d31f1](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/94d31f1a94f98893a8002e80027d9f52185d2354))
+* implemented surge - structure generator ([2b1fbc0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/2b1fbc0456ff4f64473f92eab3eb84b497123c57))
+
+
+### Bug Fixes
+
+* add traefik to docker-compose ([4161552](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/41615525cbec15da67058580f0e75b942c622431))
+* enabled multiple workers ([06d1ff8](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/06d1ff8989174fe7d175d40cbb9a1cc509b22d9f))
+* include pre-releases in main deployment ([a2c70e6](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/a2c70e6977d0875e3fc32542bd4761a4f1af7c51))
+* prod build workflow syntax error ([84b4488](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/84b448851bb7fa111ed709323866f2ad3b5c4312))
+* prometheus volume ([83aa5af](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/83aa5afb0b767c01fd374085edb47a1a5f6f1354))
+* removed app active reload ([f224750](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/f224750871fc64ac80c86283b933a9d15375eaa6))
+* update the Docker Hub repo name ([6bcf00c](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/6bcf00cae9b252090a6df87302066528dc39b291))
+* updated comments ([3fab257](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/3fab257f08e250774394d9b4bd3a1ef69fd8e345))
+* updated docker and docker compose to reflext fastapi status as the health check ([898dfb8](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/898dfb8a735f60709bd952a015ac5132b585a1f9))
+
 ## [0.10.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.9.0...v0.10.0) (2023-06-13)
 
 
