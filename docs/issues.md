@@ -11,40 +11,18 @@ Thank you for your interest in improving our product! Please use the template be
 **Feature Request Template:**
 
 ```
-**Title:**
+**Is your feature request related to a problem? Please describe.**
+A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
-Give your feature request a descriptive title.
+**Describe the solution you'd like**
+A clear and concise description of what you want to happen.
 
-**Description:**
+**Describe alternatives you've considered**
+A clear and concise description of any alternative solutions or features you've considered.
 
-Provide a detailed description of the feature you would like to see implemented. Explain how it would enhance the product and benefit the users. Feel free to include any specific use cases or scenarios.
-
-**Potential Benefits:**
-
-Describe the potential benefits or positive outcomes that implementing this feature could bring. How would it improve user experience, productivity, or any other aspect?
-
-**Use Case:**
-
-If applicable, provide a specific use case or scenario where this feature would be particularly useful. This can help us better understand the practical application of the feature.
-
-**Additional Information:**
-
-Include any additional information, ideas, or suggestions related to your feature request. This could include references to similar features in other products, related research, or any other relevant details.
-
-**Priority:**
-
-Indicate the priority level for your feature request (e.g., low, medium, high).
-
-**Impact:**
-
-Describe the potential impact of implementing this feature on your workflow or the overall product experience.
-
-**Contact Information:**
-
-If you would like to be contacted regarding your feature request, please provide your preferred contact information (e.g., email address).
+**Additional context**
+Add any other context or screenshots about the feature request here.
 ```
-
-Thank you for taking the time to submit your feature request. We value your input and will carefully consider all suggestions as we continue to improve our product.
 
 ## Report Issues/Bugs
 
@@ -53,41 +31,33 @@ We appreciate your help in improving our product. If you have encountered any is
 **Issue Template:**
 
 ```
-**Summary:**
+**Describe the bug**
+A clear and concise description of what the bug is.
 
-Provide a brief summary of the issue.
+**To Reproduce**
+Steps to reproduce the behavior:
+1. Go to '...'
+2. Click on '....'
+3. Scroll down to '....'
+4. See error
 
-**Description:**
+**Expected behavior**
+A clear and concise description of what you expected to happen.
 
-Describe the issue in detail, including any relevant information or steps to reproduce it.
+**Screenshots**
+If applicable, add screenshots to help explain your problem.
 
-**Expected Behavior:**
+**Desktop (please complete the following information):**
+ - OS: [e.g. iOS]
+ - Browser [e.g. chrome, safari]
+ - Version [e.g. 22]
 
-Explain what you expected to happen.
+**Smartphone (please complete the following information):**
+ - Device: [e.g. iPhone6]
+ - OS: [e.g. iOS8.1]
+ - Browser [e.g. stock browser, safari]
+ - Version [e.g. 22]
 
-**Actual Behavior:**
-
-Describe what actually happened.
-
-**Steps to Reproduce:**
-
-List the steps taken to reproduce the issue. Be as specific as possible, including any relevant input or configuration details.
-
-**Screenshots/Logs:**
-
-If applicable, attach any relevant screenshots or logs that may help understand or troubleshoot the issue.
-
-**Environment:**
-
-- Operating System: [e.g., Windows 10, macOS Big Sur, Ubuntu 20.04]
-- Browser: [e.g., Chrome 93.0.4577.63, Firefox 92.0.1]
-- Device: [e.g., PC, laptop, smartphone]
-- Additional details: [e.g., screen resolution, network connection type]
-
-**Additional Information:**
-
-Provide any additional information that may be helpful in resolving the issue, such as error messages, related links, or any troubleshooting steps already attempted.
-
+**Additional context**
+Add any other context about the problem here.
 ```
-
-Thank you for taking the time to report the issue. We appreciate your cooperation in helping us improve our product and provide a better experience for all users.
