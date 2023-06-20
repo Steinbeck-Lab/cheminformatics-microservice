@@ -58,12 +58,14 @@ def test_NPlikeliness_Score(smiles, expected_score):
     assert response.headers["content-type"] == "application/json"
     assert response.json() == expected_score
 
-'''
+
+"""
 def test_ClassyFire_Classify(test_smiles):
     response = client.get(f"/v1/chem/classyfire/classify?smiles={test_smiles}")
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/json"
-'''
+"""
+
 
 @pytest.mark.parametrize(
     "smiles, toolkit, expected",
