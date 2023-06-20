@@ -18,7 +18,7 @@ IPython
 pystow>=0.4.9
 unicodedata2==15.0.0
 efficientnet
-tensorflow==2.10.0
+tensorflow==2.11.1
 pillow-heif==0.10.0
 selfies>=2.1.1
 httpx>=0.24.1
