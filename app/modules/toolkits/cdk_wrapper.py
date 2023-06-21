@@ -36,7 +36,7 @@ if not isJVMStarted():
     if not os.path.exists(centresjar_path):
         jar_path = pystow.ensure("STOUT-V2", url=centres_path)
 
-    startJVM("-ea", classpath=[cdkjar_path, srujar_path, centresjar_path])
+    startJVM("-ea", classpath=[cdkjar_path, srujar_path, centresjar_path], "-Xmx4096M")
     cdk_base = "org.openscience.cdk"
 
 
