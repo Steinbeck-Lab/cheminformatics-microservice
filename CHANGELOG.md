@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.11.1](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.11.0...v0.11.1) (2023-06-21)
+
+
+### Bug Fixes
+
+* Bump TF 2.12 requirements.txt ([b97e5a6](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/b97e5a6a68d8811f4b9c284349a856520a1cce1b))
+* do not run classifyre tests ([2a41c1c](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/2a41c1cfa136e6f98b9d9f7d79afbe814b10bff1))
+* increase heapspace to 4GB ([7a5a440](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/7a5a44007505f1350b472cee5f5e9268d9701d26))
+* increase JVM heapspace ([bdb5d17](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/bdb5d17d0990d79e32fd5c3f613bc75a74b7d9c8))
+* linter error ([18204ce](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/18204ce630890141add6aba93c0e0b66fae684e0))
+* move deeplearning model test seperate ([f15cff4](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/f15cff456b1b75391abe1c90e52bb6a8fc7723dc))
+* set TensforFlow to 2.10.1 ([12969bb](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/12969bbb74e947ff8ac96931f2428ee966ef08b2))
+
+
+### Documentation
+
+* documentation update ([9d6efca](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/9d6efcabb92dd4e7c12af4d292e35a9e781d40ec))
+
 ## [0.11.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.10.0...v0.11.0) (2023-06-16)
 
 
