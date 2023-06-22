@@ -16,6 +16,7 @@ services:
 
   web:
     image: caffeinejena/cheminformatics-python-microservice:dev-latest
+    pull_policy: always
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.web.rule=Host(`api.naturalproducts.net`)"
