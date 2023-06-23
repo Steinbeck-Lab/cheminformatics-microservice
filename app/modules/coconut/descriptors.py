@@ -72,7 +72,7 @@ def getCOCONUTDescriptors(smiles: str, toolkit: str):
             "linear_sugars",
             "circular_sugars",
             "murko_framework",
-            "npliness",
+            "nplikeness",
         )
 
         if len(DescriptorList) == len(CombinedDescriptors):
