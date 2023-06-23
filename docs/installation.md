@@ -8,7 +8,7 @@ Clone the project from GitHub
 
 1. Install Git: Download and install Git from the [official website](https://git-scm.com/).
 
-2. Copy the repository URL - https://github.com/Steinbeck-Lab/cheminformatics-python-microservice.git or Go to the GitHub repository and click the "Code" button on the github repository https://github.com/Steinbeck-Lab/cheminformatics-python-microservice to get the HTTPS URL.
+2. Copy the repository URL - https://github.com/Steinbeck-Lab/cheminformatics-python-microservice.git or Go to the GitHub repository and click the "Code" button on the GitHub repository https://github.com/Steinbeck-Lab/cheminformatics-python-microservice to get the HTTPS URL.
 
 3. Open a terminal or command prompt.
 
@@ -28,7 +28,7 @@ Once cloned you can either choose to run the project via Docker (recommended) or
 
 2. Use `cd` to navigate into the cloned project directory.
 
-3. You will find a docker-compose.yml file in the project. If you dont have a docker-compose.yaml file use the following template.
+3. You will find a docker-compose.yml file in the project. If you don't have a docker-compose.yaml file uses the following template.
 
 ```yaml
 version: "3.8"
@@ -87,9 +87,9 @@ networks:
 
 5. Wait for the containers to start: Docker Compose will start the containers and display their logs in the terminal or command prompt.
 
-Uvicorn will start the app and display the server address (usually `http://localhost:80`) and graphana dashboard can be accessed at `http://localhost:3000`
+Unicorn will start the app and display the server address (usually `http://localhost:80`) and grafana dashboard can be accessed at `http://localhost:3000`
 
-You may update the docker-compose file to disable or add additional services but by default the docker-compose file shipped with the project has the web (cheminformatics-python-microservice FAST API app), prometheus and graphana (logging and visualistation of metrics) services and associated volumes shared via a network.
+You may update the docker-compose file to disable or add additional services but by default, the docker-compose file shipped with the project has the web (cheminformatics-python-microservice FAST API app), prometheus and grafana (logging and visualisation of metrics) services and associated volumes shared via a network.
 
 ## Standalone
 
@@ -115,9 +115,9 @@ That's it!
 
 ## Workers
 
-Uvicorn also has an option to start and run several worker processes.
+Uvicorn also has the option to start and run several worker processes.
 
-Nevertheless, as of now, Uvicorn's capabilities for handling worker processes are more limited than Gunicorn's. So, if you want to have a process manager at this level (at the Python level), then it might be better to try with Gunicorn as the process manager.
+Nevertheless, as of now, Uvicorn's capabilities for handling worker processes are more limited than Gunicorn's. So, if you want to have a process manager at this level (at the Python level), then it might be better to try Gunicorn as the process manager.
 
 In any case, you would run it like this:
 
@@ -127,7 +127,7 @@ In any case, you would run it like this:
 $ uvicorn main:app --host 0.0.0.0 --port 8080 --workers 4
 ```
 
-Update the Dockerfile incase if you are runing via docker-compose and rebuild the image for the changes to reflect.
+Update the Dockerfile in case you are running via docker-compose and rebuild the image for the changes to reflect.
 
 ```
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--workers", "4"]
@@ -136,15 +136,15 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--workers"
 </div>
 
 
-## Logging (Prometheus and  Graphana)
+## Logging (Prometheus and  grafana)
 
 Prometheus and Grafana are useful tools to monitor and visualize metrics in FastAPI applications.
 
-Prometheus is a powerful monitoring system that collects and stores time-series data. By instrumenting your FastAPI app with Prometheus, you can collect various metrics such as request count, response time, error rate, and resource utilization. Grafana is a popular data visualization tool that integrates seamlessly with Prometheus. It allows you to create custom dashboards and visualize the collected metrics in a meaningful and interactive way. With Grafana, you can build visual representations of your FastAPI app's performance, monitor trends, and gain insights into your application's behavior.
+Prometheus is a powerful monitoring system that collects and stores time-series data. By instrumenting your FastAPI app with Prometheus, you can collect various metrics such as request count, response time, error rate, and resource utilization. Grafana is a popular data visualization tool that integrates seamlessly with Prometheus. It allows you to create custom dashboards and visualize the collected metrics in a meaningful and interactive way. With Grafana, you can build visual representations of your FastAPI app's performance, monitor trends, and gain insights into your application's behaviour.
 
-CPM docker-compose file comes prepackages with Prometheus and Grafana services for you. When you run the docker compose file these services also spin up automatically and will be available for you to monitor your application performance.
+CPM docker-compose file comes prepackaged with Prometheus and Grafana services for you. When you run the docker-compose file these services also spin up automatically and will be available for you to monitor your application performance.
 
-When you install CPM for the first time you need to configure your prometheus source and enable it as the graphana data source. You can then use the data source to create dashboards.
+When you install CPM for the first time you need to configure your Prometheus source and enable it as the Grafana data source. You can then use the data source to create dashboards.
 
 ### Grafana Dashboard
 Now that we have Prometheus running we can create a Grafana dashboard to visualize the metrics from our FastAPI app. To create a Grafana dashboard we need to do the following:
@@ -160,14 +160,14 @@ Now that we have Prometheus running we can create a Grafana dashboard to visuali
 9. Repeat steps 2-8 for each dashboard you want to create.
 10. Repeat steps 1-9 for each app you want to monitor.
 
-Once you have grafana running go to: localhost:3000. You should see the following screen:
+Once you have Grafana running go to: localhost:3000. You should see the following screen:
 
 Grafana login
 
 Enter the default username and password (admin/admin) and click "Log In". You should be prompted to change the password. Enter a new password and click "Save". You should see the following screen:
 
 <p align="center">
-  <img align="center" src="/docs/graphana_login.jpeg" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
+  <img align="center" src="/docs/grafana_login.jpeg" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
 </p>
 
 Grafana home
@@ -175,13 +175,13 @@ Grafana home
 Click on the "Create your first data source" button. You should see the following screen:
 
 <p align="center">
-  <img align="center" src="/docs/graphana.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
+  <img align="center" src="/docs/grafana.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
 </p>
 
-Grafana add data source
+Grafana add the data source
 
 <p align="center">
-  <img align="center" src="/docs/graphana_ds.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
+  <img align="center" src="/docs/grafana_ds.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
 </p>
 
 
@@ -207,22 +207,22 @@ TLS CA Certificate: None <br/>
 Click on the "Save & Test" button. You should see the following screen:
 
 <p align="center">
-  <img align="center" src="/docs/graphana_ds_saved.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
+  <img align="center" src="/docs/grafana_ds_saved.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
 </p>
 
 Click on the "Dashboards" button. You should see the following screen:
 
 <p align="center">
-  <img align="center" src="/docs/graphana_db.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
+  <img align="center" src="/docs/grafana_db.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
 </p>
 
 Click on the ""New Dashboard" button. You should see the following screen:
 
 <p align="center">
-  <img align="center" src="/docs/graphana_db_new.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
+  <img align="center" src="/docs/grafana_db_new.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
 </p>
 
-Download Cheminformatics Microservice dashboard template (json) here - https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/blob/main/cpm-dashboard.json
+Download the Cheminformatics Microservice dashboard template (JSON) here - https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/blob/main/cpm-dashboard.json
 
 ## Benchmarking / Stress testing
 
@@ -266,21 +266,21 @@ By following these steps, you can perform stress testing on your CPM FASTAPI app
 
 ## Linting / Formatting
 
-We recommend using Flask8 and Black to perform linting and formatting in Python
+We recommend using flake8 and Black to perform linting and formatting in Python
 
-1. Install Flask8 and Black: Start by installing both Flask8 and Black. You can install them using pip by running the following command:
+1. Install flake8 and Black: Start by installing both flake8 and Black. You can install them using pip by running the following command:
    
    ```bash
-   pip install Flask8 black
+   pip install flake8 black
    ```
 
-2. Linting with Flask8: Flask8 is a popular Python linter that checks your code for style and potential errors. Run Flask8 by executing the following command in your project directory:
+2. Linting with flake8: flake8 is a popular Python linter that checks your code for style and potential errors. Run flake8 by executing the following command in your project directory:
 
    ```bash
    flake8 --ignore E501,W503 $(git ls-files '*.py')
    ```
 
-   Flask8 will analyze your code and provide feedback on any style violations or issues found.
+   flake8 will analyze your code and provide feedback on any style violations or issues found.
 
 3. Formatting with Black: Black is a Python code formatter that enforces a consistent style and automatically formats your code. To format your code with Black, run the following command in your project directory:
 
@@ -291,7 +291,7 @@ We recommend using Flask8 and Black to perform linting and formatting in Python
    or 
 
    ```bash
-    back --ignore E501,W503 $(git ls-files '*.py') .
+    black $(git ls-files '*.py') .
    ```
 
    The `.` specifies the current directory. Black will recursively format all Python files within the directory and apply the necessary formatting changes.
