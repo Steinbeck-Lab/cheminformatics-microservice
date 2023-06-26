@@ -102,14 +102,17 @@ def get3Dconformers(smiles, depict=True):
     else:
         mol = Chem.MolFromSmiles(smiles)
     if mol:
-        AllChem.Compute2DCoords(mol)
         mol = Chem.AddHs(mol)
         AllChem.EmbedMolecule(mol, randomSeed=0xF00D)
-        AllChem.MMFFOptimizeMolecule(mol, maxIters=200)
+        try:
+            AllChem.MMFFOptimizeMolecule(mol)
+        except Exception as e:
+            print(e)
+            AllChem.EmbedMolecule(mol, randomSeed=0xF00D)
         if depict:
             return Chem.MolToMolBlock(mol)
         else:
-            mol = Chem.RemoveHs(mol)
+            # mol = Chem.RemoveHs(mol)
             return Chem.MolToMolBlock(mol)
     else:
         return "Error reading SMILES string, check again."
@@ -126,15 +129,17 @@ def getTanimotoSimilarityRDKit(smiles1, smiles2):
     # create two example molecules
     mol1 = checkSMILES(smiles1)
     mol2 = checkSMILES(smiles2)
+    if mol1 and mol2:
+        # generate Morgan fingerprints for each molecule
+        fp1 = AllChem.GetMorganFingerprintAsBitVect(mol1, 2, nBits=1024)
+        fp2 = AllChem.GetMorganFingerprintAsBitVect(mol2, 2, nBits=1024)
 
-    # generate Morgan fingerprints for each molecule
-    fp1 = AllChem.GetMorganFingerprintAsBitVect(mol1, 2, nBits=1024)
-    fp2 = AllChem.GetMorganFingerprintAsBitVect(mol2, 2, nBits=1024)
+        # calculate the Tanimoto similarity between the fingerprints
+        similarity = DataStructs.TanimotoSimilarity(fp1, fp2)
 
-    # calculate the Tanimoto similarity between the fingerprints
-    similarity = DataStructs.TanimotoSimilarity(fp1, fp2)
-
-    return similarity
+        return similarity
+    else:
+        return "Check SMILES strings for Errors"
 
 
 async def getRDKitHOSECodes(smiles: str, noOfSpheres: int):
