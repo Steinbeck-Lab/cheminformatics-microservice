@@ -232,30 +232,57 @@ def getTanimotoSimilarityCDK(smiles1: str, smiles2: str):
     Args (str,str): SMILES strings.
     Returns (float): Tanimoto similarity.
     """
-    if any(char.isspace() for char in smiles1):
-        smiles1 = smiles1.replace(" ", "+")
-    if any(char.isspace() for char in smiles2):
-        smiles2 = smiles2.replace(" ", "+")
-
     Tanimoto = JClass(cdk_base + ".similarity.Tanimoto")
     SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
     SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
     PubchemFingerprinter = JClass(cdk_base + ".fingerprint.PubchemFingerprinter")(
         SCOB.getInstance()
     )
+    CDKHydrogenAdder = JClass(cdk_base + ".tools.CDKHydrogenAdder").getInstance(
+        SCOB.getInstance()
+    )
+    AtomContainerManipulator = JClass(
+        cdk_base + ".tools.manipulator.AtomContainerManipulator"
+    )
+    Cycles = JClass(cdk_base + ".graph.Cycles")
+    ElectronDonation = JClass(cdk_base + ".aromaticity.ElectronDonation")
+    Aromaticity = JClass(cdk_base + ".aromaticity.Aromaticity")(
+        ElectronDonation.cdk(), Cycles.cdkAromaticSet()
+    )
+    try:
+        # parse molecules to get IAtomContainers
+        mol1 = SmilesParser.parseSmiles(smiles1)
+        mol2 = SmilesParser.parseSmiles(smiles2)
+    except Exception as e:
+        print(e)
+        return "Check the SMILES string for errors"
+    if mol1 and mol2:
+        # perceive atom types and configure atoms
+        AtomContainerManipulator.percieveAtomTypesAndConfigureAtoms(mol1)
+        AtomContainerManipulator.percieveAtomTypesAndConfigureAtoms(mol2)
 
-    # parse molecules to get IAtomContainers
-    mol1 = SmilesParser.parseSmiles(smiles1)
-    mol2 = SmilesParser.parseSmiles(smiles2)
+        # add Implicit Hydrogens
+        CDKHydrogenAdder.addImplicitHydrogens(mol1)
+        CDKHydrogenAdder.addImplicitHydrogens(mol2)
 
-    # Generate BitSets using PubChemFingerprinter
-    fingerprint1 = PubchemFingerprinter.getBitFingerprint(mol1).asBitSet()
-    fingerprint2 = PubchemFingerprinter.getBitFingerprint(mol2).asBitSet()
+        # convert implicit to explicit Hydrogens
+        AtomContainerManipulator.convertImplicitToExplicitHydrogens(mol1)
+        AtomContainerManipulator.convertImplicitToExplicitHydrogens(mol2)
 
-    # Calculate Tanimoto similarity
-    Similarity = Tanimoto.calculate(fingerprint1, fingerprint2)
+        # Apply Aromaticity
+        Aromaticity.apply(mol1)
+        Aromaticity.apply(mol2)
 
-    return "{:.5f}".format(float(str(Similarity)))
+        # Generate BitSets using PubChemFingerprinter
+        fingerprint1 = PubchemFingerprinter.getBitFingerprint(mol1).asBitSet()
+        fingerprint2 = PubchemFingerprinter.getBitFingerprint(mol2).asBitSet()
+
+        # Calculate Tanimoto similarity
+        Similarity = Tanimoto.calculate(fingerprint1, fingerprint2)
+
+        return "{:.5f}".format(float(str(Similarity)))
+    else:
+        return "Check the SMILES string for errors"
 
 
 def getCIPAnnotation(smiles: str):
@@ -288,6 +315,7 @@ def getCIPAnnotation(smiles: str):
         ):
             atom.setProperty(StandardGenerator.ANNOTATION_LABEL, "(?)")
 
+    # Iterate over bonds
     for bond in mol.bonds():
         if bond.getOrder() != IBond.Order.DOUBLE:
             continue
@@ -299,16 +327,18 @@ def getCIPAnnotation(smiles: str):
             and stereocenters.isStereocenter(begIdx)
             and stereocenters.isStereocenter(endIdx)
         ):
-            # only if not in a small ring <7
+            # Check if not in a small ring <7
             if Cycles.smallRingSize(bond, 7) == 0:
                 bond.setProperty(StandardGenerator.ANNOTATION_LABEL, "(?)")
+
     # no defined stereo?
     if not mol.stereoElements().iterator().hasNext():
         return mol
 
+    # Call the Java method
     CdkLabeller.label(mol)
 
-    # update to label appropriately for racmic and relative stereochemistry
+    # Update to label appropriately for racemic and relative stereochemistry
     for se in mol.stereoElements():
         if se.getConfigClass() == IStereoElement.TH and se.getGroupInfo() != 0:
             focus = se.getFocus()
@@ -329,28 +359,31 @@ def getCIPAnnotation(smiles: str):
                             BaseMol.CIP_LABEL_KEY, label.toString() + inv.name()
                         )
                 elif (se.getGroupInfo() & IStereoElement.GRP_REL) != 0:
-                    if label in [Descriptor.R, Descriptor.S]:
+                    if label == Descriptor.R or label == Descriptor.S:
                         focus.setProperty(BaseMol.CIP_LABEL_KEY, label.toString() + "*")
 
+    # Iterate over atoms
     for atom in mol.atoms():
         if atom.getProperty(BaseMol.CONF_INDEX) is not None:
             atom.setProperty(
                 StandardGenerator.ANNOTATION_LABEL,
                 StandardGenerator.ITALIC_DISPLAY_PREFIX
-                + str(atom.getProperty(BaseMol.CONF_INDEX)),
+                + atom.getProperty(BaseMol.CONF_INDEX).toString(),
             )
         elif atom.getProperty(BaseMol.CIP_LABEL_KEY) is not None:
             atom.setProperty(
                 StandardGenerator.ANNOTATION_LABEL,
                 StandardGenerator.ITALIC_DISPLAY_PREFIX
-                + str(atom.getProperty(BaseMol.CIP_LABEL_KEY)),
+                + atom.getProperty(BaseMol.CIP_LABEL_KEY).toString(),
             )
+
+    # Iterate over bonds
     for bond in mol.bonds():
         if bond.getProperty(BaseMol.CIP_LABEL_KEY) is not None:
             bond.setProperty(
                 StandardGenerator.ANNOTATION_LABEL,
                 StandardGenerator.ITALIC_DISPLAY_PREFIX
-                + bond.getProperty(BaseMol.CIP_LABEL_KEY),
+                + bond.getProperty(BaseMol.CIP_LABEL_KEY).toString(),
             )
 
     return mol

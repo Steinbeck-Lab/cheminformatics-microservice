@@ -213,9 +213,17 @@ async def NPlikeliness_Score(smiles: str):
 async def Tanimoto_Similarity(smiles: str, toolkit: Optional[str] = "cdk"):
     """
     Generate the Tanimoto similarity index for a given pair of SMILES strings.
+    Using cdk as default parameter the Tanimoto is calculated using Pubchemfingerprints.
+    https://cdk.github.io/cdk/2.8/docs/api/org/openscience/cdk/fingerprint/PubchemFingerprinter.html
+
+    Using rdkit the Tanimoto is calculated using Morganfingerprints with radius: 2 and nBits=1024.
+    Further modifications check the rdkit_wrapper module.
+
+    Usage: Please give a SMILES pair with "," separated. Example: api.naturalproducts.net/latest/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C
 
     - **SMILES**: required (query)
-    - **toolkit**: optional (defaults: cdk)
+    - **toolkit**: optional (defaults: cdk, rdkit also used)
+
     """
     if len(smiles.split(",")) == 2:
         try:
@@ -225,16 +233,16 @@ async def Tanimoto_Similarity(smiles: str, toolkit: Optional[str] = "cdk"):
             else:
                 Tanimoto = getTanimotoSimilarityCDK(smiles1, smiles2)
             return Tanimoto
-        except ValueError:
-            return 'Please give a SMILES pair with "," separated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
+        except Exception:
+            return 'Please give a SMILES pair with "," separated. Example: api.naturalproducts.net/latest/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C'
     elif len(smiles.split(",")) > 2:
         try:
             matrix = getTanimotoSimilarity(smiles, toolkit)
             return Response(content=matrix, media_type="text/html")
-        except ValueError:
-            return 'Please give a SMILES pair with "," separated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
+        except Exception:
+            return 'Please give a SMILES pair with "," separated. Example: api.naturalproducts.net/latest/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C'
     else:
-        return 'Please give a SMILES pair with "," separated. (Example: api.naturalproducts.net/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C)'
+        return 'Please give a SMILES pair with "," separated. Example: api.naturalproducts.net/latest/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C'
 
 
 @router.get("/coconut/pre-processing")
