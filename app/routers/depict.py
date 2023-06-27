@@ -3,6 +3,7 @@ from typing import Optional
 from fastapi.responses import Response, HTMLResponse
 from app.modules.depiction import getRDKitDepiction, getCDKDepiction
 from app.modules.toolkits.rdkit_wrapper import get3Dconformers
+from app.modules.toolkits.openbabel_wrapper import getOBMol
 from fastapi.templating import Jinja2Templates
 
 templates = Jinja2Templates(directory="app/templates")
@@ -56,12 +57,23 @@ async def Depict2D_molecule(
 async def Depict3D_Molecule(
     request: Request,
     smiles: str,
+    generator: Optional[str] = "rdkit",
 ):
     """
-    Generate 3D Depictions using RDKit.
+    Generate 3D Depictions using OpenBabel/RDKit.
 
     - **SMILES**: required (query)
+    - **generator**: optional (query), default: rdkit, allowed: openbabel
     """
     if smiles:
-        content = {"request": request, "molecule": get3Dconformers(smiles)}
-        return templates.TemplateResponse("mol.html", content)
+        if generator == "openbabel":
+            content = {
+                "request": request,
+                "molecule": getOBMol(smiles, threeD=True, depict=True),
+            }
+            return templates.TemplateResponse("mol.html", content)
+        elif generator == "rdkit":
+            content = {"request": request, "molecule": get3Dconformers(smiles)}
+            return templates.TemplateResponse("mol.html", content)
+        else:
+            return "Check SMILES string or Toolkit configuration."
