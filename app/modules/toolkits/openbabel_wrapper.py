@@ -49,10 +49,10 @@ def getOBInChI(smiles: str, InChIKey: bool = False):
     return inchi
 
 
-def getOBMol(smiles: str, threeD: bool = False):
+def getOBMol(smiles: str, threeD: bool = False, depict: bool = False):
     """This function takes an input as a SMILES string and
     returns a 2D/3D mol block.
-    Args (str): SMILES string.
+    Args (str,bool,bool): SMILES string, 3D mol block, 3D mol block for depiction
     Returns (str): Mol block (2D/3D).
     """
     if any(char.isspace() for char in smiles):
@@ -62,8 +62,13 @@ def getOBMol(smiles: str, threeD: bool = False):
         mol = pybel.readstring("smi", smiles)
         mol.addh()
         mol.make3D()
-        mol.removeh()
-        return mol.write("mol")
+        gen3d = ob.OBOp.FindType("gen3D")
+        gen3d.Do(mol.OBMol, "--best")
+        if depict:
+            return mol.write("mol")
+        else:
+            mol.removeh()
+            return mol.write("mol")
 
     # Create an Open Babel molecule object
     mol = ob.OBMol()
