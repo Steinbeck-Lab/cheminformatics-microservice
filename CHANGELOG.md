@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.12.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.11.1...v0.12.0) (2023-06-27)
+
+
+### Features
+
+* add openbabel 3d depiction config ([09fb49e](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/09fb49efcc47a7723481e2e26b910a2b7def528f))
+* Add sugar removal utility [#231](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/231) ([7d9d8cf](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/7d9d8cfc7f9fcf5fe6619a90441dd243fd67af7f))
+
+
+### Bug Fixes
+
+* Documentation, CIP, 3D Mol [#236](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/236),[#237](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/237),[#238](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/238) and [#239](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/239) ([b637d0e](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/b637d0e8c7129d8d5307211b04d4f180d3d4a7f6))
+* error fix in zero-time deployment script. ([283be2d](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/283be2dc98628dc235455a6221a23366f0e2974a))
+* grafana typo ([bb2d419](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/bb2d41952c1e9cb21ee526b880c4c8ec9a10289b))
+* typo ([a7f83f0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/a7f83f0b059183d55401fad080886f264bc48537))
+* typo descriptors.py ([fb26d7c](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/fb26d7cf06e748d2424db94fa10ee0ab3fff085d))
+* typo nplikeness ([a558776](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/a5587763534c362327cbe219db94e6a6c8ceb3bf))
+* update image pull policy ([a895455](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/a8954557f636e2c2e8c43813c71e3e2e85899615))
+* update project title in swagger docs. ([a3d17fa](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/a3d17fa39652ef2186498aa32bcf666ad165a461))
+
+
+### Documentation
+
+* add Docker documentation ([d4abe1d](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/d4abe1de95c7c73fefb9ba139e045c2cfbcc1124))
+
 ## [0.11.1](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.11.0...v0.11.1) (2023-06-21)
 
 
