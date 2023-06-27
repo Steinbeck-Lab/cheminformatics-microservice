@@ -103,16 +103,16 @@ def get3Dconformers(smiles, depict=True):
         mol = Chem.MolFromSmiles(smiles)
     if mol:
         mol = Chem.AddHs(mol)
-        AllChem.EmbedMolecule(mol, randomSeed=0xF00D)
+        AllChem.EmbedMolecule(mol, maxAttempts=5000, useRandomCoords=True)
         try:
             AllChem.MMFFOptimizeMolecule(mol)
         except Exception as e:
             print(e)
-            AllChem.EmbedMolecule(mol, randomSeed=0xF00D)
+            AllChem.EmbedMolecule(mol, maxAttempts=5000, useRandomCoords=True)
         if depict:
             return Chem.MolToMolBlock(mol)
         else:
-            # mol = Chem.RemoveHs(mol)
+            mol = Chem.RemoveHs(mol)
             return Chem.MolToMolBlock(mol)
     else:
         return "Error reading SMILES string, check again."
