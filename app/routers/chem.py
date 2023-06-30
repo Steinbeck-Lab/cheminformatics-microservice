@@ -41,9 +41,17 @@ async def chem_index():
 @router.get("/stereoisomers")
 async def SMILES_to_Stereo_Isomers(smiles: str):
     """
-    Enumerate all possible stereoisomers based on the chiral centres in the given SMILES:
+    For a given SMILES string this function enumerates all possible stereoisomers
 
-    - **SMILES**: required (query parameter)
+    Parameters:
+    - **SMILES**: required (query parameter): The SMILES string to be converted.
+
+    Returns:
+    - Union[List[str], str]: A list of stereo isomer SMILES strings if successful, otherwise returns an error message.
+
+    Raises:
+    - ValueError: If the SMILES string is not provided or is invalid.
+
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
@@ -63,9 +71,22 @@ async def SMILES_Descriptors(
     smiles: str, format: Optional[str] = "json", toolkit: Optional[str] = "rdkit"
 ):
     """
-    Generate standard descriptors for the input molecules (SMILES):
+    Generates standard descriptors for the input molecules (SMILES).
 
-    - **SMILES**: required (query)
+    Parameters:
+    - **SMILES**: required (query): The SMILES representation of the molecule.
+    - **format**: optional (query): The desired format for the output.
+        - Supported values: "html" / "json" (default), "json".
+    - **toolkit**: optional (query): The chemical toolkit to use for descriptor calculation. Default is "rdkit". Allowed "all", "cdk".
+        - Supported values: "cdk"/ "rdkit" / "all" (default), "rdkit".
+
+    Returns:
+    - If format is "html", returns an HTML response containing a table of descriptors and their values.
+    - If format is not "html", returns the descriptors and their values in the specified format (default: JSON).
+
+    Raises:
+    - None
+
     """
     if smiles:
         if format == "html":
@@ -91,10 +112,26 @@ async def SMILES_Descriptors(
 @router.get("/descriptors/multiple")
 async def SMILES_Descriptors_multiple(smiles: str, toolkit: Optional[str] = "rdkit"):
     """
-    Generate standard descriptors for the input molecules (SMILES):
+    Retrieve multiple descriptors for a list of SMILES strings.
 
-    - **SMILES**: required (query)
-    - **toolkit**: Optional (default:rdkit, allowed:cdk)
+    Parameters:
+    - **SMILES**: required (query): Comma-separated list of SMILES strings.
+    - **toolkit**: optional (query): Toolkit to use for descriptor calculation.
+        - Supported values: "rdkit" / "cdk" (default), "rdkit".
+
+    Returns:
+    - Union[Dict[str, Any], str]: If multiple SMILES are provided, returns a dictionary with each SMILES as the key and the corresponding descriptors as the value. If only one SMILES is provided, returns an error message.
+
+    Raises:
+    - ValueError: If the SMILES string is not provided or is invalid.
+
+    Example:
+    - Request: GET /descriptors/multiple?smiles=CCO,CCN&toolkit=rdkit
+      Response: {"CCO": {"descriptor1": value1, "descriptor2": value2}, "CCN": {"descriptor1": value3, "descriptor2": value4}}
+
+    - Request: GET /descriptors/multiple?smiles=CCC
+      Response: "Error invalid SMILES"
+
     """
     if len(smiles.split(",")) > 1:
         combinedDict = {
@@ -113,12 +150,23 @@ async def HOSE_Codes(
     ringsize: Optional[bool] = False,
 ):
     """
-    Generates HOSE Codes using CDK/RDKit.
+    Generates HOSE codes for a given SMILES string.
 
-    - **SMILES**: required (query)
-    - **spheres**: required (query)
-    - **toolkit**: Optional (default:cdk)
-    - **ringsize**: Optional (default:False)
+    Parameters:
+    - **SMILES**: required (query): The SMILES string representing the chemical compound.
+    - **spheres**: required (query): The number of spheres to use for generating HOSE codes.
+    - **toolkit**: optional (default:cdk): The chemical toolkit to use for generating HOSE codes.
+            Supported values: "cdk" (default), "rdkit".
+    - **ringsize**: optional (default:False): Determines whether to include information about ring sizes
+            in the HOSE codes. Default is False.
+
+    Returns:
+    - Union[List[str], str]: A list of HOSE codes if successful, indicating the HOSE codes
+        for each atom in the molecule. Otherwise, returns an error message.
+
+    Raises:
+    - ValueError: If the SMILES string is not provided or is invalid.
+
     """
     if smiles:
         if toolkit == "cdk":
@@ -133,9 +181,21 @@ async def HOSE_Codes(
 async def Standardize_Mol(mol: Annotated[str, Body(embed=True)]):
     """
     Standardize molblock using the ChEMBL curation pipeline routine
-    and return the Standardized molecule, SMILES, InChI and InCHI-Key:
+    and return the standardized molecule, SMILES, InChI, and InCHI-Key.
 
-    - **mol**: required
+    Parameters:
+    - **molblock**: required (str,query): A molblock string representing the molecule to be standardized.
+
+    Returns:
+    - dict: A dictionary containing the following keys:
+        - "standardized_mol" (str): The standardized molblock of the molecule.
+        - "canonical_smiles" (str): The canonical SMILES representation of the molecule.
+        - "inchi" (str): The InChI representation of the molecule.
+        - "inchikey" (str): The InChI-Key of the molecule.
+
+    Raises:
+    - ValueError: If the SMILES string is not provided or is invalid.
+
     """
     if mol:
         standardized_mol = standardizer.standardize_molblock(mol)
@@ -154,10 +214,29 @@ async def Standardize_Mol(mol: Annotated[str, Body(embed=True)]):
 @router.get("/errors")
 async def Check_Errors(smiles: str, fix: Optional[bool] = False):
     """
-    Check issues for a given SMILES string and standardize it using the ChEMBL curation pipeline.
+    Check a given SMILES string and the represented structure for issues and standardizes it using the ChEMBL curation pipeline.
 
-    - **SMILES**: required (query)
-    - **fix**: optional (defaults: False)
+    Parameters:
+    - **SMILES**: required (str,query) The SMILES string to check and standardize.
+    - **fix**: optional (bool): Flag indicating whether to fix the issues by standardizing the SMILES. Defaults to False.
+
+    Returns:
+    - If fix is False:
+        - If issues are found in the SMILES string, returns a list of issues.
+        - If no issues are found, returns the string "No Errors Found".
+
+    - If fix is True:
+        - If issues are found in the SMILES string, returns a dictionary containing the original SMILES, original issues,
+          standardized SMILES, and new issues after standardization.
+        - If no issues are found after standardization, returns a dictionary with the original SMILES and "No Errors Found".
+
+    Raises:
+    - ValueError: If the SMILES string is not provided or is invalid.
+
+    Notes:
+    - If the SMILES string contains spaces, they will be replaced with "+" characters before processing.
+    - If the SMILES string cannot be read, the function returns the string "Error reading SMILES string, check again."
+
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
@@ -200,29 +279,54 @@ async def Check_Errors(smiles: str, fix: Optional[bool] = False):
 @router.get("/nplikeness/score")
 async def NPlikeliness_Score(smiles: str):
     """
-    Generate natural product likeliness score based on RDKit implementation
+    Calculates the natural product likeness score based on the RDKit implementation.
 
-    - **SMILES**: required (query)
+    Parameters:
+    - **SMILES**: required (query): The SMILES representation of the molecule.
+
+    Returns:
+    - np_score (float): The natural product likeness score.
+
+    Raises:
+    - ValueError: If the SMILES string is not provided or is invalid.
+
     """
     if smiles:
         np_score = getNPScore(smiles)
         return np_score
+    else:
+        return "Error reading SMILES string, check again."
 
 
 @router.get("/tanimoto")
 async def Tanimoto_Similarity(smiles: str, toolkit: Optional[str] = "cdk"):
     """
-    Generate the Tanimoto similarity index for a given pair of SMILES strings.
-    Using cdk as default parameter the Tanimoto is calculated using Pubchemfingerprints.
-    https://cdk.github.io/cdk/2.8/docs/api/org/openscience/cdk/fingerprint/PubchemFingerprinter.html
+    Generates the Tanimoto similarity index for a given pair of SMILES strings.
 
-    Using rdkit the Tanimoto is calculated using Morganfingerprints with radius: 2 and nBits=1024.
-    Further modifications check the rdkit_wrapper module.
+    The Tanimoto similarity index is calculated using different toolkits:
 
-    Usage: Please give a SMILES pair with "," separated. Example: api.naturalproducts.net/latest/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C
+    - When using the **'cdk'** toolkit (default), the Tanimoto similarity is calculated
+      using the PubchemFingerprinter from the CDK library.
+      More information: https://cdk.github.io/cdk/2.8/docs/api/org/openscience/cdk/fingerprint/PubchemFingerprinter.html
 
-    - **SMILES**: required (query)
-    - **toolkit**: optional (defaults: cdk, rdkit also used)
+    - When using the **'rdkit'** toolkit, the Tanimoto similarity is calculated
+      using Morgan fingerprints with a radius of 2 and nBits=1024.
+      Additional modifications can be found in the rdkit_wrapper module.
+
+    Usage:
+    - To calculate the Tanimoto similarity for a pair of SMILES strings, provide them as a comma-separated parameter:
+      Example: api.naturalproducts.net/latest/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C
+
+    Parameters:
+    - **SMILES**: required (query): The SMILES strings for which the Tanimoto similarity will be calculated. Two SMILES strings should be provided as a comma-separated parameter.
+    - **toolkit**: optional (defaults: cdk): The toolkit to use for Tanimoto calculation.
+        - Supported values: "rdkit" / "cdk" (default), "rdkit".
+
+    Returns:
+    - The Tanimoto similarity index as a floating-point value.
+
+    Raises:
+    - If an error occurs during the Tanimoto similarity calculation or if the input SMILES strings are invalid, an appropriate error message will be returned.
 
     """
     if len(smiles.split(",")) == 2:
@@ -248,9 +352,17 @@ async def Tanimoto_Similarity(smiles: str, toolkit: Optional[str] = "cdk"):
 @router.get("/coconut/pre-processing")
 async def COCONUT_Preprocessing(smiles: str):
     """
-    Generate Input JSON file for COCONUT.
+    Generates an Input JSON file with information of different molecular representations and descriptors suitable for submission to COCONUT database.
 
-    - **SMILES**: required (query)
+    Parameters:
+    - **SMILES**: required (query): The SMILES string representing a chemical compound.
+
+    Returns:
+    - JSONResponse: The generated Input JSON file for COCONUT.
+
+    Raises:
+    - HTTPException: If there is an error reading the SMILES string.
+
     """
     if smiles:
         data = COCONUTpreprocessing(smiles)
@@ -264,7 +376,19 @@ async def ClassyFire_Classify(smiles: str):
     """
     Generate ClassyFire-based classifications using SMILES as input.
 
-    - **SMILES**: required (query)
+    Parameters:
+    - **SMILES**: required (query): The SMILES representation of the compound to be classified.
+
+    Returns:
+    - The classification data generated by ClassyFire.
+
+    Raises:
+    - HTTPException: If the SMILES string is not provided or if an error occurs during the classification process.
+
+    Note:
+    - ClassyFire is a chemical taxonomy classification tool that predicts the chemical class and subclass of a compound based on its structural features.
+    - This service pings the http://classyfire.wishartlab.com server for information retrieval.
+
     """
     if smiles:
         data = await classify(smiles)
@@ -274,9 +398,18 @@ async def ClassyFire_Classify(smiles: str):
 @router.get("/classyfire/{id}/result")
 async def ClassyFire_result(id: str):
     """
-    Get the ClassyFire classification results using ID.
+    Retrieve the ClassyFire classification results based on the provided ID.
 
-    - **ID**: required (query)
+    Parameters:
+    - **id**: required (query): The ID used to query the ClassyFire classification results.
+
+    Raises:
+    - HTTPException 400: If the ID is not provided.
+    - HTTPException 500: If an error occurs during the classification process.
+
+    Returns:
+    - The ClassyFire classification results as JSON.
+
     """
     if id:
         data = await result(id)
