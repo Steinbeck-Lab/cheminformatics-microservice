@@ -138,6 +138,15 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--workers"
 
 ## Logging (Prometheus and  grafana)
 
+::: info
+
+The following instructions are based on the blog post - https://dev.to/ken_mwaura1/getting-started-monitoring-a-fastapi-app-with-grafana-and-prometheus-a-step-by-step-guide-3fbn
+
+To learn more about using Grafana in general, see the official Prometheus and Grafana documentation, or check out our other monitoring tutorials.
+
+:::
+
+
 Prometheus and Grafana are useful tools to monitor and visualize metrics in FastAPI applications.
 
 Prometheus is a powerful monitoring system that collects and stores time-series data. By instrumenting your FastAPI app with Prometheus, you can collect various metrics such as request count, response time, error rate, and resource utilization. Grafana is a popular data visualization tool that integrates seamlessly with Prometheus. It allows you to create custom dashboards and visualize the collected metrics in a meaningful and interactive way. With Grafana, you can build visual representations of your FastAPI app's performance, monitor trends, and gain insights into your application's behaviour.
