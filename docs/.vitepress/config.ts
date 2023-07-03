@@ -32,7 +32,7 @@ export default defineConfig({
       {
         text: 'Usage',
         items: [
-          { text: 'Public API', link: '/public-api' },
+          //{ text: 'Public API', link: '/public-api' },
           { text: 'Docker', link: '/docker' },
           { text: 'Cluster Deployment (K8S)', link: '/cluster-deployment' }
         ]

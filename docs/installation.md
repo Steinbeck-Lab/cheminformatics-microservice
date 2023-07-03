@@ -49,35 +49,35 @@ services:
       timeout: 10s
       retries: 20
       start_period: 60s
-  prometheus:
-    image: prom/prometheus
-    container_name: prometheus
+  Prometheus:
+    image: prom/Prometheus
+    container_name: Prometheus
     ports:
       - 9090:9090
     volumes:
-      - ./prometheus_data/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./Prometheus_data/Prometheus.yml:/etc/Prometheus/Prometheus.yml
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-  grafana:
-    image: grafana/grafana
-    container_name: grafana
+      - '--config.file=/etc/Prometheus/Prometheus.yml'
+  Grafana:
+    image: Grafana/Grafana
+    container_name: Grafana
     ports:
       - 3000:3000
     volumes:
-      - grafana_data:/var/lib/grafana
+      - Grafana_data:/var/lib/Grafana
 volumes:
-  prometheus_data:
+  Prometheus_data:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ./prometheus_data
-  grafana_data:
+      device: ./Prometheus_data
+  Grafana_data:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ./grafana_data
+      device: ./Grafana_data
 networks:
   default: 
     name: cpm_fastapi
@@ -87,9 +87,9 @@ networks:
 
 5. Wait for the containers to start: Docker Compose will start the containers and display their logs in the terminal or command prompt.
 
-Unicorn will start the app and display the server address (usually `http://localhost:80`) and grafana dashboard can be accessed at `http://localhost:3000`
+Unicorn will start the app and display the server address (usually `http://localhost:80`) and Grafana dashboard can be accessed at `http://localhost:3000`
 
-You may update the docker-compose file to disable or add additional services but by default, the docker-compose file shipped with the project has the web (cheminformatics-python-microservice FAST API app), prometheus and grafana (logging and visualisation of metrics) services and associated volumes shared via a network.
+You may update the docker-compose file to disable or add additional services but by default, the docker-compose file shipped with the project has the web (cheminformatics-python-microservice FAST API app), Prometheus and Grafana (logging and visualisation of metrics) services and associated volumes shared via a network.
 
 ## Standalone
 
@@ -136,13 +136,13 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--workers"
 </div>
 
 
-## Logging (Prometheus and  grafana)
+## Logging (Prometheus and  Grafana)
 
 ::: info
 
-The following instructions are based on the blog post - https://dev.to/ken_mwaura1/getting-started-monitoring-a-fastapi-app-with-grafana-and-prometheus-a-step-by-step-guide-3fbn
+The following instructions are based on the blog post - https://dev.to/ken_mwaura1/getting-started-monitoring-a-fastapi-app-with-Grafana-and-Prometheus-a-step-by-step-guide-3fbn
 
-To learn more about using Grafana in general, see the official Prometheus and Grafana documentation, or check out our other monitoring tutorials.
+To learn more about using Grafana in general, see the official [Prometheus](https://prometheus.io/docs/introduction/overview/) and [Grafana](https://grafana.com/docs/) documentation, or check out our other monitoring tutorials.
 
 :::
 
@@ -176,7 +176,7 @@ Grafana login
 Enter the default username and password (admin/admin) and click "Log In". You should be prompted to change the password. Enter a new password and click "Save". You should see the following screen:
 
 <p align="center">
-  <img align="center" src="/docs/grafana_login.jpeg" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
+  <img align="center" src="/docs/Grafana_login.jpeg" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
 </p>
 
 Grafana home
@@ -184,26 +184,26 @@ Grafana home
 Click on the "Create your first data source" button. You should see the following screen:
 
 <p align="center">
-  <img align="center" src="/docs/grafana.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
+  <img align="center" src="/docs/Grafana.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
 </p>
 
 Grafana add the data source
 
 <p align="center">
-  <img align="center" src="/docs/grafana_ds.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
+  <img align="center" src="/docs/Grafana_ds.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
 </p>
 
 
 Click on the "Prometheus" button. You should see the following screen:
 
 <p align="center">
-  <img align="center" src="/docs/prometheus.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
+  <img align="center" src="/docs/Prometheus.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
 </p>
 
 Enter the following information:
 
 Name: Prometheus <br/>
-URL: http://prometheus:9090 <br/>
+URL: http://Prometheus:9090 <br/>
 Access: Server (Default) <br/>
 Scrape interval: 15s <br/>
 HTTP Method: GET <br/>
@@ -216,19 +216,19 @@ TLS CA Certificate: None <br/>
 Click on the "Save & Test" button. You should see the following screen:
 
 <p align="center">
-  <img align="center" src="/docs/grafana_ds_saved.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
+  <img align="center" src="/docs/Grafana_ds_saved.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
 </p>
 
 Click on the "Dashboards" button. You should see the following screen:
 
 <p align="center">
-  <img align="center" src="/docs/grafana_db.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
+  <img align="center" src="/docs/Grafana_db.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
 </p>
 
 Click on the ""New Dashboard" button. You should see the following screen:
 
 <p align="center">
-  <img align="center" src="/docs/grafana_db_new.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
+  <img align="center" src="/docs/Grafana_db_new.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
 </p>
 
 Download the Cheminformatics Microservice dashboard template (JSON) here - https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/blob/main/cpm-dashboard.json
