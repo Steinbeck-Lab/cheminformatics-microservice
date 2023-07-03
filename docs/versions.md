@@ -11,31 +11,29 @@ The Cheminformatics Python Microservices framework is developed using Python and
 </div>
 
 <p align="center">
-  <b>Cheminformatics Python Microservice: V1.0.0</b>
-</p>
-
-<center>
+  <b> Cheminformatics Python Microservice: V1.0.0 </b>
+</p><br>
 
 - **The currently utilized versions of open cheminformatics toolkits.**
 
-| Toolkits   | Version   |
-|---------|-----------|
-| RDKit^1^   | 2023.03.1 |
-| CDK^2^     | 2.8.0     |
-| Open Babel^3^     | 3.1.0     |
+| Toolkits    | Version     |
+|-------------|-------------|
+| RDKit <sup>1</sup>    | 2023.03.1  |
+| CDK <sup>2</sup>      | 2.8.0       |
+| Open Babel <sup>3</sup> | 3.1.0       |
 
 
 - **The currently utilized versions of open-source tools.**
-| Toolkits   | Version   |
-|---------|-----------|
-| STOUT^4^  | 2.0.5     |
-| DECIMER^5,6^ | 2.3.0     |
-| DECIMER-Segmentation^7^ | 2.3.0     |
-| Surge^8^ | 1.3.2    |
-| SRU^9^ | 1.3.2    |
-| ClassyFire^10^ | 1.0.0    |
 
-</center>
+| Toolkits                  | Version   |
+|---------------------------|-----------|
+| STOUT<sup>4</sup>         | 2.0.5     |
+| DECIMER<sup>5,6</sup>     | 2.3.0     |
+| DECIMER-Segmentation<sup>7</sup> | 2.3.0     |
+| Surge<sup>8</sup>         | 1.3.2     |
+| SRU<sup>9</sup>           | 1.3.2     |
+| ClassyFire<sup>10</sup>   | 1.0.0     |
+
 
 ## References
 
