@@ -38,7 +38,11 @@ async def Generate_Structures(molecular_formula: str):
     - HTTPException: If there was an error generating the structures.
 
     Example:
-    - GET /generate-structures?molecular_formula=C6H12O6
+    - GET /generate-structures?molecular_formula=C4H10
+
+    Note:
+    - The maximum allowable count of heavy atoms is restricted to 10 to mitigate excessive utilization of this service.
+
     """
 
     return generateStructures(molecular_formula)
