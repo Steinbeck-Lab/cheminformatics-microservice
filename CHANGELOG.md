@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.13.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.12.0...v0.13.0) (2023-07-03)
+
+
+### Features
+
+* check number of heavy atoms for surge ([670a2c2](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/670a2c26014814cf69b91d3bce033a65cef0b7fc))
+* detailed version information ([1a52bea](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/1a52bea51dffd5fd07861b75200cee9c2ba695c5))
+* Improved and detailed documentation ([5a6f6ea](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/5a6f6ea78bfcb4c6d16f91d3413523d9d35d46e2))
+
+
+### Bug Fixes
+
+* closing line break - br tag ([317847b](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/317847bc8499197b647116b78e3586f0e8bbd4f5))
+* decimer canonicalisation ([ec827ba](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/ec827bae07f4d1cdccd63adc7219d14a19ec9e39))
+* failing tests ([dddd387](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/dddd387715fab051a6af220896136f313c38f838))
+* Updated surge max HA atom count error response ([3ce5fa8](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/3ce5fa8193669d1b9d66e1c76ca73d7b40cc30db))
+* Version documenation update ([e6dc17f](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/e6dc17f285cb64298fe4b95e4f6805eb3acb8d21))
+
+
+### Documentation
+
+* added reference or credits to grafana and prometheus blog post ([26923fd](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/26923fdc6934ac308d9c3abd49f4b0f713edb6ac))
+* update links in installation ([9faad2f](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/9faad2f73aa1e56566fc63f4af28c7d4dc589390))
+
 ## [0.12.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v0.11.1...v0.12.0) (2023-06-27)
 
 
