@@ -395,16 +395,18 @@ async def ClassyFire_Classify(smiles: str):
         return data
 
 
-@router.get("/classyfire/{id}/result")
-async def ClassyFire_result(id: str):
+@router.get("/classyfire/{jobid}/result")
+async def ClassyFire_result(jobid: str):
     """
-    Retrieve the ClassyFire classification results based on the provided ID.
+    Retrieve the ClassyFire classification results based on the provided Job ID.
+    To obtain the results from ClassyFire, please initiate a new request and obtain a unique job ID.
+    Once you have the job ID, you need to submit another request using this ID in order to retrieve the desired outcome.
 
     Parameters:
-    - **id**: required (query): The ID used to query the ClassyFire classification results.
+    - **jobid**: required (query): The Job ID used to query the ClassyFire classification results.
 
     Raises:
-    - HTTPException 400: If the ID is not provided.
+    - HTTPException 400: If the Job ID is not provided.
     - HTTPException 500: If an error occurs during the classification process.
 
     Returns:

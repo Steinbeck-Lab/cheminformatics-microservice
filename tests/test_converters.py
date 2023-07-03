@@ -18,7 +18,7 @@ def test_converters_index():
 
 def test_SMILES_Mol():
     response = client.get(
-        "/v1/convert/mol2D?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C&generator=cdk"
+        "/v1/convert/mol2D?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C&toolkit=cdk"
     )
     assert response.status_code == 200
     assert response.headers["content-type"] == "text/plain; charset=utf-8"
@@ -26,7 +26,7 @@ def test_SMILES_Mol():
 
 def test_SMILES_Generate3DConformer():
     response = client.get(
-        "/v1/convert/mol3D?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C&generator=rdkit"
+        "/v1/convert/mol3D?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C&toolkit=rdkit"
     )
     assert response.status_code == 200
     assert response.headers["content-type"] == "text/plain; charset=utf-8"
@@ -70,7 +70,7 @@ def test_SMILES_to_CXSMILES():
 
 def test_SMILES_convert_to_Formats():
     response = client.get(
-        "/v1/convert/formats?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C&generator=rdkit"
+        "/v1/convert/formats?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C&toolkit=rdkit"
     )
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/json"

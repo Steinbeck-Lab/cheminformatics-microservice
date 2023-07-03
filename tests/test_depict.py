@@ -24,7 +24,7 @@ def test_smiles():
 @pytest.mark.parametrize(
     "smiles, generator, width, height, rotate, CIP, unicolor",
     [
-        ("CCO", "cdksdg", 512, 512, 0, False, False),
+        ("CCO", "cdk", 512, 512, 0, False, False),
         ("CCO", "rdkit", 512, 512, 0, False, False),
     ],
 )
