@@ -11,16 +11,45 @@ The Cheminformatics Python Microservices framework is developed using Python and
 </div>
 
 <p align="center">
-  <b>Cheminformatics Python Microservice: V0.8.0</b>
+  <b>Cheminformatics Python Microservice: V1.0.0</b>
 </p>
 
 <center>
 
-| Tools   | Version   |
+- **The currently utilized versions of open cheminformatics toolkits.**
+
+| Toolkits   | Version   |
 |---------|-----------|
-| RDKit   | 2023.03.1 |
-| CDK     | 2.8.0     |
-| STOUT   | 2.0.0     |
-| DECIMER | 2.2.0     |
+| RDKit^1^   | 2023.03.1 |
+| CDK^2^     | 2.8.0     |
+| Open Babel^3^     | 3.1.0     |
+
+
+- **The currently utilized versions of open-source tools.**
+| Toolkits   | Version   |
+|---------|-----------|
+| STOUT^4^  | 2.0.5     |
+| DECIMER^5,6^ | 2.3.0     |
+| DECIMER-Segmentation^7^ | 2.3.0     |
+| Surge^8^ | 1.3.2    |
+| SRU^9^ | 1.3.2    |
+| ClassyFire^10^ | 1.0.0    |
 
 </center>
+
+## References
+
+1. Landrum G, Others (2016) RDKit: Open-Source Cheminformatics Software.(2016). URL http://www.rdkit.org/, https://github.com/rdkit/rdkit
+2. Willighagen EL, Mayfield JW, Alvarsson J, et al (2017) The Chemistry Development Kit (CDK) v2.0: atom typing, depiction, molecular formulas, and substructure searching. Journal of Cheminformatics. https://doi.org/10.1186/s13321-017-0220-4
+3. O'Boyle, N.M., Banck, M., James, C.A. et al. Open Babel: An open chemical toolbox. J Cheminform 3, 33 (2011). https://doi.org/10.1186/1758-2946-3-33
+4. Rajan, K., Zielesny, A. & Steinbeck, C. STOUT: SMILES to IUPAC names using neural machine translation. J Cheminform 13, 34 (2021). https://doi.org/10.1186/s13321-021-00512-4
+5. Rajan, K., Zielesny, A. & Steinbeck, C. DECIMER: towards deep learning for chemical image recognition. J Cheminform 12, 65 (2020). https://doi.org/10.1186/s13321-020-00469-w
+6. Rajan K, Brinkhaus HO, Agea MI, Zielesny A, Steinbeck C (2023) DECIMER.ai - An open platform for automated optical chemical structure identification, segmentation and recognition in scientific publications. ChemRxiv (2023). https://doi.org/10.26434/chemrxiv-2023-xhcx9
+7. Rajan, K., Brinkhaus, H.O., Sorokina, M. et al. DECIMER-Segmentation: Automated extraction of chemical structure depictions from scientific literature. J Cheminform 13, 20 (2021). https://doi.org/10.1186/s13321-021-00496-1
+8. McKay, B.D., Yirik, M.A. & Steinbeck, C. Surge: a fast open-source chemical graph generator. J Cheminform 14, 24 (2022). https://doi.org/10.1186/s13321-022-00604-9
+9. Schaub, J., Zielesny, A., Steinbeck, C. et al. Too sweet: cheminformatics for deglycosylation in natural products. J Cheminform 12, 67 (2020). https://doi.org/10.1186/s13321-020-00467-y
+10. Djoumbou Feunang, Y., Eisner, R., Knox, C. et al. ClassyFire: automated chemical classification with a comprehensive, computable taxonomy. J Cheminform 8, 61 (2016). https://doi.org/10.1186/s13321-016-0174-y
+
+
+
+
