@@ -28,7 +28,7 @@ def test_imagetosmiles(test_smiles):
     expected_result = test_smiles
     actual_result = predict_SMILES(img_path)
     mol = Chem.MolFromSmiles(actual_result)
-    if mol is None:
+    if mol:
         actual_result_canonical = Chem.MolToSmiles(
             mol, isomericSmiles=True, kekuleSmiles=True
         )
