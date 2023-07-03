@@ -59,4 +59,4 @@ def generateStructures(molecular_formula: str):
             smiles.append(line.decode("utf-8").rstrip())
         return smiles
     else:
-        return "The molecular formula contains more heavy atoms than allowed."
+        return "The molecular formula contains more heavy atoms than allowed (10 Heavy Atoms max)."
