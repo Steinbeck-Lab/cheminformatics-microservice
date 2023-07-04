@@ -1,0 +1,3 @@
+decimer-segmentation
+decimer>=2.2.0
+STOUT-pypi>=2.0.5
