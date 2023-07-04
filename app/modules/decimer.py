@@ -7,6 +7,7 @@ from DECIMER import predict_SMILES
 
 def convert_image(path: str):
     """Takes an image filepath of GIF image and returns Hi Res PNG image.
+
     Args:
         input_path (str): path of an image.
 
@@ -31,6 +32,7 @@ def convert_image(path: str):
 
 def get_segments(path: str):
     """Takes an image filepath and returns a set of paths and image name of segmented images.
+
     Args:
         input_path (str): path of an image.
 
@@ -50,6 +52,7 @@ def get_segments(path: str):
 
 def getPredictedSegments(path: str):
     """Takes an image filepath and returns predicted SMILES for segmented images.
+
     Args:
         input_path (str): path of an image.
 

@@ -10,7 +10,8 @@ def getHeavyAtomCount(formula: str) -> int:
         formula (str): The molecular formula of the molecule.
 
     Returns:
-        int: The number of heavy atoms in the molecule.
+        count (int): The number of heavy atoms in the molecule.
+
     """
 
     elements = re.findall(r"[A-Z][a-z]*\d*", formula)
@@ -33,11 +34,13 @@ def getHeavyAtomCount(formula: str) -> int:
 
 def generateStructures(molecular_formula: str):
     """This function uses surge - chemical structure generator that generates
-    structures based on the canonical generation path method
+    structures based on the canonical generation path method.
+
     Args:
         molecular_formula (string): molecular_formula string given by the user.
     Returns:
-        (array): array of SMILEs generated for the given MF
+        (array): array of SMILEs generated for the given molecular_formula
+
     """
     smiles = []
     if getHeavyAtomCount(molecular_formula) <= 10:

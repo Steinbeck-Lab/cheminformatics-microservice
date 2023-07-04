@@ -43,10 +43,11 @@ if not isJVMStarted():
 def getCDKSDG(smiles: str):
     """This function takes the user input SMILES and Creates a
        Structure Diagram Layout using the CDK.
+
     Args:
-            smiles (string): SMILES string given by the user.
+        smiles (string): SMILES string given by the user.
     Returns:
-            mol object : mol object with CDK SDG.
+        mol object : mol object with CDK SDG.
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
@@ -63,10 +64,11 @@ def getCDKSDG(smiles: str):
 def getMurkoFramework(smiles: str):
     """This function takes the user input SMILES and returns
     the Murko framework
+
     Args:
-            smiles (string): SMILES string given by the user.
+        smiles (string): SMILES string given by the user.
     Returns:
-            smiles (string) : Murko Framework as SMILES.
+        smiles (string) : Murko Framework as SMILES.
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
@@ -84,11 +86,13 @@ def getMurkoFramework(smiles: str):
 def getCDKSDGMol(smiles: str, V3000=False):
     """This function takes the user input SMILES and returns a mol
        block as a string with Structure Diagram Layout.
+
     Args:
-            smiles (string): SMILES string given by the user.
-            V3000 (boolean): Gives an option to return V3000 mol.
+        smiles (string): SMILES string given by the user.
+        V3000 (boolean): Gives an option to return V3000 mol.
     Returns:
-            mol object (string): CDK Structure Diagram Layout mol block.
+        mol object (string): CDK Structure Diagram Layout mol block.
+
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
@@ -107,8 +111,12 @@ def getAromaticRingCount(mol):
     """This function is adapted from CDK to
     calculate the number of Aromatic Rings
     present in a given molecule.
-    Args (mol): CDK mol object as input.
-    Returns (int): Number if aromatic rings present
+
+    Args (mol):
+        CDK mol object as input.
+    Returns (int):
+        Number if aromatic rings present.
+
     """
     Cycles = JClass(cdk_base + ".graph.Cycles")
     ElectronDonation = JClass(cdk_base + ".aromaticity.ElectronDonation")
@@ -133,8 +141,12 @@ def getAromaticRingCount(mol):
 def getCDKDescriptors(smiles: str):
     """Take an input SMILES and generate a selected set of molecular
     descriptors generated using CDK as a list.
-    Args (str): SMILES string
-    Returns (list): a list of calculated descriptors
+
+    Args (str):
+        SMILES string.
+    Returns (list):
+        A list of calculated descriptors.
+
     """
     Mol = getCDKSDG(smiles)
     if Mol:
@@ -229,8 +241,11 @@ def getTanimotoSimilarityCDK(smiles1: str, smiles2: str):
     Take two SMILES strings and calculate
     Tanimoto similarity index using Pubchem
     Fingerprints.
-    Args (str,str): SMILES strings.
-    Returns (float): Tanimoto similarity.
+
+    Args (str,str):
+        SMILES strings.
+    Returns (float):
+        Tanimoto similarity.
     """
     Tanimoto = JClass(cdk_base + ".similarity.Tanimoto")
     SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
@@ -289,8 +304,12 @@ def getCIPAnnotation(smiles: str):
     """
     The function return the CIP annotations using the CDK
     CIP toolkit.
-    Args: mol block
-    Returns: CIP annotated mol block
+
+    Args (str):
+        SMILES string as input.
+    Returns (str):
+        CIP annotated mol block.
+
     """
     mol = getCDKSDG(smiles)
     centres_base = "com.simolecule.centres"
@@ -392,10 +411,11 @@ def getCIPAnnotation(smiles: str):
 def getCXSMILES(smiles: str):
     """This function takes the user input SMILES and creates a
     CXSMILES string with 2D atom coordinates
+
     Args:
-            smiles (string): SMILES string given by the user.
+        smiles (str): SMILES string given by the user.
     Returns:
-            smiles (string): CXSMILES string.
+        smiles (str): CXSMILES string.
 
     """
     moleculeSDG = getCDKSDG(smiles)
@@ -410,10 +430,11 @@ def getCXSMILES(smiles: str):
 def getCanonSMILES(smiles: str):
     """This function takes the user input SMILES and creates a
     Canonical SMILES string with 2D atom coordinates
+
     Args:
-            smiles (string): SMILES string given by the user.
+        smiles (str): SMILES string given by the user.
     Returns:
-            smiles (string): Canonical SMILES string.
+        smiles (str): Canonical SMILES string.
 
     """
     moleculeSDG = getCDKSDG(smiles)
@@ -426,10 +447,11 @@ def getCanonSMILES(smiles: str):
 def getInChI(smiles: str, InChIKey=False):
     """This function takes the user input SMILES and creates a
     InChI string
+
     Args:
-            smiles (string): SMILES string given by the user.
+        smiles (str): SMILES string given by the user.
     Returns:
-            smiles (string): InChI/InChIKey string.
+        smiles (str): InChI/InChIKey string.
 
     """
     moleculeSDG = getCDKSDG(smiles)
@@ -450,10 +472,12 @@ def getInChI(smiles: str, InChIKey=False):
 async def getCDKHOSECodes(smiles: str, noOfSpheres: int, ringsize: bool):
     """This function takes the user input SMILES and returns a mol
        block as a string with Structure Diagram Layout.
+
     Args:
-            smiles(str), noOfSpheres(int), ringsize(bool): SMILES string, No of Spheres and the ringsize given by the user.
+        smiles(str), noOfSpheres(int), ringsize(bool): SMILES string, No of Spheres and the ringsize given by the user.
     Returns:
-            HOSECodes (string): CDK generted HOSECodes.
+        HOSECodes (str): CDK generted HOSECodes.
+
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
