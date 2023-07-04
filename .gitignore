@@ -131,5 +131,8 @@ docs/.vitepress/cache
 docs/.vitepress/cache/*
 node_modules
 
+# Sphinx documentation
+docs/_build/
+
 #grafana
 grafana_data/

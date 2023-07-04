@@ -4,10 +4,12 @@ import app.modules.toolkits.cdk_wrapper as cdk
 def getSugarInfo(smiles: str):
     """This function uses the sugar removal utility and checks
     whether a molecule has circular or linear sugars
+
     Args:
-        smiles (string): SMILES string given by the user.
+        smiles (str): SMILES string given by the user.
     Returns:
         (boolean): True or false values whtehr or not molecule has sugar.
+
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
@@ -33,10 +35,12 @@ def getSugarInfo(smiles: str):
 def removeLinearSugar(smiles: str):
     """This fucntion detects and removes linear sugars from a give
     SMILES string. Uses the CDK based sugar removal utility.
+
     Args:
-        smiles (string): SMILES string given by the user.
+        smiles (str): SMILES string given by the user.
     Returns:
-        smiles (string): SMILES string without linear sugars.
+        smiles (str): SMILES string without linear sugars.
+
     """
     cdk_base = "org.openscience.cdk"
     SCOB = cdk.JClass(cdk_base + ".silent.SilentChemObjectBuilder")
@@ -66,10 +70,12 @@ def removeLinearSugar(smiles: str):
 def removeCircularSugar(smiles: str):
     """This fucntion detects and removes circular sugars from a give
     SMILES string. Uses the CDK based sugar removal utility.
+
     Args:
-        smiles (string): SMILES string given by the user.
+        smiles (str): SMILES string given by the user.
     Returns:
-        smiles (string): SMILES string without circular sugars.
+        smiles (str): SMILES string without circular sugars.
+
     """
     cdk_base = "org.openscience.cdk"
     SCOB = cdk.JClass(cdk_base + ".silent.SilentChemObjectBuilder")
@@ -100,10 +106,12 @@ def removeCircularSugar(smiles: str):
 def removeLinearandCircularSugar(smiles: str):
     """This fucntion detects and removes linear and circular sugars from a give
     SMILES string. Uses the CDK based sugar removal utility.
+
     Args:
-        smiles (string): SMILES string given by the user.
+        smiles (str): SMILES string given by the user.
     Returns:
-        smiles (string): SMILES string without linear and circular sugars.
+        smiles (str): SMILES string without linear and circular sugars.
+
     """
     cdk_base = "org.openscience.cdk"
     SCOB = cdk.JClass(cdk_base + ".silent.SilentChemObjectBuilder")

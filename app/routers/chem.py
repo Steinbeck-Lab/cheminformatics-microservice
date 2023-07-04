@@ -19,7 +19,7 @@ from app.modules.toolkits.rdkit_wrapper import (
 )
 from app.modules.coconut.descriptors import getCOCONUTDescriptors
 from app.modules.alldescriptors import getTanimotoSimilarity
-from app.modules.coconut.preprocess import COCONUTpreprocessing
+from app.modules.coconut.preprocess import getCOCONUTpreprocessing
 import pandas as pd
 from fastapi.templating import Jinja2Templates
 
@@ -365,7 +365,7 @@ async def COCONUT_Preprocessing(smiles: str):
 
     """
     if smiles:
-        data = COCONUTpreprocessing(smiles)
+        data = getCOCONUTpreprocessing(smiles)
         return JSONResponse(content=data)
     else:
         return "Error reading SMILES string, check again."
