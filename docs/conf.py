@@ -12,10 +12,10 @@
 #
 import os
 import sys
-
-sys.path.insert(0, os.path.abspath(".."))
 import app.routers as version_
 from datetime import datetime
+sys.path.insert(0, os.path.abspath(".."))
+
 
 # -- Project information -----------------------------------------------------
 
