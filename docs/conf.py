@@ -12,15 +12,15 @@
 #
 import os
 import sys
-import app.routers as version_
 from datetime import datetime
-sys.path.insert(0, os.path.abspath(".."))
 
+sys.path.insert(0, os.path.abspath(".."))
+import app
 
 # -- Project information -----------------------------------------------------
 
 project = "Cheminformatics Python Microservice"
-version = version_.__version__
+version = app.__version__
 current_year = datetime.today().year
 copyright = "2023-{}, Venkata Chandrasekhar, Nisha Sharma & Kohulan Rajan at the Friedrich Schiller University Jena".format(
     current_year
