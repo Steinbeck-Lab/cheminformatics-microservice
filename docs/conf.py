@@ -14,15 +14,23 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath(".."))
+import app.routers as version_
+from datetime import datetime
 
 # -- Project information -----------------------------------------------------
 
 project = "Cheminformatics Python Microservice"
-copyright = "2023, Venkata Chandrasekhar, Nisha Sharma & Kohulan Rajan"
+version = version_.__version__
+current_year = datetime.today().year
+copyright = "2023-{}, Venkata Chandrasekhar, Nisha Sharma & Kohulan Rajan at the Friedrich Schiller University Jena".format(
+    current_year
+)
 author = "Venkata Chandrasekhar, Nisha Sharma & Kohulan Rajan"
-
-# The full version, including alpha/beta/rc tags
-release = "1.1.0"
+rst_prolog = """
+.. |current_year| replace:: {}
+""".format(
+    current_year
+)
 
 # -- General configuration ---------------------------------------------------
 
@@ -80,9 +88,24 @@ html_theme = "furo"
 # Material theme options (see theme.conf for more information)
 html_theme_options = {
     "light_css_variables": {
-        "color-brand-primary": "red",
-        "color-brand-content": "#CC3333",
-        "color-admonition-background": "orange",
+        "color-brand-primary": "#E37B74",
+        "color-brand-content": "#E37B74",
+        "color-code-background": "#F8F8F8",
+        "color-code-border": "#E37B74",
+        "color-admonition-background": "#FEECEC",
+        "color-link": "#E37B74",
+        "color-pre-background": "#F8F8F8",
+        "color-pre-border": "#E37B74",
+    },
+    "dark_css_variables": {
+        "color-brand-primary": "#E37B74",
+        "color-brand-content": "#E37B74",
+        "color-code-background": "#222222",
+        "color-code-border": "#E37B74",
+        "color-admonition-background": "#331E1C",
+        "color-link": "#E37B74",
+        "color-pre-background": "#222222",
+        "color-pre-border": "#E37B74",
     },
     "sidebar_hide_name": True,
     "navigation_with_keys": True,
@@ -94,7 +117,7 @@ html_theme_options = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["public"]
 html_favicon = "public/logo.png"
-html_logo = "public/logo_light.png"
+html_logo = "public/logo.png"
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
 #
