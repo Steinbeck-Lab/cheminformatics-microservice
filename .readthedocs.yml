@@ -26,4 +26,4 @@ python:
   install:
     - requirements: docs/requirements.txt
     - requirements: docs/extra-requirements.txt
-      ignore_dependencies: true
+      ignore: true
