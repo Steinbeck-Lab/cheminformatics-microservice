@@ -6,10 +6,14 @@ outline: deep
 
 <div style="text-align: justify;">
 
-The Cheminformatics Python Microservices framework is developed using Python and [FastAPI](https://fastapi.tiangolo.com/), leveraging the [RDKit](https://www.rdkit.org/) and [Chemistry Development Kit (CDK)](https://cdk.github.io/) libraries in the backend. CDK is accessed through [jpype](https://jpype.readthedocs.io/en/latest/index.html), allowing the implementation of functions that can be seamlessly utilized within the Python environment. For detailed information about the specific versions employed, please refer to the list provided below.
+To ensure accurate data reproduction, it is essential to have a strong tool versioning system in place. The best practices for research data management recommend documenting the software and its components' versions. This is especially important for tools like CPM, which involve multiple dependencies. CPM uses multi-level versioning to document the API and underlying software dependencies. This approach is user-friendly and avoids overwhelming users with confusing versions.
 
+The CPM codebase is updated twice a year (bi-annual release cycle) with documentation for the underlying toolkits, tools, and environment dependencies for each release. The REST API also has release cycles that run parallel to the software release cycle, allowing you to introduce changes and enhancements to your API without breaking existing client applications. However, the REST API releases are only based on changes in REST communication and will not be updated if there are no changes in REST endpoints. In principle, researchers can update the underlying cheminformatics toolkits as and when new releases are available without updating their code bases since the REST API would remain the same.
+
+The Cheminformatics Python Microservices framework is developed using Python and [FastAPI](https://fastapi.tiangolo.com/), leveraging the [RDKit](https://www.rdkit.org/), [OpenBabel](http://openbabel.org/wiki/Main_Page) and [Chemistry Development Kit (CDK)](https://cdk.github.io/) libraries in the backend. CDK is accessed through [jpype](https://jpype.readthedocs.io/en/latest/index.html), allowing the implementation of functions that can be seamlessly utilized within the Python environment. For detailed information about the specific versions employed, please refer to the list provided below.
 </div>
 
+<br/>
 <p align="center">
   <b> Cheminformatics Python Microservice: V1.0.0 </b>
 </p><br/>
