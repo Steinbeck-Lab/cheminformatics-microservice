@@ -2,13 +2,13 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi_versioning import VersionedFastAPI
 
-from .routers import chem, converters, depict, ocsr
+from .routers import chem, converters, depict, tools, ocsr
 from fastapi.middleware.cors import CORSMiddleware
 
 from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI(
-    title="Cheminf Micro Services",
+    title="Cheminformatics Python Microservice",
     description="This set of essential and valuable microservices is designed to be accessed via API calls to support cheminformatics. Generally, it is designed to work with SMILES-based inputs and could be used to translate between different machine-readable representations, get Natural Product (NP) likeliness scores, visualize chemical structures, and generate descriptors. In addition, the microservices also host an instance of STOUT and another instance of DECIMER (two deep learning models for IUPAC name generation and optical chemical structure recognition, respectively).",
     terms_of_service="https://steinbeck-lab.github.io/cheminformatics-python-microservice",
     contact={
@@ -35,6 +35,7 @@ app.add_middleware(
 app.include_router(chem.router)
 app.include_router(converters.router)
 app.include_router(depict.router)
+app.include_router(tools.router)
 app.include_router(ocsr.router)
 
 app = VersionedFastAPI(

@@ -18,7 +18,7 @@ on:
 env:
   DOCKER_HUB_USERNAME : ${{ secrets.DOCKER_USERNAME  }}
   DOCKER_HUB_PASSWORD : ${{ secrets.DOCKER_PASSWORD  }}
-  REPOSITORY_NAME: cheminfo-microservice
+  REPOSITORY_NAME: cheminformatics-python-microservice
   REPOSITORY_NAMESPACE: caffeinejena
 
 jobs:
@@ -39,7 +39,7 @@ jobs:
         pip install flake8 pytest
     - name: Analysing the code with pylint
       run: |
-        flake8 --ignore E501,W503 $(git ls-files '*.py')
+        flake8 --ignore E402,E501,W503 $(git ls-files '*.py')
     # - name: Run test
     #   run: |
     #     pytest -p no:warnings

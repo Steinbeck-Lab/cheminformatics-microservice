@@ -11,7 +11,12 @@ ENV RELEASE_VERSION=${RELEASE_VERSION}
 RUN apt-get update && \
     apt-get install -y software-properties-common && \
     apt-get update -y && \
-    apt-get install -y openjdk-11-jre
+    apt-get install -y openjdk-11-jre && \
+    apt-get install -y curl
+
+RUN wget -O surge "https://github.com/StructureGenerator/surge/releases/download/v1.0/surge-linux-v1.0"
+RUN chmod +x surge
+RUN mv surge /usr/bin
 
 RUN conda install -c conda-forge python>=PYTHON_VERSION
 RUN conda install -c conda-forge rdkit>=RDKIT_VERSION
@@ -41,4 +46,4 @@ RUN pip3 install --no-cache-dir chembl_structure_pipeline --no-deps
 
 COPY ./app /code/app
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--workers", "4"]

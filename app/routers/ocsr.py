@@ -28,10 +28,19 @@ async def Extract_ChemicalInfo(
     img: Annotated[str, Body(embed=True)] = None,
 ):
     """
-    Extract chemical structure depictions and convert them into SMILES using DECIMER:
+    Detect, segment and convert a chemical structure depiction into a SMILES string using the DECIMER modules.
 
-    - **Images**: required (query)
+    Parameters:
+    - **Images**: required (str): URL or local file path to the chemical structure depiction image.
+
+    Returns:
+    - JSONResponse: A JSON response containing the extracted SMILES and the reference (if provided).
+
+    Raises:
+    - HTTPException: If the 'path' parameter is not provided or if it is an invalid URL or file path.
+    - HTTPException: If the 'img' parameter is provided, but the URL is not accessible.
     """
+
     split = urlsplit(path)
     filename = "/tmp/" + split.path.split("/")[-1]
     if img:

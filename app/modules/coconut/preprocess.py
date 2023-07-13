@@ -1,15 +1,19 @@
 from rdkit import Chem
-import app.modules.toolkits.rdkitmodules as rdkitmodules
-import app.modules.toolkits.cdk as cdk
+import app.modules.toolkits.rdkit_wrapper as rdkitmodules
+import app.modules.toolkits.cdk_wrapper as cdk
 from app.modules.coconut.descriptors import getCOCONUTDescriptors
 
 
 def getMolBlock(input_text: str):
     """
     This function generates a molblock from the
-    input text.
-    Args (str): Input text (mol / SMILES)
-    returns (str): molblock
+    input text using CDK.
+
+    Args (str):
+        Input text (mol / SMILES)
+    Returns (str):
+        molblock
+
     """
     check = rdkitmodules.is_valid_molecule(input_text)
 
@@ -25,8 +29,12 @@ def getMolBlock(input_text: str):
 def getMolculeHash(smiles: str):
     """
     This function returns a set of molecule hashes defined.
-    Args (str): SMILES string (strandardised is preferred).
-    Returns (dict): molecule_hash
+
+    Args (str):
+        SMILES string (strandardised is preferred).
+    Returns (dict):
+        molecule_hash
+
     """
     mol = Chem.MolFromSmiles(smiles)
     if mol:
@@ -46,8 +54,12 @@ def getRepresentations(smiles: str):
     """
     This functions returns COCONUT representations.
     InChI, InChi key and Murko framework.
-    Args (str): SMILES string.
-    Returns (dict): dictionary of InChI, InChi key and Murko framework.
+
+    Args (str):
+        SMILES string.
+    Returns (dict):
+        dictionary of InChI, InChi key and Murko framework.
+
     """
     mol = Chem.MolFromSmiles(smiles)
     if mol:
@@ -57,11 +69,15 @@ def getRepresentations(smiles: str):
         return {"InChI": InChI, "InChI_Key": InChI_Key, "Murko": Murko}
 
 
-def COCONUTpreprocessing(input_text: str):
+def getCOCONUTpreprocessing(input_text: str):
     """
     This function takes a user input text and returns a dictionary for COCONUT input.
-    Args (str): input_text (mol/str).
-    Returns (dict): COCONUT preprocessed data.
+
+    Args (str):
+        input_text (mol/str).
+    Returns (dict):
+        COCONUT preprocessed data.
+
     """
     original_mol = getMolBlock(input_text)
     standarised_mol_block = rdkitmodules.standardizer.standardize_molblock(original_mol)

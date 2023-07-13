@@ -12,52 +12,21 @@
 ![Workflow](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/actions/workflows/release-please.yml/badge.svg)
 [![framework](https://img.shields.io/badge/Framework-FastAPI-blue?style)](https://fastapi.tiangolo.com/)
 [![FastAPI Documentation](https://img.shields.io/badge/docs-fastapi-blue)](https://api.naturalproducts.net/v1/docs#/)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7747862.svg)](https://doi.org/10.5281/zenodo.7747862)
+[![Documentation Status](https://readthedocs.org/projects/cheminformatics-python-microservice/badge/?version=latest)](https://cheminformatics-python-microservice.readthedocs.io/en/latest/?badge=latest)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8112749.svg)](https://doi.org/10.5281/zenodo.8112749)
 ## Overview of Cheminformatics Python Microservice
 
 This set of essential and valuable microservices is designed to be accessed via API calls to support cheminformatics. Generally, it is designed to work with SMILES-based inputs and could be used to translate between different machine-readable representations, get Natural Product (NP) likeliness scores, visualize chemical structures, and generate descriptors. In addition, the microservices also host an instance of [STOUT](https://github.com/Kohulan/Smiles-TO-iUpac-Translator) and another instance of [DECIMER](https://github.com/Kohulan/DECIMER-Image_Transformer) (two deep learning models for IUPAC name generation and optical chemical structure recognition, respectively).
 
-## Example usage 
+## Documentation
 
-- Convertors
+https://steinbeck-lab.github.io/cheminformatics-python-microservice/
 
-  - SMILES to IUPAC name
-  ```fastapi
-  https://api.naturalproducts.net/v1/convert/iupac?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
-  ```
-  - SMILES to SELFIES
-  ```fastapi
-  https://api.naturalproducts.net/v1/convert/selfies?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
-  ```
-  - SMILES to mol (default: CDK)
-  ```fastapi
-  https://api.naturalproducts.net/v1/convert/mol?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
-  ```
-  ```fastapi
-  https://api.naturalproducts.net/v1/convert/mol?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C&generator=rdkit
-  ```
+### API Swagger Docs:
 
-- Chem
+Production: https://api.naturalproducts.net/latest/docs
 
-  - Calculate Descriptors
-  ```fastapi
-  https://api.naturalproducts.net/v1/chem/descriptors?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
-  ```
-  - Depict molecule (default: CDK)
-  ```fastapi
-  https://api.naturalproducts.net/v1/chem/depict?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
-  ```
-  - Depict molecule with settings
-  ```fastapi
-  https://api.naturalproducts.net/v1/chem/depict?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C&generator=rdkit&width=256&height=256&rotate=75
-  ```
-  - Visualize molecule in 3D
-  ```fastapi
-  https://api.naturalproducts.net/v1/chem/depict3D?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
-  ```
-
-> **Note**
-> For detailed documentation on how to use the API check [here](https://api.naturalproducts.net/v1/docs#/)
+Development: https://dev.api.naturalproducts.net/latest/docs
 
 ## License
 
@@ -65,25 +34,7 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
 
 ## Citation
 
-Venkata, C., Sharma, N., & Rajan, K. (2023). Cheminformatics Python Microservice (Version v0.9.0 - prerelease) [Computer software]. https://doi.org/10.5281/zenodo.7747862
-
-## Version information
-<p align="center">
-  <b>Cheminformatics Python Microservice: V0.8.0</b>
-</p>
-
-<p align="center">
-  
-| Tools      | Version   |
-|------------|-----------|
-| RDKit      | 2023.03.1 |
-| CDK        | 2.8.0     |
-| STOUT      | 2.0.0     |
-| DECIMER    | 2.2.0     |
-  
-</p>
-
-
+Venkata, C., Sharma, N., & Rajan, K. (2023). Cheminformatics Python Microservice (Version V1.0.0) [Computer software]. https://doi.org/10.5281/zenodo.7747862
 
 ## Maintained by
 

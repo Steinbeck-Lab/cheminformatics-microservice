@@ -1,7 +1,7 @@
 from chembl_structure_pipeline import standardizer
 from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem, Descriptors, QED, Lipinski, rdMolDescriptors, rdmolops
-from app.modules.toolkits.cdk import getCDKSDGMol
+from app.modules.toolkits.cdk_wrapper import getCDKSDGMol
 from hosegen import HoseGenerator
 
 
@@ -9,6 +9,12 @@ def checkSMILES(smiles: str):
     """This functions checks whether or not the SMILES
     is valid. If not, it attempts to standardize the molecule
     using the ChEMBL standardization pipeline.
+
+    Args (str):
+        SMILES string as input.
+    Returns (str):
+        Molblock/ Error message.
+
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
@@ -25,8 +31,12 @@ def checkSMILES(smiles: str):
 def checkRo5Violations(mol):
     """Takes a molecule and checks whether the molecule violates
     Lipinski's Rule of Five.
-        Args : molecules rdkit.Chem.rdmol.Mol: rdkit_mol Objects
-        Returns (int): A number of violations of Lipinski Rules.
+
+    Args :
+        molecules rdkit.Chem.rdmol.Mol: rdkit_mol Objects
+    Returns (int):
+        A number of violations of Lipinski Rules.
+
     """
     num_of_violations = 0
     if Descriptors.MolLogP(mol) > 5:
@@ -43,8 +53,12 @@ def checkRo5Violations(mol):
 def getRDKitDescriptors(smiles: str):
     """Take an input SMILES and generate a selected set of molecular
     descriptors as a dictionary.
-    Args (str): SMILES string
-    Returns (dict): a dictionary of calculated descriptors
+
+    Args (str):
+        SMILES string
+    Returns (dict):
+        a dictionary of calculated descriptors
+
     """
     mol = checkSMILES(smiles)
     if mol:
@@ -89,10 +103,13 @@ def getRDKitDescriptors(smiles: str):
 
 
 def get3Dconformers(smiles, depict=True):
-    """Convert SMILES to Mol with 3D coordinates
-    Args (str): SMILES string.
-    Returns (rdkil.mol): A mol object with 3D coordinates.
-    optimized with MMFF94 forcefield.
+    """Convert SMILES to Mol with 3D coordinates.
+
+    Args (str):
+        SMILES string.
+    Returns (rdkil.mol):
+        A mol object with 3D coordinates. Optimized with MMFF94 forcefield.
+
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
@@ -102,10 +119,13 @@ def get3Dconformers(smiles, depict=True):
     else:
         mol = Chem.MolFromSmiles(smiles)
     if mol:
-        AllChem.Compute2DCoords(mol)
         mol = Chem.AddHs(mol)
-        AllChem.EmbedMolecule(mol, randomSeed=0xF00D)
-        AllChem.MMFFOptimizeMolecule(mol, maxIters=200)
+        AllChem.EmbedMolecule(mol, maxAttempts=5000, useRandomCoords=True)
+        try:
+            AllChem.MMFFOptimizeMolecule(mol)
+        except Exception as e:
+            print(e)
+            AllChem.EmbedMolecule(mol, maxAttempts=5000, useRandomCoords=True)
         if depict:
             return Chem.MolToMolBlock(mol)
         else:
@@ -120,29 +140,37 @@ def getTanimotoSimilarityRDKit(smiles1, smiles2):
     Take two SMILES strings and calculate
     Tanimoto similarity index using Morgan
     Fingerprints.
-    Args (str,str): SMILES strings.
-    Returns (float): Tanimoto similarity.
+
+    Args (str,str):
+        SMILES strings.
+    Returns (float):
+        Tanimoto similarity.
     """
     # create two example molecules
     mol1 = checkSMILES(smiles1)
     mol2 = checkSMILES(smiles2)
+    if mol1 and mol2:
+        # generate Morgan fingerprints for each molecule
+        fp1 = AllChem.GetMorganFingerprintAsBitVect(mol1, 2, nBits=1024)
+        fp2 = AllChem.GetMorganFingerprintAsBitVect(mol2, 2, nBits=1024)
 
-    # generate Morgan fingerprints for each molecule
-    fp1 = AllChem.GetMorganFingerprintAsBitVect(mol1, 2, nBits=1024)
-    fp2 = AllChem.GetMorganFingerprintAsBitVect(mol2, 2, nBits=1024)
+        # calculate the Tanimoto similarity between the fingerprints
+        similarity = DataStructs.TanimotoSimilarity(fp1, fp2)
 
-    # calculate the Tanimoto similarity between the fingerprints
-    similarity = DataStructs.TanimotoSimilarity(fp1, fp2)
-
-    return similarity
+        return similarity
+    else:
+        return "Check SMILES strings for Errors"
 
 
 async def getRDKitHOSECodes(smiles: str, noOfSpheres: int):
     """
     This function takes a SMILES string as input and
     returns the calculated HOSEcodes
-    Args (smiles: str, noOfSpheres: int): SMILES string and No of Spheres as int.
-    Returns: hosecodes
+
+    Args (smiles: str, noOfSpheres: int):
+        SMILES string and No of Spheres as int.
+    Returns:
+        HOSECodes
 
     """
     if any(char.isspace() for char in smiles):
@@ -160,8 +188,11 @@ def is_valid_molecule(input_text):
     """
     This functions checks whether the input text
     is a molblock or SMILES.
-    Args (str): SMILES string or molblock.
-    Returns (str): SMILES/Mol flag.
+
+    Args (str):
+        SMILES string or molblock.
+    Returns (str):
+        SMILES/Mol flag.
     """
     try:
         molecule = Chem.MolFromSmiles(input_text)
@@ -180,8 +211,12 @@ def is_valid_molecule(input_text):
 def has_stereochemistry(smiles: str):
     """
     This function checks whether the input has stereochemistry or not.
-    Args (str) : SMILES string.
-    Returns (bool): True or false.
+
+    Args (str) :
+        SMILES string.
+    Returns (bool):
+        True or false.
+
     """
     mol = Chem.MolFromSmiles(smiles)
 
@@ -199,8 +234,12 @@ def has_stereochemistry(smiles: str):
 def get2Dmol(smiles: str):
     """This function takes an input as a SMILES string and
     returns a 2D mol block.
-    Args (str): SMILES string.
-    Returns (str): 2D Mol block.
+
+    Args (str):
+        SMILES string.
+    Returns (str):
+        2D Mol block.
+
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
@@ -217,8 +256,12 @@ def get2Dmol(smiles: str):
 def getRDKitCXSMILES(smiles: str):
     """This function takes an input as a SMILES string and
     returns a CXSMILES with coordinates.
-    Args (str): SMILES string.
-    Returns (str): CXSMILES with coordinates.
+
+    Args (str):
+        SMILES string.
+    Returns (str):
+        CXSMILES with coordinates.
+
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")

@@ -32,7 +32,7 @@ export default defineConfig({
       {
         text: 'Usage',
         items: [
-          { text: 'Public API', link: '/public-api' },
+          //{ text: 'Public API', link: '/public-api' },
           { text: 'Docker', link: '/docker' },
           { text: 'Cluster Deployment (K8S)', link: '/cluster-deployment' }
         ]
@@ -40,10 +40,11 @@ export default defineConfig({
       {
         text: 'Modules',
         items: [
-          { text: 'Conversions', link: '/conversions' },
           { text: 'Chem', link: '/chem' },
-          { text: 'DECIMER', link: '/decimer' },
-          { text: 'STOUT', link: '/stout' }
+          { text: 'Convert', link: '/conversions' },
+          { text: 'Depict', link: '/depict' },
+          { text: 'Tools', link: '/tools' },
+          { text: 'OCSR', link: '/ocsr' },
         ]
       },
       {

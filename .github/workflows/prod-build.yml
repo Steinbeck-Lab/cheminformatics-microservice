@@ -17,14 +17,13 @@ on:
 env:
   DOCKER_HUB_USERNAME : ${{ secrets.DOCKER_USERNAME  }}
   DOCKER_HUB_PASSWORD : ${{ secrets.DOCKER_PASSWORD  }}
-  REPOSITORY_NAME: cheminfo-microservice
+  REPOSITORY_NAME: cheminformatics-python-microservice
   REPOSITORY_NAMESPACE: caffeinejena
 
 jobs:
   push_to_registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
-    needs: test
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3

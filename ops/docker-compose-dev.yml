@@ -15,7 +15,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   web:
-    image: caffeinejena/cheminfo-microservice:dev-latest
+    image: caffeinejena/cheminformatics-python-microservice:dev-latest
+    pull_policy: always
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.web.rule=Host(`dev.api.naturalproducts.net`)"
@@ -34,7 +35,7 @@ services:
     ports:
       - 9090:9090
     volumes:
-      - ./prometheus_data/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./../prometheus_data/prometheus.yml:/etc/prometheus/prometheus.yml
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
   grafana:

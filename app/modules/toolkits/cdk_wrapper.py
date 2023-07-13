@@ -36,17 +36,18 @@ if not isJVMStarted():
     if not os.path.exists(centresjar_path):
         jar_path = pystow.ensure("STOUT-V2", url=centres_path)
 
-    startJVM("-ea", classpath=[cdkjar_path, srujar_path, centresjar_path])
+    startJVM("-ea", "-Xmx4096M", classpath=[cdkjar_path, srujar_path, centresjar_path])
     cdk_base = "org.openscience.cdk"
 
 
 def getCDKSDG(smiles: str):
     """This function takes the user input SMILES and Creates a
        Structure Diagram Layout using the CDK.
+
     Args:
-            smiles (string): SMILES string given by the user.
+        smiles (string): SMILES string given by the user.
     Returns:
-            mol object : mol object with CDK SDG.
+        mol object : mol object with CDK SDG.
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
@@ -60,40 +61,14 @@ def getCDKSDG(smiles: str):
     return molecule_
 
 
-def getSugarInfo(smiles: str):
-    """This function uses the sugar removal utility and checks
-    whether a molecule has ring or linear sugars
-    Args:
-        smiles (string): SMILES string given by the user.
-    Returns:
-        (boolean): True or false values whtehr or not molecule has sugar.
-    """
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
-    SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
-    SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
-    molecule = SmilesParser.parseSmiles(smiles)
-
-    sru_base = "de.unijena.cheminf.deglycosylation"
-
-    SugarRemovalUtility = JClass(sru_base + ".SugarRemovalUtility")(SCOB.getInstance())
-    hasCircularOrLinearSugars = SugarRemovalUtility.hasCircularOrLinearSugars(molecule)
-
-    if hasCircularOrLinearSugars:
-        hasLinearSugar = SugarRemovalUtility.hasLinearSugars(molecule)
-        hasCircularSugars = SugarRemovalUtility.hasCircularSugars(molecule)
-        return hasLinearSugar, hasCircularSugars
-    else:
-        return (False, False)
-
-
 def getMurkoFramework(smiles: str):
     """This function takes the user input SMILES and returns
     the Murko framework
+
     Args:
-            smiles (string): SMILES string given by the user.
+        smiles (string): SMILES string given by the user.
     Returns:
-            smiles (string) : Murko Framework as SMILES.
+        smiles (string) : Murko Framework as SMILES.
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
@@ -111,11 +86,13 @@ def getMurkoFramework(smiles: str):
 def getCDKSDGMol(smiles: str, V3000=False):
     """This function takes the user input SMILES and returns a mol
        block as a string with Structure Diagram Layout.
+
     Args:
-            smiles (string): SMILES string given by the user.
-            V3000 (boolean): Gives an option to return V3000 mol.
+        smiles (string): SMILES string given by the user.
+        V3000 (boolean): Gives an option to return V3000 mol.
     Returns:
-            mol object (string): CDK Structure Diagram Layout mol block.
+        mol object (string): CDK Structure Diagram Layout mol block.
+
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
@@ -134,8 +111,12 @@ def getAromaticRingCount(mol):
     """This function is adapted from CDK to
     calculate the number of Aromatic Rings
     present in a given molecule.
-    Args (mol): CDK mol object as input.
-    Returns (int): Number if aromatic rings present
+
+    Args (mol):
+        CDK mol object as input.
+    Returns (int):
+        Number if aromatic rings present.
+
     """
     Cycles = JClass(cdk_base + ".graph.Cycles")
     ElectronDonation = JClass(cdk_base + ".aromaticity.ElectronDonation")
@@ -160,8 +141,12 @@ def getAromaticRingCount(mol):
 def getCDKDescriptors(smiles: str):
     """Take an input SMILES and generate a selected set of molecular
     descriptors generated using CDK as a list.
-    Args (str): SMILES string
-    Returns (list): a list of calculated descriptors
+
+    Args (str):
+        SMILES string.
+    Returns (list):
+        A list of calculated descriptors.
+
     """
     Mol = getCDKSDG(smiles)
     if Mol:
@@ -256,41 +241,75 @@ def getTanimotoSimilarityCDK(smiles1: str, smiles2: str):
     Take two SMILES strings and calculate
     Tanimoto similarity index using Pubchem
     Fingerprints.
-    Args (str,str): SMILES strings.
-    Returns (float): Tanimoto similarity.
-    """
-    if any(char.isspace() for char in smiles1):
-        smiles1 = smiles1.replace(" ", "+")
-    if any(char.isspace() for char in smiles2):
-        smiles2 = smiles2.replace(" ", "+")
 
+    Args (str,str):
+        SMILES strings.
+    Returns (float):
+        Tanimoto similarity.
+    """
     Tanimoto = JClass(cdk_base + ".similarity.Tanimoto")
     SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
     SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
     PubchemFingerprinter = JClass(cdk_base + ".fingerprint.PubchemFingerprinter")(
         SCOB.getInstance()
     )
+    CDKHydrogenAdder = JClass(cdk_base + ".tools.CDKHydrogenAdder").getInstance(
+        SCOB.getInstance()
+    )
+    AtomContainerManipulator = JClass(
+        cdk_base + ".tools.manipulator.AtomContainerManipulator"
+    )
+    Cycles = JClass(cdk_base + ".graph.Cycles")
+    ElectronDonation = JClass(cdk_base + ".aromaticity.ElectronDonation")
+    Aromaticity = JClass(cdk_base + ".aromaticity.Aromaticity")(
+        ElectronDonation.cdk(), Cycles.cdkAromaticSet()
+    )
+    try:
+        # parse molecules to get IAtomContainers
+        mol1 = SmilesParser.parseSmiles(smiles1)
+        mol2 = SmilesParser.parseSmiles(smiles2)
+    except Exception as e:
+        print(e)
+        return "Check the SMILES string for errors"
+    if mol1 and mol2:
+        # perceive atom types and configure atoms
+        AtomContainerManipulator.percieveAtomTypesAndConfigureAtoms(mol1)
+        AtomContainerManipulator.percieveAtomTypesAndConfigureAtoms(mol2)
 
-    # parse molecules to get IAtomContainers
-    mol1 = SmilesParser.parseSmiles(smiles1)
-    mol2 = SmilesParser.parseSmiles(smiles2)
+        # add Implicit Hydrogens
+        CDKHydrogenAdder.addImplicitHydrogens(mol1)
+        CDKHydrogenAdder.addImplicitHydrogens(mol2)
 
-    # Generate BitSets using PubChemFingerprinter
-    fingerprint1 = PubchemFingerprinter.getBitFingerprint(mol1).asBitSet()
-    fingerprint2 = PubchemFingerprinter.getBitFingerprint(mol2).asBitSet()
+        # convert implicit to explicit Hydrogens
+        AtomContainerManipulator.convertImplicitToExplicitHydrogens(mol1)
+        AtomContainerManipulator.convertImplicitToExplicitHydrogens(mol2)
 
-    # Calculate Tanimoto similarity
-    Similarity = Tanimoto.calculate(fingerprint1, fingerprint2)
+        # Apply Aromaticity
+        Aromaticity.apply(mol1)
+        Aromaticity.apply(mol2)
 
-    return "{:.5f}".format(float(str(Similarity)))
+        # Generate BitSets using PubChemFingerprinter
+        fingerprint1 = PubchemFingerprinter.getBitFingerprint(mol1).asBitSet()
+        fingerprint2 = PubchemFingerprinter.getBitFingerprint(mol2).asBitSet()
+
+        # Calculate Tanimoto similarity
+        Similarity = Tanimoto.calculate(fingerprint1, fingerprint2)
+
+        return "{:.5f}".format(float(str(Similarity)))
+    else:
+        return "Check the SMILES string for errors"
 
 
 def getCIPAnnotation(smiles: str):
     """
     The function return the CIP annotations using the CDK
     CIP toolkit.
-    Args: mol block
-    Returns: CIP annotated mol block
+
+    Args (str):
+        SMILES string as input.
+    Returns (str):
+        CIP annotated mol block.
+
     """
     mol = getCDKSDG(smiles)
     centres_base = "com.simolecule.centres"
@@ -315,6 +334,7 @@ def getCIPAnnotation(smiles: str):
         ):
             atom.setProperty(StandardGenerator.ANNOTATION_LABEL, "(?)")
 
+    # Iterate over bonds
     for bond in mol.bonds():
         if bond.getOrder() != IBond.Order.DOUBLE:
             continue
@@ -326,16 +346,18 @@ def getCIPAnnotation(smiles: str):
             and stereocenters.isStereocenter(begIdx)
             and stereocenters.isStereocenter(endIdx)
         ):
-            # only if not in a small ring <7
+            # Check if not in a small ring <7
             if Cycles.smallRingSize(bond, 7) == 0:
                 bond.setProperty(StandardGenerator.ANNOTATION_LABEL, "(?)")
+
     # no defined stereo?
     if not mol.stereoElements().iterator().hasNext():
         return mol
 
+    # Call the Java method
     CdkLabeller.label(mol)
 
-    # update to label appropriately for racmic and relative stereochemistry
+    # Update to label appropriately for racemic and relative stereochemistry
     for se in mol.stereoElements():
         if se.getConfigClass() == IStereoElement.TH and se.getGroupInfo() != 0:
             focus = se.getFocus()
@@ -356,28 +378,31 @@ def getCIPAnnotation(smiles: str):
                             BaseMol.CIP_LABEL_KEY, label.toString() + inv.name()
                         )
                 elif (se.getGroupInfo() & IStereoElement.GRP_REL) != 0:
-                    if label in [Descriptor.R, Descriptor.S]:
+                    if label == Descriptor.R or label == Descriptor.S:
                         focus.setProperty(BaseMol.CIP_LABEL_KEY, label.toString() + "*")
 
+    # Iterate over atoms
     for atom in mol.atoms():
         if atom.getProperty(BaseMol.CONF_INDEX) is not None:
             atom.setProperty(
                 StandardGenerator.ANNOTATION_LABEL,
                 StandardGenerator.ITALIC_DISPLAY_PREFIX
-                + str(atom.getProperty(BaseMol.CONF_INDEX)),
+                + atom.getProperty(BaseMol.CONF_INDEX).toString(),
             )
         elif atom.getProperty(BaseMol.CIP_LABEL_KEY) is not None:
             atom.setProperty(
                 StandardGenerator.ANNOTATION_LABEL,
                 StandardGenerator.ITALIC_DISPLAY_PREFIX
-                + str(atom.getProperty(BaseMol.CIP_LABEL_KEY)),
+                + atom.getProperty(BaseMol.CIP_LABEL_KEY).toString(),
             )
+
+    # Iterate over bonds
     for bond in mol.bonds():
         if bond.getProperty(BaseMol.CIP_LABEL_KEY) is not None:
             bond.setProperty(
                 StandardGenerator.ANNOTATION_LABEL,
                 StandardGenerator.ITALIC_DISPLAY_PREFIX
-                + bond.getProperty(BaseMol.CIP_LABEL_KEY),
+                + bond.getProperty(BaseMol.CIP_LABEL_KEY).toString(),
             )
 
     return mol
@@ -386,10 +411,11 @@ def getCIPAnnotation(smiles: str):
 def getCXSMILES(smiles: str):
     """This function takes the user input SMILES and creates a
     CXSMILES string with 2D atom coordinates
+
     Args:
-            smiles (string): SMILES string given by the user.
+        smiles (str): SMILES string given by the user.
     Returns:
-            smiles (string): CXSMILES string.
+        smiles (str): CXSMILES string.
 
     """
     moleculeSDG = getCDKSDG(smiles)
@@ -404,10 +430,11 @@ def getCXSMILES(smiles: str):
 def getCanonSMILES(smiles: str):
     """This function takes the user input SMILES and creates a
     Canonical SMILES string with 2D atom coordinates
+
     Args:
-            smiles (string): SMILES string given by the user.
+        smiles (str): SMILES string given by the user.
     Returns:
-            smiles (string): Canonical SMILES string.
+        smiles (str): Canonical SMILES string.
 
     """
     moleculeSDG = getCDKSDG(smiles)
@@ -420,10 +447,11 @@ def getCanonSMILES(smiles: str):
 def getInChI(smiles: str, InChIKey=False):
     """This function takes the user input SMILES and creates a
     InChI string
+
     Args:
-            smiles (string): SMILES string given by the user.
+        smiles (str): SMILES string given by the user.
     Returns:
-            smiles (string): InChI/InChIKey string.
+        smiles (str): InChI/InChIKey string.
 
     """
     moleculeSDG = getCDKSDG(smiles)
@@ -444,10 +472,12 @@ def getInChI(smiles: str, InChIKey=False):
 async def getCDKHOSECodes(smiles: str, noOfSpheres: int, ringsize: bool):
     """This function takes the user input SMILES and returns a mol
        block as a string with Structure Diagram Layout.
+
     Args:
-            smiles(str), noOfSpheres(int), ringsize(bool): SMILES string, No of Spheres and the ringsize given by the user.
+        smiles(str), noOfSpheres(int), ringsize(bool): SMILES string, No of Spheres and the ringsize given by the user.
     Returns:
-            HOSECodes (string): CDK generted HOSECodes.
+        HOSECodes (str): CDK generted HOSECodes.
+
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
