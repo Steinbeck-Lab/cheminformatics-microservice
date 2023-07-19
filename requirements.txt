@@ -11,7 +11,7 @@ HOSE_code_generator @ git+https://github.com/Ratsemaat/HOSE_code_generator
 websockets==10.4
 pillow==9.4.0
 opencv-python==4.7.0.68
-matplotlib==3.4.3
+matplotlib>=3.4.3
 scikit-image
 pdf2image==1.16.2
 IPython
