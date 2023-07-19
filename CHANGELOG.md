@@ -1,5 +1,38 @@
 # Changelog
 
+## [1.1.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v1.0.0...v1.1.0) (2023-07-19)
+
+
+### Features
+
+* add readthedocs ([5726e20](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/5726e20167cd3e8759c50079716b4da8c7b9c064))
+* Read the docs for python modules [#267](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/267) ([f90191a](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/f90191abf712addbabcf8c9ecb9ca1c437148058))
+
+
+### Bug Fixes
+
+* flake8 Error ([5682a09](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/5682a091fd517f7fde2d3e7c071fb85d1cc8bdfa))
+* flake8 Error ([fd81c55](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/fd81c555d58f5a436a35b6d3b52abeed83567783))
+* ignore dependencies ([8717edb](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/8717edb38827d22f4e0b06d8e6744b9dfc413f08))
+* issue with building readthedocs.yml ([c83381b](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/c83381bd8f98a2a8e67776583b72f869ba8bf42d))
+* logo colour ([b8397fb](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/b8397fbb0ab42494a5d9454e5bf99d6b848799ed))
+* module level import ([815170e](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/815170e6f827cf8a651d91f2bade0156f5e9201b))
+* module level import ([d5192cb](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/d5192cbd67c5a3a61c8a59690aa1cc44121daf23))
+* move docs deployment to main branch. ([997468c](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/997468c8c9074453ee83a73446917ee82c5de640)), closes [#282](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/282)
+* post install readthedocs ([efc4963](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/efc49639d65c0e7a6fe8c92d0aed6dcc63418a30))
+* Rename .readthedocs.yml  to .readthedocs.yml ([3253287](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/3253287fc796b70ac1636e110b510b0df0d375a1))
+* requirements version ([9cf3c18](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/9cf3c18ab3fd7a0c25294d44c1b95593c26d209c))
+* Tensorflow for readthedocs ([9d9a99a](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/9d9a99a0c7d26e8d17d3559e5a75655c95239c2c))
+* testing readthedocs build ([4145b94](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/4145b94095a3e5446f3ff7adc8c85bd294ef0fdf))
+* Update .readthedocs.yml ([72216e2](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/72216e2a8d8a5fc8c31e9faa19a11a42109f1c35))
+* update version --&gt; V1.0.0 ([ba04f70](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/ba04f70e75378bf9b8f0aa9a4e50badb07baa36a))
+* wrong version display in swagger ([6a321b4](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/6a321b4ead4078db9f493ef06c006670d437746e))
+
+
+### Documentation
+
+* updated missing docs ([d4e7d28](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/d4e7d28e3803c487fd8713b3a28169a4a15ffccd))
+
 ## [1.1.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v1.0.0...v1.1.0) (2023-07-04)
 
 
