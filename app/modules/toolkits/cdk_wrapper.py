@@ -138,6 +138,24 @@ def getAromaticRingCount(mol):
     return NumberOfAromaticRings
 
 
+def getVanderWaalsVolume(mol):
+    """
+    Calculate the Van der Waals volume of a given molecule.
+
+    Args:
+        mol (IAtomContainer): A molecule represented as an IAtomContainer from the CDK library.
+
+    Returns:
+        float: The Van der Waals volume of the molecule.
+    """
+    AtomContainerManipulator = JClass(
+        cdk_base + ".tools.manipulator.AtomContainerManipulator"
+    )
+    AtomContainerManipulator.percieveAtomTypesAndConfigureAtoms(mol)
+    VABCVolume = JClass(cdk_base + ".geometry.volume.VABCVolume")().calculate(mol)
+    return VABCVolume
+
+
 def getCDKDescriptors(smiles: str):
     """Take an input SMILES and generate a selected set of molecular
     descriptors generated using CDK as a list.
@@ -214,6 +232,7 @@ def getCDKDescriptors(smiles: str):
             .toString()
         )
         NumRings = JClass(cdk_base + ".graph.Cycles").mcb(Mol).numberOfCycles()
+        VABCVolume = getVanderWaalsVolume(Mol)
 
         return (
             int(str(AtomCountDescriptor)),
@@ -233,6 +252,7 @@ def getCDKDescriptors(smiles: str):
             int(FormalCharge),
             float("{:.2f}".format(float(str(FractionalCSP3Descriptor)))),
             int(NumRings),
+            float("{:.2f}".format(float(str(VABCVolume)))),
         )
 
 

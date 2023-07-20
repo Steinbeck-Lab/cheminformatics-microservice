@@ -79,6 +79,7 @@ def getRDKitDescriptors(smiles: str):
         FormalCharge = rdmolops.GetFormalCharge(mol)
         fsp3 = "%.3f" % rdMolDescriptors.CalcFractionCSP3(mol)
         NumRings = rdMolDescriptors.CalcNumRings(mol)
+        VABCVolume = None
         return (
             AtomC,
             HeavyAtomsC,
@@ -97,6 +98,7 @@ def getRDKitDescriptors(smiles: str):
             FormalCharge,
             float(fsp3),
             NumRings,
+            str(VABCVolume),
         )
     else:
         return "Error reading SMILES string, check again."
