@@ -69,6 +69,7 @@ def getCOCONUTDescriptors(smiles: str, toolkit: str):
             "formal_charge",
             "fractioncsp3",
             "number_of_minimal_rings",
+            "van_der_walls_volume",
             "linear_sugars",
             "circular_sugars",
             "murko_framework",
