@@ -29,7 +29,7 @@ def test_SMILES_Descriptors_returns_descriptors(test_smiles):
     assert response.headers["content-type"] == "application/json"
     assert (
         response.text
-        == '{"atom_count":24,"heavy_atom_count":14,"molecular_weight":194.19,"exactmolecular_weight":194.08038,"alogp":-1.03,"rotatable_bond_count":0,"topological_polar_surface_area":61.82,"hydrogen_bond_acceptors":6,"hydrogen_bond_donors":0,"hydrogen_bond_acceptors_lipinski":6,"hydrogen_bond_donors_lipinski":0,"lipinski_rule_of_five_violations":0,"aromatic_rings_count":2,"qed_drug_likeliness":0.54,"formal_charge":0,"fractioncsp3":0.375,"number_of_minimal_rings":2,"linear_sugars":false,"circular_sugars":false,"murko_framework":"N1=C[N]C2=C1NCNC2","nplikeness":-1.09}'
+        == '{"atom_count":24,"heavy_atom_count":14,"molecular_weight":194.19,"exactmolecular_weight":194.08038,"alogp":-1.03,"rotatable_bond_count":0,"topological_polar_surface_area":61.82,"hydrogen_bond_acceptors":6,"hydrogen_bond_donors":0,"hydrogen_bond_acceptors_lipinski":6,"hydrogen_bond_donors_lipinski":0,"lipinski_rule_of_five_violations":0,"aromatic_rings_count":2,"qed_drug_likeliness":0.54,"formal_charge":0,"fractioncsp3":0.375,"number_of_minimal_rings":2,"van_der_walls_volume":"None","linear_sugars":false,"circular_sugars":false,"murko_framework":"N1=C[N]C2=C1NCNC2","nplikeness":-1.09}'
     )
 
     response = client.get(f"/v1/chem/descriptors?smiles={test_smiles}&format=html")
