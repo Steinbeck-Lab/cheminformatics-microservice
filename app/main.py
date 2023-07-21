@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi_versioning import VersionedFastAPI
@@ -53,7 +54,7 @@ app = VersionedFastAPI(
         "name": "CC BY 4.0",
         "url": "https://creativecommons.org/licenses/by/4.0/",
     },
-    version=os.getenv('RELEASE_VERSION','1.0')
+    version=os.getenv('RELEASE_VERSION', '1.0')
 )
 
 Instrumentator().instrument(app).expose(app)
