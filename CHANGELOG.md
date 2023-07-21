@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v1.1.0...v1.2.0) (2023-07-21)
+
+
+### Features
+
+* CDK Van der Walls Volume [#287](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/287) ([4dad6ed](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/4dad6ed51fcf110de5275c78aea3eb8daccc5172))
+
+
+### Bug Fixes
+
+* add van_der_walls_volume to test ([7589a58](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/7589a58f498b26e7568032c3cca4aa6ceaeb2acf))
+* fetch version number ([309c504](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/309c504d42e9af9cb1b5fdec67457d5745bdf498))
+* import error ([4bd5de0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/4bd5de046fdced2fdc288390e6ba4eb7537d9259))
+* pass build-args in dev build ([cfdc4b9](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/cfdc4b9a3fa78d498b30f5f98547f6c2d27a8288))
+
 ## [1.1.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v1.0.0...v1.1.0) (2023-07-19)
 
 
