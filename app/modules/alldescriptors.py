@@ -10,6 +10,7 @@ from app.modules.toolkits.cdk_wrapper import (
     cdk_base,
     getAromaticRingCount,
     getTanimotoSimilarityCDK,
+    getVanderWaalsVolume,
 )
 
 
@@ -39,6 +40,7 @@ def getAllRDKitDescriptors(smiles: str):
         FormalCharge = rdmolops.GetFormalCharge(mol)
         fsp3 = "%.2f" % rdMolDescriptors.CalcFractionCSP3(mol)
         NumRings = rdMolDescriptors.CalcNumRings(mol)
+        VABCVolume = None
         return (
             AtomC,
             BondC,
@@ -58,6 +60,7 @@ def getAllRDKitDescriptors(smiles: str):
             FormalCharge,
             float(fsp3),
             NumRings,
+            VABCVolume,
         )
     else:
         return "Error reading SMILES string, check again."
@@ -138,6 +141,7 @@ def getAllCDKDescriptors(smiles: str):
             .toString()
         )
         NumRings = JClass(cdk_base + ".graph.Cycles").mcb(Mol).numberOfCycles()
+        VABCVolume = getVanderWaalsVolume(Mol)
 
         return (
             int(str(AtomCountDescriptor)),
@@ -158,6 +162,7 @@ def getAllCDKDescriptors(smiles: str):
             FormalCharge,
             float("{:.2f}".format(float(str(FractionalCSP3Descriptor)))),
             NumRings,
+            float(str(VABCVolume)),
         )
 
 
@@ -188,6 +193,7 @@ def getCDKRDKitcombinedDescriptors(smiles: str):
         "Formal Charge",
         "FractionCSP3",
         "Number of Minimal Rings",
+        "Van der Waals Volume",
     )
 
     if len(AllDescriptors) == len(RDKitDescriptors) == len(CDKDescriptors):
