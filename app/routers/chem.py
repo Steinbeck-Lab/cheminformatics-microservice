@@ -1,4 +1,4 @@
-from fastapi import Body, APIRouter
+from fastapi import Body, APIRouter, Query
 from typing import Optional, Literal
 from typing_extensions import Annotated
 from rdkit import Chem
@@ -69,8 +69,12 @@ async def SMILES_to_Stereo_Isomers(smiles: str):
 @router.get("/descriptors")
 async def SMILES_Descriptors(
     smiles: str,
-    format: Literal["json", "html"],
-    toolkit: Literal["cdk", "rdkit", "all"],
+    format: Literal["json", "html"] = Query(
+        default="json", description="Desired display format"
+    ),
+    toolkit: Literal["cdk", "rdkit", "all"] = Query(
+        default="rdkit", description="Cheminformatics toolkit used in the backend"
+    ),
 ):
     """
     Generates standard descriptors for the input molecules (SMILES).
@@ -112,7 +116,12 @@ async def SMILES_Descriptors(
 
 
 @router.get("/descriptors/multiple")
-async def SMILES_Descriptors_multiple(smiles: str, toolkit: Literal["cdk", "rdkit"]):
+async def SMILES_Descriptors_multiple(
+    smiles: str,
+    toolkit: Literal["cdk", "rdkit"] = Query(
+        default="rdkit", description="Cheminformatics toolkit used in the backend"
+    ),
+):
     """
     Retrieve multiple descriptors for a list of SMILES strings.
 
@@ -148,7 +157,9 @@ async def SMILES_Descriptors_multiple(smiles: str, toolkit: Literal["cdk", "rdki
 async def HOSE_Codes(
     smiles: str,
     spheres: int,
-    toolkit: Literal["cdk", "rdkit"],
+    toolkit: Literal["cdk", "rdkit"] = Query(
+        default="rdkit", description="Cheminformatics toolkit used in the backend"
+    ),
     ringsize: Optional[bool] = False,
 ):
     """
@@ -301,7 +312,12 @@ async def NPlikeliness_Score(smiles: str):
 
 
 @router.get("/tanimoto")
-async def Tanimoto_Similarity(smiles: str, toolkit: Literal["cdk", "rdkit"]):
+async def Tanimoto_Similarity(
+    smiles: str,
+    toolkit: Literal["cdk", "rdkit"] = Query(
+        default="rdkit", description="Cheminformatics toolkit used in the backend"
+    ),
+):
     """
     Generates the Tanimoto similarity index for a given pair of SMILES strings.
 
