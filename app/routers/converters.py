@@ -3,7 +3,7 @@ import selfies as sf
 from fastapi import APIRouter
 from fastapi.responses import Response
 from rdkit import Chem
-from typing import Optional
+from typing import Literal
 from STOUT import translate_forward, translate_reverse
 from app.modules.toolkits.cdk_wrapper import (
     getCDKSDGMol,
@@ -36,7 +36,9 @@ async def converters_index():
 
 
 @router.get("/mol2D")
-async def Create2D_Coordinates(smiles: str, toolkit: Optional[str] = "cdk"):
+async def Create2D_Coordinates(
+    smiles: str, toolkit: Literal["cdk", "rdkit", "openbabel"]
+):
     """
     Generates 2D Coordinates using the CDK Structure diagram generator/RDKit/Open Babel and returns the mol block.
 
@@ -73,7 +75,7 @@ async def Create2D_Coordinates(smiles: str, toolkit: Optional[str] = "cdk"):
 
 
 @router.get("/mol3D")
-async def Create3D_Coordinates(smiles: str, toolkit: Optional[str] = "rdkit"):
+async def Create3D_Coordinates(smiles: str, toolkit: Literal["rdkit", "openbabel"]):
     """
     Generates a random 3D conformer from SMILES using the specified molecule toolkit.
 
@@ -108,7 +110,7 @@ async def Create3D_Coordinates(smiles: str, toolkit: Optional[str] = "rdkit"):
 
 @router.get("/smiles")
 async def IUPACname_or_SELFIES_to_SMILES(
-    input_text: str, representation: Optional[str] = "iupac"
+    input_text: str, representation: Literal["iupac", "selfies"]
 ):
     """
     Generate SMILES from a given IUPAC name or a SELFIES representation.
@@ -139,7 +141,9 @@ async def IUPACname_or_SELFIES_to_SMILES(
 
 
 @router.get("/canonicalsmiles")
-async def SMILES_Canonicalise(smiles: str, toolkit: Optional[str] = "cdk"):
+async def SMILES_Canonicalise(
+    smiles: str, toolkit: Literal["cdk", "rdkit", "openbabel"]
+):
     """
     Canonicalizes a given SMILES string according to the allowed toolkits.
 
@@ -177,7 +181,7 @@ async def SMILES_Canonicalise(smiles: str, toolkit: Optional[str] = "cdk"):
 
 
 @router.get("/cxsmiles")
-async def SMILES_to_CXSMILES(smiles: str, toolkit: Optional[str] = "cdk"):
+async def SMILES_to_CXSMILES(smiles: str, toolkit: Literal["cdk", "rdkit"]):
     """
     Convert SMILES to CXSMILES. For more informations:
     - https://docs.chemaxon.com/display/docs/chemaxon-extended-smiles-and-smarts-cxsmiles-and-cxsmarts.md
@@ -212,7 +216,7 @@ async def SMILES_to_CXSMILES(smiles: str, toolkit: Optional[str] = "cdk"):
 
 
 @router.get("/inchi")
-async def SMILES_to_InChI(smiles: str, toolkit: Optional[str] = "cdk"):
+async def SMILES_to_InChI(smiles: str, toolkit: Literal["cdk", "rdkit", "openbabel"]):
     """
     Convert SMILES to InChI.
 
@@ -249,7 +253,9 @@ async def SMILES_to_InChI(smiles: str, toolkit: Optional[str] = "cdk"):
 
 
 @router.get("/inchikey")
-async def SMILES_to_InChIKey(smiles: str, toolkit: Optional[str] = "cdk"):
+async def SMILES_to_InChIKey(
+    smiles: str, toolkit: Literal["cdk", "rdkit", "openbabel"]
+):
     """
     Convert SMILES to InChI-Key.
 
@@ -336,7 +342,9 @@ async def encode_SELFIES(smiles: str):
 
 
 @router.get("/formats")
-async def SMILES_convert_to_Formats(smiles: str, toolkit: Optional[str] = "cdk"):
+async def SMILES_convert_to_Formats(
+    smiles: str, toolkit: Literal["cdk", "rdkit", "openbabel"]
+):
     """
     Convert SMILES to various molecular formats using different toolkits.
 
