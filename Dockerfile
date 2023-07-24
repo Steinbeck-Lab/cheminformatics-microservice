@@ -4,9 +4,6 @@ ENV PYTHON_VERSION=3.10
 ENV RDKIT_VERSION=2023.03.1
 ENV OPENBABEL_VERSION=v3.1
 
-ARG RELEASE_VERSION
-ENV RELEASE_VERSION=${RELEASE_VERSION}
-
 # Install runtime dependencies
 RUN apt-get update && \
     apt-get install -y software-properties-common && \
