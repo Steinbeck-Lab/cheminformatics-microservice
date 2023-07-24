@@ -1,4 +1,4 @@
-from fastapi import Request, APIRouter
+from fastapi import Request, APIRouter, Query
 from typing import Optional, Literal
 from fastapi.responses import Response, HTMLResponse
 from app.modules.depiction import getRDKitDepiction, getCDKDepiction
@@ -24,7 +24,9 @@ async def depict_index():
 @router.get("/2D")
 async def Depict2D_molecule(
     smiles: str,
-    toolkit: Literal["cdk", "rdkit"],
+    toolkit: Literal["cdk", "rdkit"] = Query(
+        default="rdkit", description="Cheminformatics toolkit used in the backend"
+    ),
     width: Optional[int] = 512,
     height: Optional[int] = 512,
     rotate: Optional[int] = 0,
@@ -79,7 +81,9 @@ async def Depict2D_molecule(
 async def Depict3D_Molecule(
     request: Request,
     smiles: str,
-    toolkit: Literal["rdkit", "openbabel"],
+    toolkit: Literal["rdkit", "openbabel"] = Query(
+        default="rdkit", description="Cheminformatics toolkit used in the backend"
+    ),
 ):
     """
     Generate 3D depictions of molecules using OpenBabel or RDKit.
