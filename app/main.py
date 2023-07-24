@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI(
-    title="Cheminformatics Python Microservice",
+    title="Cheminformatics Microservice",
     description="This set of essential and valuable microservices is designed to be accessed via API calls to support cheminformatics. Generally, it is designed to work with SMILES-based inputs and could be used to translate between different machine-readable representations, get Natural Product (NP) likeliness scores, visualize chemical structures, and generate descriptors. In addition, the microservices also host an instance of STOUT and another instance of DECIMER (two deep learning models for IUPAC name generation and optical chemical structure recognition, respectively).",
     terms_of_service="https://steinbeck-lab.github.io/cheminformatics-python-microservice",
     contact={
@@ -54,7 +54,7 @@ app = VersionedFastAPI(
         "name": "CC BY 4.0",
         "url": "https://creativecommons.org/licenses/by/4.0/",
     },
-    version=os.getenv('RELEASE_VERSION', '1.0')
+    version=os.getenv("RELEASE_VERSION", "1.0"),
 )
 
 Instrumentator().instrument(app).expose(app)

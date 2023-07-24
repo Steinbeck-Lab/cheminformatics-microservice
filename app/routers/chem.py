@@ -1,5 +1,5 @@
 from fastapi import Body, APIRouter
-from typing import Optional
+from typing import Optional, Literal
 from typing_extensions import Annotated
 from rdkit import Chem
 from rdkit.Chem.EnumerateStereoisomers import (
@@ -68,7 +68,9 @@ async def SMILES_to_Stereo_Isomers(smiles: str):
 
 @router.get("/descriptors")
 async def SMILES_Descriptors(
-    smiles: str, format: Optional[str] = "json", toolkit: Optional[str] = "rdkit"
+    smiles: str,
+    format: Literal["json", "html"],
+    toolkit: Literal["cdk", "rdkit", "all"],
 ):
     """
     Generates standard descriptors for the input molecules (SMILES).
@@ -110,7 +112,7 @@ async def SMILES_Descriptors(
 
 
 @router.get("/descriptors/multiple")
-async def SMILES_Descriptors_multiple(smiles: str, toolkit: Optional[str] = "rdkit"):
+async def SMILES_Descriptors_multiple(smiles: str, toolkit: Literal["cdk", "rdkit"]):
     """
     Retrieve multiple descriptors for a list of SMILES strings.
 
@@ -146,7 +148,7 @@ async def SMILES_Descriptors_multiple(smiles: str, toolkit: Optional[str] = "rdk
 async def HOSE_Codes(
     smiles: str,
     spheres: int,
-    toolkit: Optional[str] = "cdk",
+    toolkit: Literal["cdk", "rdkit"],
     ringsize: Optional[bool] = False,
 ):
     """
@@ -299,7 +301,7 @@ async def NPlikeliness_Score(smiles: str):
 
 
 @router.get("/tanimoto")
-async def Tanimoto_Similarity(smiles: str, toolkit: Optional[str] = "cdk"):
+async def Tanimoto_Similarity(smiles: str, toolkit: Literal["cdk", "rdkit"]):
     """
     Generates the Tanimoto similarity index for a given pair of SMILES strings.
 
