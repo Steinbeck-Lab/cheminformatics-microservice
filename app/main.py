@@ -62,6 +62,4 @@ Instrumentator().instrument(app).expose(app)
 
 @app.get("/", include_in_schema=False)
 async def root():
-    return RedirectResponse(
-        url= os.getenv("HOMEPAGE_URL", "/latest/docs")
-    )
+    return RedirectResponse(url=os.getenv("HOMEPAGE_URL", "/latest/docs"))
