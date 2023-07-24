@@ -4,10 +4,11 @@ services:
   web:
     build:
       context: ./
-      args:
-        RELEASE_VERSION: v1.0.0
       dockerfile: Dockerfile
     container_name: cheminformatics-python-microservice
+    environment:
+      HOMEPAGE_URL:  "https://steinbeck-lab.github.io/cheminformatics-python-microservice"
+      RELEASE_VERSION: v1.0.0
     volumes:
       - ./app:/code/app
     ports:

@@ -63,5 +63,5 @@ Instrumentator().instrument(app).expose(app)
 @app.get("/", include_in_schema=False)
 async def root():
     return RedirectResponse(
-        url="https://steinbeck-lab.github.io/cheminformatics-python-microservice"
+        url= os.getenv("HOMEPAGE_URL", "/latest/docs")
     )
