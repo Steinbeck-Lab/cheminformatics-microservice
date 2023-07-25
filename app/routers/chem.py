@@ -1,4 +1,4 @@
-from fastapi import Body, APIRouter, Query
+from fastapi import Body, APIRouter, Query, status
 from typing import Optional, Literal
 from typing_extensions import Annotated
 from rdkit import Chem
@@ -22,6 +22,7 @@ from app.modules.alldescriptors import getTanimotoSimilarity
 from app.modules.coconut.preprocess import getCOCONUTpreprocessing
 import pandas as pd
 from fastapi.templating import Jinja2Templates
+from app.schemas import HealthCheck
 
 router = APIRouter(
     prefix="/chem",
@@ -33,9 +34,27 @@ router = APIRouter(
 templates = Jinja2Templates(directory="app/templates")
 
 
-@router.get("/")
-async def chem_index():
-    return {"module": "chem", "message": "Successful", "status": 200}
+@router.get("/", include_in_schema=False)
+@router.get(
+    "/health",
+    tags=["healthcheck"],
+    summary="Perform a Health Check on Chem Module",
+    response_description="Return HTTP Status Code 200 (OK)",
+    status_code=status.HTTP_200_OK,
+    include_in_schema=False,
+    response_model=HealthCheck,
+)
+def get_health() -> HealthCheck:
+    """
+    ## Perform a Health Check
+    Endpoint to perform a healthcheck on. This endpoint can primarily be used Docker
+    to ensure a robust container orchestration and management is in place. Other
+    services which rely on proper functioning of the API service will not deploy if this
+    endpoint returns any other HTTP status code except 200 (OK).
+    Returns:
+        HealthCheck: Returns a JSON response with the health status
+    """
+    return HealthCheck(status="OK")
 
 
 @router.get("/stereoisomers")

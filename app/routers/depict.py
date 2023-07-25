@@ -1,10 +1,11 @@
-from fastapi import Request, APIRouter, Query
+from fastapi import Request, APIRouter, Query, status
 from typing import Optional, Literal
 from fastapi.responses import Response, HTMLResponse
 from app.modules.depiction import getRDKitDepiction, getCDKDepiction
 from app.modules.toolkits.rdkit_wrapper import get3Dconformers
 from app.modules.toolkits.openbabel_wrapper import getOBMol
 from fastapi.templating import Jinja2Templates
+from app.schemas import HealthCheck
 
 templates = Jinja2Templates(directory="app/templates")
 
@@ -16,9 +17,27 @@ router = APIRouter(
 )
 
 
-@router.get("/")
-async def depict_index():
-    return {"module": "depict", "message": "Successful", "status": 200}
+@router.get("/", include_in_schema=False)
+@router.get(
+    "/health",
+    tags=["healthcheck"],
+    summary="Perform a Health Check on Depict Module",
+    response_description="Return HTTP Status Code 200 (OK)",
+    status_code=status.HTTP_200_OK,
+    response_model=HealthCheck,
+    include_in_schema=False,
+)
+def get_health() -> HealthCheck:
+    """
+    ## Perform a Health Check
+    Endpoint to perform a healthcheck on. This endpoint can primarily be used Docker
+    to ensure a robust container orchestration and management is in place. Other
+    services which rely on proper functioning of the API service will not deploy if this
+    endpoint returns any other HTTP status code except 200 (OK).
+    Returns:
+        HealthCheck: Returns a JSON response with the health status
+    """
+    return HealthCheck(status="OK")
 
 
 @router.get("/2D")
