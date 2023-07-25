@@ -19,6 +19,6 @@ docker pull caffeinejena/cheminformatics-python-microservice:[tag]
 * Run the below command to run the image
 
 ```bash
-docker run -d -p 8080:80 --build-arg RELEASE_VERSION= [release-version] --name [image-name] caffeinejena/cheminfo-microservice:[tag]
+docker run -d -p 8080:80 --name [image-name] caffeinejena/cheminfo-microservice:[tag]
 
 ```
