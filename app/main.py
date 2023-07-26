@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 from fastapi.responses import RedirectResponse
 from fastapi_versioning import VersionedFastAPI
 
@@ -7,6 +7,7 @@ from .routers import chem, converters, depict, tools, ocsr
 from fastapi.middleware.cors import CORSMiddleware
 
 from prometheus_fastapi_instrumentator import Instrumentator
+from app.schemas import HealthCheck
 
 app = FastAPI(
     title="Cheminformatics Microservice",
@@ -63,3 +64,24 @@ Instrumentator().instrument(app).expose(app)
 @app.get("/", include_in_schema=False)
 async def root():
     return RedirectResponse(url=os.getenv("HOMEPAGE_URL", "/latest/docs"))
+
+
+@app.get(
+    "/health",
+    tags=["healthcheck"],
+    summary="Perform a Health Check",
+    response_description="Return HTTP Status Code 200 (OK)",
+    status_code=status.HTTP_200_OK,
+    response_model=HealthCheck,
+)
+def get_health() -> HealthCheck:
+    """
+    ## Perform a Health Check
+    Endpoint to perform a healthcheck on. This endpoint can primarily be used Docker
+    to ensure a robust container orchestration and management is in place. Other
+    services which rely on proper functioning of the API service will not deploy if this
+    endpoint returns any other HTTP status code except 200 (OK).
+    Returns:
+        HealthCheck: Returns a JSON response with the health status
+    """
+    return HealthCheck(status="OK")
