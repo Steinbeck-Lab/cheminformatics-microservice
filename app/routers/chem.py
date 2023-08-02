@@ -1,6 +1,5 @@
-from fastapi import Body, APIRouter, Query, status
-from typing import Optional, Literal
-from typing_extensions import Annotated
+from fastapi import APIRouter, Query, status, HTTPException
+from typing import Optional, Literal, List, Union, Dict
 from rdkit import Chem
 from rdkit.Chem.EnumerateStereoisomers import (
     EnumerateStereoisomers,
@@ -23,6 +22,37 @@ from app.modules.coconut.preprocess import getCOCONUTpreprocessing
 import pandas as pd
 from fastapi.templating import Jinja2Templates
 from app.schemas import HealthCheck
+from pydantic import BaseModel
+
+
+class ErrorResponse(BaseModel):
+    detail: str
+
+
+class StandardizeRequest(BaseModel):
+    molblock: str
+
+
+class StandardizeResponse(BaseModel):
+    standardized_mol: str
+    canonical_smiles: str
+    inchi: str
+    inchikey: str
+
+
+class SMILESValidationResult(BaseModel):
+    smi: str
+    messages: tuple
+
+
+class StandardizedResult(BaseModel):
+    original: SMILESValidationResult
+    standardized: SMILESValidationResult
+
+
+class NPlikelinessScoreResponse(BaseModel):
+    np_score: float
+
 
 router = APIRouter(
     prefix="/chem",
@@ -57,8 +87,22 @@ def get_health() -> HealthCheck:
     return HealthCheck(status="OK")
 
 
-@router.get("/stereoisomers")
-async def SMILES_to_Stereo_Isomers(smiles: str):
+@router.get(
+    "/stereoisomers",
+    response_model=Union[List[str], str],
+    summary="Enumerate all possible stereoisomers",
+    responses={400: {"model": ErrorResponse}},
+)
+async def get_stereoisomers(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES string to be converted",
+        examples=[
+            "CCO",
+            "C=O",
+        ],
+    )
+):
     """
     For a given SMILES string this function enumerates all possible stereoisomers
 
@@ -72,8 +116,6 @@ async def SMILES_to_Stereo_Isomers(smiles: str):
     - ValueError: If the SMILES string is not provided or is invalid.
 
     """
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
     mol = Chem.MolFromSmiles(smiles)
     if mol:
         isomers = tuple(EnumerateStereoisomers(mol))
@@ -82,12 +124,25 @@ async def SMILES_to_Stereo_Isomers(smiles: str):
             smilesArray.append(smi)
         return smilesArray
     else:
-        return "Error reading SMILES string, check again."
+        raise HTTPException(
+            status_code=400, detail="Error reading SMILES string, please check again."
+        )
 
 
-@router.get("/descriptors")
-async def SMILES_Descriptors(
-    smiles: str,
+@router.get(
+    "/descriptors",
+    summary="Generates descriptors for the input molecule",
+    responses={400: {"model": ErrorResponse}},
+)
+async def get_descriptors(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES representation of the molecule",
+        examples=[
+            "CCO",
+            "C=O",
+        ],
+    ),
     format: Literal["json", "html"] = Query(
         default="json", description="Desired display format"
     ),
@@ -96,7 +151,7 @@ async def SMILES_Descriptors(
     ),
 ):
     """
-    Generates standard descriptors for the input molecules (SMILES).
+    Generates standard descriptors for the input molecule (SMILES).
 
     Parameters:
     - **SMILES**: required (query): The SMILES representation of the molecule.
@@ -113,30 +168,43 @@ async def SMILES_Descriptors(
     - None
 
     """
-    if smiles:
-        if format == "html":
-            data = getCOCONUTDescriptors(smiles, toolkit)
-            if toolkit == "all":
-                headers = ["Descriptor name", "RDKit Descriptors", "CDK Descriptors"]
-                df = pd.DataFrame.from_dict(
-                    data, orient="index", columns=headers[1:], dtype=object
-                )
-                df.insert(0, headers[0], df.index)
-            else:
-                headers = ["Descriptor name", "Values"]
-                df = pd.DataFrame.from_dict(data, orient="index", columns=headers[1:])
-                df.insert(0, headers[0], df.index)
-            with open("app/templates/style.css", "r") as file:
-                css_style = file.read()
-            html_table = df.to_html(index=False)
-            return Response(content=css_style + html_table, media_type="text/html")
+    data = getCOCONUTDescriptors(smiles, toolkit)
+    if format == "html":
+        if toolkit == "all":
+            headers = ["Descriptor name", "RDKit Descriptors", "CDK Descriptors"]
+            df = pd.DataFrame.from_dict(
+                data, orient="index", columns=headers[1:], dtype=object
+            )
+            df.insert(0, headers[0], df.index)
         else:
-            return getCOCONUTDescriptors(smiles, toolkit)
+            headers = ["Descriptor name", "Values"]
+            df = pd.DataFrame.from_dict(data, orient="index", columns=headers[1:])
+            df.insert(0, headers[0], df.index)
+
+        with open("app/templates/style.css", "r") as file:
+            css_style = file.read()
+
+        html_table = df.to_html(index=False)
+        return Response(content=css_style + html_table, media_type="text/html")
+    else:
+        return data
 
 
-@router.get("/descriptors/multiple")
-async def SMILES_Descriptors_multiple(
-    smiles: str,
+@router.get(
+    "/descriptors/multiple",
+    response_model=Union[Dict, Dict],
+    summary="Generates descriptors for the input molecules",
+    responses={400: {"model": ErrorResponse}},
+)
+async def calculate_descriptors(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES representation of the molecules",
+        examples=[
+            "CCO,CCC",
+            "C=O,CC=O",
+        ],
+    ),
     toolkit: Literal["cdk", "rdkit"] = Query(
         default="rdkit", description="Cheminformatics toolkit used in the backend"
     ),
@@ -163,23 +231,54 @@ async def SMILES_Descriptors_multiple(
       Response: "Error invalid SMILES"
 
     """
-    if len(smiles.split(",")) > 1:
-        combinedDict = {
-            entry: getCOCONUTDescriptors(entry, toolkit) for entry in smiles.split(",")
-        }
-        return combinedDict
-    else:
-        return "Error invalid SMILES"
+    molecules = [m.strip() for m in smiles.split(",")]
+
+    if len(molecules) < 2:
+        raise HTTPException(
+            status_code=400, detail="At least two molecules are required."
+        )
+
+    descriptors_dict = {}
+
+    for molecule in molecules:
+        descriptors = getCOCONUTDescriptors(molecule, toolkit)
+        print(type(descriptors))
+        descriptors_dict[molecule] = descriptors
+
+    return descriptors_dict
 
 
-@router.get("/HOSEcode")
+@router.get(
+    "/HOSEcode",
+    response_model=List,
+    summary="Generates HOSE codes for the input molecules",
+    responses={400: {"model": ErrorResponse}},
+)
 async def HOSE_Codes(
-    smiles: str,
-    spheres: int,
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES representation of the molecule",
+        examples=[
+            "CCO",
+            "C=O",
+        ],
+    ),
+    spheres: int = Query(
+        title="spheres",
+        description="Number of spheres to use for generating HOSE codes",
+        examples=[
+            "2",
+            "1",
+        ],
+    ),
     toolkit: Literal["cdk", "rdkit"] = Query(
         default="rdkit", description="Cheminformatics toolkit used in the backend"
     ),
-    ringsize: Optional[bool] = False,
+    ringsize: Optional[bool] = Query(
+        False,
+        title="ringsize",
+        description="Determines whether to include information about ring sizes",
+    ),
 ):
     """
     Generates HOSE codes for a given SMILES string.
@@ -202,21 +301,35 @@ async def HOSE_Codes(
     """
     if smiles:
         if toolkit == "cdk":
-            return await getCDKHOSECodes(smiles, spheres, ringsize)
+            hose_codes = await getCDKHOSECodes(smiles, spheres, ringsize)
         elif toolkit == "rdkit":
-            return await getRDKitHOSECodes(smiles, spheres)
+            hose_codes = await getRDKitHOSECodes(smiles, spheres)
     else:
-        return "Error reading SMILES string, check again."
+        raise HTTPException(
+            status_code=400, detail="Error reading SMILES string, please check again."
+        )
+
+    if hose_codes:
+        return hose_codes
+    else:
+        raise HTTPException(
+            status_code=500, detail="Failed to generate HOSE codes, check settings."
+        )
 
 
-@router.post("/standardize")
-async def Standardize_Mol(mol: Annotated[str, Body(embed=True)]):
+@router.post(
+    "/standardize",
+    response_model=StandardizeResponse,
+    summary="Standardize molblock using the ChEMBL curation pipeline",
+    responses={400: {"model": ErrorResponse}},
+)
+async def standardize_mol(request_data: StandardizeRequest):
     """
-    Standardize molblock using the ChEMBL curation pipeline routine
+    Standardize molblock using the ChEMBL curation pipeline
     and return the standardized molecule, SMILES, InChI, and InCHI-Key.
 
     Parameters:
-    - **molblock**: required (str,query): A molblock string representing the molecule to be standardized.
+    - **request_data**: The request body containing the "molblock" string representing the molecule to be standardized.
 
     Returns:
     - dict: A dictionary containing the following keys:
@@ -229,22 +342,48 @@ async def Standardize_Mol(mol: Annotated[str, Body(embed=True)]):
     - ValueError: If the SMILES string is not provided or is invalid.
 
     """
-    if mol:
-        standardized_mol = standardizer.standardize_molblock(mol)
+    molblock = request_data.molblock
+
+    if molblock:
+        standardized_mol = standardizer.standardize_molblock(molblock)
         rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
+
+    else:
+        raise HTTPException(status_code=400, detail="Invalid or missing molblock")
+
+    if rdkit_mol:
         smiles = Chem.MolToSmiles(rdkit_mol, kekuleSmiles=True)
-        response = {}
-        response["standardized_mol"] = standardized_mol
-        response["cannonical_smiles"] = smiles
-        response["inchi"] = Chem.inchi.MolToInchi(rdkit_mol)
-        response["inchikey"] = Chem.inchi.MolToInchiKey(rdkit_mol)
+        response = StandardizeResponse(
+            standardized_mol=standardized_mol,
+            canonical_smiles=smiles,
+            inchi=Chem.inchi.MolToInchi(rdkit_mol),
+            inchikey=Chem.inchi.MolToInchiKey(rdkit_mol),
+        )
         return response
     else:
-        return "Error reading SMILES string, check again."
+        raise HTTPException(status_code=400, detail="Invalid molblock format")
 
 
-@router.get("/errors")
-async def Check_Errors(smiles: str, fix: Optional[bool] = False):
+@router.get(
+    "/errorss",
+    summary="Check a given SMILES string and the represented structure for issues and standardizes it",
+    responses={400: {"model": ErrorResponse}},
+)
+async def check_errors(
+    smiles: str = Query(
+        title="SMILES",
+        description="The SMILES string to check and standardize.",
+        examples=[
+            "CCO",
+            "C=O",
+        ],
+    ),
+    fix: Optional[bool] = Query(
+        False,
+        title="Fix",
+        description="Flag indicating whether to fix the issues by standardizing the SMILES.",
+    ),
+):
     """
     Check a given SMILES string and the represented structure for issues and standardizes it using the ChEMBL curation pipeline.
 
@@ -270,46 +409,52 @@ async def Check_Errors(smiles: str, fix: Optional[bool] = False):
     - If the SMILES string cannot be read, the function returns the string "Error reading SMILES string, check again."
 
     """
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
-    if smiles:
-        mol = Chem.MolFromSmiles(smiles, sanitize=False)
-        if mol:
-            mol_block = Chem.MolToMolBlock(mol)
-            if len(checker.check_molblock(mol_block)) == 0:
-                return "No Errors Found"
+    mol = Chem.MolFromSmiles(smiles, sanitize=False)
+    if mol:
+        mol_block = Chem.MolToMolBlock(mol)
+        issues = checker.check_molblock(mol_block)
+
+        if issues:
+            if fix:
+                standardized_mol = standardizer.standardize_molblock(mol_block)
+                issues_new = checker.check_molblock(standardized_mol)
+                rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
+                standardized_smiles = Chem.MolToSmiles(rdkit_mol)
+
+                result = StandardizedResult(
+                    original=SMILESValidationResult(smi=smiles, messages=issues),
+                    standardized=SMILESValidationResult(
+                        smi=standardized_smiles,
+                        messages=issues_new if issues_new else ("No Errors Found",),
+                    ),
+                )
+                return result
             else:
-                issues = checker.check_molblock(mol_block)
-                if fix:
-                    issues = checker.check_molblock(mol_block)
-                    standardized_mol = standardizer.standardize_molblock(mol_block)
-                    issues_new = checker.check_molblock(standardized_mol)
-                    rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
-                    standardizedsmiles = Chem.MolToSmiles(rdkit_mol)
-                    if len(issues_new) == 0:
-                        issues_new = "No Errors Found"
-
-                    parsed_data = {
-                        "source": {
-                            "SMILES": smiles,
-                            "messages": issues,
-                        },
-                        "standardized": {
-                            "SMILES": standardizedsmiles,
-                            "messages": issues_new,
-                        },
-                    }
-                    return parsed_data
-                else:
-                    return issues
+                return SMILESValidationResult(smi=smiles, messages=issues)
         else:
-            return "Error reading SMILES string, check again."
+            return SMILESValidationResult(smi=smiles, messages=("No Errors Found",))
     else:
-        return "Error reading SMILES string, check again."
+        raise HTTPException(
+            status_code=400, detail="Error reading SMILES string, please check again."
+        )
 
 
-@router.get("/nplikeness/score")
-async def NPlikeliness_Score(smiles: str):
+@router.get(
+    "/nplikeness/score",
+    response_model=NPlikelinessScoreResponse,
+    summary="Generates descriptors for the input molecules",
+    responses={400: {"model": ErrorResponse}},
+)
+async def NPlikeliness_Score(
+    smiles: str = Query(
+        title="SMILES",
+        description="The SMILES string to calculate the natural product likeness score",
+        examples=[
+            "CCO",
+            "C=O",
+        ],
+    )
+):
     """
     Calculates the natural product likeness score based on the RDKit implementation.
 
@@ -323,16 +468,33 @@ async def NPlikeliness_Score(smiles: str):
     - ValueError: If the SMILES string is not provided or is invalid.
 
     """
-    if smiles:
+    try:
         np_score = getNPScore(smiles)
-        return np_score
-    else:
-        return "Error reading SMILES string, check again."
+        if np_score:
+            return {"np_score": float(np_score)}
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Error reading SMILES string, please check again.",
+            )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/tanimoto")
+@router.get(
+    "/tanimoto",
+    summary="Generates the Tanimoto similarity index for a given pair of SMILES strings",
+    responses={400: {"model": ErrorResponse}},
+)
 async def Tanimoto_Similarity(
-    smiles: str,
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES representation of the molecules",
+        examples=[
+            "CCO,CCC",
+            "C=O,CC=O",
+        ],
+    ),
     toolkit: Literal["cdk", "rdkit"] = Query(
         default="rdkit", description="Cheminformatics toolkit used in the backend"
     ),
@@ -366,7 +528,14 @@ async def Tanimoto_Similarity(
     - If an error occurs during the Tanimoto similarity calculation or if the input SMILES strings are invalid, an appropriate error message will be returned.
 
     """
-    if len(smiles.split(",")) == 2:
+    molecules = [m.strip() for m in smiles.split(",")]
+
+    if len(molecules) < 2:
+        raise HTTPException(
+            status_code=400, detail="At least two molecules are required."
+        )
+
+    elif len(smiles.split(",")) == 2:
         try:
             smiles1, smiles2 = smiles.split(",")
             if toolkit == "rdkit":
@@ -375,19 +544,42 @@ async def Tanimoto_Similarity(
                 Tanimoto = getTanimotoSimilarityCDK(smiles1, smiles2)
             return Tanimoto
         except Exception:
-            return 'Please give a SMILES pair with "," separated. Example: api.naturalproducts.net/latest/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C'
+            raise HTTPException(
+                status_code=400,
+                detail="Error reading SMILES string, please check again.",
+            )
+
     elif len(smiles.split(",")) > 2:
         try:
             matrix = getTanimotoSimilarity(smiles, toolkit)
             return Response(content=matrix, media_type="text/html")
         except Exception:
-            return 'Please give a SMILES pair with "," separated. Example: api.naturalproducts.net/latest/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C'
+            raise HTTPException(
+                status_code=400,
+                detail="Error reading SMILES string, please check again.",
+            )
     else:
-        return 'Please give a SMILES pair with "," separated. Example: api.naturalproducts.net/latest/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C'
+        raise HTTPException(
+            status_code=400, detail="Error reading SMILES string, please check again."
+        )
 
 
-@router.get("/coconut/pre-processing")
-async def COCONUT_Preprocessing(smiles: str):
+@router.get(
+    "/coconut/pre-processing",
+    response_model=Dict,
+    summary="Generates an Input JSON file with information for COCONUT database",
+    responses={400: {"model": ErrorResponse}},
+)
+async def COCONUT_Preprocessing(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES string representing a chemical compound",
+        examples=[
+            "CCO",
+            "C=O",
+        ],
+    )
+):
     """
     Generates an Input JSON file with information of different molecular representations and descriptors suitable for submission to COCONUT database.
 
@@ -401,15 +593,37 @@ async def COCONUT_Preprocessing(smiles: str):
     - HTTPException: If there is an error reading the SMILES string.
 
     """
-    if smiles:
+    try:
         data = getCOCONUTpreprocessing(smiles)
-        return JSONResponse(content=data)
-    else:
-        return "Error reading SMILES string, check again."
+        if data:
+            return JSONResponse(content=data)
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Error reading SMILES string, please check again.",
+            )
+    except Exception as e:
+        raise HTTPException(
+            status_code=400, detail="Error processing request: " + str(e)
+        )
 
 
-@router.get("/classyfire/classify")
-async def ClassyFire_Classify(smiles: str):
+@router.get(
+    "/classyfire/classify",
+    response_model=Dict,
+    summary="Generate ClassyFire-based classifications using SMILES as input",
+    responses={400: {"model": ErrorResponse}},
+)
+async def ClassyFire_Classify(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES representation of the compound to be classified",
+        examples=[
+            "CCO",
+            "C=O",
+        ],
+    )
+):
     """
     Generate ClassyFire-based classifications using SMILES as input.
 
@@ -427,12 +641,28 @@ async def ClassyFire_Classify(smiles: str):
     - This service pings the http://classyfire.wishartlab.com server for information retrieval.
 
     """
-    if smiles:
-        data = await classify(smiles)
-        return data
+    try:
+        classification_data = await classify(smiles)
+        if classification_data:
+            return classification_data
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Error reading SMILES string, please check again.",
+            )
+    except Exception as e:
+        print(e)
+        raise HTTPException(
+            status_code=500, detail="Error during classification process"
+        )
 
 
-@router.get("/classyfire/{jobid}/result")
+@router.get(
+    "/classyfire/{jobid}/result",
+    response_model=Dict,
+    summary="Retrieve the ClassyFire classification results based on the provided Job ID",
+    responses={400: {"model": ErrorResponse}},
+)
 async def ClassyFire_result(jobid: str):
     """
     Retrieve the ClassyFire classification results based on the provided Job ID.
@@ -450,6 +680,15 @@ async def ClassyFire_result(jobid: str):
     - The ClassyFire classification results as JSON.
 
     """
-    if id:
-        data = await result(id)
-        return data
+
+    if jobid:
+        try:
+            data = await result(jobid)  # Replace with your function to retrieve result
+            return data
+        except Exception as e:
+            print(e)
+            raise HTTPException(
+                status_code=500, detail="Error during classification process."
+            )
+    else:
+        raise HTTPException(status_code=400, detail="Job ID is required.")

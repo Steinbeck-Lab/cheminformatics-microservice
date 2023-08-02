@@ -6,6 +6,15 @@ from app.modules.toolkits.rdkit_wrapper import get3Dconformers
 from app.modules.toolkits.openbabel_wrapper import getOBMol
 from fastapi.templating import Jinja2Templates
 from app.schemas import HealthCheck
+from pydantic import BaseModel
+
+
+class SMILESError(BaseModel):
+    """An error that is thrown when..."""
+
+    message: str
+    input_value: str
+
 
 templates = Jinja2Templates(directory="app/templates")
 
@@ -93,7 +102,9 @@ async def Depict2D_molecule(
                 media_type="image/svg+xml",
             )
         else:
-            return "Check SMILES string or Toolkit configuration."
+            return SMILESError(
+                message="Check SMILES string or configuration.", input_value=smiles
+            )
 
 
 @router.get("/3D", response_class=HTMLResponse)
@@ -135,4 +146,6 @@ async def Depict3D_Molecule(
             content = {"request": request, "molecule": get3Dconformers(smiles)}
             return templates.TemplateResponse("mol.html", content)
         else:
-            return "Check SMILES string or Toolkit configuration."
+            return SMILESError(
+                message="Check SMILES string or configuration.", input_value=smiles
+            )
