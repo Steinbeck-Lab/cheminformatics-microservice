@@ -22,37 +22,14 @@ from app.modules.coconut.preprocess import getCOCONUTpreprocessing
 import pandas as pd
 from fastapi.templating import Jinja2Templates
 from app.schemas import HealthCheck
-from pydantic import BaseModel
-
-
-class ErrorResponse(BaseModel):
-    detail: str
-
-
-class StandardizeRequest(BaseModel):
-    molblock: str
-
-
-class StandardizeResponse(BaseModel):
-    standardized_mol: str
-    canonical_smiles: str
-    inchi: str
-    inchikey: str
-
-
-class SMILESValidationResult(BaseModel):
-    smi: str
-    messages: tuple
-
-
-class StandardizedResult(BaseModel):
-    original: SMILESValidationResult
-    standardized: SMILESValidationResult
-
-
-class NPlikelinessScoreResponse(BaseModel):
-    np_score: float
-
+from app.schemas.pydanticmodels import (
+    ErrorResponse,
+    StandardizeRequest,
+    StandardizeResponse,
+    SMILESValidationResult,
+    StandardizedResult,
+    NPlikelinessScoreResponse,
+)
 
 router = APIRouter(
     prefix="/chem",
