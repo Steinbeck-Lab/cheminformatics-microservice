@@ -342,7 +342,7 @@ async def standardize_mol(request_data: StandardizeRequest):
 
 
 @router.get(
-    "/errorss",
+    "/errors",
     summary="Check a given SMILES string and the represented structure for issues and standardizes it",
     responses={400: {"model": ErrorResponse}},
 )
