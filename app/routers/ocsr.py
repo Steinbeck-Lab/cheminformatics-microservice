@@ -8,7 +8,7 @@ from fastapi import Body, APIRouter, status, HTTPException
 from typing import Dict
 from app.modules.decimer import getPredictedSegments
 from app.schemas import HealthCheck
-from app.schemas.pydanticmodels import ErrorResponse
+from app.schemas.chemblstandardizer import ErrorResponse
 
 router = APIRouter(
     prefix="/ocsr",

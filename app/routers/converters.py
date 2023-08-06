@@ -22,7 +22,7 @@ from app.modules.toolkits.openbabel_wrapper import (
     getOBInChI,
 )
 from app.schemas import HealthCheck
-from app.schemas.pydanticmodels import ErrorResponse
+from app.schemas.error import ErrorResponse
 
 router = APIRouter(
     prefix="/convert",
@@ -57,6 +57,7 @@ def get_health() -> HealthCheck:
 
 @router.get(
     "/mol2D",
+    response_class=Response,
     summary="Generates 2D Coordinates for the input molecules",
     responses={400: {"model": ErrorResponse}},
 )
@@ -111,6 +112,7 @@ async def Create2D_Coordinates(
 
 @router.get(
     "/mol3D",
+    response_class=Response,
     summary="Generates 3D Coordinates for the input molecules",
     responses={400: {"model": ErrorResponse}},
 )

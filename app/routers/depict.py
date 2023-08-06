@@ -6,7 +6,7 @@ from app.modules.toolkits.rdkit_wrapper import get3Dconformers
 from app.modules.toolkits.openbabel_wrapper import getOBMol
 from fastapi.templating import Jinja2Templates
 from app.schemas import HealthCheck
-from app.schemas.pydanticmodels import ErrorResponse
+from app.schemas.error import ErrorResponse
 
 templates = Jinja2Templates(directory="app/templates")
 
@@ -43,8 +43,8 @@ def get_health() -> HealthCheck:
 
 @router.get(
     "/2D",
-    response_class=Response,
     summary="Generates a 2D depiction of a molecule",
+    response_class=HTMLResponse,
     responses={400: {"model": ErrorResponse}},
 )
 async def Depict2D_molecule(
@@ -131,7 +131,14 @@ async def Depict2D_molecule(
 )
 async def Depict3D_Molecule(
     request: Request,
-    smiles: str,
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES string to be converted",
+        examples=[
+            "CCO",
+            "C=O",
+        ],
+    ),
     toolkit: Literal["rdkit", "openbabel"] = Query(
         default="rdkit", description="Cheminformatics toolkit used in the backend"
     ),
