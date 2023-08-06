@@ -4,10 +4,11 @@ import requests
 from fastapi.responses import JSONResponse
 from urllib.request import urlopen
 from urllib.parse import urlsplit
-from fastapi import Body, APIRouter, status
-from typing_extensions import Annotated
+from fastapi import Body, APIRouter, status, HTTPException
+from typing import Dict
 from app.modules.decimer import getPredictedSegments
 from app.schemas import HealthCheck
+from app.schemas.chemblstandardizer import ErrorResponse
 
 router = APIRouter(
     prefix="/ocsr",
@@ -40,11 +41,22 @@ def get_health() -> HealthCheck:
     return HealthCheck(status="OK")
 
 
-@router.post("/process")
+@router.post(
+    "/process",
+    response_model=Dict,
+    summary="Detect, segment and convert a chemical structure depiction into a SMILES string using the DECIMER",
+    responses={400: {"model": ErrorResponse}},
+)
 async def Extract_ChemicalInfo(
-    path: Annotated[str, Body(embed=True)] = None,
-    reference: Annotated[str, Body(embed=True)] = None,
-    img: Annotated[str, Body(embed=True)] = None,
+    path: str = Body(
+        None,
+        embed=True,
+        description="URL or local file path to the chemical structure depiction image.",
+    ),
+    reference: str = Body(None, embed=True, description="Reference information."),
+    img: str = Body(
+        None, embed=True, description="URL of the chemical structure depiction image."
+    ),
 ):
     """
     Detect, segment and convert a chemical structure depiction into a SMILES string using the DECIMER modules.
@@ -63,21 +75,35 @@ async def Extract_ChemicalInfo(
     split = urlsplit(path)
     filename = "/tmp/" + split.path.split("/")[-1]
     if img:
-        response = urlopen(img)
-        with open(filename, "wb") as f:
-            f.write(response.file.read())
-            smiles = getPredictedSegments(filename)
-            os.remove(filename)
-            return JSONResponse(
-                content={"reference": reference, "smiles": smiles.split(".")}
-            )
-    else:
-        response = requests.get(path)
-        if response.status_code == 200:
+        try:
+            response = urlopen(img)
             with open(filename, "wb") as f:
-                f.write(response.content)
+                f.write(response.file.read())
                 smiles = getPredictedSegments(filename)
                 os.remove(filename)
                 return JSONResponse(
                     content={"reference": reference, "smiles": smiles.split(".")}
                 )
+        except Exception as e:
+            raise HTTPException(
+                status_code=400, detail="Error accessing image URL: " + str(e)
+            )
+    else:
+        try:
+            response = requests.get(path)
+            if response.status_code == 200:
+                with open(filename, "wb") as f:
+                    f.write(response.content)
+                    smiles = getPredictedSegments(filename)
+                    os.remove(filename)
+                    return JSONResponse(
+                        content={"reference": reference, "smiles": smiles.split(".")}
+                    )
+            else:
+                raise HTTPException(
+                    status_code=400, detail="Error accessing provided URL"
+                )
+        except Exception as e:
+            raise HTTPException(
+                status_code=400, detail="Invalid URL or file path: " + str(e)
+            )

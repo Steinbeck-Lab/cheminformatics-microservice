@@ -1,4 +1,5 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Query, HTTPException
+from typing import List
 from app.modules.tools.surge import generateStructures
 from app.modules.tools.sugarremoval import (
     getSugarInfo,
@@ -7,6 +8,7 @@ from app.modules.tools.sugarremoval import (
     removeLinearandCircularSugar,
 )
 from app.schemas import HealthCheck
+from app.schemas.error import ErrorResponse
 
 router = APIRouter(
     prefix="/tools",
@@ -39,8 +41,22 @@ def get_health() -> HealthCheck:
     return HealthCheck(status="OK")
 
 
-@router.get("/generate-structures")
-async def Generate_Structures(molecular_formula: str):
+@router.get(
+    "/generate-structures",
+    response_model=List[str],
+    summary="Generates structures using the chemical structure generator",
+    responses={400: {"model": ErrorResponse}},
+)
+async def Generate_Structures(
+    molecular_formula: str = Query(
+        title="Molecular Formula",
+        description="Molecular Formula for the chemical structure to be generated",
+        examples=[
+            "C6H6",
+            "C2H5OH",
+        ],
+    )
+):
     """
     Generates structures using the chemical structure generator based on the canonical generation path method.
     For more information refer to:
@@ -51,7 +67,7 @@ async def Generate_Structures(molecular_formula: str):
      - **Molecular_Formula**: required (str): The molecular formula of the compound.
 
     Returns:
-    - List[Structure]: A list of generated structures.
+    - List[str]: A list of generated structures.
 
     Raises:
     - HTTPException: If there was an error generating the structures.
@@ -63,19 +79,37 @@ async def Generate_Structures(molecular_formula: str):
     - The maximum allowable count of heavy atoms is restricted to 10 to mitigate excessive utilization of this service.
 
     """
+    try:
+        structures = generateStructures(molecular_formula)
+        if structures:
+            return structures
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-    return generateStructures(molecular_formula)
 
-
-@router.get("/sugar-information")
-async def getsugarinformation(smiles: str):
+@router.get(
+    "/sugars-info",
+    response_model=str,
+    summary="Get information whether a given molecule has circular or linear sugars",
+    responses={400: {"model": ErrorResponse}},
+)
+async def getsugarinformation(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES: string representation of the molecule",
+        examples=[
+            "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
+            "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
+        ],
+    )
+):
     """
     Get information whether a given molecule has circular or linear sugars.
     For more information refer to:
     - Schaub, J., Zielesny, A., Steinbeck, C. et al. Too sweet: cheminformatics for deglycosylation in natural products. J Cheminform 12, 67 (2020). https://doi.org/10.1186/s13321-020-00467-y.
 
     Parameters:
-    - **SMILES string**: (str): SMILES string of the molecule (required, query parameter)
+    - **SMILES string**: (str): SMILES: string representation of the molecule (required, query parameter)
 
     Returns:
     - str: A message indicating the type of sugars present in the molecule.
@@ -90,57 +124,132 @@ async def getsugarinformation(smiles: str):
         - If no sugars are found, it returns "The molecule contains no sugar."
 
     """
-    hasLinearSugar, hasCircularSugars = getSugarInfo(smiles)
-    if hasLinearSugar and hasCircularSugars:
-        return "The molecule contains Linear and Circular sugars"
-    if hasLinearSugar and not hasCircularSugars:
-        return "The molecule contains only Linear sugar"
-    if hasCircularSugars and not hasLinearSugar:
-        return "The molecule contains only Circular sugar"
-    else:
-        return "The molecule contains no sugar"
+    try:
+        hasLinearSugar, hasCircularSugars = getSugarInfo(smiles)
+        if hasLinearSugar and hasCircularSugars:
+            return "The molecule contains Linear and Circular sugars"
+        if hasLinearSugar and not hasCircularSugars:
+            return "The molecule contains only Linear sugar"
+        if hasCircularSugars and not hasLinearSugar:
+            return "The molecule contains only Circular sugar"
+        else:
+            return "The molecule contains no sugar"
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/remove-linear-sugar")
-async def removelinearsugars(smiles: str):
+@router.get(
+    "/remove-linear-sugars",
+    response_model=str,
+    summary="Detect and remove linear sugars",
+    responses={400: {"model": ErrorResponse}},
+)
+async def removelinearsugars(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES: string representation of the molecule",
+        examples=[
+            "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
+            "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
+        ],
+    )
+):
     """
     Detect and remove linear sugars from a given SMILES string using Sugar Removal Utility.
 
     Parameters:
-    - **SMILES string**: (str): SMILES string of the molecule (required, query parameter)
+    - **SMILES string**: (str): SMILES: string representation of the molecule (required, query parameter)
 
     Returns:
     - str: The modified SMILES string with linear sugars removed.
 
     """
-    return removeLinearSugar(smiles)
+    try:
+        removed_smiles = removeLinearSugar(smiles)
+        if removed_smiles:
+            return removed_smiles
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Error reading SMILES string, please check again.",
+            )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/remove-circular-sugar")
-async def removecircularsugars(smiles: str):
+@router.get(
+    "/remove-circular-sugars",
+    response_model=str,
+    summary="Detect and remove linear sugars",
+    responses={400: {"model": ErrorResponse}},
+)
+async def removecircularsugars(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES: string representation of the molecule",
+        examples=[
+            "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
+            "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
+        ],
+    )
+):
     """
     Detect and remove circular sugars from a given SMILES string using Sugar Removal Utility.
 
     Parameters:
-    - **SMILES string**: (str): SMILES string of the molecule (required, query parameter)
+    - **SMILES string**: (str): SMILES: string representation of the molecule (required, query parameter)
 
     Returns:
     - str: The modified SMILES string with circular sugars removed.
 
     """
-    return removeCircularSugar(smiles)
+    try:
+        removed_smiles = removeCircularSugar(smiles)
+        if removed_smiles:
+            return removed_smiles
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Error reading SMILES string, please check again.",
+            )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/remove-linearandcircular-sugar")
-async def removelinearandcircularsugars(smiles: str):
+@router.get(
+    "/remove-sugars",
+    response_model=str,
+    summary="Detect and remove linear sugars",
+    responses={400: {"model": ErrorResponse}},
+)
+async def removelinearandcircularsugars(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES: string representation of the molecule",
+        examples=[
+            "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
+            "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
+        ],
+    )
+):
     """
     Detect and remove linear and circular sugars from a given SMILES string using Sugar Removal Utility.
 
     Parameters:
-    - **SMILES string**: (str): SMILES string of the molecule (required, query parameter)
+    - **SMILES string**: (str): SMILES: string representation of the molecule (required, query parameter)
 
     Returns:
     - str: The modified SMILES string with linear and circular sugars removed.
 
     """
-    return removeLinearandCircularSugar(smiles)
+    try:
+        removed_smiles = removeLinearandCircularSugar(smiles)
+        if removed_smiles:
+            return removed_smiles
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Error reading SMILES string, please check again.",
+            )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
