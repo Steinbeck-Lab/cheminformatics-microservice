@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.3.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v1.2.0...v1.3.0) (2023-08-07)
+
+
+### Features
+
+* add FastAPI documentation depict and OCSR ([d59389e](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/d59389e9c1cec08b846d68888f424ccb612fca3a))
+* add FastAPI documentation for converters ([45a2cc0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/45a2cc04d3f1d9be7e19bda6a739381b7b6772b7))
+* add FastAPI documentation for tools ([f374366](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/f37436666aed708c5822bd359d7f71982b0f9ea4))
+* add FastAPI query and Pydantic implementation ([c898b47](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/c898b47f27907621ec2d89411bff2a3d3218c55e))
+
+
+### Bug Fixes
+
+* add build args to docker-compose and docs ([2314659](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/231465933ead0226bd049188a4ade583db0cecaa))
+* add envs to dev & prod docker files ([505bf1b](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/505bf1b3d42861a637668b8f77f82c36815b79f5))
+* Assign Literal to FastAPI defaults ([92b9d74](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/92b9d74cce39011f29bfd35d36220e658dbb7531))
+* conda update added to docker file ([da4956c](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/da4956cca3916fbe6a3c1fcff01acd3e8090f4af))
+* fastapi_versioning - CORS middleware conflict issue fix (added custom middleware) ([025d961](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/025d9615433f0abb3ad4f72355273c6d6a030b1a))
+* formatting udpate ([18cc7db](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/18cc7dbc5e8f3d7969de1eb70a34db2681eb9cdd))
+* include RDKit conda ([64df7df](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/64df7df6b6b52af8117a94571a72734dc29e5e58))
+* incorrect import ([b633a68](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/b633a68dc55cea15918a0113bac96fcc3dcf9a75))
+* incorrect Tests ([a29e282](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/a29e28263f851ba79b34d57110b83d5c21e1f780))
+* query FastAPI to set defaults ([7009446](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/7009446129ef82060bdcc70d594de23b25d89b79))
+* updated model schemas and various other changes to the routers / annotations ([e2e2077](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/e2e20776638bf815705670e1edf67b84014e190a))
+* updates health check end points, added schemas, flake8 per file ignores update ([d8e3c53](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/d8e3c536eff7fcf8d0b6bef616018cbb7f6cdcb0))
+
 ## [1.2.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v1.1.0...v1.2.0) (2023-07-21)
 
 
