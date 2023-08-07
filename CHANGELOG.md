@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v1.3.0...v1.3.1) (2023-08-07)
+
+
+### Bug Fixes
+
+* update pytest command ([d17b410](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/commit/d17b4104116073839a6b7da5b7209ab5140ba04a))
+
 ## [1.3.0](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/compare/v1.2.0...v1.3.0) (2023-08-07)
 
 
