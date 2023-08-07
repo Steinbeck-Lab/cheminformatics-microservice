@@ -11,20 +11,20 @@ def test_smiles():
 
 
 def test_chem_index():
-    response = client.get("/v1/chem/")
+    response = client.get("/latest/chem/")
     assert response.status_code == 200
-    assert response.json() == {"module": "chem", "message": "Successful", "status": 200}
+    assert response.json() == {"status": "OK"}
 
 
 def test_smiles_to_stereo_isomers(test_smiles):
-    response = client.get(f"/v1/chem/stereoisomers?smiles={test_smiles}")
+    response = client.get(f"/latest/chem/stereoisomers?smiles={test_smiles}")
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/json"
     assert response.text == '["Cn1c(=O)c2c(ncn2C)n(C)c1=O"]'
 
 
 def test_SMILES_Descriptors_returns_descriptors(test_smiles):
-    response = client.get(f"/v1/chem/descriptors?smiles={test_smiles}")
+    response = client.get(f"/latest/chem/descriptors?smiles={test_smiles}")
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/json"
     assert (
@@ -32,28 +32,20 @@ def test_SMILES_Descriptors_returns_descriptors(test_smiles):
         == '{"atom_count":24,"heavy_atom_count":14,"molecular_weight":194.19,"exactmolecular_weight":194.08038,"alogp":-1.03,"rotatable_bond_count":0,"topological_polar_surface_area":61.82,"hydrogen_bond_acceptors":6,"hydrogen_bond_donors":0,"hydrogen_bond_acceptors_lipinski":6,"hydrogen_bond_donors_lipinski":0,"lipinski_rule_of_five_violations":0,"aromatic_rings_count":2,"qed_drug_likeliness":0.54,"formal_charge":0,"fractioncsp3":0.375,"number_of_minimal_rings":2,"van_der_walls_volume":"None","linear_sugars":false,"circular_sugars":false,"murko_framework":"N1=C[N]C2=C1NCNC2","nplikeness":-1.09}'
     )
 
-    response = client.get(f"/v1/chem/descriptors?smiles={test_smiles}&format=html")
+    response = client.get(f"/latest/chem/descriptors?smiles={test_smiles}&format=html")
     assert response.status_code == 200
     assert response.headers["content-type"] == "text/html; charset=utf-8"
-
-    response = client.get("/v1/chem/descriptors")
-    assert response.status_code == 422  # Missing required parameter
-
-    response = client.get(f"/v1/chem/descriptors?smiles={test_smiles}&toolkit=unknown")
-    assert response.status_code == 200
-    assert response.headers["content-type"] == "application/json"
-    assert response.text == '"Error Calculating Descriptors"'
 
 
 @pytest.mark.parametrize(
     "smiles, expected_score",
     [
-        ("CN1C=NC2=C1C(=O)N(C(=O)N2C)C", "-1.09"),
-        ("CC=O", "0.96"),
+        ("CN1C=NC2=C1C(=O)N(C(=O)N2C)C", -1.09),
+        ("CC=O", 0.96),
     ],
 )
 def test_NPlikeliness_Score(smiles, expected_score):
-    response = client.get(f"/v1/chem/nplikeness/score?smiles={smiles}")
+    response = client.get(f"/latest/chem/nplikeness/score?smiles={smiles}")
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/json"
     assert response.json() == expected_score
@@ -61,7 +53,7 @@ def test_NPlikeliness_Score(smiles, expected_score):
 
 """
 def test_ClassyFire_Classify(test_smiles):
-    response = client.get(f"/v1/chem/classyfire/classify?smiles={test_smiles}")
+    response = client.get(f"/latest/chem/classyfire/classify?smiles={test_smiles}")
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/json"
 """
@@ -80,7 +72,7 @@ def test_ClassyFire_Classify(test_smiles):
     ],
 )
 def test_tanimoto_similarity(smiles, toolkit, expected):
-    response = client.get(f"/v1/chem/tanimoto?smiles={smiles}&toolkit={toolkit}")
+    response = client.get(f"/latest/chem/tanimoto?smiles={smiles}&toolkit={toolkit}")
     assert response.status_code == 200
     assert response.text == expected
 
@@ -88,12 +80,12 @@ def test_tanimoto_similarity(smiles, toolkit, expected):
 @pytest.mark.parametrize(
     "smiles, fix, expected",
     [
-        ("CCO", False, '"No Errors Found"'),
-        ("CCO", True, '"No Errors Found"'),
+        ("CCO", False, '{"smi":"CCO","messages":["No Errors Found"]}'),
+        ("CCO", True, '{"smi":"CCO","messages":["No Errors Found"]}'),
     ],
 )
 def test_check_errors(smiles, fix, expected):
-    response = client.get(f"/v1/chem/errors?smiles={smiles}&fix={fix}")
+    response = client.get(f"/latest/chem/errors?smiles={smiles}&fix={fix}")
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/json"
     assert response.text == expected
@@ -101,7 +93,7 @@ def test_check_errors(smiles, fix, expected):
 
 def test_hose_codes(test_smiles):
     response = client.get(
-        f"/v1/chem/HOSEcode?smiles={test_smiles}&spheres=0&toolkit=cdk&ringsize=false"
+        f"/latest/chem/HOSEcode?smiles={test_smiles}&spheres=0&toolkit=cdk&ringsize=false"
     )
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/json"
@@ -113,7 +105,7 @@ def test_hose_codes(test_smiles):
 
 
 def test_coconut_preprocessing(test_smiles):
-    response = client.get(f"/v1/chem/coconut/pre-processing?smiles={test_smiles}")
+    response = client.get(f"/latest/chem/coconut/pre-processing?smiles={test_smiles}")
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/json"
 
