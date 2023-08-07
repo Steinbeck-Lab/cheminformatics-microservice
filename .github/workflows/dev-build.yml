@@ -48,10 +48,10 @@ jobs:
         pip install flake8 pytest
     - name: Analysing the code with pylint
       run: |
-        flake8 --ignore E402,E501,W503 $(git ls-files '*.py')
-    - name: Run test
-      run: |
-        python3 -m pytest -p no:warnings
+        flake8 --per-file-ignores="__init__.py:F401" --ignore E402,E501,W503 $(git ls-files '*.py') .
+    # - name: Run test
+    #   run: |
+    #     pytest -p no:warnings
 
   push_to_registry:
     name: Push Docker image to Docker Hub

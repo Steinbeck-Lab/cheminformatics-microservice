@@ -7,13 +7,9 @@ client = TestClient(app)
 
 
 def test_chem_index():
-    response = client.get("/v1/depict/")
+    response = client.get("/latest/depict/")
     assert response.status_code == 200
-    assert response.json() == {
-        "module": "depict",
-        "message": "Successful",
-        "status": 200,
-    }
+    assert response.json() == {"status": "OK"}
 
 
 @pytest.fixture
@@ -30,14 +26,14 @@ def test_smiles():
 )
 def test_depict2D_molecule(smiles, generator, width, height, rotate, CIP, unicolor):
     response = client.get(
-        f"/v1/depict/2D?smiles={smiles}&generator={generator}&width={width}&height={height}&rotate={rotate}&CIP={CIP}&unicolor={unicolor}"
+        f"/latest/depict/2D?smiles={smiles}&generator={generator}&width={width}&height={height}&rotate={rotate}&CIP={CIP}&unicolor={unicolor}"
     )
     assert response.status_code == 200
     assert response.headers["content-type"] == "image/svg+xml"
 
 
 def test_depict3D_molecule(test_smiles):
-    response = client.get(f"/v1/depict/3D?smiles={test_smiles}")
+    response = client.get(f"/latest/depict/3D?smiles={test_smiles}")
     assert response.status_code == 200
     assert response.headers["content-type"] == "text/html; charset=utf-8"
 
