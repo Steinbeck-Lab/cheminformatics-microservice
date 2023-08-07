@@ -15,7 +15,10 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   web:
-    image: caffeinejena/cheminformatics-python-microservice:dev-latest
+    image: caffeinejena/cheminformatics-python-microservice:v1.0.0
+    environment:
+      HOMEPAGE_URL:  "https://steinbeck-lab.github.io/cheminformatics-python-microservice"
+      RELEASE_VERSION: v1.0.0
     pull_policy: always
     labels:
       - "traefik.enable=true"
@@ -23,7 +26,7 @@ services:
       - "traefik.http.routers.web.entrypoints=web"
       - "traefik.http.services.web.loadbalancer.server.port=80"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/latest/chem"]
+      test: ["CMD", "curl", "-f", "http://localhost:80/latest/chem/health"]
       interval: 1m
       timeout: 10s
       retries: 10

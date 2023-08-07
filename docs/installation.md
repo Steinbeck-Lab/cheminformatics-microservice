@@ -286,7 +286,7 @@ We recommend using flake8 and Black to perform linting and formatting in Python
 2. Linting with flake8: flake8 is a popular Python linter that checks your code for style and potential errors. Run flake8 by executing the following command in your project directory:
 
    ```bash
-   flake8 --ignore E501,W503 $(git ls-files '*.py')
+   flake8 --per-file-ignores="__init__.py:F401" --ignore E402,E501,W503 $(git ls-files '*.py') .
    ```
 
    flake8 will analyze your code and provide feedback on any style violations or issues found.

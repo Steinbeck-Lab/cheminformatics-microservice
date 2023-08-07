@@ -1,9 +1,9 @@
 import selfies as sf
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query, status, HTTPException
 from fastapi.responses import Response
 from rdkit import Chem
-from typing import Optional
+from typing import Literal, Dict
 from STOUT import translate_forward, translate_reverse
 from app.modules.toolkits.cdk_wrapper import (
     getCDKSDGMol,
@@ -21,6 +21,8 @@ from app.modules.toolkits.openbabel_wrapper import (
     getOBCanonicalSMILES,
     getOBInChI,
 )
+from app.schemas import HealthCheck
+from app.schemas.error import ErrorResponse
 
 router = APIRouter(
     prefix="/convert",
@@ -30,13 +32,48 @@ router = APIRouter(
 )
 
 
-@router.get("/")
-async def converters_index():
-    return {"module": "converters", "message": "Successful", "status": 200}
+@router.get("/", include_in_schema=False)
+@router.get(
+    "/health",
+    tags=["healthcheck"],
+    summary="Perform a Health Check on Converters Module",
+    response_description="Return HTTP Status Code 200 (OK)",
+    status_code=status.HTTP_200_OK,
+    response_model=HealthCheck,
+    include_in_schema=False,
+)
+def get_health() -> HealthCheck:
+    """
+    ## Perform a Health Check
+    Endpoint to perform a healthcheck on. This endpoint can primarily be used Docker
+    to ensure a robust container orchestration and management is in place. Other
+    services which rely on proper functioning of the API service will not deploy if this
+    endpoint returns any other HTTP status code except 200 (OK).
+    Returns:
+        HealthCheck: Returns a JSON response with the health status
+    """
+    return HealthCheck(status="OK")
 
 
-@router.get("/mol2D")
-async def Create2D_Coordinates(smiles: str, toolkit: Optional[str] = "cdk"):
+@router.get(
+    "/mol2D",
+    response_class=Response,
+    summary="Generates 2D Coordinates for the input molecules",
+    responses={400: {"model": ErrorResponse}},
+)
+async def Create2D_Coordinates(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES representation of the molecule",
+        examples=[
+            "CCO",
+            "C=O",
+        ],
+    ),
+    toolkit: Literal["cdk", "rdkit", "openbabel"] = Query(
+        default="cdk", description="Cheminformatics toolkit used in the backend"
+    ),
+):
     """
     Generates 2D Coordinates using the CDK Structure diagram generator/RDKit/Open Babel and returns the mol block.
 
@@ -51,29 +88,47 @@ async def Create2D_Coordinates(smiles: str, toolkit: Optional[str] = "cdk"):
     Raises:
     - ValueError: If the SMILES string is not provided or is invalid.
     """
-    if smiles:
-        if toolkit:
-            if toolkit == "cdk":
-                return Response(
-                    content=getCDKSDGMol(smiles).replace("$$$$\n", ""),
-                    media_type="text/plain",
-                )
-            elif toolkit == "rdkit":
-                return Response(
-                    content=get2Dmol(smiles),
-                    media_type="text/plain",
-                )
-            else:
+    try:
+        if toolkit == "cdk":
+            return Response(
+                content=getCDKSDGMol(smiles).replace("$$$$\n", ""),
+                media_type="text/plain",
+            )
+        elif toolkit == "rdkit":
+            return Response(
+                content=get2Dmol(smiles),
+                media_type="text/plain",
+            )
+        else:
+            mol = Chem.MolFromSmiles(smiles)
+            if mol:
                 return Response(
                     content=getOBMol(smiles),
                     media_type="text/plain",
                 )
-        else:
-            return "Error reading SMILES string, check again."
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/mol3D")
-async def Create3D_Coordinates(smiles: str, toolkit: Optional[str] = "rdkit"):
+@router.get(
+    "/mol3D",
+    response_class=Response,
+    summary="Generates 3D Coordinates for the input molecules",
+    responses={400: {"model": ErrorResponse}},
+)
+async def Create3D_Coordinates(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES representation of the molecule",
+        examples=[
+            "CCO",
+            "C=O",
+        ],
+    ),
+    toolkit: Literal["rdkit", "openbabel"] = Query(
+        default="rdkit", description="Cheminformatics toolkit used in the backend"
+    ),
+):
     """
     Generates a random 3D conformer from SMILES using the specified molecule toolkit.
 
@@ -89,26 +144,43 @@ async def Create3D_Coordinates(smiles: str, toolkit: Optional[str] = "rdkit"):
     Raises:
     - ValueError: If the SMILES string is not provided or is invalid.
     """
-    if smiles:
-        if toolkit:
-            if toolkit == "rdkit":
-                return Response(
-                    content=get3Dconformers(smiles, depict=False),
-                    media_type="text/plain",
-                )
-            elif toolkit == "openbabel":
+
+    try:
+        if toolkit == "rdkit":
+            return Response(
+                content=get3Dconformers(smiles, depict=False),
+                media_type="text/plain",
+            )
+        elif toolkit == "openbabel":
+            mol = Chem.MolFromSmiles(smiles)
+            if mol:
                 return Response(
                     content=getOBMol(smiles, threeD=True),
                     media_type="text/plain",
                 )
 
-    else:
-        return "Error reading SMILES string check again."
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/smiles")
+@router.get(
+    "/smiles",
+    response_model=str,
+    summary="Generate SMILES from a given input",
+    responses={400: {"model": ErrorResponse}},
+)
 async def IUPACname_or_SELFIES_to_SMILES(
-    input_text: str, representation: Optional[str] = "iupac"
+    input_text: str = Query(
+        title="Input IUPAC name or SELFIES",
+        description="IUPAC name or SELFIES representation of the molecule",
+        examples=[
+            "benzene",
+            "[C][C][C]",
+        ],
+    ),
+    representation: Literal["iupac", "selfies"] = Query(
+        default="iupac", description="Required type of format convertion"
+    ),
 ):
     """
     Generate SMILES from a given IUPAC name or a SELFIES representation.
@@ -130,16 +202,43 @@ async def IUPACname_or_SELFIES_to_SMILES(
     - To generate SMILES from an IUPAC name: /smiles?input_text=benzene&representation=iupac
     - To generate SMILES from a SELFIES representation: /smiles?input_text=[C][C][C]&representation=selfies
     """
-    if input_text:
+    try:
         if representation == "iupac":
-            return translate_reverse(input_text)
+            iupac_name = translate_reverse(input_text)
+            if iupac_name:
+                return str(iupac_name)
         elif representation == "selfies":
-            selfies_d = sf.decoder(input_text)
-            return selfies_d
+            selfies_out = sf.decoder(input_text)
+            if selfies_out:
+                return str(selfies_out)
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Error reading input text, please check again.",
+            )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/canonicalsmiles")
-async def SMILES_Canonicalise(smiles: str, toolkit: Optional[str] = "cdk"):
+@router.get(
+    "/canonicalsmiles",
+    response_model=str,
+    summary="Generate CanonicalSMILES from a given SMILES",
+    responses={400: {"model": ErrorResponse}},
+)
+async def SMILES_Canonicalise(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES representation of the molecule",
+        examples=[
+            "CCO",
+            "C=O",
+        ],
+    ),
+    toolkit: Literal["cdk", "rdkit", "openbabel"] = Query(
+        default="cdk", description="Cheminformatics toolkit used in the backend"
+    ),
+):
     """
     Canonicalizes a given SMILES string according to the allowed toolkits.
 
@@ -156,28 +255,48 @@ async def SMILES_Canonicalise(smiles: str, toolkit: Optional[str] = "cdk"):
     - ValueError: If an unsupported toolkit option is provided.
 
     """
-
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
-    if smiles:
-        if toolkit:
-            if toolkit == "cdk":
-                return str(getCanonSMILES(smiles))
-            elif toolkit == "rdkit":
-                mol = Chem.MolFromSmiles(smiles)
-                if mol:
-                    return Chem.MolToSmiles(mol, kekuleSmiles=True)
-            elif toolkit == "openbabel":
-                return getOBCanonicalSMILES(smiles)
-
+    try:
+        if toolkit == "cdk":
+            return str(getCanonSMILES(smiles))
+        elif toolkit == "rdkit":
+            mol = Chem.MolFromSmiles(smiles)
+            if mol:
+                return str(Chem.MolToSmiles(mol, kekuleSmiles=True))
             else:
-                return "Error reading SMILES string check again."
-    else:
-        return "Error reading SMILES string check again."
+                raise HTTPException(
+                    status_code=400,
+                    detail="Error reading input text, please check again.",
+                )
+        elif toolkit == "openbabel":
+            return str(getOBCanonicalSMILES(smiles))
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Error reading input text, please check again.",
+            )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/cxsmiles")
-async def SMILES_to_CXSMILES(smiles: str, toolkit: Optional[str] = "cdk"):
+@router.get(
+    "/cxsmiles",
+    response_model=str,
+    summary="Generate CXSMILES from a given SMILES",
+    responses={400: {"model": ErrorResponse}},
+)
+async def SMILES_to_CXSMILES(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES representation of the molecule",
+        examples=[
+            "CCO",
+            "C=O",
+        ],
+    ),
+    toolkit: Literal["cdk", "rdkit"] = Query(
+        default="cdk", description="Cheminformatics toolkit used in the backend"
+    ),
+):
     """
     Convert SMILES to CXSMILES. For more informations:
     - https://docs.chemaxon.com/display/docs/chemaxon-extended-smiles-and-smarts-cxsmiles-and-cxsmarts.md
@@ -197,22 +316,38 @@ async def SMILES_to_CXSMILES(smiles: str, toolkit: Optional[str] = "cdk"):
     Note:
     - CXSMILES is a Chemaxon Extended SMILES which is used for storing special features of the molecules after the SMILES string.
     """
+    try:
+        if toolkit == "cdk":
+            cxsmiles = getCXSMILES(smiles)
+            if cxsmiles:
+                return str(cxsmiles)
+        else:
+            cxsmiles = getRDKitCXSMILES(smiles)
+            if cxsmiles:
+                return str(cxsmiles)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
-    if smiles:
-        if toolkit:
-            if toolkit == "cdk":
-                cxsmiles = getCXSMILES(smiles)
-                return cxsmiles
-            else:
-                return getRDKitCXSMILES(smiles)
-    else:
-        return "Error reading SMILES string check again."
 
-
-@router.get("/inchi")
-async def SMILES_to_InChI(smiles: str, toolkit: Optional[str] = "cdk"):
+@router.get(
+    "/inchi",
+    response_model=str,
+    summary="Generate InChI from a given SMILES",
+    responses={400: {"model": ErrorResponse}},
+)
+async def SMILES_to_InChI(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES representation of the molecule",
+        examples=[
+            "CCO",
+            "C=O",
+        ],
+    ),
+    toolkit: Literal["cdk", "rdkit", "openbabel"] = Query(
+        default="cdk", description="Cheminformatics toolkit used in the backend"
+    ),
+):
     """
     Convert SMILES to InChI.
 
@@ -229,27 +364,49 @@ async def SMILES_to_InChI(smiles: str, toolkit: Optional[str] = "cdk"):
     - ValueError: If an unsupported toolkit option is provided.
 
     """
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
-
-    if smiles:
-        if toolkit:
-            if toolkit == "cdk":
-                return str(getInChI(smiles))
-            elif toolkit == "rdkit":
-                mol = Chem.MolFromSmiles(smiles)
-                if mol:
-                    return Chem.inchi.MolToInchi(mol)
-            elif toolkit == "openbabel":
-                return getOBInChI(smiles)
+    try:
+        if toolkit == "cdk":
+            inchi = getInChI(smiles)
+            if inchi:
+                return str(inchi)
+        elif toolkit == "rdkit":
+            mol = Chem.MolFromSmiles(smiles)
+            if mol:
+                inchi = Chem.inchi.MolToInchi(mol)
+                if inchi:
+                    return str(inchi)
+        elif toolkit == "openbabel":
+            inchi = getOBInChI(smiles)
+            if inchi:
+                return str(inchi)
         else:
-            return "Error reading SMILES string check again."
-    else:
-        return "Error reading SMILES string check again."
+            raise HTTPException(
+                status_code=400,
+                detail="Error reading input text, please check again.",
+            )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/inchikey")
-async def SMILES_to_InChIKey(smiles: str, toolkit: Optional[str] = "cdk"):
+@router.get(
+    "/inchikey",
+    response_model=str,
+    summary="Generate InChI-Key from a given SMILES",
+    responses={400: {"model": ErrorResponse}},
+)
+async def SMILES_to_InChIKey(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES representation of the molecule",
+        examples=[
+            "CCO",
+            "C=O",
+        ],
+    ),
+    toolkit: Literal["cdk", "rdkit", "openbabel"] = Query(
+        default="cdk", description="Cheminformatics toolkit used in the backend"
+    ),
+):
     """
     Convert SMILES to InChI-Key.
 
@@ -266,26 +423,47 @@ async def SMILES_to_InChIKey(smiles: str, toolkit: Optional[str] = "cdk"):
     - ValueError: If an unsupported toolkit option is provided.
 
     """
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
-    if smiles:
-        if toolkit:
-            if toolkit == "cdk":
-                return str(getInChI(smiles, InChIKey=True))
-            elif toolkit == "rdkit":
-                mol = Chem.MolFromSmiles(smiles)
-                if mol:
-                    return Chem.inchi.MolToInchiKey(mol)
-            elif toolkit == "openbabel":
-                return getOBInChI(smiles, InChIKey=True)
+    try:
+        if toolkit == "cdk":
+            inchikey = getInChI(smiles, InChIKey=True)
+            if inchikey:
+                return str(inchikey)
+
+        elif toolkit == "rdkit":
+            mol = Chem.MolFromSmiles(smiles)
+            if mol:
+                inchikey = Chem.inchi.MolToInchiKey(mol)
+                if inchikey:
+                    return str(inchikey)
+        elif toolkit == "openbabel":
+            inchikey = getOBInChI(smiles, InChIKey=True)
+            if inchikey:
+                return str(inchikey)
         else:
-            return "Error reading SMILES string check again."
-    else:
-        return "Error reading SMILES string check again."
+            raise HTTPException(
+                status_code=400,
+                detail="Error reading input text, please check again.",
+            )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/iupac")
-async def SMILES_to_IUPACname(smiles: str):
+@router.get(
+    "/iupac",
+    response_model=str,
+    summary="Generates IUPAC name using STOUT package",
+    responses={400: {"model": ErrorResponse}},
+)
+async def SMILES_to_IUPACname(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES representation of the molecule",
+        examples=[
+            "CCO",
+            "C=O",
+        ],
+    ),
+):
     """
     Generates IUPAC name using STOUT package. For more information:
     - Rajan, K., Zielesny, A. & Steinbeck, C. STOUT: SMILES to IUPAC names using neural machine translation. J Cheminform 13, 34 (2021). https://doi.org/10.1186/s13321-021-00512-4
@@ -306,15 +484,35 @@ async def SMILES_to_IUPACname(smiles: str):
     - Since STOUT is a deep learning model it does halucinate or may provide incorrect IUPAC names at times.
 
     """
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
-    if smiles:
+    try:
         iupac = translate_forward(smiles)
-        return iupac
+        if iupac:
+            return str(iupac)
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Error reading input text, please check again.",
+            )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/selfies")
-async def encode_SELFIES(smiles: str):
+@router.get(
+    "/selfies",
+    response_model=str,
+    summary="Generates SELFIES string for a given SMILES string",
+    responses={400: {"model": ErrorResponse}},
+)
+async def encode_SELFIES(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES representation of the molecule",
+        examples=[
+            "CCO",
+            "C=O",
+        ],
+    ),
+):
     """
     Generates SELFIES string for a given SMILES string. For more information:
     - Krenn et al, SELFIES and the future of molecular string representations, Patterns, https://doi.org/10.1016/j.patter.2022.100588.
@@ -328,15 +526,38 @@ async def encode_SELFIES(smiles: str):
     Raises:
     - ValueError: If the SMILES string is empty or contains invalid characters.
     """
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
-    if smiles:
+    try:
         selfies_e = sf.encoder(smiles)
-        return selfies_e
+        if selfies_e:
+            return str(selfies_e)
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Error reading input text, please check again.",
+            )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/formats")
-async def SMILES_convert_to_Formats(smiles: str, toolkit: Optional[str] = "cdk"):
+@router.get(
+    "/formats",
+    response_model=Dict,
+    summary="Convert SMILES to various molecular formats using different toolkits",
+    responses={400: {"model": ErrorResponse}},
+)
+async def SMILES_convert_to_Formats(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES representation of the molecule",
+        examples=[
+            "CCO",
+            "C=O",
+        ],
+    ),
+    toolkit: Literal["cdk", "rdkit", "openbabel"] = Query(
+        default="cdk", description="Cheminformatics toolkit used in the backend"
+    ),
+):
     """
     Convert SMILES to various molecular formats using different toolkits.
 
@@ -359,37 +580,37 @@ async def SMILES_convert_to_Formats(smiles: str, toolkit: Optional[str] = "cdk")
     - ValueError: If the SMILES string is empty or contains invalid characters.
     - ValueError: If an unsupported toolkit option is provided.
     """
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
-    if smiles:
-        if toolkit:
-            if toolkit == "cdk":
-                response = {}
-                response["mol"] = getCDKSDGMol(smiles).replace("$$$$\n", "")
-                response["canonicalsmiles"] = str(getCanonSMILES(smiles))
-                response["inchi"] = str(getInChI(smiles))
-                response["inchikey"] = str(getInChI(smiles, InChIKey=True))
-                return response
+    try:
+        if toolkit == "cdk":
+            response = {}
+            response["mol"] = getCDKSDGMol(smiles).replace("$$$$\n", "")
+            response["canonicalsmiles"] = str(getCanonSMILES(smiles))
+            response["inchi"] = str(getInChI(smiles))
+            response["inchikey"] = str(getInChI(smiles, InChIKey=True))
+            return response
 
-            elif toolkit == "rdkit":
-                mol = Chem.MolFromSmiles(smiles)
-                if mol:
-                    response = {}
-                    response["mol"] = Chem.MolToMolBlock(mol)
-                    response["canonicalsmiles"] = Chem.MolToSmiles(
-                        mol, kekuleSmiles=True
-                    )
-                    response["inchi"] = Chem.inchi.MolToInchi(mol)
-                    response["inchikey"] = Chem.inchi.MolToInchiKey(mol)
-                    return response
-            elif toolkit == "openbabel":
+        elif toolkit == "rdkit":
+            mol = Chem.MolFromSmiles(smiles)
+            if mol:
                 response = {}
-                response["mol"] = getOBMol(smiles)
-                response["canonicalsmiles"] = getOBCanonicalSMILES(smiles)
-                response["inchi"] = getOBInChI(smiles)
-                response["inchikey"] = getOBInChI(smiles, InChIKey=True)
+                response["mol"] = Chem.MolToMolBlock(mol)
+                response["canonicalsmiles"] = Chem.MolToSmiles(mol, kekuleSmiles=True)
+                response["inchi"] = Chem.inchi.MolToInchi(mol)
+                response["inchikey"] = Chem.inchi.MolToInchiKey(mol)
                 return response
-            else:
-                return "Error reading SMILES string check again."
-    else:
-        return "Error reading SMILES string check again."
+        elif toolkit == "openbabel":
+            response = {}
+            response["mol"] = getOBMol(smiles)
+            response["canonicalsmiles"] = getOBCanonicalSMILES(smiles)
+            response["inchi"] = getOBInChI(smiles)
+            response["inchikey"] = getOBInChI(smiles, InChIKey=True)
+            return response
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Error reading SMILES string, please check again.",
+            )
+    except Exception as e:
+        raise HTTPException(
+            status_code=400, detail="Error processing request: " + str(e)
+        )
