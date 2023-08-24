@@ -259,10 +259,10 @@ def getRDKitCXSMILES(smiles: str):
     """This function takes an input as a SMILES string and
     returns a CXSMILES with coordinates.
 
-    Args (str):
-        SMILES string.
-    Returns (str):
-        CXSMILES with coordinates.
+    Args:
+        SMILES string (str): The SMILES string to be converted as input
+    Returns:
+        string: CXSMILES with coordinates.
 
     """
     if any(char.isspace() for char in smiles):
@@ -274,3 +274,30 @@ def getRDKitCXSMILES(smiles: str):
         return Chem.MolToCXSmiles(mol)
     else:
         return "Error reading SMILES string, check again."
+
+
+def getProperties(sdf_file):
+    """
+    Extracts properties from a single molecule contained in an SDF file.
+
+    This function uses the RDKit library to read an SDF (Structure-Data File) and extract properties
+    from the first molecule in the file. It checks if the supplied SDF file contains a valid molecule
+    and retrieves its properties as a dictionary.
+
+    Args:
+        sdf_file (str): The path to the SDF file containing the molecule.
+
+    Returns:
+        dict or None: A dictionary containing the properties of the molecule. If the SDF file contains
+        a valid molecule, the dictionary will have property names as keys and property values as values.
+        If no valid molecule is found, or if there are no properties associated with the molecule, None
+        is returned.
+    """
+    # Create an SDMolSupplier to read the SDF file
+    suppl = Chem.SDMolSupplier(sdf_file)
+
+    # Check if the SDF file contains a valid molecule
+    if len(suppl) == 1 and suppl[0]:
+        # Extract properties as a dictionary
+        properties = suppl[0].GetPropsAsDict()
+        return properties
