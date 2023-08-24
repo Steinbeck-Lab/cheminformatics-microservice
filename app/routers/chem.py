@@ -16,6 +16,7 @@ from app.modules.toolkits.cdk_wrapper import (
 from app.modules.toolkits.rdkit_wrapper import (
     getTanimotoSimilarityRDKit,
     getRDKitHOSECodes,
+    getProperties,
 )
 from app.modules.coconut.descriptors import getCOCONUTDescriptors
 from app.modules.alldescriptors import getTanimotoSimilarity
@@ -338,7 +339,9 @@ async def standardize_mol(
                 inchi=Chem.inchi.MolToInchi(rdkit_mol),
                 inchikey=Chem.inchi.MolToInchiKey(rdkit_mol),
             )
-            return response
+            original_properties = getProperties(data)
+            return response.update(original_properties)
+
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
