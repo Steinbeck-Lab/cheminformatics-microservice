@@ -296,7 +296,7 @@ async def HOSE_Codes(
 @router.post(
     "/standardize",
     summary="Standardize molblock using the ChEMBL curation pipeline",
-    response_model=StandardizedResult,
+    response_model=Dict,
     responses={400: {"model": ErrorResponse}},
 )
 async def standardize_mol(
@@ -325,7 +325,12 @@ async def standardize_mol(
     """
     try:
         if data:
-            standardized_mol = standardizer.standardize_molblock(data)
+            suppl = Chem.SDMolSupplier()
+            suppl.SetData(data.encode("utf-8"))
+            if len(suppl) == 1 and suppl[0]:
+                mol_data = suppl[0]
+            mol = Chem.MolToMolBlock(mol_data)
+            standardized_mol = standardizer.standardize_molblock(mol)
             rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
 
         else:
@@ -340,7 +345,8 @@ async def standardize_mol(
                 inchikey=Chem.inchi.MolToInchiKey(rdkit_mol),
             )
             original_properties = getProperties(data)
-            return response.update(original_properties)
+            response.update(original_properties)
+            return response
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
