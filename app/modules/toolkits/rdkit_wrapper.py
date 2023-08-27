@@ -294,7 +294,8 @@ def getProperties(sdf_file):
         is returned.
     """
     # Create an SDMolSupplier to read the SDF file
-    suppl = Chem.SDMolSupplier(sdf_file)
+    suppl = Chem.SDMolSupplier()
+    suppl.SetData(sdf_file.encode("utf-8"))
 
     # Check if the SDF file contains a valid molecule
     if len(suppl) == 1 and suppl[0]:
