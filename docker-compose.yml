@@ -11,6 +11,7 @@ services:
       RELEASE_VERSION: v1.0.0
     volumes:
       - ./app:/code/app
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "80:80"
     healthcheck:

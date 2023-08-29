@@ -1,10 +1,10 @@
 import selfies as sf
+import subprocess
 
 from fastapi import APIRouter, Query, status, HTTPException
 from fastapi.responses import Response
 from rdkit import Chem
 from typing import Literal, Dict
-from STOUT import translate_forward, translate_reverse
 from app.modules.toolkits.cdk_wrapper import (
     getCDKSDGMol,
     getCXSMILES,
@@ -23,6 +23,7 @@ from app.modules.toolkits.openbabel_wrapper import (
 )
 from app.schemas import HealthCheck
 from app.schemas.error import ErrorResponse
+
 
 router = APIRouter(
     prefix="/convert",
@@ -204,7 +205,30 @@ async def IUPACname_or_SELFIES_to_SMILES(
     """
     try:
         if representation == "iupac":
-            iupac_name = translate_reverse(input_text)
+            # iupac_name = translate_reverse(input_text)
+            process = subprocess.Popen(
+                [
+                    "docker",
+                    "exec",
+                    "-u",
+                    "root",
+                    "stout-service",
+                    "stout",
+                    "translate_reverse",
+                    input_text,
+                ],
+                stdout=subprocess.PIPE,
+                universal_newlines=True,
+            )
+            iupac_name = ""
+            while True:
+                output = process.stdout.readline()
+                iupac_name += output.strip()
+                return_code = process.poll()
+                if return_code is not None:
+                    for output in process.stdout.readlines():
+                        iupac_name += output.strip()
+                    break
             if iupac_name:
                 return str(iupac_name)
         elif representation == "selfies":
@@ -485,9 +509,33 @@ async def SMILES_to_IUPACname(
 
     """
     try:
-        iupac = translate_forward(smiles)
-        if iupac:
-            return str(iupac)
+        # from STOUT import translate_forward, translate_reverse
+        # iupac = translate_forward(smiles)
+        process = subprocess.Popen(
+            [
+                "docker",
+                "exec",
+                "-u",
+                "root",
+                "stout-service",
+                "stout",
+                "translate_forward",
+                smiles,
+            ],
+            stdout=subprocess.PIPE,
+            universal_newlines=True,
+        )
+        stout_output = ""
+        while True:
+            output = process.stdout.readline()
+            stout_output += output.strip()
+            return_code = process.poll()
+            if return_code is not None:
+                for output in process.stdout.readlines():
+                    stout_output += output.strip()
+                break
+        if stout_output:
+            return str(stout_output)
         else:
             raise HTTPException(
                 status_code=400,

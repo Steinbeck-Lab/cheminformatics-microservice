@@ -10,6 +10,7 @@ RUN apt-get update && \
     apt-get update -y && \
     apt-get install -y openjdk-11-jre && \
     apt-get install -y curl && \
+    apt-get install -y docker.io  && \
     conda update -n base -c defaults conda
 
 RUN wget -O surge "https://github.com/StructureGenerator/surge/releases/download/v1.0/surge-linux-v1.0"
