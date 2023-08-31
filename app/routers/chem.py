@@ -672,7 +672,8 @@ async def ClassyFire_result(jobid: str):
 
     if jobid:
         try:
-            data = await result(jobid)  # Replace with your function to retrieve result
+            # Replace with your function to retrieve result
+            data = await result(jobid)
             return data
         except Exception as e:
             raise HTTPException(

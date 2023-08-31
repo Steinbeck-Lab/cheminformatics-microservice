@@ -42,7 +42,7 @@ async def classify(smiles: str) -> dict:
         raise e
 
 
-async def result(id: int) -> dict:
+async def result(id: str) -> dict:
     """
     Fetches JSON response from the ClassyFire API for a given ID.
 

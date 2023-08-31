@@ -52,6 +52,8 @@ def getMolculeHash(smiles: str) -> dict:
             "Isomeric_SMILES": Isomeric_SMILES,
             "Canonical_SMILES": Canonical_SMILES,
         }
+    else:
+        return {"Error": "Check input SMILES"}
 
 
 def getRepresentations(smiles: str) -> dict:
@@ -71,6 +73,8 @@ def getRepresentations(smiles: str) -> dict:
         InChI_Key = Chem.inchi.MolToInchiKey(mol)
         Murko = cdk.getMurkoFramework(smiles)
         return {"InChI": InChI, "InChI_Key": InChI_Key, "Murko": Murko}
+    else:
+        return {"Error": "Check input SMILES"}
 
 
 def getCOCONUTpreprocessing(input_text: str) -> dict:

@@ -9,7 +9,7 @@ from app.modules.npscorer import getNPScore
 from app.modules.tools.sugarremoval import getSugarInfo
 
 
-def getDescriptors(smiles: str, toolkit: str) -> Union[Dict[str, float], str]:
+def getDescriptors(smiles: str, toolkit: str) -> Union[tuple, str]:
     """
     Calculate descriptors using RDKit or CDK toolkit for the given SMILES.
 

@@ -1,5 +1,6 @@
 import re
 from subprocess import Popen, PIPE
+from typing import Union
 
 
 def getHeavyAtomCount(formula: str) -> int:
@@ -32,7 +33,7 @@ def getHeavyAtomCount(formula: str) -> int:
     return heavy_atom_count
 
 
-def generateStructures(molecular_formula: str) -> list:
+def generateStructures(molecular_formula: str) -> Union[list, str]:
     """
     Generate chemical structures using the surge tool based on the canonical generation path method.
 
@@ -47,22 +48,30 @@ def generateStructures(molecular_formula: str) -> list:
 
     smiles = []
     if getHeavyAtomCount(molecular_formula) <= 10:
-        process = Popen(
-            [
-                "surge",
-                "-P",
-                "-T",
-                "-B1,2,3,4,5,7,9",
-                "-t0",
-                "-f0",
-                "-S",
-                molecular_formula,
-            ],
-            stdout=PIPE,
-            stderr=PIPE,
-        )
-        for line in iter(process.stdout.readline, b""):
-            smiles.append(line.decode("utf-8").rstrip())
-        return smiles
+        try:
+            process = Popen(
+                [
+                    "surge",
+                    "-P",
+                    "-T",
+                    "-B1,2,3,4,5,7,9",
+                    "-t0",
+                    "-f0",
+                    "-S",
+                    molecular_formula,
+                ],
+                stdout=PIPE,
+                stderr=PIPE,
+            )
+            stdout, stderr = process.communicate()
+
+            if process.returncode == 0:
+                output_lines = stdout.decode("utf-8").splitlines()
+                smiles = [line.strip() for line in output_lines]
+                return smiles
+            else:
+                return f"Error running surge: {stderr.decode('utf-8')}"
+        except Exception as e:
+            return f"An error occurred: {str(e)}"
     else:
         return "The molecular formula contains more heavy atoms than allowed (10 Heavy Atoms max)."

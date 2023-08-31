@@ -1,6 +1,6 @@
 import os
 import pystow
-from typing import List
+from typing import List, Union
 from jpype import startJVM, getDefaultJVMPath
 from jpype import JClass, JVMNotFoundException, isJVMStarted
 
@@ -164,7 +164,7 @@ def getVanderWaalsVolume(mol) -> float:
     return VABCVolume
 
 
-def getCDKDescriptors(smiles: str) -> list:
+def getCDKDescriptors(smiles: str) -> Union[tuple, str]:
     """
     Take an input SMILES and generate a selected set of molecular
     descriptors generated using CDK as a list.
@@ -263,6 +263,8 @@ def getCDKDescriptors(smiles: str) -> list:
             int(NumRings),
             float("{:.2f}".format(float(str(VABCVolume)))),
         )
+    else:
+        return "Check input and try again!"
 
 
 def getTanimotoSimilarityCDK(smiles1: str, smiles2: str) -> str:

@@ -35,15 +35,17 @@ def getnp_model(model_path) -> dict:
     return fscore
 
 
-def scoremol_with_confidence(mol) -> tuple:
+def scoremol_with_confidence(mol) -> dict:
     """
-    Calculate the Natural Product Likeness (NPL) score and confidence for a given molecule.
+    Calculate NP-likeness score and confidence for a molecule.
 
-    Parameters:
-        mol (rdkit.Chem.Mol): RDKit molecule object.
+    Args:
+        mol (rdkit.Chem.rdchem.Mol): The input molecule.
 
     Returns:
-        namedtuple: Namedtuple containing NPLikeness score and confidence.
+        dict: A dictionary containing NP-likeness score and confidence.
+            - 'nplikeness' (float): The NP-likeness score.
+            - 'confidence' (float): The confidence in the score.
     """
     if mol is None:
         raise ValueError("Invalid molecule")
@@ -66,8 +68,8 @@ def scoremol_with_confidence(mol) -> tuple:
         score = 4.0 + math.log10(score - 4.0 + 1.0)
     elif score < -4:
         score = -4.0 - math.log10(-4.0 - score + 1.0)
-    NPLikeness = namedtuple("NPLikeness", "nplikeness,confidence")
-    return NPLikeness(score, confidence)
+    result = {"nplikeness": score, "confidence": confidence}
+    return result
 
 
 def score_mol(mol) -> float:
@@ -80,7 +82,8 @@ def score_mol(mol) -> float:
     Returns:
         float: NP-Likeness score in the range -5 to 5.
     """
-    return scoremol_with_confidence(mol).nplikeness
+    score = scoremol_with_confidence(mol)["nplikeness"]
+    return score
 
 
 def getNPScore(smiles) -> str:

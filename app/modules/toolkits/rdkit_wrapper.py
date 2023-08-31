@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from chembl_structure_pipeline import standardizer
 from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem, Descriptors, QED, Lipinski, rdMolDescriptors, rdmolops
@@ -53,7 +53,7 @@ def checkRo5Violations(mol) -> int:
     return num_of_violations
 
 
-def getRDKitDescriptors(smiles: str) -> dict:
+def getRDKitDescriptors(smiles: str) -> Union[tuple, str]:
     """
     Calculate a selected set of molecular descriptors for the input SMILES string.
 
@@ -146,7 +146,7 @@ def get3Dconformers(smiles, depict=True) -> Chem.Mol:
         return "Error reading SMILES string, check again."
 
 
-def getTanimotoSimilarityRDKit(smiles1, smiles2) -> float:
+def getTanimotoSimilarityRDKit(smiles1, smiles2) -> Union[float, str]:
     """
     Calculate the Tanimoto similarity index between two SMILES strings using Morgan Fingerprints.
 
@@ -202,7 +202,7 @@ async def getRDKitHOSECodes(smiles: str, noOfSpheres: int) -> List[str]:
     return hosecodes
 
 
-def is_valid_molecule(input_text) -> str:
+def is_valid_molecule(input_text) -> Union[str, bool]:
     """
     Check whether the input text represents a valid molecule in SMILES or Molblock format.
 
@@ -323,3 +323,5 @@ def getProperties(sdf_file) -> dict:
         # Extract properties as a dictionary
         properties = suppl[0].GetPropsAsDict()
         return properties
+    else:
+        return {"Error": "No properties found"}

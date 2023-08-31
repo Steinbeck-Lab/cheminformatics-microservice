@@ -1,35 +1,53 @@
 import os
 import cv2
 from PIL import Image
+from typing import Union
 from decimer_segmentation import segment_chemical_structures_from_file
 from DECIMER import predict_SMILES
 
 
-def convert_image(path: str) -> list:
+def convert_image(path: str) -> str:
     """
-    Takes an image file path of a GIF image and returns a Hi-Res PNG image.
+    Convert a GIF image to PNG format, resize, and place on a white background.
 
     Args:
-        input_path (str): the path of an image.
+        path (str): The path to the GIF image file.
 
     Returns:
-        segment_paths (list): a list of paths of segmented images.
+        str: The path of the converted and processed PNG image file.
     """
-
+    # Open the image and convert to RGBA
     img = Image.open(path).convert("RGBA")
-    new_size = int((float(img.width) * 2)), int((float(img.height) * 2))
+
+    # Calculate new dimensions for resizing
+    new_size = (int(float(img.width) * 2), int(float(img.height) * 2))
+
+    # Resize the image using Lanczos resampling
     resized_image = img.resize(new_size, resample=Image.LANCZOS)
-    background_size = int((float(resized_image.width) * 2)), int(
-        (float(resized_image.height) * 2)
+
+    # Calculate background size
+    background_size = (
+        int(float(resized_image.width) * 2),
+        int(float(resized_image.height) * 2),
     )
+
+    # Create a new image with white background
     new_im = Image.new(resized_image.mode, background_size, "white")
+
+    # Calculate position to paste the resized image in the center
     paste_pos = (
         int((new_im.size[0] - resized_image.size[0]) / 2),
         int((new_im.size[1] - resized_image.size[1]) / 2),
     )
+
+    # Paste the resized image onto the new background
     new_im.paste(resized_image, paste_pos)
-    new_im.save(path.replace("gif", "png"), optimize=True, quality=100)
-    return path.replace("gif", "png")
+
+    # Save the processed image in PNG format
+    new_path = path.replace("gif", "png")
+    new_im.save(new_path, optimize=True, quality=100)
+
+    return new_path
 
 
 def get_segments(path: str) -> tuple:
@@ -54,17 +72,20 @@ def get_segments(path: str) -> tuple:
         return image_name, segments
 
 
-def getPredictedSegments(path: str) -> list:
+def getPredictedSegments(path: str) -> str:
     """
-    Takes an image file path and returns predicted SMILES for segmented images.
+    Get predicted SMILES representations for segments within an image.
+
+    This function takes an image path, extracts segments, predicts SMILES representations
+    for each segment, and returns a concatenated string of predicted SMILES.
 
     Args:
-        input_path (str): the path of an image.
+        path (str): Path to the input image file.
 
     Returns:
-        predictions (list): a list of SMILES of the segmented images.
+        str: Predicted SMILES representations joined by '.' if segments are detected,
+             otherwise returns a single predicted SMILES for the whole image.
     """
-
     smiles_predicted = []
     image_name, segments = get_segments(path)
 

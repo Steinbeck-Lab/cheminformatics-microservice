@@ -3,7 +3,7 @@ from fastapi import FastAPI, status
 from fastapi.responses import RedirectResponse
 from fastapi_versioning import VersionedFastAPI
 
-from .routers import chem, converters, depict, tools, ocsr
+from .routers import tools, chem, depict, converters, ocsr
 from fastapi.middleware.cors import CORSMiddleware
 
 from prometheus_fastapi_instrumentator import Instrumentator

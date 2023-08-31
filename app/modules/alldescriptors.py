@@ -15,7 +15,7 @@ from app.modules.toolkits.cdk_wrapper import (
 )
 
 
-def getAllRDKitDescriptors(smiles: str) -> tuple:
+def getAllRDKitDescriptors(smiles: str) -> Union[tuple, str]:
     """
     Calculate a selected set of molecular descriptors using RDKit.
     This function takes an input SMILES string and calculates various molecular descriptors
@@ -74,7 +74,7 @@ def getAllRDKitDescriptors(smiles: str) -> tuple:
         return "Error reading SMILES string, check again."
 
 
-def getAllCDKDescriptors(smiles: str) -> tuple:
+def getAllCDKDescriptors(smiles: str) -> Union[tuple, str]:
     """
     Calculate a set of molecular descriptors using the CDK.
     This function takes a SMILES string as input and calculates various molecular descriptors
@@ -178,11 +178,13 @@ def getAllCDKDescriptors(smiles: str) -> tuple:
             NumRings,
             float(str(VABCVolume)),
         )
+    else:
+        return "Error reading SMILES string, check again."
 
 
 def getCDKRDKitcombinedDescriptors(
     smiles: str,
-) -> Union[Dict[str, Tuple[float, float]], str]:
+) -> Union[dict, str]:
     """
     Calculate a selected set of molecular descriptors using CDK and RDKit for a given SMILES string.
 
@@ -262,7 +264,7 @@ def get_table(tanimoto_values: list) -> str:
     return table_html
 
 
-def getTanimotoSimilarity(smileslist: str, toolkit: str = "cdk") -> List[List[float]]:
+def getTanimotoSimilarity(smileslist: str, toolkit: str = "cdk") -> list:
     """
     Calculate the Tanimoto similarity index between pairs of SMILES strings.
 
@@ -276,7 +278,7 @@ def getTanimotoSimilarity(smileslist: str, toolkit: str = "cdk") -> List[List[fl
             Defaults to "cdk".
 
     Returns:
-        List[List[float]]: A matrix containing Tanimoto similarity scores.
+        list: A matrix containing Tanimoto similarity scores.
             Rows and columns correspond to SMILES strings in the input list.
 
     Raises:

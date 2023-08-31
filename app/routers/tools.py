@@ -1,5 +1,5 @@
-from fastapi import APIRouter, status, Query, HTTPException
-from typing import List
+from fastapi import APIRouter, status, Query, HTTPException, Body
+from typing import List, Annotated
 from app.modules.tools.surge import generateStructures
 from app.modules.tools.sugarremoval import (
     getSugarInfo,
@@ -51,10 +51,13 @@ async def Generate_Structures(
     molecular_formula: str = Query(
         title="Molecular Formula",
         description="Molecular Formula for the chemical structure to be generated",
-        examples=[
-            "C6H6",
-            "C2H5OH",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "First example",
+                "value": "C6H6",
+            },
+            "example2": {"summary": "one more example", "value": "C6H8"},
+        },
     )
 ):
     """
@@ -97,10 +100,16 @@ async def getsugarinformation(
     smiles: str = Query(
         title="SMILES",
         description="SMILES: string representation of the molecule",
-        examples=[
-            "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
-            "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "First example",
+                "value": "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
+            },
+            "example2": {
+                "summary": "one more example",
+                "value": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
+            },
+        },
     )
 ):
     """
@@ -148,10 +157,16 @@ async def removelinearsugars(
     smiles: str = Query(
         title="SMILES",
         description="SMILES: string representation of the molecule",
-        examples=[
-            "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
-            "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "First example",
+                "value": "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
+            },
+            "example2": {
+                "summary": "one more example",
+                "value": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
+            },
+        },
     )
 ):
     """
@@ -187,10 +202,16 @@ async def removecircularsugars(
     smiles: str = Query(
         title="SMILES",
         description="SMILES: string representation of the molecule",
-        examples=[
-            "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
-            "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "First example",
+                "value": "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
+            },
+            "example2": {
+                "summary": "one more example",
+                "value": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
+            },
+        },
     )
 ):
     """
@@ -226,10 +247,16 @@ async def removelinearandcircularsugars(
     smiles: str = Query(
         title="SMILES",
         description="SMILES: string representation of the molecule",
-        examples=[
-            "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
-            "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "First example",
+                "value": "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
+            },
+            "example2": {
+                "summary": "one more example",
+                "value": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
+            },
+        },
     )
 ):
     """
