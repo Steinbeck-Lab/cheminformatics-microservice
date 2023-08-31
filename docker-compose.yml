@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: cheminformatics-python-microservice
     environment:
-      HOMEPAGE_URL:  "https://steinbeck-lab.github.io/cheminformatics-python-microservice"
+      HOMEPAGE_URL:  "https://docs.api.naturalproducts.net"
       RELEASE_VERSION: v1.0.0
     volumes:
       - ./app:/code/app

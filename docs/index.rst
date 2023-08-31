@@ -13,7 +13,7 @@ This set of essential and valuable microservices is designed to be accessed via 
 How to access
 =============
 
-https://steinbeck-lab.github.io/cheminformatics-python-microservice/
+https://docs.api.naturalproducts.net/
 
 
 .. toctree::
