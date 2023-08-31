@@ -14,7 +14,7 @@ router = APIRouter(
     prefix="/tools",
     tags=["tools"],
     dependencies=[],
-    responses={404: {"description": "Not found"}},
+    responses={404: {"description": "Not Found"}},
 )
 
 
@@ -31,9 +31,9 @@ router = APIRouter(
 def get_health() -> HealthCheck:
     """
     ## Perform a Health Check
-    Endpoint to perform a healthcheck on. This endpoint can primarily be used Docker
-    to ensure a robust container orchestration and management is in place. Other
-    services which rely on proper functioning of the API service will not deploy if this
+    Endpoint to perform a health check on. This endpoint can primarily be used by Docker
+    to ensure a robust container orchestration and management are in place. Other
+    services that rely on the proper functioning of the API service will not deploy if this
     endpoint returns any other HTTP status code except 200 (OK).
     Returns:
         HealthCheck: Returns a JSON response with the health status
@@ -104,7 +104,7 @@ async def getsugarinformation(
     )
 ):
     """
-    Get information whether a given molecule has circular or linear sugars.
+    Get information on whether a given molecule has circular or linear sugars.
     For more information refer to:
     - Schaub, J., Zielesny, A., Steinbeck, C. et al. Too sweet: cheminformatics for deglycosylation in natural products. J Cheminform 12, 67 (2020). https://doi.org/10.1186/s13321-020-00467-y.
 

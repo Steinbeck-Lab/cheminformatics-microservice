@@ -2,34 +2,74 @@ import requests
 import json
 
 
-async def classify(smiles: str):
+async def classify(smiles: str) -> dict:
     """
-    This fucntion takes a smiles string and returns a json response
-    from classyfire API.
-    Args (str): SMILES string.
-    Returns (json): classyfire results.
+    This function queries the ClassyFire API to classify a chemical compound
+    represented by a SMILES string.
+
+    Args:
+        smiles (str): A SMILES string representing the chemical compound.
+
+    Returns:
+        dict: A dictionary containing the response from the ClassyFire API.
+
+    Raises:
+        requests.RequestException: If there's an issue with the API request.
     """
+
+    # Replace any spaces in the SMILES string with '+'
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
+
+    # ClassyFire API endpoint URL
     url = "http://classyfire.wishartlab.com/queries/?format=json"
 
+    # Prepare payload for the API request
     payload = json.dumps(
-        {"label": "curl_test", "query_input": smiles, "query_type": "STRUCTURE"}
+        {"label": "query", "query_input": smiles, "query_type": "STRUCTURE"}
     )
+
+    # Set headers for the API request
     headers = {"Content-Type": "application/json"}
-    response = requests.request("POST", url, headers=headers, data=payload)
-    return response.json()
+
+    try:
+        # Make a POST request to the API
+        response = requests.post(url, headers=headers, data=payload)
+        response.raise_for_status()  # Raise exception for HTTP errors
+        return response.json()
+    except requests.RequestException as e:
+        # Handle request-related errors
+        raise e
 
 
-async def result(id):
+async def result(id: int) -> dict:
     """
-    This fucntion takes a ID and returns a json response
-    from classyfire API.
-    Args : ID.
-    Returns (json): classyfire results.
+    Fetches JSON response from the ClassyFire API for a given ID.
+
+    This function takes an ID and retrieves the corresponding chemical classification
+    information from the ClassyFire API in JSON format.
+
+    Args:
+        id (int): The ID associated with the chemical compound.
+
+    Returns:
+        dict: A dictionary containing ClassyFire classification results.
+              The structure of the dictionary includes various classification
+              details of the chemical compound, such as class, superclass, direct
+              parent, etc.
+
+    Raises:
+        requests.exceptions.RequestException: If there is an issue with the HTTP request
+            to the ClassyFire API.
     """
-    url = "http://classyfire.wishartlab.com/queries/" + str(id) + "?format=json"
+    url = f"http://classyfire.wishartlab.com/queries/{id}?format=json"
 
     headers = {"Content-Type": "application/json"}
-    response = requests.request("GET", url, headers=headers, data={})
-    return response.json()
+
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()  # Raise an exception for 4xx/5xx status codes
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        # Handle connection errors, timeouts, etc.
+        raise e

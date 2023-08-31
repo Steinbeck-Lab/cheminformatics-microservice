@@ -1,4 +1,5 @@
 from app.modules.toolkits.rdkit_wrapper import getRDKitDescriptors, checkSMILES
+from typing import Dict, Union
 from app.modules.toolkits.cdk_wrapper import (
     getMurkoFramework,
     getCDKDescriptors,
@@ -8,13 +9,19 @@ from app.modules.npscorer import getNPScore
 from app.modules.tools.sugarremoval import getSugarInfo
 
 
-def getDescriptors(smiles: str, toolkit: str):
-    """This function takes a user input as
-    SMILES string and decides whether to get
-    Descriptor values from RDKit or CDK.
-    Args (str): SMILES input.
-    Returns (list): Decriptor list as list.
+def getDescriptors(smiles: str, toolkit: str) -> Union[Dict[str, float], str]:
     """
+    Calculate descriptors using RDKit or CDK toolkit for the given SMILES.
+
+    Args:
+        smiles (str): SMILES input.
+        toolkit (str): Toolkit choice ("rdkit" or "cdk").
+
+    Returns:
+        dict or str: Dictionary of descriptors and their values if successful,
+                     or an error message if the toolkit choice is invalid or SMILES is invalid.
+    """
+
     mol = checkSMILES(smiles)
     if mol:
         if toolkit == "rdkit":
@@ -29,13 +36,17 @@ def getDescriptors(smiles: str, toolkit: str):
         return "Error reading SMILES check again."
 
 
-def getCOCONUTDescriptors(smiles: str, toolkit: str):
-    """This function takes a user input as
-    SMILES string and returns descriptors
-    those are available in COCONUT. Uses
-    RDKit and CDK at the backend.
-    Args (str): SMILES input.
-    Returns (dict): Decriptor list as dictionary.
+def getCOCONUTDescriptors(smiles: str, toolkit: str) -> Union[Dict[str, float], str]:
+    """
+    Calculate COCONUT descriptors using RDKit or CDK toolkit for the given SMILES.
+
+    Args:
+        smiles (str): SMILES input.
+        toolkit (str): Toolkit choice ("rdkit" or "cdk").
+
+    Returns:
+        dict or str: Dictionary of COCONUT descriptors and their values if successful,
+                     or an error message if the toolkit choice is invalid or SMILES is invalid.
     """
     if toolkit == "all":
         AllDescriptors = getCDKRDKitcombinedDescriptors(smiles)

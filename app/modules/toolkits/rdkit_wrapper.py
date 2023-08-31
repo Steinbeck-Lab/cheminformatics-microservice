@@ -1,3 +1,4 @@
+from typing import List
 from chembl_structure_pipeline import standardizer
 from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem, Descriptors, QED, Lipinski, rdMolDescriptors, rdmolops
@@ -5,17 +6,19 @@ from app.modules.toolkits.cdk_wrapper import getCDKSDGMol
 from hosegen import HoseGenerator
 
 
-def checkSMILES(smiles: str):
-    """This functions checks whether or not the SMILES
-    is valid. If not, it attempts to standardize the molecule
-    using the ChEMBL standardization pipeline.
-
-    Args (str):
-        SMILES string as input.
-    Returns (str):
-        Molblock/ Error message.
-
+def checkSMILES(smiles: str) -> Chem.Mol:
     """
+    Check whether the input SMILES string is valid. If not, attempt to standardize
+    the molecule using the ChEMBL standardization pipeline.
+
+    Args:
+        smiles (str): Input SMILES string.
+
+    Returns:
+        Chem.Mol or None: Valid molecule object or None if an error occurs.
+            If an error occurs during SMILES parsing, an error message is returned.
+    """
+
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
     mol = Chem.MolFromSmiles(smiles)
@@ -25,18 +28,18 @@ def checkSMILES(smiles: str):
         elif standardizer.standardize_molblock(mol):
             return standardizer.standardize_molblock(mol)
     except Exception:
-        print("Error reading SMILES string, check again.")
+        return "Error reading SMILES string, check again."
 
 
-def checkRo5Violations(mol):
-    """Takes a molecule and checks whether the molecule violates
-    Lipinski's Rule of Five.
+def checkRo5Violations(mol) -> int:
+    """
+    Check the molecule for violations of Lipinski's Rule of Five.
 
-    Args :
-        molecules rdkit.Chem.rdmol.Mol: rdkit_mol Objects
-    Returns (int):
-        A number of violations of Lipinski Rules.
+    Args:
+        mol (Chem.Mol): RDKit molecule object.
 
+    Returns:
+        int: Number of Lipinski Rule violations.
     """
     num_of_violations = 0
     if Descriptors.MolLogP(mol) > 5:
@@ -50,15 +53,16 @@ def checkRo5Violations(mol):
     return num_of_violations
 
 
-def getRDKitDescriptors(smiles: str):
-    """Take an input SMILES and generate a selected set of molecular
-    descriptors as a dictionary.
+def getRDKitDescriptors(smiles: str) -> dict:
+    """
+    Calculate a selected set of molecular descriptors for the input SMILES string.
 
-    Args (str):
-        SMILES string
-    Returns (dict):
-        a dictionary of calculated descriptors
+    Args:
+        smiles (str): Input SMILES string.
 
+    Returns:
+        dict: Dictionary of calculated molecular descriptors.
+            If an error occurs during SMILES parsing, an error message is returned.
     """
     mol = checkSMILES(smiles)
     if mol:
@@ -104,13 +108,18 @@ def getRDKitDescriptors(smiles: str):
         return "Error reading SMILES string, check again."
 
 
-def get3Dconformers(smiles, depict=True):
-    """Convert SMILES to Mol with 3D coordinates.
+def get3Dconformers(smiles, depict=True) -> Chem.Mol:
+    """
+    Convert a SMILES string to an RDKit Mol object with 3D coordinates.
 
-    Args (str):
-        SMILES string.
-    Returns (rdkil.mol):
-        A mol object with 3D coordinates. Optimized with MMFF94 forcefield.
+    Args:
+        smiles (str): SMILES string.
+        depict (bool, optional): If True, returns the molecule's 3D structure in MolBlock format.
+            If False, returns the 3D molecule without hydrogen atoms.
+
+    Returns:
+        str or rdkit.Chem.rdchem.Mol: If `depict` is True, returns the 3D structure in MolBlock format.
+            Otherwise, returns an RDKit Mol object.
 
     """
     if any(char.isspace() for char in smiles):
@@ -137,26 +146,28 @@ def get3Dconformers(smiles, depict=True):
         return "Error reading SMILES string, check again."
 
 
-def getTanimotoSimilarityRDKit(smiles1, smiles2):
+def getTanimotoSimilarityRDKit(smiles1, smiles2) -> float:
     """
-    Take two SMILES strings and calculate
-    Tanimoto similarity index using Morgan
-    Fingerprints.
+    Calculate the Tanimoto similarity index between two SMILES strings using Morgan Fingerprints.
 
-    Args (str,str):
-        SMILES strings.
-    Returns (float):
-        Tanimoto similarity.
+    Args:
+        smiles1 (str): First SMILES string.
+        smiles2 (str): Second SMILES string.
+
+    Returns:
+        float or str: Tanimoto similarity index if SMILES strings are valid.
+            If an error occurs during SMILES parsing, an error message is returned.
+
     """
-    # create two example molecules
+    # Create two example molecules
     mol1 = checkSMILES(smiles1)
     mol2 = checkSMILES(smiles2)
     if mol1 and mol2:
-        # generate Morgan fingerprints for each molecule
+        # Generate Morgan fingerprints for each molecule
         fp1 = AllChem.GetMorganFingerprintAsBitVect(mol1, 2, nBits=1024)
         fp2 = AllChem.GetMorganFingerprintAsBitVect(mol2, 2, nBits=1024)
 
-        # calculate the Tanimoto similarity between the fingerprints
+        # Calculate the Tanimoto similarity between the fingerprints
         similarity = DataStructs.TanimotoSimilarity(fp1, fp2)
 
         return similarity
@@ -164,17 +175,22 @@ def getTanimotoSimilarityRDKit(smiles1, smiles2):
         return "Check SMILES strings for Errors"
 
 
-async def getRDKitHOSECodes(smiles: str, noOfSpheres: int):
+async def getRDKitHOSECodes(smiles: str, noOfSpheres: int) -> List[str]:
     """
-    This function takes a SMILES string as input and
-    returns the calculated HOSEcodes
+    Calculate and retrieve RDKit HOSE codes for a given SMILES string.
+    This function takes a SMILES string as input and returns the calculated HOSE codes.
 
-    Args (smiles: str, noOfSpheres: int):
-        SMILES string and No of Spheres as int.
+    Args:
+        smiles (str): The SMILES string of the molecule.
+        no_of_spheres (int): Number of spheres for which to generate HOSE codes.
+
     Returns:
-        HOSECodes
+        List[str]: List of HOSE codes generated for each atom.
 
+    Raises:
+        ValueError: If the input SMILES string is empty or contains whitespace.
     """
+
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
     mol = Chem.MolFromSmiles(smiles)
@@ -186,15 +202,15 @@ async def getRDKitHOSECodes(smiles: str, noOfSpheres: int):
     return hosecodes
 
 
-def is_valid_molecule(input_text):
+def is_valid_molecule(input_text) -> str:
     """
-    This functions checks whether the input text
-    is a molblock or SMILES.
+    Check whether the input text represents a valid molecule in SMILES or Molblock format.
 
-    Args (str):
-        SMILES string or molblock.
-    Returns (str):
-        SMILES/Mol flag.
+    Args:
+        input_text (str): SMILES string or Molblock.
+
+    Returns:
+        str: "smiles" if the input is a valid SMILES, "mol" if the input is a valid Molblock, otherwise False.
     """
     try:
         molecule = Chem.MolFromSmiles(input_text)
@@ -210,15 +226,15 @@ def is_valid_molecule(input_text):
         return False
 
 
-def has_stereochemistry(smiles: str):
+def has_stereochemistry(smiles: str) -> bool:
     """
-    This function checks whether the input has stereochemistry or not.
+    Check if the given SMILES string contains stereochemistry information.
 
-    Args (str) :
-        SMILES string.
-    Returns (bool):
-        True or false.
+    Args:
+        smiles (str): SMILES string.
 
+    Returns:
+        bool: True if the SMILES contains stereochemistry information, False otherwise.
     """
     mol = Chem.MolFromSmiles(smiles)
 
@@ -233,15 +249,16 @@ def has_stereochemistry(smiles: str):
     return False
 
 
-def get2Dmol(smiles: str):
-    """This function takes an input as a SMILES string and
-    returns a 2D mol block.
+def get2Dmol(smiles: str) -> str:
+    """
+    Generate a 2D Mol block representation from a given SMILES string.
 
-    Args (str):
-        SMILES string.
-    Returns (str):
-        2D Mol block.
+    Args:
+        smiles (str): The input SMILES string.
 
+    Returns:
+        str: 2D Mol block representation.
+        If an error occurs during SMILES parsing, an error message is returned.
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
@@ -255,15 +272,16 @@ def get2Dmol(smiles: str):
         return "Error reading SMILES string, check again."
 
 
-def getRDKitCXSMILES(smiles: str):
-    """This function takes an input as a SMILES string and
-    returns a CXSMILES with coordinates.
+def getRDKitCXSMILES(smiles: str) -> str:
+    """
+    Generate CXSMILES representation with coordinates from a given SMILES string.
 
     Args:
-        SMILES string (str): The SMILES string to be converted as input
-    Returns:
-        string: CXSMILES with coordinates.
+        smiles (str): The input SMILES string.
 
+    Returns:
+        str: CXSMILES representation with coordinates.
+        If an error occurs during SMILES parsing, an error message is returned.
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
@@ -276,7 +294,7 @@ def getRDKitCXSMILES(smiles: str):
         return "Error reading SMILES string, check again."
 
 
-def getProperties(sdf_file):
+def getProperties(sdf_file) -> dict:
     """
     Extracts properties from a single molecule contained in an SDF file.
 
@@ -288,10 +306,13 @@ def getProperties(sdf_file):
         sdf_file (str): The path to the SDF file containing the molecule.
 
     Returns:
-        dict or None: A dictionary containing the properties of the molecule. If the SDF file contains
+        Dict or None: A dictionary containing the properties of the molecule. If the SDF file contains
         a valid molecule, the dictionary will have property names as keys and property values as values.
         If no valid molecule is found, or if there are no properties associated with the molecule, None
         is returned.
+
+    Raises:
+        ValueError: If the SDF file is not found or cannot be read.
     """
     # Create an SDMolSupplier to read the SDF file
     suppl = Chem.SDMolSupplier()

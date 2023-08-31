@@ -5,7 +5,7 @@ router = APIRouter(
     prefix="/compose",
     tags=["compose"],
     dependencies=[],
-    responses={404: {"description": "Not err found"}},
+    responses={404: {"description": "Not Found"}},
 )
 
 
@@ -22,9 +22,9 @@ router = APIRouter(
 def get_health() -> HealthCheck:
     """
     ## Perform a Health Check
-    Endpoint to perform a healthcheck on. This endpoint can primarily be used Docker
-    to ensure a robust container orchestration and management is in place. Other
-    services which rely on proper functioning of the API service will not deploy if this
+    Endpoint to perform a health check on. This endpoint can primarily be used by Docker
+    to ensure a robust container orchestration and management are in place. Other
+    services that rely on the proper functioning of the API service will not deploy if this
     endpoint returns any other HTTP status code except 200 (OK).
     Returns:
         HealthCheck: Returns a JSON response with the health status

@@ -31,13 +31,13 @@ from app.schemas.chemblstandardizer import (
     StandardizedResult,
 )
 from app.schemas.classyfire import ClassyFireJob, ClassyFireResult
-from app.schemas.coconut import CococnutPreprocessingModel
+from app.schemas.coconut import COCONUTPreprocessingModel
 
 router = APIRouter(
     prefix="/chem",
     tags=["chem"],
     dependencies=[],
-    responses={404: {"description": "Not found"}},
+    responses={404: {"description": "Not Found"}},
 )
 
 templates = Jinja2Templates(directory="app/templates")
@@ -56,9 +56,9 @@ templates = Jinja2Templates(directory="app/templates")
 def get_health() -> HealthCheck:
     """
     ## Perform a Health Check
-    Endpoint to perform a healthcheck on. This endpoint can primarily be used Docker
-    to ensure a robust container orchestration and management is in place. Other
-    services which rely on proper functioning of the API service will not deploy if this
+    Endpoint to perform a health check on. This endpoint can primarily be used by Docker
+    to ensure a robust container orchestration and management are in place. Other
+    services that rely on the proper functioning of the API service will not deploy if this
     endpoint returns any other HTTP status code except 200 (OK).
     Returns:
         HealthCheck: Returns a JSON response with the health status
@@ -89,7 +89,7 @@ async def get_stereoisomers(
     - **SMILES**: required (query parameter): The SMILES string to be enumerated.
 
     Returns:
-    - List[str]: A list of stereo isomer SMILES strings if successful, otherwise returns an error message.
+    - List[str]: A list of stereoisomer SMILES strings if successful, otherwise returns an error message.
 
     Raises:
     - ValueError: If the SMILES string is not provided or is invalid.
@@ -199,7 +199,7 @@ async def calculate_descriptors(
         - Supported values: "rdkit" / "cdk" (default), "rdkit".
 
     Returns:
-    - Union[Dict[str, Any], str]: If multiple SMILES are provided, returns a dictionary with each SMILES as the key and the corresponding descriptors as the value. If only one SMILES is provided, returns an error message.
+    - Union[Dict[str, Any], str]: If multiple SMILES are provided, return a dictionary with each SMILES as the key and the corresponding descriptors as the value. If only one SMILES is provided, returns an error message.
 
     Raises:
     - ValueError: If the SMILES string is not provided or is invalid.
@@ -265,7 +265,7 @@ async def HOSE_Codes(
     Generates HOSE codes for a given SMILES string.
 
     Parameters:
-    - **SMILES**: required (query): The SMILES string representing the chemical compound.
+    - **SMILES**: required (query): The SMILES string represents the chemical compound.
     - **spheres**: required (query): The number of spheres to use for generating HOSE codes.
     - **toolkit**: optional (default:cdk): The chemical toolkit to use for generating HOSE codes.
             Supported values: "cdk" (default), "rdkit".
@@ -354,7 +354,7 @@ async def standardize_mol(
 
 @router.get(
     "/errors",
-    summary="Check a given SMILES string and the represented structure for issues and standardizes it",
+    summary="Check a given SMILES string and the represented structure for issues and standardize it",
     response_model=Union[SMILESStandardizedResult, SMILESValidationResult],
     responses={400: {"model": ErrorResponse}},
 )
@@ -374,21 +374,21 @@ async def check_errors(
     ),
 ):
     """
-    Check a given SMILES string and the represented structure for issues and standardizes it using the ChEMBL curation pipeline.
+    Check a given SMILES string and the represented structure for issues and standardize it using the ChEMBL curation pipeline.
 
     Parameters:
-    - **SMILES**: required (str,query) The SMILES string to check and standardize.
+    - **SMILES**: required (str, query) The SMILES string to check and standardize.
     - **fix**: optional (bool): Flag indicating whether to fix the issues by standardizing the SMILES. Defaults to False.
 
     Returns:
     - If fix is False:
-        - If issues are found in the SMILES string, returns a list of issues.
-        - If no issues are found, returns the string "No Errors Found".
+        - If issues are found in the SMILES string, return a list of issues.
+        - If no issues are found, return the string "No Errors Found".
 
     - If fix is True:
-        - If issues are found in the SMILES string, returns a dictionary containing the original SMILES, original issues,
+        - If issues are found in the SMILES string, return a dictionary containing the original SMILES, original issues,
           standardized SMILES, and new issues after standardization.
-        - If no issues are found after standardization, returns a dictionary with the original SMILES and "No Errors Found".
+        - If no issues are found after standardization, return a dictionary with the original SMILES and "No Errors Found".
 
     Raises:
     - ValueError: If the SMILES string is not provided or is invalid.
@@ -556,7 +556,7 @@ async def Tanimoto_Similarity(
 
 @router.get(
     "/coconut/pre-processing",
-    response_model=CococnutPreprocessingModel,
+    response_model=COCONUTPreprocessingModel,
     summary="Generates an Input JSON file with information for COCONUT database",
     responses={400: {"model": ErrorResponse}},
 )
@@ -571,10 +571,10 @@ async def COCONUT_Preprocessing(
     )
 ):
     """
-    Generates an Input JSON file with information of different molecular representations and descriptors suitable for submission to COCONUT database.
+    Generates an Input JSON file with information on different molecular representations and descriptors suitable for submission to the COCONUT database.
 
     Parameters:
-    - **SMILES**: required (query): The SMILES string representing a chemical compound.
+    - **SMILES**: required (query): The SMILES string represents a chemical compound.
 
     Returns:
     - JSONResponse: The generated Input JSON file for COCONUT.

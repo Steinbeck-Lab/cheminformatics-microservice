@@ -30,6 +30,16 @@ class SMILESStandardizedResult(BaseModel):
 
 
 class StandardizedResult(BaseModel):
+    """
+    Represents a standardized result for a molecule.
+
+    Attributes:
+        standardized_mol (str): The standardized molecule representation.
+        canonical_smiles (str): The canonical SMILES notation for the molecule.
+        inchi (str): The InChI (International Chemical Identifier) for the molecule.
+        inchikey (str): The InChIKey for the molecule.
+    """
+
     standardized_mol: str
     canonical_smiles: str
     inchi: str

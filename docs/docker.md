@@ -10,7 +10,7 @@ It is containerized using Docker and is distributed publicly via the [Docker Hub
 To use this image:
 
 * Make sure you have Docker installed and configured on your target deployment environment.
-* Pull the image by providing the appropiate tag.
+* Pull the image by providing the appropriate tag.
 
 ```bash
 docker pull caffeinejena/cheminformatics-python-microservice:[tag]

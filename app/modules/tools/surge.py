@@ -32,16 +32,19 @@ def getHeavyAtomCount(formula: str) -> int:
     return heavy_atom_count
 
 
-def generateStructures(molecular_formula: str):
-    """This function uses surge - chemical structure generator that generates
-    structures based on the canonical generation path method.
+def generateStructures(molecular_formula: str) -> list:
+    """
+    Generate chemical structures using the surge tool based on the canonical generation path method.
 
     Args:
-        molecular_formula (string): molecular_formula string given by the user.
-    Returns:
-        (array): array of SMILEs generated for the given molecular_formula
+        molecular_formula (str): Molecular formula provided by the user.
 
+    Returns:
+        list: List of SMILES strings representing generated chemical structures.
+            If the molecular formula contains more than 10 heavy atoms, a message
+            indicating the limitation is returned instead.
     """
+
     smiles = []
     if getHeavyAtomCount(molecular_formula) <= 10:
         process = Popen(

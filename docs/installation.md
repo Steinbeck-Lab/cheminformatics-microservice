@@ -87,7 +87,7 @@ networks:
 
 5. Wait for the containers to start: Docker Compose will start the containers and display their logs in the terminal or command prompt.
 
-Unicorn will start the app and display the server address (usually `http://localhost:80`) and Grafana dashboard can be accessed at `http://localhost:3000`
+Unicorn will start the app and display the server address (usually `http://localhost:80`) and the Grafana dashboard can be accessed at `http://localhost:3000`
 
 You may update the docker-compose file to disable or add additional services but by default, the docker-compose file shipped with the project has the web (cheminformatics-python-microservice FAST API app), Prometheus and Grafana (logging and visualisation of metrics) services and associated volumes shared via a network.
 
@@ -187,7 +187,7 @@ Click on the "Create your first data source" button. You should see the followin
   <img align="center" src="/docs/grafana.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
 </p>
 
-Grafana add the data source
+Grafana added the data source
 
 <p align="center">
   <img align="center" src="/docs/grafana_ds.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
@@ -275,23 +275,23 @@ By following these steps, you can perform stress testing on your CPM FASTAPI app
 
 ## Linting / Formatting
 
-We recommend using flake8 and Black to perform linting and formatting in Python
+We recommend using Flake8 and Black to perform linting and formatting in Python
 
-1. Install flake8 and Black: Start by installing both flake8 and Black. You can install them using pip by running the following command:
+1. Install Flake8 and Black: Start by installing both Flake8 and Black. You can install them using pip by running the following command:
    
    ```bash
    pip install flake8 black
    ```
 
-2. Linting with flake8: flake8 is a popular Python linter that checks your code for style and potential errors. Run flake8 by executing the following command in your project directory:
+2. Linting with Flake8: Flake8 is a popular Python linter that checks your code for style and potential errors. Run flake8 by executing the following command in your project directory:
 
    ```bash
    flake8 --per-file-ignores="__init__.py:F401" --ignore E402,E501,W503 $(git ls-files '*.py') .
    ```
 
-   flake8 will analyze your code and provide feedback on any style violations or issues found.
+   Flake8 will analyze your code and provide feedback on any style violations or issues found.
 
-3. Formatting with Black: Black is a Python code formatter that enforces a consistent style and automatically formats your code. To format your code with Black, run the following command in your project directory:
+3. Formatting with Black: Black enforces consistent code formatting and automatically formats your code. To format your code with Black, run the following command in your project directory:
 
    ```bash
    black .

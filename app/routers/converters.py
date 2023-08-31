@@ -45,9 +45,9 @@ router = APIRouter(
 def get_health() -> HealthCheck:
     """
     ## Perform a Health Check
-    Endpoint to perform a healthcheck on. This endpoint can primarily be used Docker
-    to ensure a robust container orchestration and management is in place. Other
-    services which rely on proper functioning of the API service will not deploy if this
+    Endpoint to perform a health check on. This endpoint can primarily be used by Docker
+    to ensure a robust container orchestration and management are in place. Other
+    services that rely on the proper functioning of the API service will not deploy if this
     endpoint returns any other HTTP status code except 200 (OK).
     Returns:
         HealthCheck: Returns a JSON response with the health status
@@ -179,7 +179,7 @@ async def IUPACname_or_SELFIES_to_SMILES(
         ],
     ),
     representation: Literal["iupac", "selfies"] = Query(
-        default="iupac", description="Required type of format convertion"
+        default="iupac", description="Required type of format conversion"
     ),
 ):
     """
@@ -192,7 +192,7 @@ async def IUPACname_or_SELFIES_to_SMILES(
 
     Returns:
     - If representation is "iupac": The generated SMILES string corresponding to the given IUPAC name.
-    - If representation is "selfies": The generated SMILES string corresponding to the given SELFIES representation.
+    - If the representation is "selfies": The generated SMILES string corresponds to the given SELFIES representation.
 
     Notes:
     - The IUPAC name should follow the standard IUPAC naming conventions for organic compounds.
@@ -298,7 +298,7 @@ async def SMILES_to_CXSMILES(
     ),
 ):
     """
-    Convert SMILES to CXSMILES. For more informations:
+    Convert SMILES to CXSMILES. For more information:
     - https://docs.chemaxon.com/display/docs/chemaxon-extended-smiles-and-smarts-cxsmiles-and-cxsmarts.md
 
     Parameters:
@@ -481,7 +481,7 @@ async def SMILES_to_IUPACname(
     - Here we are using STOUT v2.0 which is available at: https://github.com/Kohulan/Smiles-TO-iUpac-Translator
 
     Disclaimer:
-    - Since STOUT is a deep learning model it does halucinate or may provide incorrect IUPAC names at times.
+    - Due to the fact that STOUT is a deep learning model, it may occasionally display hallucinations or provide incorrect IUPAC names.
 
     """
     try:

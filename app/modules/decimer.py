@@ -5,15 +5,17 @@ from decimer_segmentation import segment_chemical_structures_from_file
 from DECIMER import predict_SMILES
 
 
-def convert_image(path: str):
-    """Takes an image filepath of GIF image and returns Hi Res PNG image.
+def convert_image(path: str) -> list:
+    """
+    Takes an image file path of a GIF image and returns a Hi-Res PNG image.
 
     Args:
-        input_path (str): path of an image.
+        input_path (str): the path of an image.
 
     Returns:
         segment_paths (list): a list of paths of segmented images.
     """
+
     img = Image.open(path).convert("RGBA")
     new_size = int((float(img.width) * 2)), int((float(img.height) * 2))
     resized_image = img.resize(new_size, resample=Image.LANCZOS)
@@ -30,16 +32,18 @@ def convert_image(path: str):
     return path.replace("gif", "png")
 
 
-def get_segments(path: str):
-    """Takes an image filepath and returns a set of paths and image name of segmented images.
+def get_segments(path: str) -> tuple:
+    """
+    Takes an image file path and returns a set of paths and image names of segmented images.
 
     Args:
-        input_path (str): path of an image.
+        input_path (str): the path of an image.
 
     Returns:
         image_name (str): image file name.
         segments (list): a set of segmented images.
     """
+
     image_name = os.path.split(path)[1]
     if image_name[-3:].lower() == "gif":
         new_path = convert_image(path)
@@ -50,15 +54,17 @@ def get_segments(path: str):
         return image_name, segments
 
 
-def getPredictedSegments(path: str):
-    """Takes an image filepath and returns predicted SMILES for segmented images.
+def getPredictedSegments(path: str) -> list:
+    """
+    Takes an image file path and returns predicted SMILES for segmented images.
 
     Args:
-        input_path (str): path of an image.
+        input_path (str): the path of an image.
 
     Returns:
         predictions (list): a list of SMILES of the segmented images.
     """
+
     smiles_predicted = []
     image_name, segments = get_segments(path)
 
