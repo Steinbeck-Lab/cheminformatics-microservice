@@ -22,3 +22,27 @@ docker pull caffeinejena/cheminformatics-python-microservice:[tag]
 docker run -d -p 8080:80 --name [image-name] caffeinejena/cheminfo-microservice:[tag]
 
 ```
+
+# Docker Compose
+[Docker Compose](https://docs.docker.com/get-started/08_using_compose/) is a tool that helps you define and share multi-container applications. With Compose, you can create a YAML file to define the services and with a single command, you can spin everything up or tear it all down. 
+The Cheminformatics Python Microservice comes packaged with docker-compose file which you can use to deploy your application in your server. To deploy using Docker compose follow the steps as described below.
+
+### Installation
+1. Before you run the command make sure you've installed Docker including docker-compose support. If not then follow the link [here](https://docs.docker.com/compose/install/).
+2. Clone the repository
+```bash
+git clone https://github.com/Steinbeck-Lab/cheminformatics-python-microservice.git
+cd cheminformatics-python-microservice
+```
+3. For local deployment 
+```bash
+docker-compose up -d
+```
+4. For production deployment
+```bash
+docker-compose -f ops/docker-compose-prod.yml up -d
+```
+5. Scaling in case of performance issues - This service file supports the docker-compose builtin scaling load balanced by [Traefik](https://doc.traefik.io/traefik/). For example to add 3 additional application containers you can simply invoke:
+```bash
+docker-compose -f ops/docker-compose-prod.yml up -d --scale web=3 --no-recreate
+```
