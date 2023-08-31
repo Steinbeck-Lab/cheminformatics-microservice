@@ -28,6 +28,19 @@ Production: https://api.naturalproducts.net/latest/docs
 
 Development: https://dev.api.naturalproducts.net/latest/docs
 
+## Installation
+
+You can run Cheminformatics Python Microservice as a standalone application using Python virtual environment or via Docker, or deploy to a Kubernetes cluster utilising Helm charts. Please follow the links below for step-by-step instructions.
+
+**Docker**
+https://docs.api.naturalproducts.net/docker.html
+
+**Kubernetes - Cluster deployment**
+https://docs.api.naturalproducts.net/cluster-deployment.html
+
+**Standalone**
+https://docs.api.naturalproducts.net/installation.html#standalone
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/blob/dev-kohulan/LICENSE) file for details
