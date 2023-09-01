@@ -3,7 +3,6 @@ import math
 import os
 import pickle
 import pystow
-from collections import namedtuple
 from rdkit import Chem
 from rdkit.Chem import rdMolDescriptors
 

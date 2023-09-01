@@ -3,7 +3,7 @@ import selfies as sf
 from fastapi import APIRouter, Query, status, HTTPException
 from fastapi.responses import Response
 from rdkit import Chem
-from typing import Literal, Dict
+from typing import Literal
 from STOUT import translate_forward, translate_reverse
 from app.modules.toolkits.cdk_wrapper import (
     getCDKSDGMol,
@@ -22,13 +22,30 @@ from app.modules.toolkits.openbabel_wrapper import (
     getOBInChI,
 )
 from app.schemas import HealthCheck
-from app.schemas.error import ErrorResponse
+from app.schemas.error import ErrorResponse, BadRequestModel, NotFoundModel
+from app.schemas.converters_schema import (
+    TwoDCoordinatesResponse,
+    ThreeDCoordinatesResponse,
+    GenerateSMILESResponse,
+    GenerateCanonicalResponse,
+    GenerateCXSMILESResponse,
+    GenerateInChIResponse,
+    GenerateInChIKeyResponse,
+    GenerateIUPACResponse,
+    GenerateSELFIESResponse,
+    GenerateFormatsResponse,
+)
 
 router = APIRouter(
     prefix="/convert",
     tags=["convert"],
     dependencies=[],
-    responses={404: {"description": "Not found"}},
+    responses={
+        200: {"description": "OK"},
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
 
 
@@ -57,18 +74,31 @@ def get_health() -> HealthCheck:
 
 @router.get(
     "/mol2D",
-    response_class=Response,
     summary="Generates 2D Coordinates for the input molecules",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": TwoDCoordinatesResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
-async def Create2D_Coordinates(
+async def Create2D_coordinates(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
-        examples=[
-            "CCO",
-            "C=O",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
     ),
     toolkit: Literal["cdk", "rdkit", "openbabel"] = Query(
         default="cdk", description="Cheminformatics toolkit used in the backend"
@@ -112,18 +142,31 @@ async def Create2D_Coordinates(
 
 @router.get(
     "/mol3D",
-    response_class=Response,
     summary="Generates 3D Coordinates for the input molecules",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": ThreeDCoordinatesResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
-async def Create3D_Coordinates(
+async def Create3D_coordinates(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
-        examples=[
-            "CCO",
-            "C=O",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
     ),
     toolkit: Literal["rdkit", "openbabel"] = Query(
         default="rdkit", description="Cheminformatics toolkit used in the backend"
@@ -165,18 +208,31 @@ async def Create3D_Coordinates(
 
 @router.get(
     "/smiles",
-    response_model=str,
     summary="Generate SMILES from a given input",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": GenerateSMILESResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
 async def IUPACname_or_SELFIES_to_SMILES(
     input_text: str = Query(
         title="Input IUPAC name or SELFIES",
         description="IUPAC name or SELFIES representation of the molecule",
-        examples=[
-            "benzene",
-            "[C][C][C]",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: IUPAC name",
+                "value": "1,3,7-trimethylpurine-2,6-dione",
+            },
+            "example2": {
+                "summary": "Example: SELFIES",
+                "value": "[C][N][C][=N][C][=C][Ring1][Branch1][C][=Branch1][C][=O][N][Branch1][=Branch2][C][=Branch1][C][=O][N][Ring1][Branch2][C][C]",
+            },
+        },
     ),
     representation: Literal["iupac", "selfies"] = Query(
         default="iupac", description="Required type of format conversion"
@@ -222,18 +278,31 @@ async def IUPACname_or_SELFIES_to_SMILES(
 
 @router.get(
     "/canonicalsmiles",
-    response_model=str,
     summary="Generate CanonicalSMILES from a given SMILES",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": GenerateCanonicalResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
-async def SMILES_Canonicalise(
+async def SMILES_canonicalise(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
-        examples=[
-            "CCO",
-            "C=O",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
     ),
     toolkit: Literal["cdk", "rdkit", "openbabel"] = Query(
         default="cdk", description="Cheminformatics toolkit used in the backend"
@@ -280,18 +349,31 @@ async def SMILES_Canonicalise(
 
 @router.get(
     "/cxsmiles",
-    response_model=str,
     summary="Generate CXSMILES from a given SMILES",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": GenerateCXSMILESResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
 async def SMILES_to_CXSMILES(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
-        examples=[
-            "CCO",
-            "C=O",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
     ),
     toolkit: Literal["cdk", "rdkit"] = Query(
         default="cdk", description="Cheminformatics toolkit used in the backend"
@@ -331,18 +413,31 @@ async def SMILES_to_CXSMILES(
 
 @router.get(
     "/inchi",
-    response_model=str,
     summary="Generate InChI from a given SMILES",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": GenerateInChIResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
 async def SMILES_to_InChI(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
-        examples=[
-            "CCO",
-            "C=O",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
     ),
     toolkit: Literal["cdk", "rdkit", "openbabel"] = Query(
         default="cdk", description="Cheminformatics toolkit used in the backend"
@@ -390,18 +485,31 @@ async def SMILES_to_InChI(
 
 @router.get(
     "/inchikey",
-    response_model=str,
     summary="Generate InChI-Key from a given SMILES",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": GenerateInChIKeyResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
 async def SMILES_to_InChIKey(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
-        examples=[
-            "CCO",
-            "C=O",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
     ),
     toolkit: Literal["cdk", "rdkit", "openbabel"] = Query(
         default="cdk", description="Cheminformatics toolkit used in the backend"
@@ -450,18 +558,31 @@ async def SMILES_to_InChIKey(
 
 @router.get(
     "/iupac",
-    response_model=str,
     summary="Generates IUPAC name using STOUT package",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": GenerateIUPACResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
-async def SMILES_to_IUPACname(
+async def SMILES_to_IUPAC_name(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
-        examples=[
-            "CCO",
-            "C=O",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
     ),
 ):
     """
@@ -499,18 +620,31 @@ async def SMILES_to_IUPACname(
 
 @router.get(
     "/selfies",
-    response_model=str,
     summary="Generates SELFIES string for a given SMILES string",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": GenerateSELFIESResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
 async def encode_SELFIES(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
-        examples=[
-            "CCO",
-            "C=O",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
     ),
 ):
     """
@@ -541,18 +675,31 @@ async def encode_SELFIES(
 
 @router.get(
     "/formats",
-    response_model=Dict,
     summary="Convert SMILES to various molecular formats using different toolkits",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": GenerateFormatsResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
-async def SMILES_convert_to_Formats(
+async def SMILES_convert_to_formats(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
-        examples=[
-            "CCO",
-            "C=O",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
     ),
     toolkit: Literal["cdk", "rdkit", "openbabel"] = Query(
         default="cdk", description="Cheminformatics toolkit used in the backend"

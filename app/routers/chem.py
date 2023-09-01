@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Query, status, HTTPException, Body
-from typing import Optional, Literal, List, Annotated, Dict
+from typing import Optional, Literal, Annotated
 from rdkit import Chem
 from typing import Union
 from rdkit.Chem.EnumerateStereoisomers import (
@@ -24,7 +24,6 @@ from app.modules.coconut.preprocess import getCOCONUTpreprocessing
 import pandas as pd
 from fastapi.templating import Jinja2Templates
 from app.schemas import HealthCheck
-from app.schemas.error import ErrorResponse
 from app.schemas.chemblstandardizer import (
     SMILESValidationResult,
     SMILESStandardizedResult,
@@ -32,12 +31,27 @@ from app.schemas.chemblstandardizer import (
 )
 from app.schemas.classyfire import ClassyFireJob, ClassyFireResult
 from app.schemas.coconut import COCONUTPreprocessingModel
+from app.schemas.error import ErrorResponse, BadRequestModel, NotFoundModel
+from app.schemas.chem_schema import (
+    GenerateStereoisomersResponse,
+    GenerateDescriptorsResponse,
+    GenerateMultipleDescriptorsResponse,
+    GenerateHOSECodeResponse,
+    GenerateStandardizeResponse,
+    NPlikelinessScoreResponse,
+    TanimotoSimilarityResponse,
+)
 
 router = APIRouter(
     prefix="/chem",
     tags=["chem"],
     dependencies=[],
-    responses={404: {"description": "Not Found"}},
+    responses={
+        200: {"description": "OK"},
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
 
 templates = Jinja2Templates(directory="app/templates")
@@ -68,18 +82,31 @@ def get_health() -> HealthCheck:
 
 @router.get(
     "/stereoisomers",
-    response_model=List[str],
     summary="Enumerate all possible stereoisomers",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": GenerateStereoisomersResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
 async def get_stereoisomers(
     smiles: str = Query(
         title="SMILES",
         description="SMILES string to be enumerated",
-        examples=[
-            "CCO",
-            "C=O",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
     )
 ):
     """
@@ -111,17 +138,30 @@ async def get_stereoisomers(
 @router.get(
     "/descriptors",
     summary="Generates descriptors for the input molecule",
-    response_class=Response,
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": GenerateDescriptorsResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
 async def get_descriptors(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
-        examples=[
-            "CCO",
-            "C=O",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
     ),
     format: Literal["json", "html"] = Query(
         default="json", description="Desired display format"
@@ -172,19 +212,31 @@ async def get_descriptors(
 
 @router.get(
     "/descriptors/multiple",
-    response_model=Dict,
-    response_class=Response,
     summary="Generates descriptors for the input molecules",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": GenerateMultipleDescriptorsResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
-async def calculate_descriptors(
+async def get_multiple_descriptors(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecules",
-        examples=[
-            "CCO,CCC",
-            "C=O,CC=O",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine, Topiramate-13C6",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C, CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6, Ethane",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1, CC",
+            },
+        },
     ),
     toolkit: Literal["cdk", "rdkit"] = Query(
         default="rdkit", description="Cheminformatics toolkit used in the backend"
@@ -231,18 +283,31 @@ async def calculate_descriptors(
 
 @router.get(
     "/HOSEcode",
-    response_model=List[str],
     summary="Generates HOSE codes for the input molecules",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": GenerateHOSECodeResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
-async def HOSE_Codes(
+async def hose_codes(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
-        examples=[
-            "CCO",
-            "C=O",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
     ),
     spheres: int = Query(
         title="spheres",
@@ -296,13 +361,34 @@ async def HOSE_Codes(
 @router.post(
     "/standardize",
     summary="Standardize molblock using the ChEMBL curation pipeline",
-    response_model=Dict,
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": GenerateStandardizeResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
 async def standardize_mol(
     data: Annotated[
-        str,
-        Body(embed=False, media_type="text/plain"),
+        mol_block:str,
+        Body(
+            embed=False,
+            media_type="text/plain",
+            openapi_examples={
+                "example1": {
+                    "summary": "Example: C",
+                    "value": """
+  CDK     09012310592D
+
+  1  0  0  0  0  0  0  0  0  0999 V2000
+    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+M  END""",
+                },
+            },
+        ),
     ]
 ):
     """
@@ -355,17 +441,30 @@ async def standardize_mol(
 @router.get(
     "/errors",
     summary="Check a given SMILES string and the represented structure for issues and standardize it",
-    response_model=Union[SMILESStandardizedResult, SMILESValidationResult],
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": Union[SMILESStandardizedResult, SMILESValidationResult],
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
 async def check_errors(
     smiles: str = Query(
         title="SMILES",
         description="The SMILES string to check and standardize.",
-        examples=[
-            "CCO",
-            "C=O",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
     ),
     fix: Optional[bool] = Query(
         False,
@@ -430,18 +529,31 @@ async def check_errors(
 
 @router.get(
     "/nplikeness/score",
-    response_model=float,
     summary="Generates descriptors for the input molecules",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": NPlikelinessScoreResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
-async def NPlikeliness_Score(
+async def np_likeness_score(
     smiles: str = Query(
         title="SMILES",
         description="The SMILES string to calculate the natural product likeness score",
-        examples=[
-            "CCO",
-            "C=O",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
     )
 ):
     """
@@ -473,17 +585,30 @@ async def NPlikeliness_Score(
 @router.get(
     "/tanimoto",
     summary="Generates the Tanimoto similarity index for a given pair of SMILES strings",
-    response_model=None,
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": TanimotoSimilarityResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
-async def Tanimoto_Similarity(
+async def tanimoto_similarity(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecules",
-        examples=[
-            "CCO,CCC",
-            "C=O,CC=O",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine, Topiramate-13C6",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6, Ethane",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1,CC",
+            },
+        },
     ),
     toolkit: Literal["cdk", "rdkit"] = Query(
         default="rdkit", description="Cheminformatics toolkit used in the backend"
@@ -556,18 +681,31 @@ async def Tanimoto_Similarity(
 
 @router.get(
     "/coconut/pre-processing",
-    response_model=COCONUTPreprocessingModel,
     summary="Generates an Input JSON file with information for COCONUT database",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": COCONUTPreprocessingModel,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
-async def COCONUT_Preprocessing(
+async def coconut_preprocessing(
     smiles: str = Query(
         title="SMILES",
         description="SMILES string representing a chemical compound",
-        examples=[
-            "CCO",
-            "C=O",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
     )
 ):
     """
@@ -600,18 +738,31 @@ async def COCONUT_Preprocessing(
 
 @router.get(
     "/classyfire/classify",
-    response_model=ClassyFireJob,
     summary="Generate ClassyFire-based classifications using SMILES as input",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": ClassyFireJob,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
-async def ClassyFire_Classify(
+async def classyfire_classify(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the compound to be classified",
-        examples=[
-            "CCO",
-            "C=O",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
     )
 ):
     """
@@ -648,11 +799,18 @@ async def ClassyFire_Classify(
 
 @router.get(
     "/classyfire/{jobid}/result",
-    response_model=ClassyFireResult,
     summary="Retrieve the ClassyFire classification results based on the provided Job ID",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": ClassyFireResult,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
-async def ClassyFire_result(jobid: str):
+async def classyFire_result(jobid: str):
     """
     Retrieve the ClassyFire classification results based on the provided Job ID.
     To obtain the results from ClassyFire, please initiate a new request and obtain a unique job ID.

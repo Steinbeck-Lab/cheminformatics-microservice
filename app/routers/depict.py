@@ -1,12 +1,13 @@
 from fastapi import Request, APIRouter, Query, status, HTTPException
 from typing import Optional, Literal
-from fastapi.responses import Response, HTMLResponse
+from fastapi.responses import Response
 from app.modules.depiction import getRDKitDepiction, getCDKDepiction
 from app.modules.toolkits.rdkit_wrapper import get3Dconformers
 from app.modules.toolkits.openbabel_wrapper import getOBMol
 from fastapi.templating import Jinja2Templates
 from app.schemas import HealthCheck
-from app.schemas.error import ErrorResponse
+from app.schemas.error import ErrorResponse, BadRequestModel, NotFoundModel
+from app.schemas.depict_schema import Depict2DResponse, Depict3DResponse
 
 templates = Jinja2Templates(directory="app/templates")
 
@@ -14,7 +15,12 @@ router = APIRouter(
     prefix="/depict",
     tags=["depict"],
     dependencies=[],
-    responses={404: {"description": "Not Found"}},
+    responses={
+        200: {"description": "OK"},
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
 
 
@@ -44,17 +50,30 @@ def get_health() -> HealthCheck:
 @router.get(
     "/2D",
     summary="Generates a 2D depiction of a molecule",
-    response_class=HTMLResponse,
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": Depict2DResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
-async def Depict2D_molecule(
+async def depict_2D_molecule(
     smiles: str = Query(
         title="SMILES",
         description="SMILES string to be converted",
-        examples=[
-            "CCO",
-            "C=O",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
     ),
     toolkit: Literal["cdk", "rdkit"] = Query(
         default="rdkit", description="Cheminformatics toolkit used in the backend"
@@ -125,19 +144,32 @@ async def Depict2D_molecule(
 
 @router.get(
     "/3D",
-    response_class=HTMLResponse,
     summary="Generates a 3D depiction of a molecule",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": Depict3DResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
-async def Depict3D_Molecule(
+async def depict_3D_molecule(
     request: Request,
     smiles: str = Query(
         title="SMILES",
         description="SMILES string to be converted",
-        examples=[
-            "CCO",
-            "C=O",
-        ],
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
     ),
     toolkit: Literal["rdkit", "openbabel"] = Query(
         default="rdkit", description="Cheminformatics toolkit used in the backend"

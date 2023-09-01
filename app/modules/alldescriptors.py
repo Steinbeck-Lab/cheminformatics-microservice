@@ -1,5 +1,5 @@
 from rdkit.Chem import Descriptors, QED, Lipinski, rdMolDescriptors, rdmolops
-from typing import Dict, List, Union, Tuple
+from typing import Union
 from app.modules.toolkits.rdkit_wrapper import (
     checkRo5Violations,
     checkSMILES,

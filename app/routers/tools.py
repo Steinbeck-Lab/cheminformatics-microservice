@@ -1,5 +1,4 @@
-from fastapi import APIRouter, status, Query, HTTPException, Body
-from typing import List, Annotated
+from fastapi import APIRouter, status, Query, HTTPException
 from app.modules.tools.surge import generateStructures
 from app.modules.tools.sugarremoval import (
     getSugarInfo,
@@ -8,13 +7,25 @@ from app.modules.tools.sugarremoval import (
     removeLinearandCircularSugar,
 )
 from app.schemas import HealthCheck
-from app.schemas.error import ErrorResponse
+from app.schemas.error import ErrorResponse, BadRequestModel, NotFoundModel
+from app.schemas.tools_schema import (
+    GenerateStructuresResponse,
+    GetSugarInformationResponse,
+    GetLinearSugarResponse,
+    GetCircularSugarResponse,
+    GetCircularandLinearSugarResponse,
+)
 
 router = APIRouter(
     prefix="/tools",
     tags=["tools"],
     dependencies=[],
-    responses={404: {"description": "Not Found"}},
+    responses={
+        200: {"description": "OK"},
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
 
 
@@ -43,20 +54,27 @@ def get_health() -> HealthCheck:
 
 @router.get(
     "/generate-structures",
-    response_model=List[str],
     summary="Generates structures using the chemical structure generator",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": GenerateStructuresResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
-async def Generate_Structures(
+async def generate_structures(
     molecular_formula: str = Query(
         title="Molecular Formula",
         description="Molecular Formula for the chemical structure to be generated",
         openapi_examples={
             "example1": {
-                "summary": "First example",
+                "summary": "Example: Heavy atom count 6",
                 "value": "C6H6",
             },
-            "example2": {"summary": "one more example", "value": "C6H8"},
+            "example2": {"summary": "Example: Heavy atom count 8", "value": "C8H8"},
         },
     )
 ):
@@ -94,19 +112,27 @@ async def Generate_Structures(
     "/sugars-info",
     response_model=str,
     summary="Get information whether a given molecule has circular or linear sugars",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": GetSugarInformationResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
-async def getsugarinformation(
+async def get_sugar_information(
     smiles: str = Query(
         title="SMILES",
         description="SMILES: string representation of the molecule",
         openapi_examples={
             "example1": {
-                "summary": "First example",
+                "summary": "Example: 1-[3,4,5-trihydroxy-6-(hydroxymethyl)oxan-2-yl]pentane-1,2,3,4,5-pentol",
                 "value": "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
             },
             "example2": {
-                "summary": "one more example",
+                "summary": "Example: 5-[1-(3,4-dihydroxyphenyl)-3-(2,3,4,5,6,7-hexahydroxyheptoxycarbonyl)-6-hydroxy-7-[3,4,5-trihydroxy-6-(hydroxymethyl)oxan-2-yl]oxy-1,2-dihydronaphthalene-2-carbonyl]oxy-3,4-dihydroxycyclohexene-1-carboxylic acid",
                 "value": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
             },
         },
@@ -149,21 +175,25 @@ async def getsugarinformation(
 
 @router.get(
     "/remove-linear-sugars",
-    response_model=str,
     summary="Detect and remove linear sugars",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {"description": "Successful response", "model": GetLinearSugarResponse},
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
-async def removelinearsugars(
+async def remove_linear_sugars(
     smiles: str = Query(
         title="SMILES",
         description="SMILES: string representation of the molecule",
         openapi_examples={
             "example1": {
-                "summary": "First example",
+                "summary": "Example: 1-[3,4,5-trihydroxy-6-(hydroxymethyl)oxan-2-yl]pentane-1,2,3,4,5-pentol",
                 "value": "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
             },
             "example2": {
-                "summary": "one more example",
+                "summary": "Example: 5-[1-(3,4-dihydroxyphenyl)-3-(2,3,4,5,6,7-hexahydroxyheptoxycarbonyl)-6-hydroxy-7-[3,4,5-trihydroxy-6-(hydroxymethyl)oxan-2-yl]oxy-1,2-dihydronaphthalene-2-carbonyl]oxy-3,4-dihydroxycyclohexene-1-carboxylic acid",
                 "value": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
             },
         },
@@ -194,21 +224,25 @@ async def removelinearsugars(
 
 @router.get(
     "/remove-circular-sugars",
-    response_model=str,
     summary="Detect and remove linear sugars",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {"description": "Successful response", "model": GetCircularSugarResponse},
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
-async def removecircularsugars(
+async def remove_circular_sugars(
     smiles: str = Query(
         title="SMILES",
         description="SMILES: string representation of the molecule",
         openapi_examples={
             "example1": {
-                "summary": "First example",
+                "summary": "Example: 1-[3,4,5-trihydroxy-6-(hydroxymethyl)oxan-2-yl]pentane-1,2,3,4,5-pentol",
                 "value": "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
             },
             "example2": {
-                "summary": "one more example",
+                "summary": "Example: 5-[1-(3,4-dihydroxyphenyl)-3-(2,3,4,5,6,7-hexahydroxyheptoxycarbonyl)-6-hydroxy-7-[3,4,5-trihydroxy-6-(hydroxymethyl)oxan-2-yl]oxy-1,2-dihydronaphthalene-2-carbonyl]oxy-3,4-dihydroxycyclohexene-1-carboxylic acid",
                 "value": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
             },
         },
@@ -239,21 +273,28 @@ async def removecircularsugars(
 
 @router.get(
     "/remove-sugars",
-    response_model=str,
     summary="Detect and remove linear sugars",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": GetCircularandLinearSugarResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
-async def removelinearandcircularsugars(
+async def remove_linear_and_circular_sugars(
     smiles: str = Query(
         title="SMILES",
         description="SMILES: string representation of the molecule",
         openapi_examples={
             "example1": {
-                "summary": "First example",
+                "summary": "Example: 1-[3,4,5-trihydroxy-6-(hydroxymethyl)oxan-2-yl]pentane-1,2,3,4,5-pentol",
                 "value": "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
             },
             "example2": {
-                "summary": "one more example",
+                "summary": "Example: 5-[1-(3,4-dihydroxyphenyl)-3-(2,3,4,5,6,7-hexahydroxyheptoxycarbonyl)-6-hydroxy-7-[3,4,5-trihydroxy-6-(hydroxymethyl)oxan-2-yl]oxy-1,2-dihydronaphthalene-2-carbonyl]oxy-3,4-dihydroxycyclohexene-1-carboxylic acid",
                 "value": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
             },
         },

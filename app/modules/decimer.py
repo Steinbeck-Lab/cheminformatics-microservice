@@ -1,7 +1,6 @@
 import os
 import cv2
 from PIL import Image
-from typing import Union
 from decimer_segmentation import segment_chemical_structures_from_file
 from DECIMER import predict_SMILES
 
