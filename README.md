@@ -20,13 +20,26 @@ This set of essential and valuable microservices is designed to be accessed via 
 
 ## Documentation
 
-https://steinbeck-lab.github.io/cheminformatics-python-microservice/
+https://docs.api.naturalproducts.net/
 
 ### API Swagger Docs:
 
 Production: https://api.naturalproducts.net/latest/docs
 
 Development: https://dev.api.naturalproducts.net/latest/docs
+
+## Installation
+
+You can run Cheminformatics Python Microservice as a standalone application using Python virtual environment or via Docker, or deploy to a Kubernetes cluster utilising Helm charts. Please follow the links below for step-by-step instructions.
+
+**Docker**
+https://docs.api.naturalproducts.net/docker.html
+
+**Kubernetes - Cluster deployment**
+https://docs.api.naturalproducts.net/cluster-deployment.html
+
+**Standalone**
+https://docs.api.naturalproducts.net/standalone.html
 
 ## License
 

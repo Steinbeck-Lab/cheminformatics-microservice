@@ -39,45 +39,48 @@ services:
       context: ./
       dockerfile: Dockerfile
     container_name: cheminformatics-python-microservice
+    environment:
+      HOMEPAGE_URL:  "https://docs.api.naturalproducts.net"
+      RELEASE_VERSION: v1.0.0
     volumes:
       - ./app:/code/app
     ports:
       - "80:80"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/latest/chem"]
+      test: ["CMD", "curl", "-f", "http://localhost:80/latest/chem/health"]
       interval: 1m30s
       timeout: 10s
       retries: 20
       start_period: 60s
-  Prometheus:
-    image: prom/Prometheus
-    container_name: Prometheus
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
     ports:
       - 9090:9090
     volumes:
-      - ./Prometheus_data/Prometheus.yml:/etc/Prometheus/Prometheus.yml
+      - ./prometheus_data/prometheus.yml:/etc/prometheus/prometheus.yml
     command:
-      - '--config.file=/etc/Prometheus/Prometheus.yml'
-  Grafana:
-    image: Grafana/Grafana
-    container_name: Grafana
+      - '--config.file=/etc/prometheus/prometheus.yml'
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
     ports:
       - 3000:3000
     volumes:
-      - Grafana_data:/var/lib/Grafana
+      - grafana_data:/var/lib/grafana
 volumes:
-  Prometheus_data:
+  prometheus_data:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ./Prometheus_data
-  Grafana_data:
+      device: ./prometheus_data
+  grafana_data:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ./Grafana_data
+      device: ./grafana_data
 networks:
   default: 
     name: cpm_fastapi
@@ -90,28 +93,6 @@ networks:
 Unicorn will start the app and display the server address (usually `http://localhost:80`) and the Grafana dashboard can be accessed at `http://localhost:3000`
 
 You may update the docker-compose file to disable or add additional services but by default, the docker-compose file shipped with the project has the web (cheminformatics-python-microservice FAST API app), Prometheus and Grafana (logging and visualisation of metrics) services and associated volumes shared via a network.
-
-## Standalone
-
-1. Install Python: Install Python on your machine by following the instructions for your specific operating system.
-
-2. Open a terminal or command prompt.
-
-3. Navigate to the directory where your CPM project codebase is located: Use `cd` to navigate to the project directory.
-
-5. Create a virtual environment (optional but recommended): Run the command `python -m venv env` to create a new virtual environment named "env" for your app.
-
-6. Activate the virtual environment (if created): Depending on your operating system, run the appropriate command to activate the virtual environment. For example, on Windows, run `.\env\Scripts\activate`, and on macOS/Linux, run `source env/bin/activate`.
-
-7. Install FastAPI and required dependencies: Run the command `pip install -r requirements.txt` to install FastAPI and the necessary dependencies.
-
-8. Run the FastAPI app: Execute the command `uvicorn main:app --reload` to start the CPM app.
-
-9. Wait for the app to start: Uvicorn will start the app and display the server address (usually `http://localhost:8000`) in the terminal or command prompt.
-
-10. Access the FastAPI app: Open a web browser and navigate to the server address displayed in the terminal or command prompt. You should see your FastAPI app running.
-
-That's it!
 
 ## Workers
 
@@ -127,10 +108,10 @@ In any case, you would run it like this:
 $ uvicorn main:app --host 0.0.0.0 --port 8080 --workers 4
 ```
 
-Update the Dockerfile in case you are running via docker-compose and rebuild the image for the changes to reflect.
+Update the Dockerfile to watch for code changes
 
 ```
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--workers", "4"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--workers", "4", "--reload"]
 ```
 
 </div>

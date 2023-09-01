@@ -12,7 +12,7 @@ from app.schemas import HealthCheck
 app = FastAPI(
     title="Cheminformatics Microservice",
     description="This set of essential and valuable microservices is designed to be accessed via API calls to support cheminformatics. Generally, it is designed to work with SMILES-based inputs and could be used to translate between different machine-readable representations, get Natural Product (NP) likeliness scores, visualize chemical structures, and generate descriptors. In addition, the microservices also host an instance of STOUT and another instance of DECIMER (two deep learning models for IUPAC name generation and optical chemical structure recognition, respectively).",
-    terms_of_service="https://steinbeck-lab.github.io/cheminformatics-python-microservice",
+    terms_of_service="https://docs.api.naturalproducts.net",
     contact={
         "name": "Steinbeck Lab",
         "url": "https://cheminf.uni-jena.de/",
@@ -35,7 +35,7 @@ app = VersionedFastAPI(
     version_format="{major}",
     prefix_format="/v{major}",
     enable_latest=True,
-    terms_of_service="https://steinbeck-lab.github.io/cheminformatics-python-microservice",
+    terms_of_service="https://docs.api.naturalproducts.net",
     contact={
         "name": "Steinbeck Lab",
         "url": "https://cheminf.uni-jena.de/",

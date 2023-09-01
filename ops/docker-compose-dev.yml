@@ -17,7 +17,7 @@ services:
   web:
     image: caffeinejena/cheminformatics-python-microservice:dev-latest
     environment:
-      HOMEPAGE_URL:  "https://steinbeck-lab.github.io/cheminformatics-python-microservice"
+      HOMEPAGE_URL:  "https://docs.api.naturalproducts.net"
       RELEASE_VERSION: dev-latest
     pull_policy: always
     labels:
