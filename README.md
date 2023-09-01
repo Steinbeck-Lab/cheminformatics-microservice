@@ -39,7 +39,7 @@ https://docs.api.naturalproducts.net/docker.html
 https://docs.api.naturalproducts.net/cluster-deployment.html
 
 **Standalone**
-https://docs.api.naturalproducts.net/installation.html#standalone
+https://docs.api.naturalproducts.net/standalone.html
 
 ## License
 

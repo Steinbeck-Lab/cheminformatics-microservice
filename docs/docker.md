@@ -34,15 +34,14 @@ The Cheminformatics Python Microservice comes packaged with docker-compose file 
 git clone https://github.com/Steinbeck-Lab/cheminformatics-python-microservice.git
 cd cheminformatics-python-microservice
 ```
-3. For local deployment 
-```bash
-docker-compose up -d
-```
-4. For production deployment
+3. Start the application
 ```bash
 docker-compose -f ops/docker-compose-prod.yml up -d
 ```
-5. Scaling in case of performance issues - This service file supports the docker-compose builtin scaling load balanced by [Traefik](https://doc.traefik.io/traefik/). For example to add 3 additional application containers you can simply invoke:
+
+## Scaling
+
+Scaling in case of performance issues - This docker-compose file supports the builtin scaling. Request are load balanced by [Traefik](https://doc.traefik.io/traefik/). For example to scale upto 3 additional application containers you can simply invoke:
 ```bash
 docker-compose -f ops/docker-compose-prod.yml up -d --scale web=3 --no-recreate
 ```

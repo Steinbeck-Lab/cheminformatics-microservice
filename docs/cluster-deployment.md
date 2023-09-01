@@ -112,8 +112,11 @@ helm delete myrelease
 In case of performance issue, the CPM application can be scaled accordingly. The Helm chart for CPM comes packaged with Horizontal Pod Autoscaler. Horizontal Pod Autoscaler (HPA) is a Kubernetes feature that automatically adjusts the number of replica pods in a deployment or replica set based on observed CPU utilization or other select metrics. This allows your Kubernetes cluster to dynamically respond to changes in application load, ensuring optimal resource utilization and application availability.
 You can set the `targetCPUUtilizationPercentage` and `targetMemoryUtilizationPercentage` values in values.yml file  according to your need and demand, which is the deciding factor to trigger the scaling. To learn more about different types of scaling in Kubernetes and GKE follow the official [documentation](https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-autoscaler) of Google Cloud.
 
-If your application is deployed via Docker Compose then follow the documentation here for [scaling](/docker.html#docker-compose).
+::: info
 
+For Docker Compose based deployments follow the documentation here for [scaling](/docker.html#scaling).
+
+::: 
 
 ### Contribute or Report an issue
 Thank you for your valuable assistance in enhancing our deployment process. If you would like to contribute, kindly create a pull request in our [GitHub](https://github.com/NFDI4Chem/repo-helm-charts) repository. For any issues or bugs you have encountered, please feel free to create an [issue](https://github.com/NFDI4Chem/repo-helm-charts/issues) in the same or write to us at caffeine-devs@uni-jena.de. 

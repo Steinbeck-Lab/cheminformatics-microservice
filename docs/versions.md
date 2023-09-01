@@ -15,7 +15,7 @@ The Cheminformatics Python Microservices framework is developed using Python and
 
 <br/>
 <p align="center">
-  <b> Cheminformatics Python Microservice: V1.0.0 </b>
+  <b> Cheminformatics Python Microservice: v1.0.0 </b>
 </p><br/>
 
 - **The currently utilized versions of open cheminformatics toolkits.**
