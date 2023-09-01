@@ -10,8 +10,8 @@ Tools developed based on cheminformatics toolkits but not packaged with the orig
   <iframe id="inlineFrameExample"
       title="Inline Frame Example"
       width="100%"
-      height="190"
+      height="350"
       style="border:none"
-      src="https://dev.api.naturalproducts.net/v1/docs#/tools">
+      src="https://dev.api.naturalproducts.net/latest/docs#/tools">
   </iframe>
 </div>

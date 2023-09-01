@@ -12,6 +12,6 @@ Under the CHEM module, CPM exposes functions and routines offered by cheminforma
       width="100%"
       height="720"
       style="border:none"
-      src="https://dev.api.naturalproducts.net/v1/docs#/chem">
+      src="https://dev.api.naturalproducts.net/latest/docs#/chem">
   </iframe>
 </div>

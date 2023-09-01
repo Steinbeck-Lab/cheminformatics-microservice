@@ -12,7 +12,7 @@ We packaged CPM with DECIMER, an open-source software platform for automated opt
   <iframe id="inlineFrameExample"
       title="Inline Frame Example"
       width="100%"
-      height="190"
+      height="150"
       style="border:none"
       src="https://dev.api.naturalproducts.net/v1/docs#/ocsr">
   </iframe>
