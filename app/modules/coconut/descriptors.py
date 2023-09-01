@@ -4,9 +4,9 @@ from app.modules.toolkits.cdk_wrapper import (
     getMurkoFramework,
     getCDKDescriptors,
 )
-from app.modules.alldescriptors import getCDKRDKitcombinedDescriptors
+from app.modules.all_descriptors import getCDKRDKitcombinedDescriptors
 from app.modules.npscorer import getNPScore
-from app.modules.tools.sugarremoval import getSugarInfo
+from app.modules.tools.sugar_removal import getSugarInfo
 
 
 def getDescriptors(smiles: str, toolkit: str) -> Union[tuple, str]:

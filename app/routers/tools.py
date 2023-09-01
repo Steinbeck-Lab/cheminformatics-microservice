@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status, Query, HTTPException
 from app.modules.tools.surge import generateStructures
-from app.modules.tools.sugarremoval import (
+from app.modules.tools.sugar_removal import (
     getSugarInfo,
     removeLinearSugar,
     removeCircularSugar,

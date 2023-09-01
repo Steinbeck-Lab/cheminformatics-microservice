@@ -19,7 +19,7 @@ from app.modules.toolkits.rdkit_wrapper import (
     getProperties,
 )
 from app.modules.coconut.descriptors import getCOCONUTDescriptors
-from app.modules.alldescriptors import getTanimotoSimilarity
+from app.modules.all_descriptors import getTanimotoSimilarity
 from app.modules.coconut.preprocess import getCOCONUTpreprocessing
 import pandas as pd
 from fastapi.templating import Jinja2Templates
