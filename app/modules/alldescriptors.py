@@ -198,11 +198,11 @@ def getCDKRDKitcombinedDescriptors(
             - If unsuccessful due to descriptor calculation errors, returns an error message as a string.
     """
     # Calculate RDKit and CDK descriptors
-    RDKitDescriptors = getAllRDKitDescriptors(smiles)
-    CDKDescriptors = getAllCDKDescriptors(smiles)
+    rdkit_descriptors = getAllRDKitDescriptors(smiles)
+    cdk_descriptors = getAllCDKDescriptors(smiles)
 
     # List of descriptors to calculate
-    AllDescriptors = (
+    all_descriptors = (
         "Atom count",
         "Bond count",
         "Heavy atom count",
@@ -224,14 +224,16 @@ def getCDKRDKitcombinedDescriptors(
         "Van der Waals Volume",
     )
 
-    if len(AllDescriptors) == len(RDKitDescriptors) == len(CDKDescriptors):
-        combinedDict = {
-            AllDescriptors[i]: (RDKitDescriptors[i], CDKDescriptors[i])
-            for i in range(len(AllDescriptors))
+    if len(all_descriptors) == len(rdkit_descriptors) == len(cdk_descriptors):
+        combined_dict = {
+            descriptor: (rdkit_desc, cdk_desc)
+            for descriptor, rdkit_desc, cdk_desc in zip(
+                all_descriptors, rdkit_descriptors, cdk_descriptors
+            )
         }
-        return combinedDict
+        return combined_dict
     else:
-        return "Error: Descriptor calculation failed or descriptor count mismatch."
+        return "Error: Dictionary length is invalid"
 
 
 def get_table(tanimoto_values: list) -> str:

@@ -373,7 +373,7 @@ async def hose_codes(
 )
 async def standardize_mol(
     data: Annotated[
-        mol_block:str,
+        str,
         Body(
             embed=False,
             media_type="text/plain",

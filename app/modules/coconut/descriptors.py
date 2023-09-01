@@ -81,17 +81,20 @@ def getCOCONUTDescriptors(smiles: str, toolkit: str) -> Union[Dict[str, float], 
             "fractioncsp3",
             "number_of_minimal_rings",
             "van_der_walls_volume",
-            "linear_sugars",
-            "circular_sugars",
-            "murko_framework",
-            "nplikeness",
         )
 
-        if len(DescriptorList) == len(CombinedDescriptors):
-            combinedDict = {
-                DescriptorList[i]: CombinedDescriptors[i]
-                for i in range(len(DescriptorList))
-            }
-            return combinedDict
-        else:
-            return "Error Calculating Descriptors"
+    combinedDescriptors = dict(zip(DescriptorList, Descriptors))
+    combinedDescriptors.update(
+        {
+            "linear_sugars": hasLinearSugar,
+            "circular_sugars": hasCircularSugars,
+            "murko_framework": framework,
+            "nplikeness": nplikeliness,
+        }
+    )
+
+    return (
+        combinedDescriptors
+        if len(DescriptorList) == len(Descriptors)
+        else "Error Calculating Descriptors"
+    )
