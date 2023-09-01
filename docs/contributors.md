@@ -4,7 +4,7 @@ outline: deep
 
 # Contributors
 
-Please checkout our GitHub Contributors page for more details - https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/graphs/contributors
+Please check our GitHub Contributors page for more details - https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/graphs/contributors
 
 
 ### Contributions overview (last 30 days)

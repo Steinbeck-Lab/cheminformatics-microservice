@@ -9,10 +9,10 @@ app.modules.tools.surge module
    :undoc-members:
    :show-inheritance:
 
-app.modules.tools.sugarremoval module
+app.modules.tools.sugar_removal module
 -------------------------------------
 
-.. automodule:: app.modules.tools.sugarremoval
+.. automodule:: app.modules.tools.sugar_removal
    :members:
    :undoc-members:
    :show-inheritance:

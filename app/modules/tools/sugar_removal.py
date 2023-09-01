@@ -1,16 +1,19 @@
 import app.modules.toolkits.cdk_wrapper as cdk
 
 
-def getSugarInfo(smiles: str):
-    """This function uses the sugar removal utility and checks
-    whether a molecule has circular or linear sugars
+def getSugarInfo(smiles: str) -> tuple:
+    """
+    Analyzes a molecule represented by a SMILES string to determine if it contains sugars.
+    This function utilizes the Sugar Removal Utility to check for the presence of circular or linear sugars.
 
     Args:
-        smiles (str): SMILES string given by the user.
-    Returns:
-        (boolean): True or false values whtehr or not molecule has sugar.
+        smiles (str): A valid SMILES string representing the molecule.
 
+    Returns:
+        tuple: A tuple containing two boolean values indicating whether the molecule has linear sugars
+               and whether the molecule has circular sugars. If no sugars are found, both values will be False.
     """
+
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
     SCOB = cdk.JClass(cdk.cdk_base + ".silent.SilentChemObjectBuilder")
@@ -32,16 +35,21 @@ def getSugarInfo(smiles: str):
         return (False, False)
 
 
-def removeLinearSugar(smiles: str):
-    """This fucntion detects and removes linear sugars from a give
-    SMILES string. Uses the CDK based sugar removal utility.
+def removeLinearSugar(smiles: str) -> str:
+    """
+    Detects and removes linear sugars from a given SMILES string using the CDK-based
+    sugar removal utility.
 
     Args:
-        smiles (str): SMILES string given by the user.
-    Returns:
-        smiles (str): SMILES string without linear sugars.
+        smiles (str): The input SMILES string.
 
+    Returns:
+        str: The SMILES string with linear sugars removed, or a message indicating no linear sugar found.
+
+    Raises:
+        ValueError: If there is an issue with parsing the input SMILES string.
     """
+
     cdk_base = "org.openscience.cdk"
     SCOB = cdk.JClass(cdk_base + ".silent.SilentChemObjectBuilder")
     SmilesParser = cdk.JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
@@ -67,15 +75,15 @@ def removeLinearSugar(smiles: str):
         return "No Linear sugar found"
 
 
-def removeCircularSugar(smiles: str):
-    """This fucntion detects and removes circular sugars from a give
-    SMILES string. Uses the CDK based sugar removal utility.
+def removeCircularSugar(smiles: str) -> str:
+    """
+    Detects and removes circular sugars from a given SMILES string using the CDK-based sugar removal utility.
 
     Args:
-        smiles (str): SMILES string given by the user.
-    Returns:
-        smiles (str): SMILES string without circular sugars.
+        smiles (str): The input SMILES string.
 
+    Returns:
+        str: SMILES string with circular sugars removed, or a message if no circular sugars are found.
     """
     cdk_base = "org.openscience.cdk"
     SCOB = cdk.JClass(cdk_base + ".silent.SilentChemObjectBuilder")

@@ -9,13 +9,17 @@ from jpype import JClass
 def getCDKDepiction(
     smiles: str, molSize=(512, 512), rotate=0, CIP=True, unicolor=False
 ):
-    """This function takes the user input SMILES and Depicts it
-       using the CDK Depiction Generator.
-    Args:
-            smiles (string): SMILES string given by the user.
-    Returns:
-            image (SVG): CDK Structure Depiction as a SVG image.
     """
+    This function takes the user input SMILES and Depicts it
+    using the CDK Depiction Generator.
+
+    Args:
+        smiles (string): SMILES string given by the user.
+
+    Returns:
+        image (SVG): CDK Structure Depiction as an SVG image.
+    """
+
     cdk_base = "org.openscience.cdk"
     StandardGenerator = JClass(
         cdk_base + ".renderer.generators.standard.StandardGenerator"
@@ -66,13 +70,16 @@ def getCDKDepiction(
 
 
 def getRDKitDepiction(smiles, molSize=(512, 512), rotate=0, kekulize=True):
-    """This function takes the user input SMILES and Canonicalize it
-       using the RDKit.
-    Args:
-            smiles (string): SMILES string given by the user.
-    Returns:
-            image (SVG): RDKit Structure Depiction as a SVG image.
     """
+    This function takes the user input SMILES and Canonicalize it using the RDKit.
+
+    Args:
+        smiles (string): SMILES string given by the user.
+
+    Returns:
+        image (SVG): RDKit Structure Depiction as an SVG image.
+    """
+
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
     mol = Chem.MolFromSmiles(smiles)
