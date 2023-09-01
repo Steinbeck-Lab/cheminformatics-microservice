@@ -2,19 +2,25 @@
 outline: deep
 ---
 
-# Kubernetes deployment via Helm.
-Cheminformatics Python Microservices comes packaged with [Helm](https://helm.sh/docs/) chart which simplifies the deployment and management of applications on [Kubernetes](https://kubernetes.io/) by providing a convenient package manager interface. By following the steps outlined in this documentation, you can easily deploy this microservice using [Helm](https://helm.sh/docs/), enabling efficient and reproducible deployments in your [Kubernetes](https://kubernetes.io/) cluster.
+# Kubernetes deployment (K8S)
 
-Please refer to Helm’s [documentation](https://helm.sh/docs/) to get started.
+## Helm Charts - v0.1.6
+
+Cheminformatics Python Microservices comes packaged with a [Helm](https://helm.sh/docs/) chart, that makes it easy to deploy and manage (scale) containers on [Kubernetes](https://kubernetes.io/) via a convenient package manager interface. 
+
+By following the steps outlined in this documentation, you can easily deploy this microservice using [Helm](https://helm.sh/docs/).
+
+For more information about Helm Charts based deployment please refer to official [Helm documentation](https://helm.sh/docs/).
 
 **Prerequisites:**
 
 Before proceeding with the deployment, ensure that you have the following:
 
 Kubernetes cluster: Set up a functioning Kubernetes cluster with kubectl configured to interact with the cluster.
+
 Helm: [Install Helm](https://helm.sh/docs/docs/intro/install/) on your local machine or the machine from which you'll be deploying the application. 
 
-### Deploy the chart:
+## Deployment using CPM Helm Chart
 *  **Add repo:** Once Helm has been set up correctly, add the repo as follows: 
 ```bash
     helm repo add repo-helm-charts https://nfdi4chem.github.io/repo-helm-charts/
@@ -35,7 +41,7 @@ kubectl get services
 ```
 * **Upgrading and Managing Deployments:** To upgrade an existing deployment, Use the `helm upgrade` command to apply the changes to the existing release e.g.
 ```bash
-helm upgrade myrelease repo-helm-charts/cheminfo-microservice-0.0.2
+helm upgrade myrelease repo-helm-charts/cheminfo-microservice-0.1.6
 ```
 
 * **Uninstalling the Chart:** To remove a deployed chart and associated resources, use the helm uninstall command:
@@ -45,10 +51,12 @@ helm uninstall myrelease
 This will delete all resources created by the chart, including pods, services, and any other Kubernetes objects.
 
 
-# Deployment to Google Kubernetes Engine(GKE) using Helm.
+
+## Google Kubernetes Engine(GKE)
+
 This documentation will guide you through the process of deploying the CPM application in [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine) using [Helm](https://helm.sh/docs/). Here we provide a step-by-step instructions to help you set up your environment, install Helm, and dpeloy the CPM application in the Google Kubernetes Cluster.
 
-## Prerequisites
+### Prerequisites
 Before you begin, ensure you have the following prerequisites in place:
 * Google Cloud Platform (GCP) Account: You need a GCP account to create a GKE cluster and use other GCP services.
 * In the Google Cloud console, on the project selector page, select or [create a Google Cloud project](https://cloud.google.com/resource-manager/docs/creating-managing-projects).
@@ -57,7 +65,7 @@ Before you begin, ensure you have the following prerequisites in place:
     * Go to [Google Cloud Console](https://console.cloud.google.com/)
     * Click on the 'Activate Cloud Shell' button located at the top of the Google Cloud console window.
 
-###  Step 1: Create a GKE Cluster
+####  Step 1: Create a GKE Cluster
 A GKE cluster consists of a pool of Compute Engine VM instances running [Kubernetes](https://kubernetes.io/), the open source cluster orchestration system that powers GKE.
 1. Navigate to [Google Kubernetes Engine](https://console.cloud.google.com/kubernetes) page in Google Cloud console.
 2. Click on the Create icon.
@@ -77,11 +85,11 @@ A GKE cluster consists of a pool of Compute Engine VM instances running [Kuberne
 
 6. Click on `Create` button and wait for the Cluster to be ready.
 
-### Step2: Connect to Cluster
+#### Step2: Connect to Cluster
 1. After you cluster is created you can see the green check next to it. Once you see the check, click on the three dots next to your cluster to click on `Connect`.
 2. Click on `Run in Cloud Shell` option and press enter.
 
-### Step3: Deploy via Helm Chart
+#### Step3: Deploy via Helm Chart
 1. Add the helm repo by running below command.
 ```bash
     helm repo add repo-helm-charts https://nfdi4chem.github.io/repo-helm-charts/
@@ -102,14 +110,14 @@ kubectl get services
 5. To access your service you may have to expose it either by setting the type to `Load Balancer` under service in values.yml file or by an Ingress depending upon your requirement.
 To learn more about how to configure Nginx Ingress you can click on the link [here](https://github.com/GoogleCloudPlatform/community/blob/master/archived/nginx-ingress-gke/index.md#deploying-the-nginx-ingress-controller-with-helm).
 
-### Step4: Clean up
+#### Step4: Clean up
 To avoid incurring charges to your Google Cloud account for the resources used in this tutorial, either delete the project that contains the resources, or keep the project and delete resources by running below command.
 ```bash
 helm delete myrelease
 ```
 
-## Scaling
-In case of performance issue, the CPM application can be scaled accordingly. The Helm chart for CPM comes packaged with Horizontal Pod Autoscaler. Horizontal Pod Autoscaler (HPA) is a Kubernetes feature that automatically adjusts the number of replica pods in a deployment or replica set based on observed CPU utilization or other select metrics. This allows your Kubernetes cluster to dynamically respond to changes in application load, ensuring optimal resource utilization and application availability.
+### Scaling
+In case of performance issue, the CPM application can be scaled automatically using different strategies. The Helm chart for CPM comes packaged with Horizontal Pod Autoscaler. Horizontal Pod Autoscaler (HPA) is a Kubernetes feature that automatically adjusts the number of replica pods in a deployment or replica set based on observed CPU utilization or other select metrics. This allows your Kubernetes cluster to dynamically respond to changes in application load, ensuring optimal resource utilization and application availability.
 You can set the `targetCPUUtilizationPercentage` and `targetMemoryUtilizationPercentage` values in values.yml file  according to your need and demand, which is the deciding factor to trigger the scaling. To learn more about different types of scaling in Kubernetes and GKE follow the official [documentation](https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-autoscaler) of Google Cloud.
 
 ::: info
@@ -118,7 +126,7 @@ For Docker Compose based deployments follow the documentation here for [scaling]
 
 ::: 
 
-### Contribute or Report an issue
+### Contribute or Report an issue with CPM Helm Chart
 Thank you for your valuable assistance in enhancing our deployment process. If you would like to contribute, kindly create a pull request in our [GitHub](https://github.com/NFDI4Chem/repo-helm-charts) repository. For any issues or bugs you have encountered, please feel free to create an [issue](https://github.com/NFDI4Chem/repo-helm-charts/issues) in the same or write to us at caffeine-devs@uni-jena.de. 
 Your feedback is greatly appreciated.
 

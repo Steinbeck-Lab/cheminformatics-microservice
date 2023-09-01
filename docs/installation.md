@@ -108,10 +108,10 @@ In any case, you would run it like this:
 $ uvicorn main:app --host 0.0.0.0 --port 8080 --workers 4
 ```
 
-Update the Dockerfile in case you are running via docker-compose and rebuild the image for the changes to reflect.
+Update the Dockerfile to watch for code changes
 
 ```
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--workers", "4"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--workers", "4", "--reload"]
 ```
 
 </div>
