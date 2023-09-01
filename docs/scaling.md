@@ -12,7 +12,7 @@ Scalability in cheminformatics tools is crucial to ensure that researchers and s
 
 Implementing parallelization in molecular diversity-related tasks can significantly enhance the efficiency and speed of cheminformatics and drug discovery workflows. It allows researchers to handle larger datasets, explore chemical space more comprehensively, and make more informed decisions in a shorter amount of time, ultimately facilitating the discovery of novel compounds and materials.
 
-### DECIMER - OCSR / STOUT (Resource intensive jobs)
+### DECIMER - OCSR / STOUT (Resourceloc intensive jobs)
 
 Scaling neural network model predictions effectively involves a combination of model optimization, hardware utilization, and deployment strategies tailored to the specific use case and available computational resources. In the case of DECIMER - OCSR due to large model size, requesting and maintaining a large resource all the time is not effective both in terms of costs and environmental impact. Application needs to up scale on demand and downscale if the request load is low.
 
