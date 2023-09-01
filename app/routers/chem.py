@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Query, status, HTTPException, Body
-from typing import Optional, Literal, Annotated
+from typing import Optional, Literal, Annotated, Union
 from rdkit import Chem
-from typing import Union
 from rdkit.Chem.EnumerateStereoisomers import (
     EnumerateStereoisomers,
 )
@@ -40,6 +39,7 @@ from app.schemas.chem_schema import (
     GenerateStandardizeResponse,
     NPlikelinessScoreResponse,
     TanimotoSimilarityResponse,
+    TanimotoMatrixResponse,
 )
 
 router = APIRouter(
@@ -588,7 +588,7 @@ async def np_likeness_score(
     responses={
         200: {
             "description": "Successful response",
-            "model": TanimotoSimilarityResponse,
+            "model": Union[TanimotoSimilarityResponse, TanimotoMatrixResponse],
         },
         400: {"description": "Bad Request", "model": BadRequestModel},
         404: {"description": "Not Found", "model": NotFoundModel},

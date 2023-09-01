@@ -305,4 +305,4 @@ def getTanimotoSimilarity(smileslist: str, toolkit: str = "cdk") -> list:
             else:
                 raise ValueError("Unsupported toolkit:", toolkit)
 
-    return matrix
+    return get_table(matrix)
