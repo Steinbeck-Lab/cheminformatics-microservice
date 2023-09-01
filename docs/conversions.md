@@ -12,6 +12,6 @@ CONVERT module offers endpoints for converting molecular representations from on
       width="100%"
       height="670"
       style="border:none"
-      src="https://dev.api.naturalproducts.net/v1/docs#/convert">
+      src="https://dev.api.naturalproducts.net/latest/docs#/convert">
   </iframe>
 </div>
