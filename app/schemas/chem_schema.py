@@ -254,3 +254,38 @@ class TanimotoSimilarityResponse(BaseModel):
                 }
             ]
         }
+
+
+class TanimotoMatrixResponse(BaseModel):
+    """
+    Response model for Tanimoto similarity matrix.
+
+    Attributes:
+    - similarity_matrix (List[List[float]]): A 2D list representing the Tanimoto similarity matrix.
+      Each inner list corresponds to a row in the matrix, and each value inside the inner list
+      represents the similarity score between two molecules.
+    """
+
+    similarity_matrix: list = Field(
+        ...,
+        title="Tanimoto Similarities",
+        description="The Tanimoto similarities as a 2D list representing the Tanimoto similarity matrix.",
+    )
+
+    class Config:
+        """
+        Pydantic model configuration.
+
+        JSON Schema Extra:
+        - Includes examples of the response structure.
+        """
+
+        json_schema_extra = {
+            "examples": [
+                {
+                    "input": "CCC,CC,CCC",
+                    "message": "Success",
+                    "output": "[[1.0, 0.2, 1.0], [0.2, 1.0, 0.2], [1.0, 0.2, 1.0]]",
+                }
+            ]
+        }
