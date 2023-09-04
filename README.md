@@ -14,7 +14,7 @@
 [![FastAPI Documentation](https://img.shields.io/badge/docs-fastapi-blue)](https://api.naturalproducts.net/v1/docs#/)
 [![Documentation Status](https://readthedocs.org/projects/cheminformatics-python-microservice/badge/?version=latest)](https://cheminformatics-python-microservice.readthedocs.io/en/latest/?badge=latest)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8112749.svg)](https://doi.org/10.5281/zenodo.8112749)
-## Overview of Cheminformatics Python Microservice
+## Overview of Cheminformatics Microservice
 
 This set of essential and valuable microservices is designed to be accessed via API calls to support cheminformatics. Generally, it is designed to work with SMILES-based inputs and could be used to translate between different machine-readable representations, get Natural Product (NP) likeliness scores, visualize chemical structures, and generate descriptors. In addition, the microservices also host an instance of [STOUT](https://github.com/Kohulan/Smiles-TO-iUpac-Translator) and another instance of [DECIMER](https://github.com/Kohulan/DECIMER-Image_Transformer) (two deep learning models for IUPAC name generation and optical chemical structure recognition, respectively).
 
@@ -30,7 +30,7 @@ Development: https://dev.api.naturalproducts.net/latest/docs
 
 ## Installation
 
-You can run Cheminformatics Python Microservice as a standalone application using Python virtual environment or via Docker, or deploy to a Kubernetes cluster utilising Helm charts. Please follow the links below for step-by-step instructions.
+You can run Cheminformatics Microservice as a standalone application using Python virtual environment or via Docker, or deploy to a Kubernetes cluster utilising Helm charts. Please follow the links below for step-by-step instructions.
 
 **Docker**
 https://docs.api.naturalproducts.net/docker.html
@@ -47,11 +47,11 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
 
 ## Citation
 
-Venkata, C., Sharma, N., & Rajan, K. (2023). Cheminformatics Python Microservice (Version V1.0.0) [Computer software]. https://doi.org/10.5281/zenodo.7747862
+Venkata, C., Sharma, N., & Rajan, K. (2023). Cheminformatics Microservice (Version V1.0.0) [Computer software]. https://doi.org/10.5281/zenodo.7747862
 
 ## Maintained by
 
-Cheminformatics Python Microservice and [Natural Products Online](https://naturalproducts.net) are developed and maintained by the [Steinbeck group](https://cheminf.uni-jena.de) at the [Friedrich Schiller University](https://www.uni-jena.de/en/) Jena, Germany. 
+Cheminformatics Microservice and [Natural Products Online](https://naturalproducts.net) are developed and maintained by the [Steinbeck group](https://cheminf.uni-jena.de) at the [Friedrich Schiller University](https://www.uni-jena.de/en/) Jena, Germany. 
 The code for this web application is released under the [MIT license](https://opensource.org/licenses/MIT). Copyright © CC-BY-SA 2023
 <p align="center"><a href="https://cheminf.uni-jena.de/" target="_blank"><img src="https://github.com/Kohulan/DECIMER-Image-to-SMILES/blob/master/assets/CheminfGit.png" width="800" alt="cheminf Logo"></a></p>
 
