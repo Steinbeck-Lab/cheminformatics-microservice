@@ -100,3 +100,22 @@ def getPredictedSegments(path: str) -> str:
             smiles_predicted.append(smiles)
             os.remove(segment_path)
         return ".".join(smiles_predicted)
+
+
+def getPredictedSegmentsFromFile(content: any, filename: str) -> tuple:
+    """
+    Takes an image file path and returns a set of paths and image names of segmented images.
+
+    Args:
+        input_path (str): the path of an image.
+
+    Returns:
+        image_name (str): image file name.
+        segments (list): a set of segmented images.
+    """
+
+    with open(filename, "wb") as f:
+        f.write(content)
+        smiles = getPredictedSegments(filename)
+        os.remove(filename)
+        return smiles
