@@ -2,12 +2,17 @@ from openbabel import openbabel as ob
 from openbabel import pybel
 
 
-def getOBCanonicalSMILES(smiles: str):
-    """This function takes an input as a SMILES string and
-    returns a Canonical SMILES.
-    Args (str): SMILES string.
-    Returns (str): Canonical SMILES string.
+def getOBCanonicalSMILES(smiles: str) -> str:
     """
+    Convert a SMILES string to Canonical SMILES.
+
+    Args:
+        smiles (str): Input SMILES string.
+
+    Returns:
+        str: Canonical SMILES string.
+    """
+
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
 
@@ -23,12 +28,18 @@ def getOBCanonicalSMILES(smiles: str):
     return canSMILES
 
 
-def getOBInChI(smiles: str, InChIKey: bool = False):
-    """This function takes an input as a SMILES string and
-    returns a InChI
-    Args (str): SMILES string.
-    Returns (str): InChI string.
+def getOBInChI(smiles: str, InChIKey: bool = False) -> str:
     """
+    Convert a SMILES string to InChI.
+
+    Args:
+        smiles (str): Input SMILES string.
+        InChIKey (bool, optional): Whether to return InChIKey. Defaults to False.
+
+    Returns:
+        str: InChI string or InChIKey string if InChIKey is True.
+    """
+
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
 
@@ -49,11 +60,17 @@ def getOBInChI(smiles: str, InChIKey: bool = False):
     return inchi
 
 
-def getOBMol(smiles: str, threeD: bool = False, depict: bool = False):
-    """This function takes an input as a SMILES string and
-    returns a 2D/3D mol block.
-    Args (str,bool,bool): SMILES string, 3D mol block, 3D mol block for depiction
-    Returns (str): Mol block (2D/3D).
+def getOBMol(smiles: str, threeD: bool = False, depict: bool = False) -> str:
+    """
+    Convert a SMILES string to a 2D/3D mol block.
+
+    Args:
+        smiles (str): Input SMILES string.
+        threeD (bool, optional): Generate 3D structure. Defaults to False.
+        depict (bool, optional): Generate 3D structure for depiction. Defaults to False.
+
+    Returns:
+        str: Mol block (2D/3D).
     """
     if any(char.isspace() for char in smiles):
         smiles = smiles.replace(" ", "+")
