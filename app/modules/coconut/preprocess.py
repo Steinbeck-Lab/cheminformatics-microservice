@@ -4,15 +4,18 @@ import app.modules.toolkits.cdk_wrapper as cdk
 from app.modules.coconut.descriptors import getCOCONUTDescriptors
 
 
-def getMolBlock(input_text: str):
+def getMolBlock(input_text: str) -> str:
     """
-    This function generates a molblock from the
-    input text using CDK.
+    Generate a Molblock from input text using CDK.
 
-    Args (str):
-        Input text (mol / SMILES)
-    Returns (str):
-        molblock
+    Args:
+        input_text (str): Input text (Mol/SMILES).
+
+    Returns:
+        str: Molblock representation.
+
+    Raises:
+        ValueError: If input_text is not a valid Mol or SMILES.
 
     """
     check = rdkitmodules.is_valid_molecule(input_text)
@@ -26,14 +29,15 @@ def getMolBlock(input_text: str):
         return "Error!, Check the input text."
 
 
-def getMolculeHash(smiles: str):
+def getMolculeHash(smiles: str) -> dict:
     """
-    This function returns a set of molecule hashes defined.
+    Return various molecule hashes for the provided SMILES.
 
-    Args (str):
-        SMILES string (strandardised is preferred).
-    Returns (dict):
-        molecule_hash
+    Args:
+        smiles (str): Standardized SMILES string.
+
+    Returns:
+        dict: Dictionary containing Formula, Isomeric SMILES, and Canonical SMILES.
 
     """
     mol = Chem.MolFromSmiles(smiles)
@@ -48,17 +52,19 @@ def getMolculeHash(smiles: str):
             "Isomeric_SMILES": Isomeric_SMILES,
             "Canonical_SMILES": Canonical_SMILES,
         }
+    else:
+        return {"Error": "Check input SMILES"}
 
 
-def getRepresentations(smiles: str):
+def getRepresentations(smiles: str) -> dict:
     """
-    This functions returns COCONUT representations.
-    InChI, InChi key and Murko framework.
+    Return COCONUT representations for the provided SMILES.
 
-    Args (str):
-        SMILES string.
-    Returns (dict):
-        dictionary of InChI, InChi key and Murko framework.
+    Args:
+        smiles (str): SMILES string.
+
+    Returns:
+        dict: Dictionary containing InChI, InChi Key, and Murko framework.
 
     """
     mol = Chem.MolFromSmiles(smiles)
@@ -67,16 +73,19 @@ def getRepresentations(smiles: str):
         InChI_Key = Chem.inchi.MolToInchiKey(mol)
         Murko = cdk.getMurkoFramework(smiles)
         return {"InChI": InChI, "InChI_Key": InChI_Key, "Murko": Murko}
+    else:
+        return {"Error": "Check input SMILES"}
 
 
-def getCOCONUTpreprocessing(input_text: str):
+def getCOCONUTpreprocessing(input_text: str) -> dict:
     """
-    This function takes a user input text and returns a dictionary for COCONUT input.
+    Preprocess user input text suitable for the COCONUT database submission data.
 
-    Args (str):
-        input_text (mol/str).
-    Returns (dict):
-        COCONUT preprocessed data.
+    Args:
+        input_text (str): Input text (Mol/str).
+
+    Returns:
+        dict: COCONUT preprocessed data.
 
     """
     original_mol = getMolBlock(input_text)

@@ -5,16 +5,21 @@ from fastapi.responses import JSONResponse
 from urllib.request import urlopen
 from urllib.parse import urlsplit
 from fastapi import Body, APIRouter, status, HTTPException
-from typing import Dict
 from app.modules.decimer import getPredictedSegments
 from app.schemas import HealthCheck
-from app.schemas.error import ErrorResponse
+from app.schemas.error import ErrorResponse, BadRequestModel, NotFoundModel
+from app.schemas.ocsr_schema import ExtractChemicalInfoResponse
 
 router = APIRouter(
     prefix="/ocsr",
     tags=["ocsr"],
     dependencies=[],
-    responses={404: {"description": "Not found"}},
+    responses={
+        200: {"description": "OK"},
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
 
 
@@ -31,9 +36,9 @@ router = APIRouter(
 def get_health() -> HealthCheck:
     """
     ## Perform a Health Check
-    Endpoint to perform a healthcheck on. This endpoint can primarily be used Docker
+    Endpoint to perform a health check on. This endpoint can primarily be used by Docker
     to ensure a robust container orchestration and management is in place. Other
-    services which rely on proper functioning of the API service will not deploy if this
+    services that rely on the proper functioning of the API service will not deploy if this
     endpoint returns any other HTTP status code except 200 (OK).
     Returns:
         HealthCheck: Returns a JSON response with the health status
@@ -43,11 +48,18 @@ def get_health() -> HealthCheck:
 
 @router.post(
     "/process",
-    response_model=Dict,
     summary="Detect, segment and convert a chemical structure depiction into a SMILES string using the DECIMER",
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": ExtractChemicalInfoResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
 )
-async def Extract_ChemicalInfo(
+async def extract_chemicalInfo(
     path: str = Body(
         None,
         embed=True,
