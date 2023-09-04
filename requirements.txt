@@ -23,3 +23,4 @@ pillow-heif==0.10.0
 selfies>=2.1.1
 httpx>=0.24.1
 keras_preprocessing==1.1.2
+python-multipart
