@@ -45,7 +45,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         directory: ./coverage/reports/
         fail_ci_if_error: true
-        files: ./coverage1.xml,./coverage2.xml,!./cache
+        files: /home/runner/work/cheminformatics-python-microservice/cheminformatics-python-microservice/coverage.xml
         flags: unittests
         name: codecov-umbrella
         verbose: true
