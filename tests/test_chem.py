@@ -163,7 +163,9 @@ def test_successful_tanimoto_similarity(smiles, toolkit, expected):
 def test_exception_tanimoto_similarity(
     invalid_smiles, toolkit, exception_response_code
 ):
-    response = client.get(f"/latest/chem/tanimoto?smiles={invalid_smiles}&toolkit={toolkit}")
+    response = client.get(
+        f"/latest/chem/tanimoto?smiles={invalid_smiles}&toolkit={toolkit}"
+    )
     assert response.status_code == exception_response_code
 
 
@@ -230,6 +232,7 @@ def test_exception_hose_codes(
         f"/latest/chem/HOSEcode?smiles={invalid_smiles}&spheres=0&toolkit={toolkit}&ringsize={ringsize}"
     )
     assert response.status_code == exception_response_code
+
 
 def test_success_standardize_mol(molfile):
     response = client.post(
