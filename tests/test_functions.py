@@ -4,14 +4,17 @@ from app.modules.depiction import getRDKitDepiction, getCDKDepiction
 from app.modules.npscorer import getNPScore
 from app.modules.toolkits.helpers import parseInput
 
+
 @pytest.fixture
 def test_smiles():
     return "CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
+
 
 @pytest.fixture
 def test_RDKit_Mol():
     smiles = "CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
     return parseInput(smiles, "rdkit", False)
+
 
 @pytest.fixture
 def test_CDK_Mol():
