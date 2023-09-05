@@ -117,7 +117,7 @@ def test_successful_NPlikeliness_Score(smiles, expected_score):
 )
 def test_exception_NPlikeliness_Score(invalid_smiles, exception_response_code):
     response = client.get(f"/latest/chem/nplikeness/score?smiles={invalid_smiles}")
-    assert response.status_code == {exception_response_code}
+    assert response.status_code == exception_response_code
 
 
 def test_successful_classyFire_classify(test_smiles):
@@ -164,7 +164,7 @@ def test_exception_tanimoto_similarity(
     invalid_smiles, toolkit, exception_response_code
 ):
     response = client.get(f"/latest/chem/tanimoto?smiles={invalid_smiles}&toolkit={toolkit}")
-    assert response.status_code == {exception_response_code}
+    assert response.status_code == exception_response_code
 
 
 @pytest.mark.parametrize(
@@ -186,7 +186,7 @@ def test_successful_check_errors(smiles, fix, expected):
 )
 def test_exception_check_errors(invalid_smiles, fix, exception_response_code):
     response = client.get(f"/latest/chem/errors?smiles={invalid_smiles}&fix={fix}")
-    assert response.status_code == {exception_response_code}
+    assert response.status_code == exception_response_code
 
 
 @pytest.mark.parametrize(
@@ -229,7 +229,7 @@ def test_exception_hose_codes(
     response = client.get(
         f"/latest/chem/HOSEcode?smiles={invalid_smiles}&spheres=0&toolkit={toolkit}&ringsize={ringsize}"
     )
-    assert response.status_code == {exception_response_code}
+    assert response.status_code == exception_response_code
 
 
 def test_success_standardize_mol(molfile):
@@ -252,7 +252,7 @@ def test_exception_standardize_mol(invalid_molfile, exception_response_code):
         data=invalid_molfile,
         headers={"Content-Type": "text/plain"},
     )
-    assert response.status_code == {exception_response_code}
+    assert response.status_code == exception_response_code
 
 
 def test_successful_coconut_preprocessing(test_smiles):
