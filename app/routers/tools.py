@@ -15,6 +15,7 @@ from app.schemas.tools_schema import (
     GetCircularSugarResponse,
     GetCircularandLinearSugarResponse,
 )
+from app.modules.toolkits.helpers import parseInput
 
 router = APIRouter(
     prefix="/tools",
@@ -105,7 +106,7 @@ async def generate_structures(
         if structures:
             return structures
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get(
@@ -159,8 +160,9 @@ async def get_sugar_information(
         - If no sugars are found, it returns "The molecule contains no sugar."
 
     """
+    mol = parseInput(smiles, "cdk", False)
     try:
-        hasLinearSugar, hasCircularSugars = getSugarInfo(smiles)
+        hasLinearSugar, hasCircularSugars = getSugarInfo(mol)
         if hasLinearSugar and hasCircularSugars:
             return "The molecule contains Linear and Circular sugars"
         if hasLinearSugar and not hasCircularSugars:
@@ -170,7 +172,7 @@ async def get_sugar_information(
         else:
             return "The molecule contains no sugar"
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get(
@@ -210,16 +212,17 @@ async def remove_linear_sugars(
 
     """
     try:
-        removed_smiles = removeLinearSugar(smiles)
+        mol = parseInput(smiles, "cdk", False)
+        removed_smiles = removeLinearSugar(mol)
         if removed_smiles:
             return removed_smiles
         else:
             raise HTTPException(
-                status_code=400,
+                status_code=500,
                 detail="Error reading SMILES string, please check again.",
             )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get(
@@ -258,17 +261,18 @@ async def remove_circular_sugars(
     - str: The modified SMILES string with circular sugars removed.
 
     """
+    mol = parseInput(smiles, "cdk", False)
     try:
-        removed_smiles = removeCircularSugar(smiles)
+        removed_smiles = removeCircularSugar(mol)
         if removed_smiles:
             return removed_smiles
         else:
             raise HTTPException(
-                status_code=400,
-                detail="Error reading SMILES string, please check again.",
+                status_code=500,
+                detail="Error processing SMILES string.",
             )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get(
@@ -310,14 +314,15 @@ async def remove_linear_and_circular_sugars(
     - str: The modified SMILES string with linear and circular sugars removed.
 
     """
+    mol = parseInput(smiles, "cdk", False)
     try:
-        removed_smiles = removeLinearandCircularSugar(smiles)
+        removed_smiles = removeLinearandCircularSugar(mol)
         if removed_smiles:
             return removed_smiles
         else:
             raise HTTPException(
-                status_code=400,
-                detail="Error reading SMILES string, please check again.",
+                status_code=500,
+                detail="Error processing SMILES string, please check again.",
             )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))

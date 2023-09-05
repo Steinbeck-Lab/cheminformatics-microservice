@@ -1,7 +1,9 @@
 from rdkit import Chem
 import app.modules.toolkits.rdkit_wrapper as rdkitmodules
+from chembl_structure_pipeline import standardizer
 import app.modules.toolkits.cdk_wrapper as cdk
 from app.modules.coconut.descriptors import getCOCONUTDescriptors
+from app.modules.toolkits.helpers import parseInput
 
 
 def getMolBlock(input_text: str) -> str:
@@ -21,7 +23,8 @@ def getMolBlock(input_text: str) -> str:
     check = rdkitmodules.is_valid_molecule(input_text)
 
     if check == "smiles":
-        mol_block = cdk.getCDKSDGMol(input_text, V3000=False).replace("$$$$\n", "")
+        molecule = parseInput(input_text, "cdk", False)
+        mol_block = cdk.getCDKSDGMol(molecule, V3000=False).replace("$$$$\n", "")
         return mol_block
     elif check == "mol":
         return input_text
@@ -29,7 +32,7 @@ def getMolBlock(input_text: str) -> str:
         return "Error!, Check the input text."
 
 
-def getMolculeHash(smiles: str) -> dict:
+def getMoleculeHash(molecule: any) -> dict:
     """
     Return various molecule hashes for the provided SMILES.
 
@@ -40,12 +43,11 @@ def getMolculeHash(smiles: str) -> dict:
         dict: Dictionary containing Formula, Isomeric SMILES, and Canonical SMILES.
 
     """
-    mol = Chem.MolFromSmiles(smiles)
-    if mol:
-        Formula = Chem.rdMolDescriptors.CalcMolFormula(mol)
-        Isomeric_SMILES = Chem.MolToSmiles(mol, kekuleSmiles=True)
+    if molecule:
+        Formula = Chem.rdMolDescriptors.CalcMolFormula(molecule)
+        Isomeric_SMILES = Chem.MolToSmiles(molecule, kekuleSmiles=True)
         Canonical_SMILES = Chem.MolToSmiles(
-            mol, kekuleSmiles=True, isomericSmiles=False
+            molecule, kekuleSmiles=True, isomericSmiles=False
         )
         return {
             "Formula": Formula,
@@ -56,7 +58,7 @@ def getMolculeHash(smiles: str) -> dict:
         return {"Error": "Check input SMILES"}
 
 
-def getRepresentations(smiles: str) -> dict:
+def getRepresentations(molecule: any) -> dict:
     """
     Return COCONUT representations for the provided SMILES.
 
@@ -67,11 +69,11 @@ def getRepresentations(smiles: str) -> dict:
         dict: Dictionary containing InChI, InChi Key, and Murko framework.
 
     """
-    mol = Chem.MolFromSmiles(smiles)
-    if mol:
-        InChI = Chem.inchi.MolToInchi(mol)
-        InChI_Key = Chem.inchi.MolToInchiKey(mol)
-        Murko = cdk.getMurkoFramework(smiles)
+    if molecule:
+        InChI = Chem.inchi.MolToInchi(molecule)
+        InChI_Key = Chem.inchi.MolToInchiKey(molecule)
+        cdkMolecule = parseInput(Chem.MolToSmiles(molecule), "cdk", False)
+        Murko = cdk.getMurkoFramework(cdkMolecule)
         return {"InChI": InChI, "InChI_Key": InChI_Key, "Murko": Murko}
     else:
         return {"Error": "Check input SMILES"}
@@ -89,32 +91,40 @@ def getCOCONUTpreprocessing(input_text: str) -> dict:
 
     """
     original_mol = getMolBlock(input_text)
-    standarised_mol_block = rdkitmodules.standardizer.standardize_molblock(original_mol)
+    standarised_mol_block = standardizer.standardize_molblock(original_mol)
     standardised_SMILES = Chem.MolToSmiles(
         Chem.MolFromMolBlock(standarised_mol_block), kekuleSmiles=True
     )
-    molecule_hash = getMolculeHash(standardised_SMILES)
+
+    rdkitMol = parseInput(standardised_SMILES, "rdkit", False)
+    molecule_hash = getMoleculeHash(rdkitMol)
+
     parent_canonical_smiles = molecule_hash["Canonical_SMILES"]
-    parent_2D_molblock = cdk.getCDKSDGMol(parent_canonical_smiles, V3000=False).replace(
+    cdkParentMol = parseInput(parent_canonical_smiles, "cdk", False)
+    parent_2D_molblock = cdk.getCDKSDGMol(cdkParentMol, V3000=False).replace(
         "$$$$\n", ""
     )
-    parent_3D_molblock = rdkitmodules.get3Dconformers(parent_canonical_smiles)
-    parent_2D_molblock_v3 = cdk.getCDKSDGMol(
-        parent_canonical_smiles, V3000=True
-    ).replace("$$$$\n", "")
-    parent_representations = getRepresentations(parent_canonical_smiles)
+    parent_2D_molblock_v3 = cdk.getCDKSDGMol(cdkParentMol, V3000=True).replace(
+        "$$$$\n", ""
+    )
+    rdkitParentMol = parseInput(parent_canonical_smiles, "rdkit", False)
+    parent_3D_molblock = rdkitmodules.get3Dconformers(rdkitParentMol)
+
+    parent_representations = getRepresentations(rdkitParentMol)
     parent_descriptors = getCOCONUTDescriptors(parent_canonical_smiles, "rdkit")
 
-    if rdkitmodules.has_stereochemistry(standardised_SMILES):
+    if rdkitmodules.has_stereochemistry(rdkitMol):
         variant_isomeric_smiles = molecule_hash["Isomeric_SMILES"]
-        variant_2D_molblock = cdk.getCDKSDGMol(
-            variant_isomeric_smiles, V3000=False
-        ).replace("$$$$\n", "")
-        variant_2D_molblock_v3 = cdk.getCDKSDGMol(
-            variant_isomeric_smiles, V3000=True
-        ).replace("$$$$\n", "")
-        variant_3D_molblock = rdkitmodules.get3Dconformers(variant_isomeric_smiles)
-        variant_representations = getRepresentations(variant_isomeric_smiles)
+        cdkVariantMol = parseInput(variant_isomeric_smiles, "cdk", False)
+        variant_2D_molblock = cdk.getCDKSDGMol(cdkVariantMol, V3000=False).replace(
+            "$$$$\n", ""
+        )
+        variant_2D_molblock_v3 = cdk.getCDKSDGMol(cdkVariantMol, V3000=True).replace(
+            "$$$$\n", ""
+        )
+        rdkitVariantMol = parseInput(standardised_SMILES, "rdkit", False)
+        variant_3D_molblock = rdkitmodules.get3Dconformers(rdkitVariantMol)
+        variant_representations = getRepresentations(rdkitVariantMol)
         variant_descriptors = getCOCONUTDescriptors(variant_isomeric_smiles, "rdkit")
 
         return {

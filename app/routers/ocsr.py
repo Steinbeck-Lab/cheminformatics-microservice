@@ -108,7 +108,7 @@ async def Extract_ChemicalInfo_From_File(
             )
         except Exception as e:
             raise HTTPException(
-                status_code=400, detail="Error accessing image content: " + str(e)
+                status_code=422, detail="Error processing the image: " + str(e)
             )
     else:
         try:
@@ -122,7 +122,7 @@ async def Extract_ChemicalInfo_From_File(
             )
         except Exception as e:
             raise HTTPException(
-                status_code=400, detail="Invalid URL or file path: " + str(e)
+                status_code=422, detail="Error processing the image: " + str(e)
             )
 
 
@@ -165,11 +165,11 @@ async def Extract_ChemicalInfo(file: UploadFile):
                 )
             except Exception as e:
                 raise HTTPException(
-                    status_code=400, detail="Error accessing image URL: " + str(e)
+                    status_code=422, detail="Error processimg the image: " + str(e)
                 )
         except Exception as e:
             raise HTTPException(
-                status_code=400, detail="Error accessing image URL: " + str(e)
+                status_code=422, detail="Error processimg the image: " + str(e)
             )
         finally:
             file.file.close()

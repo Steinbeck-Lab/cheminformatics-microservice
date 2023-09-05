@@ -1,4 +1,4 @@
-from app.modules.toolkits.rdkit_wrapper import getRDKitDescriptors, checkSMILES
+from app.modules.toolkits.rdkit_wrapper import getRDKitDescriptors
 from typing import Dict, Union
 from app.modules.toolkits.cdk_wrapper import (
     getMurkoFramework,
@@ -7,6 +7,7 @@ from app.modules.toolkits.cdk_wrapper import (
 from app.modules.all_descriptors import getCDKRDKitcombinedDescriptors
 from app.modules.npscorer import getNPScore
 from app.modules.tools.sugar_removal import getSugarInfo
+from app.modules.toolkits.helpers import parseInput
 
 
 def getDescriptors(smiles: str, toolkit: str) -> Union[tuple, str]:
@@ -22,18 +23,14 @@ def getDescriptors(smiles: str, toolkit: str) -> Union[tuple, str]:
                      or an error message if the toolkit choice is invalid or SMILES is invalid.
     """
 
-    mol = checkSMILES(smiles)
+    mol = parseInput(smiles, toolkit, False)
     if mol:
         if toolkit == "rdkit":
-            Descriptors = getRDKitDescriptors(smiles)
+            Descriptors = getRDKitDescriptors(mol)
             return Descriptors
         elif toolkit == "cdk":
-            Descriptors = getCDKDescriptors(smiles)
+            Descriptors = getCDKDescriptors(mol)
             return Descriptors
-        else:
-            return "Error calculating Descriptors"
-    else:
-        return "Error reading SMILES check again."
 
 
 def getCOCONUTDescriptors(smiles: str, toolkit: str) -> Union[Dict[str, float], str]:
@@ -54,9 +51,13 @@ def getCOCONUTDescriptors(smiles: str, toolkit: str) -> Union[Dict[str, float], 
     else:
         Descriptors = getDescriptors(smiles, toolkit)
 
-        hasLinearSugar, hasCircularSugars = getSugarInfo(smiles)
-        framework = getMurkoFramework(smiles)
-        nplikeliness = float(getNPScore(smiles))
+        rdkitMolecule = parseInput(smiles, "rdkit", False)
+        nplikeliness = float(getNPScore(rdkitMolecule))
+
+        cdkMolecule = parseInput(smiles, "cdk", False)
+        hasLinearSugar, hasCircularSugars = getSugarInfo(cdkMolecule)
+        framework = getMurkoFramework(cdkMolecule)
+
         CombinedDescriptors = list(Descriptors)
         CombinedDescriptors.extend(
             [hasLinearSugar, hasCircularSugars, framework, nplikeliness]

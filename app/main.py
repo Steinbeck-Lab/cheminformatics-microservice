@@ -9,6 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from prometheus_fastapi_instrumentator import Instrumentator
 from app.schemas import HealthCheck
 
+from app.exception_handlers import InvalidInputException, input_exception_handler
+
 app = FastAPI(
     title="Cheminformatics Microservice",
     description="This set of essential and valuable microservices is designed to be accessed via API calls to support cheminformatics. Generally, it is designed to work with SMILES-based inputs and could be used to translate between different machine-readable representations, get Natural Product (NP) likeliness scores, visualize chemical structures, and generate descriptors. In addition, the microservices also host an instance of STOUT and another instance of DECIMER (two deep learning models for IUPAC name generation and optical chemical structure recognition, respectively).",
@@ -70,6 +72,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# register exception handlers
+for sub_app in app.routes:
+    if hasattr(sub_app.app, "add_exception_handler"):
+        sub_app.app.add_exception_handler(
+            InvalidInputException, input_exception_handler
+        )
 
 
 @app.get("/", include_in_schema=False)

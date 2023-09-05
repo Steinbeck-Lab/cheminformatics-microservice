@@ -8,6 +8,7 @@ from fastapi.templating import Jinja2Templates
 from app.schemas import HealthCheck
 from app.schemas.error import ErrorResponse, BadRequestModel, NotFoundModel
 from app.schemas.depict_schema import Depict2DResponse, Depict3DResponse
+from app.modules.toolkits.helpers import parseInput
 
 templates = Jinja2Templates(directory="app/templates")
 
@@ -129,17 +130,19 @@ async def depict_2D_molecule(
     """
     try:
         if toolkit == "cdk":
-            depiction = getCDKDepiction(smiles, [width, height], rotate, CIP, unicolor)
+            mol = parseInput(smiles, "cdk", False)
+            depiction = getCDKDepiction(mol, [width, height], rotate, CIP, unicolor)
         elif toolkit == "rdkit":
-            depiction = getRDKitDepiction(smiles, [width, height], rotate)
+            mol = parseInput(smiles, "rdkit", False)
+            depiction = getRDKitDepiction(mol, [width, height], rotate)
         else:
             raise HTTPException(
-                status_code=400,
+                status_code=422,
                 detail="Error reading SMILES string, please check again.",
             )
         return Response(content=depiction, media_type="image/svg+xml")
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e))
 
 
 @router.get(
@@ -202,12 +205,13 @@ async def depict_3D_molecule(
                 "molecule": getOBMol(smiles, threeD=True, depict=True),
             }
         elif toolkit == "rdkit":
-            content = {"request": request, "molecule": get3Dconformers(smiles)}
+            mol = parseInput(smiles, "rdkit", False)
+            content = {"request": request, "molecule": get3Dconformers(mol)}
         else:
             raise HTTPException(
-                status_code=400,
+                status_code=422,
                 detail="Error reading SMILES string, please check again.",
             )
         return templates.TemplateResponse("mol.html", content)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e))

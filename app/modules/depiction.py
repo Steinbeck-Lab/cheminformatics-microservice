@@ -7,14 +7,14 @@ from jpype import JClass
 
 
 def getCDKDepiction(
-    smiles: str, molSize=(512, 512), rotate=0, CIP=True, unicolor=False
+    molecule: any, molSize=(512, 512), rotate=0, CIP=True, unicolor=False
 ):
     """
     This function takes the user input SMILES and Depicts it
     using the CDK Depiction Generator.
 
     Args:
-        smiles (string): SMILES string given by the user.
+        molecule (any): CDK IAtomContainer parsed from SMILES string given by the user.
 
     Returns:
         image (SVG): CDK Structure Depiction as an SVG image.
@@ -46,22 +46,20 @@ def getCDKDepiction(
             .withFillToFit()
             .withBackgroundColor(Color.WHITE)
         )
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
 
     if CIP:
-        moleculeSDG = getCIPAnnotation(smiles)
+        SDGMol = getCIPAnnotation(molecule)
     else:
-        moleculeSDG = getCDKSDG(smiles)
+        SDGMol = getCDKSDG(molecule)
 
-    if moleculeSDG:
+    if SDGMol:
         # Rotate molecule
-        point = JClass(cdk_base + ".geometry.GeometryTools").get2DCenter(moleculeSDG)
+        point = JClass(cdk_base + ".geometry.GeometryTools").get2DCenter(SDGMol)
         JClass(cdk_base + ".geometry.GeometryTools").rotate(
-            moleculeSDG, point, (rotate * JClass("java.lang.Math").PI / 180.0)
+            SDGMol, point, (rotate * JClass("java.lang.Math").PI / 180.0)
         )
 
-        mol_imageSVG = DepictionGenerator.depict(moleculeSDG).toSvgStr("px").getBytes()
+        mol_imageSVG = DepictionGenerator.depict(SDGMol).toSvgStr("px").getBytes()
         encoded_image = ET.tostring(ET.fromstring(mol_imageSVG), encoding="unicode")
 
         return encoded_image
@@ -69,28 +67,24 @@ def getCDKDepiction(
         return "Error reading SMILES string, check again."
 
 
-def getRDKitDepiction(smiles, molSize=(512, 512), rotate=0, kekulize=True):
+def getRDKitDepiction(molecule: any, molSize=(512, 512), rotate=0, kekulize=True):
     """
     This function takes the user input SMILES and Canonicalize it using the RDKit.
 
     Args:
-        smiles (string): SMILES string given by the user.
+        molecule (Chem.Mol): RDKit molecule object.
 
     Returns:
         image (SVG): RDKit Structure Depiction as an SVG image.
     """
-
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
-    mol = Chem.MolFromSmiles(smiles)
-    if mol:
-        mc = Chem.Mol(mol.ToBinary())
+    if molecule:
+        mc = Chem.Mol(molecule.ToBinary())
         if kekulize:
             try:
                 Chem.Kekulize(mc)
             except Exception as e:
                 print(e, flush=True)
-                mc = Chem.Mol(mol.ToBinary())
+                mc = Chem.Mol(molecule.ToBinary())
         if not mc.GetNumConformers():
             rdDepictor.Compute2DCoords(mc)
         drawer = rdMolDraw2D.MolDraw2DSVG(molSize[0], molSize[1])
