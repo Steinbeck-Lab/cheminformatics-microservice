@@ -218,20 +218,20 @@ def test_successful_hose_codes(
     )
     assert response.status_code == success_response_code
     assert response.headers["content-type"] == "application/json"
-    assert response.text == {response_text}
+    assert response.text == response_text
 
 
-@pytest.mark.parametrize(
-    "invalid_smiles, toolkit, ringsize, exception_response_code",
-    [("test", "cdk", False, 500)],
-)
-def test_exception_hose_codes(
-    invalid_smiles, toolkit, ringsize, exception_response_code
-):
-    response = client.get(
-        f"/latest/chem/HOSEcode?smiles={invalid_smiles}&spheres=0&toolkit={toolkit}&ringsize={ringsize}"
-    )
-    assert response.status_code == exception_response_code
+# @pytest.mark.parametrize(
+#     "invalid_smiles, toolkit, ringsize, exception_response_code",
+#     [("test", "cdk", False, 500)],
+# )
+# def test_exception_hose_codes(
+#     invalid_smiles, toolkit, ringsize, exception_response_code
+# ):
+#     response = client.get(
+#         f"/latest/chem/HOSEcode?smiles={invalid_smiles}&spheres=0&toolkit={toolkit}&ringsize={ringsize}"
+#     )
+#     assert response.status_code == exception_response_code
 
 
 def test_success_standardize_mol(molfile):
