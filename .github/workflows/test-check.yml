@@ -8,4 +8,4 @@ on:
 
 jobs:
   test:
-    uses: Steinbeck-Lab/cheminformatics-python-microservice/.github/workflows/test.yml@main
+    uses: Steinbeck-Lab/cheminformatics-microservice/.github/workflows/test.yml@main
