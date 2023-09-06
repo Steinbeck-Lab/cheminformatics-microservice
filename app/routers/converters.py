@@ -321,28 +321,15 @@ async def SMILES_canonicalise(
     - ValueError: If an unsupported toolkit option is provided.
 
     """
-    try:
-        if toolkit == "cdk":
-            mol = parseInput(smiles, "cdk", False)
-            return str(getCanonSMILES(mol))
-        elif toolkit == "rdkit":
-            mol = parseInput(smiles, "rdkit", False)
-            if mol:
-                return str(Chem.MolToSmiles(mol, kekuleSmiles=True))
-            else:
-                raise HTTPException(
-                    status_code=400,
-                    detail="Error reading input text, please check again.",
-                )
-        elif toolkit == "openbabel":
-            return str(getOBCanonicalSMILES(smiles))
-        else:
-            raise HTTPException(
-                status_code=422,
-                detail="Error reading input text, please check again.",
-            )
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=str(e))
+    if toolkit == "cdk":
+        mol = parseInput(smiles, "cdk", False)
+        return str(getCanonSMILES(mol))
+    elif toolkit == "rdkit":
+        mol = parseInput(smiles, "rdkit", False)
+        return str(Chem.MolToSmiles(mol, kekuleSmiles=True))
+    elif toolkit == "openbabel":
+        smiles = getOBCanonicalSMILES(smiles)
+        return smiles
 
 
 @router.get(
@@ -396,19 +383,16 @@ async def SMILES_to_CXSMILES(
     Note:
     - CXSMILES is a Chemaxon Extended SMILES which is used for storing special features of the molecules after the SMILES string.
     """
-    try:
-        if toolkit == "cdk":
-            mol = parseInput(smiles, "cdk", False)
-            cxsmiles = getCXSMILES(mol)
-            if cxsmiles:
-                return str(cxsmiles)
-        else:
-            mol = parseInput(smiles, "rdkit", False)
-            cxsmiles = getRDKitCXSMILES(mol)
-            if cxsmiles:
-                return str(cxsmiles)
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=str(e))
+    if toolkit == "cdk":
+        mol = parseInput(smiles, "cdk", False)
+        cxsmiles = getCXSMILES(mol)
+        if cxsmiles:
+            return str(cxsmiles)
+    else:
+        mol = parseInput(smiles, "rdkit", False)
+        cxsmiles = getRDKitCXSMILES(mol)
+        if cxsmiles:
+            return str(cxsmiles)
 
 
 @router.get(
@@ -459,29 +443,21 @@ async def SMILES_to_InChI(
     - ValueError: If an unsupported toolkit option is provided.
 
     """
-    try:
-        if toolkit == "cdk":
-            mol = parseInput(smiles, "cdk", False)
-            inchi = getInChI(mol)
+    if toolkit == "cdk":
+        mol = parseInput(smiles, "cdk", False)
+        inchi = getInChI(mol)
+        if inchi:
+            return str(inchi)
+    elif toolkit == "rdkit":
+        mol = parseInput(smiles, "rdkit", False)
+        if mol:
+            inchi = Chem.inchi.MolToInchi(mol)
             if inchi:
                 return str(inchi)
-        elif toolkit == "rdkit":
-            mol = parseInput(smiles, "rdkit", False)
-            if mol:
-                inchi = Chem.inchi.MolToInchi(mol)
-                if inchi:
-                    return str(inchi)
-        elif toolkit == "openbabel":
-            inchi = getOBInChI(smiles)
-            if inchi:
-                return str(inchi)
-        else:
-            raise HTTPException(
-                status_code=422,
-                detail="Error reading input text, please check again.",
-            )
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=str(e))
+    elif toolkit == "openbabel":
+        inchi = getOBInChI(smiles)
+        if inchi:
+            return str(inchi)
 
 
 @router.get(
@@ -532,30 +508,22 @@ async def SMILES_to_InChIKey(
     - ValueError: If an unsupported toolkit option is provided.
 
     """
-    try:
-        if toolkit == "cdk":
-            mol = parseInput(smiles, "cdk", False)
-            inchikey = getInChI(mol, InChIKey=True)
-            if inchikey:
-                return str(inchikey)
+    if toolkit == "cdk":
+        mol = parseInput(smiles, "cdk", False)
+        inchikey = getInChI(mol, InChIKey=True)
+        if inchikey:
+            return str(inchikey)
 
-        elif toolkit == "rdkit":
-            mol = parseInput(smiles, "rdkit", False)
-            if mol:
-                inchikey = Chem.inchi.MolToInchiKey(mol)
-                if inchikey:
-                    return str(inchikey)
-        elif toolkit == "openbabel":
-            inchikey = getOBInChI(smiles, InChIKey=True)
+    elif toolkit == "rdkit":
+        mol = parseInput(smiles, "rdkit", False)
+        if mol:
+            inchikey = Chem.inchi.MolToInchiKey(mol)
             if inchikey:
                 return str(inchikey)
-        else:
-            raise HTTPException(
-                status_code=422,
-                detail="Error reading input text, please check again.",
-            )
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=str(e))
+    elif toolkit == "openbabel":
+        inchikey = getOBInChI(smiles, InChIKey=True)
+        if inchikey:
+            return str(inchikey)
 
 
 @router.get(
