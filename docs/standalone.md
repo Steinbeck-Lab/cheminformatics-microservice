@@ -3,7 +3,7 @@ outline: deep
 ---
 
 # Standalone - using Python virtual environment
-Cheminformatics Python MicroService can also be deployed as a standalone application using the Python virtual environment. Here are the step by step instructions.
+Cheminformatics Microservice can also be deployed as a standalone application using the Python virtual environment. Here are the step by step instructions.
 
 1. Install Python: Install Python on your machine by following the instructions for your specific operating system.
 

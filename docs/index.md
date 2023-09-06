@@ -2,7 +2,7 @@
 layout: home
 
 hero:
-  name: "Cheminformatics - Python Microservice (CPM)"
+  name: "Cheminformatics Microservice (CM)"
   text: ""
   tagline: Effortlessly integrate cheminformatics tools into your web application or workflows.
   actions:

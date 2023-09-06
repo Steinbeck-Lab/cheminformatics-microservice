@@ -1,7 +1,7 @@
-.. Cheminformatics Python Microservice documentation master file, created by
+.. Cheminformatics Microservice documentation master file, created by
    Kohulan Rajan on Tue Jul  4 11:00:09 2023.
 
-Welcome to Cheminformatics Python Microservice's documentation!
+Welcome to Cheminformatics Microservice's documentation!
 ===============================================================
 
 .. image:: https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/blob/main/docs/public/logo_big.png?raw=true
