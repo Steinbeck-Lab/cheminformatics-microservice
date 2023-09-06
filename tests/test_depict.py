@@ -27,7 +27,7 @@ def test_depict2D_molecule(
         f"/latest/depict/2D?smiles={smiles}&generator={generator}&width={width}&height={height}&rotate={rotate}&CIP={CIP}&unicolor={unicolor}"
     )
     assert response.status_code == response_code
-    assert response.headers["content-type"] == "image/svg+xml"
+    assert response.headers["content-type"] == "application/json"
 
 
 @pytest.mark.parametrize(
@@ -41,7 +41,7 @@ def test_depict2D_molecule(
 def test_depict3D_molecule(smiles, toolkit, response_code):
     response = client.get(f"/latest/depict/3D?smiles={smiles}&toolkit={toolkit}")
     assert response.status_code == response_code
-    assert response.headers["content-type"] == "text/html; charset=utf-8"
+    assert response.headers["content-type"] == "application/json; charset=utf-8"
 
 
 # Run the tests

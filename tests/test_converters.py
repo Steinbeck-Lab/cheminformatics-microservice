@@ -57,7 +57,7 @@ def test_create_2D_coordinates(smiles, toolkit, response_code):
         ),
         (
             "INVALID_INPUT",
-            "cdk",
+            "rdkit",
             422,
         ),
     ],
@@ -246,7 +246,7 @@ def test_smiles_to_iupac(smiles, response_text, response_code):
         (
             "[C][N][C][=N][C][=C][Ring1][Branch1][C][=Branch1][C][=O][N][Branch1][=Branch2][C][=Branch1][C][=O][N][Ring1][Branch2][C][C]",
             "selfies",
-            '"CN1C=NC2=C1C(=O)N(C)C(=O)N2C"',
+            '"CN1C=NC2=C1C(=O)N(C(=O)N2C)C"',
             200,
         ),
     ],
