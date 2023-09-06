@@ -2,11 +2,11 @@ import xml.etree.ElementTree as ET
 from rdkit import Chem
 from rdkit.Chem import rdDepictor
 from rdkit.Chem.Draw import rdMolDraw2D
-from app.modules.toolkits.cdk_wrapper import getCDKSDG, getCIPAnnotation
+from app.modules.toolkits.cdk_wrapper import get_CDK_SDG, get_cip_annotation
 from jpype import JClass
 
 
-def getCDKDepiction(
+def get_cdk_depiction(
     molecule: any, molSize=(512, 512), rotate=0, CIP=True, unicolor=False
 ):
     """
@@ -48,9 +48,9 @@ def getCDKDepiction(
         )
 
     if CIP:
-        SDGMol = getCIPAnnotation(molecule)
+        SDGMol = get_cip_annotation(molecule)
     else:
-        SDGMol = getCDKSDG(molecule)
+        SDGMol = get_CDK_SDG(molecule)
 
     if SDGMol:
         # Rotate molecule
@@ -67,7 +67,7 @@ def getCDKDepiction(
         return "Error reading SMILES string, check again."
 
 
-def getRDKitDepiction(molecule: any, molSize=(512, 512), rotate=0, kekulize=True):
+def get_rdkit_depiction(molecule: any, molSize=(512, 512), rotate=0, kekulize=True):
     """
     This function takes the user input SMILES and Canonicalize it using the RDKit.
 

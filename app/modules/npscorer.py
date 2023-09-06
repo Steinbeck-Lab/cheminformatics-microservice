@@ -19,7 +19,7 @@ if not os.path.exists(model_path):
 fscore = pickle.load(gzip.open(model_path))
 
 
-def getnp_model(model_path) -> dict:
+def get_np_model(model_path) -> dict:
     """
     Load the NP model from a pickle file.
 
@@ -33,7 +33,7 @@ def getnp_model(model_path) -> dict:
     return fscore
 
 
-def scoremol_with_confidence(molecule) -> dict:
+def score_mol_with_confidence(molecule) -> dict:
     """
     Calculate NP-likeness score and confidence for a molecule.
 
@@ -80,11 +80,11 @@ def score_mol(molecule) -> float:
     Returns:
         float: NP-Likeness score in the range -5 to 5.
     """
-    score = scoremol_with_confidence(molecule)["nplikeness"]
+    score = score_mol_with_confidence(molecule)["nplikeness"]
     return score
 
 
-def getNPScore(molecule: any) -> str:
+def get_np_score(molecule: any) -> str:
     """
     Convert SMILES string to RDKit molecule object and generate the NP Score.
 

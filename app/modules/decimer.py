@@ -71,7 +71,7 @@ def get_segments(path: str) -> tuple:
         return image_name, segments
 
 
-def getPredictedSegments(path: str) -> str:
+def get_predicted_segments(path: str) -> str:
     """
     Get predicted SMILES representations for segments within an image.
 
@@ -102,7 +102,7 @@ def getPredictedSegments(path: str) -> str:
         return ".".join(smiles_predicted)
 
 
-def getPredictedSegmentsFromFile(content: any, filename: str) -> tuple:
+def get_predicted_segments_from_file(content: any, filename: str) -> tuple:
     """
     Takes an image file path and returns a set of paths and image names of segmented images.
 
@@ -116,6 +116,6 @@ def getPredictedSegmentsFromFile(content: any, filename: str) -> tuple:
 
     with open(filename, "wb") as f:
         f.write(content)
-        smiles = getPredictedSegments(filename)
+        smiles = get_predicted_segments(filename)
         os.remove(filename)
         return smiles
