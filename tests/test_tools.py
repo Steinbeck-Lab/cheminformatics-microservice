@@ -54,7 +54,7 @@ def test_sugars_info(input, response_text, response_code):
     ],
 )
 def test_remove_linear_sugars(input, response_text, response_code):
-    response = client.get(f"/latest/tools/remove-linear-sugars?smiles{input}")
+    response = client.get(f"/latest/tools/remove-linear-sugars?smiles={input}")
     assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
     if input != "INVALID_INPUT":
@@ -73,7 +73,7 @@ def test_remove_linear_sugars(input, response_text, response_code):
     ],
 )
 def test_remove_circular_sugars(input, response_text, response_code):
-    response = client.get(f"/latest/tools/remove-circular-sugars?smiles{input}")
+    response = client.get(f"/latest/tools/remove-circular-sugars?smiles={input}")
     assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
     if input != "INVALID_INPUT":
@@ -92,7 +92,7 @@ def test_remove_circular_sugars(input, response_text, response_code):
     ],
 )
 def test_remove_sugars(input, response_text, response_code):
-    response = client.get(f"/latest/tools/remove-sugars?smiles{input}")
+    response = client.get(f"/latest/tools/remove-sugars?smiles={input}")
     assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
     if input != "INVALID_INPUT":
