@@ -308,7 +308,6 @@ def test_smiles_to_selfies(smiles, response_text, response_code):
         (
             "INVALID_INPUT",
             "cdk",
-            "",
             422,
         ),
     ],
