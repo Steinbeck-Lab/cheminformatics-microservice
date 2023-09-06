@@ -12,11 +12,6 @@ def test_chem_index():
     assert response.json() == {"status": "OK"}
 
 
-@pytest.fixture
-def test_smiles():
-    return "CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
-
-
 @pytest.mark.parametrize(
     "smiles, generator, width, height, rotate, CIP, unicolor,response_code",
     [
