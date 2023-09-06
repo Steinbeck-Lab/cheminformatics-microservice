@@ -37,9 +37,9 @@ def test_converters_index():
         ),
     ],
 )
-def test_create_2D_coordinates(smiles, toolkit, reponse_code):
+def test_create_2D_coordinates(smiles, toolkit, response_code):
     response = client.get(f"/latest/convert/mol2D?smiles={smiles}&toolkit={toolkit}")
-    assert response.status_code == reponse_code
+    assert response.status_code == response_code
     assert response.headers["content-type"] == "text/plain; charset=utf-8"
 
 
