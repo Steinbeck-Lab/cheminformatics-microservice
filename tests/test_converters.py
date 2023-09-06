@@ -64,7 +64,7 @@ def test_create_2D_coordinates(smiles, toolkit, response_code):
 )
 def test_create_3D_coordinates(smiles, toolkit, response_code):
     response = client.get(f"/latest/convert/mol3D?smiles={smiles}&toolkit={toolkit}")
-    assert response.status_code == response_code    
+    assert response.status_code == response_code
 
 
 @pytest.mark.parametrize(
