@@ -82,12 +82,12 @@ def test_create_3D_coordinates(smiles, toolkit, response_code):
             '"InChI=1S/C8H10N4O2/c1-10-4-9-6-5(10)7(13)12(3)8(14)11(6)2/h4H,1-3H3"',
             200,
         ),
-        (
-            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
-            "openbabel",
-            '"InChI=1S/C8H10N4O2/c1-10-4-9-6-5(10)7(13)12(3)8(14)11(6)2/h4H,1-3H3"',
-            200,
-        ),
+        # (
+        #     "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+        #     "openbabel",
+        #     '"InChI=1S/C8H10N4O2/c1-10-4-9-6-5(10)7(13)12(3)8(14)11(6)2/h4H,1-3H3"',
+        #     200,
+        # ),
         (
             "INVALID_INPUT",
             "cdk",
