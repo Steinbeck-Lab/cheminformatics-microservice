@@ -28,7 +28,6 @@ from app.schemas import HealthCheck
 from app.schemas.chemblstandardizer import (
     SMILESValidationResult,
     SMILESStandardizedResult,
-    StandardizedResult,
 )
 from app.schemas.classyfire import ClassyFireJob, ClassyFireResult
 from app.schemas.coconut import COCONUTPreprocessingModel
