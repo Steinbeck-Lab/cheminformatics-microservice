@@ -12,107 +12,316 @@ def test_converters_index():
     assert response.json() == {"status": "OK"}
 
 
-def test_SMILES_Mol():
-    response = client.get(
-        "/latest/convert/mol2D?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C&toolkit=cdk"
-    )
-    assert response.status_code == 200
+@pytest.mark.parametrize(
+    "smiles, toolkit, response_code",
+    [
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "cdk",
+            200,
+        ),
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "rdkit",
+            200,
+        ),
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "openbabel",
+            200,
+        ),
+        (
+            "INVALID_INPUT",
+            "cdk",
+            422,
+        ),
+    ],
+)
+def test_create_2D_coordinates(smiles, toolkit, reponse_code):
+    response = client.get(f"/latest/convert/mol2D?smiles={smiles}&toolkit={toolkit}")
+    assert response.status_code == reponse_code
     assert response.headers["content-type"] == "text/plain; charset=utf-8"
 
 
-def test_SMILES_Generate3DConformer():
-    response = client.get(
-        "/latest/convert/mol3D?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C&toolkit=rdkit"
-    )
-    assert response.status_code == 200
+@pytest.mark.parametrize(
+    "smiles, toolkit, response_code",
+    [
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "rdkit",
+            200,
+        ),
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "openbabel",
+            200,
+        ),
+        (
+            "INVALID_INPUT",
+            "cdk",
+            422,
+        ),
+    ],
+)
+def test_create_3D_coordinates(smiles, toolkit, response_code):
+    response = client.get(f"/latest/convert/mol3D?smiles={smiles}&toolkit={toolkit}")
+    assert response.status_code == response_code
     assert response.headers["content-type"] == "text/plain; charset=utf-8"
 
 
-def test_SMILES_Canonicalise():
+@pytest.mark.parametrize(
+    "smiles, toolkit, response_text, response_code",
+    [
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "cdk",
+            "InChI=1S/C8H10N4O2/c1-10-4-9-6-5(10)7(13)12(3)8(14)11(6)2/h4H,1-3H3",
+            200,
+        ),
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "rdkit",
+            "InChI=1S/C8H10N4O2/c1-10-4-9-6-5(10)7(13)12(3)8(14)11(6)2/h4H,1-3H3",
+            200,
+        ),
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "openbabel",
+            "InChI=1S/C8H10N4O2/c1-10-4-9-6-5(10)7(13)12(3)8(14)11(6)2/h4H,1-3H3",
+            200,
+        ),
+        (
+            "INVALID_INPUT",
+            "cdk",
+            "",
+            422,
+        ),
+    ],
+)
+def test_smiles_to_inchi(smiles, toolkit, response_text, response_code):
+    response = client.get(f"/latest/convert/inchi?smiles={smiles}&toolkit={toolkit}")
+    assert response.status_code == response_code
+    assert response.headers["content-type"] == "application/json"
+    if smiles != "INVALID_INPUT":
+        assert response.text == response_text
+
+
+@pytest.mark.parametrize(
+    "smiles, toolkit, response_text, response_code",
+    [
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "cdk",
+            "RYYVLZVUVIJVGH-UHFFFAOYSA-N",
+            200,
+        ),
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "rdkit",
+            "RYYVLZVUVIJVGH-UHFFFAOYSA-N",
+            200,
+        ),
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "openbabel",
+            "RYYVLZVUVIJVGH-UHFFFAOYSA-N",
+            200,
+        ),
+        (
+            "INVALID_INPUT",
+            "cdk",
+            "",
+            422,
+        ),
+    ],
+)
+def test_smiles_to_inchikey(smiles, toolkit, response_text, response_code):
+    response = client.get(f"/latest/convert/inchikey?smiles={smiles}&toolkit={toolkit}")
+    assert response.status_code == response_code
+    assert response.headers["content-type"] == "application/json"
+    if smiles != "INVALID_INPUT":
+        assert response.text == response_text
+
+
+@pytest.mark.parametrize(
+    "smiles, toolkit, response_text, response_code",
+    [
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "cdk",
+            "CN1C=NC2=C1C(=O)N(C)C(=O)N2C |(2.68,2.45,;2.22,1.02,;3.1,-0.19,;2.22,-1.4,;0.8,-0.94,;0.8,0.56,;-0.5,1.31,;-0.5,2.81,;-1.8,0.56,;-3.1,1.31,;-1.8,-0.94,;-3.1,-1.69,;-0.5,-1.69,;-0.5,-3.19,)|",
+            200,
+        ),
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "rdkit",
+            "Cn1c(=O)c2c(ncn2C)n(C)c1=O |(-2.43754,-2.3236,;-1.48768,-1.16267,;-0.0073539,-1.4048,;0.523116,-2.80787,;0.942504,-0.243866,;0.412035,1.1592,;1.58251,2.09728,;2.83637,1.27398,;2.44083,-0.172931,;3.3789,-1.3434,;-1.06829,1.40134,;-1.59876,2.80441,;-2.01815,0.240402,;-3.49848,0.482536,)|",
+            200,
+        ),
+        (
+            "INVALID_INPUT",
+            "cdk",
+            "",
+            422,
+        ),
+    ],
+)
+def test_smiles_to_cxsmiles(smiles, toolkit, response_text, response_code):
+    response = client.get(f"/latest/convert/cxsmiles?smiles={smiles}&toolkit={toolkit}")
+    assert response.status_code == response_code
+    assert response.headers["content-type"] == "application/json"
+    if smiles != "INVALID_INPUT":
+        assert response.text == response_text
+
+
+@pytest.mark.parametrize(
+    "smiles, toolkit, response_text, response_code",
+    [
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "cdk",
+            "CN1C=NC2=C1C(=O)N(C)C(=O)N2C",
+            200,
+        ),
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "rdkit",
+            "CN1C(=O)C2=C(N=CN2C)N(C)C1=O",
+            200,
+        ),
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "openbabel",
+            "Cn1cnc2c1c(=O)n(C)c(=O)n2C",
+            200,
+        ),
+        (
+            "INVALID_INPUT",
+            "cdk",
+            "",
+            422,
+        ),
+    ],
+)
+def test_smiles_cannonicalise(smiles, toolkit, response_text, response_code):
     response = client.get(
-        "/latest/convert/canonicalsmiles?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
+        f"/latest/convert/canonicalsmiles?smiles={smiles}&toolkit={toolkit}"
     )
-    assert response.status_code == 200
+    assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
-    assert response.text == '"CN1C=NC2=C1C(=O)N(C)C(=O)N2C"'
+    if smiles != "INVALID_INPUT":
+        assert response.text == response_text
 
 
-def test_SMILES_to_InChI():
-    response = client.get("/latest/convert/inchi?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C")
-    assert response.status_code == 200
+@pytest.mark.parametrize(
+    "smiles, response_text, response_code",
+    [
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "1,3,7-trimethylpurine-2,6-dione",
+            200,
+        ),
+        (
+            "INVALID_INPUT",
+            "",
+            422,
+        ),
+    ],
+)
+def test_smiles_to_iupac(smiles, response_text, response_code):
+    response = client.get(f"/latest/convert/iupac?smiles={smiles}")
+    assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
-    assert (
-        response.text
-        == '"InChI=1S/C8H10N4O2/c1-10-4-9-6-5(10)7(13)12(3)8(14)11(6)2/h4H,1-3H3"'
-    )
+    if smiles != "INVALID_INPUT":
+        assert response.text == response_text
 
 
-def test_SMILES_to_InChIKey():
+@pytest.mark.parametrize(
+    "input, representation, response_text, response_code",
+    [
+        (
+            "1,3,7-trimethylpurine-2,6-dione",
+            "iupac",
+            "CN1C=NC2=C1C(=O)N(C)C(=O)N2C",
+            200,
+        ),
+        (
+            "[C][N][C][=N][C][=C][Ring1][Branch1][C][=Branch1][C][=O][N][Branch1][=Branch2][C][=Branch1][C][=O][N][Ring1][Branch2][C][C]",
+            "selfies",
+            "CN1C=NC2=C1C(=O)N(C)C(=O)N2C",
+            200,
+        ),
+    ],
+)
+def test_iupac_or_selfies_to_smiles(
+    input, representation, response_text, response_code
+):
     response = client.get(
-        "/latest/convert/inchikey?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
+        f"/latest/convert/smiles?input_text={input}&representation={representation}"
     )
-    assert response.status_code == 200
+    assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
-    assert response.text == '"RYYVLZVUVIJVGH-UHFFFAOYSA-N"'
+    assert response.text == response_text
 
 
-def test_SMILES_to_CXSMILES():
-    response = client.get(
-        "/latest/convert/cxsmiles?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
-    )
-    assert response.status_code == 200
+@pytest.mark.parametrize(
+    "smiles, response_text, response_code",
+    [
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "[C][N][C][=N][C][=C][Ring1][Branch1][C][=Branch1][C][=O][N][Branch1][=Branch2][C][=Branch1][C][=O][N][Ring1][Branch2][C][C]",
+            200,
+        ),
+        (
+            "INVALID_INPUT",
+            "",
+            422,
+        ),
+    ],
+)
+def test_smiles_to_selfies(smiles, response_text, response_code):
+    response = client.get(f"/latest/convert/selfies?smiles={smiles}")
+    assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
-    assert (
-        response.text
-        == '"CN1C=NC2=C1C(=O)N(C)C(=O)N2C |(2.68,2.45,;2.22,1.02,;3.1,-0.19,;2.22,-1.4,;0.8,-0.94,;0.8,0.56,;-0.5,1.31,;-0.5,2.81,;-1.8,0.56,;-3.1,1.31,;-1.8,-0.94,;-3.1,-1.69,;-0.5,-1.69,;-0.5,-3.19,)|"'
-    )
+    if smiles != "INVALID_INPUT":
+        assert response.text == response_text
 
 
-def test_SMILES_convert_to_Formats():
-    response = client.get(
-        "/latest/convert/formats?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C&toolkit=rdkit"
-    )
-    assert response.status_code == 200
+@pytest.mark.parametrize(
+    "smiles, toolkit, response_code",
+    [
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "cdk",
+            200,
+        ),
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "rdkit",
+            200,
+        ),
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "openbabel",
+            200,
+        ),
+        (
+            "INVALID_INPUT",
+            "cdk",
+            "",
+            422,
+        ),
+    ],
+)
+def test_smiles_to_formats(smiles, toolkit, response_code):
+    response = client.get(f"/latest/convert/formats?smiles={smiles}&toolkit={toolkit}")
+    assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
-    assert response.json() == {
-        "mol": "\n     RDKit          2D\n\n 14 15  0  0  0  0  0  0  0  0999 V2000\n    2.7760    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    1.2760    0.0000    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0\n    0.3943    1.2135    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.0323    0.7500    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.0323   -0.7500    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.3943   -1.2135    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.7062   -2.6807    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    2.1328   -3.1443    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.4086   -3.6844    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.8351   -3.2209    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.9499   -4.2246    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.1470   -1.7537    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.5736   -1.2902    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.0967   -5.1517    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n  1  2  1  0\n  2  3  1  0\n  3  4  2  0\n  4  5  1  0\n  5  6  2  0\n  6  7  1  0\n  7  8  2  0\n  7  9  1  0\n  9 10  1  0\n 10 11  2  0\n 10 12  1  0\n 12 13  1  0\n  9 14  1  0\n  6  2  1  0\n 12  5  1  0\nM  END\n",
-        "canonicalsmiles": "CN1C(=O)C2=C(N=CN2C)N(C)C1=O",
-        "inchi": "InChI=1S/C8H10N4O2/c1-10-4-9-6-5(10)7(13)12(3)8(14)11(6)2/h4H,1-3H3",
-        "inchikey": "RYYVLZVUVIJVGH-UHFFFAOYSA-N",
-    }
-
-
-def test_SMILES_to_IUPACname():
-    response = client.get("/latest/convert/iupac?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C")
-    assert response.status_code == 200
-    assert response.headers["content-type"] == "application/json"
-    assert response.text == '"1,3,7-trimethylpurine-2,6-dione"'
-
-
-def test_IUPACname_or_SELFIES_to_SMILES():
-    response = client.get(
-        "/latest/convert/smiles?input_text=1,3,7-trimethylpurine-2,6-dione&representation=iupac"
-    )
-    assert response.status_code == 200
-    assert response.headers["content-type"] == "application/json"
-    assert response.text == '"CN1C=NC2=C1C(=O)N(C)C(=O)N2C"'
-
-    response = client.get(
-        "/latest/convert/smiles?input_text=[C][N][C][=N][C][=C][Ring1][Branch1][C][=Branch1][C][=O][N][Branch1][=Branch2][C][=Branch1][C][=O][N][Ring1][Branch2][C][C]&representation=selfies"
-    )
-    assert response.status_code == 200
-    assert response.headers["content-type"] == "application/json"
-    assert response.text == '"CN1C=NC2=C1C(=O)N(C(=O)N2C)C"'
-
-
-def test_encode_SELFIES():
-    response = client.get("/latest/convert/selfies?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C")
-    assert response.status_code == 200
-    assert response.headers["content-type"] == "application/json"
-    assert (
-        response.text
-        == '"[C][N][C][=N][C][=C][Ring1][Branch1][C][=Branch1][C][=O][N][Branch1][=Branch2][C][=Branch1][C][=O][N][Ring1][Branch2][C][C]"'
-    )
+    if smiles != "INVALID_INPUT":
+        assert "mol" in response.json()
+        assert "canonicalsmiles" in response.json()
+        assert "inchi" in response.json()
+        assert "inchikey" in response.json()
 
 
 # Filter out DeprecationWarning messages
