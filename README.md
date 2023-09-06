@@ -1,15 +1,15 @@
 <p align="center"><a href="https://api.naturalproducts.net/" target="_blank"><img src="/public/img/logo.png" width="400" alt="CMS Logo"></a></p>  
 
 [![License](https://img.shields.io/badge/License-MIT%202.0-blue.svg)](https://opensource.org/licenses/MIT)
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-blue.svg)](https://GitHub.com/Steinbeck-Lab/cheminformatics-python-microservice/graphs/commit-activity)
-[![GitHub issues](https://img.shields.io/github/issues/Steinbeck-Lab/cheminformatics-python-microservice.svg)](https://GitHub.com/Steinbeck-Lab/cheminformatics-python-microservice/issues/)
-[![GitHub contributors](https://img.shields.io/github/contributors/Steinbeck-Lab/cheminformatics-python-microservice.svg)](https://GitHub.com/Steinbeck-Lab/cheminformatics-python-microservice/graphs/contributors/)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-blue.svg)](https://GitHub.com/Steinbeck-Lab/cheminformatics-microservice/graphs/commit-activity)
+[![GitHub issues](https://img.shields.io/github/issues/Steinbeck-Lab/cheminformatics-microservice.svg)](https://GitHub.com/Steinbeck-Lab/cheminformatics-microservice/issues/)
+[![GitHub contributors](https://img.shields.io/github/contributors/Steinbeck-Lab/cheminformatics-microservice.svg)](https://GitHub.com/Steinbeck-Lab/cheminformatics-microservice/graphs/contributors/)
 [![tensorflow](https://img.shields.io/badge/TensorFlow-2.10.1-FF6F00.svg?style=flat&logo=tensorflow)](https://www.tensorflow.org)
 [![Powered by CDK](https://img.shields.io/badge/Powered%20by-CDK-blue.svg?style=flat&logo=chem)](https://cdk.github.io)
 [![RDKit badge](https://img.shields.io/badge/Powered%20by-RDKit-3838ff.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAFVBMVEXc3NwUFP8UPP9kZP+MjP+0tP////9ZXZotAAAAAXRSTlMAQObYZgAAAAFiS0dEBmFmuH0AAAAHdElNRQfmAwsPGi+MyC9RAAAAQElEQVQI12NgQABGQUEBMENISUkRLKBsbGwEEhIyBgJFsICLC0iIUdnExcUZwnANQWfApKCK4doRBsKtQFgKAQC5Ww1JEHSEkAAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMi0wMy0xMVQxNToyNjo0NyswMDowMDzr2J4AAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjItMDMtMTFUMTU6MjY6NDcrMDA6MDBNtmAiAAAAAElFTkSuQmCC)](https://www.rdkit.org/)
-![Workflow](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/actions/workflows/dev-build.yml/badge.svg)
-![Workflow](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/actions/workflows/prod-build.yml/badge.svg)
-![Workflow](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/actions/workflows/release-please.yml/badge.svg)
+![Workflow](https://github.com/Steinbeck-Lab/cheminformatics-microservice/actions/workflows/dev-build.yml/badge.svg)
+![Workflow](https://github.com/Steinbeck-Lab/cheminformatics-microservice/actions/workflows/prod-build.yml/badge.svg)
+![Workflow](https://github.com/Steinbeck-Lab/cheminformatics-microservice/actions/workflows/release-please.yml/badge.svg)
 [![framework](https://img.shields.io/badge/Framework-FastAPI-blue?style)](https://fastapi.tiangolo.com/)
 [![FastAPI Documentation](https://img.shields.io/badge/docs-fastapi-blue)](https://api.naturalproducts.net/v1/docs#/)
 [![Documentation Status](https://readthedocs.org/projects/cheminformatics-python-microservice/badge/?version=latest)](https://cheminformatics-python-microservice.readthedocs.io/en/latest/?badge=latest)
@@ -43,7 +43,7 @@ https://docs.api.naturalproducts.net/standalone.html
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/blob/dev-kohulan/LICENSE) file for details
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/Steinbeck-Lab/cheminformatics-microservice/blob/dev-kohulan/LICENSE) file for details
 
 ## Citation
 

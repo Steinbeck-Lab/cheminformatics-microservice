@@ -4,7 +4,7 @@
 Welcome to Cheminformatics Microservice's documentation!
 ===============================================================
 
-.. image:: https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/blob/main/docs/public/logo_big.png?raw=true
+.. image:: https://github.com/Steinbeck-Lab/cheminformatics-microservice/blob/main/docs/public/logo_big.png?raw=true
   :width: 500
   :align: center
 

@@ -64,7 +64,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/Steinbeck-Lab/cheminformatics-python-microservice' }
+      { icon: 'github', link: 'https://github.com/Steinbeck-Lab/cheminformatics-microservice' }
     ],
 
     footer: {

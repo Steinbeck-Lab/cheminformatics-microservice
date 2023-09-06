@@ -34,7 +34,7 @@ The Cheminformatics Microservice is readily equipped with a docker-compose file 
 1. Before you run the command make sure you've installed Docker including docker-compose support. More details [here](https://docs.docker.com/compose/install/).
 2. Clone the repository
 ```bash
-git clone https://github.com/Steinbeck-Lab/cheminformatics-python-microservice.git
+git clone https://github.com/Steinbeck-Lab/cheminformatics-microservice.git
 cd cheminformatics-python-microservice
 ```
 3. Start the application
