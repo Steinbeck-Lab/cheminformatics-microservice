@@ -1,4 +1,4 @@
-Cheminformatics Python Microservice
+Cheminformatics Microservice
 ===================================
 
 .. toctree::

@@ -8,13 +8,13 @@ Clone the project from GitHub
 
 1. Install Git: Download and install Git from the [official website](https://git-scm.com/).
 
-2. Copy the repository URL - https://github.com/Steinbeck-Lab/cheminformatics-python-microservice.git or Go to the GitHub repository and click the "Code" button on the GitHub repository https://github.com/Steinbeck-Lab/cheminformatics-python-microservice to get the HTTPS URL.
+2. Copy the repository URL - https://github.com/Steinbeck-Lab/cheminformatics-microservice.git or Go to the GitHub repository and click the "Code" button on the GitHub repository https://github.com/Steinbeck-Lab/cheminformatics-microservice to get the HTTPS URL.
 
 3. Open a terminal or command prompt.
 
 4. Navigate to the desired directory: Use `cd` to navigate to the directory where you want to clone the project.
 
-5. Clone the repository: Run the command `git clone https://github.com/Steinbeck-Lab/cheminformatics-python-microservice.git` to clone the project.
+5. Clone the repository: Run the command `git clone https://github.com/Steinbeck-Lab/cheminformatics-microservice.git` to clone the project.
 
 6. Use `cd` to navigate into the cloned project directory.
 
@@ -212,7 +212,7 @@ Click on the ""New Dashboard" button. You should see the following screen:
   <img align="center" src="/docs/grafana_db_new.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
 </p>
 
-Download the Cheminformatics Microservice dashboard template (JSON) here - https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/blob/main/cpm-dashboard.json
+Download the Cheminformatics Microservice dashboard template (JSON) here - https://github.com/Steinbeck-Lab/cheminformatics-microservice/blob/main/cpm-dashboard.json
 
 ## Benchmarking / Stress testing
 
