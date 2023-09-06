@@ -43,7 +43,7 @@ def test_successful_smiles_to_stereo_isomers(test_smiles):
 def test_exception_smiles_to_stereo_isomers():
     invalid_smiles = "INVALID_SMILES"
     response = client.get(f"/latest/chem/stereoisomers?smiles={invalid_smiles}")
-    assert response.status_code == 400
+    assert response.status_code == 422
     assert response.headers["content-type"] == "application/json"
 
 
@@ -89,8 +89,8 @@ def test_successful_smiles_descriptors_multiple(
 @pytest.mark.parametrize(
     "invalid_input, toolkit, exception_response_code",
     [
-        ("CN1C=NC2=C1C(=O)N(C(=O)N2C)C", "cdk", 400),
-        ("CN1C=NC2=C1C(=O)N(C(=O)N2C)C", "rdkit", 400),
+        ("CN1C=NC2=C1C(=O)N(C(=O)N2C)C", "cdk", 422),
+        ("CN1C=NC2=C1C(=O)N(C(=O)N2C)C", "rdkit", 422),
     ],
 )
 def test_exception_smiles_descriptors_multiple(
@@ -113,7 +113,7 @@ def test_successful_NPlikeliness_Score(smiles, expected_score):
 
 
 @pytest.mark.parametrize(
-    "invalid_smiles, exception_response_code", [("INVALID_SMILES", 400)]
+    "invalid_smiles, exception_response_code", [("INVALID_SMILES", 422)]
 )
 def test_exception_NPlikeliness_Score(invalid_smiles, exception_response_code):
     response = client.get(f"/latest/chem/nplikeness/score?smiles={invalid_smiles}")
@@ -158,7 +158,7 @@ def test_successful_tanimoto_similarity(smiles, toolkit, expected):
 
 
 @pytest.mark.parametrize(
-    "invalid_smiles, toolkit, exception_response_code", [("INVALID_SMILES", "cdk", 400)]
+    "invalid_smiles, toolkit, exception_response_code", [("INVALID_SMILES", "cdk", 422)]
 )
 def test_exception_tanimoto_similarity(
     invalid_smiles, toolkit, exception_response_code
@@ -184,7 +184,7 @@ def test_successful_check_errors(smiles, fix, expected):
 
 
 @pytest.mark.parametrize(
-    "invalid_smiles, fix, exception_response_code", [("INVALID_SMILES", False, 400)]
+    "invalid_smiles, fix, exception_response_code", [("INVALID_SMILES", False, 422)]
 )
 def test_exception_check_errors(invalid_smiles, fix, exception_response_code):
     response = client.get(f"/latest/chem/errors?smiles={invalid_smiles}&fix={fix}")
@@ -246,7 +246,7 @@ def test_success_standardize_mol(molfile):
 
 
 @pytest.mark.parametrize(
-    "invalid_molfile, exception_response_code", [(" CDK     08302311362D", 400)]
+    "invalid_molfile, exception_response_code", [(" CDK     08302311362D", 422)]
 )
 def test_exception_standardize_mol(invalid_molfile, exception_response_code):
     response = client.post(
@@ -268,7 +268,7 @@ def test_exception_coconut_preprocessing():
     response = client.get(
         f"/latest/chem/coconut/pre-processing?smiles={invalid_smiles}"
     )
-    assert response.status_code == 400
+    assert response.status_code == 422
 
 
 # Run the tests
