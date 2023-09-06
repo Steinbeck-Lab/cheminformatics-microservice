@@ -6,6 +6,7 @@ from rdkit.Chem.EnumerateStereoisomers import (
 )
 from chembl_structure_pipeline import standardizer, checker
 from fastapi.responses import Response, JSONResponse
+from app.modules.toolkits.helpers import parseInput
 from app.modules.npscorer import getNPScore
 from app.modules.classyfire import classify, result
 from app.modules.toolkits.cdk_wrapper import (
@@ -17,6 +18,7 @@ from app.modules.toolkits.rdkit_wrapper import (
     getRDKitHOSECodes,
     getProperties,
 )
+
 from app.modules.coconut.descriptors import getCOCONUTDescriptors
 from app.modules.all_descriptors import getTanimotoSimilarity
 from app.modules.coconut.preprocess import getCOCONUTpreprocessing
@@ -122,17 +124,13 @@ async def get_stereoisomers(
     - ValueError: If the SMILES string is not provided or is invalid.
 
     """
-    mol = Chem.MolFromSmiles(smiles)
+    mol = parseInput(smiles, "rdkit", False)
     if mol:
         isomers = tuple(EnumerateStereoisomers(mol))
         smilesArray = []
         for smi in sorted(Chem.MolToSmiles(x, isomericSmiles=True) for x in isomers):
             smilesArray.append(smi)
         return smilesArray
-    else:
-        raise HTTPException(
-            status_code=400, detail="Error reading SMILES string, please check again."
-        )
 
 
 @router.get(
@@ -268,7 +266,7 @@ async def get_multiple_descriptors(
 
     if len(molecules) < 2:
         raise HTTPException(
-            status_code=400, detail="At least two molecules are required."
+            status_code=422, detail="At least two molecules are required."
         )
 
     descriptors_dict = {}
@@ -346,9 +344,11 @@ async def hose_codes(
 
     """
     if toolkit == "cdk":
-        hose_codes = await getCDKHOSECodes(smiles, spheres, ringsize)
+        mol = parseInput(smiles, "cdk", False)
+        hose_codes = await getCDKHOSECodes(mol, spheres, ringsize)
     elif toolkit == "rdkit":
-        hose_codes = await getRDKitHOSECodes(smiles, spheres)
+        mol = parseInput(smiles, "rdkit", False)
+        hose_codes = await getRDKitHOSECodes(mol, spheres)
 
     if hose_codes:
         return hose_codes
@@ -420,7 +420,7 @@ M  END""",
             rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
 
         else:
-            raise HTTPException(status_code=400, detail="Invalid or missing molblock")
+            raise HTTPException(status_code=422, detail="Invalid or missing molblock")
 
         if rdkit_mol:
             smiles = Chem.MolToSmiles(rdkit_mol, kekuleSmiles=True)
@@ -435,7 +435,7 @@ M  END""",
             return response
 
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e))
 
 
 @router.get(
@@ -523,7 +523,7 @@ async def check_errors(
             return SMILESValidationResult(smi=smiles, messages=("No Errors Found",))
     else:
         raise HTTPException(
-            status_code=400, detail="Error reading SMILES string, please check again."
+            status_code=422, detail="Error reading SMILES string, please check again."
         )
 
 
@@ -569,17 +569,13 @@ async def np_likeness_score(
     - ValueError: If the SMILES string is not provided or is invalid.
 
     """
+    mol = parseInput(smiles, "rdkit", False)
     try:
-        np_score = getNPScore(smiles)
+        np_score = getNPScore(mol)
         if np_score:
             return float(np_score)
-        else:
-            raise HTTPException(
-                status_code=400,
-                detail="Error reading SMILES string, please check again.",
-            )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get(
@@ -647,20 +643,24 @@ async def tanimoto_similarity(
 
     if len(molecules) < 2:
         raise HTTPException(
-            status_code=400, detail="At least two molecules are required."
+            status_code=422, detail="At least two molecules are required."
         )
 
     elif len(smiles.split(",")) == 2:
         try:
             smiles1, smiles2 = smiles.split(",")
             if toolkit == "rdkit":
-                Tanimoto = getTanimotoSimilarityRDKit(smiles1, smiles2)
+                mol1 = parseInput(smiles1, "rdkit", False)
+                mol2 = parseInput(smiles2, "rdkit", False)
+                Tanimoto = getTanimotoSimilarityRDKit(mol1, mol2)
             else:
-                Tanimoto = getTanimotoSimilarityCDK(smiles1, smiles2)
+                mol1 = parseInput(smiles1, "cdk", False)
+                mol2 = parseInput(smiles2, "cdk", False)
+                Tanimoto = getTanimotoSimilarityCDK(mol1, mol2)
             return Tanimoto
         except Exception:
             raise HTTPException(
-                status_code=400,
+                status_code=422,
                 detail="Error reading SMILES string, please check again.",
             )
 
@@ -670,12 +670,12 @@ async def tanimoto_similarity(
             return Response(content=matrix, media_type="text/html")
         except Exception:
             raise HTTPException(
-                status_code=400,
+                status_code=422,
                 detail="Error reading SMILES string, please check again.",
             )
     else:
         raise HTTPException(
-            status_code=400, detail="Error reading SMILES string, please check again."
+            status_code=422, detail="Error reading SMILES string, please check again."
         )
 
 
@@ -727,12 +727,12 @@ async def coconut_preprocessing(
             return JSONResponse(content=data)
         else:
             raise HTTPException(
-                status_code=400,
+                status_code=422,
                 detail="Error reading SMILES string, please check again.",
             )
     except Exception as e:
         raise HTTPException(
-            status_code=400, detail="Error processing request: " + str(e)
+            status_code=422, detail="Error processing request: " + str(e)
         )
 
 
@@ -782,19 +782,11 @@ async def classyfire_classify(
     - This service pings the http://classyfire.wishartlab.com server for information retrieval.
 
     """
-    try:
+    mol = parseInput(smiles, "rdkit", False)
+    if mol:
         classification_data = await classify(smiles)
         if classification_data:
             return classification_data
-        else:
-            raise HTTPException(
-                status_code=400,
-                detail="Error reading SMILES string, please check again.",
-            )
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail="Error processing request: " + str(e)
-        )
 
 
 @router.get(
@@ -820,7 +812,7 @@ async def classyFire_result(jobid: str):
     - **jobid**: required (query): The Job ID used to query the ClassyFire classification results.
 
     Raises:
-    - HTTPException 400: If the Job ID is not provided.
+    - HTTPException 422: If the Job ID is not provided.
     - HTTPException 500: If an error occurs during the classification process.
 
     Returns:
@@ -838,4 +830,4 @@ async def classyFire_result(jobid: str):
                 status_code=500, detail="Error processing request: " + str(e)
             )
     else:
-        raise HTTPException(status_code=400, detail="Job ID is required.")
+        raise HTTPException(status_code=422, detail="Job ID is required.")

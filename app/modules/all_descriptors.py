@@ -2,7 +2,6 @@ from rdkit.Chem import Descriptors, QED, Lipinski, rdMolDescriptors, rdmolops
 from typing import Union
 from app.modules.toolkits.rdkit_wrapper import (
     checkRo5Violations,
-    checkSMILES,
     getTanimotoSimilarityRDKit,
 )
 from app.modules.toolkits.cdk_wrapper import (
@@ -13,41 +12,41 @@ from app.modules.toolkits.cdk_wrapper import (
     getTanimotoSimilarityCDK,
     getVanderWaalsVolume,
 )
+from app.modules.toolkits.helpers import parseInput
 
 
-def getAllRDKitDescriptors(smiles: str) -> Union[tuple, str]:
+def getAllRDKitDescriptors(molecule: any) -> Union[tuple, str]:
     """
     Calculate a selected set of molecular descriptors using RDKit.
     This function takes an input SMILES string and calculates various molecular descriptors
     using RDKit.
 
     Args:
-        smiles (str): The input SMILES string representing the molecule.
+        molecule (Chem.mol): RDKit molecule object.
 
     Returns:
         tuple: A tuple containing calculated molecular descriptors. If an error occurs during processing, an error message is returned.
     """
 
-    mol = checkSMILES(smiles)
-    if mol:
-        AtomC = rdMolDescriptors.CalcNumAtoms(mol)
-        BondC = mol.GetNumBonds()
-        HeavyAtomsC = rdMolDescriptors.CalcNumHeavyAtoms(mol)
-        MolWt = "%.2f" % Descriptors.MolWt(mol)
-        ExactMolWt = "%.5f" % Descriptors.ExactMolWt(mol)
-        ALogP = "%.2f" % QED.properties(mol).ALOGP
-        NumRotatableBonds = rdMolDescriptors.CalcNumRotatableBonds(mol)
-        PSA = "%.2f" % rdMolDescriptors.CalcTPSA(mol)
-        HBA = Descriptors.NumHAcceptors(mol)
-        HBD = Descriptors.NumHDonors(mol)
-        Lipinski_HBA = Lipinski.NumHAcceptors(mol)
-        Lipinski_HBD = Lipinski.NumHDonors(mol)
-        Ro5Violations = checkRo5Violations(mol)
-        AromaticRings = rdMolDescriptors.CalcNumAromaticRings(mol)
-        QEDWeighted = "%.2f" % QED.qed(mol)
-        FormalCharge = rdmolops.GetFormalCharge(mol)
-        fsp3 = "%.2f" % rdMolDescriptors.CalcFractionCSP3(mol)
-        NumRings = rdMolDescriptors.CalcNumRings(mol)
+    if molecule:
+        AtomC = rdMolDescriptors.CalcNumAtoms(molecule)
+        BondC = molecule.GetNumBonds()
+        HeavyAtomsC = rdMolDescriptors.CalcNumHeavyAtoms(molecule)
+        MolWt = "%.2f" % Descriptors.MolWt(molecule)
+        ExactMolWt = "%.5f" % Descriptors.ExactMolWt(molecule)
+        ALogP = "%.2f" % QED.properties(molecule).ALOGP
+        NumRotatableBonds = rdMolDescriptors.CalcNumRotatableBonds(molecule)
+        PSA = "%.2f" % rdMolDescriptors.CalcTPSA(molecule)
+        HBA = Descriptors.NumHAcceptors(molecule)
+        HBD = Descriptors.NumHDonors(molecule)
+        Lipinski_HBA = Lipinski.NumHAcceptors(molecule)
+        Lipinski_HBD = Lipinski.NumHDonors(molecule)
+        Ro5Violations = checkRo5Violations(molecule)
+        AromaticRings = rdMolDescriptors.CalcNumAromaticRings(molecule)
+        QEDWeighted = "%.2f" % QED.qed(molecule)
+        FormalCharge = rdmolops.GetFormalCharge(molecule)
+        fsp3 = "%.2f" % rdMolDescriptors.CalcFractionCSP3(molecule)
+        NumRings = rdMolDescriptors.CalcNumRings(molecule)
         VABCVolume = None
         return (
             AtomC,
@@ -74,55 +73,55 @@ def getAllRDKitDescriptors(smiles: str) -> Union[tuple, str]:
         return "Error reading SMILES string, check again."
 
 
-def getAllCDKDescriptors(smiles: str) -> Union[tuple, str]:
+def getAllCDKDescriptors(molecule: any) -> Union[tuple, str]:
     """
     Calculate a set of molecular descriptors using the CDK.
     This function takes a SMILES string as input and calculates various molecular descriptors
     using the CDK. The calculated descriptors are returned as a tuple.
 
     Args:
-        smiles (str): The input SMILES string representing the molecular structure.
+        molecule (IAtomContainer): CDK molecule object.
 
     Returns:
         tuple: A tuple containing calculated molecular descriptors. If an error occurs during processing, an error message is returned.
     """
-    Mol = getCDKSDG(smiles)
-    if Mol:
+    SDGMol = getCDKSDG(molecule)
+    if SDGMol:
         AtomCountDescriptor = (
             JClass(cdk_base + ".qsar.descriptors.molecular.AtomCountDescriptor")()
-            .calculate(Mol)
+            .calculate(SDGMol)
             .getValue()
         )
         BondCountDescriptor = (
             JClass(cdk_base + ".qsar.descriptors.molecular.BondCountDescriptor")()
-            .calculate(Mol)
+            .calculate(SDGMol)
             .getValue()
         )
-        HeavyAtomsC = Mol.getAtomCount()
+        HeavyAtomsC = SDGMol.getAtomCount()
         WeightDescriptor = (
             JClass(cdk_base + ".qsar.descriptors.molecular.WeightDescriptor")()
-            .calculate(Mol)
+            .calculate(SDGMol)
             .getValue()
             .toString()
         )
         TotalExactMass = JClass(
             cdk_base + ".tools.manipulator.AtomContainerManipulator"
-        ).getTotalExactMass(Mol)
+        ).getTotalExactMass(SDGMol)
         ALogP = (
             JClass(cdk_base + ".qsar.descriptors.molecular.ALOGPDescriptor")()
-            .calculate(Mol)
+            .calculate(SDGMol)
             .getValue()
         )
         NumRotatableBonds = (
             JClass(
                 cdk_base + ".qsar.descriptors.molecular.RotatableBondsCountDescriptor"
             )()
-            .calculate(Mol)
+            .calculate(SDGMol)
             .getValue()
         )
         TPSADescriptor = (
             JClass(cdk_base + ".qsar.descriptors.molecular.TPSADescriptor")()
-            .calculate(Mol)
+            .calculate(SDGMol)
             .getValue()
             .toString()
         )
@@ -130,32 +129,32 @@ def getAllCDKDescriptors(smiles: str) -> Union[tuple, str]:
             JClass(
                 cdk_base + ".qsar.descriptors.molecular.HBondAcceptorCountDescriptor"
             )()
-            .calculate(Mol)
+            .calculate(SDGMol)
             .getValue()
         )
         HBondDonorCountDescriptor = (
             JClass(cdk_base + ".qsar.descriptors.molecular.HBondDonorCountDescriptor")()
-            .calculate(Mol)
+            .calculate(SDGMol)
             .getValue()
         )
         RuleOfFiveDescriptor = (
             JClass(cdk_base + ".qsar.descriptors.molecular.RuleOfFiveDescriptor")()
-            .calculate(Mol)
+            .calculate(SDGMol)
             .getValue()
         )
-        AromaticRings = getAromaticRingCount(Mol)
+        AromaticRings = getAromaticRingCount(SDGMol)
         QEDWeighted = None
         FormalCharge = JClass(
             cdk_base + ".tools.manipulator.AtomContainerManipulator"
-        ).getTotalFormalCharge(Mol)
+        ).getTotalFormalCharge(SDGMol)
         FractionalCSP3Descriptor = (
             JClass(cdk_base + ".qsar.descriptors.molecular.FractionalCSP3Descriptor")()
-            .calculate(Mol)
+            .calculate(SDGMol)
             .getValue()
             .toString()
         )
-        NumRings = JClass(cdk_base + ".graph.Cycles").mcb(Mol).numberOfCycles()
-        VABCVolume = getVanderWaalsVolume(Mol)
+        NumRings = JClass(cdk_base + ".graph.Cycles").mcb(SDGMol).numberOfCycles()
+        VABCVolume = getVanderWaalsVolume(SDGMol)
 
         return (
             int(str(AtomCountDescriptor)),
@@ -198,8 +197,10 @@ def getCDKRDKitcombinedDescriptors(
             - If unsuccessful due to descriptor calculation errors, returns an error message as a string.
     """
     # Calculate RDKit and CDK descriptors
-    rdkit_descriptors = getAllRDKitDescriptors(smiles)
-    cdk_descriptors = getAllCDKDescriptors(smiles)
+    rdkitMol = parseInput(smiles, "rdkit", False)
+    rdkit_descriptors = getAllRDKitDescriptors(rdkitMol)
+    cdkMol = parseInput(smiles, "cdk", False)
+    cdk_descriptors = getAllCDKDescriptors(cdkMol)
 
     # List of descriptors to calculate
     all_descriptors = (
@@ -297,11 +298,13 @@ def getTanimotoSimilarity(smileslist: str, toolkit: str = "cdk") -> list:
     for i in range(len(smiles_list)):
         for j in range(len(smiles_list)):
             if toolkit == "rdkit":
-                matrix[i][j] = getTanimotoSimilarityRDKit(
-                    smiles_list[i], smiles_list[j]
-                )
+                mol1 = parseInput(smiles_list[i], "rdkit", False)
+                mol2 = parseInput(smiles_list[j], "rdkit", False)
+                matrix[i][j] = getTanimotoSimilarityRDKit(mol1, mol2)
             elif toolkit == "cdk":
-                matrix[i][j] = getTanimotoSimilarityCDK(smiles_list[i], smiles_list[j])
+                mol1 = parseInput(smiles_list[i], "cdk", False)
+                mol2 = parseInput(smiles_list[j], "cdk", False)
+                matrix[i][j] = getTanimotoSimilarityCDK(mol1, mol2)
             else:
                 raise ValueError("Unsupported toolkit:", toolkit)
 

@@ -5,6 +5,7 @@ from fastapi.responses import Response
 from rdkit import Chem
 from typing import Literal
 from STOUT import translate_forward, translate_reverse
+from app.modules.toolkits.helpers import parseInput
 from app.modules.toolkits.cdk_wrapper import (
     getCDKSDGMol,
     getCXSMILES,
@@ -118,26 +119,25 @@ async def Create2D_coordinates(
     Raises:
     - ValueError: If the SMILES string is not provided or is invalid.
     """
-    try:
-        if toolkit == "cdk":
+    if toolkit == "cdk":
+        mol = parseInput(smiles, "cdk", False)
+        return Response(
+            content=getCDKSDGMol(mol).replace("$$$$\n", ""),
+            media_type="text/plain",
+        )
+    elif toolkit == "rdkit":
+        mol = parseInput(smiles, "rdkit", False)
+        return Response(
+            content=get2Dmol(mol),
+            media_type="text/plain",
+        )
+    else:
+        mol = parseInput(smiles, "rdkit", False)
+        if mol:
             return Response(
-                content=getCDKSDGMol(smiles).replace("$$$$\n", ""),
+                content=getOBMol(smiles),
                 media_type="text/plain",
             )
-        elif toolkit == "rdkit":
-            return Response(
-                content=get2Dmol(smiles),
-                media_type="text/plain",
-            )
-        else:
-            mol = Chem.MolFromSmiles(smiles)
-            if mol:
-                return Response(
-                    content=getOBMol(smiles),
-                    media_type="text/plain",
-                )
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.get(
@@ -188,22 +188,19 @@ async def Create3D_coordinates(
     - ValueError: If the SMILES string is not provided or is invalid.
     """
 
-    try:
-        if toolkit == "rdkit":
+    if toolkit == "rdkit":
+        mol = parseInput(smiles, "rdkit", False)
+        return Response(
+            content=get3Dconformers(mol, depict=False),
+            media_type="text/plain",
+        )
+    elif toolkit == "openbabel":
+        mol = parseInput(smiles, "rdkit", False)
+        if mol:
             return Response(
-                content=get3Dconformers(smiles, depict=False),
+                content=getOBMol(smiles, threeD=True),
                 media_type="text/plain",
             )
-        elif toolkit == "openbabel":
-            mol = Chem.MolFromSmiles(smiles)
-            if mol:
-                return Response(
-                    content=getOBMol(smiles, threeD=True),
-                    media_type="text/plain",
-                )
-
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.get(
@@ -269,11 +266,11 @@ async def IUPACname_or_SELFIES_to_SMILES(
                 return str(selfies_out)
         else:
             raise HTTPException(
-                status_code=400,
+                status_code=422,
                 detail="Error reading input text, please check again.",
             )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e))
 
 
 @router.get(
@@ -326,9 +323,10 @@ async def SMILES_canonicalise(
     """
     try:
         if toolkit == "cdk":
-            return str(getCanonSMILES(smiles))
+            mol = parseInput(smiles, "cdk", False)
+            return str(getCanonSMILES(mol))
         elif toolkit == "rdkit":
-            mol = Chem.MolFromSmiles(smiles)
+            mol = parseInput(smiles, "rdkit", False)
             if mol:
                 return str(Chem.MolToSmiles(mol, kekuleSmiles=True))
             else:
@@ -340,11 +338,11 @@ async def SMILES_canonicalise(
             return str(getOBCanonicalSMILES(smiles))
         else:
             raise HTTPException(
-                status_code=400,
+                status_code=422,
                 detail="Error reading input text, please check again.",
             )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e))
 
 
 @router.get(
@@ -400,15 +398,17 @@ async def SMILES_to_CXSMILES(
     """
     try:
         if toolkit == "cdk":
-            cxsmiles = getCXSMILES(smiles)
+            mol = parseInput(smiles, "cdk", False)
+            cxsmiles = getCXSMILES(mol)
             if cxsmiles:
                 return str(cxsmiles)
         else:
-            cxsmiles = getRDKitCXSMILES(smiles)
+            mol = parseInput(smiles, "rdkit", False)
+            cxsmiles = getRDKitCXSMILES(mol)
             if cxsmiles:
                 return str(cxsmiles)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e))
 
 
 @router.get(
@@ -461,11 +461,12 @@ async def SMILES_to_InChI(
     """
     try:
         if toolkit == "cdk":
-            inchi = getInChI(smiles)
+            mol = parseInput(smiles, "cdk", False)
+            inchi = getInChI(mol)
             if inchi:
                 return str(inchi)
         elif toolkit == "rdkit":
-            mol = Chem.MolFromSmiles(smiles)
+            mol = parseInput(smiles, "rdkit", False)
             if mol:
                 inchi = Chem.inchi.MolToInchi(mol)
                 if inchi:
@@ -476,11 +477,11 @@ async def SMILES_to_InChI(
                 return str(inchi)
         else:
             raise HTTPException(
-                status_code=400,
+                status_code=422,
                 detail="Error reading input text, please check again.",
             )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e))
 
 
 @router.get(
@@ -533,12 +534,13 @@ async def SMILES_to_InChIKey(
     """
     try:
         if toolkit == "cdk":
-            inchikey = getInChI(smiles, InChIKey=True)
+            mol = parseInput(smiles, "cdk", False)
+            inchikey = getInChI(mol, InChIKey=True)
             if inchikey:
                 return str(inchikey)
 
         elif toolkit == "rdkit":
-            mol = Chem.MolFromSmiles(smiles)
+            mol = parseInput(smiles, "rdkit", False)
             if mol:
                 inchikey = Chem.inchi.MolToInchiKey(mol)
                 if inchikey:
@@ -549,11 +551,11 @@ async def SMILES_to_InChIKey(
                 return str(inchikey)
         else:
             raise HTTPException(
-                status_code=400,
+                status_code=422,
                 detail="Error reading input text, please check again.",
             )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e))
 
 
 @router.get(
@@ -611,11 +613,11 @@ async def SMILES_to_IUPAC_name(
             return str(iupac)
         else:
             raise HTTPException(
-                status_code=400,
-                detail="Error reading input text, please check again.",
+                status_code=422,
+                detail="Error parsing input text, please check again.",
             )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e))
 
 
 @router.get(
@@ -730,14 +732,15 @@ async def SMILES_convert_to_formats(
     try:
         if toolkit == "cdk":
             response = {}
-            response["mol"] = getCDKSDGMol(smiles).replace("$$$$\n", "")
-            response["canonicalsmiles"] = str(getCanonSMILES(smiles))
-            response["inchi"] = str(getInChI(smiles))
-            response["inchikey"] = str(getInChI(smiles, InChIKey=True))
+            mol = parseInput(smiles, "cdk", False)
+            response["mol"] = getCDKSDGMol(mol).replace("$$$$\n", "")
+            response["canonicalsmiles"] = str(getCanonSMILES(mol))
+            response["inchi"] = str(getInChI(mol))
+            response["inchikey"] = str(getInChI(mol, InChIKey=True))
             return response
 
         elif toolkit == "rdkit":
-            mol = Chem.MolFromSmiles(smiles)
+            mol = parseInput(smiles, "rdkit", False)
             if mol:
                 response = {}
                 response["mol"] = Chem.MolToMolBlock(mol)
@@ -754,10 +757,10 @@ async def SMILES_convert_to_formats(
             return response
         else:
             raise HTTPException(
-                status_code=400,
+                status_code=422,
                 detail="Error reading SMILES string, please check again.",
             )
     except Exception as e:
         raise HTTPException(
-            status_code=400, detail="Error processing request: " + str(e)
+            status_code=422, detail="Error processing request: " + str(e)
         )
