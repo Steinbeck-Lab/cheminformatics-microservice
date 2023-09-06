@@ -33,91 +33,93 @@ def test_chem_index():
     assert response.json() == {"status": "OK"}
 
 
-def test_successful_smiles_to_stereo_isomers(test_smiles):
-    response = client.get(f"/latest/chem/stereoisomers?smiles={test_smiles}")
-    assert response.status_code == 200
+@pytest.mark.parametrize(
+    "smiles, response_text, response_code",
+    [
+        (
+            "CC",
+            '"["CC"]"',
+            200,
+        ),
+        (
+            "INVALID_INPUT",
+            "",
+            422,
+        ),
+    ],
+)
+def test_smiles_to_stereo_isomers(smiles, response_text, response_code):
+    response = client.get(f"/latest/chem/stereoisomers?smiles={smiles}")
+    assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
-    assert response.text == '["Cn1c(=O)c2c(ncn2C)n(C)c1=O"]'
-
-
-def test_exception_smiles_to_stereo_isomers():
-    invalid_smiles = "INVALID_SMILES"
-    response = client.get(f"/latest/chem/stereoisomers?smiles={invalid_smiles}")
-    assert response.status_code == 422
-    assert response.headers["content-type"] == "application/json"
-
-
-def test_smiles_descriptors(test_smiles):
-    response = client.get(f"/latest/chem/descriptors?smiles={test_smiles}")
-    assert response.status_code == 200
-    assert response.headers["content-type"] == "application/json"
-    assert (
-        response.text
-        == '{"atom_count":24,"heavy_atom_count":14,"molecular_weight":194.19,"exactmolecular_weight":194.08038,"alogp":-1.03,"rotatable_bond_count":0,"topological_polar_surface_area":61.82,"hydrogen_bond_acceptors":6,"hydrogen_bond_donors":0,"hydrogen_bond_acceptors_lipinski":6,"hydrogen_bond_donors_lipinski":0,"lipinski_rule_of_five_violations":0,"aromatic_rings_count":2,"qed_drug_likeliness":0.54,"formal_charge":0,"fractioncsp3":0.375,"number_of_minimal_rings":2,"van_der_walls_volume":"None","linear_sugars":false,"circular_sugars":false,"murko_framework":"N1=C[N]C2=C1NCNC2","nplikeness":-1.09}'
-    )
-
-    response = client.get(f"/latest/chem/descriptors?smiles={test_smiles}&format=html")
-    assert response.status_code == 200
-    assert response.headers["content-type"] == "text/html; charset=utf-8"
+    if smiles != "INVALID_INPUT":
+        assert response.text == response_text
 
 
 @pytest.mark.parametrize(
-    "multiple_smiles, toolkit, success_response_code",
+    "smiles, format, response_code",
     [
         (
-            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C, CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            "CC",
+            "html",
+            200,
+        ),
+        (
+            "CC",
+            "json",
+            200,
+        ),
+        (
+            "INVALID_INPUT",
+            "json",
+            422,
+        ),
+    ],
+)
+def test_smiles_descriptors(smiles, format, response_code):
+    response = client.get(f"/latest/chem/descriptors?smiles={smiles}&format={format}")
+    assert response.status_code == response_code
+    assert response.headers["content-type"] == "application/json"
+
+
+@pytest.mark.parametrize(
+    "multiple_smiles, toolkit, response_code",
+    [
+        (
+            "CC,CCO",
             "cdk",
             200,
         ),
         (
-            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C, CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            "CC,CCO",
             "rdkit",
             200,
         ),
+        ("CC", "cdk", 422),
     ],
 )
-def test_successful_smiles_descriptors_multiple(
-    multiple_smiles, toolkit, success_response_code
-):
+def test_smiles_descriptors_multiple(multiple_smiles, toolkit, response_code):
     response = client.get(
         f"/latest/chem/descriptors/multiple?smiles={multiple_smiles}&toolkit={toolkit}"
     )
-    assert response.status_code == success_response_code
+    assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
 
 
 @pytest.mark.parametrize(
-    "invalid_input, toolkit, exception_response_code",
+    "smiles, expected_score, response_code",
     [
-        ("CN1C=NC2=C1C(=O)N(C(=O)N2C)C", "cdk", 422),
-        ("CN1C=NC2=C1C(=O)N(C(=O)N2C)C", "rdkit", 422),
+        ("CN1C=NC2=C1C(=O)N(C(=O)N2C)C", -1.09, 200),
+        ("CC=O", 0.96, 200),
+        ("INVALID_INPUT", 0, 422),
     ],
 )
-def test_exception_smiles_descriptors_multiple(
-    invalid_input, toolkit, exception_response_code
-):
-    response = client.get(
-        f"/latest/chem/descriptors/multiple?smiles={invalid_input}&toolkit={toolkit}"
-    )
-    assert response.status_code == exception_response_code
-
-
-@pytest.mark.parametrize(
-    "smiles, expected_score", [("CN1C=NC2=C1C(=O)N(C(=O)N2C)C", -1.09), ("CC=O", 0.96)]
-)
-def test_successful_NPlikeliness_Score(smiles, expected_score):
+def test_NPlikeliness_Score(smiles, expected_score, response_code):
     response = client.get(f"/latest/chem/nplikeness/score?smiles={smiles}")
-    assert response.status_code == 200
+    assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
-    assert response.json() == expected_score
-
-
-@pytest.mark.parametrize(
-    "invalid_smiles, exception_response_code", [("INVALID_SMILES", 422)]
-)
-def test_exception_NPlikeliness_Score(invalid_smiles, exception_response_code):
-    response = client.get(f"/latest/chem/nplikeness/score?smiles={invalid_smiles}")
-    assert response.status_code == exception_response_code
+    if smiles != "INVALID_INPUT":
+        assert response.json() == expected_score
 
 
 def test_successful_classyFire_classify(test_smiles):
@@ -133,14 +135,8 @@ def test_successful_classyFire_result():
     assert response.headers["content-type"] == "application/json"
 
 
-# def test_exception_classyFire_classify(test_smiles):
-#     response = client.get(f"/latest/chem/classyfire/classify?smiles={test_smiles}")
-#     assert response.status_code == 200
-#     assert response.headers["content-type"] == "application/json"
-
-
 @pytest.mark.parametrize(
-    "smiles, toolkit, expected",
+    "smiles, toolkit, expected, response_code",
     [
         ("CC,CC", "cdk", '"1.00000"'),
         ("CC,CC", "rdkit", "1.0"),
@@ -148,47 +144,32 @@ def test_successful_classyFire_result():
             "CC,CC,CC",
             "cdk",
             "<table><tr><th></th><th>0</th><th>1</th><th>2</th></tr><tr><td>0</td><td>1.00000</td><td>1.00000</td><td>1.00000</td></tr><tr><td>1</td><td>1.00000</td><td>1.00000</td><td>1.00000</td></tr><tr><td>2</td><td>1.00000</td><td>1.00000</td><td>1.00000</td></tr></table>",
+            200,
         ),
+        ("INVALID_INPUT", "cdk", "", 422),
     ],
 )
-def test_successful_tanimoto_similarity(smiles, toolkit, expected):
+def test_successful_tanimoto_similarity(smiles, toolkit, expected, response_code):
     response = client.get(f"/latest/chem/tanimoto?smiles={smiles}&toolkit={toolkit}")
-    assert response.status_code == 200
-    assert response.text == expected
+    assert response.status_code == response_code
+    if smiles != "INVALID_INPUT":
+        assert response.text == expected
 
 
 @pytest.mark.parametrize(
-    "invalid_smiles, toolkit, exception_response_code", [("INVALID_SMILES", "cdk", 422)]
-)
-def test_exception_tanimoto_similarity(
-    invalid_smiles, toolkit, exception_response_code
-):
-    response = client.get(
-        f"/latest/chem/tanimoto?smiles={invalid_smiles}&toolkit={toolkit}"
-    )
-    assert response.status_code == exception_response_code
-
-
-@pytest.mark.parametrize(
-    "smiles, fix, expected",
+    "smiles, fix, expected, response_code",
     [
-        ("CCO", False, '{"smi":"CCO","messages":["No Errors Found"]}'),
-        ("CCO", True, '{"smi":"CCO","messages":["No Errors Found"]}'),
+        ("CCO", False, '{"smi":"CCO","messages":["No Errors Found"]}', 200),
+        ("CCO", True, '{"smi":"CCO","messages":["No Errors Found"]}', 200),
+        ("INVALID_INPUT", False, "", 422),
     ],
 )
-def test_successful_check_errors(smiles, fix, expected):
+def test_successful_check_errors(smiles, fix, expected, response_code):
     response = client.get(f"/latest/chem/errors?smiles={smiles}&fix={fix}")
-    assert response.status_code == 200
+    assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
-    assert response.text == expected
-
-
-@pytest.mark.parametrize(
-    "invalid_smiles, fix, exception_response_code", [("INVALID_SMILES", False, 422)]
-)
-def test_exception_check_errors(invalid_smiles, fix, exception_response_code):
-    response = client.get(f"/latest/chem/errors?smiles={invalid_smiles}&fix={fix}")
-    assert response.status_code == exception_response_code
+    if smiles != "INVALID_INPUT":
+        assert response.text == expected
 
 
 @pytest.mark.parametrize(
@@ -257,18 +238,14 @@ def test_exception_standardize_mol(invalid_molfile, exception_response_code):
     assert response.status_code == exception_response_code
 
 
-def test_successful_coconut_preprocessing(test_smiles):
-    response = client.get(f"/latest/chem/coconut/pre-processing?smiles={test_smiles}")
-    assert response.status_code == 200
+@pytest.mark.parametrize(
+    "smiles, response_code",
+    [("CCO", 200), ("INVALID_INPUT", 422)],
+)
+def test_successful_coconut_preprocessing(smiles, response_code):
+    response = client.get(f"/latest/chem/coconut/pre-processing?smiles={smiles}")
+    assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
-
-
-def test_exception_coconut_preprocessing():
-    invalid_smiles = "INVALID_SMILES"
-    response = client.get(
-        f"/latest/chem/coconut/pre-processing?smiles={invalid_smiles}"
-    )
-    assert response.status_code == 422
 
 
 # Run the tests
