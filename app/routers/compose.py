@@ -33,7 +33,7 @@ def get_health() -> HealthCheck:
 
 
 @router.get("/suggestions/{term}")
-async def suggestTerms(term: str):
+async def suggest_terms(term: str):
     if term:
         instrumentDictionary = [
             "Bruker avance III",

@@ -1,10 +1,10 @@
 from fastapi import APIRouter, status, Query, HTTPException
-from app.modules.tools.surge import generateStructures
+from app.modules.tools.surge import generate_structures_SURGE
 from app.modules.tools.sugar_removal import (
-    getSugarInfo,
-    removeLinearSugar,
-    removeCircularSugar,
-    removeLinearandCircularSugar,
+    get_sugar_info,
+    remove_linear_sugar,
+    remove_circular_sugar,
+    remove_linear_and_circular_sugar,
 )
 from app.schemas import HealthCheck
 from app.schemas.error import ErrorResponse, BadRequestModel, NotFoundModel
@@ -15,7 +15,7 @@ from app.schemas.tools_schema import (
     GetCircularSugarResponse,
     GetCircularandLinearSugarResponse,
 )
-from app.modules.toolkits.helpers import parseInput
+from app.modules.toolkits.helpers import parse_input
 
 router = APIRouter(
     prefix="/tools",
@@ -102,7 +102,7 @@ async def generate_structures(
 
     """
     try:
-        structures = generateStructures(molecular_formula)
+        structures = generate_structures_SURGE(molecular_formula)
         if structures:
             return structures
     except Exception as e:
@@ -151,7 +151,7 @@ async def get_sugar_information(
     - str: A message indicating the type of sugars present in the molecule.
 
     Note:
-    The function `getSugarInfo` is used internally to determine the presence of linear and circular sugars in the molecule.
+    The function `get_sugar_info` is used internally to determine the presence of linear and circular sugars in the molecule.
 
     The returned message indicates the types of sugars present in the molecule:
         - If both linear and circular sugars are present, it returns "The molecule contains Linear and Circular sugars."
@@ -160,9 +160,9 @@ async def get_sugar_information(
         - If no sugars are found, it returns "The molecule contains no sugar."
 
     """
-    mol = parseInput(smiles, "cdk", False)
+    mol = parse_input(smiles, "cdk", False)
     try:
-        hasLinearSugar, hasCircularSugars = getSugarInfo(mol)
+        hasLinearSugar, hasCircularSugars = get_sugar_info(mol)
         if hasLinearSugar and hasCircularSugars:
             return "The molecule contains Linear and Circular sugars"
         if hasLinearSugar and not hasCircularSugars:
@@ -212,8 +212,8 @@ async def remove_linear_sugars(
 
     """
     try:
-        mol = parseInput(smiles, "cdk", False)
-        removed_smiles = removeLinearSugar(mol)
+        mol = parse_input(smiles, "cdk", False)
+        removed_smiles = remove_linear_sugar(mol)
         if removed_smiles:
             return removed_smiles
         else:
@@ -261,9 +261,9 @@ async def remove_circular_sugars(
     - str: The modified SMILES string with circular sugars removed.
 
     """
-    mol = parseInput(smiles, "cdk", False)
+    mol = parse_input(smiles, "cdk", False)
     try:
-        removed_smiles = removeCircularSugar(mol)
+        removed_smiles = remove_circular_sugar(mol)
         if removed_smiles:
             return removed_smiles
         else:
@@ -314,9 +314,9 @@ async def remove_linear_and_circular_sugars(
     - str: The modified SMILES string with linear and circular sugars removed.
 
     """
-    mol = parseInput(smiles, "cdk", False)
+    mol = parse_input(smiles, "cdk", False)
     try:
-        removed_smiles = removeLinearandCircularSugar(mol)
+        removed_smiles = remove_linear_and_circular_sugar(mol)
         if removed_smiles:
             return removed_smiles
         else:

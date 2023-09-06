@@ -3,7 +3,7 @@ from openbabel import pybel
 from app.exception_handlers import InvalidInputException
 
 
-def getOBCanonicalSMILES(smiles: str) -> str:
+def get_ob_canonical_SMILES(smiles: str) -> str:
     """
     Convert a SMILES string to Canonical SMILES.
 
@@ -30,7 +30,7 @@ def getOBCanonicalSMILES(smiles: str) -> str:
         return canSMILES
 
 
-def getOBInChI(smiles: str, InChIKey: bool = False) -> str:
+def get_ob_InChI(smiles: str, InChIKey: bool = False) -> str:
     """
     Convert a SMILES string to InChI.
 
@@ -64,7 +64,7 @@ def getOBInChI(smiles: str, InChIKey: bool = False) -> str:
         return inchi
 
 
-def getOBMol(smiles: str, threeD: bool = False, depict: bool = False) -> str:
+def get_ob_mol(smiles: str, threeD: bool = False, depict: bool = False) -> str:
     """
     Convert a SMILES string to a 2D/3D mol block.
 
@@ -80,7 +80,7 @@ def getOBMol(smiles: str, threeD: bool = False, depict: bool = False) -> str:
 
     if threeD:
         mol = pybel.readstring("smi", smiles)
-        if mol.NumAtoms() <= 0:
+        if mol.OBMol.NumAtoms() <= 0:
             raise InvalidInputException(name="smiles", value=smiles)
         else:
             mol.addh()

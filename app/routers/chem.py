@@ -6,22 +6,22 @@ from rdkit.Chem.EnumerateStereoisomers import (
 )
 from chembl_structure_pipeline import standardizer, checker
 from fastapi.responses import Response, JSONResponse
-from app.modules.toolkits.helpers import parseInput
-from app.modules.npscorer import getNPScore
+from app.modules.toolkits.helpers import parse_input
+from app.modules.npscorer import get_np_score
 from app.modules.classyfire import classify, result
 from app.modules.toolkits.cdk_wrapper import (
-    getTanimotoSimilarityCDK,
-    getCDKHOSECodes,
+    get_tanimoto_similarity_CDK,
+    get_CDK_HOSE_codes,
 )
 from app.modules.toolkits.rdkit_wrapper import (
-    getTanimotoSimilarityRDKit,
-    getRDKitHOSECodes,
-    getProperties,
+    get_tanimoto_similarity_rdkit,
+    get_rdkit_HOSE_codes,
+    get_properties,
 )
 
-from app.modules.coconut.descriptors import getCOCONUTDescriptors
-from app.modules.all_descriptors import getTanimotoSimilarity
-from app.modules.coconut.preprocess import getCOCONUTpreprocessing
+from app.modules.coconut.descriptors import get_COCONUT_descriptors
+from app.modules.all_descriptors import get_tanimoto_similarity
+from app.modules.coconut.preprocess import get_COCONUT_preprocessing
 import pandas as pd
 from fastapi.templating import Jinja2Templates
 from app.schemas import HealthCheck
@@ -124,7 +124,7 @@ async def get_stereoisomers(
     - ValueError: If the SMILES string is not provided or is invalid.
 
     """
-    mol = parseInput(smiles, "rdkit", False)
+    mol = parse_input(smiles, "rdkit", False)
     if mol:
         isomers = tuple(EnumerateStereoisomers(mol))
         smilesArray = []
@@ -186,7 +186,7 @@ async def get_descriptors(
     - None
 
     """
-    data = getCOCONUTDescriptors(smiles, toolkit)
+    data = get_COCONUT_descriptors(smiles, toolkit)
     if format == "html":
         if toolkit == "all":
             headers = ["Descriptor name", "RDKit Descriptors", "CDK Descriptors"]
@@ -272,7 +272,7 @@ async def get_multiple_descriptors(
     descriptors_dict = {}
 
     for molecule in molecules:
-        descriptors = getCOCONUTDescriptors(molecule, toolkit)
+        descriptors = get_COCONUT_descriptors(molecule, toolkit)
         # print(type(descriptors))
         descriptors_dict[molecule] = descriptors
 
@@ -344,11 +344,11 @@ async def hose_codes(
 
     """
     if toolkit == "cdk":
-        mol = parseInput(smiles, "cdk", False)
-        hose_codes = await getCDKHOSECodes(mol, spheres, ringsize)
+        mol = parse_input(smiles, "cdk", False)
+        hose_codes = await get_CDK_HOSE_codes(mol, spheres, ringsize)
     elif toolkit == "rdkit":
-        mol = parseInput(smiles, "rdkit", False)
-        hose_codes = await getRDKitHOSECodes(mol, spheres)
+        mol = parse_input(smiles, "rdkit", False)
+        hose_codes = await get_rdkit_HOSE_codes(mol, spheres)
 
     if hose_codes:
         return hose_codes
@@ -430,7 +430,7 @@ M  END""",
                 inchi=Chem.inchi.MolToInchi(rdkit_mol),
                 inchikey=Chem.inchi.MolToInchiKey(rdkit_mol),
             )
-            original_properties = getProperties(data)
+            original_properties = get_properties(data)
             response.update(original_properties)
             return response
 
@@ -508,8 +508,7 @@ async def check_errors(
                 issues_new = checker.check_molblock(standardized_mol)
                 rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
                 standardized_smiles = Chem.MolToSmiles(rdkit_mol)
-
-                result = StandardizedResult(
+                result = SMILESStandardizedResult(
                     original=SMILESValidationResult(smi=smiles, messages=issues),
                     standardized=SMILESValidationResult(
                         smi=standardized_smiles,
@@ -569,9 +568,9 @@ async def np_likeness_score(
     - ValueError: If the SMILES string is not provided or is invalid.
 
     """
-    mol = parseInput(smiles, "rdkit", False)
+    mol = parse_input(smiles, "rdkit", False)
     try:
-        np_score = getNPScore(mol)
+        np_score = get_np_score(mol)
         if np_score:
             return float(np_score)
     except Exception as e:
@@ -650,13 +649,13 @@ async def tanimoto_similarity(
         try:
             smiles1, smiles2 = smiles.split(",")
             if toolkit == "rdkit":
-                mol1 = parseInput(smiles1, "rdkit", False)
-                mol2 = parseInput(smiles2, "rdkit", False)
-                Tanimoto = getTanimotoSimilarityRDKit(mol1, mol2)
+                mol1 = parse_input(smiles1, "rdkit", False)
+                mol2 = parse_input(smiles2, "rdkit", False)
+                Tanimoto = get_tanimoto_similarity_rdkit(mol1, mol2)
             else:
-                mol1 = parseInput(smiles1, "cdk", False)
-                mol2 = parseInput(smiles2, "cdk", False)
-                Tanimoto = getTanimotoSimilarityCDK(mol1, mol2)
+                mol1 = parse_input(smiles1, "cdk", False)
+                mol2 = parse_input(smiles2, "cdk", False)
+                Tanimoto = get_tanimoto_similarity_CDK(mol1, mol2)
             return Tanimoto
         except Exception:
             raise HTTPException(
@@ -666,7 +665,7 @@ async def tanimoto_similarity(
 
     elif len(smiles.split(",")) > 2:
         try:
-            matrix = getTanimotoSimilarity(smiles, toolkit)
+            matrix = get_tanimoto_similarity(smiles, toolkit)
             return Response(content=matrix, media_type="text/html")
         except Exception:
             raise HTTPException(
@@ -722,7 +721,7 @@ async def coconut_preprocessing(
 
     """
     try:
-        data = getCOCONUTpreprocessing(smiles)
+        data = get_COCONUT_preprocessing(smiles)
         if data:
             return JSONResponse(content=data)
         else:
@@ -782,7 +781,7 @@ async def classyfire_classify(
     - This service pings the http://classyfire.wishartlab.com server for information retrieval.
 
     """
-    mol = parseInput(smiles, "rdkit", False)
+    mol = parse_input(smiles, "rdkit", False)
     if mol:
         classification_data = await classify(smiles)
         if classification_data:
@@ -802,7 +801,7 @@ async def classyfire_classify(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def classyFire_result(jobid: str):
+async def classyfire_result(jobid: str):
     """
     Retrieve the ClassyFire classification results based on the provided Job ID.
     To obtain the results from ClassyFire, please initiate a new request and obtain a unique job ID.

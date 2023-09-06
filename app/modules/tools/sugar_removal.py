@@ -1,7 +1,7 @@
 import app.modules.toolkits.cdk_wrapper as cdk
 
 
-def getSugarInfo(molecule: any) -> tuple:
+def get_sugar_info(molecule: any) -> tuple:
     """
     Analyzes a molecule represented by a SMILES string to determine if it contains sugars.
     This function utilizes the Sugar Removal Utility to check for the presence of circular or linear sugars.
@@ -30,7 +30,7 @@ def getSugarInfo(molecule: any) -> tuple:
         return (False, False)
 
 
-def removeLinearSugar(molecule: any) -> str:
+def remove_linear_sugar(molecule: any) -> str:
     """
     Detects and removes linear sugars from a given SMILES string using the CDK-based
     sugar removal utility.
@@ -67,7 +67,7 @@ def removeLinearSugar(molecule: any) -> str:
         return "No Linear sugar found"
 
 
-def removeCircularSugar(molecule: any) -> str:
+def remove_circular_sugar(molecule: any) -> str:
     """
     Detects and removes circular sugars from a given SMILES string using the CDK-based sugar removal utility.
 
@@ -100,7 +100,7 @@ def removeCircularSugar(molecule: any) -> str:
         return "No Circular sugars found"
 
 
-def removeLinearandCircularSugar(molecule: any):
+def remove_linear_and_circular_sugar(molecule: any):
     """This fucntion detects and removes linear and circular sugars from a give
     SMILES string. Uses the CDK based sugar removal utility.
 
