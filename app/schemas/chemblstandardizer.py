@@ -1,6 +1,5 @@
 from __future__ import annotations
 from pydantic import BaseModel
-from typing import List
 
 
 class SMILESValidationResult(BaseModel):
@@ -13,7 +12,7 @@ class SMILESValidationResult(BaseModel):
     """
 
     smi: str
-    messages: List[str]
+    messages: tuple
 
 
 class SMILESStandardizedResult(BaseModel):

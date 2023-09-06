@@ -1,8 +1,8 @@
 import pytest
 import selfies as sf
-from app.modules.depiction import getRDKitDepiction, getCDKDepiction
-from app.modules.npscorer import getNPScore
-from app.modules.toolkits.helpers import parseInput
+from app.modules.depiction import get_rdkit_depiction, get_cdk_depiction
+from app.modules.npscorer import get_np_score
+from app.modules.toolkits.helpers import parse_input
 
 
 @pytest.fixture
@@ -13,74 +13,74 @@ def test_smiles():
 @pytest.fixture
 def test_RDKit_Mol():
     smiles = "CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
-    return parseInput(smiles, "rdkit", False)
+    return parse_input(smiles, "rdkit", False)
 
 
 @pytest.fixture
 def test_CDK_Mol():
     smiles = "CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
-    return parseInput(smiles, "cdk", False)
+    return parse_input(smiles, "cdk", False)
 
 
 def test_npscore(test_RDKit_Mol):
     expected_result = "-1.09"
-    actual_result = getNPScore(test_RDKit_Mol)
+    actual_result = get_np_score(test_RDKit_Mol)
     assert expected_result == actual_result
 
 
 # RDKit Depiction tests
-def test_getRDKitDepiction(test_RDKit_Mol):
-    svg = getRDKitDepiction(test_RDKit_Mol)
+def test_get_rdkit_depiction(test_RDKit_Mol):
+    svg = get_rdkit_depiction(test_RDKit_Mol)
     assert isinstance(svg, str)
     assert "svg" in svg
     assert "Error" not in svg
 
 
-def test_getRDKitDepiction_kekulize(test_RDKit_Mol):
-    svg = getRDKitDepiction(test_RDKit_Mol, kekulize=False)
+def test_get_rdkit_depiction_kekulize(test_RDKit_Mol):
+    svg = get_rdkit_depiction(test_RDKit_Mol, kekulize=False)
     assert isinstance(svg, str)
     assert "svg" in svg
     assert "Error" not in svg
 
 
-def test_getRDKitDepiction_rotate(test_RDKit_Mol):
-    svg = getRDKitDepiction(test_RDKit_Mol, rotate=90)
+def test_get_rdkit_depiction_rotate(test_RDKit_Mol):
+    svg = get_rdkit_depiction(test_RDKit_Mol, rotate=90)
     assert isinstance(svg, str)
     assert "svg" in svg
     assert "Error" not in svg
 
 
-def test_getRDKitDepiction_size(test_RDKit_Mol):
-    svg = getRDKitDepiction(test_RDKit_Mol, molSize=(512, 512))
+def test_get_rdkit_depiction_size(test_RDKit_Mol):
+    svg = get_rdkit_depiction(test_RDKit_Mol, molSize=(512, 512))
     assert isinstance(svg, str)
     assert "svg" in svg
     assert "Error" not in svg
 
 
 # CDK depiction tests
-def test_getCDKDepiction(test_CDK_Mol):
-    svg = getCDKDepiction(test_CDK_Mol)
+def test_get_cdk_depiction(test_CDK_Mol):
+    svg = get_cdk_depiction(test_CDK_Mol)
     assert isinstance(svg, str)
     assert "svg" in svg
     assert "Error" not in svg
 
 
-def test_getCDKDepiction_unicolor(test_CDK_Mol):
-    svg = getCDKDepiction(test_CDK_Mol, unicolor=True)
+def test_get_cdk_depiction_unicolor(test_CDK_Mol):
+    svg = get_cdk_depiction(test_CDK_Mol, unicolor=True)
     assert isinstance(svg, str)
     assert "svg" in svg
     assert "Error" not in svg
 
 
-def test_getCDKDepiction_rotate(test_CDK_Mol):
-    svg = getCDKDepiction(test_CDK_Mol, rotate=90)
+def test_get_cdk_depiction_rotate(test_CDK_Mol):
+    svg = get_cdk_depiction(test_CDK_Mol, rotate=90)
     assert isinstance(svg, str)
     assert "svg" in svg
     assert "Error" not in svg
 
 
-def test_getCDKDepiction_size(test_CDK_Mol):
-    svg = getCDKDepiction(test_CDK_Mol, molSize=(512, 512))
+def test_get_cdk_depiction_size(test_CDK_Mol):
+    svg = get_cdk_depiction(test_CDK_Mol, molSize=(512, 512))
     assert isinstance(svg, str)
     assert "svg" in svg
     assert "Error" not in svg

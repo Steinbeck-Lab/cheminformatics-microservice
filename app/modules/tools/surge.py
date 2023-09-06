@@ -3,7 +3,7 @@ from subprocess import Popen, PIPE
 from typing import Union
 
 
-def getHeavyAtomCount(formula: str) -> int:
+def get_heavy_atom_count(formula: str) -> int:
     """
     Calculate the heavy atom count from a given molecular formula.
 
@@ -33,7 +33,7 @@ def getHeavyAtomCount(formula: str) -> int:
     return heavy_atom_count
 
 
-def generateStructures(molecular_formula: str) -> Union[list, str]:
+def generate_structures_SURGE(molecular_formula: str) -> Union[list, str]:
     """
     Generate chemical structures using the surge tool based on the canonical generation path method.
 
@@ -47,7 +47,7 @@ def generateStructures(molecular_formula: str) -> Union[list, str]:
     """
 
     smiles = []
-    if getHeavyAtomCount(molecular_formula) <= 10:
+    if get_heavy_atom_count(molecular_formula) <= 10:
         try:
             process = Popen(
                 [

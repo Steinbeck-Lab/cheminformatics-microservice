@@ -4,7 +4,7 @@ from rdkit.Chem import AllChem, Descriptors, QED, Lipinski, rdMolDescriptors, rd
 from hosegen import HoseGenerator
 
 
-def checkRo5Violations(molecule: any) -> int:
+def check_RO5_violations(molecule: any) -> int:
     """
     Check the molecule for violations of Lipinski's Rule of Five.
 
@@ -26,7 +26,7 @@ def checkRo5Violations(molecule: any) -> int:
     return num_of_violations
 
 
-def getRDKitDescriptors(molecule: any) -> Union[tuple, str]:
+def get_rdkit_descriptors(molecule: any) -> Union[tuple, str]:
     """
     Calculate a selected set of molecular descriptors for the input SMILES string.
 
@@ -49,7 +49,7 @@ def getRDKitDescriptors(molecule: any) -> Union[tuple, str]:
         HBD = Descriptors.NumHDonors(molecule)
         Lipinski_HBA = Lipinski.NumHAcceptors(molecule)
         Lipinski_HBD = Lipinski.NumHDonors(molecule)
-        Ro5Violations = checkRo5Violations(molecule)
+        Ro5Violations = check_RO5_violations(molecule)
         AromaticRings = rdMolDescriptors.CalcNumAromaticRings(molecule)
         QEDWeighted = "%.2f" % QED.qed(molecule)
         FormalCharge = rdmolops.GetFormalCharge(molecule)
@@ -80,7 +80,7 @@ def getRDKitDescriptors(molecule: any) -> Union[tuple, str]:
         return "Error reading SMILES string, check again."
 
 
-def get3Dconformers(molecule: any, depict=True) -> Chem.Mol:
+def get_3d_conformers(molecule: any, depict=True) -> Chem.Mol:
     """
     Convert a SMILES string to an RDKit Mol object with 3D coordinates.
 
@@ -108,7 +108,7 @@ def get3Dconformers(molecule: any, depict=True) -> Chem.Mol:
             return Chem.MolToMolBlock(molecule)
 
 
-def getTanimotoSimilarityRDKit(mol1, mol2) -> Union[float, str]:
+def get_tanimoto_similarity_rdkit(mol1, mol2) -> Union[float, str]:
     """
     Calculate the Tanimoto similarity index between two SMILES strings using Morgan Fingerprints.
 
@@ -132,7 +132,7 @@ def getTanimotoSimilarityRDKit(mol1, mol2) -> Union[float, str]:
         return "Check SMILES strings for Errors"
 
 
-async def getRDKitHOSECodes(molecule: any, noOfSpheres: int) -> List[str]:
+async def get_rdkit_HOSE_codes(molecule: any, noOfSpheres: int) -> List[str]:
     """
     Calculate and retrieve RDKit HOSE codes for a given SMILES string.
     This function takes a SMILES string as input and returns the calculated HOSE codes.
@@ -201,7 +201,7 @@ def has_stereochemistry(molecule: any) -> bool:
     return False
 
 
-def get2Dmol(molecule: any) -> str:
+def get_2d_mol(molecule: any) -> str:
     """
     Generate a 2D Mol block representation from a given SMILES string.
 
@@ -219,7 +219,7 @@ def get2Dmol(molecule: any) -> str:
         return molfile
 
 
-def getRDKitCXSMILES(molecule: any) -> str:
+def get_rdkit_CXSMILES(molecule: any) -> str:
     """
     Generate CXSMILES representation with coordinates from a given SMILES string.
 
@@ -236,7 +236,7 @@ def getRDKitCXSMILES(molecule: any) -> str:
         return Chem.MolToCXSmiles(molecule)
 
 
-def getProperties(sdf_file) -> dict:
+def get_properties(sdf_file) -> dict:
     """
     Extracts properties from a single molecule contained in an SDF file.
 
