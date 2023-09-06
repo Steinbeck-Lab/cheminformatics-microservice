@@ -15,7 +15,7 @@ def test_tool_index():
 @pytest.mark.parametrize(
     "input,response_text, response_code",
     [
-        ("C6H6", '"["C=C1C=CC=C1","C1=CC=CC=C1"]"', 200),
+        ("C6H6", '["C=C1C=CC=C1","C1=CC=CC=C1"]', 200),
     ],
 )
 def test_generate_structures(input, response_text, response_code):
