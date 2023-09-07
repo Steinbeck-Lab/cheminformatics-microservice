@@ -33,7 +33,7 @@ It is strongly recommended that readers cite both the software and the correspon
 - Citing software:
 
 ```
-Venkata, C., Sharma, N., Schaub, J., Steinbeck, C., & Rajan, K. (2023). cheminformatics-python-microservice (Version V1.0.0) [Computer software]. 
+Venkata, C., Sharma, N., Schaub, J., Steinbeck, C., & Rajan, K. (2023). cheminformatics-microservice (Version V1.0.0) [Computer software]. 
 https://doi.org/10.5281/zenodo.8112749
 ```
 

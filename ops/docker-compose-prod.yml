@@ -15,7 +15,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   web:
-    image: caffeinejena/cheminformatics-python-microservice:v1.0.0
+    image: nfdi4chem/cheminformatics-microservice:v1.0.0
     environment:
       HOMEPAGE_URL:  "https://docs.api.naturalproducts.net"
       RELEASE_VERSION: v1.0.0

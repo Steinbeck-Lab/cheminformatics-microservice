@@ -18,8 +18,8 @@ on:
 env:
   DOCKER_HUB_USERNAME : ${{ secrets.DOCKER_USERNAME  }}
   DOCKER_HUB_PASSWORD : ${{ secrets.DOCKER_PASSWORD  }}
-  REPOSITORY_NAME: cheminformatics-python-microservice
-  REPOSITORY_NAMESPACE: caffeinejena
+  REPOSITORY_NAME: cheminformatics-microservice
+  REPOSITORY_NAMESPACE: nfdi4chem
 
 jobs:
   push_to_registry:
