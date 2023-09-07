@@ -29,10 +29,10 @@ If you had already added this repo earlier, run `helm repo update` to retrieve t
 
 * **Deploy the Chart:** To deploy the chart, use the helm install command followed by the chart package name and an optional release name:
 ```bash
-helm install myrelease repo-helm-charts/cheminfo-microservice
+helm install myrelease repo-helm-charts/cheminformatics-microservice
 ```
 The release name (myrelease in this example) is used to identify the deployment, and it must be unique within the Kubernetes cluster.
-The above command with deploy the service with the default configuration provided in [values.yml](https://github.com/NFDI4Chem/repo-helm-charts/blob/main/charts/cheminfo-microservice/values.yaml) file. To overwrite the default configuration please follow this [link](https://helm.sh/docs/chart_template_guide/values_files/) to learn more.
+The above command with deploy the service with the default configuration provided in [values.yml](https://github.com/NFDI4Chem/repo-helm-charts/blob/main/charts/cheminformatics-microservice/values.yaml) file. To overwrite the default configuration please follow this [link](https://helm.sh/docs/chart_template_guide/values_files/) to learn more.
 
 * Helm will install the chart and deploy the application to your Kubernetes cluster. You can view the deployed resources using kubectl commands:
 ```bash
@@ -41,7 +41,7 @@ kubectl get services
 ```
 * **Upgrading and Managing Deployments:** To upgrade an existing deployment, Use the `helm upgrade` command to apply the changes to the existing release e.g.
 ```bash
-helm upgrade myrelease repo-helm-charts/cheminfo-microservice-0.1.6
+helm upgrade myrelease repo-helm-charts/cheminformatics-microservice-0.1.6
 ```
 
 * **Uninstalling the Chart:** To remove a deployed chart and associated resources, use the helm uninstall command:
@@ -96,10 +96,10 @@ A GKE cluster consists of a pool of Compute Engine VM instances running [Kuberne
 ```
 2. Run the below command to deploy the CPM app.
 ```bash
-helm install myrelease repo-helm-charts/cheminfo-microservice
+helm install myrelease repo-helm-charts/cheminformatics-microservice
 ```
 The release name (myrelease in this example) is used to identify the deployment, and it must be unique within the Kubernetes cluster.
-The above command with deploy the service with the default configuration provided in [values.yml](https://github.com/NFDI4Chem/repo-helm-charts/blob/main/charts/cheminfo-microservice/values.yaml) file. To overwrite the default configuration please follow this [link](https://helm.sh/docs/chart_template_guide/values_files/) to learn more.
+The above command with deploy the service with the default configuration provided in [values.yml](https://github.com/NFDI4Chem/repo-helm-charts/blob/main/charts/cheminformatics-microservice/values.yaml) file. To overwrite the default configuration please follow this [link](https://helm.sh/docs/chart_template_guide/values_files/) to learn more.
 
 3. Helm will install the chart and deploy the application to your Kubernetes Cluster. To see the progress click on `Workloads` & `Services` tab. or run below commands in your Cloud Shell.
 ```bash
