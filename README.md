@@ -30,7 +30,7 @@ Development: https://dev.api.naturalproducts.net/latest/docs
 
 ## Installation
 
-You can run Cheminformatics Microservice as a standalone application using Python virtual environment or via Docker, or deploy to a Kubernetes cluster utilising Helm charts. Please follow the links below for step-by-step instructions.
+You can run Cheminformatics Microservice as a standalone application using Python virtual environment or via Docker, or deploy to a Kubernetes cluster utilising [Helm charts](https://github.com/NFDI4Chem/repo-helm-charts/tree/main/charts). Please follow the links below for step-by-step instructions.
 
 **Docker**
 https://docs.api.naturalproducts.net/docker.html
