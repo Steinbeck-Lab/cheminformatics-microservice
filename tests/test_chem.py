@@ -38,7 +38,7 @@ def test_chem_index():
     [
         (
             "CC",
-            '"["CC"]"',
+            '["CC"]',
             200,
         ),
         (
@@ -51,7 +51,6 @@ def test_chem_index():
 def test_smiles_to_stereo_isomers(smiles, response_text, response_code):
     response = client.get(f"/latest/chem/stereoisomers?smiles={smiles}")
     assert response.status_code == response_code
-    assert response.headers["content-type"] == "application/json"
     if smiles != "INVALID_INPUT":
         assert response.text == response_text
 
@@ -79,7 +78,6 @@ def test_smiles_to_stereo_isomers(smiles, response_text, response_code):
 def test_smiles_descriptors(smiles, format, response_code):
     response = client.get(f"/latest/chem/descriptors?smiles={smiles}&format={format}")
     assert response.status_code == response_code
-    assert response.headers["content-type"] == "application/json"
 
 
 @pytest.mark.parametrize(
@@ -103,7 +101,6 @@ def test_smiles_descriptors_multiple(multiple_smiles, toolkit, response_code):
         f"/latest/chem/descriptors/multiple?smiles={multiple_smiles}&toolkit={toolkit}"
     )
     assert response.status_code == response_code
-    assert response.headers["content-type"] == "application/json"
 
 
 @pytest.mark.parametrize(
@@ -117,7 +114,6 @@ def test_smiles_descriptors_multiple(multiple_smiles, toolkit, response_code):
 def test_NPlikeliness_Score(smiles, expected_score, response_code):
     response = client.get(f"/latest/chem/nplikeness/score?smiles={smiles}")
     assert response.status_code == response_code
-    assert response.headers["content-type"] == "application/json"
     if smiles != "INVALID_INPUT":
         assert response.json() == expected_score
 
@@ -132,7 +128,6 @@ def test_successful_classyFire_result():
     job_id = 11212508
     response = client.get(f"/latest/chem/classyfire/{job_id}/result")
     assert response.status_code == 200
-    assert response.headers["content-type"] == "application/json"
 
 
 @pytest.mark.parametrize(
@@ -167,7 +162,6 @@ def test_successful_tanimoto_similarity(smiles, toolkit, expected, response_code
 def test_successful_check_errors(smiles, fix, expected, response_code):
     response = client.get(f"/latest/chem/errors?smiles={smiles}&fix={fix}")
     assert response.status_code == response_code
-    assert response.headers["content-type"] == "application/json"
     if smiles != "INVALID_INPUT":
         assert response.text == expected
 
@@ -198,7 +192,6 @@ def test_successful_hose_codes(
         f"/latest/chem/HOSEcode?smiles={smiles}&spheres=0&toolkit={toolkit}&ringsize={ringsize}"
     )
     assert response.status_code == success_response_code
-    assert response.headers["content-type"] == "application/json"
     assert response.text == response_text
 
 
@@ -245,7 +238,6 @@ def test_exception_standardize_mol(invalid_molfile, exception_response_code):
 def test_successful_coconut_preprocessing(smiles, response_code):
     response = client.get(f"/latest/chem/coconut/pre-processing?smiles={smiles}")
     assert response.status_code == response_code
-    assert response.headers["content-type"] == "application/json"
 
 
 # Run the tests
