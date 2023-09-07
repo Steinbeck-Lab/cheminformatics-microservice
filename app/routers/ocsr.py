@@ -59,7 +59,8 @@ def get_health() -> HealthCheck:
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def extract_chemicalinfo(
+
+async def Extract_ChemicalInfo_From_File(
     path: str = Body(
         None,
         embed=True,
