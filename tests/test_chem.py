@@ -138,8 +138,8 @@ def test_successful_classyFire_result():
 @pytest.mark.parametrize(
     "smiles, toolkit, expected, response_code",
     [
-        ("CC,CC", "cdk", '"1.00000"'),
-        ("CC,CC", "rdkit", "1.0"),
+        ("CC,CC", "cdk", '"1.00000"', 200),
+        ("CC,CC", "rdkit", "1.0", 200),
         (
             "CC,CC,CC",
             "cdk",
