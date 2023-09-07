@@ -1,5 +1,55 @@
 # Changelog
 
+## [1.4.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v1.3.0...v1.4.0) (2023-09-07)
+
+
+### Features
+
+* added file upload option to ocsr routes (fixes [#328](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/328)) ([5098744](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/5098744e4e3e4aba1bf9d7aa1f255fa38e6e96d7))
+* added file upload option to ocsr routes (fixes [#328](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/328)) ([#365](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/365)) ([66e5e5e](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/66e5e5e9319eb05872968ffa6d06f5b0949f4929))
+* exract properties [#320](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/320) ([31ce43c](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/31ce43c25c961c0d2d102548707e4b4219b54b95))
+* include OpenAPI schemas to fix [#339](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/339) and [#343](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/343) ([29bcf26](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/29bcf26e5bab068410452aaa673da14830c9d095))
+
+
+### Bug Fixes
+
+* convert/smiles gives 200 response for invalid input - resolves [#372](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/372) ([eea7510](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/eea7510b84dfecef1e6cd38856adef03a4173601))
+* Custom domain update - removing base path from the vitepress config ([1d69669](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/1d6966920759e437b209962416a3994639967c4b))
+* Custom domain update - removing base path from the vitepress config ([#350](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/350)) ([bc2a8d3](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/bc2a8d3bec67d6181bc1d9a703d571cecbcca4cf))
+* include docstrings for exception_handlers ([a78c575](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/a78c57515fe03eb0906f5e1fff92195b17343bc5))
+* linting issue fix ([2577b3d](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/2577b3dcaf32276b4e2ea05ce5b31643a5878cc8))
+* make code blocks more pythonic [#335](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/335) ([d7861dc](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d7861dc132dbd773f8c8448d21075ef9c44e1f00))
+* mypy issues and pep8 ([2215b0a](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/2215b0a39745734396711de84e9aad38553a6b15))
+* removed unused imports, OCSR modules uncommented ([10c61f8](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/10c61f88d34522602c436936db705632d6ccd011))
+* renamed modules to align with pep8 recommendations (added underscores to improve readability) ([c45e6f9](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/c45e6f95190b60c7d835009beb608c9881ed8822))
+* SDF block encoding and return as Dict ([9ab58cf](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/9ab58cf4324319c282bd262803b5e98fc44f0559))
+* table rendering ([31c50ff](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/31c50ff8be19564f9f8e83bbe7015d41c5976745))
+* Typos and docstrings ([3e671b6](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/3e671b639b22178fe45360790bca7187189a8ed0))
+* uncommented ocsr ([747c252](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/747c2520e2057110b0172e9bdfec9bbce2f81eeb))
+* update CITATION.cff ([f2d022b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/f2d022baaaaa1352874985a83481544c223a0cc5))
+* update Docker Hub repo name and repo name ([#377](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/377)) ([a603760](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/a6037606038d0f8a870aac193f625c8f4e9ce651))
+* Update method name - pep8 compliance [#371](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/371) ([5d6ffc5](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/5d6ffc58ccdb97fa74697acba3f716dfcaa03b1d))
+* update pytest command ([d17b410](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d17b4104116073839a6b7da5b7209ab5140ba04a))
+* update title of service and logo ([#366](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/366)) ([716fdb6](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/716fdb63dbd94e2d88abbdbc1f38f189e640f263))
+* updated CPM docs url to custom domain ([845a99d](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/845a99d0b96a6b099d63bfaf3994ac0dd690ef48))
+* updated docs - inconsistent naming ([43b5e51](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/43b5e51b98a13928d2d0948f66e5a99943cf1298))
+* updated github repo link ([34d31f1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/34d31f16d72d74c4c89cc7ea100cd3f92a9eda36))
+* writing missing test ([#374](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/374)) ([4b85afd](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/4b85afdfddf9941a5fa11de42173c30ff8614a68))
+
+
+### Documentation
+
+* add DFG credit in README ([eaf19e5](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/eaf19e564d3f4152758dde9e72657f13833d46af))
+* add DFG credit in README ([00c383a](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/00c383a293a2cf7598bf8adbbb493dcea86b4aa7))
+* add DFG credit in README ([#319](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/319)) ([220e3e2](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/220e3e239686999d5382a44549a205a093331805))
+* add docs for GKE deployment ([d04d88c](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d04d88c85ae3e7e52a94474e9ea8594e752eb164))
+* added sustainability and scaling docs. Various other changes to the docs ([b9ce98b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/b9ce98ba450df05180ba4aea49c93007df65e6d4))
+* enable search ([9ddca88](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/9ddca88b5b434130cc6188a01874a1c481403b25))
+* refactoring installation ([5c37e6e](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/5c37e6ec0da7f4b9206494a11ccd39ecc4d9652e))
+* update repo name of helm chart ([307c288](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/307c288ed2474f529cc376bceaa501cf7bf2bc51))
+* updated / renamed cpm to cm ([7580214](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/7580214b74dcb57d633d717fc8dec34092f1c55e))
+* updated readme with installation instructions ([633c7f4](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/633c7f4265132022f1ee5df0a17ea79e7be04225))
+
 ## [1.3.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v1.2.0...v1.3.0) (2023-08-07)
 
 
