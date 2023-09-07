@@ -4,7 +4,7 @@ outline: deep
 
 # CHEM Module
 
-Under the CHEM module, CPM exposes functions and routines offered by cheminformatics toolkits for structure manipulation (CHEMBL curation pipeline) and insilico calculations such as descriptors, NPLikeness and Tanimoto scores.  
+Under the CHEM module, CM exposes functions and routines offered by cheminformatics toolkits for structure manipulation (CHEMBL curation pipeline) and insilico calculations such as descriptors, NPLikeness and Tanimoto scores.  
 
 <div>
   <iframe id="inlineFrameExample"

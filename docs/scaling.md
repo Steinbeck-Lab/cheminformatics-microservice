@@ -18,13 +18,13 @@ Scaling neural network model predictions effectively involves a combination of m
 
 Here we presented only two use cases where scaling can impact significantly the time, resources and energy requirements, but we believe that Cheminformatics tasks can take full advantage of the hardware through optimisation and developmental strategies.
 
-Currently CPM handles one molecule per request but in future releases we will also support batch processing in a single request enabling a larger through put. 
+Currently CM handles one molecule per request but in future releases we will also support batch processing in a single request enabling a larger through put. 
 
 ## Implementations
 
 ### Docker compose (manual)
 
-Docker compose file distributed with CPM comes with a preconfigured [Traefik](https://github.com/traefik/traefik) serivce - a modern HTTP reverse proxy and load balancer that makes deploying microservices easy.
+Docker compose file distributed with CM comes with a preconfigured [Traefik](https://github.com/traefik/traefik) serivce - a modern HTTP reverse proxy and load balancer that makes deploying microservices easy.
 
 It uses round robin approach to distribute requests among the resources available.
 
@@ -38,7 +38,7 @@ While each service provider (AWS, Azure, GCP) have their own configurations to c
 
 ### GKE
 
-The Helm chart for CPM comes packaged with Horizontal Pod Autoscaler - more information [here](/cluster-deployment.html#scaling).
+The Helm chart for CM comes packaged with Horizontal Pod Autoscaler - more information [here](/cluster-deployment.html#scaling).
 
 
 
