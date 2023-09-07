@@ -117,7 +117,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "increase(http_requests_total{job=\"cheminformatics-python-microservice\"}[1m])",
+          "expr": "increase(http_requests_total{job=\"cheminformatics-microservice\"}[1m])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -308,7 +308,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "process_resident_memory_bytes{job=\"cheminformatics-python-microservice\"}",
+          "expr": "process_resident_memory_bytes{job=\"cheminformatics-microservice\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -403,7 +403,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "http_request_duration_seconds_sum{job=\"cheminformatics-python-microservice\",handler!=\"none\"} / http_request_duration_seconds_count",
+          "expr": "http_request_duration_seconds_sum{job=\"cheminformatics-microservice\",handler!=\"none\"} / http_request_duration_seconds_count",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -495,7 +495,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "rate(process_cpu_seconds_total{job=\"cheminformatics-python-microservice\"}[30s])",
+          "expr": "rate(process_cpu_seconds_total{job=\"cheminformatics-microservice\"}[30s])",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -960,7 +960,7 @@
     ]
   },
   "timezone": "",
-  "title": "Cheminformatics Python Microservice - Dashboard",
+  "title": "Cheminformatics Microservice - Dashboard",
   "uid": "_eX4mpl3",
   "version": 3,
   "weekStart": ""

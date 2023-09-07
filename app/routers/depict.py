@@ -1,13 +1,14 @@
 from fastapi import Request, APIRouter, Query, status, HTTPException
 from typing import Optional, Literal
 from fastapi.responses import Response
-from app.modules.depiction import getRDKitDepiction, getCDKDepiction
-from app.modules.toolkits.rdkit_wrapper import get3Dconformers
-from app.modules.toolkits.openbabel_wrapper import getOBMol
+from app.modules.depiction import get_rdkit_depiction, get_cdk_depiction
+from app.modules.toolkits.rdkit_wrapper import get_3d_conformers
+from app.modules.toolkits.openbabel_wrapper import get_ob_mol
 from fastapi.templating import Jinja2Templates
 from app.schemas import HealthCheck
 from app.schemas.error import ErrorResponse, BadRequestModel, NotFoundModel
 from app.schemas.depict_schema import Depict2DResponse, Depict3DResponse
+from app.modules.toolkits.helpers import parse_input
 
 templates = Jinja2Templates(directory="app/templates")
 
@@ -60,7 +61,7 @@ def get_health() -> HealthCheck:
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def depict_2D_molecule(
+async def depict_2d_molecule(
     smiles: str = Query(
         title="SMILES",
         description="SMILES string to be converted",
@@ -129,17 +130,19 @@ async def depict_2D_molecule(
     """
     try:
         if toolkit == "cdk":
-            depiction = getCDKDepiction(smiles, [width, height], rotate, CIP, unicolor)
+            mol = parse_input(smiles, "cdk", False)
+            depiction = get_cdk_depiction(mol, [width, height], rotate, CIP, unicolor)
         elif toolkit == "rdkit":
-            depiction = getRDKitDepiction(smiles, [width, height], rotate)
+            mol = parse_input(smiles, "rdkit", False)
+            depiction = get_rdkit_depiction(mol, [width, height], rotate)
         else:
             raise HTTPException(
-                status_code=400,
+                status_code=422,
                 detail="Error reading SMILES string, please check again.",
             )
         return Response(content=depiction, media_type="image/svg+xml")
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e))
 
 
 @router.get(
@@ -155,7 +158,7 @@ async def depict_2D_molecule(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def depict_3D_molecule(
+async def depict_3d_molecule(
     request: Request,
     smiles: str = Query(
         title="SMILES",
@@ -199,15 +202,16 @@ async def depict_3D_molecule(
         if toolkit == "openbabel":
             content = {
                 "request": request,
-                "molecule": getOBMol(smiles, threeD=True, depict=True),
+                "molecule": get_ob_mol(smiles, threeD=True, depict=True),
             }
         elif toolkit == "rdkit":
-            content = {"request": request, "molecule": get3Dconformers(smiles)}
+            mol = parse_input(smiles, "rdkit", False)
+            content = {"request": request, "molecule": get_3d_conformers(mol)}
         else:
             raise HTTPException(
-                status_code=400,
+                status_code=422,
                 detail="Error reading SMILES string, please check again.",
             )
         return templates.TemplateResponse("mol.html", content)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e))

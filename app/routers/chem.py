@@ -6,27 +6,28 @@ from rdkit.Chem.EnumerateStereoisomers import (
 )
 from chembl_structure_pipeline import standardizer, checker
 from fastapi.responses import Response, JSONResponse
-from app.modules.npscorer import getNPScore
+from app.modules.toolkits.helpers import parse_input
+from app.modules.npscorer import get_np_score
 from app.modules.classyfire import classify, result
 from app.modules.toolkits.cdk_wrapper import (
-    getTanimotoSimilarityCDK,
-    getCDKHOSECodes,
+    get_tanimoto_similarity_CDK,
+    get_CDK_HOSE_codes,
 )
 from app.modules.toolkits.rdkit_wrapper import (
-    getTanimotoSimilarityRDKit,
-    getRDKitHOSECodes,
-    getProperties,
+    get_tanimoto_similarity_rdkit,
+    get_rdkit_HOSE_codes,
+    get_properties,
 )
-from app.modules.coconut.descriptors import getCOCONUTDescriptors
-from app.modules.all_descriptors import getTanimotoSimilarity
-from app.modules.coconut.preprocess import getCOCONUTpreprocessing
+
+from app.modules.coconut.descriptors import get_COCONUT_descriptors
+from app.modules.all_descriptors import get_tanimoto_similarity
+from app.modules.coconut.preprocess import get_COCONUT_preprocessing
 import pandas as pd
 from fastapi.templating import Jinja2Templates
 from app.schemas import HealthCheck
 from app.schemas.chemblstandardizer import (
     SMILESValidationResult,
     SMILESStandardizedResult,
-    StandardizedResult,
 )
 from app.schemas.classyfire import ClassyFireJob, ClassyFireResult
 from app.schemas.coconut import COCONUTPreprocessingModel
@@ -122,17 +123,13 @@ async def get_stereoisomers(
     - ValueError: If the SMILES string is not provided or is invalid.
 
     """
-    mol = Chem.MolFromSmiles(smiles)
+    mol = parse_input(smiles, "rdkit", False)
     if mol:
         isomers = tuple(EnumerateStereoisomers(mol))
         smilesArray = []
         for smi in sorted(Chem.MolToSmiles(x, isomericSmiles=True) for x in isomers):
             smilesArray.append(smi)
         return smilesArray
-    else:
-        raise HTTPException(
-            status_code=400, detail="Error reading SMILES string, please check again."
-        )
 
 
 @router.get(
@@ -188,7 +185,7 @@ async def get_descriptors(
     - None
 
     """
-    data = getCOCONUTDescriptors(smiles, toolkit)
+    data = get_COCONUT_descriptors(smiles, toolkit)
     if format == "html":
         if toolkit == "all":
             headers = ["Descriptor name", "RDKit Descriptors", "CDK Descriptors"]
@@ -268,13 +265,13 @@ async def get_multiple_descriptors(
 
     if len(molecules) < 2:
         raise HTTPException(
-            status_code=400, detail="At least two molecules are required."
+            status_code=422, detail="At least two molecules are required."
         )
 
     descriptors_dict = {}
 
     for molecule in molecules:
-        descriptors = getCOCONUTDescriptors(molecule, toolkit)
+        descriptors = get_COCONUT_descriptors(molecule, toolkit)
         # print(type(descriptors))
         descriptors_dict[molecule] = descriptors
 
@@ -346,9 +343,11 @@ async def hose_codes(
 
     """
     if toolkit == "cdk":
-        hose_codes = await getCDKHOSECodes(smiles, spheres, ringsize)
+        mol = parse_input(smiles, "cdk", False)
+        hose_codes = await get_CDK_HOSE_codes(mol, spheres, ringsize)
     elif toolkit == "rdkit":
-        hose_codes = await getRDKitHOSECodes(smiles, spheres)
+        mol = parse_input(smiles, "rdkit", False)
+        hose_codes = await get_rdkit_HOSE_codes(mol, spheres)
 
     if hose_codes:
         return hose_codes
@@ -420,7 +419,7 @@ M  END""",
             rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
 
         else:
-            raise HTTPException(status_code=400, detail="Invalid or missing molblock")
+            raise HTTPException(status_code=422, detail="Invalid or missing molblock")
 
         if rdkit_mol:
             smiles = Chem.MolToSmiles(rdkit_mol, kekuleSmiles=True)
@@ -430,12 +429,12 @@ M  END""",
                 inchi=Chem.inchi.MolToInchi(rdkit_mol),
                 inchikey=Chem.inchi.MolToInchiKey(rdkit_mol),
             )
-            original_properties = getProperties(data)
+            original_properties = get_properties(data)
             response.update(original_properties)
             return response
 
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e))
 
 
 @router.get(
@@ -508,8 +507,7 @@ async def check_errors(
                 issues_new = checker.check_molblock(standardized_mol)
                 rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
                 standardized_smiles = Chem.MolToSmiles(rdkit_mol)
-
-                result = StandardizedResult(
+                result = SMILESStandardizedResult(
                     original=SMILESValidationResult(smi=smiles, messages=issues),
                     standardized=SMILESValidationResult(
                         smi=standardized_smiles,
@@ -523,7 +521,7 @@ async def check_errors(
             return SMILESValidationResult(smi=smiles, messages=("No Errors Found",))
     else:
         raise HTTPException(
-            status_code=400, detail="Error reading SMILES string, please check again."
+            status_code=422, detail="Error reading SMILES string, please check again."
         )
 
 
@@ -569,17 +567,13 @@ async def np_likeness_score(
     - ValueError: If the SMILES string is not provided or is invalid.
 
     """
+    mol = parse_input(smiles, "rdkit", False)
     try:
-        np_score = getNPScore(smiles)
+        np_score = get_np_score(mol)
         if np_score:
             return float(np_score)
-        else:
-            raise HTTPException(
-                status_code=400,
-                detail="Error reading SMILES string, please check again.",
-            )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get(
@@ -647,35 +641,39 @@ async def tanimoto_similarity(
 
     if len(molecules) < 2:
         raise HTTPException(
-            status_code=400, detail="At least two molecules are required."
+            status_code=422, detail="At least two molecules are required."
         )
 
     elif len(smiles.split(",")) == 2:
         try:
             smiles1, smiles2 = smiles.split(",")
             if toolkit == "rdkit":
-                Tanimoto = getTanimotoSimilarityRDKit(smiles1, smiles2)
+                mol1 = parse_input(smiles1, "rdkit", False)
+                mol2 = parse_input(smiles2, "rdkit", False)
+                Tanimoto = get_tanimoto_similarity_rdkit(mol1, mol2)
             else:
-                Tanimoto = getTanimotoSimilarityCDK(smiles1, smiles2)
+                mol1 = parse_input(smiles1, "cdk", False)
+                mol2 = parse_input(smiles2, "cdk", False)
+                Tanimoto = get_tanimoto_similarity_CDK(mol1, mol2)
             return Tanimoto
         except Exception:
             raise HTTPException(
-                status_code=400,
+                status_code=422,
                 detail="Error reading SMILES string, please check again.",
             )
 
     elif len(smiles.split(",")) > 2:
         try:
-            matrix = getTanimotoSimilarity(smiles, toolkit)
+            matrix = get_tanimoto_similarity(smiles, toolkit)
             return Response(content=matrix, media_type="text/html")
         except Exception:
             raise HTTPException(
-                status_code=400,
+                status_code=422,
                 detail="Error reading SMILES string, please check again.",
             )
     else:
         raise HTTPException(
-            status_code=400, detail="Error reading SMILES string, please check again."
+            status_code=422, detail="Error reading SMILES string, please check again."
         )
 
 
@@ -722,17 +720,17 @@ async def coconut_preprocessing(
 
     """
     try:
-        data = getCOCONUTpreprocessing(smiles)
+        data = get_COCONUT_preprocessing(smiles)
         if data:
             return JSONResponse(content=data)
         else:
             raise HTTPException(
-                status_code=400,
+                status_code=422,
                 detail="Error reading SMILES string, please check again.",
             )
     except Exception as e:
         raise HTTPException(
-            status_code=400, detail="Error processing request: " + str(e)
+            status_code=422, detail="Error processing request: " + str(e)
         )
 
 
@@ -782,19 +780,11 @@ async def classyfire_classify(
     - This service pings the http://classyfire.wishartlab.com server for information retrieval.
 
     """
-    try:
+    mol = parse_input(smiles, "rdkit", False)
+    if mol:
         classification_data = await classify(smiles)
         if classification_data:
             return classification_data
-        else:
-            raise HTTPException(
-                status_code=400,
-                detail="Error reading SMILES string, please check again.",
-            )
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail="Error processing request: " + str(e)
-        )
 
 
 @router.get(
@@ -810,7 +800,7 @@ async def classyfire_classify(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def classyFire_result(jobid: str):
+async def classyfire_result(jobid: str):
     """
     Retrieve the ClassyFire classification results based on the provided Job ID.
     To obtain the results from ClassyFire, please initiate a new request and obtain a unique job ID.
@@ -820,7 +810,7 @@ async def classyFire_result(jobid: str):
     - **jobid**: required (query): The Job ID used to query the ClassyFire classification results.
 
     Raises:
-    - HTTPException 400: If the Job ID is not provided.
+    - HTTPException 422: If the Job ID is not provided.
     - HTTPException 500: If an error occurs during the classification process.
 
     Returns:
@@ -838,4 +828,4 @@ async def classyFire_result(jobid: str):
                 status_code=500, detail="Error processing request: " + str(e)
             )
     else:
-        raise HTTPException(status_code=400, detail="Job ID is required.")
+        raise HTTPException(status_code=422, detail="Job ID is required.")

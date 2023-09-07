@@ -8,13 +8,13 @@ Clone the project from GitHub
 
 1. Install Git: Download and install Git from the [official website](https://git-scm.com/).
 
-2. Copy the repository URL - https://github.com/Steinbeck-Lab/cheminformatics-python-microservice.git or Go to the GitHub repository and click the "Code" button on the GitHub repository https://github.com/Steinbeck-Lab/cheminformatics-python-microservice to get the HTTPS URL.
+2. Copy the repository URL - https://github.com/Steinbeck-Lab/cheminformatics-microservice.git or Go to the GitHub repository and click the "Code" button on the GitHub repository https://github.com/Steinbeck-Lab/cheminformatics-microservice to get the HTTPS URL.
 
 3. Open a terminal or command prompt.
 
 4. Navigate to the desired directory: Use `cd` to navigate to the directory where you want to clone the project.
 
-5. Clone the repository: Run the command `git clone https://github.com/Steinbeck-Lab/cheminformatics-python-microservice.git` to clone the project.
+5. Clone the repository: Run the command `git clone https://github.com/Steinbeck-Lab/cheminformatics-microservice.git` to clone the project.
 
 6. Use `cd` to navigate into the cloned project directory.
 
@@ -38,7 +38,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    container_name: cheminformatics-python-microservice
+    container_name: cheminformatics-microservice
     environment:
       HOMEPAGE_URL:  "https://docs.api.naturalproducts.net"
       RELEASE_VERSION: v1.0.0
@@ -92,7 +92,7 @@ networks:
 
 Unicorn will start the app and display the server address (usually `http://localhost:80`) and the Grafana dashboard can be accessed at `http://localhost:3000`
 
-You may update the docker-compose file to disable or add additional services but by default, the docker-compose file shipped with the project has the web (cheminformatics-python-microservice FAST API app), Prometheus and Grafana (logging and visualisation of metrics) services and associated volumes shared via a network.
+You may update the docker-compose file to disable or add additional services but by default, the docker-compose file shipped with the project has the web (cheminformatics-microservice FAST API app), Prometheus and Grafana (logging and visualisation of metrics) services and associated volumes shared via a network.
 
 ## Workers
 
@@ -212,7 +212,7 @@ Click on the ""New Dashboard" button. You should see the following screen:
   <img align="center" src="/docs/grafana_db_new.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
 </p>
 
-Download the Cheminformatics Microservice dashboard template (JSON) here - https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/blob/main/cpm-dashboard.json
+Download the Cheminformatics Microservice dashboard template (JSON) here - https://github.com/Steinbeck-Lab/cheminformatics-microservice/blob/main/cpm-dashboard.json
 
 ## Benchmarking / Stress testing
 

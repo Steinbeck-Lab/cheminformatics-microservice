@@ -17,10 +17,6 @@ async def classify(smiles: str) -> dict:
         requests.RequestException: If there's an issue with the API request.
     """
 
-    # Replace any spaces in the SMILES string with '+'
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
-
     # ClassyFire API endpoint URL
     url = "http://classyfire.wishartlab.com/queries/?format=json"
 

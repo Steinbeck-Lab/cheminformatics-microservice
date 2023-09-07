@@ -6,7 +6,7 @@ outline: deep
 
 ## Helm Charts - v0.1.6
 
-Cheminformatics Python Microservices comes packaged with a [Helm](https://helm.sh/docs/) chart, that makes it easy to deploy and manage (scale) containers on [Kubernetes](https://kubernetes.io/) via a convenient package manager interface. 
+Cheminformatics Microservice comes packaged with a [Helm](https://helm.sh/docs/) chart, that makes it easy to deploy and manage (scale) containers on [Kubernetes](https://kubernetes.io/) via a convenient package manager interface. 
 
 By following the steps outlined in this documentation, you can easily deploy this microservice using [Helm](https://helm.sh/docs/).
 

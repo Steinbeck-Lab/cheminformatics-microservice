@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from urllib.request import urlopen
 from urllib.parse import urlsplit
 from fastapi import Body, APIRouter, status, HTTPException
-from app.modules.decimer import getPredictedSegmentsFromFile
+from app.modules.decimer import get_predicted_segments_from_file
 from app.schemas import HealthCheck
 from app.schemas.error import ErrorResponse, BadRequestModel, NotFoundModel
 from app.schemas.ocsr_schema import ExtractChemicalInfoResponse
@@ -102,13 +102,13 @@ async def Extract_ChemicalInfo_From_File(
         try:
             filename = "/tmp/" + str(uuid.uuid4())
             response = urlopen(img)
-            smiles = getPredictedSegmentsFromFile(response.file.read(), filename)
+            smiles = get_predicted_segments_from_file(response.file.read(), filename)
             return JSONResponse(
                 content={"reference": reference, "smiles": smiles.split(".")}
             )
         except Exception as e:
             raise HTTPException(
-                status_code=400, detail="Error accessing image content: " + str(e)
+                status_code=422, detail="Error processing the image: " + str(e)
             )
     else:
         try:
@@ -116,13 +116,13 @@ async def Extract_ChemicalInfo_From_File(
             filename = "/tmp/" + split.path.split("/")[-1]
             response = requests.get(path)
             if response.status_code == 200:
-                smiles = getPredictedSegmentsFromFile(response.content, filename)
+                smiles = get_predicted_segments_from_file(response.content, filename)
             return JSONResponse(
                 content={"reference": reference, "smiles": smiles.split(".")}
             )
         except Exception as e:
             raise HTTPException(
-                status_code=400, detail="Invalid URL or file path: " + str(e)
+                status_code=422, detail="Error processing the image: " + str(e)
             )
 
 
@@ -139,7 +139,7 @@ async def Extract_ChemicalInfo_From_File(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def Extract_ChemicalInfo(file: UploadFile):
+async def extract_chemicalinfo_from_upload(file: UploadFile):
     """
     Detect, segment and convert a chemical structure depiction in the uploaded image file into a SMILES string using the DECIMER modules.
 
@@ -159,17 +159,17 @@ async def Extract_ChemicalInfo(file: UploadFile):
         try:
             contents = file.file.read()
             try:
-                smiles = getPredictedSegmentsFromFile(contents, filename)
+                smiles = get_predicted_segments_from_file(contents, filename)
                 return JSONResponse(
                     content={"reference": None, "smiles": smiles.split(".")}
                 )
             except Exception as e:
                 raise HTTPException(
-                    status_code=400, detail="Error accessing image URL: " + str(e)
+                    status_code=422, detail="Error processimg the image: " + str(e)
                 )
         except Exception as e:
             raise HTTPException(
-                status_code=400, detail="Error accessing image URL: " + str(e)
+                status_code=422, detail="Error processimg the image: " + str(e)
             )
         finally:
             file.file.close()

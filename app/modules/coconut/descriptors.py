@@ -1,15 +1,16 @@
-from app.modules.toolkits.rdkit_wrapper import getRDKitDescriptors, checkSMILES
+from app.modules.toolkits.rdkit_wrapper import get_rdkit_descriptors
 from typing import Dict, Union
 from app.modules.toolkits.cdk_wrapper import (
-    getMurkoFramework,
-    getCDKDescriptors,
+    get_murko_framework,
+    get_CDK_descriptors,
 )
-from app.modules.all_descriptors import getCDKRDKitcombinedDescriptors
-from app.modules.npscorer import getNPScore
-from app.modules.tools.sugar_removal import getSugarInfo
+from app.modules.all_descriptors import get_cdk_rdkit_combined_descriptors
+from app.modules.npscorer import get_np_score
+from app.modules.tools.sugar_removal import get_sugar_info
+from app.modules.toolkits.helpers import parse_input
 
 
-def getDescriptors(smiles: str, toolkit: str) -> Union[tuple, str]:
+def get_descriptors(smiles: str, toolkit: str) -> Union[tuple, str]:
     """
     Calculate descriptors using RDKit or CDK toolkit for the given SMILES.
 
@@ -22,21 +23,17 @@ def getDescriptors(smiles: str, toolkit: str) -> Union[tuple, str]:
                      or an error message if the toolkit choice is invalid or SMILES is invalid.
     """
 
-    mol = checkSMILES(smiles)
+    mol = parse_input(smiles, toolkit, False)
     if mol:
         if toolkit == "rdkit":
-            Descriptors = getRDKitDescriptors(smiles)
+            Descriptors = get_rdkit_descriptors(mol)
             return Descriptors
         elif toolkit == "cdk":
-            Descriptors = getCDKDescriptors(smiles)
+            Descriptors = get_CDK_descriptors(mol)
             return Descriptors
-        else:
-            return "Error calculating Descriptors"
-    else:
-        return "Error reading SMILES check again."
 
 
-def getCOCONUTDescriptors(smiles: str, toolkit: str) -> Union[Dict[str, float], str]:
+def get_COCONUT_descriptors(smiles: str, toolkit: str) -> Union[Dict[str, float], str]:
     """
     Calculate COCONUT descriptors using RDKit or CDK toolkit for the given SMILES.
 
@@ -49,14 +46,18 @@ def getCOCONUTDescriptors(smiles: str, toolkit: str) -> Union[Dict[str, float], 
                      or an error message if the toolkit choice is invalid or SMILES is invalid.
     """
     if toolkit == "all":
-        AllDescriptors = getCDKRDKitcombinedDescriptors(smiles)
+        AllDescriptors = get_cdk_rdkit_combined_descriptors(smiles)
         return AllDescriptors
     else:
-        Descriptors = getDescriptors(smiles, toolkit)
+        Descriptors = get_descriptors(smiles, toolkit)
 
-        hasLinearSugar, hasCircularSugars = getSugarInfo(smiles)
-        framework = getMurkoFramework(smiles)
-        nplikeliness = float(getNPScore(smiles))
+        rdkitMolecule = parse_input(smiles, "rdkit", False)
+        nplikeliness = float(get_np_score(rdkitMolecule))
+
+        cdkMolecule = parse_input(smiles, "cdk", False)
+        hasLinearSugar, hasCircularSugars = get_sugar_info(cdkMolecule)
+        framework = get_murko_framework(cdkMolecule)
+
         CombinedDescriptors = list(Descriptors)
         CombinedDescriptors.extend(
             [hasLinearSugar, hasCircularSugars, framework, nplikeliness]

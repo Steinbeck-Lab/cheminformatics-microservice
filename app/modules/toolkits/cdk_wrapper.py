@@ -41,22 +41,34 @@ if not isJVMStarted():
     cdk_base = "org.openscience.cdk"
 
 
-def getCDKSDG(smiles: str):
+def get_CDK_IAtomContainer(smiles: str):
     """
-    This function takes the user input SMILES and Creates a
+    This function takes the input SMILES and Creates a
+    get_CDK_IAtomContainer using the CDK.
+
+    Args:
+        smiles (string): SMILES string as input.
+
+    Returns:
+        mol object: IAtomContainer with CDK.
+    """
+    SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
+    SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
+    molecule = SmilesParser.parseSmiles(smiles)
+    return molecule
+
+
+def get_CDK_SDG(molecule: any):
+    """
+    This function takes the input IAtomContainer and Creates a
     Structure Diagram Layout using the CDK.
 
     Args:
-        smiles (string): SMILES string given by the user.
+        molecule (IAtomContainer): molecule given by the user.
 
     Returns:
         mol object: mol object with CDK SDG.
     """
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
-    SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
-    SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
-    molecule = SmilesParser.parseSmiles(smiles)
     StructureDiagramGenerator = JClass(cdk_base + ".layout.StructureDiagramGenerator")()
     StructureDiagramGenerator.generateCoordinates(molecule)
     molecule_ = StructureDiagramGenerator.getMolecule()
@@ -64,48 +76,19 @@ def getCDKSDG(smiles: str):
     return molecule_
 
 
-def getMurkoFramework(smiles: str) -> str:
-    """
-    This function takes the user input SMILES and returns
-    the Murko framework
-
-    Args:
-        smiles (string): SMILES string given by the user.
-
-    Returns:
-        smiles (string): Murko Framework as SMILES.
-    """
-
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
-    SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
-    MurkoFragmenter = JClass(cdk_base + ".fragment.MurckoFragmenter")(True, 3)
-    SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
-    molecule = SmilesParser.parseSmiles(smiles)
-    MurkoFragmenter.generateFragments(molecule)
-    if len(MurkoFragmenter.getFrameworks()) == 0:
-        return "None"
-
-    return str(MurkoFragmenter.getFrameworks()[0])
-
-
-def getCDKSDGMol(smiles: str, V3000=False) -> str:
+def get_CDK_SDG_mol(molecule: any, V3000=False) -> str:
     """
     Returns a mol block string with Structure Diagram Layout for the given SMILES.
 
     Args:
-        smiles (str): SMILES string provided by the user.
+        molecule (IAtomContainer): molecule given by the user.
         V3000 (bool, optional): Option to return V3000 mol. Defaults to False.
 
     Returns:
         str: CDK Structure Diagram Layout mol block.
     """
-
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
     StringW = JClass("java.io.StringWriter")()
-
-    moleculeSDG = getCDKSDG(smiles)
+    moleculeSDG = get_CDK_SDG(molecule)
     SDFW = JClass(cdk_base + ".io.SDFWriter")(StringW)
     SDFW.setAlwaysV3000(V3000)
     SDFW.write(moleculeSDG)
@@ -114,12 +97,32 @@ def getCDKSDGMol(smiles: str, V3000=False) -> str:
     return mol_str
 
 
-def getAromaticRingCount(mol) -> int:
+def get_murko_framework(molecule: any) -> str:
+    """
+    This function takes the user input SMILES and returns
+    the Murko framework
+
+    Args:
+        molecule (IAtomContainer): molecule given by the user.
+
+    Returns:
+        smiles (string): Murko Framework as SMILES.
+    """
+
+    MurkoFragmenter = JClass(cdk_base + ".fragment.MurckoFragmenter")(True, 3)
+    MurkoFragmenter.generateFragments(molecule)
+    if len(MurkoFragmenter.getFrameworks()) == 0:
+        return "None"
+
+    return str(MurkoFragmenter.getFrameworks()[0])
+
+
+def get_aromatic_ring_count(molecule) -> int:
     """
     Calculate the number of aromatic rings present in a given molecule.
 
     Args:
-        mol (IAtomContainer): A molecule represented as an IAtomContainer from the CDK.
+        molecule (IAtomContainer): molecule given by the user.
 
     Returns:
         int: The number of aromatic rings present in the molecule.
@@ -131,8 +134,8 @@ def getAromaticRingCount(mol) -> int:
     Aromaticity = JClass(cdk_base + ".aromaticity.Aromaticity")(
         ElectronDonation.daylight(), Cycles.cdkAromaticSet()
     )
-    Aromaticity.apply(mol)
-    MCBRings = Cycles.mcb(mol).toRingSet()
+    Aromaticity.apply(molecule)
+    MCBRings = Cycles.mcb(molecule).toRingSet()
     NumberOfAromaticRings = 0
     for RingContainer in MCBRings.atomContainers():
         AreAllRingBondsAromatic = True
@@ -145,12 +148,12 @@ def getAromaticRingCount(mol) -> int:
     return NumberOfAromaticRings
 
 
-def getVanderWaalsVolume(mol) -> float:
+def get_vander_waals_volume(molecule: any) -> float:
     """
     Calculate the Van der Waals volume of a given molecule.
 
     Args:
-        mol (IAtomContainer): A molecule represented as an IAtomContainer from the CDK.
+        molecule (IAtomContainer): molecule given by the user.
 
     Returns:
         float: The Van der Waals volume of the molecule.
@@ -159,54 +162,54 @@ def getVanderWaalsVolume(mol) -> float:
     AtomContainerManipulator = JClass(
         cdk_base + ".tools.manipulator.AtomContainerManipulator"
     )
-    AtomContainerManipulator.percieveAtomTypesAndConfigureAtoms(mol)
-    VABCVolume = JClass(cdk_base + ".geometry.volume.VABCVolume")().calculate(mol)
+    AtomContainerManipulator.percieveAtomTypesAndConfigureAtoms(molecule)
+    VABCVolume = JClass(cdk_base + ".geometry.volume.VABCVolume")().calculate(molecule)
     return VABCVolume
 
 
-def getCDKDescriptors(smiles: str) -> Union[tuple, str]:
+def get_CDK_descriptors(molecule: any) -> Union[tuple, str]:
     """
     Take an input SMILES and generate a selected set of molecular
     descriptors generated using CDK as a list.
 
     Args (str):
-        SMILES string.
+        molecule (IAtomContainer): molecule given by the user.
 
     Returns (list):
         A list of calculated descriptors.
     """
-    Mol = getCDKSDG(smiles)
-    if Mol:
+    SDGMol = get_CDK_SDG(molecule)
+    if SDGMol:
         AtomCountDescriptor = (
             JClass(cdk_base + ".qsar.descriptors.molecular.AtomCountDescriptor")()
-            .calculate(Mol)
+            .calculate(SDGMol)
             .getValue()
         )
-        HeavyAtomsC = Mol.getAtomCount()
+        HeavyAtomsC = SDGMol.getAtomCount()
         WeightDescriptor = (
             JClass(cdk_base + ".qsar.descriptors.molecular.WeightDescriptor")()
-            .calculate(Mol)
+            .calculate(SDGMol)
             .getValue()
             .toString()
         )
         TotalExactMass = JClass(
             cdk_base + ".tools.manipulator.AtomContainerManipulator"
-        ).getTotalExactMass(Mol)
+        ).getTotalExactMass(SDGMol)
         ALogP = (
             JClass(cdk_base + ".qsar.descriptors.molecular.ALOGPDescriptor")()
-            .calculate(Mol)
+            .calculate(SDGMol)
             .getValue()
         )
         NumRotatableBonds = (
             JClass(
                 cdk_base + ".qsar.descriptors.molecular.RotatableBondsCountDescriptor"
             )()
-            .calculate(Mol)
+            .calculate(SDGMol)
             .getValue()
         )
         TPSADescriptor = (
             JClass(cdk_base + ".qsar.descriptors.molecular.TPSADescriptor")()
-            .calculate(Mol)
+            .calculate(SDGMol)
             .getValue()
             .toString()
         )
@@ -214,34 +217,34 @@ def getCDKDescriptors(smiles: str) -> Union[tuple, str]:
             JClass(
                 cdk_base + ".qsar.descriptors.molecular.HBondAcceptorCountDescriptor"
             )()
-            .calculate(Mol)
+            .calculate(SDGMol)
             .getValue()
         )
         HBondDonorCountDescriptor = (
             JClass(
                 cdk_base + ".qsar.descriptors.molecular.HBondAcceptorCountDescriptor"
             )()
-            .calculate(Mol)
+            .calculate(SDGMol)
             .getValue()
         )
         RuleOfFiveDescriptor = (
             JClass(cdk_base + ".qsar.descriptors.molecular.RuleOfFiveDescriptor")()
-            .calculate(Mol)
+            .calculate(SDGMol)
             .getValue()
         )
-        AromaticRings = getAromaticRingCount(Mol)
+        AromaticRings = get_aromatic_ring_count(SDGMol)
         QEDWeighted = None
         FormalCharge = JClass(
             cdk_base + ".tools.manipulator.AtomContainerManipulator"
-        ).getTotalFormalCharge(Mol)
+        ).getTotalFormalCharge(SDGMol)
         FractionalCSP3Descriptor = (
             JClass(cdk_base + ".qsar.descriptors.molecular.FractionalCSP3Descriptor")()
-            .calculate(Mol)
+            .calculate(SDGMol)
             .getValue()
             .toString()
         )
-        NumRings = JClass(cdk_base + ".graph.Cycles").mcb(Mol).numberOfCycles()
-        VABCVolume = getVanderWaalsVolume(Mol)
+        NumRings = JClass(cdk_base + ".graph.Cycles").mcb(SDGMol).numberOfCycles()
+        VABCVolume = get_vander_waals_volume(SDGMol)
 
         return (
             int(str(AtomCountDescriptor)),
@@ -267,13 +270,13 @@ def getCDKDescriptors(smiles: str) -> Union[tuple, str]:
         return "Check input and try again!"
 
 
-def getTanimotoSimilarityCDK(smiles1: str, smiles2: str) -> str:
+def get_tanimoto_similarity_CDK(mol1: any, mol2: str) -> str:
     """
     Calculate the Tanimoto similarity index between two molecules using PubChem fingerprints.
 
     Args:
-        smiles1 (str): The first SMILES string.
-        smiles2 (str): The second SMILES string.
+        mol1 (IAtomContainer): First molecule given by the user.
+        mol2 (IAtomContainer): Second molecule given by the user.
 
     Returns:
         str: The Tanimoto similarity as a string with 5 decimal places, or an error message.
@@ -281,7 +284,6 @@ def getTanimotoSimilarityCDK(smiles1: str, smiles2: str) -> str:
 
     Tanimoto = JClass(cdk_base + ".similarity.Tanimoto")
     SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
-    SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
     PubchemFingerprinter = JClass(cdk_base + ".fingerprint.PubchemFingerprinter")(
         SCOB.getInstance()
     )
@@ -296,13 +298,6 @@ def getTanimotoSimilarityCDK(smiles1: str, smiles2: str) -> str:
     Aromaticity = JClass(cdk_base + ".aromaticity.Aromaticity")(
         ElectronDonation.cdk(), Cycles.cdkAromaticSet()
     )
-    try:
-        # parse molecules to get IAtomContainers
-        mol1 = SmilesParser.parseSmiles(smiles1)
-        mol2 = SmilesParser.parseSmiles(smiles2)
-    except Exception as e:
-        print(e)
-        return "Check the SMILES string for errors"
     if mol1 and mol2:
         # Perceive atom types and configure atoms
         AtomContainerManipulator.percieveAtomTypesAndConfigureAtoms(mol1)
@@ -332,7 +327,7 @@ def getTanimotoSimilarityCDK(smiles1: str, smiles2: str) -> str:
         return "Check the SMILES string for errors"
 
 
-def getCIPAnnotation(smiles: str) -> str:
+def get_cip_annotation(molecule: any) -> str:
     """
     Return the CIP (Cahn–Ingold–Prelog) annotations using the CDK CIP toolkit.
 
@@ -340,13 +335,13 @@ def getCIPAnnotation(smiles: str) -> str:
     as input and returns a CIP annotated molecule block using the CDK CIP toolkit.
 
     Args:
-        smiles (str): A valid SMILES string representing a molecule.
+        molecule (IAtomContainer): molecule given by the user.
 
     Returns:
         str: A CIP annotated molecule block.
 
     """
-    mol = getCDKSDG(smiles)
+    SDGMol = get_CDK_SDG(molecule)
     centres_base = "com.simolecule.centres"
     Cycles = JClass(cdk_base + ".graph.Cycles")
     IBond = JClass(cdk_base + ".interfaces.IBond")
@@ -360,8 +355,8 @@ def getCIPAnnotation(smiles: str) -> str:
     CdkLabeller = JClass(centres_base + ".CdkLabeller")
     Descriptor = JClass(centres_base + ".Descriptor")
 
-    stereocenters = Stereocenters.of(mol)
-    for atom in mol.atoms():
+    stereocenters = Stereocenters.of(SDGMol)
+    for atom in SDGMol.atoms():
         if (
             stereocenters.isStereocenter(atom.getIndex())
             and stereocenters.elementType(atom.getIndex())
@@ -370,7 +365,7 @@ def getCIPAnnotation(smiles: str) -> str:
             atom.setProperty(StandardGenerator.ANNOTATION_LABEL, "(?)")
 
     # Iterate over bonds
-    for bond in mol.bonds():
+    for bond in SDGMol.bonds():
         if bond.getOrder() != IBond.Order.DOUBLE:
             continue
         begIdx = bond.getBegin().getIndex()
@@ -386,14 +381,14 @@ def getCIPAnnotation(smiles: str) -> str:
                 bond.setProperty(StandardGenerator.ANNOTATION_LABEL, "(?)")
 
     # no defined stereo?
-    if not mol.stereoElements().iterator().hasNext():
-        return mol
+    if not SDGMol.stereoElements().iterator().hasNext():
+        return SDGMol
 
     # Call the Java method
-    CdkLabeller.label(mol)
+    CdkLabeller.label(SDGMol)
 
     # Update to label appropriately for racemic and relative stereochemistry
-    for se in mol.stereoElements():
+    for se in SDGMol.stereoElements():
         if se.getConfigClass() == IStereoElement.TH and se.getGroupInfo() != 0:
             focus = se.getFocus()
             label = focus.getProperty(BaseMol.CIP_LABEL_KEY)
@@ -417,7 +412,7 @@ def getCIPAnnotation(smiles: str) -> str:
                         focus.setProperty(BaseMol.CIP_LABEL_KEY, label.toString() + "*")
 
     # Iterate over atoms
-    for atom in mol.atoms():
+    for atom in SDGMol.atoms():
         if atom.getProperty(BaseMol.CONF_INDEX) is not None:
             atom.setProperty(
                 StandardGenerator.ANNOTATION_LABEL,
@@ -432,7 +427,7 @@ def getCIPAnnotation(smiles: str) -> str:
             )
 
     # Iterate over bonds
-    for bond in mol.bonds():
+    for bond in SDGMol.bonds():
         if bond.getProperty(BaseMol.CIP_LABEL_KEY) is not None:
             bond.setProperty(
                 StandardGenerator.ANNOTATION_LABEL,
@@ -440,88 +435,81 @@ def getCIPAnnotation(smiles: str) -> str:
                 + bond.getProperty(BaseMol.CIP_LABEL_KEY).toString(),
             )
 
-    return mol
+    return SDGMol
 
 
-def getCXSMILES(smiles: str) -> str:
+def get_CXSMILES(molecule: any) -> str:
     """
     Generate CXSMILES representation with 2D atom coordinates from the given SMILES.
 
     Args:
-        smiles (str): A valid SMILES string provided by the user.
+        molecule (IAtomContainer): molecule given by the user.
 
     Returns:
         str: CXSMILES representation with 2D atom coordinates.
     """
-    moleculeSDG = getCDKSDG(smiles)
+    SDGMol = get_CDK_SDG(molecule)
     SmiFlavor = JClass(cdk_base + ".smiles.SmiFlavor")
     SmilesGenerator = JClass(cdk_base + ".smiles.SmilesGenerator")(
         SmiFlavor.Absolute | SmiFlavor.CxSmilesWithCoords
     )
-    CXSMILES = SmilesGenerator.create(moleculeSDG)
+    CXSMILES = SmilesGenerator.create(SDGMol)
     return str(CXSMILES)
 
 
-def getCanonSMILES(smiles: str) -> str:
+def get_canonical_SMILES(molecule: any) -> str:
     """
     Generate Canonical SMILES representation with 2D atom coordinates from the given SMILES.
 
     Args:
-        smiles (str): A valid SMILES string provided by the user.
+        molecule (IAtomContainer): molecule given by the user.
 
     Returns:
         str: Canonical SMILES representation with 2D atom coordinates.
     """
-    moleculeSDG = getCDKSDG(smiles)
+    SDGMol = get_CDK_SDG(molecule)
     SmiFlavor = JClass(cdk_base + ".smiles.SmiFlavor")
     SmilesGenerator = JClass(cdk_base + ".smiles.SmilesGenerator")(SmiFlavor.Absolute)
-    CanonicalSMILES = SmilesGenerator.create(moleculeSDG)
+    CanonicalSMILES = SmilesGenerator.create(SDGMol)
     return str(CanonicalSMILES)
 
 
-def getInChI(smiles: str, InChIKey=False) -> str:
+def get_InChI(molecule: any, InChIKey=False) -> str:
     """
     Generate InChI or InChIKey from the given SMILES string.
 
     Args:
-        smiles (str): SMILES string provided by the user.
+        molecule (IAtomContainer): molecule given by the user.
         InChIKey (bool): If True, return InChIKey instead of InChI. The default is False.
 
     Returns:
         str: InChI or InChIKey string.
     """
-    moleculeSDG = getCDKSDG(smiles)
+    SDGMol = get_CDK_SDG(molecule)
     InChIGeneratorFactory = JClass(cdk_base + ".inchi.InChIGeneratorFactory")
-    InChI = (
-        InChIGeneratorFactory.getInstance().getInChIGenerator(moleculeSDG).getInchi()
-    )
+    InChI = InChIGeneratorFactory.getInstance().getInChIGenerator(SDGMol).getInchi()
     if InChIKey:
         InChIKey = (
-            InChIGeneratorFactory.getInstance()
-            .getInChIGenerator(moleculeSDG)
-            .getInchiKey()
+            InChIGeneratorFactory.getInstance().getInChIGenerator(SDGMol).getInchiKey()
         )
         return InChIKey
     return InChI
 
 
-async def getCDKHOSECodes(smiles: str, noOfSpheres: int, ringsize: bool) -> List[str]:
+async def get_CDK_HOSE_codes(
+    molecule: any, noOfSpheres: int, ringsize: bool
+) -> List[str]:
     """
     Generate CDK-generated HOSECodes for the given SMILES.
 
     Args:
-        smiles (str): SMILES string provided by the user.
+        molecule (IAtomContainer): molecule given by the user.
         noOfSpheres (int): Number of spheres for HOSECode generation.
         ringsize (bool): Whether to consider ring size for HOSECode generation.
 
     Returns:
         List[str]: List of CDK-generated HOSECodes.
     """
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
-    SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
-    SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
-    molecule = SmilesParser.parseSmiles(smiles)
     HOSECodeGenerator = JClass(cdk_base + ".tools.HOSECodeGenerator")()
     HOSECodes = []
     atoms = molecule.atoms()

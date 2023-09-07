@@ -5,21 +5,22 @@ from fastapi.responses import Response
 from rdkit import Chem
 from typing import Literal
 from STOUT import translate_forward, translate_reverse
+from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.cdk_wrapper import (
-    getCDKSDGMol,
-    getCXSMILES,
-    getCanonSMILES,
-    getInChI,
+    get_CDK_SDG_mol,
+    get_CXSMILES,
+    get_canonical_SMILES,
+    get_InChI,
 )
 from app.modules.toolkits.rdkit_wrapper import (
-    get3Dconformers,
-    get2Dmol,
-    getRDKitCXSMILES,
+    get_3d_conformers,
+    get_2d_mol,
+    get_rdkit_CXSMILES,
 )
 from app.modules.toolkits.openbabel_wrapper import (
-    getOBMol,
-    getOBCanonicalSMILES,
-    getOBInChI,
+    get_ob_mol,
+    get_ob_canonical_SMILES,
+    get_ob_InChI,
 )
 from app.schemas import HealthCheck
 from app.schemas.error import ErrorResponse, BadRequestModel, NotFoundModel
@@ -85,7 +86,7 @@ def get_health() -> HealthCheck:
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def Create2D_coordinates(
+async def create2d_coordinates(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
@@ -118,26 +119,25 @@ async def Create2D_coordinates(
     Raises:
     - ValueError: If the SMILES string is not provided or is invalid.
     """
-    try:
-        if toolkit == "cdk":
+    if toolkit == "cdk":
+        mol = parse_input(smiles, "cdk", False)
+        return Response(
+            content=get_CDK_SDG_mol(mol).replace("$$$$\n", ""),
+            media_type="text/plain",
+        )
+    elif toolkit == "rdkit":
+        mol = parse_input(smiles, "rdkit", False)
+        return Response(
+            content=get_2d_mol(mol),
+            media_type="text/plain",
+        )
+    else:
+        mol = parse_input(smiles, "rdkit", False)
+        if mol:
             return Response(
-                content=getCDKSDGMol(smiles).replace("$$$$\n", ""),
+                content=get_ob_mol(smiles),
                 media_type="text/plain",
             )
-        elif toolkit == "rdkit":
-            return Response(
-                content=get2Dmol(smiles),
-                media_type="text/plain",
-            )
-        else:
-            mol = Chem.MolFromSmiles(smiles)
-            if mol:
-                return Response(
-                    content=getOBMol(smiles),
-                    media_type="text/plain",
-                )
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.get(
@@ -153,7 +153,7 @@ async def Create2D_coordinates(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def Create3D_coordinates(
+async def create3d_coordinates(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
@@ -188,22 +188,19 @@ async def Create3D_coordinates(
     - ValueError: If the SMILES string is not provided or is invalid.
     """
 
-    try:
-        if toolkit == "rdkit":
+    if toolkit == "rdkit":
+        mol = parse_input(smiles, "rdkit", False)
+        return Response(
+            content=get_3d_conformers(mol, depict=False),
+            media_type="text/plain",
+        )
+    elif toolkit == "openbabel":
+        mol = parse_input(smiles, "rdkit", False)
+        if mol:
             return Response(
-                content=get3Dconformers(smiles, depict=False),
+                content=get_ob_mol(smiles, threeD=True),
                 media_type="text/plain",
             )
-        elif toolkit == "openbabel":
-            mol = Chem.MolFromSmiles(smiles)
-            if mol:
-                return Response(
-                    content=getOBMol(smiles, threeD=True),
-                    media_type="text/plain",
-                )
-
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.get(
@@ -219,7 +216,7 @@ async def Create3D_coordinates(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def IUPACname_or_SELFIES_to_SMILES(
+async def iupac_name_or_selfies_to_smiles(
     input_text: str = Query(
         title="Input IUPAC name or SELFIES",
         description="IUPAC name or SELFIES representation of the molecule",
@@ -269,11 +266,11 @@ async def IUPACname_or_SELFIES_to_SMILES(
                 return str(selfies_out)
         else:
             raise HTTPException(
-                status_code=400,
+                status_code=422,
                 detail="Error reading input text, please check again.",
             )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e))
 
 
 @router.get(
@@ -289,7 +286,7 @@ async def IUPACname_or_SELFIES_to_SMILES(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def SMILES_canonicalise(
+async def smiles_canonicalise(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
@@ -324,27 +321,15 @@ async def SMILES_canonicalise(
     - ValueError: If an unsupported toolkit option is provided.
 
     """
-    try:
-        if toolkit == "cdk":
-            return str(getCanonSMILES(smiles))
-        elif toolkit == "rdkit":
-            mol = Chem.MolFromSmiles(smiles)
-            if mol:
-                return str(Chem.MolToSmiles(mol, kekuleSmiles=True))
-            else:
-                raise HTTPException(
-                    status_code=400,
-                    detail="Error reading input text, please check again.",
-                )
-        elif toolkit == "openbabel":
-            return str(getOBCanonicalSMILES(smiles))
-        else:
-            raise HTTPException(
-                status_code=400,
-                detail="Error reading input text, please check again.",
-            )
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    if toolkit == "cdk":
+        mol = parse_input(smiles, "cdk", False)
+        return str(get_canonical_SMILES(mol))
+    elif toolkit == "rdkit":
+        mol = parse_input(smiles, "rdkit", False)
+        return str(Chem.MolToSmiles(mol, kekuleSmiles=True))
+    elif toolkit == "openbabel":
+        smiles = get_ob_canonical_SMILES(smiles)
+        return smiles
 
 
 @router.get(
@@ -360,7 +345,7 @@ async def SMILES_canonicalise(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def SMILES_to_CXSMILES(
+async def smiles_to_cxsmiles(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
@@ -398,17 +383,16 @@ async def SMILES_to_CXSMILES(
     Note:
     - CXSMILES is a Chemaxon Extended SMILES which is used for storing special features of the molecules after the SMILES string.
     """
-    try:
-        if toolkit == "cdk":
-            cxsmiles = getCXSMILES(smiles)
-            if cxsmiles:
-                return str(cxsmiles)
-        else:
-            cxsmiles = getRDKitCXSMILES(smiles)
-            if cxsmiles:
-                return str(cxsmiles)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    if toolkit == "cdk":
+        mol = parse_input(smiles, "cdk", False)
+        cxsmiles = get_CXSMILES(mol)
+        if cxsmiles:
+            return str(cxsmiles)
+    else:
+        mol = parse_input(smiles, "rdkit", False)
+        cxsmiles = get_rdkit_CXSMILES(mol)
+        if cxsmiles:
+            return str(cxsmiles)
 
 
 @router.get(
@@ -424,7 +408,7 @@ async def SMILES_to_CXSMILES(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def SMILES_to_InChI(
+async def smiles_to_inchi(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
@@ -459,28 +443,21 @@ async def SMILES_to_InChI(
     - ValueError: If an unsupported toolkit option is provided.
 
     """
-    try:
-        if toolkit == "cdk":
-            inchi = getInChI(smiles)
+    if toolkit == "cdk":
+        mol = parse_input(smiles, "cdk", False)
+        inchi = get_InChI(mol)
+        if inchi:
+            return str(inchi)
+    elif toolkit == "rdkit":
+        mol = parse_input(smiles, "rdkit", False)
+        if mol:
+            inchi = Chem.inchi.MolToInchi(mol)
             if inchi:
                 return str(inchi)
-        elif toolkit == "rdkit":
-            mol = Chem.MolFromSmiles(smiles)
-            if mol:
-                inchi = Chem.inchi.MolToInchi(mol)
-                if inchi:
-                    return str(inchi)
-        elif toolkit == "openbabel":
-            inchi = getOBInChI(smiles)
-            if inchi:
-                return str(inchi)
-        else:
-            raise HTTPException(
-                status_code=400,
-                detail="Error reading input text, please check again.",
-            )
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    elif toolkit == "openbabel":
+        inchi = get_ob_InChI(smiles)
+        if inchi:
+            return str(inchi)
 
 
 @router.get(
@@ -496,7 +473,7 @@ async def SMILES_to_InChI(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def SMILES_to_InChIKey(
+async def smiles_to_inchikey(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
@@ -531,29 +508,22 @@ async def SMILES_to_InChIKey(
     - ValueError: If an unsupported toolkit option is provided.
 
     """
-    try:
-        if toolkit == "cdk":
-            inchikey = getInChI(smiles, InChIKey=True)
-            if inchikey:
-                return str(inchikey)
+    if toolkit == "cdk":
+        mol = parse_input(smiles, "cdk", False)
+        inchikey = get_InChI(mol, InChIKey=True)
+        if inchikey:
+            return str(inchikey)
 
-        elif toolkit == "rdkit":
-            mol = Chem.MolFromSmiles(smiles)
-            if mol:
-                inchikey = Chem.inchi.MolToInchiKey(mol)
-                if inchikey:
-                    return str(inchikey)
-        elif toolkit == "openbabel":
-            inchikey = getOBInChI(smiles, InChIKey=True)
+    elif toolkit == "rdkit":
+        mol = parse_input(smiles, "rdkit", False)
+        if mol:
+            inchikey = Chem.inchi.MolToInchiKey(mol)
             if inchikey:
                 return str(inchikey)
-        else:
-            raise HTTPException(
-                status_code=400,
-                detail="Error reading input text, please check again.",
-            )
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    elif toolkit == "openbabel":
+        inchikey = get_ob_InChI(smiles, InChIKey=True)
+        if inchikey:
+            return str(inchikey)
 
 
 @router.get(
@@ -569,7 +539,7 @@ async def SMILES_to_InChIKey(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def SMILES_to_IUPAC_name(
+async def smiles_to_iupac_name(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
@@ -611,11 +581,11 @@ async def SMILES_to_IUPAC_name(
             return str(iupac)
         else:
             raise HTTPException(
-                status_code=400,
-                detail="Error reading input text, please check again.",
+                status_code=422,
+                detail="Error parsing input text, please check again.",
             )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e))
 
 
 @router.get(
@@ -631,7 +601,7 @@ async def SMILES_to_IUPAC_name(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def encode_SELFIES(
+async def encode_selfies(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
@@ -686,7 +656,7 @@ async def encode_SELFIES(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def SMILES_convert_to_formats(
+async def smiles_convert_to_formats(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
@@ -730,14 +700,15 @@ async def SMILES_convert_to_formats(
     try:
         if toolkit == "cdk":
             response = {}
-            response["mol"] = getCDKSDGMol(smiles).replace("$$$$\n", "")
-            response["canonicalsmiles"] = str(getCanonSMILES(smiles))
-            response["inchi"] = str(getInChI(smiles))
-            response["inchikey"] = str(getInChI(smiles, InChIKey=True))
+            mol = parse_input(smiles, "cdk", False)
+            response["mol"] = get_CDK_SDG_mol(mol).replace("$$$$\n", "")
+            response["canonicalsmiles"] = str(get_canonical_SMILES(mol))
+            response["inchi"] = str(get_InChI(mol))
+            response["inchikey"] = str(get_InChI(mol, InChIKey=True))
             return response
 
         elif toolkit == "rdkit":
-            mol = Chem.MolFromSmiles(smiles)
+            mol = parse_input(smiles, "rdkit", False)
             if mol:
                 response = {}
                 response["mol"] = Chem.MolToMolBlock(mol)
@@ -747,17 +718,17 @@ async def SMILES_convert_to_formats(
                 return response
         elif toolkit == "openbabel":
             response = {}
-            response["mol"] = getOBMol(smiles)
-            response["canonicalsmiles"] = getOBCanonicalSMILES(smiles)
-            response["inchi"] = getOBInChI(smiles)
-            response["inchikey"] = getOBInChI(smiles, InChIKey=True)
+            response["mol"] = get_ob_mol(smiles)
+            response["canonicalsmiles"] = get_ob_canonical_SMILES(smiles)
+            response["inchi"] = get_ob_InChI(smiles)
+            response["inchikey"] = get_ob_InChI(smiles, InChIKey=True)
             return response
         else:
             raise HTTPException(
-                status_code=400,
+                status_code=422,
                 detail="Error reading SMILES string, please check again.",
             )
     except Exception as e:
         raise HTTPException(
-            status_code=400, detail="Error processing request: " + str(e)
+            status_code=422, detail="Error processing request: " + str(e)
         )
