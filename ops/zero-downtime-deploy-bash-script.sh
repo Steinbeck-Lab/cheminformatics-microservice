@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define variables
-COMPOSE_FILE="/mnt/data/cheminformatics-python-microservice/ops/docker-compose-dev.yml"
+COMPOSE_FILE="/mnt/data/cheminformatics-microservice/ops/docker-compose-dev.yml"
 DOCKER_REPO_NAME="nfdi4chem/cheminformatics-microservice:dev-latest"
 IMAGE_NAME="nfdi4chem/cheminformatics-microservice:dev-latest"
 NEW_CONTAINER_ID=""
