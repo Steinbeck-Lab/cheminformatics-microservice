@@ -38,7 +38,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    container_name: cheminformatics-python-microservice
+    container_name: cheminformatics-microservice
     environment:
       HOMEPAGE_URL:  "https://docs.api.naturalproducts.net"
       RELEASE_VERSION: v1.0.0
@@ -92,7 +92,7 @@ networks:
 
 Unicorn will start the app and display the server address (usually `http://localhost:80`) and the Grafana dashboard can be accessed at `http://localhost:3000`
 
-You may update the docker-compose file to disable or add additional services but by default, the docker-compose file shipped with the project has the web (cheminformatics-python-microservice FAST API app), Prometheus and Grafana (logging and visualisation of metrics) services and associated volumes shared via a network.
+You may update the docker-compose file to disable or add additional services but by default, the docker-compose file shipped with the project has the web (cheminformatics-microservice FAST API app), Prometheus and Grafana (logging and visualisation of metrics) services and associated volumes shared via a network.
 
 ## Workers
 
