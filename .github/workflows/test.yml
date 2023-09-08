@@ -45,6 +45,7 @@ jobs:
       #   python3 -m pytest --cov=./ --cov-report=xml
       run: |
         python3 -m pytest -vv tests/test_ocsr.py -p no:warnings
+        python3 -m pytest -vv tests/test_tools.py -p no:warnings
     # - name: Upload coverage to Codecov
     #   uses: codecov/codecov-action@v3
     #   with:
