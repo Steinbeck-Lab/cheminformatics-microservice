@@ -83,7 +83,7 @@ volumes:
       device: ./grafana_data
 networks:
   default: 
-    name: cpm_fastapi
+    name: cm_fastapi
 ```
 
 4. Run Docker Compose: Execute the command ```docker-compose up``` to start the containers defined in the Compose file.
@@ -132,9 +132,9 @@ Prometheus and Grafana are useful tools to monitor and visualize metrics in Fast
 
 Prometheus is a powerful monitoring system that collects and stores time-series data. By instrumenting your FastAPI app with Prometheus, you can collect various metrics such as request count, response time, error rate, and resource utilization. Grafana is a popular data visualization tool that integrates seamlessly with Prometheus. It allows you to create custom dashboards and visualize the collected metrics in a meaningful and interactive way. With Grafana, you can build visual representations of your FastAPI app's performance, monitor trends, and gain insights into your application's behaviour.
 
-CPM docker-compose file comes prepackaged with Prometheus and Grafana services for you. When you run the docker-compose file these services also spin up automatically and will be available for you to monitor your application performance.
+CM docker-compose file comes prepackaged with Prometheus and Grafana services for you. When you run the docker-compose file these services also spin up automatically and will be available for you to monitor your application performance.
 
-When you install CPM for the first time you need to configure your Prometheus source and enable it as the Grafana data source. You can then use the data source to create dashboards.
+When you install CM for the first time you need to configure your Prometheus source and enable it as the Grafana data source. You can then use the data source to create dashboards.
 
 ### Grafana Dashboard
 Now that we have Prometheus running we can create a Grafana dashboard to visualize the metrics from our FastAPI app. To create a Grafana dashboard we need to do the following:
@@ -212,7 +212,7 @@ Click on the ""New Dashboard" button. You should see the following screen:
   <img align="center" src="/docs/grafana_db_new.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
 </p>
 
-Download the Cheminformatics Microservice dashboard template (JSON) here - https://github.com/Steinbeck-Lab/cheminformatics-microservice/blob/main/cpm-dashboard.json
+Download the Cheminformatics Microservice dashboard template (JSON) here - https://github.com/Steinbeck-Lab/cheminformatics-microservice/blob/main/cm-dashboard.json
 
 ## Benchmarking / Stress testing
 
@@ -252,7 +252,7 @@ To perform stress testing using Vegeta, you can follow these steps:
 
 6. Analyze the stress test results: Vegeta will output detailed metrics and performance statistics for the stress test. It includes data on request rate, latency, success rate, and more. Analyze these results to evaluate the performance and stability of your FastAPI application under stress.
 
-By following these steps, you can perform stress testing on your CPM FASTAPI application using Vegeta, generating load and analyzing the performance characteristics of your endpoints. This process helps identify potential bottlenecks and validate the scalability of your application.
+By following these steps, you can perform stress testing on your CM FASTAPI application using Vegeta, generating load and analyzing the performance characteristics of your endpoints. This process helps identify potential bottlenecks and validate the scalability of your application.
 
 ## Linting / Formatting
 
