@@ -31,11 +31,11 @@ def test_process(input, response_code):
 
 def test_process_upload():
     with open("tests/caffeine.png", "rb") as file:
-        files = {"file": ("caffeine.png", file, "image/png")}
+        #files = {"file": ("caffeine.png", file, "image/png")}
 
         response = client.post(
             "/latest/ocsr/process-upload",
-            files=files,
+            data=file.read(),
             headers={"Content-Type": "multipart/form-data"},
         )
         assert response.status_code == 200
