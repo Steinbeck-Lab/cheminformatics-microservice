@@ -35,7 +35,7 @@ def test_process_upload():
 
         response = client.post(
             "/latest/ocsr/process-upload",
-            data=files,
+            files=files,
             headers={"Content-Type": "multipart/form-data"},
         )
         assert response.status_code == 200
