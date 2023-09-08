@@ -40,7 +40,7 @@ def test_process_upload():
     assert response.status_code == 200
     assert (
         response.text
-        == '"{"reference": null,"smiles": ["CN1C=NC2=C1C(=O)N(C)C(=O)N2C"]}"'
+        == '{"reference": null,"smiles": ["CN1C=NC2=C1C(=O)N(C)C(=O)N2C"]}'
     )
 
 

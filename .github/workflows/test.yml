@@ -1,12 +1,7 @@
 name: test
 
-# on:
-#   workflow_call:  
-
 on:
-  push: 
-    branches:
-      - dev-nisha
+  workflow_call:  
 
 jobs:
   test:
@@ -37,22 +32,19 @@ jobs:
         wget -O surge "https://github.com/StructureGenerator/surge/releases/download/v1.0/surge-linux-v1.0"
         chmod +x surge
         sudo mv surge /usr/bin
-    # - name: Analysing the code with pylint
-    #   run: |
-    #     flake8 --per-file-ignores="__init__.py:F401" --ignore E402,E501,W503 $(git ls-files '*.py') .
-    - name: Run test
-      # run: |
-      #   python3 -m pytest --cov=./ --cov-report=xml
+    - name: Analysing the code with pylint
       run: |
-        python3 -m pytest -vv tests/test_ocsr.py -p no:warnings
-        python3 -m pytest -vv tests/test_tools.py -p no:warnings
-    # - name: Upload coverage to Codecov
-    #   uses: codecov/codecov-action@v3
-    #   with:
-    #     token: ${{ secrets.CODECOV_TOKEN }}
-    #     directory: ./coverage/reports/
-    #     fail_ci_if_error: true
-    #     files: /home/runner/work/cheminformatics-microservice/cheminformatics-microservice/coverage.xml
-    #     flags: unittests
-    #     name: codecov-umbrella
-    #     verbose: true
+        flake8 --per-file-ignores="__init__.py:F401" --ignore E402,E501,W503 $(git ls-files '*.py') .
+    - name: Run test
+      run: |
+        python3 -m pytest --cov=./ --cov-report=xml
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: ./coverage/reports/
+        fail_ci_if_error: true
+        files: /home/runner/work/cheminformatics-microservice/cheminformatics-microservice/coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        verbose: true
