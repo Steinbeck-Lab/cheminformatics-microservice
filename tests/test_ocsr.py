@@ -30,19 +30,18 @@ def test_process(input, response_code):
 
 
 def test_process_upload():
-    with open("tests/caffeine.png", "rb") as file:
-        #files = {"file": ("caffeine.png", file, "image/png")}
+    file_path = "tests/caffeine.png"
+    file_content = open(file_path, "rb").read()
 
-        response = client.post(
-            "/latest/ocsr/process-upload",
-            data=file,
-            headers={"Content-Type": "multipart/form-data"},
-        )
-        assert response.status_code == 200
-        assert (
-            response.text
-            == '"{"reference": null,"smiles": ["CN1C=NC2=C1C(=O)N(C)C(=O)N2C"]}"'
-        )
+    response = client.post(
+        "/latest/ocsr/process-upload",
+        files={"file": ("caffeine.png", file_content, "image/png")},
+    )
+    assert response.status_code == 200
+    assert (
+        response.text
+        == '"{"reference": null,"smiles": ["CN1C=NC2=C1C(=O)N(C)C(=O)N2C"]}"'
+    )
 
 
 # Run the tests
