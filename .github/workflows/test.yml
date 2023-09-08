@@ -1,7 +1,12 @@
 name: test
 
+# on:
+#   workflow_call:  
+
 on:
-  workflow_call:  
+  push: 
+    branches:
+      - dev-nisha
 
 jobs:
   test:
