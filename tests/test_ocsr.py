@@ -31,7 +31,7 @@ def test_process(input, response_code):
 
 def test_process_upload():
     with open("caffeine.png", "rb") as file:
-        files = {"file": ("caffeine.png", file, "image/png")}
+        files = {"file": ("tests/caffeine.png", file, "image/png")}
 
         response = client.post(
             "/latest/ocsr/process-upload",
