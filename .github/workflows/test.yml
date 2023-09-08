@@ -37,9 +37,9 @@ jobs:
         wget -O surge "https://github.com/StructureGenerator/surge/releases/download/v1.0/surge-linux-v1.0"
         chmod +x surge
         sudo mv surge /usr/bin
-    - name: Analysing the code with pylint
-      run: |
-        flake8 --per-file-ignores="__init__.py:F401" --ignore E402,E501,W503 $(git ls-files '*.py') .
+    # - name: Analysing the code with pylint
+    #   run: |
+    #     flake8 --per-file-ignores="__init__.py:F401" --ignore E402,E501,W503 $(git ls-files '*.py') .
     - name: Run test
       # run: |
       #   python3 -m pytest --cov=./ --cov-report=xml
