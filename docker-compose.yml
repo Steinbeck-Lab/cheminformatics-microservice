@@ -50,4 +50,4 @@ volumes:
       device: ./grafana_data
 networks:
   default: 
-    name: cpm_fastapi
+    name: cm_fastapi
