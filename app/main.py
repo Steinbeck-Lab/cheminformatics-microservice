@@ -3,7 +3,9 @@ from fastapi import FastAPI, status
 from fastapi.responses import RedirectResponse
 from fastapi_versioning import VersionedFastAPI
 
-from .routers import tools, depict, converters, chem, ocsr
+from .routers import tools, depict, converters, chem
+
+# , ocsr
 from fastapi.middleware.cors import CORSMiddleware
 
 from prometheus_fastapi_instrumentator import Instrumentator
@@ -30,7 +32,7 @@ app.include_router(chem.router)
 app.include_router(converters.router)
 app.include_router(depict.router)
 app.include_router(tools.router)
-app.include_router(ocsr.router)
+# app.include_router(ocsr.router)
 
 app = VersionedFastAPI(
     app,
