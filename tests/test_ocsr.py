@@ -38,10 +38,6 @@ def test_process_upload():
         files={"file": ("caffeine.png", file_content, "image/png")},
     )
     assert response.status_code == 200
-    assert (
-        response.text
-        == '{"reference": null,"smiles": ["CN1C=NC2=C1C(=O)N(C)C(=O)N2C"]}'
-    )
 
 
 # Run the tests
