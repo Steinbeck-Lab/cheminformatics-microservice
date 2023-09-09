@@ -39,6 +39,9 @@ def test_process_upload():
     )
     assert response.status_code == 200
 
+    response = client.post("/latest/ocsr/process-upload", files={"file": None})
+    assert response.status_code == 422
+
 
 # Run the tests
 if __name__ == "__main__":
