@@ -211,8 +211,8 @@ async def remove_linear_sugars(
     - str: The modified SMILES string with linear sugars removed.
 
     """
+    mol = parse_input(smiles, "cdk", False)
     try:
-        mol = parse_input(smiles, "cdk", False)
         removed_smiles = remove_linear_sugar(mol)
         if removed_smiles:
             return removed_smiles
