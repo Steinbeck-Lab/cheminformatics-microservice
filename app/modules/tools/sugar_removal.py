@@ -130,10 +130,10 @@ def remove_linear_and_circular_sugar(molecule: any):
             molecule, True
         )
         try:
+            print(MoleculeWithoutSugars)
             S_SMILES = SmilesGenerator.create(MoleculeWithoutSugars)
+            return str(S_SMILES)
         except Exception as e:
-            print(e)
-            return "Error generating SMILES"
-        return str(S_SMILES)
+            raise Exception(f"{str(e)}")
     else:
         return "No Linear or Circular sugars found"
