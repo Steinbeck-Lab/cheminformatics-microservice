@@ -61,8 +61,11 @@ def remove_linear_sugar(molecule: any) -> str:
 
     if hasLinearSugar:
         MoleculeWithoutSugars = SugarRemovalUtility.removeLinearSugars(molecule, True)
-        L_SMILES = SmilesGenerator.create(MoleculeWithoutSugars)
-        return str(L_SMILES)
+        if not MoleculeWithoutSugars.isEmpty():
+            L_SMILES = SmilesGenerator.create(MoleculeWithoutSugars)
+            return str(L_SMILES)
+        else:
+            return ""
     else:
         return "No Linear sugar found"
 
@@ -94,8 +97,11 @@ def remove_circular_sugar(molecule: any) -> str:
     if hasCircularSugar:
         SugarRemovalUtility.setDetectCircularSugarsOnlyWithOGlycosidicBondSetting(True)
         MoleculeWithoutSugars = SugarRemovalUtility.removeCircularSugars(molecule, True)
-        C_SMILES = SmilesGenerator.create(MoleculeWithoutSugars)
-        return str(C_SMILES)
+        if not MoleculeWithoutSugars.isEmpty():
+            C_SMILES = SmilesGenerator.create(MoleculeWithoutSugars)
+            return str(C_SMILES)
+        else:
+            return ""
     else:
         return "No Circular sugars found"
 
@@ -129,15 +135,13 @@ def remove_linear_and_circular_sugar(molecule: any):
         MoleculeWithoutSugars = SugarRemovalUtility.removeCircularAndLinearSugars(
             molecule, True
         )
-        if MoleculeWithoutSugars.isEmpty():
-            raise Exception(
-                "Molecule is empty after removal of circular and linear sugars"
-            )
-        else:
+        if not MoleculeWithoutSugars.isEmpty():
             try:
                 S_SMILES = SmilesGenerator.create(MoleculeWithoutSugars)
                 return str(S_SMILES)
             except Exception as e:
                 raise Exception(f"{str(e)}")
+        else:
+            return ""
     else:
         return "No Linear or Circular sugars found"
