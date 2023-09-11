@@ -3,12 +3,12 @@ import uuid
 from fastapi.responses import JSONResponse
 from urllib.request import urlopen
 from urllib.parse import urlsplit
-from fastapi import Body, APIRouter, status, HTTPException
+from fastapi import Body, APIRouter, status, HTTPException, File, UploadFile
 from app.modules.decimer import get_predicted_segments_from_file
 from app.schemas import HealthCheck
 from app.schemas.error import ErrorResponse, BadRequestModel, NotFoundModel
 from app.schemas.ocsr_schema import ExtractChemicalInfoResponse
-from fastapi import UploadFile
+from typing import Annotated
 
 router = APIRouter(
     prefix="/ocsr",
@@ -63,7 +63,7 @@ async def Extract_ChemicalInfo_From_File(
     path: str = Body(
         None,
         embed=True,
-        description="URL or local file path to the chemical structure depiction image.",
+        description="Local or Remote path to the image file",
         openapi_examples={
             "example1": {
                 "summary": "Cheminformatics - Article example image",
@@ -75,20 +75,24 @@ async def Extract_ChemicalInfo_From_File(
             },
         },
     ),
-    reference: str = Body(None, embed=True, description="Reference information."),
+    reference: str = Body(
+        None,
+        embed=True,
+        description="User defined reference information for tracking",
+    ),
     img: str = Body(
         None,
         embed=True,
-        description="Bytes content of the chemical structure depiction image.",
+        description="Image: Bytes content of the chemical structure depiction image",
     ),
 ):
     """
     Detect, segment and convert a chemical structure depiction into a SMILES string using the DECIMER modules.
 
     Parameters:
-    - **path**: optional if img is provided (str): URL or local file path to the chemical structure depiction image.
-    - **reference**: optional (str): URL or local file path to the chemical structure depiction image.
-    - **img**: optional if a valid path is provided (str): URL or local file path to the chemical structure depiction image.
+    - **path**: optional if img is provided (str): Local or Remote path to the image file.
+    - **reference**: optional (str): User defined reference information for tracking.
+    - **img**: optional if a valid path is provided (str): Image: Bytes content of the chemical structure depiction image.
 
     Returns:
     - JSONResponse: A JSON response containing the extracted SMILES and the reference (if provided).
@@ -139,12 +143,14 @@ async def Extract_ChemicalInfo_From_File(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def extract_chemicalinfo_from_upload(file: UploadFile):
+async def extract_chemicalinfo_from_upload(
+    file: Annotated[UploadFile, File(description="Chemical structure depiction image")],
+):
     """
     Detect, segment and convert a chemical structure depiction in the uploaded image file into a SMILES string using the DECIMER modules.
 
     Parameters:
-    - **file**: required (File):
+    - **file**: required (File): Chemical structure depiction image
 
     Returns:
     - JSONResponse: A JSON response containing the extracted SMILES and the reference (if provided).
