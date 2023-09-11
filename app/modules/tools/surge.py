@@ -70,8 +70,8 @@ def generate_structures_SURGE(molecular_formula: str) -> Union[list, str]:
                 smiles = [line.strip() for line in output_lines]
                 return smiles
             else:
-                return f"Error running surge: {stderr.decode('utf-8')}"
-        except Exception as e:
-            return f"An error occurred: {str(e)}"
+                raise Exception(f"Error running surge: {stderr.decode('utf-8')}")
+        except Exception:
+            raise Exception(f"Error running surge: {stderr.decode('utf-8')}")
     else:
         return "The molecular formula contains more heavy atoms than allowed (10 Heavy Atoms max)."
