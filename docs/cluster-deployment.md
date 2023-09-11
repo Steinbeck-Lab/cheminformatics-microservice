@@ -6,7 +6,7 @@ outline: deep
 
 ## Helm Charts - v0.1.6
 
-Cheminformatics Python Microservices comes packaged with a [Helm](https://helm.sh/docs/) chart, that makes it easy to deploy and manage (scale) containers on [Kubernetes](https://kubernetes.io/) via a convenient package manager interface. 
+Cheminformatics Microservice comes packaged with a [Helm](https://helm.sh/docs/) chart, that makes it easy to deploy and manage (scale) containers on [Kubernetes](https://kubernetes.io/) via a convenient package manager interface. 
 
 By following the steps outlined in this documentation, you can easily deploy this microservice using [Helm](https://helm.sh/docs/).
 
@@ -20,7 +20,7 @@ Kubernetes cluster: Set up a functioning Kubernetes cluster with kubectl configu
 
 Helm: [Install Helm](https://helm.sh/docs/docs/intro/install/) on your local machine or the machine from which you'll be deploying the application. 
 
-## Deployment using CPM Helm Chart
+## Deployment using CM Helm Chart
 *  **Add repo:** Once Helm has been set up correctly, add the repo as follows: 
 ```bash
     helm repo add repo-helm-charts https://nfdi4chem.github.io/repo-helm-charts/
@@ -29,10 +29,10 @@ If you had already added this repo earlier, run `helm repo update` to retrieve t
 
 * **Deploy the Chart:** To deploy the chart, use the helm install command followed by the chart package name and an optional release name:
 ```bash
-helm install myrelease repo-helm-charts/cheminfo-microservice
+helm install myrelease repo-helm-charts/cheminformatics-microservice
 ```
 The release name (myrelease in this example) is used to identify the deployment, and it must be unique within the Kubernetes cluster.
-The above command with deploy the service with the default configuration provided in [values.yml](https://github.com/NFDI4Chem/repo-helm-charts/blob/main/charts/cheminfo-microservice/values.yaml) file. To overwrite the default configuration please follow this [link](https://helm.sh/docs/chart_template_guide/values_files/) to learn more.
+The above command with deploy the service with the default configuration provided in [values.yml](https://github.com/NFDI4Chem/repo-helm-charts/blob/main/charts/cheminformatics-microservice/values.yaml) file. To overwrite the default configuration please follow this [link](https://helm.sh/docs/chart_template_guide/values_files/) to learn more.
 
 * Helm will install the chart and deploy the application to your Kubernetes cluster. You can view the deployed resources using kubectl commands:
 ```bash
@@ -41,7 +41,7 @@ kubectl get services
 ```
 * **Upgrading and Managing Deployments:** To upgrade an existing deployment, Use the `helm upgrade` command to apply the changes to the existing release e.g.
 ```bash
-helm upgrade myrelease repo-helm-charts/cheminfo-microservice-0.1.6
+helm upgrade myrelease repo-helm-charts/cheminformatics-microservice-0.1.6
 ```
 
 * **Uninstalling the Chart:** To remove a deployed chart and associated resources, use the helm uninstall command:
@@ -54,7 +54,7 @@ This will delete all resources created by the chart, including pods, services, a
 
 ## Google Kubernetes Engine(GKE)
 
-This documentation will guide you through the process of deploying the CPM application in [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine) using [Helm](https://helm.sh/docs/). Here we provide a step-by-step instructions to help you set up your environment, install Helm, and dpeloy the CPM application in the Google Kubernetes Cluster.
+This documentation will guide you through the process of deploying the CM application in [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine) using [Helm](https://helm.sh/docs/). Here we provide a step-by-step instructions to help you set up your environment, install Helm, and dpeloy the CM application in the Google Kubernetes Cluster.
 
 ### Prerequisites
 Before you begin, ensure you have the following prerequisites in place:
@@ -74,7 +74,7 @@ A GKE cluster consists of a pool of Compute Engine VM instances running [Kuberne
 <p align="center">
   <img align="center" src="/docs/gke-1.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="70%">
 </p>
-5. Choose the compute engine machine type from the Nodes section under default-pool. For CPM the minimum machine type requirement will be e2-standard-4(4vCPU,16 GB memory). Also make sure you enable the cluster autoscaling if you are planning to scale your pod vertically.
+5. Choose the compute engine machine type from the Nodes section under default-pool. For CM the minimum machine type requirement will be e2-standard-4(4vCPU,16 GB memory). Also make sure you enable the cluster autoscaling if you are planning to scale your pod vertically.
 <p align="center">
   <img align="center" src="/docs/gke-2.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="70%">
 </p>
@@ -94,12 +94,12 @@ A GKE cluster consists of a pool of Compute Engine VM instances running [Kuberne
 ```bash
     helm repo add repo-helm-charts https://nfdi4chem.github.io/repo-helm-charts/
 ```
-2. Run the below command to deploy the CPM app.
+2. Run the below command to deploy the CM app.
 ```bash
-helm install myrelease repo-helm-charts/cheminfo-microservice
+helm install myrelease repo-helm-charts/cheminformatics-microservice
 ```
 The release name (myrelease in this example) is used to identify the deployment, and it must be unique within the Kubernetes cluster.
-The above command with deploy the service with the default configuration provided in [values.yml](https://github.com/NFDI4Chem/repo-helm-charts/blob/main/charts/cheminfo-microservice/values.yaml) file. To overwrite the default configuration please follow this [link](https://helm.sh/docs/chart_template_guide/values_files/) to learn more.
+The above command with deploy the service with the default configuration provided in [values.yml](https://github.com/NFDI4Chem/repo-helm-charts/blob/main/charts/cheminformatics-microservice/values.yaml) file. To overwrite the default configuration please follow this [link](https://helm.sh/docs/chart_template_guide/values_files/) to learn more.
 
 3. Helm will install the chart and deploy the application to your Kubernetes Cluster. To see the progress click on `Workloads` & `Services` tab. or run below commands in your Cloud Shell.
 ```bash
@@ -117,7 +117,7 @@ helm delete myrelease
 ```
 
 ### Scaling
-In case of performance issue, the CPM application can be scaled automatically using different strategies. The Helm chart for CPM comes packaged with Horizontal Pod Autoscaler. Horizontal Pod Autoscaler (HPA) is a Kubernetes feature that automatically adjusts the number of replica pods in a deployment or replica set based on observed CPU utilization or other select metrics. This allows your Kubernetes cluster to dynamically respond to changes in application load, ensuring optimal resource utilization and application availability.
+In case of performance issue, the CM application can be scaled automatically using different strategies. The Helm chart for CM comes packaged with Horizontal Pod Autoscaler. Horizontal Pod Autoscaler (HPA) is a Kubernetes feature that automatically adjusts the number of replica pods in a deployment or replica set based on observed CPU utilization or other select metrics. This allows your Kubernetes cluster to dynamically respond to changes in application load, ensuring optimal resource utilization and application availability.
 You can set the `targetCPUUtilizationPercentage` and `targetMemoryUtilizationPercentage` values in values.yml file  according to your need and demand, which is the deciding factor to trigger the scaling. To learn more about different types of scaling in Kubernetes and GKE follow the official [documentation](https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-autoscaler) of Google Cloud.
 
 ::: info
@@ -126,7 +126,7 @@ For Docker Compose based deployments follow the documentation here for [scaling]
 
 ::: 
 
-### Contribute or Report an issue with CPM Helm Chart
+### Contribute or Report an issue with CM Helm Chart
 Thank you for your valuable assistance in enhancing our deployment process. If you would like to contribute, kindly create a pull request in our [GitHub](https://github.com/NFDI4Chem/repo-helm-charts) repository. For any issues or bugs you have encountered, please feel free to create an [issue](https://github.com/NFDI4Chem/repo-helm-charts/issues) in the same or write to us at caffeine-devs@uni-jena.de. 
 Your feedback is greatly appreciated.
 

@@ -19,7 +19,7 @@ import app
 
 # -- Project information -----------------------------------------------------
 
-project = "Cheminformatics Python Microservice"
+project = "Cheminformatics Microservice"
 version = app.__version__
 current_year = datetime.today().year
 copyright = "2023-{}, Venkata Chandrasekhar, Nisha Sharma & Kohulan Rajan at the Friedrich Schiller University Jena".format(

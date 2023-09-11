@@ -1,14 +1,14 @@
-import os
 import requests
-
+import uuid
 from fastapi.responses import JSONResponse
 from urllib.request import urlopen
 from urllib.parse import urlsplit
 from fastapi import Body, APIRouter, status, HTTPException
-from app.modules.decimer import getPredictedSegments
+from app.modules.decimer import get_predicted_segments_from_file
 from app.schemas import HealthCheck
 from app.schemas.error import ErrorResponse, BadRequestModel, NotFoundModel
 from app.schemas.ocsr_schema import ExtractChemicalInfoResponse
+from fastapi import UploadFile
 
 router = APIRouter(
     prefix="/ocsr",
@@ -59,22 +59,92 @@ def get_health() -> HealthCheck:
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def extract_chemicalInfo(
+async def Extract_ChemicalInfo_From_File(
     path: str = Body(
         None,
         embed=True,
         description="URL or local file path to the chemical structure depiction image.",
+        openapi_examples={
+            "example1": {
+                "summary": "Cheminformatics - Article example image",
+                "value": "https://static-content.springer.com/image/art%3A10.1186%2Fs13321-023-00744-6/MediaObjects/13321_2023_744_Figa_HTML.png",
+            },
+            "example2": {
+                "summary": "Cheminformatics - Article example image",
+                "value": "https://static-content.springer.com/image/art%3A10.1186%2Fs13321-023-00743-7/MediaObjects/13321_2023_743_Figa_HTML.png",
+            },
+        },
     ),
     reference: str = Body(None, embed=True, description="Reference information."),
     img: str = Body(
-        None, embed=True, description="URL of the chemical structure depiction image."
+        None,
+        embed=True,
+        description="Bytes content of the chemical structure depiction image.",
     ),
 ):
     """
     Detect, segment and convert a chemical structure depiction into a SMILES string using the DECIMER modules.
 
     Parameters:
-    - **Images**: required (str): URL or local file path to the chemical structure depiction image.
+    - **path**: optional if img is provided (str): URL or local file path to the chemical structure depiction image.
+    - **reference**: optional (str): URL or local file path to the chemical structure depiction image.
+    - **img**: optional if a valid path is provided (str): URL or local file path to the chemical structure depiction image.
+
+    Returns:
+    - JSONResponse: A JSON response containing the extracted SMILES and the reference (if provided).
+
+    Raises:
+    - HTTPException: If the 'path' parameter is not provided or if it is an invalid URL or file path.
+    - HTTPException: If the 'img' parameter is provided, but the content is not accessible.
+    """
+
+    if img:
+        try:
+            filename = "/tmp/" + str(uuid.uuid4())
+            response = urlopen(img)
+            smiles = get_predicted_segments_from_file(response.file.read(), filename)
+            return JSONResponse(
+                content={"reference": reference, "smiles": smiles.split(".")}
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=422, detail="Error processing the image: " + str(e)
+            )
+    else:
+        try:
+            split = urlsplit(path)
+            filename = "/tmp/" + split.path.split("/")[-1]
+            response = requests.get(path)
+            if response.status_code == 200:
+                smiles = get_predicted_segments_from_file(response.content, filename)
+            return JSONResponse(
+                content={"reference": reference, "smiles": smiles.split(".")}
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=422, detail="Error processing the image: " + str(e)
+            )
+
+
+@router.post(
+    "/process-upload",
+    summary="Detect, segment and convert a chemical structure depiction in the uploaded file into a SMILES string using the DECIMER",
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": ExtractChemicalInfoResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
+)
+async def extract_chemicalinfo_from_upload(file: UploadFile):
+    """
+    Detect, segment and convert a chemical structure depiction in the uploaded image file into a SMILES string using the DECIMER modules.
+
+    Parameters:
+    - **file**: required (File):
 
     Returns:
     - JSONResponse: A JSON response containing the extracted SMILES and the reference (if provided).
@@ -84,38 +154,22 @@ async def extract_chemicalInfo(
     - HTTPException: If the 'img' parameter is provided, but the URL is not accessible.
     """
 
-    split = urlsplit(path)
-    filename = "/tmp/" + split.path.split("/")[-1]
-    if img:
+    if file:
+        filename = file.filename
         try:
-            response = urlopen(img)
-            with open(filename, "wb") as f:
-                f.write(response.file.read())
-                smiles = getPredictedSegments(filename)
-                os.remove(filename)
+            contents = file.file.read()
+            try:
+                smiles = get_predicted_segments_from_file(contents, filename)
                 return JSONResponse(
-                    content={"reference": reference, "smiles": smiles.split(".")}
+                    content={"reference": None, "smiles": smiles.split(".")}
                 )
-        except Exception as e:
-            raise HTTPException(
-                status_code=400, detail="Error accessing image URL: " + str(e)
-            )
-    else:
-        try:
-            response = requests.get(path)
-            if response.status_code == 200:
-                with open(filename, "wb") as f:
-                    f.write(response.content)
-                    smiles = getPredictedSegments(filename)
-                    os.remove(filename)
-                    return JSONResponse(
-                        content={"reference": reference, "smiles": smiles.split(".")}
-                    )
-            else:
+            except Exception as e:
                 raise HTTPException(
-                    status_code=400, detail="Error accessing provided URL"
+                    status_code=422, detail="Error processimg the image: " + str(e)
                 )
         except Exception as e:
             raise HTTPException(
-                status_code=400, detail="Invalid URL or file path: " + str(e)
+                status_code=422, detail="Error processimg the image: " + str(e)
             )
+        finally:
+            file.file.close()

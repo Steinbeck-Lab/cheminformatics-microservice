@@ -8,13 +8,13 @@ Clone the project from GitHub
 
 1. Install Git: Download and install Git from the [official website](https://git-scm.com/).
 
-2. Copy the repository URL - https://github.com/Steinbeck-Lab/cheminformatics-python-microservice.git or Go to the GitHub repository and click the "Code" button on the GitHub repository https://github.com/Steinbeck-Lab/cheminformatics-python-microservice to get the HTTPS URL.
+2. Copy the repository URL - https://github.com/Steinbeck-Lab/cheminformatics-microservice.git or Go to the GitHub repository and click the "Code" button on the GitHub repository https://github.com/Steinbeck-Lab/cheminformatics-microservice to get the HTTPS URL.
 
 3. Open a terminal or command prompt.
 
 4. Navigate to the desired directory: Use `cd` to navigate to the directory where you want to clone the project.
 
-5. Clone the repository: Run the command `git clone https://github.com/Steinbeck-Lab/cheminformatics-python-microservice.git` to clone the project.
+5. Clone the repository: Run the command `git clone https://github.com/Steinbeck-Lab/cheminformatics-microservice.git` to clone the project.
 
 6. Use `cd` to navigate into the cloned project directory.
 
@@ -38,7 +38,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    container_name: cheminformatics-python-microservice
+    container_name: cheminformatics-microservice
     environment:
       HOMEPAGE_URL:  "https://docs.api.naturalproducts.net"
       RELEASE_VERSION: v1.0.0
@@ -83,7 +83,7 @@ volumes:
       device: ./grafana_data
 networks:
   default: 
-    name: cpm_fastapi
+    name: cm_fastapi
 ```
 
 4. Run Docker Compose: Execute the command ```docker-compose up``` to start the containers defined in the Compose file.
@@ -92,7 +92,7 @@ networks:
 
 Unicorn will start the app and display the server address (usually `http://localhost:80`) and the Grafana dashboard can be accessed at `http://localhost:3000`
 
-You may update the docker-compose file to disable or add additional services but by default, the docker-compose file shipped with the project has the web (cheminformatics-python-microservice FAST API app), Prometheus and Grafana (logging and visualisation of metrics) services and associated volumes shared via a network.
+You may update the docker-compose file to disable or add additional services but by default, the docker-compose file shipped with the project has the web (cheminformatics-microservice FAST API app), Prometheus and Grafana (logging and visualisation of metrics) services and associated volumes shared via a network.
 
 ## Workers
 
@@ -132,9 +132,9 @@ Prometheus and Grafana are useful tools to monitor and visualize metrics in Fast
 
 Prometheus is a powerful monitoring system that collects and stores time-series data. By instrumenting your FastAPI app with Prometheus, you can collect various metrics such as request count, response time, error rate, and resource utilization. Grafana is a popular data visualization tool that integrates seamlessly with Prometheus. It allows you to create custom dashboards and visualize the collected metrics in a meaningful and interactive way. With Grafana, you can build visual representations of your FastAPI app's performance, monitor trends, and gain insights into your application's behaviour.
 
-CPM docker-compose file comes prepackaged with Prometheus and Grafana services for you. When you run the docker-compose file these services also spin up automatically and will be available for you to monitor your application performance.
+CM docker-compose file comes prepackaged with Prometheus and Grafana services for you. When you run the docker-compose file these services also spin up automatically and will be available for you to monitor your application performance.
 
-When you install CPM for the first time you need to configure your Prometheus source and enable it as the Grafana data source. You can then use the data source to create dashboards.
+When you install CM for the first time you need to configure your Prometheus source and enable it as the Grafana data source. You can then use the data source to create dashboards.
 
 ### Grafana Dashboard
 Now that we have Prometheus running we can create a Grafana dashboard to visualize the metrics from our FastAPI app. To create a Grafana dashboard we need to do the following:
@@ -212,7 +212,7 @@ Click on the ""New Dashboard" button. You should see the following screen:
   <img align="center" src="/docs/grafana_db_new.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">
 </p>
 
-Download the Cheminformatics Microservice dashboard template (JSON) here - https://github.com/Steinbeck-Lab/cheminformatics-python-microservice/blob/main/cpm-dashboard.json
+Download the Cheminformatics Microservice dashboard template (JSON) here - https://github.com/Steinbeck-Lab/cheminformatics-microservice/blob/main/cm-dashboard.json
 
 ## Benchmarking / Stress testing
 
@@ -252,7 +252,7 @@ To perform stress testing using Vegeta, you can follow these steps:
 
 6. Analyze the stress test results: Vegeta will output detailed metrics and performance statistics for the stress test. It includes data on request rate, latency, success rate, and more. Analyze these results to evaluate the performance and stability of your FastAPI application under stress.
 
-By following these steps, you can perform stress testing on your CPM FASTAPI application using Vegeta, generating load and analyzing the performance characteristics of your endpoints. This process helps identify potential bottlenecks and validate the scalability of your application.
+By following these steps, you can perform stress testing on your CM FASTAPI application using Vegeta, generating load and analyzing the performance characteristics of your endpoints. This process helps identify potential bottlenecks and validate the scalability of your application.
 
 ## Linting / Formatting
 

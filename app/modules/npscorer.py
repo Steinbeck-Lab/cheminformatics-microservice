@@ -3,7 +3,6 @@ import math
 import os
 import pickle
 import pystow
-from rdkit import Chem
 from rdkit.Chem import rdMolDescriptors
 
 # Set path
@@ -20,7 +19,7 @@ if not os.path.exists(model_path):
 fscore = pickle.load(gzip.open(model_path))
 
 
-def getnp_model(model_path) -> dict:
+def get_np_model(model_path) -> dict:
     """
     Load the NP model from a pickle file.
 
@@ -34,21 +33,21 @@ def getnp_model(model_path) -> dict:
     return fscore
 
 
-def scoremol_with_confidence(mol) -> dict:
+def score_mol_with_confidence(molecule) -> dict:
     """
     Calculate NP-likeness score and confidence for a molecule.
 
     Args:
-        mol (rdkit.Chem.rdchem.Mol): The input molecule.
+        molecule (rdkit.Chem.rdchem.Mol): The input molecule.
 
     Returns:
         dict: A dictionary containing NP-likeness score and confidence.
             - 'nplikeness' (float): The NP-likeness score.
             - 'confidence' (float): The confidence in the score.
     """
-    if mol is None:
+    if molecule is None:
         raise ValueError("Invalid molecule")
-    fp = rdMolDescriptors.GetMorganFingerprint(mol, 2)
+    fp = rdMolDescriptors.GetMorganFingerprint(molecule, 2)
     bits = fp.GetNonzeroElements()
 
     # Calculating the score
@@ -59,7 +58,7 @@ def scoremol_with_confidence(mol) -> dict:
             bits_found += 1
             score += fscore[bit]
 
-    score /= float(mol.GetNumAtoms())
+    score /= float(molecule.GetNumAtoms())
     confidence = float(bits_found / len(bits))
 
     # Preventing score explosion for exotic molecules
@@ -71,36 +70,32 @@ def scoremol_with_confidence(mol) -> dict:
     return result
 
 
-def score_mol(mol) -> float:
+def score_mol(molecule) -> float:
     """
     Calculate the Natural Product Likeness score for a given molecule.
 
     Parameters:
-        mol (rdkit.Chem.Mol): RDKit molecule object.
+        molecule (rdkit.Chem.Mol): RDKit molecule object.
 
     Returns:
         float: NP-Likeness score in the range -5 to 5.
     """
-    score = scoremol_with_confidence(mol)["nplikeness"]
+    score = score_mol_with_confidence(molecule)["nplikeness"]
     return score
 
 
-def getNPScore(smiles) -> str:
+def get_np_score(molecule: any) -> str:
     """
     Convert SMILES string to RDKit molecule object and generate the NP Score.
 
     Parameters:
-        smiles (str): SMILES representation of a molecule.
+        molecule (Chem.Mol): RDKit molecule object.
 
     Returns:
         str: NP Score as a formatted string or "invalid" if conversion fails.
     """
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
-    mol = Chem.MolFromSmiles(smiles)
-
-    if mol:
-        npscore = "%.2f" % score_mol(mol)
+    if molecule:
+        npscore = "%.2f" % score_mol(molecule)
     else:
         npscore = "invalid"
 

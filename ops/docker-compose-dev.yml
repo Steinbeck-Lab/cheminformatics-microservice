@@ -15,7 +15,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   web:
-    image: caffeinejena/cheminformatics-python-microservice:dev-latest
+    image: nfdi4chem/cheminformatics-microservice:dev-latest
     environment:
       HOMEPAGE_URL:  "https://docs.api.naturalproducts.net"
       RELEASE_VERSION: dev-latest
@@ -64,4 +64,4 @@ volumes:
   postgres_data:
 networks:
   default:
-    name: cpm_fastapi
+    name: cm_fastapi

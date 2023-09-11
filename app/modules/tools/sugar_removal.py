@@ -1,24 +1,19 @@
 import app.modules.toolkits.cdk_wrapper as cdk
 
 
-def getSugarInfo(smiles: str) -> tuple:
+def get_sugar_info(molecule: any) -> tuple:
     """
     Analyzes a molecule represented by a SMILES string to determine if it contains sugars.
     This function utilizes the Sugar Removal Utility to check for the presence of circular or linear sugars.
 
     Args:
-        smiles (str): A valid SMILES string representing the molecule.
+        molecule (IAtomContainer): CDK molecule object.
 
     Returns:
         tuple: A tuple containing two boolean values indicating whether the molecule has linear sugars
                and whether the molecule has circular sugars. If no sugars are found, both values will be False.
     """
-
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
     SCOB = cdk.JClass(cdk.cdk_base + ".silent.SilentChemObjectBuilder")
-    SmilesParser = cdk.JClass(cdk.cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
-    molecule = SmilesParser.parseSmiles(smiles)
 
     sru_base = "de.unijena.cheminf.deglycosylation"
 
@@ -35,13 +30,13 @@ def getSugarInfo(smiles: str) -> tuple:
         return (False, False)
 
 
-def removeLinearSugar(smiles: str) -> str:
+def remove_linear_sugar(molecule: any) -> str:
     """
     Detects and removes linear sugars from a given SMILES string using the CDK-based
     sugar removal utility.
 
     Args:
-        smiles (str): The input SMILES string.
+        molecule (IAtomContainer): CDK molecule object.
 
     Returns:
         str: The SMILES string with linear sugars removed, or a message indicating no linear sugar found.
@@ -52,13 +47,10 @@ def removeLinearSugar(smiles: str) -> str:
 
     cdk_base = "org.openscience.cdk"
     SCOB = cdk.JClass(cdk_base + ".silent.SilentChemObjectBuilder")
-    SmilesParser = cdk.JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
     SmiFlavor = cdk.JClass(cdk_base + ".smiles.SmiFlavor")
     SmilesGenerator = cdk.JClass(cdk_base + ".smiles.SmilesGenerator")(
         SmiFlavor.Absolute
     )
-
-    molecule = SmilesParser.parseSmiles(smiles)
 
     sru_base = "de.unijena.cheminf.deglycosylation"
 
@@ -75,25 +67,22 @@ def removeLinearSugar(smiles: str) -> str:
         return "No Linear sugar found"
 
 
-def removeCircularSugar(smiles: str) -> str:
+def remove_circular_sugar(molecule: any) -> str:
     """
     Detects and removes circular sugars from a given SMILES string using the CDK-based sugar removal utility.
 
     Args:
-        smiles (str): The input SMILES string.
+        molecule (IAtomContainer): CDK molecule object.
 
     Returns:
         str: SMILES string with circular sugars removed, or a message if no circular sugars are found.
     """
     cdk_base = "org.openscience.cdk"
     SCOB = cdk.JClass(cdk_base + ".silent.SilentChemObjectBuilder")
-    SmilesParser = cdk.JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
     SmiFlavor = cdk.JClass(cdk_base + ".smiles.SmiFlavor")
     SmilesGenerator = cdk.JClass(cdk_base + ".smiles.SmilesGenerator")(
         SmiFlavor.Absolute
     )
-
-    molecule = SmilesParser.parseSmiles(smiles)
 
     sru_base = "de.unijena.cheminf.deglycosylation"
 
@@ -111,25 +100,22 @@ def removeCircularSugar(smiles: str) -> str:
         return "No Circular sugars found"
 
 
-def removeLinearandCircularSugar(smiles: str):
+def remove_linear_and_circular_sugar(molecule: any):
     """This fucntion detects and removes linear and circular sugars from a give
     SMILES string. Uses the CDK based sugar removal utility.
 
     Args:
-        smiles (str): SMILES string given by the user.
+        molecule (IAtomContainer): CDK molecule object.
     Returns:
         smiles (str): SMILES string without linear and circular sugars.
 
     """
     cdk_base = "org.openscience.cdk"
     SCOB = cdk.JClass(cdk_base + ".silent.SilentChemObjectBuilder")
-    SmilesParser = cdk.JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
     SmiFlavor = cdk.JClass(cdk_base + ".smiles.SmiFlavor")
     SmilesGenerator = cdk.JClass(cdk_base + ".smiles.SmilesGenerator")(
         SmiFlavor.Absolute
     )
-
-    molecule = SmilesParser.parseSmiles(smiles)
 
     sru_base = "de.unijena.cheminf.deglycosylation"
 

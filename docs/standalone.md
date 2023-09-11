@@ -3,13 +3,13 @@ outline: deep
 ---
 
 # Standalone - using Python virtual environment
-Cheminformatics Python MicroService can also be deployed as a standalone application using the Python virtual environment. Here are the step by step instructions.
+Cheminformatics Microservice can also be deployed as a standalone application using the Python virtual environment. Here are the step by step instructions.
 
 1. Install Python: Install Python on your machine by following the instructions for your specific operating system.
 
 2. Open a terminal or command prompt.
 
-3. Navigate to the directory where your CPM project codebase is located: Use `cd` to navigate to the project directory.
+3. Navigate to the directory where your CM project codebase is located: Use `cd` to navigate to the project directory.
 
 5. Create a virtual environment (optional but recommended): Run the command `python -m venv env` to create a new virtual environment named "env" for your app.
 
@@ -17,7 +17,7 @@ Cheminformatics Python MicroService can also be deployed as a standalone applica
 
 7. Install FastAPI and required dependencies: Run the command `pip install -r requirements.txt` to install FastAPI and the necessary dependencies.
 
-8. Run the FastAPI app: Execute the command `uvicorn main:app --reload` to start the CPM app.
+8. Run the FastAPI app: Execute the command `uvicorn main:app --reload` to start the CM app.
 
 9. Wait for the app to start: Uvicorn will start the app and display the server address (usually `http://localhost:8000`) in the terminal or command prompt.
 

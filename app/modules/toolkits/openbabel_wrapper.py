@@ -1,8 +1,9 @@
 from openbabel import openbabel as ob
 from openbabel import pybel
+from app.exception_handlers import InvalidInputException
 
 
-def getOBCanonicalSMILES(smiles: str) -> str:
+def get_ob_canonical_SMILES(smiles: str) -> str:
     """
     Convert a SMILES string to Canonical SMILES.
 
@@ -12,9 +13,7 @@ def getOBCanonicalSMILES(smiles: str) -> str:
     Returns:
         str: Canonical SMILES string.
     """
-
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
+    smiles = smiles.replace(" ", "+")
 
     # Create an Open Babel molecule object
     mol = ob.OBMol()
@@ -23,12 +22,15 @@ def getOBCanonicalSMILES(smiles: str) -> str:
     conv.SetInAndOutFormats("smi", "can")
     conv.ReadString(mol, smiles)
 
-    canSMILES = conv.WriteString(mol)
-    canSMILES = canSMILES.strip()  # Remove leading/trailing whitespace
-    return canSMILES
+    if mol.NumAtoms() <= 0:
+        raise InvalidInputException(name="smiles", value=smiles)
+    else:
+        canSMILES = conv.WriteString(mol)
+        canSMILES = canSMILES.strip()  # Remove leading/trailing whitespace
+        return canSMILES
 
 
-def getOBInChI(smiles: str, InChIKey: bool = False) -> str:
+def get_ob_InChI(smiles: str, InChIKey: bool = False) -> str:
     """
     Convert a SMILES string to InChI.
 
@@ -40,8 +42,7 @@ def getOBInChI(smiles: str, InChIKey: bool = False) -> str:
         str: InChI string or InChIKey string if InChIKey is True.
     """
 
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
+    smiles = smiles.replace(" ", "+")
 
     # Create an Open Babel molecule object
     mol = ob.OBMol()
@@ -51,16 +52,19 @@ def getOBInChI(smiles: str, InChIKey: bool = False) -> str:
     conv.SetInAndOutFormats("smi", "inchi")
     conv.ReadString(mol, smiles)
 
-    inchi = conv.WriteString(mol)
-    inchi = inchi.strip()  # Remove leading/trailing whitespace
-    if InChIKey:
-        conv.SetOptions("K", conv.OUTOPTIONS)
-        inchikey_ = conv.WriteString(mol).rstrip()
-        return inchikey_
-    return inchi
+    if mol.NumAtoms() <= 0:
+        raise InvalidInputException(name="smiles", value=smiles)
+    else:
+        inchi = conv.WriteString(mol)
+        inchi = inchi.strip()  # Remove leading/trailing whitespace
+        if InChIKey:
+            conv.SetOptions("K", conv.OUTOPTIONS)
+            inchikey_ = conv.WriteString(mol).rstrip()
+            return inchikey_
+        return inchi
 
 
-def getOBMol(smiles: str, threeD: bool = False, depict: bool = False) -> str:
+def get_ob_mol(smiles: str, threeD: bool = False, depict: bool = False) -> str:
     """
     Convert a SMILES string to a 2D/3D mol block.
 
@@ -72,20 +76,22 @@ def getOBMol(smiles: str, threeD: bool = False, depict: bool = False) -> str:
     Returns:
         str: Mol block (2D/3D).
     """
-    if any(char.isspace() for char in smiles):
-        smiles = smiles.replace(" ", "+")
+    smiles = smiles.replace(" ", "+")
 
     if threeD:
         mol = pybel.readstring("smi", smiles)
-        mol.addh()
-        mol.make3D()
-        gen3d = ob.OBOp.FindType("gen3D")
-        gen3d.Do(mol.OBMol, "--best")
-        if depict:
-            return mol.write("mol")
+        if mol.OBMol.NumAtoms() <= 0:
+            raise InvalidInputException(name="smiles", value=smiles)
         else:
-            mol.removeh()
-            return mol.write("mol")
+            mol.addh()
+            mol.make3D()
+            gen3d = ob.OBOp.FindType("gen3D")
+            gen3d.Do(mol.OBMol, "--best")
+            if depict:
+                return mol.write("mol")
+            else:
+                mol.removeh()
+                return mol.write("mol")
 
     # Create an Open Babel molecule object
     mol = ob.OBMol()
@@ -94,10 +100,13 @@ def getOBMol(smiles: str, threeD: bool = False, depict: bool = False) -> str:
     conv.SetInAndOutFormats("smi", "mol")
     conv.ReadString(mol, smiles)
 
-    # Generate 2D coordinates
-    obBuilder = ob.OBBuilder()
-    obBuilder.Build(mol)
+    if mol.NumAtoms() <= 0:
+        raise InvalidInputException(name="smiles", value=smiles)
+    else:
+        # Generate 2D coordinates
+        obBuilder = ob.OBBuilder()
+        obBuilder.Build(mol)
 
-    mol_block = conv.WriteString(mol)
-    mol_block = mol_block.strip()  # Remove leading/trailing whitespace
-    return mol_block
+        mol_block = conv.WriteString(mol)
+        mol_block = mol_block.strip()  # Remove leading/trailing whitespace
+        return mol_block
