@@ -13,7 +13,7 @@
 [![framework](https://img.shields.io/badge/Framework-FastAPI-blue?style)](https://fastapi.tiangolo.com/)
 [![FastAPI Documentation](https://img.shields.io/badge/docs-fastapi-blue)](https://api.naturalproducts.net/v1/docs#/)
 [![Documentation Status](https://readthedocs.org/projects/cheminformatics-microservice/badge/?version=latest)](https://cheminformatics-microservice.readthedocs.io/en/latest/?badge=latest)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8112749.svg)](https://doi.org/10.5281/zenodo.8112749)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7745987.svg)](https://doi.org/10.5281/zenodo.7745987)
 ## Overview of Cheminformatics Microservice
 
 This set of essential and valuable microservices is designed to be accessed via API calls to support cheminformatics. Generally, it is designed to work with SMILES-based inputs and could be used to translate between different machine-readable representations, get Natural Product (NP) likeliness scores, visualize chemical structures, and generate descriptors. In addition, the microservices also host an instance of [STOUT](https://github.com/Kohulan/Smiles-TO-iUpac-Translator) and another instance of [DECIMER](https://github.com/Kohulan/DECIMER-Image_Transformer) (two deep learning models for IUPAC name generation and optical chemical structure recognition, respectively).
@@ -47,7 +47,7 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
 
 ## Citation
 
-Venkata, C., Sharma, N., & Rajan, K. (2023). Cheminformatics Microservice (Version V1.0.0) [Computer software]. https://doi.org/10.5281/zenodo.7747862
+Venkata, C., Sharma, N., & Rajan, K. (2023). Cheminformatics Microservice (Version v1.5.0) [Computer software]. https://doi.org/10.5281/zenodo.8336440
 
 ## Maintained by
 
