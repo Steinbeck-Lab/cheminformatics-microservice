@@ -35,6 +35,21 @@ def test_generate_structures(input, response_text, response_code):
             '"The molecule contains Linear and Circular sugars"',
             200,
         ),
+        (
+            "C1=CC=C(C(=C1)CO)OC2C(C(C(C(O2)CO)O)O)O",
+            '"The molecule contains only Circular sugar"',
+            200,
+        ),
+        (
+            "CC1=CC2=C(C(=C1)O)C(=O)C3=C(C2=O)C=CC=C3OCC(C(C(C(C(=O)OCC(C(C(C(C=O)O)O)(O)OCC(C(C(C(C=O)O)O)O)O)O)O)O)O)O",
+            '"The molecule contains only Linear sugar"',
+            200,
+        ),
+        (
+            "CC",
+            '"The molecule contains no sugar"',
+            200,
+        ),
         ("INVALID_INPUT", "", 422),
     ],
 )
@@ -50,7 +65,7 @@ def test_sugars_info(input, response_text, response_code):
     "input,response_text, response_code",
     [
         ("OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O", '"C(C1C(C(C(CO1)O)O)O)O"', 200),
-        ("INVALID_INPUT", "", 500),
+        ("INVALID_INPUT", "", 422),
     ],
 )
 def test_remove_linear_sugars(input, response_text, response_code):
