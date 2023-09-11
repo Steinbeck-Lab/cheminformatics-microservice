@@ -36,7 +36,7 @@ app.modules.classyfire module
 app.modules.alldescriptors module
 ---------------------------------
 
-.. automodule:: app.modules.alldescriptors
+.. automodule:: app.modules.all_descriptors
    :members:
    :undoc-members:
    :show-inheritance:

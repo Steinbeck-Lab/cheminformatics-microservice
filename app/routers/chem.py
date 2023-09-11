@@ -607,36 +607,38 @@ async def tanimoto_similarity(
     toolkit: Literal["cdk", "rdkit"] = Query(
         default="rdkit", description="Cheminformatics toolkit used in the backend"
     ),
+    fingerprinter: Literal["RDKit", "Atompairs", "MACCS", "PubChem", "ECFP"] = Query(
+        "ECFP",
+        description="Molecule fingerprint generation algorithm to use for RDKit and CDK",
+    ),
+    nBits: Optional[int] = Query(
+        "2048",
+        title="nBits size",
+        description="The number of bits for fingerprint vectors in RDKit. Ignored for MACCS keys.",
+    ),
+    radius: Optional[int] = Query(
+        "6",
+        title="radius size - ECFP",
+        description="ECFP 2/4/6 are allowed for using CDK Circular finger printer. Default is 6",
+    ),
 ):
     """
-    Generates the Tanimoto similarity index for a given pair of SMILES strings.
+    Calculate the Tanimoto similarity index for a pair of SMILES strings using specified parameters.
 
-    The Tanimoto similarity index is calculated using different toolkits:
-
-    - When using the **'cdk'** toolkit (default), the Tanimoto similarity is calculated
-      using the PubchemFingerprinter from the CDK library.
-      More information: https://cdk.github.io/cdk/2.8/docs/api/org/openscience/cdk/fingerprint/PubchemFingerprinter.html
-
-    - When using the **'rdkit'** toolkit, the Tanimoto similarity is calculated
-      using Morgan fingerprints with a radius of 2 and nBits=1024.
-      Additional modifications can be found in the rdkit_wrapper module.
-
-    Usage:
-    - To calculate the Tanimoto similarity for a pair of SMILES strings, provide them as a comma-separated parameter:
-      Example: api.naturalproducts.net/latest/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C
-
-    Parameters:
-    - **SMILES**: required (query): The SMILES strings for which the Tanimoto similarity will be calculated. Two SMILES strings should be provided as a comma-separated parameter.
-    - **toolkit**: optional (defaults: cdk): The toolkit to use for Tanimoto calculation.
-        - Supported values: "rdkit" / "cdk" (default), "rdkit".
+    Args:
+        smiles (str): A comma-separated pair of SMILES strings for the molecules to compare.
+        toolkit (Literal["cdk", "rdkit"]): The cheminformatics toolkit used in the backend.
+        fingerprinter (Literal["RDKit", "Atompairs", "MACCS","Pubchem","ECFP"]): The molecule fingerprint generation algorithm to use for RDKit (supports: "RDKit", "Atompairs", "MACCS" and "ECFP") and CDK (supports: "Pubchem" and"ECFP").
+        nBits (int, optional): The number of bits for fingerprint vectors in RDKit. Ignored for MACCS keys. Defaults to 2048.
+        radius (int, optional): The radius size for ECFP (Circular Fingerprints) when using CDK. Defaults to 6.
 
     Returns:
-    - The Tanimoto similarity index as a floating-point value.
+        The Tanimoto similarity index as a floating-point value.
 
     Raises:
-    - If an error occurs during the Tanimoto similarity calculation or if the input SMILES strings are invalid, an appropriate error message will be returned.
-
+        HTTPException: Raised when there is an error reading SMILES strings or invalid input.
     """
+
     molecules = [m.strip() for m in smiles.split(",")]
 
     if len(molecules) < 2:
@@ -650,12 +652,16 @@ async def tanimoto_similarity(
             if toolkit == "rdkit":
                 mol1 = parse_input(smiles1, "rdkit", False)
                 mol2 = parse_input(smiles2, "rdkit", False)
-                Tanimoto = get_tanimoto_similarity_rdkit(mol1, mol2)
+                Tanimoto = get_tanimoto_similarity_rdkit(
+                    mol1, mol2, fingerprinter, nBits, radius
+                )
             else:
                 mol1 = parse_input(smiles1, "cdk", False)
                 mol2 = parse_input(smiles2, "cdk", False)
-                Tanimoto = get_tanimoto_similarity_CDK(mol1, mol2)
-            return Tanimoto
+                Tanimoto = get_tanimoto_similarity_CDK(
+                    mol1, mol2, fingerprinter, radius
+                )
+            return float(Tanimoto)
         except Exception:
             raise HTTPException(
                 status_code=422,

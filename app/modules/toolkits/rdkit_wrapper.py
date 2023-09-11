@@ -1,6 +1,15 @@
 from typing import List, Union
 from rdkit import Chem, DataStructs
-from rdkit.Chem import AllChem, Descriptors, QED, Lipinski, rdMolDescriptors, rdmolops
+from rdkit.Chem import (
+    AllChem,
+    Descriptors,
+    QED,
+    Lipinski,
+    rdMolDescriptors,
+    rdmolops,
+    rdFingerprintGenerator,
+    MACCSkeys,
+)
 from hosegen import HoseGenerator
 
 
@@ -108,21 +117,53 @@ def get_3d_conformers(molecule: any, depict=True) -> Chem.Mol:
             return Chem.MolToMolBlock(molecule)
 
 
-def get_tanimoto_similarity_rdkit(mol1, mol2) -> Union[float, str]:
+def get_tanimoto_similarity_rdkit(
+    mol1, mol2, fingerprinter="ECFP", radius=2, nBits=2048
+) -> Union[float, str]:
     """
-    Calculate the Tanimoto similarity index between two SMILES strings using Morgan Fingerprints.
+    Calculate the Tanimoto similarity index between two molecular structures represented as RDKit Mol objects.
+
+    This function computes the Tanimoto similarity index, a measure of structural similarity, between two chemical compounds
+    using various fingerprinting methods available in RDKit.
 
     Args:
-        mol1 (Chem.Mol): First molecule object.
-        mol2 (Chem.Mol): Second molecule object.
+        mol1 (Chem.Mol): The RDKit Mol object representing the first molecule.
+        mol2 (Chem.Mol): The RDKit Mol object representing the second molecule.
+        fingerprinter (str, optional): The type of fingerprint to use. Defaults to "ECFP".
+        radius (int, optional): The radius parameter for ECFP fingerprints. Ignored for other fingerprint types.
+        nBits (int, optional): The number of bits for fingerprint vectors. Ignored for MACCS keys.
 
     Returns:
-        float or str: Tanimoto similarity index if molecules are valid.
+        Union[float, str]: The Tanimoto similarity index between the two molecules if they are valid.
+            If molecules are not valid, returns a string indicating an error.
+
+    Note:
+        - Supported fingerprinter options: "ECFP", "RDKit", "Atompairs", "MACCS".
+        - ECFP fingerprints are based on atom environments up to a specified radius.
+        - RDKit and Atom Pair fingerprints are based on different molecular descriptors.
+        - MACCS keys are a fixed-length binary fingerprint.
     """
     if mol1 and mol2:
-        # Generate Morgan fingerprints for each molecule
-        fp1 = AllChem.GetMorganFingerprintAsBitVect(mol1, 2, nBits=1024)
-        fp2 = AllChem.GetMorganFingerprintAsBitVect(mol2, 2, nBits=1024)
+        if fingerprinter == "ECFP":
+            # Generate Morgan fingerprints for each molecule
+            fp1 = AllChem.GetMorganFingerprintAsBitVect(mol1, radius, nBits)
+            fp2 = AllChem.GetMorganFingerprintAsBitVect(mol2, radius, nBits)
+        elif fingerprinter == "RDKit":
+            # Generate RDKit fingerprints for each molecule
+            rdkgen = rdFingerprintGenerator.GetRDKitFPGenerator(fpSize=nBits)
+            fp1 = rdkgen.GetFingerprint(mol1)
+            fp2 = rdkgen.GetFingerprint(mol2)
+        elif fingerprinter == "Atompairs":
+            # Generate Atompairs fingerprints for each molecule
+            apgen = rdFingerprintGenerator.GetAtomPairGenerator(fpSize=nBits)
+            fp1 = apgen.GetFingerprint(mol1)
+            fp2 = apgen.GetFingerprint(mol2)
+        elif fingerprinter == "MACCS":
+            # Generate MACCSkeys for each molecule
+            fp1 = MACCSkeys.GenMACCSKeys(mol1)
+            fp2 = MACCSkeys.GenMACCSKeys(mol2)
+        else:
+            return "Unsupported fingerprinter!"
 
         # Calculate the Tanimoto similarity between the fingerprints
         similarity = DataStructs.TanimotoSimilarity(fp1, fp2)
