@@ -270,7 +270,7 @@ def get_CDK_descriptors(molecule: any) -> Union[tuple, str]:
         return "Check input and try again!"
 
 
-def get_tanimoto_similarity_PubChem_CDK(mol1: str, mol2: str) -> str:
+def get_tanimoto_similarity_PubChem_CDK(mol1: any, mol2: any) -> str:
     """
     Calculate the Tanimoto similarity index between two molecules using PubChem fingerprints.
 
@@ -327,7 +327,7 @@ def get_tanimoto_similarity_PubChem_CDK(mol1: str, mol2: str) -> str:
         return "Check the SMILES string for errors"
 
 
-def get_tanimoto_similarity_ECFP_CDK(mol1: str, mol2: str, ECFP: int = 2) -> str:
+def get_tanimoto_similarity_ECFP_CDK(mol1: any, mol2: any, ECFP: int = 2) -> str:
     """
     Calculate the Tanimoto similarity index between two molecules using CircularFingerprinter fingerprints.
     https://cdk.github.io/cdk/2.8/docs/api/org/openscience/cdk/fingerprint/CircularFingerprinter.html
@@ -365,14 +365,14 @@ def get_tanimoto_similarity_ECFP_CDK(mol1: str, mol2: str, ECFP: int = 2) -> str
 
 
 def get_tanimoto_similarity_CDK(
-    mol1: str, mol2: str, fingerprinter: str = "PubChem", ECFP: int = 6
+    mol1: any, mol2: any, fingerprinter: str = "PubChem", ECFP: int = 6
 ) -> float:
     """
     Calculate the Tanimoto similarity between two molecules using PubChem/CircularFingerprints in CDK.
 
     Args:
-        mol1 (str): The first molecule, which can be provided as a molecule object.
-        mol2 (str): The second molecule.
+        mol1 (IAtomContainer): First molecule given by the user.
+        mol2 (IAtomContainer): Second molecule given by the user.
         fingerprinter (str, optional): The fingerprinter to use. Currently, only "PubChem/ECFP6"
                                         is supported. Defaults to "PubChem".
 
