@@ -130,7 +130,9 @@ def remove_linear_and_circular_sugar(molecule: any):
             molecule, True
         )
         if MoleculeWithoutSugars.isEmpty():
-            raise Exception(f"Molecule is empty after removal of circular and linear sugars")
+            raise Exception(
+                "Molecule is empty after removal of circular and linear sugars"
+            )
         else:
             try:
                 S_SMILES = SmilesGenerator.create(MoleculeWithoutSugars)
