@@ -133,7 +133,7 @@ def test_successful_classyFire_result():
 @pytest.mark.parametrize(
     "smiles, toolkit, fingerprinter,nBits,radius ,expected, response_code",
     [
-        ("CC,CC", "cdk", "ECFP", 2048, 4, '"1.00000"', 200),
+        ("CC,CC", "cdk", "ECFP", 2048, 4, "1.0", 200),
         ("CC,CC", "rdkit", "ECFP", 2048, 2, "1.0", 200),
         (
             "CC,CC,CC",
