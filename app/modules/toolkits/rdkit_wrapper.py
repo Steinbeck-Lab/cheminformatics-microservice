@@ -118,7 +118,7 @@ def get_3d_conformers(molecule: any, depict=True) -> Chem.Mol:
 
 
 def get_tanimoto_similarity_rdkit(
-    mol1, mol2, fingerprinter="Morgan", radius=2, nBits=2048
+    mol1, mol2, fingerprinter="ECFP", radius=2, nBits=2048
 ) -> Union[float, str]:
     """
     Calculate the Tanimoto similarity index between two molecular structures represented as RDKit Mol objects.
@@ -129,8 +129,8 @@ def get_tanimoto_similarity_rdkit(
     Args:
         mol1 (Chem.Mol): The RDKit Mol object representing the first molecule.
         mol2 (Chem.Mol): The RDKit Mol object representing the second molecule.
-        fingerprinter (str, optional): The type of fingerprint to use. Defaults to "Morgan".
-        radius (int, optional): The radius parameter for Morgan fingerprints. Ignored for other fingerprint types.
+        fingerprinter (str, optional): The type of fingerprint to use. Defaults to "ECFP".
+        radius (int, optional): The radius parameter for ECFP fingerprints. Ignored for other fingerprint types.
         nBits (int, optional): The number of bits for fingerprint vectors. Ignored for MACCS keys.
 
     Returns:
@@ -138,13 +138,13 @@ def get_tanimoto_similarity_rdkit(
             If molecules are not valid, returns a string indicating an error.
 
     Note:
-        - Supported fingerprinter options: "Morgan", "RDKit", "Atompairs", "MACCS".
-        - Morgan fingerprints are based on atom environments up to a specified radius.
+        - Supported fingerprinter options: "ECFP", "RDKit", "Atompairs", "MACCS".
+        - ECFP fingerprints are based on atom environments up to a specified radius.
         - RDKit and Atom Pair fingerprints are based on different molecular descriptors.
         - MACCS keys are a fixed-length binary fingerprint.
     """
     if mol1 and mol2:
-        if fingerprinter == "Morgan":
+        if fingerprinter == "ECFP":
             # Generate Morgan fingerprints for each molecule
             fp1 = AllChem.GetMorganFingerprintAsBitVect(mol1, radius, nBits)
             fp2 = AllChem.GetMorganFingerprintAsBitVect(mol2, radius, nBits)
@@ -158,10 +158,12 @@ def get_tanimoto_similarity_rdkit(
             apgen = rdFingerprintGenerator.GetAtomPairGenerator(fpSize=nBits)
             fp1 = apgen.GetFingerprint(mol1)
             fp2 = apgen.GetFingerprint(mol2)
-        else:
+        elif fingerprinter == "MACCS":
             # Generate MACCSkeys for each molecule
             fp1 = MACCSkeys.GenMACCSKeys(mol1)
             fp2 = MACCSkeys.GenMACCSKeys(mol2)
+        else:
+            return "Unsupported fingerprinter!"
 
         # Calculate the Tanimoto similarity between the fingerprints
         similarity = DataStructs.TanimotoSimilarity(fp1, fp2)
