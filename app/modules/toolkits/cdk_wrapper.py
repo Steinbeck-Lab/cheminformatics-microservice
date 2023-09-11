@@ -43,14 +43,13 @@ if not isJVMStarted():
 
 def get_CDK_IAtomContainer(smiles: str):
     """
-    This function takes the input SMILES and Creates a
-    get_CDK_IAtomContainer using the CDK.
+    This function takes the input SMILES and creates a CDK IAtomContainer.
 
     Args:
-        smiles (string): SMILES string as input.
+        smiles (str): SMILES string as input.
 
     Returns:
-        mol object: IAtomContainer with CDK.
+        mol (object): IAtomContainer with CDK.
     """
     SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
     SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
