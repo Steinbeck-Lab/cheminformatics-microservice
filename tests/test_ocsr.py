@@ -29,6 +29,17 @@ def test_process(input, response_code):
     assert response.status_code == response_code
 
 
+def test_process_upload():
+    file_path = "tests/caffeine.png"
+    file_content = open(file_path, "rb").read()
+
+    response = client.post(
+        "/latest/ocsr/process-upload",
+        files={"file": ("caffeine.png", file_content, "image/png")},
+    )
+    assert response.status_code == 200
+
+
 # Run the tests
 if __name__ == "__main__":
     pytest.main()
