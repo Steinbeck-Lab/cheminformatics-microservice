@@ -13,6 +13,7 @@
 [![framework](https://img.shields.io/badge/Framework-FastAPI-blue?style)](https://fastapi.tiangolo.com/)
 [![FastAPI Documentation](https://img.shields.io/badge/docs-fastapi-blue)](https://api.naturalproducts.net/v1/docs#/)
 [![Documentation Status](https://readthedocs.org/projects/cheminformatics-microservice/badge/?version=latest)](https://cheminformatics-microservice.readthedocs.io/en/latest/?badge=latest)
+[![codecov](https://codecov.io/gh/Steinbeck-Lab/cheminformatics-microservice/graph/badge.svg?token=5BIQJPNCBA)](https://codecov.io/gh/Steinbeck-Lab/cheminformatics-microservice)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7745987.svg)](https://doi.org/10.5281/zenodo.7745987)
 ## Overview of Cheminformatics Microservice
 
