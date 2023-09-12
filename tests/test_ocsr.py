@@ -38,8 +38,3 @@ def test_process_upload():
         files={"file": ("caffeine.png", file_content, "image/png")},
     )
     assert response.status_code == 200
-
-
-# Run the tests
-if __name__ == "__main__":
-    pytest.main()

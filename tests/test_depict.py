@@ -40,8 +40,3 @@ def test_depict2D_molecule(
 def test_depict3D_molecule(smiles, toolkit, response_code):
     response = client.get(f"/latest/depict/3D?smiles={smiles}&toolkit={toolkit}")
     assert response.status_code == response_code
-
-
-# Run the tests
-if __name__ == "__main__":
-    pytest.main()
