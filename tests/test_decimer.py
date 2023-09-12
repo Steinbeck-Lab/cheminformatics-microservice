@@ -1,6 +1,4 @@
 import os
-import cv2
-from PIL import Image
 import pytest
 from app.modules.decimer import (
     convert_image,
