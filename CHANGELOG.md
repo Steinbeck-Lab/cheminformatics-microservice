@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.5.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v1.4.0...v1.5.0) (2023-09-11)
+
+
+### Features
+
+* extend Tanimoto similarity calculation functionality ([6e89091](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/6e89091f050029f939edaaa05ba75c64f130ea09))
+* include CDK CircularFingerprinter ([f728c92](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/f728c92954dc24ca0f0adeed663e439d0373bd53))
+
+
+### Bug Fixes
+
+* added empty molecule checks for sugar removal routines - resolves [#386](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/386) ([0b8414d](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/0b8414d889013c39c59471866add6ad0140ba73e))
+* parameters for CDK Tanimoto calculation ([0f0fae6](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/0f0fae6f736d497c5c1b3d2ff202b2a9ca347505))
+* python docstrings ([dc6ef81](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/dc6ef81dd3022ae7d12fbcae4b3fb10c91239329))
+* reenabled ocsr module ([4cd86e6](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/4cd86e67184b86f06f851e95da97b44e6a5f859f))
+* removed exception for empty IAtomContainer - returning empty string for now (needs a more informative json response in future releases) ([85fb17f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/85fb17fea89e0156325cdb3ce7f7ed582b7110fe))
+* resolves [#387](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/387), [#388](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/388) ([593342c](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/593342c442b877ad9e4a6b28681ef3f14f907eb4))
+* tanimoto test ([f83d7ba](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/f83d7ba112c8248d3dcc64a7e5a5e8ac48b7b67c))
+* tanimoto tests ([70ccec0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/70ccec0e82b8241e922da7eee1db7883a4c24ef2))
+* test case failing issue fix and OCSR parameter description fixes ([e72dcbc](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/e72dcbc7e85c287150c084921e0984c640181f2a))
+
 ## [1.4.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v1.3.0...v1.4.0) (2023-09-07)
 
 
