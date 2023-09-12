@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v1.5.0...v1.6.0) (2023-09-12)
+
+
+### Features
+
+* add missing test for functions ([cf2a5dd](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/cf2a5dd337d2ba9c6491a9b0ba0de333a48a69a9))
+
+
+### Documentation
+
+* updated version number and zenodo doi ([42981af](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/42981af026c818aabea39a00dc01a3c56e308af2))
+
 ## [1.5.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v1.4.0...v1.5.0) (2023-09-11)
 
 
