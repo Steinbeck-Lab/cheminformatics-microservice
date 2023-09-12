@@ -245,8 +245,3 @@ def test_exception_standardize_mol(invalid_molfile, exception_response_code):
 def test_successful_coconut_preprocessing(smiles, response_code):
     response = client.get(f"/latest/chem/coconut/pre-processing?smiles={smiles}")
     assert response.status_code == response_code
-
-
-# Run the tests
-if __name__ == "__main__":
-    pytest.main()

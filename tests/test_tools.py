@@ -112,8 +112,3 @@ def test_remove_sugars(input, response_text, response_code):
     assert response.headers["content-type"] == "application/json"
     if input != "INVALID_INPUT":
         assert response.text == response_text
-
-
-# Run the tests
-if __name__ == "__main__":
-    pytest.main()
