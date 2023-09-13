@@ -12,6 +12,14 @@ def test_tool_index():
     assert response.json() == {"status": "OK"}
 
 
+def test_generate_structures_exception():
+    molecular_formula = "invalid_formula"
+    response = client.get(
+        f"/latest/tools/generate-structures?molecular_formula={molecular_formula}"
+    )
+    assert response.status_code == 500
+
+
 @pytest.mark.parametrize(
     "input,response_text, response_code",
     [
@@ -112,8 +120,3 @@ def test_remove_sugars(input, response_text, response_code):
     assert response.headers["content-type"] == "application/json"
     if input != "INVALID_INPUT":
         assert response.text == response_text
-
-
-# Run the tests
-if __name__ == "__main__":
-    pytest.main()
