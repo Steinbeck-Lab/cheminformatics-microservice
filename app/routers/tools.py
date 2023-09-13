@@ -172,7 +172,7 @@ async def get_sugar_information(
         else:
             return "The molecule contains no sugar"
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e))
 
 
 @router.get(
@@ -218,11 +218,11 @@ async def remove_linear_sugars(
             return removed_smiles
         else:
             raise HTTPException(
-                status_code=500,
+                status_code=422,
                 detail="Error reading SMILES string, please check again.",
             )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e))
 
 
 @router.get(
@@ -268,11 +268,11 @@ async def remove_circular_sugars(
             return removed_smiles
         else:
             raise HTTPException(
-                status_code=500,
+                status_code=422,
                 detail="Error processing SMILES string.",
             )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e))
 
 
 @router.get(
@@ -321,8 +321,8 @@ async def remove_linear_and_circular_sugars(
             return removed_smiles
         else:
             raise HTTPException(
-                status_code=500,
+                status_code=422,
                 detail="Error processing SMILES string, please check again.",
             )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e))
