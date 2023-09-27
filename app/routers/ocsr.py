@@ -37,7 +37,7 @@ def get_health() -> HealthCheck:
     """
     ## Perform a Health Check
     Endpoint to perform a health check on. This endpoint can primarily be used by Docker
-    to ensure a robust container orchestration and management is in place. Other
+    to ensure a robust container orchestration and management are in place. Other
     services that rely on the proper functioning of the API service will not deploy if this
     endpoint returns any other HTTP status code except 200 (OK).
     Returns:
@@ -78,7 +78,7 @@ async def Extract_ChemicalInfo_From_File(
     reference: str = Body(
         None,
         embed=True,
-        description="User defined reference information for tracking",
+        description="User-defined reference information for tracking",
     ),
     img: str = Body(
         None,
@@ -91,7 +91,7 @@ async def Extract_ChemicalInfo_From_File(
 
     Parameters:
     - **path**: optional if img is provided (str): Local or Remote path to the image file.
-    - **reference**: optional (str): User defined reference information for tracking.
+    - **reference**: optional (str): User-defined reference information for tracking.
     - **img**: optional if a valid path is provided (str): Image: Bytes content of the chemical structure depiction image.
 
     Returns:
@@ -171,11 +171,11 @@ async def extract_chemicalinfo_from_upload(
                 )
             except Exception as e:
                 raise HTTPException(
-                    status_code=422, detail="Error processimg the image: " + str(e)
+                    status_code=422, detail="Error processing the image: " + str(e)
                 )
         except Exception as e:
             raise HTTPException(
-                status_code=422, detail="Error processimg the image: " + str(e)
+                status_code=422, detail="Error processing the image: " + str(e)
             )
         finally:
             file.file.close()
