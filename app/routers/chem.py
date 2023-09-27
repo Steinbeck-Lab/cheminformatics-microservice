@@ -174,12 +174,12 @@ async def get_descriptors(
     - **SMILES**: required (query): The SMILES representation of the molecule.
     - **format**: optional (query): The desired format for the output.
         - Supported values: "html" / "json" (default), "json".
-    - **toolkit**: optional (query): The chemical toolkit to use for descriptor calculation. Default is "rdkit". Allowed "all", "cdk".
+    - **toolkit**: optional (query): The chemical toolkit to use for descriptor calculation. The default is "rdkit". Allowed "all", "cdk".
         - Supported values: "cdk"/ "rdkit" / "all" (default), "rdkit".
 
     Returns:
-    - If format is "html", returns an HTML response containing a table of descriptors and their values.
-    - If format is not "html", returns the descriptors and their values in the specified format (default: JSON).
+    - If the format is "html", return an HTML response containing a table of the descriptors and their values.
+    - Return the descriptors and their values in the specified format if the format is not "html" (default: JSON).
 
     Raises:
     - None
@@ -329,10 +329,10 @@ async def hose_codes(
     Parameters:
     - **SMILES**: required (query): The SMILES string represents the chemical compound.
     - **spheres**: required (query): The number of spheres to use for generating HOSE codes.
-    - **toolkit**: optional (default:cdk): The chemical toolkit to use for generating HOSE codes.
+    - **toolkit**: optional (default: cdk): The chemical toolkit to use for generating HOSE codes.
             Supported values: "cdk" (default), "rdkit".
-    - **ringsize**: optional (default:False): Determines whether to include information about ring sizes
-            in the HOSE codes. Default is False.
+    - **ringsize**: optional (default: False): Determines whether to include information about ring sizes
+            in the HOSE codes. The default is False.
 
     Returns:
     - List[str]: A list of HOSE codes if successful, indicating the HOSE codes
@@ -479,11 +479,11 @@ async def check_errors(
     - **fix**: optional (bool): Flag indicating whether to fix the issues by standardizing the SMILES. Defaults to False.
 
     Returns:
-    - If fix is False:
+    - If the fix is False:
         - If issues are found in the SMILES string, return a list of issues.
         - If no issues are found, return the string "No Errors Found".
 
-    - If fix is True:
+    - If the fix is True:
         - If issues are found in the SMILES string, return a dictionary containing the original SMILES, original issues,
           standardized SMILES, and new issues after standardization.
         - If no issues are found after standardization, return a dictionary with the original SMILES and "No Errors Found".
@@ -619,7 +619,7 @@ async def tanimoto_similarity(
     radius: Optional[int] = Query(
         "6",
         title="radius size - ECFP",
-        description="ECFP 2/4/6 are allowed for using CDK Circular finger printer. Default is 6",
+        description="ECFP 2/4/6 are allowed for using CDK Circular fingerprinter. The default is 6",
     ),
 ):
     """
@@ -826,7 +826,7 @@ async def classyfire_result(jobid: str):
 
     if jobid:
         try:
-            # Replace with your function to retrieve result
+            # Replace with your function to retrieve the result
             data = await result(jobid)
             return data
         except Exception as e:
