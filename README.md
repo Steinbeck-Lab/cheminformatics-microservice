@@ -15,21 +15,21 @@
 [![Documentation Status](https://readthedocs.org/projects/cheminformatics-microservice/badge/?version=latest)](https://cheminformatics-microservice.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/Steinbeck-Lab/cheminformatics-microservice/graph/badge.svg?token=5BIQJPNCBA)](https://codecov.io/gh/Steinbeck-Lab/cheminformatics-microservice)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7745987.svg)](https://doi.org/10.5281/zenodo.7745987)
-## Overview of Cheminformatics Microservice
+## Overview of Cheminformatics Microservice :globe_with_meridians:
 
 This set of essential and valuable microservices is designed to be accessed via API calls to support cheminformatics. Generally, it is designed to work with SMILES-based inputs and could be used to translate between different machine-readable representations, get Natural Product (NP) likeliness scores, visualize chemical structures, and generate descriptors. In addition, the microservices also host an instance of [STOUT](https://github.com/Kohulan/Smiles-TO-iUpac-Translator) and another instance of [DECIMER](https://github.com/Kohulan/DECIMER-Image_Transformer) (two deep learning models for IUPAC name generation and optical chemical structure recognition, respectively).
 
-## Documentation
+## Documentation :book:
 
 https://docs.api.naturalproducts.net/
 
-### API Swagger Docs:
+### API Swagger Docs
 
 Production: https://api.naturalproducts.net/latest/docs
 
 Development: https://dev.api.naturalproducts.net/latest/docs
 
-## Installation
+## Installation :computer:
 
 You can run Cheminformatics Microservice as a standalone application using Python virtual environment or via Docker, or deploy to a Kubernetes cluster utilising [Helm charts](https://github.com/NFDI4Chem/repo-helm-charts/tree/main/charts). Please follow the links below for step-by-step instructions.
 
@@ -42,21 +42,24 @@ https://docs.api.naturalproducts.net/cluster-deployment.html
 **Standalone**
 https://docs.api.naturalproducts.net/standalone.html
 
-## License
+## Load ramping test results - 29 September 2023 :chart_with_upwards_trend:
+ https://github.com/Steinbeck-Lab/cheminformatics-microservice/discussions/413
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/Steinbeck-Lab/cheminformatics-microservice/blob/dev-kohulan/LICENSE) file for details
+## License :scroll:
 
-## Citation
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/Steinbeck-Lab/cheminformatics-microservice/blob/main/LICENSE) file for details
+ 
+## Citation :newspaper:
 
 Venkata, C., Sharma, N., & Rajan, K. (2023). Cheminformatics Microservice (Version v1.5.0) [Computer software]. https://doi.org/10.5281/zenodo.8336440
 
-## Maintained by
+## Maintained by :wrench:
 
 Cheminformatics Microservice and [Natural Products Online](https://naturalproducts.net) are developed and maintained by the [Steinbeck group](https://cheminf.uni-jena.de) at the [Friedrich Schiller University](https://www.uni-jena.de/en/) Jena, Germany. 
 The code for this web application is released under the [MIT license](https://opensource.org/licenses/MIT). Copyright © CC-BY-SA 2023
 <p align="center"><a href="https://cheminf.uni-jena.de/" target="_blank"><img src="https://github.com/Kohulan/DECIMER-Image-to-SMILES/blob/master/assets/CheminfGit.png" width="800" alt="cheminf Logo"></a></p>
 
-## Acknowledgments
+## Acknowledgments :bulb:
 
 Funded by the [Deutsche Forschungsgemeinschaft (DFG, German Research Foundation)](https://www.dfg.de/) under the [National Research Data Infrastructure – NFDI4Chem](https://nfdi4chem.de/) – Project number: **441958208** and  [ChemBioSys](https://www.chembiosys.de/en/) (Project INF) - Project number: **239748522 - SFB 1127**.
 
