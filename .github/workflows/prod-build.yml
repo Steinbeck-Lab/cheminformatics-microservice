@@ -56,6 +56,6 @@ jobs:
           push: true
           build-args: |
             RELEASE_VERSION=${{ steps.fetch-latest-release.outputs.tag_name }}
-          tags: ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:${{ steps.fetch-latest-release.outputs.tag_name }}
+          tags: ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:${{ steps.fetch-latest-release.outputs.tag_name }}, ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest
           username: ${{ env.DOCKER_HUB_USERNAME  }}
           password: ${{ env.DOCKER_HUB_PASSWORD  }}

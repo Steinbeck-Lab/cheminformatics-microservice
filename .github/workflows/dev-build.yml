@@ -43,6 +43,6 @@ jobs:
           push: true
           build-args: |
             RELEASE_VERSION=dev-latest
-          tags: ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:dev-latest
+          tags: ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:dev-latest, ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest
           username: ${{ env.DOCKER_HUB_USERNAME  }}
           password: ${{ env.DOCKER_HUB_PASSWORD  }}
