@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.6.1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v1.6.0...v1.6.1) (2023-10-04)
+
+
+### Bug Fixes
+
+* cleanup tests ([74626e0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/74626e000287d6b6881397206ef227dd8ea34dfd))
+* include main tests ([d62d8fc](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d62d8fc690fdc7c179cc9ffa505d474442893f98))
+* include versions for decimer modules ([ea6ed20](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/ea6ed20781f7772b6607d669d626f3ff667a98f6))
+* issues with test.yml ([b31be0b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/b31be0b241df6802861420336b99ff995bad9490))
+* linter issues ([0fb6cc6](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/0fb6cc690af7377b0d3127130125abfb2c5eba66))
+* main test to cover root ([ae66022](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/ae660227b430e68a11b0c84364cdf4b2697815ea))
+* push image with latest tag ([5cdd597](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/5cdd597ef13f78ac444f35e745c402298474a9e1))
+* small typos ([90399e1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/90399e126a99b86c566fa633a320605002497e86))
+* update chembiosys details config.ts ([6b37a0b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/6b37a0bfc0a311abd85b6e178bba287302281fd8))
+* update chembiosys information ([8f036a6](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/8f036a6eedf8bd39f61ff7d8d58ca4e59c25ebd4))
+
 ## [1.6.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v1.5.0...v1.6.0) (2023-09-12)
 
 
