@@ -17,7 +17,7 @@ RUN chmod +x surge
 RUN mv surge /usr/bin
 
 RUN conda install -c conda-forge python>=PYTHON_VERSION
-RUN conda install -c conda-forge rdkit==RDKIT_VERSION
+#RUN conda install -c conda-forge rdkit==RDKIT_VERSION
 RUN conda install -c conda-forge openbabel>=OPENBABEL_VERSION
 
 RUN python3 -m pip install -U pip
@@ -32,6 +32,7 @@ RUN pip3 install --upgrade setuptools pip
 RUN pip3 install --no-cache-dir -r /code/requirements.txt
 RUN python3 -m pip uninstall -y imantics
 RUN pip3 install imantics==0.1.12
+RUN pip3 install rdkit
 RUN pip3 install --no-deps decimer-segmentation==1.1.3
 RUN pip3 install --no-deps decimer==2.3.0
 RUN pip3 install --no-deps STOUT-pypi>=2.0.5
