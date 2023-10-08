@@ -17,7 +17,7 @@ RUN chmod +x surge
 RUN mv surge /usr/bin
 
 RUN conda install -c conda-forge python>=PYTHON_VERSION
-RUN conda install -c conda-forge rdkit>=RDKIT_VERSION
+RUN conda install -c conda-forge rdkit==RDKIT_VERSION
 RUN conda install -c conda-forge openbabel>=OPENBABEL_VERSION
 
 RUN python3 -m pip install -U pip
