@@ -51,7 +51,11 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
  
 ## Citation :newspaper:
 
-Venkata, C., Sharma, N., & Rajan, K. (2023). Cheminformatics Microservice (Version v1.5.0) [Computer software]. https://doi.org/10.5281/zenodo.8336440
+*Paper*
+- Chandrasekhar, V., Sharma, N., Schaub, J. et al. Cheminformatics Microservice: unifying access to open cheminformatics toolkits. J Cheminform 15, 98 (2023). https://doi.org/10.1186/s13321-023-00762-4
+
+*Software*
+- Venkata, C., Sharma, N., & Rajan, K. (2023). Cheminformatics Microservice (Version v1.6.0) [Computer software]. https://doi.org/10.5281/zenodo.8336440
 
 ## Maintained by :wrench:
 
