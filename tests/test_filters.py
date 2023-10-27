@@ -1,5 +1,4 @@
 import pytest
-from rdkit import Chem
 from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.rdkit_wrapper import (
     get_sas_score,
@@ -9,6 +8,7 @@ from app.modules.toolkits.rdkit_wrapper import (
     get_REOSFilter,
     get_RuleofThree,
 )
+
 
 # Define fixtures for example molecules
 @pytest.fixture
