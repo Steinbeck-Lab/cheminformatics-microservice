@@ -289,3 +289,42 @@ class TanimotoMatrixResponse(BaseModel):
                 }
             ]
         }
+
+
+class FilteredMoleculesResponse(BaseModel):
+    """
+    Represents a response containing standardized molecule information.
+
+    Properties:
+    - filtered_smiles (str): The canonical SMILES representation of the molecule.
+    - filters (str): Set of filtered values with True/False flag
+    """
+
+    filtered_smiles: str = Field(
+        ...,
+        title="Filtered SMILES",
+        description="The SMILES representation of the molecule.",
+    )
+    filters: str = Field(
+        ...,
+        title="filters",
+        description="Set of filtered values with True/False flag",
+    )
+
+    class Config:
+        """
+        Pydantic model configuration.
+
+        JSON Schema Extra:
+        - Includes examples of the response structure.
+        """
+
+        json_schema_extra = {
+            "examples": [
+                {
+                    "input": """CCCCCCC""",
+                    "message": "Success",
+                    "output": "Filtered SMILES, filters",
+                }
+            ]
+        }

@@ -9,10 +9,10 @@ from rdkit.Chem import (
     rdmolops,
     rdFingerprintGenerator,
     MACCSkeys,
-    FilterCatalog,
 )
 from hosegen import HoseGenerator
 from rdkit.Contrib.SA_Score import sascorer
+from rdkit.Chem.FilterCatalog import FilterCatalog, FilterCatalogParams
 
 
 def check_RO5_violations(molecule: any) -> int:
@@ -363,9 +363,9 @@ def get_PAINS(molecule: any) -> Union[bool, Tuple[str, str]]:
     any PAINS substructure. PAINS are known substructures that may interfere
     with various biological assays.
     """
-    params = FilterCatalog.FilterCatalogParams()
-    params.AddCatalog(FilterCatalog.FilterCatalogParams.FilterCatalogs.PAINS)
-    catalog = FilterCatalog.FilterCatalog(params)
+    params = FilterCatalogParams()
+    params.AddCatalog(FilterCatalogParams.FilterCatalogs.PAINS)
+    catalog = FilterCatalog(params)
 
     entry = catalog.GetFirstMatch(molecule)
     if entry:

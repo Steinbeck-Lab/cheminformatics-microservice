@@ -1,6 +1,7 @@
 import pytest
 from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.rdkit_wrapper import (
+    check_RO5_violations,
     get_sas_score,
     get_PAINS,
     get_GhoseFilter,
@@ -13,7 +14,9 @@ from app.modules.toolkits.rdkit_wrapper import (
 # Define fixtures for example molecules
 @pytest.fixture
 def molecule1():
-    return parse_input("CC(C)CC1=CC=C(C=C1)C(C)C(=O)O", "rdkit", False)
+    return parse_input(
+        "O=C(Cn1cnc2c1c(=O)n(C)c(=O)n2C)N/N=C/c1c(O)ccc2c1cccc2", "rdkit", False
+    )
 
 
 @pytest.fixture
@@ -31,8 +34,18 @@ def test_get_sas_score(molecule1):
     assert isinstance(get_sas_score(molecule1), float)
 
 
+def test_lipinski(molecule1, molecule2):
+    # Test for a molecule with no violations
+    assert check_RO5_violations(molecule1) == 0
+
+    # Test for a molecule with one violation (MolLogP > 5)
+    assert check_RO5_violations(molecule2) == 1
+
+
 # Test get_PAINS
-def test_get_PAINS(molecule2):
+def test_get_PAINS(molecule1, molecule2):
+    assert get_PAINS(molecule1) == ("PAINS filters (family A)", "Hzone_phenol_a(479)")
+    assert "PAINS filters" in str(get_PAINS(molecule1))
     assert get_PAINS(molecule2) is False
 
 
