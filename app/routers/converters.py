@@ -11,6 +11,7 @@ from app.modules.toolkits.cdk_wrapper import (
     get_CXSMILES,
     get_canonical_SMILES,
     get_InChI,
+    get_smiles_opsin,
 )
 from app.modules.toolkits.rdkit_wrapper import (
     get_3d_conformers,
@@ -234,6 +235,9 @@ async def iupac_name_or_selfies_to_smiles(
     representation: Literal["iupac", "selfies"] = Query(
         default="iupac", description="Required type of format conversion"
     ),
+    converter: Literal["opsin", "stout"] = Query(
+        default="opsin", description="Required type of converter for IUPAC"
+    ),
 ):
     """
     Generate SMILES from a given IUPAC name or a SELFIES representation.
@@ -257,7 +261,10 @@ async def iupac_name_or_selfies_to_smiles(
     """
     try:
         if representation == "iupac":
-            iupac_name = translate_reverse(input_text)
+            if converter == "opsin":
+                iupac_name = get_smiles_opsin(input_text)
+            else:
+                iupac_name = translate_reverse(input_text)
             if iupac_name:
                 return str(iupac_name)
         elif representation == "selfies":

@@ -909,7 +909,6 @@ async def all_filter_molecules(
         description="Calculate NPlikenessScore in the range (e.g., 0-10)",
     ),
 ):
-
     all_smiles = []
     for item in io.StringIO(smiles_list):
         smiles = item.strip()
