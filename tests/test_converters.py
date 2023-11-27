@@ -240,7 +240,7 @@ def test_smiles_to_iupac(smiles, response_text, response_code):
         (
             "1,3,7-trimethylpurine-2,6-dione",
             "iupac",
-            '"CN1C=NC2=C1C(=O)N(C)C(=O)N2C"',
+            '"CN1C(N(C=2N=CN(C2C1=O)C)C)=O"',
             200,
         ),
         (
