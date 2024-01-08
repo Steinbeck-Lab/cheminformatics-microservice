@@ -68,7 +68,7 @@ export default defineConfig({
     ],
 
     footer: {
-      message: 'Source code released under the MIT License | Data are provided under the Creative Commons Attribution (aka CC-BY 4.0) <br/> Funded by the <a href="https://www.dfg.de/en/index.jsp" style="color: blue" target="_blank">Deutsche Forschungsgemeinschaft (DFG, German Research Foundation)</a> under the <a href="https://www.nfdi4chem.de/" style="color: blue" target="_blank">National Research Data Infrastructure – NFDI4Chem</a> – Projektnummer 441958208.',
+      message: 'Source code released under the MIT License | Data are provided under the Creative Commons Attribution (aka CC-BY 4.0) <br/> Funded by the <a href="https://www.dfg.de/en/index.jsp" style="color: blue" target="_blank">Deutsche Forschungsgemeinschaft (DFG, German Research Foundation)</a> under the <a href="https://www.nfdi4chem.de/" style="color: blue" target="_blank">National Research Data Infrastructure – NFDI4Chem</a> – Project number: 441958208 and <a href="https://www.chembiosys.de/en/research/projects/project-inf.html" style="color: green" target="_blank">ChemBioSys (Project INF)</a> - Project number: 239748522 - SFB 1127.',
       copyright: `Copyright © ${new Date().getFullYear()} Steinbeck Lab`
     }
   }

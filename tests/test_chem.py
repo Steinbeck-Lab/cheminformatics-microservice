@@ -131,21 +131,28 @@ def test_successful_classyFire_result():
 
 
 @pytest.mark.parametrize(
-    "smiles, toolkit, expected, response_code",
+    "smiles, toolkit, fingerprinter,nBits,radius ,expected, response_code",
     [
-        ("CC,CC", "cdk", '"1.00000"', 200),
-        ("CC,CC", "rdkit", "1.0", 200),
+        ("CC,CC", "cdk", "ECFP", 2048, 4, "1.0", 200),
+        ("CC,CC", "rdkit", "ECFP", 2048, 2, "1.0", 200),
         (
             "CC,CC,CC",
             "cdk",
+            "ECFP",
+            2048,
+            4,
             "<table><tr><th></th><th>0</th><th>1</th><th>2</th></tr><tr><td>0</td><td>1.00000</td><td>1.00000</td><td>1.00000</td></tr><tr><td>1</td><td>1.00000</td><td>1.00000</td><td>1.00000</td></tr><tr><td>2</td><td>1.00000</td><td>1.00000</td><td>1.00000</td></tr></table>",
             200,
         ),
-        ("INVALID_INPUT", "cdk", "", 422),
+        ("INVALID_INPUT", "cdk", "ECFP", 2048, 4, "", 422),
     ],
 )
-def test_successful_tanimoto_similarity(smiles, toolkit, expected, response_code):
-    response = client.get(f"/latest/chem/tanimoto?smiles={smiles}&toolkit={toolkit}")
+def test_successful_tanimoto_similarity(
+    smiles, toolkit, fingerprinter, nBits, radius, expected, response_code
+):
+    response = client.get(
+        f"/latest/chem/tanimoto?smiles={smiles}&toolkit={toolkit}&fingerprinter={fingerprinter}&nBits={nBits}&radius={radius}"
+    )
     assert response.status_code == response_code
     if smiles != "INVALID_INPUT":
         assert response.text == expected
@@ -238,8 +245,3 @@ def test_exception_standardize_mol(invalid_molfile, exception_response_code):
 def test_successful_coconut_preprocessing(smiles, response_code):
     response = client.get(f"/latest/chem/coconut/pre-processing?smiles={smiles}")
     assert response.status_code == response_code
-
-
-# Run the tests
-if __name__ == "__main__":
-    pytest.main()

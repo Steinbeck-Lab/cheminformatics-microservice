@@ -24,8 +24,8 @@ jobs:
         python3 -m pip uninstall -y imantics
         pip3 install imantics==0.1.12
         pip3 install openbabel-wheel
-        pip3 install --no-deps decimer-segmentation
-        pip3 install --no-deps decimer>=2.2.0
+        pip3 install --no-deps decimer-segmentation==1.1.3
+        pip3 install --no-deps decimer==2.3.0
         pip3 install --no-deps STOUT-pypi>=2.0.5
         pip install flake8 pytest
         pip install pytest-cov

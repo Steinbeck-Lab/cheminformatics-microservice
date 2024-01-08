@@ -33,8 +33,8 @@ It is strongly recommended that readers cite both the software and the correspon
 - Citing software:
 
 ```
-Venkata, C., Sharma, N., Schaub, J., Steinbeck, C., & Rajan, K. (2023). cheminformatics-microservice (Version V1.0.0) [Computer software]. 
-https://doi.org/10.5281/zenodo.8112749
+Venkata, C., Sharma, N., Schaub, J., Steinbeck, C., & Rajan, K. (2023). cheminformatics-microservice (Version v1.5.0) [Computer software]. 
+https://doi.org/10.5281/zenodo.7745987
 ```
 
 ## Acknowledgments and Maintainence
@@ -43,7 +43,7 @@ https://doi.org/10.5281/zenodo.8112749
 
 Cheminformatics Microservice and [Natural Products Online](https://naturalproducts.net) are developed and maintained by the [Steinbeck group](https://cheminf.uni-jena.de) at the [Friedrich Schiller University](https://www.uni-jena.de/en/) Jena, Germany. 
 
-Funded by the [Deutsche Forschungsgemeinschaft (DFG, German Research Foundation)](https://www.dfg.de/) under the [National Research Data Infrastructure – NFDI4Chem](https://nfdi4chem.de/) – Projektnummer **441958208**.
+Funded by the [Deutsche Forschungsgemeinschaft (DFG, German Research Foundation)](https://www.dfg.de/) under the [National Research Data Infrastructure – NFDI4Chem](https://nfdi4chem.de/) – Project number: **441958208** and  [ChemBioSys](https://www.chembiosys.de/en/) (Project INF) - Project number: **239748522 - SFB 1127**.
 </div>
 
 <p align="center">

@@ -1,8 +1,14 @@
 import os
 import pystow
 from typing import List, Union
-from jpype import startJVM, getDefaultJVMPath
-from jpype import JClass, JVMNotFoundException, isJVMStarted
+from jpype import (
+    startJVM,
+    getDefaultJVMPath,
+    JClass,
+    JVMNotFoundException,
+    isJVMStarted,
+    JPackage,
+)
 
 # Start JVM to use CDK in python
 try:
@@ -22,11 +28,16 @@ if not isJVMStarted():
     centres_path = (
         "https://github.com/SiMolecule/centres/releases/download/1.0/centres.jar"
     )
+    opsin_path = "https://github.com/dan2097/opsin/releases/download/2.8.0/opsin-cli-2.8.0-jar-with-dependencies.jar"
+
     cdkjar_path = str(pystow.join("STOUT-V2")) + "/cdk-2.8.jar"
     srujar_path = (
         str(pystow.join("STOUT-V2")) + "/SugarRemovalUtility-jar-with-dependencies.jar"
     )
     centresjar_path = str(pystow.join("STOUT-V2")) + "/centres.jar"
+    opsinjar_path = (
+        str(pystow.join("STOUT-V2")) + "/opsin-cli-2.8.0-jar-with-dependencies.jar"
+    )
 
     if not os.path.exists(cdkjar_path):
         jar_path = pystow.ensure("STOUT-V2", url=cdk_path)
@@ -37,20 +48,29 @@ if not isJVMStarted():
     if not os.path.exists(centresjar_path):
         jar_path = pystow.ensure("STOUT-V2", url=centres_path)
 
-    startJVM("-ea", "-Xmx4096M", classpath=[cdkjar_path, srujar_path, centresjar_path])
+    if not os.path.exists(opsinjar_path):
+        jar_path = pystow.ensure("STOUT-V2", url=opsin_path)
+
+    startJVM(
+        "-ea",
+        "-Xmx4096M",
+        classpath=[cdkjar_path, srujar_path, centresjar_path, opsinjar_path],
+    )
     cdk_base = "org.openscience.cdk"
+    opsin_base = JPackage("uk").ac.cam.ch.wwmm.opsin
+    _nametostruct = opsin_base.NameToStructure.getInstance()
+    _restoinchi = opsin_base.NameToInchi.convertResultToInChI
 
 
 def get_CDK_IAtomContainer(smiles: str):
     """
-    This function takes the input SMILES and Creates a
-    get_CDK_IAtomContainer using the CDK.
+    This function takes the input SMILES and creates a CDK IAtomContainer.
 
     Args:
-        smiles (string): SMILES string as input.
+        smiles (str): SMILES string as input.
 
     Returns:
-        mol object: IAtomContainer with CDK.
+        mol (object): IAtomContainer with CDK.
     """
     SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
     SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
@@ -270,7 +290,7 @@ def get_CDK_descriptors(molecule: any) -> Union[tuple, str]:
         return "Check input and try again!"
 
 
-def get_tanimoto_similarity_CDK(mol1: any, mol2: str) -> str:
+def get_tanimoto_similarity_PubChem_CDK(mol1: any, mol2: any) -> str:
     """
     Calculate the Tanimoto similarity index between two molecules using PubChem fingerprints.
 
@@ -325,6 +345,73 @@ def get_tanimoto_similarity_CDK(mol1: any, mol2: str) -> str:
         return "{:.5f}".format(float(str(Similarity)))
     else:
         return "Check the SMILES string for errors"
+
+
+def get_tanimoto_similarity_ECFP_CDK(mol1: any, mol2: any, ECFP: int = 2) -> str:
+    """
+    Calculate the Tanimoto similarity index between two molecules using CircularFingerprinter fingerprints.
+    https://cdk.github.io/cdk/2.8/docs/api/org/openscience/cdk/fingerprint/CircularFingerprinter.html
+
+    Args:
+        mol1 (IAtomContainer): First molecule given by the user.
+        mol2 (IAtomContainer): Second molecule given by the user.
+
+    Returns:
+        str: The Tanimoto similarity as a string with 5 decimal places, or an error message.
+    """
+    Tanimoto = JClass(cdk_base + ".similarity.Tanimoto")
+    CircularFingerprinter = JClass(cdk_base + ".fingerprint.CircularFingerprinter")()
+    if ECFP == 2:
+        fingerprinter_class = CircularFingerprinter.CLASS_ECFP2
+    elif ECFP == 4:
+        fingerprinter_class = CircularFingerprinter.CLASS_ECFP4
+    elif ECFP == 6:
+        fingerprinter_class = CircularFingerprinter.CLASS_ECFP6
+    else:
+        return "only ECFP 2/4/6 allowed"
+
+    CircularFingerprinter_ECFP = JClass(
+        cdk_base + ".fingerprint.CircularFingerprinter"
+    )(fingerprinter_class)
+
+    if mol1 and mol2:
+        fingerprint1 = CircularFingerprinter_ECFP.getBitFingerprint(mol1)
+        fingerprint2 = CircularFingerprinter_ECFP.getBitFingerprint(mol2)
+        # Calculate Tanimoto similarity
+        Similarity = Tanimoto.calculate(fingerprint1, fingerprint2)
+        return "{:.5f}".format(float(str(Similarity)))
+    else:
+        return "Check the SMILES string for errors"
+
+
+def get_tanimoto_similarity_CDK(
+    mol1: any, mol2: any, fingerprinter: str = "PubChem", ECFP: int = 6
+) -> float:
+    """
+    Calculate the Tanimoto similarity between two molecules using PubChem/CircularFingerprints in CDK.
+
+    Args:
+        mol1 (IAtomContainer): First molecule given by the user.
+        mol2 (IAtomContainer): Second molecule given by the user.
+        fingerprinter (str, optional): The fingerprinter to use. Currently, only "PubChem/ECFP6"
+                                        is supported. Defaults to "PubChem".
+
+    Returns:
+        float: The Tanimoto similarity score between the two molecules.
+
+    Raises:
+        ValueError: If an unsupported fingerprinter is specified.
+    """
+    if fingerprinter == "PubChem":
+        tanimoto = get_tanimoto_similarity_PubChem_CDK(mol1, mol2)
+    elif fingerprinter == "ECFP":
+        tanimoto = get_tanimoto_similarity_ECFP_CDK(mol1, mol2, ECFP)
+    else:
+        raise ValueError(
+            "Unsupported fingerprinter. Currently, only 'PubChem' is supported."
+        )
+
+    return tanimoto
 
 
 def get_cip_annotation(molecule: any) -> str:
@@ -494,6 +581,40 @@ def get_InChI(molecule: any, InChIKey=False) -> str:
         )
         return InChIKey
     return InChI
+
+
+def get_smiles_opsin(input_text: str) -> str:
+    """
+    Convert IUPAC chemical name to SMILES notation using OPSIN.
+
+    Parameters:
+    - input_text (str): The IUPAC chemical name to be converted.
+
+    Returns:
+    - str: The SMILES notation corresponding to the given IUPAC name.
+
+    Raises:
+    - Exception: If the IUPAC name is not valid or if there are issues in the conversion process.
+      The exception message will guide the user to check the data again.
+    """
+    try:
+        print(input_text)
+        OpsinResult = _nametostruct.parseChemicalName(input_text)
+        print(OpsinResult)
+        if str(OpsinResult.getStatus()) == "FAILURE":
+            raise Exception(
+                (
+                    "Failed to convert '%s' to format '%s'\n%s using OPSIN"
+                    % (input_text, format, OpsinResult.getMessage())
+                )
+            )
+        print(OpsinResult.getSmiles())
+        return str(OpsinResult.getSmiles())
+    except Exception:
+        return str(
+            "Failed to convert '%s' to format '%s'\n%s using OPSIN"
+            % (input_text, format, OpsinResult.getMessage())
+        )
 
 
 async def get_CDK_HOSE_codes(

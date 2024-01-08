@@ -9,7 +9,7 @@ pandas
 chembl_structure_pipeline
 HOSE_code_generator @ git+https://github.com/Ratsemaat/HOSE_code_generator
 websockets==10.4
-pillow==9.4.0
+pillow==10.0.1
 opencv-python==4.7.0.68
 matplotlib==3.4.3
 scikit-image

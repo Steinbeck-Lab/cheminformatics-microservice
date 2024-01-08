@@ -1,3 +1,4 @@
+import io
 from fastapi import APIRouter, Query, status, HTTPException, Body
 from typing import Optional, Literal, Annotated, Union
 from rdkit import Chem
@@ -14,9 +15,17 @@ from app.modules.toolkits.cdk_wrapper import (
     get_CDK_HOSE_codes,
 )
 from app.modules.toolkits.rdkit_wrapper import (
+    check_RO5_violations,
     get_tanimoto_similarity_rdkit,
     get_rdkit_HOSE_codes,
     get_properties,
+    QED,
+    get_sas_score,
+    get_PAINS,
+    get_GhoseFilter,
+    get_VeberFilter,
+    get_REOSFilter,
+    get_RuleofThree,
 )
 
 from app.modules.coconut.descriptors import get_COCONUT_descriptors
@@ -41,6 +50,7 @@ from app.schemas.chem_schema import (
     NPlikelinessScoreResponse,
     TanimotoSimilarityResponse,
     TanimotoMatrixResponse,
+    FilteredMoleculesResponse,
 )
 
 router = APIRouter(
@@ -174,12 +184,12 @@ async def get_descriptors(
     - **SMILES**: required (query): The SMILES representation of the molecule.
     - **format**: optional (query): The desired format for the output.
         - Supported values: "html" / "json" (default), "json".
-    - **toolkit**: optional (query): The chemical toolkit to use for descriptor calculation. Default is "rdkit". Allowed "all", "cdk".
+    - **toolkit**: optional (query): The chemical toolkit to use for descriptor calculation. The default is "rdkit". Allowed "all", "cdk".
         - Supported values: "cdk"/ "rdkit" / "all" (default), "rdkit".
 
     Returns:
-    - If format is "html", returns an HTML response containing a table of descriptors and their values.
-    - If format is not "html", returns the descriptors and their values in the specified format (default: JSON).
+    - If the format is "html", return an HTML response containing a table of the descriptors and their values.
+    - Return the descriptors and their values in the specified format if the format is not "html" (default: JSON).
 
     Raises:
     - None
@@ -329,10 +339,10 @@ async def hose_codes(
     Parameters:
     - **SMILES**: required (query): The SMILES string represents the chemical compound.
     - **spheres**: required (query): The number of spheres to use for generating HOSE codes.
-    - **toolkit**: optional (default:cdk): The chemical toolkit to use for generating HOSE codes.
+    - **toolkit**: optional (default: cdk): The chemical toolkit to use for generating HOSE codes.
             Supported values: "cdk" (default), "rdkit".
-    - **ringsize**: optional (default:False): Determines whether to include information about ring sizes
-            in the HOSE codes. Default is False.
+    - **ringsize**: optional (default: False): Determines whether to include information about ring sizes
+            in the HOSE codes. The default is False.
 
     Returns:
     - List[str]: A list of HOSE codes if successful, indicating the HOSE codes
@@ -479,11 +489,11 @@ async def check_errors(
     - **fix**: optional (bool): Flag indicating whether to fix the issues by standardizing the SMILES. Defaults to False.
 
     Returns:
-    - If fix is False:
+    - If the fix is False:
         - If issues are found in the SMILES string, return a list of issues.
         - If no issues are found, return the string "No Errors Found".
 
-    - If fix is True:
+    - If the fix is True:
         - If issues are found in the SMILES string, return a dictionary containing the original SMILES, original issues,
           standardized SMILES, and new issues after standardization.
         - If no issues are found after standardization, return a dictionary with the original SMILES and "No Errors Found".
@@ -607,36 +617,38 @@ async def tanimoto_similarity(
     toolkit: Literal["cdk", "rdkit"] = Query(
         default="rdkit", description="Cheminformatics toolkit used in the backend"
     ),
+    fingerprinter: Literal["RDKit", "Atompairs", "MACCS", "PubChem", "ECFP"] = Query(
+        "ECFP",
+        description="Molecule fingerprint generation algorithm to use for RDKit and CDK",
+    ),
+    nBits: Optional[int] = Query(
+        "2048",
+        title="nBits size",
+        description="The number of bits for fingerprint vectors in RDKit. Ignored for MACCS keys.",
+    ),
+    radius: Optional[int] = Query(
+        "6",
+        title="radius size - ECFP",
+        description="ECFP 2/4/6 are allowed for using CDK Circular fingerprinter. The default is 6",
+    ),
 ):
     """
-    Generates the Tanimoto similarity index for a given pair of SMILES strings.
+    Calculate the Tanimoto similarity index for a pair of SMILES strings using specified parameters.
 
-    The Tanimoto similarity index is calculated using different toolkits:
-
-    - When using the **'cdk'** toolkit (default), the Tanimoto similarity is calculated
-      using the PubchemFingerprinter from the CDK library.
-      More information: https://cdk.github.io/cdk/2.8/docs/api/org/openscience/cdk/fingerprint/PubchemFingerprinter.html
-
-    - When using the **'rdkit'** toolkit, the Tanimoto similarity is calculated
-      using Morgan fingerprints with a radius of 2 and nBits=1024.
-      Additional modifications can be found in the rdkit_wrapper module.
-
-    Usage:
-    - To calculate the Tanimoto similarity for a pair of SMILES strings, provide them as a comma-separated parameter:
-      Example: api.naturalproducts.net/latest/chem/tanimoto?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C,CN1C=NC2=C1C(=O)NC(=O)N2C
-
-    Parameters:
-    - **SMILES**: required (query): The SMILES strings for which the Tanimoto similarity will be calculated. Two SMILES strings should be provided as a comma-separated parameter.
-    - **toolkit**: optional (defaults: cdk): The toolkit to use for Tanimoto calculation.
-        - Supported values: "rdkit" / "cdk" (default), "rdkit".
+    Args:
+        smiles (str): A comma-separated pair of SMILES strings for the molecules to compare.
+        toolkit (Literal["cdk", "rdkit"]): The cheminformatics toolkit used in the backend.
+        fingerprinter (Literal["RDKit", "Atompairs", "MACCS","Pubchem","ECFP"]): The molecule fingerprint generation algorithm to use for RDKit (supports: "RDKit", "Atompairs", "MACCS" and "ECFP") and CDK (supports: "Pubchem" and"ECFP").
+        nBits (int, optional): The number of bits for fingerprint vectors in RDKit. Ignored for MACCS keys. Defaults to 2048.
+        radius (int, optional): The radius size for ECFP (Circular Fingerprints) when using CDK. Defaults to 6.
 
     Returns:
-    - The Tanimoto similarity index as a floating-point value.
+        The Tanimoto similarity index as a floating-point value.
 
     Raises:
-    - If an error occurs during the Tanimoto similarity calculation or if the input SMILES strings are invalid, an appropriate error message will be returned.
-
+        HTTPException: Raised when there is an error reading SMILES strings or invalid input.
     """
+
     molecules = [m.strip() for m in smiles.split(",")]
 
     if len(molecules) < 2:
@@ -650,12 +662,16 @@ async def tanimoto_similarity(
             if toolkit == "rdkit":
                 mol1 = parse_input(smiles1, "rdkit", False)
                 mol2 = parse_input(smiles2, "rdkit", False)
-                Tanimoto = get_tanimoto_similarity_rdkit(mol1, mol2)
+                Tanimoto = get_tanimoto_similarity_rdkit(
+                    mol1, mol2, fingerprinter, nBits, radius
+                )
             else:
                 mol1 = parse_input(smiles1, "cdk", False)
                 mol2 = parse_input(smiles2, "cdk", False)
-                Tanimoto = get_tanimoto_similarity_CDK(mol1, mol2)
-            return Tanimoto
+                Tanimoto = get_tanimoto_similarity_CDK(
+                    mol1, mol2, fingerprinter, radius
+                )
+            return float(Tanimoto)
         except Exception:
             raise HTTPException(
                 status_code=422,
@@ -820,7 +836,7 @@ async def classyfire_result(jobid: str):
 
     if jobid:
         try:
-            # Replace with your function to retrieve result
+            # Replace with your function to retrieve the result
             data = await result(jobid)
             return data
         except Exception as e:
@@ -829,3 +845,148 @@ async def classyfire_result(jobid: str):
             )
     else:
         raise HTTPException(status_code=422, detail="Job ID is required.")
+
+
+@router.post(
+    "/all_filters",
+    summary="Filters a given list of molecules using selected filters",
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": FilteredMoleculesResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
+)
+async def all_filter_molecules(
+    smiles_list: str = Body(
+        embed=False,
+        media_type="text/plain",
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C\nCC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
+    ),
+    pains: bool = Query(
+        True, title="PAINS filter", description="Calculate PAINS filter (true or false)"
+    ),
+    lipinski: bool = Query(
+        True,
+        title="Lipinski Rule of 5",
+        description="Calculate Lipinski Rule of 5 (true or false)",
+    ),
+    veber: bool = Query(
+        True, title="Veber filter", description="Calculate Veber filter (true or false)"
+    ),
+    reos: bool = Query(
+        True, title="REOS filter", description="Calculate REOS filter (true or false)"
+    ),
+    ghose: bool = Query(
+        True, title="Ghose filter", description="Calculate Ghose filter (true or false)"
+    ),
+    ruleofthree: bool = Query(
+        True,
+        title="Rule of 3",
+        description="Calculate Rule of 3 filter (true or false)",
+    ),
+    qedscore: str = Query(
+        "0-10",
+        title="QED Druglikeliness",
+        description="Calculate QED Score in the range (e.g., 0-10)",
+    ),
+    sascore: str = Query(
+        "0-10",
+        title="SAScore",
+        description="Calculate SAScore in the range (e.g., 0-10)",
+    ),
+    nplikeness: str = Query(
+        "0-10",
+        title="NPlikenessScore",
+        description="Calculate NPlikenessScore in the range (e.g., 0-10)",
+    ),
+):
+    all_smiles = []
+    for item in io.StringIO(smiles_list):
+        smiles = item.strip()
+        mol = parse_input(smiles, "rdkit", False)
+        results = []
+        results.append(smiles + ":")
+        if mol:
+            if pains:
+                pains_status = str(get_PAINS(mol))
+                if "family" in pains_status:
+                    results.append("True")
+                else:
+                    results.append("False")
+            if lipinski:
+                lipinski_violations = check_RO5_violations(mol)
+                if lipinski_violations == 0:
+                    results.append("True")
+                else:
+                    results.append("False")
+
+            if veber:
+                if get_VeberFilter(mol) == "True":
+                    results.append("True")
+                else:
+                    results.append("False")
+            if reos:
+                if get_REOSFilter(mol) == "True":
+                    results.append("True")
+                else:
+                    results.append("False")
+
+            if ghose:
+                if get_GhoseFilter(mol) == "True":
+                    results.append("True")
+                else:
+                    results.append("False")
+
+            if ruleofthree:
+                if get_RuleofThree(mol) == "True":
+                    results.append("True")
+                else:
+                    results.append("False")
+
+            if len(qedscore.split("-")) == 2:
+                range_start, range_end = float(qedscore.split("-")[0]), float(
+                    qedscore.split("-")[1]
+                )
+                qed_value = QED.qed(mol)
+                if range_start <= qed_value <= range_end:
+                    results.append("True")
+                else:
+                    results.append("False")
+
+            if len(sascore.split("-")) == 2:
+                range_start, range_end = float(sascore.split("-")[0]), float(
+                    sascore.split("-")[1]
+                )
+                sascore_value = get_sas_score(mol)
+                if range_start <= sascore_value <= range_end:
+                    results.append("True")
+                else:
+                    results.append("False")
+
+            if len(nplikeness.split("-")) == 2:
+                range_start, range_end = float(nplikeness.split("-")[0]), float(
+                    nplikeness.split("-")[1]
+                )
+                nplikeness_value = get_np_score(mol)
+                if range_start <= float(nplikeness_value) <= range_end:
+                    results.append("True")
+                else:
+                    results.append("False")
+
+            output_list = [
+                x if x != "True" and x != "False" else ("T" if x == "True" else "F")
+                for x in results
+            ]
+            final_results = ", ".join(output_list).replace(":,", " : ")
+            all_smiles.append(final_results)
+
+    return all_smiles
