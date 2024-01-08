@@ -19,9 +19,9 @@ The Cheminformatics Microservice, framework is developed using Python and [FastA
 
 | Toolkits    | Version     |
 |-------------|-------------|
-| RDKit <sup>1</sup>    | 2023.03.1  |
-| CDK <sup>2</sup>      | 2.8.0       |
-| Open Babel <sup>3</sup> | 3.1.0       |
+| RDKit <sup>1</sup>    | 2023.09.4  |
+| CDK <sup>2</sup>      | 2.9.0       |
+| Open Babel <sup>3</sup> | 3.1.1       |
 
 
 **External Tools Versions**
