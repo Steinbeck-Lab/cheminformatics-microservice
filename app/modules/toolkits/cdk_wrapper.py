@@ -23,14 +23,14 @@ except JVMNotFoundException:
     )
     jvmPath = "Define/path/or/set/JAVA_HOME/variable/properly"
 if not isJVMStarted():
-    cdk_path = "https://github.com/cdk/cdk/releases/download/cdk-2.8/cdk-2.8.jar"
+    cdk_path = "https://github.com/cdk/cdk/releases/download/cdk-2.9/cdk-2.9.jar"
     sru_path = "https://github.com/JonasSchaub/SugarRemoval/releases/download/v1.3.2/SugarRemovalUtility-jar-with-dependencies.jar"
     centres_path = (
         "https://github.com/SiMolecule/centres/releases/download/1.0/centres.jar"
     )
     opsin_path = "https://github.com/dan2097/opsin/releases/download/2.8.0/opsin-cli-2.8.0-jar-with-dependencies.jar"
 
-    cdkjar_path = str(pystow.join("STOUT-V2")) + "/cdk-2.8.jar"
+    cdkjar_path = str(pystow.join("STOUT-V2")) + "/cdk-2.9.jar"
     srujar_path = (
         str(pystow.join("STOUT-V2")) + "/SugarRemovalUtility-jar-with-dependencies.jar"
     )
