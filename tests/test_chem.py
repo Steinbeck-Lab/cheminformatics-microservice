@@ -117,7 +117,8 @@ def test_NPlikeliness_Score(smiles, expected_score, response_code):
     if smiles != "INVALID_INPUT":
         assert response.json() == expected_score
 
-'''
+
+"""
 def test_successful_classyFire_classify(test_smiles):
     response = client.get(f"/latest/chem/classyfire/classify?smiles={test_smiles}")
     assert response.status_code == 200
@@ -128,7 +129,8 @@ def test_successful_classyFire_result():
     job_id = 11212508
     response = client.get(f"/latest/chem/classyfire/{job_id}/result")
     assert response.status_code == 200
-'''
+"""
+
 
 @pytest.mark.parametrize(
     "smiles, toolkit, fingerprinter,nBits,radius ,expected, response_code",
