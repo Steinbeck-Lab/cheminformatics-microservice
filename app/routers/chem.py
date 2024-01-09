@@ -1,3 +1,4 @@
+import io
 from fastapi import APIRouter, Query, status, HTTPException, Body
 from typing import Optional, Literal, Annotated, Union
 from rdkit import Chem
@@ -14,9 +15,17 @@ from app.modules.toolkits.cdk_wrapper import (
     get_CDK_HOSE_codes,
 )
 from app.modules.toolkits.rdkit_wrapper import (
+    check_RO5_violations,
     get_tanimoto_similarity_rdkit,
     get_rdkit_HOSE_codes,
     get_properties,
+    QED,
+    get_sas_score,
+    get_PAINS,
+    get_GhoseFilter,
+    get_VeberFilter,
+    get_REOSFilter,
+    get_RuleofThree,
 )
 
 from app.modules.coconut.descriptors import get_COCONUT_descriptors
@@ -41,6 +50,7 @@ from app.schemas.chem_schema import (
     NPlikelinessScoreResponse,
     TanimotoSimilarityResponse,
     TanimotoMatrixResponse,
+    FilteredMoleculesResponse,
 )
 
 router = APIRouter(
@@ -835,3 +845,148 @@ async def classyfire_result(jobid: str):
             )
     else:
         raise HTTPException(status_code=422, detail="Job ID is required.")
+
+
+@router.post(
+    "/all_filters",
+    summary="Filters a given list of molecules using selected filters",
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": FilteredMoleculesResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
+)
+async def all_filter_molecules(
+    smiles_list: str = Body(
+        embed=False,
+        media_type="text/plain",
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C\nCC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
+    ),
+    pains: bool = Query(
+        True, title="PAINS filter", description="Calculate PAINS filter (true or false)"
+    ),
+    lipinski: bool = Query(
+        True,
+        title="Lipinski Rule of 5",
+        description="Calculate Lipinski Rule of 5 (true or false)",
+    ),
+    veber: bool = Query(
+        True, title="Veber filter", description="Calculate Veber filter (true or false)"
+    ),
+    reos: bool = Query(
+        True, title="REOS filter", description="Calculate REOS filter (true or false)"
+    ),
+    ghose: bool = Query(
+        True, title="Ghose filter", description="Calculate Ghose filter (true or false)"
+    ),
+    ruleofthree: bool = Query(
+        True,
+        title="Rule of 3",
+        description="Calculate Rule of 3 filter (true or false)",
+    ),
+    qedscore: str = Query(
+        "0-10",
+        title="QED Druglikeliness",
+        description="Calculate QED Score in the range (e.g., 0-10)",
+    ),
+    sascore: str = Query(
+        "0-10",
+        title="SAScore",
+        description="Calculate SAScore in the range (e.g., 0-10)",
+    ),
+    nplikeness: str = Query(
+        "0-10",
+        title="NPlikenessScore",
+        description="Calculate NPlikenessScore in the range (e.g., 0-10)",
+    ),
+):
+    all_smiles = []
+    for item in io.StringIO(smiles_list):
+        smiles = item.strip()
+        mol = parse_input(smiles, "rdkit", False)
+        results = []
+        results.append(smiles + ":")
+        if mol:
+            if pains:
+                pains_status = str(get_PAINS(mol))
+                if "family" in pains_status:
+                    results.append("True")
+                else:
+                    results.append("False")
+            if lipinski:
+                lipinski_violations = check_RO5_violations(mol)
+                if lipinski_violations == 0:
+                    results.append("True")
+                else:
+                    results.append("False")
+
+            if veber:
+                if get_VeberFilter(mol) == "True":
+                    results.append("True")
+                else:
+                    results.append("False")
+            if reos:
+                if get_REOSFilter(mol) == "True":
+                    results.append("True")
+                else:
+                    results.append("False")
+
+            if ghose:
+                if get_GhoseFilter(mol) == "True":
+                    results.append("True")
+                else:
+                    results.append("False")
+
+            if ruleofthree:
+                if get_RuleofThree(mol) == "True":
+                    results.append("True")
+                else:
+                    results.append("False")
+
+            if len(qedscore.split("-")) == 2:
+                range_start, range_end = float(qedscore.split("-")[0]), float(
+                    qedscore.split("-")[1]
+                )
+                qed_value = QED.qed(mol)
+                if range_start <= qed_value <= range_end:
+                    results.append("True")
+                else:
+                    results.append("False")
+
+            if len(sascore.split("-")) == 2:
+                range_start, range_end = float(sascore.split("-")[0]), float(
+                    sascore.split("-")[1]
+                )
+                sascore_value = get_sas_score(mol)
+                if range_start <= sascore_value <= range_end:
+                    results.append("True")
+                else:
+                    results.append("False")
+
+            if len(nplikeness.split("-")) == 2:
+                range_start, range_end = float(nplikeness.split("-")[0]), float(
+                    nplikeness.split("-")[1]
+                )
+                nplikeness_value = get_np_score(mol)
+                if range_start <= float(nplikeness_value) <= range_end:
+                    results.append("True")
+                else:
+                    results.append("False")
+
+            output_list = [
+                x if x != "True" and x != "False" else ("T" if x == "True" else "F")
+                for x in results
+            ]
+            final_results = ", ".join(output_list).replace(":,", " : ")
+            all_smiles.append(final_results)
+
+    return all_smiles

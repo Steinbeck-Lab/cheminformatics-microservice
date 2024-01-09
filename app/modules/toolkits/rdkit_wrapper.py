@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Union, Tuple
 from rdkit import Chem, DataStructs
 from rdkit.Chem import (
     AllChem,
@@ -11,6 +11,8 @@ from rdkit.Chem import (
     MACCSkeys,
 )
 from hosegen import HoseGenerator
+from rdkit.Contrib.SA_Score import sascorer
+from rdkit.Chem.FilterCatalog import FilterCatalog, FilterCatalogParams
 
 
 def check_RO5_violations(molecule: any) -> int:
@@ -308,3 +310,214 @@ def get_properties(sdf_file) -> dict:
         return properties
     else:
         return {"Error": "No properties found"}
+
+
+def get_sas_score(molecule: any) -> float:
+    """
+    Calculate the Synthetic Accessibility Score (SAS) for a given molecule.
+
+    The Synthetic Accessibility Score is a measure of how easy or difficult it is to synthesize a given molecule.
+    A higher score indicates a molecule that is more challenging to synthesize, while a lower score suggests a molecule
+    that is easier to synthesize.
+
+    Parameters:
+        molecule (Chem.Mol): An RDKit molecule object representing the chemical structure.
+
+    Returns:
+        float: The Synthetic Accessibility Score rounded to two decimal places.
+
+    Note:
+        - The SAS is calculated using the sascorer.calculateScore() function from the RDKit Contrib library.
+        - The SAS score can be used as a factor in drug design and compound optimization, with lower scores often
+          indicating more drug-like and synthesizable molecules.
+
+    See Also:
+        - RDKit Contrib: https://rdkit.org/docs_contribs/index.html
+
+    References:
+        - Ertl, P., & Schuffenhauer, A. (2009). Estimation of synthetic accessibility score of drug-like molecules based
+          on molecular complexity and fragment contributions. Journal of Cheminformatics, 1(1), 8.
+          DOI: 10.1186/1758-2946-1-8
+        - RDKit Documentation: https://www.rdkit.org/docs/index.html
+    """
+    if molecule:
+        sas_score = sascorer.calculateScore(molecule)
+        return round(sas_score, 2)
+
+
+def get_PAINS(molecule: any) -> Union[bool, Tuple[str, str]]:
+    """
+    Check if a molecule contains a PAINS (Pan Assay INterference compoundS)
+    substructure.
+
+    Parameters:
+    molecule (any): A molecule represented as an RDKit Mol object.
+
+    Returns:
+    Union[bool, Tuple[str, str]]:
+        - If a PAINS substructure is found in the molecule, a tuple containing
+          the PAINS family and its description is returned.
+        - If no PAINS substructure is found, False is returned.
+
+    This function uses the RDKit library to check if the given molecule contains
+    any PAINS substructure. PAINS are known substructures that may interfere
+    with various biological assays.
+    """
+    params = FilterCatalogParams()
+    params.AddCatalog(FilterCatalogParams.FilterCatalogs.PAINS)
+    catalog = FilterCatalog(params)
+
+    entry = catalog.GetFirstMatch(molecule)
+    if entry:
+        family = entry.GetProp("Scope")
+        description = entry.GetDescription().capitalize()
+        return family, description
+    else:
+        return False
+
+
+def get_GhoseFilter(molecule: any) -> bool:
+    """
+    Determine if a molecule satisfies Ghose's filter criteria.
+
+    Ghose's filter is a set of criteria for drug-like molecules.
+    This function checks if a given molecule meets the criteria defined by Ghose.
+
+    Parameters:
+    molecule (any):  A molecule represented as an RDKit Mol object.
+
+    Returns:
+    bool: True if the molecule meets Ghose's criteria, False otherwise.
+
+    Ghose's criteria:
+    - Molecular Weight (MW) should be between 160 and 480.
+    - LogP (Partition Coefficient) should be between 0.4 and 5.6.
+    - Number of Atoms (NoAtoms) should be between 20 and 70.
+    - Molar Refractivity (MolarRefractivity) should be between 40 and 130.
+    """
+    MW = Descriptors.ExactMolWt(molecule)
+    logP = Descriptors.MolLogP(molecule)
+    NoAtoms = rdMolDescriptors.CalcNumAtoms(molecule)
+    MolarRefractivity = Chem.Crippen.MolMR(molecule)
+
+    # Check if the molecule satisfies Ghose's criteria.
+    if (
+        (160 <= MW <= 480)
+        and (0.4 <= logP <= 5.6)
+        and (20 <= NoAtoms <= 70)
+        and (40 <= MolarRefractivity <= 130)
+    ):
+        return True
+    else:
+        return False
+
+
+def get_VeberFilter(molecule: any) -> bool:
+    """
+    Apply the Veber filter to evaluate the drug-likeness of a molecule.
+
+    The Veber filter assesses drug-likeness based on two criteria: the number of
+    rotatable bonds and the polar surface area (TPSA). A molecule is considered
+    drug-like if it has 10 or fewer rotatable bonds and a TPSA of 140 or less.
+
+    Parameters:
+    molecule (any):  A molecule represented as an RDKit Mol object.
+
+    Returns:
+    bool: True if the molecule passes the Veber filter criteria, indicating
+          drug-likeness; False otherwise.
+
+    Note:
+    The function relies on RDKit functions to calculate the number of rotatable
+    bonds and TPSA, and it returns a boolean value to indicate whether the input
+    molecule passes the Veber filter criteria.
+
+    Reference:
+    Veber, D. F., Johnson, S. R., Cheng, H. Y., Smith, B. R., Ward, K. W., & Kopple,
+    K. D. (2002). Molecular properties that influence the oral bioavailability of
+    drug candidates. Journal of Medicinal Chemistry, 45(12), 2615-2623.
+    DOI: 10.1021/jm020017n
+    """
+    NumRotatableBonds = rdMolDescriptors.CalcNumRotatableBonds(molecule)
+    tpsa = Descriptors.TPSA(molecule)
+    if NumRotatableBonds <= 10 and tpsa <= 140:
+        return True
+    else:
+        return False
+
+
+def get_REOSFilter(molecule: any) -> bool:
+    """
+    Determine if a molecule passes the REOS (Rapid Elimination Of Swill) filter.
+
+    The REOS filter is a set of criteria that a molecule must meet to be considered
+    a viable drug-like compound. This function takes a molecule as input and checks
+    its properties against the following criteria:
+
+    - Molecular Weight (MW): Must be in the range [200, 500].
+    - LogP (Partition Coefficient): Must be in the range [-5, 5].
+    - Hydrogen Bond Donors (HBD): Must be in the range [0, 5].
+    - Hydrogen Bond Acceptors (HBA): Must be in the range [0, 10].
+    - Formal Charge: Must be in the range [-2, 2].
+    - Number of Rotatable Bonds: Must be in the range [0, 8].
+    - Number of Heavy Atoms (non-hydrogen atoms): Must be in the range [15, 50].
+
+    Parameters:
+        molecule (any): A molecule represented as an RDKit Mol object.
+
+    Returns:
+        bool: True if the molecule passes the REOS filter, False otherwise.
+
+    """
+    MW = Descriptors.ExactMolWt(molecule)
+    logP = Descriptors.MolLogP(molecule)
+    HBD = Descriptors.NumHDonors(molecule)
+    HBA = Descriptors.NumHAcceptors(molecule)
+    FormalCharge = rdmolops.GetFormalCharge(molecule)
+    NumRotatableBonds = rdMolDescriptors.CalcNumRotatableBonds(molecule)
+    HeavyAtomsC = rdMolDescriptors.CalcNumHeavyAtoms(molecule)
+
+    if (
+        200 <= MW <= 500
+        and -5 <= logP <= 5
+        and 0 <= HBD <= 5
+        and 0 <= HBA <= 10
+        and -2 <= FormalCharge <= 2
+        and 0 <= NumRotatableBonds <= 8
+        and 15 <= HeavyAtomsC <= 50
+    ):
+        return True
+    else:
+        return False
+
+
+def get_RuleofThree(molecule: any) -> bool:
+    """
+    Check if a molecule meets the Rule of Three criteria.
+
+    The Rule of Three is a guideline for drug-likeness in chemical compounds.
+    It suggests that a molecule is more likely to be a good drug candidate if it
+    meets the following criteria:
+    1. Molecular Weight (MW) <= 300
+    2. LogP (partition coefficient) <= 3
+    3. Number of Hydrogen Bond Donors (HBD) <= 3
+    4. Number of Hydrogen Bond Acceptors (HBA) <= 3
+    5. Number of Rotatable Bonds <= 3
+
+    Parameters:
+        molecule (any): A molecule represented as an RDKit Mol object.
+
+    Returns:
+        bool: True if the molecule meets the Rule of Three criteria, False otherwise.
+
+    """
+    MW = Descriptors.ExactMolWt(molecule)
+    logP = Descriptors.MolLogP(molecule)
+    HBD = Descriptors.NumHDonors(molecule)
+    HBA = Descriptors.NumHAcceptors(molecule)
+    NumRotatableBonds = rdMolDescriptors.CalcNumRotatableBonds(molecule)
+
+    if MW <= 300 and logP <= 3 and HBD <= 3 and HBA <= 3 and NumRotatableBonds <= 3:
+        return True
+    else:
+        return False

@@ -1,8 +1,8 @@
 FROM continuumio/miniconda3 AS cheminf-python-ms
 
 ENV PYTHON_VERSION=3.10
-ENV RDKIT_VERSION=2023.03.1
-ENV OPENBABEL_VERSION=v3.1
+ENV RDKIT_VERSION=2023.09.4
+ENV OPENBABEL_VERSION=v3.1.1
 
 # Install runtime dependencies
 RUN apt-get update && \
