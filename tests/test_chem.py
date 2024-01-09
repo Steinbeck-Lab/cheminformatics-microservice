@@ -245,3 +245,92 @@ def test_exception_standardize_mol(invalid_molfile, exception_response_code):
 def test_successful_coconut_preprocessing(smiles, response_code):
     response = client.get(f"/latest/chem/coconut/pre-processing?smiles={smiles}")
     assert response.status_code == response_code
+
+
+def test_check_errors_no_issues():
+    response = client.get("/latest/chem/errors?smiles=CCO")
+    assert response.status_code == 200
+    result = response.json()
+    assert result["smi"] == "CCO"
+    assert result["messages"] == ["No Errors Found"]
+
+
+def test_check_errors_with_issues():
+    response = client.get("/latest/chem/errors?smiles=InvalidSMILES")
+    assert response.status_code == 422
+
+
+def test_check_errors_fix_true_with_issues():
+    response = client.get("/latest/chem/errors?smiles=CCO(&fix=True")
+    assert response.status_code == 422
+
+
+def test_check_errors_fix_true_without_issues():
+    response = client.get("/latest/chem/errors?smiles=CCOCC&fix=True")
+    assert response.status_code == 200
+    result = response.json()
+    assert "smi" in result
+
+
+def test_check_errors_not_found():
+    response = client.get("/latest/chem/errors/nonexistent")
+    assert response.status_code == 404
+
+
+@pytest.mark.parametrize(
+    "smiles_list, pains, lipinski, veber, reos, ghose, ruleofthree, qedscore, sascore, nplikeness, expected_status_code",
+    [
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C\nCC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
+            "0-10",
+            "0-10",
+            "0-10",
+            200,
+        ),
+        # Add more test cases as needed
+    ],
+)
+def test_all_filter_molecules_invalid(
+    smiles_list,
+    pains,
+    lipinski,
+    veber,
+    reos,
+    ghose,
+    ruleofthree,
+    qedscore,
+    sascore,
+    nplikeness,
+    expected_status_code,
+):
+    response = client.post(
+        "/latest/chem/all_filters",
+        json={
+            "smiles_list": smiles_list,
+            "pains": pains,
+            "lipinski": lipinski,
+            "veber": veber,
+            "reos": reos,
+            "ghose": ghose,
+            "ruleofthree": ruleofthree,
+            "qedscore": qedscore,
+            "sascore": sascore,
+            "nplikeness": nplikeness,
+        },
+    )
+    assert response.status_code == 422
+
+
+def test_all_filter_molecules(test_smiles):
+    response = client.post(
+        "/latest/chem/all_filters",
+        data=test_smiles,
+        headers={"Content-Type": "text/plain"},
+    )
+    assert response.status_code == 200
