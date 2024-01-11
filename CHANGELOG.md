@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.7.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v1.6.2...v1.7.0) (2024-01-09)
+
+
+### Features
+
+* add filter tests ([cc9adde](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/cc9adde29c5ff5eebf481a4fdc26ec4f93b2f76c))
+* add logos to README.md ([8ba6c81](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/8ba6c813d70ffb32ef37f242883ebfd870f8c629))
+* add OPSIN for translation [#438](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/438) ([a8313f6](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/a8313f6b7aa9436016f2fdad213c50e7227126c9))
+* chain filter added ([6bdd02b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/6bdd02b2ad33e76698ff5919499ebf00845353c6))
+* rdkit filters ([5308287](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/5308287955b3d360e2a1cdaddd3e3d5ee4c0a2ea))
+
+
+### Bug Fixes
+
+* add tests for filters ([f47faa3](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/f47faa33eebd33913ea85511f90ec46969035ff0))
+* filter tests ([ca2fd63](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/ca2fd63574de3a023a241af9e9d3cdf82fc5b26c))
+* lint issues ([469e3db](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/469e3dbc26b47b48cd71e2de32c323b0cba7ec1b))
+* revert rdkit installation to pip ([b8a4030](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/b8a40303e4de76de456d8fa17dd1b8c6500e5bc0))
+* test converters ([2d4d60a](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/2d4d60addf49ab6b20e7848e0eaa016f19a5d472))
+* update Citation ([f93b934](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/f93b9346c8aba5c758eda0bb61c44ce6bc08211e))
+* update version 2.8-&gt;2.9 cdk_wrapper.py ([d162ae4](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d162ae4272b0e856e3a0cabb955c1aa3919b2529))
+
 ## [1.6.1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v1.6.0...v1.6.1) (2023-10-04)
 
 
