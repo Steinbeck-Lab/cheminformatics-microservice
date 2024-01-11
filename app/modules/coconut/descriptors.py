@@ -1,13 +1,15 @@
-from app.modules.toolkits.rdkit_wrapper import get_rdkit_descriptors
-from typing import Dict, Union
-from app.modules.toolkits.cdk_wrapper import (
-    get_murko_framework,
-    get_CDK_descriptors,
-)
+from __future__ import annotations
+
+from typing import Dict
+from typing import Union
+
 from app.modules.all_descriptors import get_cdk_rdkit_combined_descriptors
 from app.modules.npscorer import get_np_score
-from app.modules.tools.sugar_removal import get_sugar_info
+from app.modules.toolkits.cdk_wrapper import get_CDK_descriptors
+from app.modules.toolkits.cdk_wrapper import get_murko_framework
 from app.modules.toolkits.helpers import parse_input
+from app.modules.toolkits.rdkit_wrapper import get_rdkit_descriptors
+from app.modules.tools.sugar_removal import get_sugar_info
 
 
 def get_descriptors(smiles: str, toolkit: str) -> Union[tuple, str]:
@@ -60,7 +62,7 @@ def get_COCONUT_descriptors(smiles: str, toolkit: str) -> Union[Dict[str, float]
 
         CombinedDescriptors = list(Descriptors)
         CombinedDescriptors.extend(
-            [hasLinearSugar, hasCircularSugars, framework, nplikeliness]
+            [hasLinearSugar, hasCircularSugars, framework, nplikeliness],
         )
 
         DescriptorList = (
@@ -91,7 +93,7 @@ def get_COCONUT_descriptors(smiles: str, toolkit: str) -> Union[Dict[str, float]
             "circular_sugars": hasCircularSugars,
             "murko_framework": framework,
             "nplikeness": nplikeliness,
-        }
+        },
     )
 
     return (

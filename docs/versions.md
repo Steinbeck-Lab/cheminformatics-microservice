@@ -48,7 +48,3 @@ The Cheminformatics Microservice, framework is developed using Python and [FastA
 8. McKay, B.D., Yirik, M.A. & Steinbeck, C. Surge: a fast open-source chemical graph generator. J Cheminform 14, 24 (2022). https://doi.org/10.1186/s13321-022-00604-9
 9. Schaub, J., Zielesny, A., Steinbeck, C. et al. Too sweet: cheminformatics for deglycosylation in natural products. J Cheminform 12, 67 (2020). https://doi.org/10.1186/s13321-020-00467-y
 10. Djoumbou Feunang, Y., Eisner, R., Knox, C. et al. ClassyFire: automated chemical classification with a comprehensive, computable taxonomy. J Cheminform 8, 61 (2016). https://doi.org/10.1186/s13321-016-0174-y
-
-
-
-

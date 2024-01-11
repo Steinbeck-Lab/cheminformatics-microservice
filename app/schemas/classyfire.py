@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-from typing import Any, List
+from typing import Any
+from typing import List
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+from pydantic import Field
 
 
 class ClassyFireJob(BaseModel):

@@ -1,13 +1,22 @@
+from __future__ import annotations
+
 import xml.etree.ElementTree as ET
+
+from jpype import JClass
 from rdkit import Chem
 from rdkit.Chem import rdDepictor
 from rdkit.Chem.Draw import rdMolDraw2D
-from app.modules.toolkits.cdk_wrapper import get_CDK_SDG, get_cip_annotation
-from jpype import JClass
+
+from app.modules.toolkits.cdk_wrapper import get_CDK_SDG
+from app.modules.toolkits.cdk_wrapper import get_cip_annotation
 
 
 def get_cdk_depiction(
-    molecule: any, molSize=(512, 512), rotate=0, CIP=True, unicolor=False
+    molecule: any,
+    molSize=(512, 512),
+    rotate=0,
+    CIP=True,
+    unicolor=False,
 ):
     """
     This function takes the user input SMILES and Depicts it
@@ -22,7 +31,7 @@ def get_cdk_depiction(
 
     cdk_base = "org.openscience.cdk"
     StandardGenerator = JClass(
-        cdk_base + ".renderer.generators.standard.StandardGenerator"
+        cdk_base + ".renderer.generators.standard.StandardGenerator",
     )
     Color = JClass("java.awt.Color")
     UniColor = JClass(cdk_base + ".renderer.color.UniColor")
@@ -54,13 +63,26 @@ def get_cdk_depiction(
 
     if SDGMol:
         # Rotate molecule
-        point = JClass(cdk_base + ".geometry.GeometryTools").get2DCenter(SDGMol)
+        point = JClass(
+            cdk_base + ".geometry.GeometryTools",
+        ).get2DCenter(SDGMol)
         JClass(cdk_base + ".geometry.GeometryTools").rotate(
-            SDGMol, point, (rotate * JClass("java.lang.Math").PI / 180.0)
+            SDGMol,
+            point,
+            (rotate * JClass("java.lang.Math").PI / 180.0),
         )
 
-        mol_imageSVG = DepictionGenerator.depict(SDGMol).toSvgStr("px").getBytes()
-        encoded_image = ET.tostring(ET.fromstring(mol_imageSVG), encoding="unicode")
+        mol_imageSVG = (
+            DepictionGenerator.depict(
+                SDGMol,
+            )
+            .toSvgStr("px")
+            .getBytes()
+        )
+        encoded_image = ET.tostring(
+            ET.fromstring(mol_imageSVG),
+            encoding="unicode",
+        )
 
         return encoded_image
     else:

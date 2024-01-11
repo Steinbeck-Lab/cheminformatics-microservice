@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import pytest
-from STOUT import translate_forward, translate_reverse
 from DECIMER import predict_SMILES
 from rdkit import Chem
+from STOUT import translate_forward
+from STOUT import translate_reverse
 
 
 @pytest.fixture
@@ -30,6 +33,8 @@ def test_imagetosmiles(test_smiles):
     mol = Chem.MolFromSmiles(actual_result)
     if mol:
         actual_result_canonical = Chem.MolToSmiles(
-            mol, isomericSmiles=True, kekuleSmiles=True
+            mol,
+            isomericSmiles=True,
+            kekuleSmiles=True,
         )
     assert expected_result == actual_result_canonical

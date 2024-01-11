@@ -1,11 +1,13 @@
+from __future__ import annotations
+
 import os
+
 import pytest
-from app.modules.decimer import (
-    convert_image,
-    get_segments,
-    get_predicted_segments,
-    get_predicted_segments_from_file,
-)
+
+from app.modules.decimer import convert_image
+from app.modules.decimer import get_predicted_segments
+from app.modules.decimer import get_predicted_segments_from_file
+from app.modules.decimer import get_segments
 
 
 # Define a directory for temporary test files
@@ -52,6 +54,9 @@ def test_get_predicted_segments(sample_gif_path):
 def test_get_predicted_segments_from_file(sample_image_path):
     with open(sample_image_path, "rb") as f:
         content = f.read()
-    predicted_smiles = get_predicted_segments_from_file(content, "caffeine.png")
+    predicted_smiles = get_predicted_segments_from_file(
+        content,
+        "caffeine.png",
+    )
     assert isinstance(predicted_smiles, str)
     assert len(predicted_smiles) > 0

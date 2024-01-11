@@ -1,15 +1,22 @@
+from __future__ import annotations
+
 import os
-from fastapi import FastAPI, status
+
+from fastapi import FastAPI
+from fastapi import status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi_versioning import VersionedFastAPI
-
-from .routers import tools, depict, converters, chem, ocsr
-from fastapi.middleware.cors import CORSMiddleware
-
 from prometheus_fastapi_instrumentator import Instrumentator
-from app.schemas import HealthCheck
 
-from app.exception_handlers import InvalidInputException, input_exception_handler
+from .routers import chem
+from .routers import converters
+from .routers import depict
+from .routers import ocsr
+from .routers import tools
+from app.exception_handlers import input_exception_handler
+from app.exception_handlers import InvalidInputException
+from app.schemas import HealthCheck
 
 app = FastAPI(
     title="Cheminformatics Microservice",
@@ -77,7 +84,8 @@ app.add_middleware(
 for sub_app in app.routes:
     if hasattr(sub_app.app, "add_exception_handler"):
         sub_app.app.add_exception_handler(
-            InvalidInputException, input_exception_handler
+            InvalidInputException,
+            input_exception_handler,
         )
 
 

@@ -1,14 +1,16 @@
+from __future__ import annotations
+
 import os
+from typing import List
+from typing import Union
+
 import pystow
-from typing import List, Union
-from jpype import (
-    startJVM,
-    getDefaultJVMPath,
-    JClass,
-    JVMNotFoundException,
-    isJVMStarted,
-    JPackage,
-)
+from jpype import getDefaultJVMPath
+from jpype import isJVMStarted
+from jpype import JClass
+from jpype import JPackage
+from jpype import JVMNotFoundException
+from jpype import startJVM
 
 # Start JVM to use CDK in python
 try:
@@ -73,7 +75,9 @@ def get_CDK_IAtomContainer(smiles: str):
         mol (object): IAtomContainer with CDK.
     """
     SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
-    SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
+    SmilesParser = JClass(
+        cdk_base + ".smiles.SmilesParser",
+    )(SCOB.getInstance())
     molecule = SmilesParser.parseSmiles(smiles)
     return molecule
 
@@ -89,7 +93,9 @@ def get_CDK_SDG(molecule: any):
     Returns:
         mol object: mol object with CDK SDG.
     """
-    StructureDiagramGenerator = JClass(cdk_base + ".layout.StructureDiagramGenerator")()
+    StructureDiagramGenerator = JClass(
+        cdk_base + ".layout.StructureDiagramGenerator",
+    )()
     StructureDiagramGenerator.generateCoordinates(molecule)
     molecule_ = StructureDiagramGenerator.getMolecule()
 
@@ -152,7 +158,8 @@ def get_aromatic_ring_count(molecule) -> int:
     ElectronDonation = JClass(cdk_base + ".aromaticity.ElectronDonation")
 
     Aromaticity = JClass(cdk_base + ".aromaticity.Aromaticity")(
-        ElectronDonation.daylight(), Cycles.cdkAromaticSet()
+        ElectronDonation.daylight(),
+        Cycles.cdkAromaticSet(),
     )
     Aromaticity.apply(molecule)
     MCBRings = Cycles.mcb(molecule).toRingSet()
@@ -180,10 +187,12 @@ def get_vander_waals_volume(molecule: any) -> float:
     """
 
     AtomContainerManipulator = JClass(
-        cdk_base + ".tools.manipulator.AtomContainerManipulator"
+        cdk_base + ".tools.manipulator.AtomContainerManipulator",
     )
     AtomContainerManipulator.percieveAtomTypesAndConfigureAtoms(molecule)
-    VABCVolume = JClass(cdk_base + ".geometry.volume.VABCVolume")().calculate(molecule)
+    VABCVolume = JClass(
+        cdk_base + ".geometry.volume.VABCVolume",
+    )().calculate(molecule)
     return VABCVolume
 
 
@@ -213,7 +222,7 @@ def get_CDK_descriptors(molecule: any) -> Union[tuple, str]:
             .toString()
         )
         TotalExactMass = JClass(
-            cdk_base + ".tools.manipulator.AtomContainerManipulator"
+            cdk_base + ".tools.manipulator.AtomContainerManipulator",
         ).getTotalExactMass(SDGMol)
         ALogP = (
             JClass(cdk_base + ".qsar.descriptors.molecular.ALOGPDescriptor")()
@@ -222,7 +231,7 @@ def get_CDK_descriptors(molecule: any) -> Union[tuple, str]:
         )
         NumRotatableBonds = (
             JClass(
-                cdk_base + ".qsar.descriptors.molecular.RotatableBondsCountDescriptor"
+                cdk_base + ".qsar.descriptors.molecular.RotatableBondsCountDescriptor",
             )()
             .calculate(SDGMol)
             .getValue()
@@ -235,14 +244,14 @@ def get_CDK_descriptors(molecule: any) -> Union[tuple, str]:
         )
         HBondAcceptorCountDescriptor = (
             JClass(
-                cdk_base + ".qsar.descriptors.molecular.HBondAcceptorCountDescriptor"
+                cdk_base + ".qsar.descriptors.molecular.HBondAcceptorCountDescriptor",
             )()
             .calculate(SDGMol)
             .getValue()
         )
         HBondDonorCountDescriptor = (
             JClass(
-                cdk_base + ".qsar.descriptors.molecular.HBondAcceptorCountDescriptor"
+                cdk_base + ".qsar.descriptors.molecular.HBondAcceptorCountDescriptor",
             )()
             .calculate(SDGMol)
             .getValue()
@@ -255,7 +264,7 @@ def get_CDK_descriptors(molecule: any) -> Union[tuple, str]:
         AromaticRings = get_aromatic_ring_count(SDGMol)
         QEDWeighted = None
         FormalCharge = JClass(
-            cdk_base + ".tools.manipulator.AtomContainerManipulator"
+            cdk_base + ".tools.manipulator.AtomContainerManipulator",
         ).getTotalFormalCharge(SDGMol)
         FractionalCSP3Descriptor = (
             JClass(cdk_base + ".qsar.descriptors.molecular.FractionalCSP3Descriptor")()
@@ -263,7 +272,13 @@ def get_CDK_descriptors(molecule: any) -> Union[tuple, str]:
             .getValue()
             .toString()
         )
-        NumRings = JClass(cdk_base + ".graph.Cycles").mcb(SDGMol).numberOfCycles()
+        NumRings = (
+            JClass(
+                cdk_base + ".graph.Cycles",
+            )
+            .mcb(SDGMol)
+            .numberOfCycles()
+        )
         VABCVolume = get_vander_waals_volume(SDGMol)
 
         return (
@@ -305,18 +320,19 @@ def get_tanimoto_similarity_PubChem_CDK(mol1: any, mol2: any) -> str:
     Tanimoto = JClass(cdk_base + ".similarity.Tanimoto")
     SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
     PubchemFingerprinter = JClass(cdk_base + ".fingerprint.PubchemFingerprinter")(
-        SCOB.getInstance()
+        SCOB.getInstance(),
     )
     CDKHydrogenAdder = JClass(cdk_base + ".tools.CDKHydrogenAdder").getInstance(
-        SCOB.getInstance()
+        SCOB.getInstance(),
     )
     AtomContainerManipulator = JClass(
-        cdk_base + ".tools.manipulator.AtomContainerManipulator"
+        cdk_base + ".tools.manipulator.AtomContainerManipulator",
     )
     Cycles = JClass(cdk_base + ".graph.Cycles")
     ElectronDonation = JClass(cdk_base + ".aromaticity.ElectronDonation")
     Aromaticity = JClass(cdk_base + ".aromaticity.Aromaticity")(
-        ElectronDonation.cdk(), Cycles.cdkAromaticSet()
+        ElectronDonation.cdk(),
+        Cycles.cdkAromaticSet(),
     )
     if mol1 and mol2:
         # Perceive atom types and configure atoms
@@ -360,7 +376,9 @@ def get_tanimoto_similarity_ECFP_CDK(mol1: any, mol2: any, ECFP: int = 2) -> str
         str: The Tanimoto similarity as a string with 5 decimal places, or an error message.
     """
     Tanimoto = JClass(cdk_base + ".similarity.Tanimoto")
-    CircularFingerprinter = JClass(cdk_base + ".fingerprint.CircularFingerprinter")()
+    CircularFingerprinter = JClass(
+        cdk_base + ".fingerprint.CircularFingerprinter",
+    )()
     if ECFP == 2:
         fingerprinter_class = CircularFingerprinter.CLASS_ECFP2
     elif ECFP == 4:
@@ -371,7 +389,7 @@ def get_tanimoto_similarity_ECFP_CDK(mol1: any, mol2: any, ECFP: int = 2) -> str
         return "only ECFP 2/4/6 allowed"
 
     CircularFingerprinter_ECFP = JClass(
-        cdk_base + ".fingerprint.CircularFingerprinter"
+        cdk_base + ".fingerprint.CircularFingerprinter",
     )(fingerprinter_class)
 
     if mol1 and mol2:
@@ -385,7 +403,10 @@ def get_tanimoto_similarity_ECFP_CDK(mol1: any, mol2: any, ECFP: int = 2) -> str
 
 
 def get_tanimoto_similarity_CDK(
-    mol1: any, mol2: any, fingerprinter: str = "PubChem", ECFP: int = 6
+    mol1: any,
+    mol2: any,
+    fingerprinter: str = "PubChem",
+    ECFP: int = 6,
 ) -> float:
     """
     Calculate the Tanimoto similarity between two molecules using PubChem/CircularFingerprints in CDK.
@@ -408,7 +429,7 @@ def get_tanimoto_similarity_CDK(
         tanimoto = get_tanimoto_similarity_ECFP_CDK(mol1, mol2, ECFP)
     else:
         raise ValueError(
-            "Unsupported fingerprinter. Currently, only 'PubChem' is supported."
+            "Unsupported fingerprinter. Currently, only 'PubChem' is supported.",
         )
 
     return tanimoto
@@ -435,7 +456,7 @@ def get_cip_annotation(molecule: any) -> str:
     IStereoElement = JClass(cdk_base + ".interfaces.IStereoElement")
     Stereocenters = JClass(cdk_base + ".stereo.Stereocenters")
     StandardGenerator = JClass(
-        cdk_base + ".renderer.generators.standard.StandardGenerator"
+        cdk_base + ".renderer.generators.standard.StandardGenerator",
     )
 
     BaseMol = JClass(centres_base + ".BaseMol")
@@ -458,7 +479,10 @@ def get_cip_annotation(molecule: any) -> str:
         begIdx = bond.getBegin().getIndex()
         endIdx = bond.getEnd().getIndex()
         if (
-            stereocenters.elementType(begIdx) == Stereocenters.Type.Tricoordinate
+            stereocenters.elementType(
+                begIdx,
+            )
+            == Stereocenters.Type.Tricoordinate
             and stereocenters.elementType(endIdx) == Stereocenters.Type.Tricoordinate
             and stereocenters.isStereocenter(begIdx)
             and stereocenters.isStereocenter(endIdx)
@@ -492,11 +516,15 @@ def get_cip_annotation(molecule: any) -> str:
                         inv = Descriptor.R
                     if inv is not None:
                         focus.setProperty(
-                            BaseMol.CIP_LABEL_KEY, label.toString() + inv.name()
+                            BaseMol.CIP_LABEL_KEY,
+                            label.toString() + inv.name(),
                         )
                 elif (se.getGroupInfo() & IStereoElement.GRP_REL) != 0:
                     if label == Descriptor.R or label == Descriptor.S:
-                        focus.setProperty(BaseMol.CIP_LABEL_KEY, label.toString() + "*")
+                        focus.setProperty(
+                            BaseMol.CIP_LABEL_KEY,
+                            label.toString() + "*",
+                        )
 
     # Iterate over atoms
     for atom in SDGMol.atoms():
@@ -538,7 +566,7 @@ def get_CXSMILES(molecule: any) -> str:
     SDGMol = get_CDK_SDG(molecule)
     SmiFlavor = JClass(cdk_base + ".smiles.SmiFlavor")
     SmilesGenerator = JClass(cdk_base + ".smiles.SmilesGenerator")(
-        SmiFlavor.Absolute | SmiFlavor.CxSmilesWithCoords
+        SmiFlavor.Absolute | SmiFlavor.CxSmilesWithCoords,
     )
     CXSMILES = SmilesGenerator.create(SDGMol)
     return str(CXSMILES)
@@ -556,7 +584,9 @@ def get_canonical_SMILES(molecule: any) -> str:
     """
     SDGMol = get_CDK_SDG(molecule)
     SmiFlavor = JClass(cdk_base + ".smiles.SmiFlavor")
-    SmilesGenerator = JClass(cdk_base + ".smiles.SmilesGenerator")(SmiFlavor.Absolute)
+    SmilesGenerator = JClass(
+        cdk_base + ".smiles.SmilesGenerator",
+    )(SmiFlavor.Absolute)
     CanonicalSMILES = SmilesGenerator.create(SDGMol)
     return str(CanonicalSMILES)
 
@@ -606,19 +636,21 @@ def get_smiles_opsin(input_text: str) -> str:
                 (
                     "Failed to convert '%s' to format '%s'\n%s using OPSIN"
                     % (input_text, format, OpsinResult.getMessage())
-                )
+                ),
             )
         print(OpsinResult.getSmiles())
         return str(OpsinResult.getSmiles())
     except Exception:
         return str(
             "Failed to convert '%s' to format '%s'\n%s using OPSIN"
-            % (input_text, format, OpsinResult.getMessage())
+            % (input_text, format, OpsinResult.getMessage()),
         )
 
 
 async def get_CDK_HOSE_codes(
-    molecule: any, noOfSpheres: int, ringsize: bool
+    molecule: any,
+    noOfSpheres: int,
+    ringsize: bool,
 ) -> List[str]:
     """
     Generate CDK-generated HOSECodes for the given SMILES.
@@ -636,7 +668,10 @@ async def get_CDK_HOSE_codes(
     atoms = molecule.atoms()
     for atom in atoms:
         moleculeHOSECode = HOSECodeGenerator.getHOSECode(
-            molecule, atom, noOfSpheres, ringsize
+            molecule,
+            atom,
+            noOfSpheres,
+            ringsize,
         )
         HOSECodes.append(str(moleculeHOSECode))
     return HOSECodes

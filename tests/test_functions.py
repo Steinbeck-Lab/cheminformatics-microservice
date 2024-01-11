@@ -1,20 +1,20 @@
+from __future__ import annotations
+
 import pytest
 import selfies as sf
 from rdkit import Chem
-from app.modules.depiction import get_rdkit_depiction, get_cdk_depiction
+
+from app.modules.all_descriptors import get_all_cdk_descriptors
+from app.modules.all_descriptors import get_all_rdkit_descriptors
+from app.modules.all_descriptors import get_cdk_rdkit_combined_descriptors
+from app.modules.all_descriptors import get_tanimoto_similarity
+from app.modules.depiction import get_cdk_depiction
+from app.modules.depiction import get_rdkit_depiction
 from app.modules.npscorer import get_np_score
 from app.modules.toolkits.helpers import parse_input
-from app.modules.toolkits.rdkit_wrapper import (
-    check_RO5_violations,
-    get_3d_conformers,
-    get_tanimoto_similarity_rdkit,
-)
-from app.modules.all_descriptors import (
-    get_all_rdkit_descriptors,
-    get_all_cdk_descriptors,
-    get_cdk_rdkit_combined_descriptors,
-    get_tanimoto_similarity,
-)
+from app.modules.toolkits.rdkit_wrapper import check_RO5_violations
+from app.modules.toolkits.rdkit_wrapper import get_3d_conformers
+from app.modules.toolkits.rdkit_wrapper import get_tanimoto_similarity_rdkit
 
 
 @pytest.fixture
@@ -46,7 +46,7 @@ invalid_mol1 = None
 invalid_mol2 = Chem.MolFromSmiles("Invalid_SMILES")
 
 mol_with_violations = Chem.MolFromSmiles(
-    "O=C1OC=2C(=C(O)C(=C(O)C2C(=C1)C=3C=CC=CC3)CC=C(C)C)C(=O)C(C)CC"
+    "O=C1OC=2C(=C(O)C(=C(O)C2C(=C1)C=3C=CC=CC3)CC=C(C)C)C(=O)C(C)CC",
 )
 mol_without_violations = Chem.MolFromSmiles("CN1C=NC2=C1C(=O)N(C(=O)N2C)C")
 
@@ -227,38 +227,60 @@ def test_invalid_toolkit(tanimoto_smiles):
 
 
 def test_valid_ecfp_similarity():
-    similarity = get_tanimoto_similarity_rdkit(mol1, mol2, fingerprinter="ECFP")
+    similarity = get_tanimoto_similarity_rdkit(
+        mol1,
+        mol2,
+        fingerprinter="ECFP",
+    )
     assert isinstance(similarity, float)
     assert 0.0 <= similarity <= 1.0
 
 
 def test_valid_rdkit_similarity():
-    similarity = get_tanimoto_similarity_rdkit(mol1, mol2, fingerprinter="RDKit")
+    similarity = get_tanimoto_similarity_rdkit(
+        mol1,
+        mol2,
+        fingerprinter="RDKit",
+    )
     assert isinstance(similarity, float)
     assert 0.0 <= similarity <= 1.0
 
 
 def test_valid_atompairs_similarity():
-    similarity = get_tanimoto_similarity_rdkit(mol1, mol2, fingerprinter="Atompairs")
+    similarity = get_tanimoto_similarity_rdkit(
+        mol1,
+        mol2,
+        fingerprinter="Atompairs",
+    )
     assert isinstance(similarity, float)
     assert 0.0 <= similarity <= 1.0
 
 
 def test_valid_maccs_similarity():
-    similarity = get_tanimoto_similarity_rdkit(mol1, mol2, fingerprinter="MACCS")
+    similarity = get_tanimoto_similarity_rdkit(
+        mol1,
+        mol2,
+        fingerprinter="MACCS",
+    )
     assert isinstance(similarity, float)
     assert 0.0 <= similarity <= 1.0
 
 
 def test_invalid_molecule():
-    result = get_tanimoto_similarity_rdkit(invalid_mol1, mol2, fingerprinter="ECFP")
+    result = get_tanimoto_similarity_rdkit(
+        invalid_mol1,
+        mol2,
+        fingerprinter="ECFP",
+    )
     assert isinstance(result, str)
     assert "Check SMILES strings for Errors" in result
 
 
 def test_unsupported_fingerprinter():
     result = get_tanimoto_similarity_rdkit(
-        mol1, mol2, fingerprinter="InvalidFingerprinter"
+        mol1,
+        mol2,
+        fingerprinter="InvalidFingerprinter",
     )
     assert isinstance(result, str)
     assert "Unsupported fingerprinter!" in result
@@ -276,7 +298,10 @@ def test_get_3d_conformers():
     mol_with_hydrogens = get_3d_conformers(mol_with_violations, depict=False)
     assert mol_with_hydrogens is not None
 
-    mol_without_hydrogens = get_3d_conformers(mol_without_violations, depict=False)
+    mol_without_hydrogens = get_3d_conformers(
+        mol_without_violations,
+        depict=False,
+    )
     assert mol_without_hydrogens is not None
 
     mol_molblock = get_3d_conformers(mol_with_violations, depict=True)

@@ -1,18 +1,23 @@
-from typing import List, Union, Tuple
-from rdkit import Chem, DataStructs
-from rdkit.Chem import (
-    AllChem,
-    Descriptors,
-    QED,
-    Lipinski,
-    rdMolDescriptors,
-    rdmolops,
-    rdFingerprintGenerator,
-    MACCSkeys,
-)
+from __future__ import annotations
+
+from typing import List
+from typing import Tuple
+from typing import Union
+
 from hosegen import HoseGenerator
+from rdkit import Chem
+from rdkit import DataStructs
+from rdkit.Chem import AllChem
+from rdkit.Chem import Descriptors
+from rdkit.Chem import Lipinski
+from rdkit.Chem import MACCSkeys
+from rdkit.Chem import QED
+from rdkit.Chem import rdFingerprintGenerator
+from rdkit.Chem import rdMolDescriptors
+from rdkit.Chem import rdmolops
+from rdkit.Chem.FilterCatalog import FilterCatalog
+from rdkit.Chem.FilterCatalog import FilterCatalogParams
 from rdkit.Contrib.SA_Score import sascorer
-from rdkit.Chem.FilterCatalog import FilterCatalog, FilterCatalogParams
 
 
 def check_RO5_violations(molecule: any) -> int:
@@ -111,7 +116,11 @@ def get_3d_conformers(molecule: any, depict=True) -> Chem.Mol:
         try:
             AllChem.MMFFOptimizeMolecule(molecule)
         except Exception:
-            AllChem.EmbedMolecule(molecule, maxAttempts=5000, useRandomCoords=True)
+            AllChem.EmbedMolecule(
+                molecule,
+                maxAttempts=5000,
+                useRandomCoords=True,
+            )
         if depict:
             return Chem.MolToMolBlock(molecule)
         else:
@@ -120,7 +129,11 @@ def get_3d_conformers(molecule: any, depict=True) -> Chem.Mol:
 
 
 def get_tanimoto_similarity_rdkit(
-    mol1, mol2, fingerprinter="ECFP", radius=2, nBits=2048
+    mol1,
+    mol2,
+    fingerprinter="ECFP",
+    radius=2,
+    nBits=2048,
 ) -> Union[float, str]:
     """
     Calculate the Tanimoto similarity index between two molecular structures represented as RDKit Mol objects.

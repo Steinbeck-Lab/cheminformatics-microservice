@@ -1,6 +1,10 @@
-import pytest
+from __future__ import annotations
+
 import warnings
+
+import pytest
 from fastapi.testclient import TestClient
+
 from app.main import app
 
 client = TestClient(app)
@@ -38,7 +42,9 @@ def test_converters_index():
     ],
 )
 def test_create_2D_coordinates(smiles, toolkit, response_code):
-    response = client.get(f"/latest/convert/mol2D?smiles={smiles}&toolkit={toolkit}")
+    response = client.get(
+        f"/latest/convert/mol2D?smiles={smiles}&toolkit={toolkit}",
+    )
     assert response.status_code == response_code
 
 
@@ -63,7 +69,9 @@ def test_create_2D_coordinates(smiles, toolkit, response_code):
     ],
 )
 def test_create_3D_coordinates(smiles, toolkit, response_code):
-    response = client.get(f"/latest/convert/mol3D?smiles={smiles}&toolkit={toolkit}")
+    response = client.get(
+        f"/latest/convert/mol3D?smiles={smiles}&toolkit={toolkit}",
+    )
     assert response.status_code == response_code
 
 
@@ -97,7 +105,9 @@ def test_create_3D_coordinates(smiles, toolkit, response_code):
     ],
 )
 def test_smiles_to_inchi(smiles, toolkit, response_text, response_code):
-    response = client.get(f"/latest/convert/inchi?smiles={smiles}&toolkit={toolkit}")
+    response = client.get(
+        f"/latest/convert/inchi?smiles={smiles}&toolkit={toolkit}",
+    )
     assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
     if smiles != "INVALID_INPUT":
@@ -134,7 +144,9 @@ def test_smiles_to_inchi(smiles, toolkit, response_text, response_code):
     ],
 )
 def test_smiles_to_inchikey(smiles, toolkit, response_text, response_code):
-    response = client.get(f"/latest/convert/inchikey?smiles={smiles}&toolkit={toolkit}")
+    response = client.get(
+        f"/latest/convert/inchikey?smiles={smiles}&toolkit={toolkit}",
+    )
     assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
     if smiles != "INVALID_INPUT":
@@ -165,7 +177,9 @@ def test_smiles_to_inchikey(smiles, toolkit, response_text, response_code):
     ],
 )
 def test_smiles_to_cxsmiles(smiles, toolkit, response_text, response_code):
-    response = client.get(f"/latest/convert/cxsmiles?smiles={smiles}&toolkit={toolkit}")
+    response = client.get(
+        f"/latest/convert/cxsmiles?smiles={smiles}&toolkit={toolkit}",
+    )
     assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
     if smiles != "INVALID_INPUT":
@@ -203,7 +217,7 @@ def test_smiles_to_cxsmiles(smiles, toolkit, response_text, response_code):
 )
 def test_smiles_cannonicalise(smiles, toolkit, response_text, response_code):
     response = client.get(
-        f"/latest/convert/canonicalsmiles?smiles={smiles}&toolkit={toolkit}"
+        f"/latest/convert/canonicalsmiles?smiles={smiles}&toolkit={toolkit}",
     )
     assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
@@ -252,10 +266,13 @@ def test_smiles_to_iupac(smiles, response_text, response_code):
     ],
 )
 def test_iupac_or_selfies_to_smiles(
-    input, representation, response_text, response_code
+    input,
+    representation,
+    response_text,
+    response_code,
 ):
     response = client.get(
-        f"/latest/convert/smiles?input_text={input}&representation={representation}"
+        f"/latest/convert/smiles?input_text={input}&representation={representation}",
     )
     assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
@@ -311,7 +328,9 @@ def test_smiles_to_selfies(smiles, response_text, response_code):
     ],
 )
 def test_smiles_to_formats(smiles, toolkit, response_code):
-    response = client.get(f"/latest/convert/formats?smiles={smiles}&toolkit={toolkit}")
+    response = client.get(
+        f"/latest/convert/formats?smiles={smiles}&toolkit={toolkit}",
+    )
     assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
     if smiles != "INVALID_INPUT":

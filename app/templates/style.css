@@ -43,24 +43,24 @@ table.striped tbody tr:nth-child(even) {
     width: 100%;
     border: none;
   }
-  
+
   table.responsive-table th,
   table.responsive-table td {
     display: block;
     text-align: center;
   }
-  
+
   table.responsive-table th {
     border: none;
     background-color: #ffab91;
     color: #fff;
   }
-  
+
   table.responsive-table td {
     border: none;
     border-bottom: 1px solid #e0e0e0;
   }
-  
+
   table.responsive-table td:before {
     content: attr(data-label);
     float: left;

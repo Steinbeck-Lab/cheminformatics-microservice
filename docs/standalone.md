@@ -24,4 +24,3 @@ Cheminformatics Microservice can also be deployed as a standalone application us
 10. Access the FastAPI app: Open a web browser and navigate to the server address displayed in the terminal or command prompt. You should see your FastAPI app running.
 
 That's it!
-

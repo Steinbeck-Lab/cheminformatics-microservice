@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from openbabel import openbabel as ob
 from openbabel import pybel
+
 from app.exception_handlers import InvalidInputException
 
 

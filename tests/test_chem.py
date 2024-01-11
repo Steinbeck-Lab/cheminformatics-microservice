@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import pytest
 from fastapi.testclient import TestClient
+
 from app.main import app
 
 client = TestClient(app)
@@ -76,7 +79,9 @@ def test_smiles_to_stereo_isomers(smiles, response_text, response_code):
     ],
 )
 def test_smiles_descriptors(smiles, format, response_code):
-    response = client.get(f"/latest/chem/descriptors?smiles={smiles}&format={format}")
+    response = client.get(
+        f"/latest/chem/descriptors?smiles={smiles}&format={format}",
+    )
     assert response.status_code == response_code
 
 
@@ -98,7 +103,7 @@ def test_smiles_descriptors(smiles, format, response_code):
 )
 def test_smiles_descriptors_multiple(multiple_smiles, toolkit, response_code):
     response = client.get(
-        f"/latest/chem/descriptors/multiple?smiles={multiple_smiles}&toolkit={toolkit}"
+        f"/latest/chem/descriptors/multiple?smiles={multiple_smiles}&toolkit={toolkit}",
     )
     assert response.status_code == response_code
 
@@ -150,10 +155,16 @@ def test_successful_classyFire_result():
     ],
 )
 def test_successful_tanimoto_similarity(
-    smiles, toolkit, fingerprinter, nBits, radius, expected, response_code
+    smiles,
+    toolkit,
+    fingerprinter,
+    nBits,
+    radius,
+    expected,
+    response_code,
 ):
     response = client.get(
-        f"/latest/chem/tanimoto?smiles={smiles}&toolkit={toolkit}&fingerprinter={fingerprinter}&nBits={nBits}&radius={radius}"
+        f"/latest/chem/tanimoto?smiles={smiles}&toolkit={toolkit}&fingerprinter={fingerprinter}&nBits={nBits}&radius={radius}",
     )
     assert response.status_code == response_code
     if smiles != "INVALID_INPUT":
@@ -195,10 +206,14 @@ def test_successful_check_errors(smiles, fix, expected, response_code):
     ],
 )
 def test_successful_hose_codes(
-    smiles, toolkit, ringsize, success_response_code, response_text
+    smiles,
+    toolkit,
+    ringsize,
+    success_response_code,
+    response_text,
 ):
     response = client.get(
-        f"/latest/chem/HOSEcode?smiles={smiles}&spheres=0&toolkit={toolkit}&ringsize={ringsize}"
+        f"/latest/chem/HOSEcode?smiles={smiles}&spheres=0&toolkit={toolkit}&ringsize={ringsize}",
     )
     assert response.status_code == success_response_code
     assert response.text == response_text
@@ -219,7 +234,9 @@ def test_successful_hose_codes(
 
 def test_success_standardize_mol(molfile):
     response = client.post(
-        "/latest/chem/standardize", data=molfile, headers={"Content-Type": "text/plain"}
+        "/latest/chem/standardize",
+        data=molfile,
+        headers={"Content-Type": "text/plain"},
     )
     assert response.status_code == 200
     assert "standardized_mol" in response.json()
@@ -229,7 +246,10 @@ def test_success_standardize_mol(molfile):
 
 
 @pytest.mark.parametrize(
-    "invalid_molfile, exception_response_code", [(" CDK     08302311362D", 422)]
+    "invalid_molfile, exception_response_code",
+    [
+        (" CDK     08302311362D", 422),
+    ],
 )
 def test_exception_standardize_mol(invalid_molfile, exception_response_code):
     response = client.post(
@@ -245,7 +265,9 @@ def test_exception_standardize_mol(invalid_molfile, exception_response_code):
     [("CCO", 200), ("INVALID_INPUT", 422)],
 )
 def test_successful_coconut_preprocessing(smiles, response_code):
-    response = client.get(f"/latest/chem/coconut/pre-processing?smiles={smiles}")
+    response = client.get(
+        f"/latest/chem/coconut/pre-processing?smiles={smiles}",
+    )
     assert response.status_code == response_code
 
 

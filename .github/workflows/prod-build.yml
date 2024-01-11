@@ -3,7 +3,7 @@
 # - Fetch Latest release.
 # - Build the latest docker image in production.
 # - Push the docker image to Github Artifact Registry-Prod.
-# 
+#
 # Maintainers:
 #   - name: Nisha Sharma
 #   - email: nisha.sharma@uni-jena.de
@@ -47,7 +47,7 @@ jobs:
           username: ${{ env.DOCKER_HUB_USERNAME  }}
           password: ${{ env.DOCKER_HUB_PASSWORD  }}
 
-      #Build and push Docker image      
+      #Build and push Docker image
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:

@@ -1,5 +1,11 @@
-from pydantic import BaseModel, Field
-from typing import Dict, Any, List
+from __future__ import annotations
+
+from typing import Any
+from typing import Dict
+from typing import List
+
+from pydantic import BaseModel
+from pydantic import Field
 
 
 class GenerateStereoisomersResponse(BaseModel):
@@ -30,8 +36,8 @@ class GenerateStereoisomersResponse(BaseModel):
                     "input": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
                     "message": "Success",
                     "output": '["Cn1c(=O)c2c(ncn2C)n(C)c1=O"]',
-                }
-            ]
+                },
+            ],
         }
 
 
@@ -63,8 +69,8 @@ class GenerateDescriptorsResponse(BaseModel):
                     "input": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
                     "message": "Success",
                     "output": "a defined set of moleculare descriptors calculated",
-                }
-            ]
+                },
+            ],
         }
 
 
@@ -96,8 +102,8 @@ class GenerateMultipleDescriptorsResponse(BaseModel):
                     "input": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C, CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
                     "message": "Success",
                     "output": '{"CN1C=NC2=C1C(=O)N(C(=O)N2C)C": {"A set of calculated molecular descriptors"},"CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1": {"A set of calculated molecular descriptors"}}',
-                }
-            ]
+                },
+            ],
         }
 
 
@@ -129,8 +135,8 @@ class GenerateHOSECodeResponse(BaseModel):
                     "input": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
                     "message": "Success",
                     "output": '[  "C-4;N(//)",  "N-3;*C*CC(//)",  "C-3;*N*N(//)",  "N-2;*C*C(//)",  "C-3;*C*N*N(//)",  "C-3;*C*C*N(//)",  "C-3;=O*C*N(//)",  "O-1;=C(//)",  "N-3;*C*CC(//)",  "C-3;=O*N*N(//)",  "O-1;=C(//)",  "N-3;*C*CC(//)",  "C-4;N(//)"]',
-                }
-            ]
+                },
+            ],
         }
 
 
@@ -185,8 +191,8 @@ class GenerateStandardizeResponse(BaseModel):
         M  END""",
                     "message": "Success",
                     "output": "Standardized Molblock, Canonical SMILES, InChI, InChI-Key",
-                }
-            ]
+                },
+            ],
         }
 
 
@@ -218,8 +224,8 @@ class NPlikelinessScoreResponse(BaseModel):
                     "input": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
                     "message": "Success",
                     "output": "-1.09",
-                }
-            ]
+                },
+            ],
         }
 
 
@@ -251,8 +257,8 @@ class TanimotoSimilarityResponse(BaseModel):
                     "input": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1,CC",
                     "message": "Success",
                     "output": "0.024390243902439025",
-                }
-            ]
+                },
+            ],
         }
 
 
@@ -286,8 +292,8 @@ class TanimotoMatrixResponse(BaseModel):
                     "input": "CCC,CC,CCC",
                     "message": "Success",
                     "output": "[[1.0, 0.2, 1.0], [0.2, 1.0, 0.2], [1.0, 0.2, 1.0]]",
-                }
-            ]
+                },
+            ],
         }
 
 
@@ -325,6 +331,6 @@ class FilteredMoleculesResponse(BaseModel):
                     "input": """CCCCCCC""",
                     "message": "Success",
                     "output": "Filtered SMILES, filters",
-                }
-            ]
+                },
+            ],
         }

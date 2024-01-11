@@ -1,5 +1,8 @@
-from pydantic import BaseModel
+from __future__ import annotations
+
 from typing import List
+
+from pydantic import BaseModel
 
 
 class GenerateStructuresResponse(BaseModel):
@@ -25,8 +28,12 @@ class GenerateStructuresResponse(BaseModel):
 
         json_schema_extra = {
             "examples": [
-                {"input": "C4H8", "message": "Success", "output": ["CC(C)C", "CCCC"]}
-            ]
+                {
+                    "input": "C4H8",
+                    "message": "Success",
+                    "output": ["CC(C)C", "CCCC"],
+                },
+            ],
         }
 
 
@@ -57,8 +64,8 @@ class GetSugarInformationResponse(BaseModel):
                     "input": "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
                     "message": "Success",
                     "output": "The molecule contains Linear and Circular sugars",
-                }
-            ]
+                },
+            ],
         }
 
 
@@ -89,8 +96,8 @@ class GetLinearSugarResponse(BaseModel):
                     "input": "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
                     "message": "Success",
                     "output": "C(C1C(C(C(CO1)O)O)O)O",
-                }
-            ]
+                },
+            ],
         }
 
 
@@ -121,8 +128,8 @@ class GetCircularSugarResponse(BaseModel):
                     "input": "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
                     "message": "Success",
                     "output": "C(C(C(C(C(C1C(C(C(C(CO)O1)O)O)O)O)O)O)O)O",
-                }
-            ]
+                },
+            ],
         }
 
 
@@ -153,6 +160,6 @@ class GetCircularandLinearSugarResponse(BaseModel):
                     "input": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
                     "message": "Success",
                     "output": "C1=C(C=C(C(=C1)O)O)C2C3=C(C=C(C=O)C2C(=O)OC4CC(=CC(C4O)O)C(=O)O)C=C(C(=C3)O)O",
-                }
-            ]
+                },
+            ],
         }

@@ -8,5 +8,3 @@ Cheminformatics Microservice
    tools
    toolkits
    coconut
-
-
