@@ -1,8 +1,12 @@
+from __future__ import annotations
+
 from chembl_structure_pipeline import standardizer
 from rdkit import Chem
-from app.modules.toolkits.cdk_wrapper import get_CDK_IAtomContainer, get_CDK_SDG_mol
-from app.modules.toolkits.openbabel_wrapper import get_ob_mol
+
 from app.exception_handlers import InvalidInputException
+from app.modules.toolkits.cdk_wrapper import get_CDK_IAtomContainer
+from app.modules.toolkits.cdk_wrapper import get_CDK_SDG_mol
+from app.modules.toolkits.openbabel_wrapper import get_ob_mol
 
 
 def parse_input(input: str, framework: str = "rdkit", standardize: bool = False):

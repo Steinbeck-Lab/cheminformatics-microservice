@@ -82,7 +82,7 @@ volumes:
       type: none
       device: ./grafana_data
 networks:
-  default: 
+  default:
     name: cm_fastapi
 ```
 
@@ -259,7 +259,7 @@ By following these steps, you can perform stress testing on your CM FASTAPI appl
 We recommend using Flake8 and Black to perform linting and formatting in Python
 
 1. Install Flake8 and Black: Start by installing both Flake8 and Black. You can install them using pip by running the following command:
-   
+
    ```bash
    pip install flake8 black
    ```
@@ -278,7 +278,7 @@ We recommend using Flake8 and Black to perform linting and formatting in Python
    black .
    ```
 
-   or 
+   or
 
    ```bash
     black $(git ls-files '*.py') .

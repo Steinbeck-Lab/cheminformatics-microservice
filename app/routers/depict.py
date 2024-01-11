@@ -1,14 +1,27 @@
-from fastapi import Request, APIRouter, Query, status, HTTPException
-from typing import Optional, Literal
+from __future__ import annotations
+
+from typing import Literal
+from typing import Optional
+
+from fastapi import APIRouter
+from fastapi import HTTPException
+from fastapi import Query
+from fastapi import Request
+from fastapi import status
 from fastapi.responses import Response
-from app.modules.depiction import get_rdkit_depiction, get_cdk_depiction
-from app.modules.toolkits.rdkit_wrapper import get_3d_conformers
-from app.modules.toolkits.openbabel_wrapper import get_ob_mol
 from fastapi.templating import Jinja2Templates
-from app.schemas import HealthCheck
-from app.schemas.error import ErrorResponse, BadRequestModel, NotFoundModel
-from app.schemas.depict_schema import Depict2DResponse, Depict3DResponse
+
+from app.modules.depiction import get_cdk_depiction
+from app.modules.depiction import get_rdkit_depiction
 from app.modules.toolkits.helpers import parse_input
+from app.modules.toolkits.openbabel_wrapper import get_ob_mol
+from app.modules.toolkits.rdkit_wrapper import get_3d_conformers
+from app.schemas import HealthCheck
+from app.schemas.depict_schema import Depict2DResponse
+from app.schemas.depict_schema import Depict3DResponse
+from app.schemas.error import BadRequestModel
+from app.schemas.error import ErrorResponse
+from app.schemas.error import NotFoundModel
 
 templates = Jinja2Templates(directory="app/templates")
 
@@ -77,16 +90,23 @@ async def depict_2d_molecule(
         },
     ),
     toolkit: Literal["cdk", "rdkit"] = Query(
-        default="rdkit", description="Cheminformatics toolkit used in the backend"
+        default="rdkit",
+        description="Cheminformatics toolkit used in the backend",
     ),
     width: Optional[int] = Query(
-        512, title="Width", description="The width of the generated image in pixels."
+        512,
+        title="Width",
+        description="The width of the generated image in pixels.",
     ),
     height: Optional[int] = Query(
-        512, title="Height", description="The height of the generated image in pixels."
+        512,
+        title="Height",
+        description="The height of the generated image in pixels.",
     ),
     rotate: Optional[int] = Query(
-        0, title="Rotate", description="The rotation angle of the molecule in degrees."
+        0,
+        title="Rotate",
+        description="The rotation angle of the molecule in degrees.",
     ),
     CIP: Optional[bool] = Query(
         False,
@@ -131,7 +151,13 @@ async def depict_2d_molecule(
     try:
         if toolkit == "cdk":
             mol = parse_input(smiles, "cdk", False)
-            depiction = get_cdk_depiction(mol, [width, height], rotate, CIP, unicolor)
+            depiction = get_cdk_depiction(
+                mol,
+                [width, height],
+                rotate,
+                CIP,
+                unicolor,
+            )
         elif toolkit == "rdkit":
             mol = parse_input(smiles, "rdkit", False)
             depiction = get_rdkit_depiction(mol, [width, height], rotate)
@@ -175,7 +201,8 @@ async def depict_3d_molecule(
         },
     ),
     toolkit: Literal["rdkit", "openbabel"] = Query(
-        default="rdkit", description="Cheminformatics toolkit used in the backend"
+        default="rdkit",
+        description="Cheminformatics toolkit used in the backend",
     ),
 ):
     """

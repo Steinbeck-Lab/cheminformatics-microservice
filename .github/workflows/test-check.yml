@@ -1,6 +1,6 @@
 name: Unit test and Lint check
 
-on:  
+on:
   pull_request:
     branches:
         - development

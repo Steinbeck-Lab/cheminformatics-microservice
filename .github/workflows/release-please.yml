@@ -3,7 +3,7 @@
 # - Test linting with pylint.
 # - Test the code with pytest.
 # - Trigger release-please action to create release which needs test to pass first.
-# 
+#
 # Maintainers:
 #   - name: Nisha Sharma
 #   - email: nisha.sharma@uni-jena.de

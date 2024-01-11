@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import gzip
 import math
 import os
 import pickle
+
 import pystow
 from rdkit.Chem import rdMolDescriptors
 

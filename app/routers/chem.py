@@ -1,57 +1,65 @@
+from __future__ import annotations
+
 import io
-from fastapi import APIRouter, Query, status, HTTPException, Body
-from typing import Optional, Literal, Annotated, Union
+from typing import Annotated
+from typing import Literal
+from typing import Optional
+from typing import Union
+
+import pandas as pd
+from chembl_structure_pipeline import checker
+from chembl_structure_pipeline import standardizer
+from fastapi import APIRouter
+from fastapi import Body
+from fastapi import HTTPException
+from fastapi import Query
+from fastapi import status
+from fastapi.responses import JSONResponse
+from fastapi.responses import Response
+from fastapi.templating import Jinja2Templates
 from rdkit import Chem
 from rdkit.Chem.EnumerateStereoisomers import (
     EnumerateStereoisomers,
 )
-from chembl_structure_pipeline import standardizer, checker
-from fastapi.responses import Response, JSONResponse
-from app.modules.toolkits.helpers import parse_input
-from app.modules.npscorer import get_np_score
-from app.modules.classyfire import classify, result
-from app.modules.toolkits.cdk_wrapper import (
-    get_tanimoto_similarity_CDK,
-    get_CDK_HOSE_codes,
-)
-from app.modules.toolkits.rdkit_wrapper import (
-    check_RO5_violations,
-    get_tanimoto_similarity_rdkit,
-    get_rdkit_HOSE_codes,
-    get_properties,
-    QED,
-    get_sas_score,
-    get_PAINS,
-    get_GhoseFilter,
-    get_VeberFilter,
-    get_REOSFilter,
-    get_RuleofThree,
-)
 
-from app.modules.coconut.descriptors import get_COCONUT_descriptors
 from app.modules.all_descriptors import get_tanimoto_similarity
+from app.modules.classyfire import classify
+from app.modules.classyfire import result
+from app.modules.coconut.descriptors import get_COCONUT_descriptors
 from app.modules.coconut.preprocess import get_COCONUT_preprocessing
-import pandas as pd
-from fastapi.templating import Jinja2Templates
+from app.modules.npscorer import get_np_score
+from app.modules.toolkits.cdk_wrapper import get_CDK_HOSE_codes
+from app.modules.toolkits.cdk_wrapper import get_tanimoto_similarity_CDK
+from app.modules.toolkits.helpers import parse_input
+from app.modules.toolkits.rdkit_wrapper import check_RO5_violations
+from app.modules.toolkits.rdkit_wrapper import get_GhoseFilter
+from app.modules.toolkits.rdkit_wrapper import get_PAINS
+from app.modules.toolkits.rdkit_wrapper import get_properties
+from app.modules.toolkits.rdkit_wrapper import get_rdkit_HOSE_codes
+from app.modules.toolkits.rdkit_wrapper import get_REOSFilter
+from app.modules.toolkits.rdkit_wrapper import get_RuleofThree
+from app.modules.toolkits.rdkit_wrapper import get_sas_score
+from app.modules.toolkits.rdkit_wrapper import get_tanimoto_similarity_rdkit
+from app.modules.toolkits.rdkit_wrapper import get_VeberFilter
+from app.modules.toolkits.rdkit_wrapper import QED
 from app.schemas import HealthCheck
-from app.schemas.chemblstandardizer import (
-    SMILESValidationResult,
-    SMILESStandardizedResult,
-)
-from app.schemas.classyfire import ClassyFireJob, ClassyFireResult
+from app.schemas.chem_schema import FilteredMoleculesResponse
+from app.schemas.chem_schema import GenerateDescriptorsResponse
+from app.schemas.chem_schema import GenerateHOSECodeResponse
+from app.schemas.chem_schema import GenerateMultipleDescriptorsResponse
+from app.schemas.chem_schema import GenerateStandardizeResponse
+from app.schemas.chem_schema import GenerateStereoisomersResponse
+from app.schemas.chem_schema import NPlikelinessScoreResponse
+from app.schemas.chem_schema import TanimotoMatrixResponse
+from app.schemas.chem_schema import TanimotoSimilarityResponse
+from app.schemas.chemblstandardizer import SMILESStandardizedResult
+from app.schemas.chemblstandardizer import SMILESValidationResult
+from app.schemas.classyfire import ClassyFireJob
+from app.schemas.classyfire import ClassyFireResult
 from app.schemas.coconut import COCONUTPreprocessingModel
-from app.schemas.error import ErrorResponse, BadRequestModel, NotFoundModel
-from app.schemas.chem_schema import (
-    GenerateStereoisomersResponse,
-    GenerateDescriptorsResponse,
-    GenerateMultipleDescriptorsResponse,
-    GenerateHOSECodeResponse,
-    GenerateStandardizeResponse,
-    NPlikelinessScoreResponse,
-    TanimotoSimilarityResponse,
-    TanimotoMatrixResponse,
-    FilteredMoleculesResponse,
-)
+from app.schemas.error import BadRequestModel
+from app.schemas.error import ErrorResponse
+from app.schemas.error import NotFoundModel
 
 router = APIRouter(
     prefix="/chem",
@@ -118,7 +126,7 @@ async def get_stereoisomers(
                 "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
             },
         },
-    )
+    ),
 ):
     """
     For a given SMILES string this function enumerates all possible stereoisomers
@@ -171,10 +179,12 @@ async def get_descriptors(
         },
     ),
     format: Literal["json", "html"] = Query(
-        default="json", description="Desired display format"
+        default="json",
+        description="Desired display format",
     ),
     toolkit: Literal["cdk", "rdkit", "all"] = Query(
-        default="rdkit", description="Cheminformatics toolkit used in the backend"
+        default="rdkit",
+        description="Cheminformatics toolkit used in the backend",
     ),
 ):
     """
@@ -198,14 +208,25 @@ async def get_descriptors(
     data = get_COCONUT_descriptors(smiles, toolkit)
     if format == "html":
         if toolkit == "all":
-            headers = ["Descriptor name", "RDKit Descriptors", "CDK Descriptors"]
+            headers = [
+                "Descriptor name",
+                "RDKit Descriptors",
+                "CDK Descriptors",
+            ]
             df = pd.DataFrame.from_dict(
-                data, orient="index", columns=headers[1:], dtype=object
+                data,
+                orient="index",
+                columns=headers[1:],
+                dtype=object,
             )
             df.insert(0, headers[0], df.index)
         else:
             headers = ["Descriptor name", "Values"]
-            df = pd.DataFrame.from_dict(data, orient="index", columns=headers[1:])
+            df = pd.DataFrame.from_dict(
+                data,
+                orient="index",
+                columns=headers[1:],
+            )
             df.insert(0, headers[0], df.index)
 
         with open("app/templates/style.css", "r") as file:
@@ -246,7 +267,8 @@ async def get_multiple_descriptors(
         },
     ),
     toolkit: Literal["cdk", "rdkit"] = Query(
-        default="rdkit", description="Cheminformatics toolkit used in the backend"
+        default="rdkit",
+        description="Cheminformatics toolkit used in the backend",
     ),
 ):
     """
@@ -275,7 +297,8 @@ async def get_multiple_descriptors(
 
     if len(molecules) < 2:
         raise HTTPException(
-            status_code=422, detail="At least two molecules are required."
+            status_code=422,
+            detail="At least two molecules are required.",
         )
 
     descriptors_dict = {}
@@ -325,7 +348,8 @@ async def hose_codes(
         ],
     ),
     toolkit: Literal["cdk", "rdkit"] = Query(
-        default="rdkit", description="Cheminformatics toolkit used in the backend"
+        default="rdkit",
+        description="Cheminformatics toolkit used in the backend",
     ),
     ringsize: Optional[bool] = Query(
         False,
@@ -363,7 +387,8 @@ async def hose_codes(
         return hose_codes
     else:
         raise HTTPException(
-            status_code=500, detail="Failed to generate HOSE codes, check settings."
+            status_code=500,
+            detail="Failed to generate HOSE codes, check settings.",
         )
 
 
@@ -398,7 +423,7 @@ M  END""",
                 },
             },
         ),
-    ]
+    ],
 ):
     """
     Standardize molblock using the ChEMBL curation pipeline
@@ -429,7 +454,10 @@ M  END""",
             rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
 
         else:
-            raise HTTPException(status_code=422, detail="Invalid or missing molblock")
+            raise HTTPException(
+                status_code=422,
+                detail="Invalid or missing molblock",
+            )
 
         if rdkit_mol:
             smiles = Chem.MolToSmiles(rdkit_mol, kekuleSmiles=True)
@@ -518,7 +546,10 @@ async def check_errors(
                 rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
                 standardized_smiles = Chem.MolToSmiles(rdkit_mol)
                 result = SMILESStandardizedResult(
-                    original=SMILESValidationResult(smi=smiles, messages=issues),
+                    original=SMILESValidationResult(
+                        smi=smiles,
+                        messages=issues,
+                    ),
                     standardized=SMILESValidationResult(
                         smi=standardized_smiles,
                         messages=issues_new if issues_new else ("No Errors Found",),
@@ -531,7 +562,8 @@ async def check_errors(
             return SMILESValidationResult(smi=smiles, messages=("No Errors Found",))
     else:
         raise HTTPException(
-            status_code=422, detail="Error reading SMILES string, please check again."
+            status_code=422,
+            detail="Error reading SMILES string, please check again.",
         )
 
 
@@ -562,7 +594,7 @@ async def np_likeness_score(
                 "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
             },
         },
-    )
+    ),
 ):
     """
     Calculates the natural product likeness score based on the RDKit implementation.
@@ -615,7 +647,8 @@ async def tanimoto_similarity(
         },
     ),
     toolkit: Literal["cdk", "rdkit"] = Query(
-        default="rdkit", description="Cheminformatics toolkit used in the backend"
+        default="rdkit",
+        description="Cheminformatics toolkit used in the backend",
     ),
     fingerprinter: Literal["RDKit", "Atompairs", "MACCS", "PubChem", "ECFP"] = Query(
         "ECFP",
@@ -653,7 +686,8 @@ async def tanimoto_similarity(
 
     if len(molecules) < 2:
         raise HTTPException(
-            status_code=422, detail="At least two molecules are required."
+            status_code=422,
+            detail="At least two molecules are required.",
         )
 
     elif len(smiles.split(",")) == 2:
@@ -663,13 +697,20 @@ async def tanimoto_similarity(
                 mol1 = parse_input(smiles1, "rdkit", False)
                 mol2 = parse_input(smiles2, "rdkit", False)
                 Tanimoto = get_tanimoto_similarity_rdkit(
-                    mol1, mol2, fingerprinter, nBits, radius
+                    mol1,
+                    mol2,
+                    fingerprinter,
+                    nBits,
+                    radius,
                 )
             else:
                 mol1 = parse_input(smiles1, "cdk", False)
                 mol2 = parse_input(smiles2, "cdk", False)
                 Tanimoto = get_tanimoto_similarity_CDK(
-                    mol1, mol2, fingerprinter, radius
+                    mol1,
+                    mol2,
+                    fingerprinter,
+                    radius,
                 )
             return float(Tanimoto)
         except Exception:
@@ -689,7 +730,8 @@ async def tanimoto_similarity(
             )
     else:
         raise HTTPException(
-            status_code=422, detail="Error reading SMILES string, please check again."
+            status_code=422,
+            detail="Error reading SMILES string, please check again.",
         )
 
 
@@ -720,7 +762,7 @@ async def coconut_preprocessing(
                 "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
             },
         },
-    )
+    ),
 ):
     """
     Generates an Input JSON file with information on different molecular representations and descriptors suitable for submission to the COCONUT database.
@@ -746,7 +788,8 @@ async def coconut_preprocessing(
             )
     except Exception as e:
         raise HTTPException(
-            status_code=422, detail="Error processing request: " + str(e)
+            status_code=422,
+            detail="Error processing request: " + str(e),
         )
 
 
@@ -777,7 +820,7 @@ async def classyfire_classify(
                 "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
             },
         },
-    )
+    ),
 ):
     """
     Generate ClassyFire-based classifications using SMILES as input.
@@ -841,7 +884,8 @@ async def classyfire_result(jobid: str):
             return data
         except Exception as e:
             raise HTTPException(
-                status_code=500, detail="Error processing request: " + str(e)
+                status_code=500,
+                detail="Error processing request: " + str(e),
             )
     else:
         raise HTTPException(status_code=422, detail="Job ID is required.")
@@ -872,7 +916,9 @@ async def all_filter_molecules(
         },
     ),
     pains: bool = Query(
-        True, title="PAINS filter", description="Calculate PAINS filter (true or false)"
+        True,
+        title="PAINS filter",
+        description="Calculate PAINS filter (true or false)",
     ),
     lipinski: bool = Query(
         True,
@@ -880,13 +926,19 @@ async def all_filter_molecules(
         description="Calculate Lipinski Rule of 5 (true or false)",
     ),
     veber: bool = Query(
-        True, title="Veber filter", description="Calculate Veber filter (true or false)"
+        True,
+        title="Veber filter",
+        description="Calculate Veber filter (true or false)",
     ),
     reos: bool = Query(
-        True, title="REOS filter", description="Calculate REOS filter (true or false)"
+        True,
+        title="REOS filter",
+        description="Calculate REOS filter (true or false)",
     ),
     ghose: bool = Query(
-        True, title="Ghose filter", description="Calculate Ghose filter (true or false)"
+        True,
+        title="Ghose filter",
+        description="Calculate Ghose filter (true or false)",
     ),
     ruleofthree: bool = Query(
         True,
@@ -954,7 +1006,7 @@ async def all_filter_molecules(
 
             if len(qedscore.split("-")) == 2:
                 range_start, range_end = float(qedscore.split("-")[0]), float(
-                    qedscore.split("-")[1]
+                    qedscore.split("-")[1],
                 )
                 qed_value = QED.qed(mol)
                 if range_start <= qed_value <= range_end:
@@ -964,7 +1016,7 @@ async def all_filter_molecules(
 
             if len(sascore.split("-")) == 2:
                 range_start, range_end = float(sascore.split("-")[0]), float(
-                    sascore.split("-")[1]
+                    sascore.split("-")[1],
                 )
                 sascore_value = get_sas_score(mol)
                 if range_start <= sascore_value <= range_end:
@@ -974,7 +1026,7 @@ async def all_filter_molecules(
 
             if len(nplikeness.split("-")) == 2:
                 range_start, range_end = float(nplikeness.split("-")[0]), float(
-                    nplikeness.split("-")[1]
+                    nplikeness.split("-")[1],
                 )
                 nplikeness_value = get_np_score(mol)
                 if range_start <= float(nplikeness_value) <= range_end:

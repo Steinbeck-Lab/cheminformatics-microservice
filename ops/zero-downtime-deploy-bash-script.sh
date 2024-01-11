@@ -51,7 +51,7 @@ if [ "$(docker pull $DOCKER_REPO_NAME | grep "Status: Image is up to date" | wc 
 
   # Remove old containers and images
   if [ $IS_CONTAINER_HEALTHY == 0 ] ; then
-  
+
         # Set the desired container name prefix
         CONTAINER_NAME_PREFIX="ops_web"
 

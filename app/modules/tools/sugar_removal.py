@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import app.modules.toolkits.cdk_wrapper as cdk
 
 
@@ -18,9 +20,11 @@ def get_sugar_info(molecule: any) -> tuple:
     sru_base = "de.unijena.cheminf.deglycosylation"
 
     SugarRemovalUtility = cdk.JClass(sru_base + ".SugarRemovalUtility")(
-        SCOB.getInstance()
+        SCOB.getInstance(),
     )
-    hasCircularOrLinearSugars = SugarRemovalUtility.hasCircularOrLinearSugars(molecule)
+    hasCircularOrLinearSugars = SugarRemovalUtility.hasCircularOrLinearSugars(
+        molecule,
+    )
 
     if hasCircularOrLinearSugars:
         hasLinearSugar = SugarRemovalUtility.hasLinearSugars(molecule)
@@ -49,18 +53,21 @@ def remove_linear_sugar(molecule: any) -> str:
     SCOB = cdk.JClass(cdk_base + ".silent.SilentChemObjectBuilder")
     SmiFlavor = cdk.JClass(cdk_base + ".smiles.SmiFlavor")
     SmilesGenerator = cdk.JClass(cdk_base + ".smiles.SmilesGenerator")(
-        SmiFlavor.Absolute
+        SmiFlavor.Absolute,
     )
 
     sru_base = "de.unijena.cheminf.deglycosylation"
 
     SugarRemovalUtility = cdk.JClass(sru_base + ".SugarRemovalUtility")(
-        SCOB.getInstance()
+        SCOB.getInstance(),
     )
     hasLinearSugar = SugarRemovalUtility.hasLinearSugars(molecule)
 
     if hasLinearSugar:
-        MoleculeWithoutSugars = SugarRemovalUtility.removeLinearSugars(molecule, True)
+        MoleculeWithoutSugars = SugarRemovalUtility.removeLinearSugars(
+            molecule,
+            True,
+        )
         if not MoleculeWithoutSugars.isEmpty():
             L_SMILES = SmilesGenerator.create(MoleculeWithoutSugars)
             return str(L_SMILES)
@@ -84,19 +91,24 @@ def remove_circular_sugar(molecule: any) -> str:
     SCOB = cdk.JClass(cdk_base + ".silent.SilentChemObjectBuilder")
     SmiFlavor = cdk.JClass(cdk_base + ".smiles.SmiFlavor")
     SmilesGenerator = cdk.JClass(cdk_base + ".smiles.SmilesGenerator")(
-        SmiFlavor.Absolute
+        SmiFlavor.Absolute,
     )
 
     sru_base = "de.unijena.cheminf.deglycosylation"
 
     SugarRemovalUtility = cdk.JClass(sru_base + ".SugarRemovalUtility")(
-        SCOB.getInstance()
+        SCOB.getInstance(),
     )
     hasCircularSugar = SugarRemovalUtility.hasCircularSugars(molecule)
 
     if hasCircularSugar:
-        SugarRemovalUtility.setDetectCircularSugarsOnlyWithOGlycosidicBondSetting(True)
-        MoleculeWithoutSugars = SugarRemovalUtility.removeCircularSugars(molecule, True)
+        SugarRemovalUtility.setDetectCircularSugarsOnlyWithOGlycosidicBondSetting(
+            True,
+        )
+        MoleculeWithoutSugars = SugarRemovalUtility.removeCircularSugars(
+            molecule,
+            True,
+        )
         if not MoleculeWithoutSugars.isEmpty():
             C_SMILES = SmilesGenerator.create(MoleculeWithoutSugars)
             return str(C_SMILES)
@@ -120,20 +132,25 @@ def remove_linear_and_circular_sugar(molecule: any):
     SCOB = cdk.JClass(cdk_base + ".silent.SilentChemObjectBuilder")
     SmiFlavor = cdk.JClass(cdk_base + ".smiles.SmiFlavor")
     SmilesGenerator = cdk.JClass(cdk_base + ".smiles.SmilesGenerator")(
-        SmiFlavor.Absolute
+        SmiFlavor.Absolute,
     )
 
     sru_base = "de.unijena.cheminf.deglycosylation"
 
     SugarRemovalUtility = cdk.JClass(sru_base + ".SugarRemovalUtility")(
-        SCOB.getInstance()
+        SCOB.getInstance(),
     )
-    hasCircularOrLinearSugars = SugarRemovalUtility.hasCircularOrLinearSugars(molecule)
+    hasCircularOrLinearSugars = SugarRemovalUtility.hasCircularOrLinearSugars(
+        molecule,
+    )
 
     if hasCircularOrLinearSugars:
-        SugarRemovalUtility.setDetectCircularSugarsOnlyWithOGlycosidicBondSetting(True)
+        SugarRemovalUtility.setDetectCircularSugarsOnlyWithOGlycosidicBondSetting(
+            True,
+        )
         MoleculeWithoutSugars = SugarRemovalUtility.removeCircularAndLinearSugars(
-            molecule, True
+            molecule,
+            True,
         )
         if not MoleculeWithoutSugars.isEmpty():
             try:

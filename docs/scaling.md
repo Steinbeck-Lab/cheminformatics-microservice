@@ -2,7 +2,7 @@
 outline: deep
 ---
 
-# Scaling 
+# Scaling
 
 Scalability in cheminformatics tools is crucial to ensure that researchers and scientists can process and analyze chemical data effectively, regardless of the size and complexity of their datasets and computational tasks. It involves considerations of both hardware and software architecture, as well as efficient algorithms and data management strategies.
 
@@ -18,7 +18,7 @@ Scaling neural network model predictions effectively involves a combination of m
 
 Here we presented only two use cases where scaling can impact significantly the time, resources and energy requirements, but we believe that Cheminformatics tasks can take full advantage of the hardware through optimisation and developmental strategies.
 
-Currently CM handles one molecule per request but in future releases we will also support batch processing in a single request enabling a larger through put. 
+Currently CM handles one molecule per request but in future releases we will also support batch processing in a single request enabling a larger through put.
 
 ## Implementations
 
@@ -39,8 +39,3 @@ While each service provider (AWS, Azure, GCP) have their own configurations to c
 ### GKE
 
 The Helm chart for CM comes packaged with Horizontal Pod Autoscaler - more information [here](/cluster-deployment.html#scaling).
-
-
-
-
-

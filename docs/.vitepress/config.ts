@@ -9,14 +9,14 @@ export default defineConfig({
     search: {
       provider: 'local'
     },
-    
-    logo: { 
+
+    logo: {
       light: 'logo.png',
       dark: 'logo_light.png'
     },
 
     siteTitle: '',
-    
+
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Docs', link: '/introduction' },

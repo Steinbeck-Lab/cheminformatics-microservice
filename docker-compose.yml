@@ -49,5 +49,5 @@ volumes:
       type: none
       device: ./grafana_data
 networks:
-  default: 
+  default:
     name: cm_fastapi

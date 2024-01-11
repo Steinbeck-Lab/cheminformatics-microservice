@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pydantic import BaseModel
 
 
@@ -24,8 +26,8 @@ class Depict2DResponse(BaseModel):
 
         json_schema_extra = {
             "examples": [
-                {"input": "CCCOC", "message": "Success", "output": "SVG string"}
-            ]
+                {"input": "CCCOC", "message": "Success", "output": "SVG string"},
+            ],
         }
 
 
@@ -52,6 +54,6 @@ class Depict3DResponse(BaseModel):
 
         json_schema_extra = {
             "examples": [
-                {"input": "CCCOC", "message": "Success", "output": "HTML string"}
-            ]
+                {"input": "CCCOC", "message": "Success", "output": "HTML string"},
+            ],
         }

@@ -1,4 +1,7 @@
-from pydantic import BaseModel, Field
+from __future__ import annotations
+
+from pydantic import BaseModel
+from pydantic import Field
 
 
 class TwoDCoordinatesResponse(BaseModel):
@@ -36,8 +39,8 @@ class TwoDCoordinatesResponse(BaseModel):
     1.5000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
   1  2  1  0  0  0  0
 M  END""",
-                }
-            ]
+                },
+            ],
         }
 
 
@@ -77,8 +80,8 @@ class ThreeDCoordinatesResponse(BaseModel):
    -1.9017   -0.1353    0.4322 C   0  0  0  0  0  0  0  0  0  0  0  0
   1  2  1  0
 M  END""",
-                }
-            ]
+                },
+            ],
         }
 
 
@@ -110,8 +113,8 @@ class GenerateSMILESResponse(BaseModel):
                     "input": "1,3,7-trimethylpurine-2,6-dione",
                     "message": "Success",
                     "output": "CN1C=NC2=C1C(=O)N(C)C(=O)N2C",
-                }
-            ]
+                },
+            ],
         }
 
 
@@ -143,8 +146,8 @@ class GenerateCanonicalResponse(BaseModel):
                     "input": "CN1C(=O)C2=C(N=CN2C)N(C)C1=O",
                     "message": "Success",
                     "output": "CN1C=NC2=C1C(=O)N(C)C(=O)N2C",
-                }
-            ]
+                },
+            ],
         }
 
 
@@ -176,8 +179,8 @@ class GenerateCXSMILESResponse(BaseModel):
                     "input": "CN1C(=O)C2=C(N=CN2C)N(C)C1=O",
                     "message": "Success",
                     "output": "CN1C=NC2=C1C(=O)N(C)C(=O)N2C |(2.68,2.45,;2.22,1.02,;3.1,-0.19,;2.22,-1.4,;0.8,-0.94,;0.8,0.56,;-0.5,1.31,;-0.5,2.81,;-1.8,0.56,;-3.1,1.31,;-1.8,-0.94,;-3.1,-1.69,;-0.5,-1.69,;-0.5,-3.19,)|",
-                }
-            ]
+                },
+            ],
         }
 
 
@@ -209,8 +212,8 @@ class GenerateInChIResponse(BaseModel):
                     "input": "CN1C(=O)C2=C(N=CN2C)N(C)C1=O",
                     "message": "Success",
                     "output": "InChI=1S/C8H10N4O2/c1-10-4-9-6-5(10)7(13)12(3)8(14)11(6)2/h4H,1-3H3",
-                }
-            ]
+                },
+            ],
         }
 
 
@@ -242,8 +245,8 @@ class GenerateInChIKeyResponse(BaseModel):
                     "input": "CN1C(=O)C2=C(N=CN2C)N(C)C1=O",
                     "message": "Success",
                     "output": "RYYVLZVUVIJVGH-UHFFFAOYSA-N",
-                }
-            ]
+                },
+            ],
         }
 
 
@@ -275,8 +278,8 @@ class GenerateIUPACResponse(BaseModel):
                     "input": "CN1C(=O)C2=C(N=CN2C)N(C)C1=O",
                     "message": "Success",
                     "output": "1,3,7-trimethylpurine-2,6-dione",
-                }
-            ]
+                },
+            ],
         }
 
 
@@ -308,8 +311,8 @@ class GenerateSELFIESResponse(BaseModel):
                     "input": "CN1C(=O)C2=C(N=CN2C)N(C)C1=O",
                     "message": "Success",
                     "output": "[C][N][C][=Branch1][C][=O][C][=C][Branch1][#Branch1][N][=C][N][Ring1][Branch1][C][N][Branch1][C][C][C][Ring1][N][=O]",
-                }
-            ]
+                },
+            ],
         }
 
 
@@ -341,6 +344,6 @@ class GenerateFormatsResponse(BaseModel):
                     "input": "CN1C(=O)C2=C(N=CN2C)N(C)C1=O",
                     "message": "Success",
                     "output": "molblock, SMILES, InChI and InChI-Key",
-                }
-            ]
+                },
+            ],
         }
