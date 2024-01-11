@@ -1,5 +1,8 @@
-import requests
+from __future__ import annotations
+
 import json
+
+import requests
 
 
 async def classify(smiles: str) -> dict:
@@ -22,7 +25,7 @@ async def classify(smiles: str) -> dict:
 
     # Prepare payload for the API request
     payload = json.dumps(
-        {"label": "query", "query_input": smiles, "query_type": "STRUCTURE"}
+        {"label": "query", "query_input": smiles, "query_type": "STRUCTURE"},
     )
 
     # Set headers for the API request

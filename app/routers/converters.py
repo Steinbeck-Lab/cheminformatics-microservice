@@ -1,42 +1,43 @@
-import selfies as sf
+from __future__ import annotations
 
-from fastapi import APIRouter, Query, status, HTTPException
+from typing import Literal
+
+import selfies as sf
+from fastapi import APIRouter
+from fastapi import HTTPException
+from fastapi import Query
+from fastapi import status
 from fastapi.responses import Response
 from rdkit import Chem
-from typing import Literal
-from STOUT import translate_forward, translate_reverse
+from STOUT import translate_forward
+from STOUT import translate_reverse
+
+from app.modules.toolkits.cdk_wrapper import get_canonical_SMILES
+from app.modules.toolkits.cdk_wrapper import get_CDK_SDG_mol
+from app.modules.toolkits.cdk_wrapper import get_CXSMILES
+from app.modules.toolkits.cdk_wrapper import get_InChI
+from app.modules.toolkits.cdk_wrapper import get_smiles_opsin
 from app.modules.toolkits.helpers import parse_input
-from app.modules.toolkits.cdk_wrapper import (
-    get_CDK_SDG_mol,
-    get_CXSMILES,
-    get_canonical_SMILES,
-    get_InChI,
-    get_smiles_opsin,
-)
-from app.modules.toolkits.rdkit_wrapper import (
-    get_3d_conformers,
-    get_2d_mol,
-    get_rdkit_CXSMILES,
-)
-from app.modules.toolkits.openbabel_wrapper import (
-    get_ob_mol,
-    get_ob_canonical_SMILES,
-    get_ob_InChI,
-)
+from app.modules.toolkits.openbabel_wrapper import get_ob_canonical_SMILES
+from app.modules.toolkits.openbabel_wrapper import get_ob_InChI
+from app.modules.toolkits.openbabel_wrapper import get_ob_mol
+from app.modules.toolkits.rdkit_wrapper import get_2d_mol
+from app.modules.toolkits.rdkit_wrapper import get_3d_conformers
+from app.modules.toolkits.rdkit_wrapper import get_rdkit_CXSMILES
 from app.schemas import HealthCheck
-from app.schemas.error import ErrorResponse, BadRequestModel, NotFoundModel
-from app.schemas.converters_schema import (
-    TwoDCoordinatesResponse,
-    ThreeDCoordinatesResponse,
-    GenerateSMILESResponse,
-    GenerateCanonicalResponse,
-    GenerateCXSMILESResponse,
-    GenerateInChIResponse,
-    GenerateInChIKeyResponse,
-    GenerateIUPACResponse,
-    GenerateSELFIESResponse,
-    GenerateFormatsResponse,
-)
+from app.schemas.converters_schema import GenerateCanonicalResponse
+from app.schemas.converters_schema import GenerateCXSMILESResponse
+from app.schemas.converters_schema import GenerateFormatsResponse
+from app.schemas.converters_schema import GenerateInChIKeyResponse
+from app.schemas.converters_schema import GenerateInChIResponse
+from app.schemas.converters_schema import GenerateIUPACResponse
+from app.schemas.converters_schema import GenerateSELFIESResponse
+from app.schemas.converters_schema import GenerateSMILESResponse
+from app.schemas.converters_schema import ThreeDCoordinatesResponse
+from app.schemas.converters_schema import TwoDCoordinatesResponse
+from app.schemas.error import BadRequestModel
+from app.schemas.error import ErrorResponse
+from app.schemas.error import NotFoundModel
 
 router = APIRouter(
     prefix="/convert",
@@ -103,7 +104,8 @@ async def create2d_coordinates(
         },
     ),
     toolkit: Literal["cdk", "rdkit", "openbabel"] = Query(
-        default="cdk", description="Cheminformatics toolkit used in the backend"
+        default="cdk",
+        description="Cheminformatics toolkit used in the backend",
     ),
 ):
     """
@@ -170,7 +172,8 @@ async def create3d_coordinates(
         },
     ),
     toolkit: Literal["rdkit", "openbabel"] = Query(
-        default="rdkit", description="Cheminformatics toolkit used in the backend"
+        default="rdkit",
+        description="Cheminformatics toolkit used in the backend",
     ),
 ):
     """
@@ -233,10 +236,12 @@ async def iupac_name_or_selfies_to_smiles(
         },
     ),
     representation: Literal["iupac", "selfies"] = Query(
-        default="iupac", description="Required type of format conversion"
+        default="iupac",
+        description="Required type of format conversion",
     ),
     converter: Literal["opsin", "stout"] = Query(
-        default="opsin", description="Required type of converter for IUPAC"
+        default="opsin",
+        description="Required type of converter for IUPAC",
     ),
 ):
     """
@@ -309,7 +314,8 @@ async def smiles_canonicalise(
         },
     ),
     toolkit: Literal["cdk", "rdkit", "openbabel"] = Query(
-        default="cdk", description="Cheminformatics toolkit used in the backend"
+        default="cdk",
+        description="Cheminformatics toolkit used in the backend",
     ),
 ):
     """
@@ -368,7 +374,8 @@ async def smiles_to_cxsmiles(
         },
     ),
     toolkit: Literal["cdk", "rdkit"] = Query(
-        default="cdk", description="Cheminformatics toolkit used in the backend"
+        default="cdk",
+        description="Cheminformatics toolkit used in the backend",
     ),
 ):
     """
@@ -431,7 +438,8 @@ async def smiles_to_inchi(
         },
     ),
     toolkit: Literal["cdk", "rdkit", "openbabel"] = Query(
-        default="cdk", description="Cheminformatics toolkit used in the backend"
+        default="cdk",
+        description="Cheminformatics toolkit used in the backend",
     ),
 ):
     """
@@ -496,7 +504,8 @@ async def smiles_to_inchikey(
         },
     ),
     toolkit: Literal["cdk", "rdkit", "openbabel"] = Query(
-        default="cdk", description="Cheminformatics toolkit used in the backend"
+        default="cdk",
+        description="Cheminformatics toolkit used in the backend",
     ),
 ):
     """
@@ -679,7 +688,8 @@ async def smiles_convert_to_formats(
         },
     ),
     toolkit: Literal["cdk", "rdkit", "openbabel"] = Query(
-        default="cdk", description="Cheminformatics toolkit used in the backend"
+        default="cdk",
+        description="Cheminformatics toolkit used in the backend",
     ),
 ):
     """
@@ -719,7 +729,10 @@ async def smiles_convert_to_formats(
             if mol:
                 response = {}
                 response["mol"] = Chem.MolToMolBlock(mol)
-                response["canonicalsmiles"] = Chem.MolToSmiles(mol, kekuleSmiles=True)
+                response["canonicalsmiles"] = Chem.MolToSmiles(
+                    mol,
+                    kekuleSmiles=True,
+                )
                 response["inchi"] = Chem.inchi.MolToInchi(mol)
                 response["inchikey"] = Chem.inchi.MolToInchiKey(mol)
                 return response
@@ -737,5 +750,6 @@ async def smiles_convert_to_formats(
             )
     except Exception as e:
         raise HTTPException(
-            status_code=422, detail="Error processing request: " + str(e)
+            status_code=422,
+            detail="Error processing request: " + str(e),
         )

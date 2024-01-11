@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import pytest
 from fastapi.testclient import TestClient
+
 from app.main import app
 
 
@@ -15,7 +18,7 @@ def test_tool_index():
 def test_generate_structures_exception():
     molecular_formula = "invalid_formula"
     response = client.get(
-        f"/latest/tools/generate-structures?molecular_formula={molecular_formula}"
+        f"/latest/tools/generate-structures?molecular_formula={molecular_formula}",
     )
     assert response.status_code == 500
 
@@ -28,7 +31,7 @@ def test_generate_structures_exception():
 )
 def test_generate_structures(input, response_text, response_code):
     response = client.get(
-        f"/latest/tools/generate-structures?molecular_formula={input}"
+        f"/latest/tools/generate-structures?molecular_formula={input}",
     )
     assert response.status_code == response_code
     assert response.text == response_text
@@ -96,7 +99,9 @@ def test_remove_linear_sugars(input, response_text, response_code):
     ],
 )
 def test_remove_circular_sugars(input, response_text, response_code):
-    response = client.get(f"/latest/tools/remove-circular-sugars?smiles={input}")
+    response = client.get(
+        f"/latest/tools/remove-circular-sugars?smiles={input}",
+    )
     assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
     if input != "INVALID_INPUT":

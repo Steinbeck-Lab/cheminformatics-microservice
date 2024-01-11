@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import pytest
 from fastapi.testclient import TestClient
+
 from app.main import app
 
 
@@ -21,10 +24,17 @@ def test_chem_index():
     ],
 )
 def test_depict2D_molecule(
-    smiles, generator, width, height, rotate, CIP, unicolor, response_code
+    smiles,
+    generator,
+    width,
+    height,
+    rotate,
+    CIP,
+    unicolor,
+    response_code,
 ):
     response = client.get(
-        f"/latest/depict/2D?smiles={smiles}&generator={generator}&width={width}&height={height}&rotate={rotate}&CIP={CIP}&unicolor={unicolor}"
+        f"/latest/depict/2D?smiles={smiles}&generator={generator}&width={width}&height={height}&rotate={rotate}&CIP={CIP}&unicolor={unicolor}",
     )
     assert response.status_code == response_code
 
@@ -38,5 +48,7 @@ def test_depict2D_molecule(
     ],
 )
 def test_depict3D_molecule(smiles, toolkit, response_code):
-    response = client.get(f"/latest/depict/3D?smiles={smiles}&toolkit={toolkit}")
+    response = client.get(
+        f"/latest/depict/3D?smiles={smiles}&toolkit={toolkit}",
+    )
     assert response.status_code == response_code

@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import re
-from subprocess import Popen, PIPE
+from subprocess import PIPE
+from subprocess import Popen
 from typing import Union
 
 
@@ -70,7 +73,9 @@ def generate_structures_SURGE(molecular_formula: str) -> Union[list, str]:
                 smiles = [line.strip() for line in output_lines]
                 return smiles
             else:
-                raise Exception(f"Error running surge: {stderr.decode('utf-8')}")
+                raise Exception(
+                    f"Error running surge: {stderr.decode('utf-8')}",
+                )
         except Exception:
             raise Exception(f"Error running surge: {stderr.decode('utf-8')}")
     else:

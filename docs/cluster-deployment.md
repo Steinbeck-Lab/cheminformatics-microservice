@@ -6,7 +6,7 @@ outline: deep
 
 ## Helm Charts - v0.1.6
 
-Cheminformatics Microservice comes packaged with a [Helm](https://helm.sh/docs/) chart, that makes it easy to deploy and manage (scale) containers on [Kubernetes](https://kubernetes.io/) via a convenient package manager interface. 
+Cheminformatics Microservice comes packaged with a [Helm](https://helm.sh/docs/) chart, that makes it easy to deploy and manage (scale) containers on [Kubernetes](https://kubernetes.io/) via a convenient package manager interface.
 
 By following the steps outlined in this documentation, you can easily deploy this microservice using [Helm](https://helm.sh/docs/).
 
@@ -18,10 +18,10 @@ Before proceeding with the deployment, ensure that you have the following:
 
 Kubernetes cluster: Set up a functioning Kubernetes cluster with kubectl configured to interact with the cluster.
 
-Helm: [Install Helm](https://helm.sh/docs/docs/intro/install/) on your local machine or the machine from which you'll be deploying the application. 
+Helm: [Install Helm](https://helm.sh/docs/docs/intro/install/) on your local machine or the machine from which you'll be deploying the application.
 
 ## Deployment using CM Helm Chart
-*  **Add repo:** Once Helm has been set up correctly, add the repo as follows: 
+*  **Add repo:** Once Helm has been set up correctly, add the repo as follows:
 ```bash
     helm repo add repo-helm-charts https://nfdi4chem.github.io/repo-helm-charts/
 ```
@@ -36,7 +36,7 @@ The above command with deploy the service with the default configuration provide
 
 * Helm will install the chart and deploy the application to your Kubernetes cluster. You can view the deployed resources using kubectl commands:
 ```bash
-kubectl get pods    
+kubectl get pods
 kubectl get services
 ```
 * **Upgrading and Managing Deployments:** To upgrade an existing deployment, Use the `helm upgrade` command to apply the changes to the existing release e.g.
@@ -103,7 +103,7 @@ The above command with deploy the service with the default configuration provide
 
 3. Helm will install the chart and deploy the application to your Kubernetes Cluster. To see the progress click on `Workloads` & `Services` tab. or run below commands in your Cloud Shell.
 ```bash
-kubectl get pods    
+kubectl get pods
 kubectl get services
 ```
 4. Once all services are deployed you can see green check next to each services. If not then check the logs to learn more.
@@ -124,10 +124,10 @@ You can set the `targetCPUUtilizationPercentage` and `targetMemoryUtilizationPer
 
 For Docker Compose based deployments follow the documentation here for [scaling](/docker.html#scaling).
 
-::: 
+:::
 
 ### Contribute or Report an issue with CM Helm Chart
-Thank you for your valuable assistance in enhancing our deployment process. If you would like to contribute, kindly create a pull request in our [GitHub](https://github.com/NFDI4Chem/repo-helm-charts) repository. For any issues or bugs you have encountered, please feel free to create an [issue](https://github.com/NFDI4Chem/repo-helm-charts/issues) in the same or write to us at caffeine-devs@uni-jena.de. 
+Thank you for your valuable assistance in enhancing our deployment process. If you would like to contribute, kindly create a pull request in our [GitHub](https://github.com/NFDI4Chem/repo-helm-charts) repository. For any issues or bugs you have encountered, please feel free to create an [issue](https://github.com/NFDI4Chem/repo-helm-charts/issues) in the same or write to us at caffeine-devs@uni-jena.de.
 Your feedback is greatly appreciated.
 
 

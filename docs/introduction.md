@@ -9,7 +9,7 @@ outline: deep
 <br/>
 
 <div style="text-align: justify;">
-The Cheminformatics Microservice offers a collection of versatile functions accessible via REST endpoints that can handle chemical data and perform various cheminformatics tasks. These tasks include (but are not limited to) generating chemical structure depictions, 3D conformers, descriptors, IUPAC names, and converting machine-readable formats. Researchers and developers can effectively access open-source cheminformatics toolkits such as CDK, RDKit, and OpenBabel through this microservice and extend them easily. 
+The Cheminformatics Microservice offers a collection of versatile functions accessible via REST endpoints that can handle chemical data and perform various cheminformatics tasks. These tasks include (but are not limited to) generating chemical structure depictions, 3D conformers, descriptors, IUPAC names, and converting machine-readable formats. Researchers and developers can effectively access open-source cheminformatics toolkits such as CDK, RDKit, and OpenBabel through this microservice and extend them easily.
 
 This microservice packaged as a docker image (container) enables effortless deployment and scalability, making it suitable for academic, research and industry applications. Because of their modular nature, these microservices can be customized and combined to meet various Cheminformatics research and chemical data analysis needs.
 </div>
@@ -33,7 +33,7 @@ It is strongly recommended that readers cite both the software and the correspon
 - Citing software:
 
 ```
-Venkata, C., Sharma, N., Schaub, J., Steinbeck, C., & Rajan, K. (2023). cheminformatics-microservice (Version v1.5.0) [Computer software]. 
+Venkata, C., Sharma, N., Schaub, J., Steinbeck, C., & Rajan, K. (2023). cheminformatics-microservice (Version v1.5.0) [Computer software].
 https://doi.org/10.5281/zenodo.7745987
 ```
 
@@ -41,7 +41,7 @@ https://doi.org/10.5281/zenodo.7745987
 
 <div style="text-align: justify;">
 
-Cheminformatics Microservice and [Natural Products Online](https://naturalproducts.net) are developed and maintained by the [Steinbeck group](https://cheminf.uni-jena.de) at the [Friedrich Schiller University](https://www.uni-jena.de/en/) Jena, Germany. 
+Cheminformatics Microservice and [Natural Products Online](https://naturalproducts.net) are developed and maintained by the [Steinbeck group](https://cheminf.uni-jena.de) at the [Friedrich Schiller University](https://www.uni-jena.de/en/) Jena, Germany.
 
 Funded by the [Deutsche Forschungsgemeinschaft (DFG, German Research Foundation)](https://www.dfg.de/) under the [National Research Data Infrastructure – NFDI4Chem](https://nfdi4chem.de/) – Project number: **441958208** and  [ChemBioSys](https://www.chembiosys.de/en/) (Project INF) - Project number: **239748522 - SFB 1127**.
 </div>

@@ -4,7 +4,7 @@ outline: deep
 
 # Sustainability and Maintainence
 
-It's important to note that the cheminformatics toolkits distributed with CM are all packaged under one container. We consciously chose to go against the usual notion/practice that containers are supposed to do one thing, so every cheminformatics toolkit needs to be packaged as a separate microservice. This is to avoid unnecessary complexity of container orchestration across multiple containers while the containers, as such, can scale indefinitely as they are stateless. 
+It's important to note that the cheminformatics toolkits distributed with CM are all packaged under one container. We consciously chose to go against the usual notion/practice that containers are supposed to do one thing, so every cheminformatics toolkit needs to be packaged as a separate microservice. This is to avoid unnecessary complexity of container orchestration across multiple containers while the containers, as such, can scale indefinitely as they are stateless.
 
 This architectural preference might lead to compatiblity issues or pose a risk of conflicting package versions if the tools integrated are not actively maintained or upgraded (if the underlying toolkits have API changes).
 
@@ -35,4 +35,3 @@ docker exec -u root <tool_service> /path/your_shell_script
 ```
 
 From with in the CM's FAST API Server you can use subprocess to execute a command on a different service and capture the output.
-

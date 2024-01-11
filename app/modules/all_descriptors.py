@@ -1,18 +1,22 @@
-from rdkit.Chem import Descriptors, QED, Lipinski, rdMolDescriptors, rdmolops
+from __future__ import annotations
+
 from typing import Union
-from app.modules.toolkits.rdkit_wrapper import (
-    check_RO5_violations,
-    get_tanimoto_similarity_rdkit,
-)
-from app.modules.toolkits.cdk_wrapper import (
-    get_CDK_SDG,
-    JClass,
-    cdk_base,
-    get_aromatic_ring_count,
-    get_tanimoto_similarity_CDK,
-    get_vander_waals_volume,
-)
+
+from rdkit.Chem import Descriptors
+from rdkit.Chem import Lipinski
+from rdkit.Chem import QED
+from rdkit.Chem import rdMolDescriptors
+from rdkit.Chem import rdmolops
+
+from app.modules.toolkits.cdk_wrapper import cdk_base
+from app.modules.toolkits.cdk_wrapper import get_aromatic_ring_count
+from app.modules.toolkits.cdk_wrapper import get_CDK_SDG
+from app.modules.toolkits.cdk_wrapper import get_tanimoto_similarity_CDK
+from app.modules.toolkits.cdk_wrapper import get_vander_waals_volume
+from app.modules.toolkits.cdk_wrapper import JClass
 from app.modules.toolkits.helpers import parse_input
+from app.modules.toolkits.rdkit_wrapper import check_RO5_violations
+from app.modules.toolkits.rdkit_wrapper import get_tanimoto_similarity_rdkit
 
 
 def get_all_rdkit_descriptors(molecule: any) -> Union[tuple, str]:
@@ -105,7 +109,7 @@ def get_all_cdk_descriptors(molecule: any) -> Union[tuple, str]:
             .toString()
         )
         TotalExactMass = JClass(
-            cdk_base + ".tools.manipulator.AtomContainerManipulator"
+            cdk_base + ".tools.manipulator.AtomContainerManipulator",
         ).getTotalExactMass(SDGMol)
         ALogP = (
             JClass(cdk_base + ".qsar.descriptors.molecular.ALOGPDescriptor")()
@@ -114,7 +118,7 @@ def get_all_cdk_descriptors(molecule: any) -> Union[tuple, str]:
         )
         NumRotatableBonds = (
             JClass(
-                cdk_base + ".qsar.descriptors.molecular.RotatableBondsCountDescriptor"
+                cdk_base + ".qsar.descriptors.molecular.RotatableBondsCountDescriptor",
             )()
             .calculate(SDGMol)
             .getValue()
@@ -127,7 +131,7 @@ def get_all_cdk_descriptors(molecule: any) -> Union[tuple, str]:
         )
         HBondAcceptorCountDescriptor = (
             JClass(
-                cdk_base + ".qsar.descriptors.molecular.HBondAcceptorCountDescriptor"
+                cdk_base + ".qsar.descriptors.molecular.HBondAcceptorCountDescriptor",
             )()
             .calculate(SDGMol)
             .getValue()
@@ -145,7 +149,7 @@ def get_all_cdk_descriptors(molecule: any) -> Union[tuple, str]:
         AromaticRings = get_aromatic_ring_count(SDGMol)
         QEDWeighted = None
         FormalCharge = JClass(
-            cdk_base + ".tools.manipulator.AtomContainerManipulator"
+            cdk_base + ".tools.manipulator.AtomContainerManipulator",
         ).getTotalFormalCharge(SDGMol)
         FractionalCSP3Descriptor = (
             JClass(cdk_base + ".qsar.descriptors.molecular.FractionalCSP3Descriptor")()
@@ -153,7 +157,13 @@ def get_all_cdk_descriptors(molecule: any) -> Union[tuple, str]:
             .getValue()
             .toString()
         )
-        NumRings = JClass(cdk_base + ".graph.Cycles").mcb(SDGMol).numberOfCycles()
+        NumRings = (
+            JClass(
+                cdk_base + ".graph.Cycles",
+            )
+            .mcb(SDGMol)
+            .numberOfCycles()
+        )
         VABCVolume = get_vander_waals_volume(SDGMol)
 
         return (
@@ -229,7 +239,9 @@ def get_cdk_rdkit_combined_descriptors(
         combined_dict = {
             descriptor: (rdkit_desc, cdk_desc)
             for descriptor, rdkit_desc, cdk_desc in zip(
-                all_descriptors, rdkit_descriptors, cdk_descriptors
+                all_descriptors,
+                rdkit_descriptors,
+                cdk_descriptors,
             )
         }
         return combined_dict

@@ -1,21 +1,25 @@
-from fastapi import APIRouter, status, Query, HTTPException
-from app.modules.tools.surge import generate_structures_SURGE
-from app.modules.tools.sugar_removal import (
-    get_sugar_info,
-    remove_linear_sugar,
-    remove_circular_sugar,
-    remove_linear_and_circular_sugar,
-)
-from app.schemas import HealthCheck
-from app.schemas.error import ErrorResponse, BadRequestModel, NotFoundModel
-from app.schemas.tools_schema import (
-    GenerateStructuresResponse,
-    GetSugarInformationResponse,
-    GetLinearSugarResponse,
-    GetCircularSugarResponse,
-    GetCircularandLinearSugarResponse,
-)
+from __future__ import annotations
+
+from fastapi import APIRouter
+from fastapi import HTTPException
+from fastapi import Query
+from fastapi import status
+
 from app.modules.toolkits.helpers import parse_input
+from app.modules.tools.sugar_removal import get_sugar_info
+from app.modules.tools.sugar_removal import remove_circular_sugar
+from app.modules.tools.sugar_removal import remove_linear_and_circular_sugar
+from app.modules.tools.sugar_removal import remove_linear_sugar
+from app.modules.tools.surge import generate_structures_SURGE
+from app.schemas import HealthCheck
+from app.schemas.error import BadRequestModel
+from app.schemas.error import ErrorResponse
+from app.schemas.error import NotFoundModel
+from app.schemas.tools_schema import GenerateStructuresResponse
+from app.schemas.tools_schema import GetCircularandLinearSugarResponse
+from app.schemas.tools_schema import GetCircularSugarResponse
+from app.schemas.tools_schema import GetLinearSugarResponse
+from app.schemas.tools_schema import GetSugarInformationResponse
 
 router = APIRouter(
     prefix="/tools",
@@ -77,7 +81,7 @@ async def generate_structures(
             },
             "example2": {"summary": "Example: Heavy atom count 8", "value": "C8H8"},
         },
-    )
+    ),
 ):
     """
     Generates structures using the chemical structure generator based on the canonical generation path method.
@@ -137,7 +141,7 @@ async def get_sugar_information(
                 "value": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
             },
         },
-    )
+    ),
 ):
     """
     Get information on whether a given molecule has circular or linear sugars.
@@ -199,7 +203,7 @@ async def remove_linear_sugars(
                 "value": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
             },
         },
-    )
+    ),
 ):
     """
     Detect and remove linear sugars from a given SMILES string using Sugar Removal Utility.
@@ -249,7 +253,7 @@ async def remove_circular_sugars(
                 "value": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
             },
         },
-    )
+    ),
 ):
     """
     Detect and remove circular sugars from a given SMILES string using Sugar Removal Utility.
@@ -302,7 +306,7 @@ async def remove_linear_and_circular_sugars(
                 "value": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
             },
         },
-    )
+    ),
 ):
     """
     Detect and remove linear and circular sugars from a given SMILES string using Sugar Removal Utility.

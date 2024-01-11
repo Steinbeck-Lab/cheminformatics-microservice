@@ -4,7 +4,7 @@
 # - Fetch Latest release.
 # - Build the latest docker image in development which needs test to pass first.
 # - Push the docker image to Github Artifact Registry-Dev.
-# 
+#
 # Maintainers:
 #   - name: Nisha Sharma
 #   - email: nisha.sharma@uni-jena.de
@@ -28,13 +28,13 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
-      
+
       - name: Log in to Docker Hub
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
           username: ${{ env.DOCKER_HUB_USERNAME  }}
           password: ${{ env.DOCKER_HUB_PASSWORD  }}
-      
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:

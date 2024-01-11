@@ -1,14 +1,25 @@
-import requests
+from __future__ import annotations
+
 import uuid
-from fastapi.responses import JSONResponse
-from urllib.request import urlopen
+from typing import Annotated
 from urllib.parse import urlsplit
-from fastapi import Body, APIRouter, status, HTTPException, File, UploadFile
+from urllib.request import urlopen
+
+import requests
+from fastapi import APIRouter
+from fastapi import Body
+from fastapi import File
+from fastapi import HTTPException
+from fastapi import status
+from fastapi import UploadFile
+from fastapi.responses import JSONResponse
+
 from app.modules.decimer import get_predicted_segments_from_file
 from app.schemas import HealthCheck
-from app.schemas.error import ErrorResponse, BadRequestModel, NotFoundModel
+from app.schemas.error import BadRequestModel
+from app.schemas.error import ErrorResponse
+from app.schemas.error import NotFoundModel
 from app.schemas.ocsr_schema import ExtractChemicalInfoResponse
-from typing import Annotated
 
 router = APIRouter(
     prefix="/ocsr",
@@ -106,13 +117,17 @@ async def Extract_ChemicalInfo_From_File(
         try:
             filename = "/tmp/" + str(uuid.uuid4())
             response = urlopen(img)
-            smiles = get_predicted_segments_from_file(response.file.read(), filename)
+            smiles = get_predicted_segments_from_file(
+                response.file.read(),
+                filename,
+            )
             return JSONResponse(
-                content={"reference": reference, "smiles": smiles.split(".")}
+                content={"reference": reference, "smiles": smiles.split(".")},
             )
         except Exception as e:
             raise HTTPException(
-                status_code=422, detail="Error processing the image: " + str(e)
+                status_code=422,
+                detail="Error processing the image: " + str(e),
             )
     else:
         try:
@@ -120,13 +135,17 @@ async def Extract_ChemicalInfo_From_File(
             filename = "/tmp/" + split.path.split("/")[-1]
             response = requests.get(path)
             if response.status_code == 200:
-                smiles = get_predicted_segments_from_file(response.content, filename)
+                smiles = get_predicted_segments_from_file(
+                    response.content,
+                    filename,
+                )
             return JSONResponse(
-                content={"reference": reference, "smiles": smiles.split(".")}
+                content={"reference": reference, "smiles": smiles.split(".")},
             )
         except Exception as e:
             raise HTTPException(
-                status_code=422, detail="Error processing the image: " + str(e)
+                status_code=422,
+                detail="Error processing the image: " + str(e),
             )
 
 
@@ -167,15 +186,17 @@ async def extract_chemicalinfo_from_upload(
             try:
                 smiles = get_predicted_segments_from_file(contents, filename)
                 return JSONResponse(
-                    content={"reference": None, "smiles": smiles.split(".")}
+                    content={"reference": None, "smiles": smiles.split(".")},
                 )
             except Exception as e:
                 raise HTTPException(
-                    status_code=422, detail="Error processing the image: " + str(e)
+                    status_code=422,
+                    detail="Error processing the image: " + str(e),
                 )
         except Exception as e:
             raise HTTPException(
-                status_code=422, detail="Error processing the image: " + str(e)
+                status_code=422,
+                detail="Error processing the image: " + str(e),
             )
         finally:
             file.file.close()

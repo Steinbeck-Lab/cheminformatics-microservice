@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import pytest
 from fastapi.testclient import TestClient
+
 from app.main import app
 
 
@@ -24,7 +27,9 @@ def test_ocsr_index():
 )
 def test_process(input, response_code):
     response = client.post(
-        "/latest/ocsr/process", data=input, headers={"Content-Type": "application/json"}
+        "/latest/ocsr/process",
+        data=input,
+        headers={"Content-Type": "application/json"},
     )
     assert response.status_code == response_code
 
