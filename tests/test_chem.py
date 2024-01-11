@@ -358,3 +358,24 @@ def test_all_filter_molecules(test_smiles):
         headers={"Content-Type": "text/plain"},
     )
     assert response.status_code == 200
+
+
+def test_get_ertl_functional_groups_invalid_molecule():
+    response = client.get("/latest/chem/ertlfunctionalgroup?smiles=CN1C=NC2=C1C(=O)N(")
+    assert response.status_code == 422
+
+
+def test_get_functional_groups_endpoint(test_smiles):
+    response = client.get(
+        "/latest/chem/ertlfunctionalgroup?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+
+
+def test_get_functional_groups_endpoint_invalid_input():
+    response = client.get("/latest/chem/ertlfunctionalgroup?smiles=invalid_smiles")
+    assert response.status_code == 422
+    data = response.json()
+    assert "Error reading smiles" in data["detail"]

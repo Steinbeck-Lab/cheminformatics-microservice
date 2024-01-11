@@ -32,6 +32,7 @@ from app.modules.toolkits.cdk_wrapper import get_CDK_HOSE_codes
 from app.modules.toolkits.cdk_wrapper import get_tanimoto_similarity_CDK
 from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.rdkit_wrapper import check_RO5_violations
+from app.modules.toolkits.rdkit_wrapper import get_ertl_functional_groups
 from app.modules.toolkits.rdkit_wrapper import get_GhoseFilter
 from app.modules.toolkits.rdkit_wrapper import get_PAINS
 from app.modules.toolkits.rdkit_wrapper import get_properties
@@ -45,6 +46,7 @@ from app.modules.toolkits.rdkit_wrapper import QED
 from app.schemas import HealthCheck
 from app.schemas.chem_schema import FilteredMoleculesResponse
 from app.schemas.chem_schema import GenerateDescriptorsResponse
+from app.schemas.chem_schema import GenerateFunctionalGroupResponse
 from app.schemas.chem_schema import GenerateHOSECodeResponse
 from app.schemas.chem_schema import GenerateMultipleDescriptorsResponse
 from app.schemas.chem_schema import GenerateStandardizeResponse
@@ -1042,3 +1044,59 @@ async def all_filter_molecules(
             all_smiles.append(final_results)
 
     return all_smiles
+
+
+@router.get(
+    "/ertlfunctionalgroup",
+    summary="using the algorithm proposed by Peter Ertl to identify functional groups",
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": GenerateFunctionalGroupResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
+)
+async def get_functional_groups(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES string to be enumerated",
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
+    ),
+):
+    """
+    For a given SMILES string this function generates a list of identified functional groups
+
+    Parameters:
+    - **SMILES**: required (query parameter): The SMILES string to be checked for functional groups.
+
+    Returns:
+    - List[str]: A list of identified functional groups, otherwise returns an error message.
+
+    Raises:
+    - ValueError: If the SMILES string is not provided or is invalid.
+
+    """
+    mol = parse_input(smiles, "rdkit", False)
+    if mol:
+        try:
+            f_groups = get_ertl_functional_groups(mol)
+            return f_groups
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+    else:
+        raise HTTPException(
+            status_code=422,
+            detail="Error reading SMILES string, please check again.",
+        )
