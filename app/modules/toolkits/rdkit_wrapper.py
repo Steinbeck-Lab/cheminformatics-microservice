@@ -17,6 +17,7 @@ from rdkit.Chem import rdMolDescriptors
 from rdkit.Chem import rdmolops
 from rdkit.Chem.FilterCatalog import FilterCatalog
 from rdkit.Chem.FilterCatalog import FilterCatalogParams
+from rdkit.Contrib.IFG import ifg
 from rdkit.Contrib.SA_Score import sascorer
 
 
@@ -434,10 +435,10 @@ def get_VeberFilter(molecule: any) -> bool:
     drug-like if it has 10 or fewer rotatable bonds and a TPSA of 140 or less.
 
     Parameters:
-    molecule (any):  A molecule represented as an RDKit Mol object.
+        molecule (any):  A molecule represented as an RDKit Mol object.
 
     Returns:
-    bool: True if the molecule passes the Veber filter criteria, indicating
+        bool: True if the molecule passes the Veber filter criteria, indicating
           drug-likeness; False otherwise.
 
     Note:
@@ -534,3 +535,32 @@ def get_RuleofThree(molecule: any) -> bool:
         return True
     else:
         return False
+
+
+def get_ertl_functional_groups(molecule: any) -> list:
+    """
+    This function takes an organic molecule as input and uses the algorithm proposed by Peter Ertl to
+    identify functional groups within the molecule. The identification is based on the analysis of
+    chemical fragments present in the molecular structure.
+
+    Parameters:
+        molecule (any): A molecule represented as an RDKit Mol object.
+
+    Returns:
+        list: A list of identified functional groups in the molecule.
+
+    References:
+    - Ertl, Peter. "Implementation of an algorithm to identify functional groups in organic molecules."
+      Journal of Cheminformatics 9.1 (2017): 9.
+      https://jcheminf.springeropen.com/articles/10.1186/s13321-017-0225-z
+
+    If no functional groups are found, the function returns a list with a single element:
+    [{'None': 'No fragments found'}]
+
+    """
+    if molecule:
+        fragments = ifg.identify_functional_groups(molecule)
+        if fragments:
+            return fragments
+        else:
+            return [{"None": "No fragments found"}]

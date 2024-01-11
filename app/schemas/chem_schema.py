@@ -334,3 +334,41 @@ class FilteredMoleculesResponse(BaseModel):
                 },
             ],
         }
+
+
+class GenerateFunctionalGroupResponse(BaseModel):
+    """
+    Represents a response containing a list of identified functional groups in the molecule.
+
+    Properties:
+    - stereoisomers (List[str]): a list of identified functional groups in the molecule
+    """
+
+    stereoisomers: list = Field(
+        ...,
+        title="FunctionalGroups",
+        description="A list of identified functional groups.",
+    )
+
+    class Config:
+        """
+        Pydantic model configuration.
+
+        JSON Schema Extra:
+        - Includes examples of the response structure.
+        """
+
+        json_schema_extra = {
+            "examples": [
+                {
+                    "input": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+                    "message": "Success",
+                    "output": """[IFG(atomIds=(1,), atoms='n', type='cn(c)C'),
+ IFG(atomIds=(3,), atoms='n', type='cnc'),
+ IFG(atomIds=(7,), atoms='O', type='c=O'),
+ IFG(atomIds=(8,), atoms='n', type='cn(c)C'),
+ IFG(atomIds=(10,), atoms='O', type='c=O'),
+ IFG(atomIds=(11,), atoms='n', type='cn(c)C')]""",
+                },
+            ],
+        }
