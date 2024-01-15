@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v2.0.0...v2.1.0) (2024-01-11)
+
+
+### Features
+
+* Add ertl functional groups and test ([2a1fd06](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/2a1fd066e72294a07b5e9a77571f979a25dd2524))
+* add pre-commit ([ecc84c1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/ecc84c1c545031d724be9b510d223f45fee9997b))
+
 ## [1.7.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v1.6.2...v1.7.0) (2024-01-09)
 
 
