@@ -7,15 +7,12 @@ version: 2
 # Set the OS, Python version and other tools you might need
 build:
   os: ubuntu-22.04
+  apt_packages:
+    - openjdk-11-jre
   tools:
     python: "3.11"
   jobs:
     post_install:
-      - apt-get update
-      - apt-get install -y software-properties-common
-      - apt-get update -y
-      - apt-get install -y openjdk-11-jre
-      - export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
       - python -m pip install --no-deps -r docs/extra-requirements.txt
 
 # Build documentation in the "docs/" directory with Sphinx
