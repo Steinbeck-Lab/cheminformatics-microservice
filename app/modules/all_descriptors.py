@@ -287,12 +287,11 @@ def get_tanimoto_similarity(smileslist: str, toolkit: str = "cdk") -> list:
     Args:
         smileslist (str): A comma-separated list of SMILES strings.
         toolkit (str, optional): The toolkit to use for calculating similarity.
-            Can be "cdk" (Chemistry Development Kit) or "rdkit" (RDKit).
-            Defaults to "cdk".
+            Can be "cdk" (Chemistry Development Kit) or "rdkit" (RDKit).Defaults to "cdk".
 
     Returns:
         list: A matrix containing Tanimoto similarity scores.
-            Rows and columns correspond to SMILES strings in the input list.
+        Rows and columns correspond to SMILES strings in the input list.
 
     Raises:
         ValueError: If an unsupported toolkit is provided.

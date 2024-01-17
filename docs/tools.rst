@@ -10,7 +10,7 @@ app.modules.tools.surge module
    :show-inheritance:
 
 app.modules.tools.sugar_removal module
--------------------------------------
+--------------------------------------
 
 .. automodule:: app.modules.tools.sugar_removal
    :members:
