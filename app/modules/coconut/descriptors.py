@@ -13,8 +13,7 @@ from app.modules.tools.sugar_removal import get_sugar_info
 
 
 def get_descriptors(smiles: str, toolkit: str) -> Union[tuple, str]:
-    """
-    Calculate descriptors using RDKit or CDK toolkit for the given SMILES.
+    """Calculate descriptors using RDKit or CDK toolkit for the given SMILES.
 
     Args:
         smiles (str): SMILES input.
@@ -36,8 +35,8 @@ def get_descriptors(smiles: str, toolkit: str) -> Union[tuple, str]:
 
 
 def get_COCONUT_descriptors(smiles: str, toolkit: str) -> Union[Dict[str, float], str]:
-    """
-    Calculate COCONUT descriptors using RDKit or CDK toolkit for the given SMILES.
+    """Calculate COCONUT descriptors using RDKit or CDK toolkit for the given
+    SMILES.
 
     Args:
         smiles (str): SMILES input.

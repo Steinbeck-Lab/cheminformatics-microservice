@@ -45,8 +45,7 @@ router = APIRouter(
     include_in_schema=False,
 )
 def get_health() -> HealthCheck:
-    """
-    ## Perform a Health Check.
+    """## Perform a Health Check.
 
     Endpoint to perform a health check on. This endpoint can primarily be used by Docker
     to ensure a robust container orchestration and management are in place. Other
@@ -98,8 +97,8 @@ async def Extract_ChemicalInfo_From_File(
         description="Image: Bytes content of the chemical structure depiction image",
     ),
 ):
-    """
-    Detect, segment and convert a chemical structure depiction into a SMILES string using the DECIMER modules.
+    """Detect, segment and convert a chemical structure depiction into a SMILES
+    string using the DECIMER modules.
 
     Parameters:
     - **path**: optional if img is provided (str): Local or Remote path to the image file.
@@ -166,8 +165,8 @@ async def Extract_ChemicalInfo_From_File(
 async def extract_chemicalinfo_from_upload(
     file: Annotated[UploadFile, File(description="Chemical structure depiction image")],
 ):
-    """
-    Detect, segment and convert a chemical structure depiction in the uploaded image file into a SMILES string using the DECIMER modules.
+    """Detect, segment and convert a chemical structure depiction in the
+    uploaded image file into a SMILES string using the DECIMER modules.
 
     Parameters:
     - **file**: required (File): Chemical structure depiction image

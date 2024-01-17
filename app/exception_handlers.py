@@ -11,8 +11,7 @@ class InvalidInputException(Exception):
 
 
 async def input_exception_handler(request: Request, exc: InvalidInputException):
-    """
-    Custom exception handler for InvalidInputException.
+    """Custom exception handler for InvalidInputException.
 
     Args:
         request (Request): The FastAPI Request object.

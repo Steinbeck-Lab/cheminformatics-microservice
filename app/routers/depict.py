@@ -49,8 +49,7 @@ router = APIRouter(
     include_in_schema=False,
 )
 def get_health() -> HealthCheck:
-    """
-    ## Perform a Health Check.
+    """## Perform a Health Check.
 
     Endpoint to perform a health check on. This endpoint can primarily be used by Docker
     to ensure a robust container orchestration and management are in place. Other
@@ -120,8 +119,8 @@ async def depict_2d_molecule(
         description="Whether to use a single colour for the molecule.",
     ),
 ):
-    """
-    Generates a 2D depiction of a molecule using CDK or RDKit with the given parameters.
+    """Generates a 2D depiction of a molecule using CDK or RDKit with the given
+    parameters.
 
     Parameters:
     - **SMILES**: required (query): The SMILES representation of the molecule. [required]
@@ -205,8 +204,7 @@ async def depict_3d_molecule(
         description="Cheminformatics toolkit used in the backend",
     ),
 ):
-    """
-    Generate 3D depictions of molecules using OpenBabel or RDKit.
+    """Generate 3D depictions of molecules using OpenBabel or RDKit.
 
     Parameters:
     - **SMILES**: required (str): The SMILES string representing the molecule to depict.

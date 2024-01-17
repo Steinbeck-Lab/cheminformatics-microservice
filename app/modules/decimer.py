@@ -9,8 +9,8 @@ from PIL import Image
 
 
 def convert_image(path: str) -> str:
-    """
-    Convert a GIF image to PNG format, resize, and place on a white background.
+    """Convert a GIF image to PNG format, resize, and place on a white
+    background.
 
     Args:
         path (str): The path to the GIF image file.
@@ -53,8 +53,8 @@ def convert_image(path: str) -> str:
 
 
 def get_segments(path: str) -> tuple:
-    """
-    Takes an image file path and returns a set of paths and image names of segmented images.
+    """Takes an image file path and returns a set of paths and image names of
+    segmented images.
 
     Args:
         input_path (str): the path of an image.
@@ -75,8 +75,7 @@ def get_segments(path: str) -> tuple:
 
 
 def get_predicted_segments(path: str) -> str:
-    """
-    Get predicted SMILES representations for segments within an image.
+    """Get predicted SMILES representations for segments within an image.
 
     This function takes an image path, extracts segments, predicts SMILES representations
     for each segment, and returns a concatenated string of predicted SMILES.
@@ -106,8 +105,8 @@ def get_predicted_segments(path: str) -> str:
 
 
 def get_predicted_segments_from_file(content: any, filename: str) -> tuple:
-    """
-    Takes an image file path and returns a set of paths and image names of segmented images.
+    """Takes an image file path and returns a set of paths and image names of
+    segmented images.
 
     Args:
         input_path (str): the path of an image.

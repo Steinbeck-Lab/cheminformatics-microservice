@@ -18,8 +18,7 @@ def get_cdk_depiction(
     CIP=True,
     unicolor=False,
 ):
-    """
-    This function takes the user input SMILES and Depicts it.
+    """This function takes the user input SMILES and Depicts it.
 
     using the CDK Depiction Generator.
 
@@ -91,8 +90,8 @@ def get_cdk_depiction(
 
 
 def get_rdkit_depiction(molecule: any, molSize=(512, 512), rotate=0, kekulize=True):
-    """
-    This function takes the user input SMILES and Canonicalize it using the RDKit.
+    """This function takes the user input SMILES and Canonicalize it using the
+    RDKit.
 
     Args:
         molecule (Chem.Mol): RDKit molecule object.

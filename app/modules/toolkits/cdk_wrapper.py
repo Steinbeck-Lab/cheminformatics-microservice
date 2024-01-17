@@ -65,8 +65,7 @@ if not isJVMStarted():
 
 
 def get_CDK_IAtomContainer(smiles: str):
-    """
-    This function takes the input SMILES and creates a CDK IAtomContainer.
+    """This function takes the input SMILES and creates a CDK IAtomContainer.
 
     Args:
         smiles (str): SMILES string as input.
@@ -83,8 +82,7 @@ def get_CDK_IAtomContainer(smiles: str):
 
 
 def get_CDK_SDG(molecule: any):
-    """
-    This function takes the input IAtomContainer and Creates a.
+    """This function takes the input IAtomContainer and Creates a.
 
     Structure Diagram Layout using the CDK.
 
@@ -104,8 +102,8 @@ def get_CDK_SDG(molecule: any):
 
 
 def get_CDK_SDG_mol(molecule: any, V3000=False) -> str:
-    """
-    Returns a mol block string with Structure Diagram Layout for the given SMILES.
+    """Returns a mol block string with Structure Diagram Layout for the given
+    SMILES.
 
     Args:
         molecule (IAtomContainer): molecule given by the user.
@@ -125,8 +123,7 @@ def get_CDK_SDG_mol(molecule: any, V3000=False) -> str:
 
 
 def get_murko_framework(molecule: any) -> str:
-    """
-    This function takes the user input SMILES and returns.
+    """This function takes the user input SMILES and returns.
 
     the Murko framework
 
@@ -146,8 +143,7 @@ def get_murko_framework(molecule: any) -> str:
 
 
 def get_aromatic_ring_count(molecule) -> int:
-    """
-    Calculate the number of aromatic rings present in a given molecule.
+    """Calculate the number of aromatic rings present in a given molecule.
 
     Args:
         molecule (IAtomContainer): molecule given by the user.
@@ -178,8 +174,7 @@ def get_aromatic_ring_count(molecule) -> int:
 
 
 def get_vander_waals_volume(molecule: any) -> float:
-    """
-    Calculate the Van der Waals volume of a given molecule.
+    """Calculate the Van der Waals volume of a given molecule.
 
     Args:
         molecule (IAtomContainer): molecule given by the user.
@@ -199,16 +194,14 @@ def get_vander_waals_volume(molecule: any) -> float:
 
 
 def get_CDK_descriptors(molecule: any) -> Union[tuple, str]:
-    """
-    Take an input SMILES and generate a selected set of molecular.
+    """Take an input SMILES and generate a selected set of molecular.
 
     descriptors generated using CDK as a list.
 
-    Args (str):
-        molecule (IAtomContainer): molecule given by the user.
+    Args (str):     molecule (IAtomContainer): molecule given by the
+    user.
 
-    Returns (list):
-        A list of calculated descriptors.
+    Returns (list):     A list of calculated descriptors.
     """
     SDGMol = get_CDK_SDG(molecule)
     if SDGMol:
@@ -309,8 +302,8 @@ def get_CDK_descriptors(molecule: any) -> Union[tuple, str]:
 
 
 def get_tanimoto_similarity_PubChem_CDK(mol1: any, mol2: any) -> str:
-    """
-    Calculate the Tanimoto similarity index between two molecules using PubChem fingerprints.
+    """Calculate the Tanimoto similarity index between two molecules using
+    PubChem fingerprints.
 
     Args:
         mol1 (IAtomContainer): First molecule given by the user.
@@ -367,8 +360,8 @@ def get_tanimoto_similarity_PubChem_CDK(mol1: any, mol2: any) -> str:
 
 
 def get_tanimoto_similarity_ECFP_CDK(mol1: any, mol2: any, ECFP: int = 2) -> str:
-    """
-    Calculate the Tanimoto similarity index between two molecules using CircularFingerprinter fingerprints.
+    """Calculate the Tanimoto similarity index between two molecules using
+    CircularFingerprinter fingerprints.
 
     https://cdk.github.io/cdk/2.8/docs/api/org/openscience/cdk/fingerprint/CircularFingerprinter.html
 
@@ -412,8 +405,8 @@ def get_tanimoto_similarity_CDK(
     fingerprinter: str = "PubChem",
     ECFP: int = 6,
 ) -> float:
-    """
-    Calculate the Tanimoto similarity between two molecules using PubChem/CircularFingerprints in CDK.
+    """Calculate the Tanimoto similarity between two molecules using
+    PubChem/CircularFingerprints in CDK.
 
     Args:
         mol1 (IAtomContainer): First molecule given by the user.
@@ -440,8 +433,8 @@ def get_tanimoto_similarity_CDK(
 
 
 def get_cip_annotation(molecule: any) -> str:
-    """
-    Return the CIP (Cahn–Ingold–Prelog) annotations using the CDK CIP toolkit.
+    """Return the CIP (Cahn–Ingold–Prelog) annotations using the CDK CIP
+    toolkit.
 
     This function takes a SMILES (Simplified Molecular Input Line Entry System) string
     as input and returns a CIP annotated molecule block using the CDK CIP toolkit.
@@ -557,8 +550,8 @@ def get_cip_annotation(molecule: any) -> str:
 
 
 def get_CXSMILES(molecule: any) -> str:
-    """
-    Generate CXSMILES representation with 2D atom coordinates from the given SMILES.
+    """Generate CXSMILES representation with 2D atom coordinates from the given
+    SMILES.
 
     Args:
         molecule (IAtomContainer): molecule given by the user.
@@ -576,8 +569,8 @@ def get_CXSMILES(molecule: any) -> str:
 
 
 def get_canonical_SMILES(molecule: any) -> str:
-    """
-    Generate Canonical SMILES representation with 2D atom coordinates from the given SMILES.
+    """Generate Canonical SMILES representation with 2D atom coordinates from
+    the given SMILES.
 
     Args:
         molecule (IAtomContainer): molecule given by the user.
@@ -595,8 +588,7 @@ def get_canonical_SMILES(molecule: any) -> str:
 
 
 def get_InChI(molecule: any, InChIKey=False) -> str:
-    """
-    Generate InChI or InChIKey from the given SMILES string.
+    """Generate InChI or InChIKey from the given SMILES string.
 
     Args:
         molecule (IAtomContainer): molecule given by the user.
@@ -617,8 +609,7 @@ def get_InChI(molecule: any, InChIKey=False) -> str:
 
 
 def get_smiles_opsin(input_text: str) -> str:
-    """
-    Convert IUPAC chemical name to SMILES notation using OPSIN.
+    """Convert IUPAC chemical name to SMILES notation using OPSIN.
 
     Parameters:
     - input_text (str): The IUPAC chemical name to be converted.
@@ -655,8 +646,7 @@ async def get_CDK_HOSE_codes(
     noOfSpheres: int,
     ringsize: bool,
 ) -> List[str]:
-    """
-    Generate CDK-generated HOSECodes for the given SMILES.
+    """Generate CDK-generated HOSECodes for the given SMILES.
 
     Args:
         molecule (IAtomContainer): molecule given by the user.

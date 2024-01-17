@@ -6,8 +6,7 @@ from pydantic import BaseModel
 
 
 class GenerateStructuresResponse(BaseModel):
-    """
-    A Pydantic model representing a successful response.
+    """A Pydantic model representing a successful response.
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").
@@ -18,8 +17,7 @@ class GenerateStructuresResponse(BaseModel):
     output: List[str]
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -37,8 +35,7 @@ class GenerateStructuresResponse(BaseModel):
 
 
 class GetSugarInformationResponse(BaseModel):
-    """
-    A Pydantic model representing a successful response.
+    """A Pydantic model representing a successful response.
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").
@@ -49,8 +46,7 @@ class GetSugarInformationResponse(BaseModel):
     output: str
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -68,8 +64,7 @@ class GetSugarInformationResponse(BaseModel):
 
 
 class GetLinearSugarResponse(BaseModel):
-    """
-    A Pydantic model representing a successful response.
+    """A Pydantic model representing a successful response.
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").
@@ -80,8 +75,7 @@ class GetLinearSugarResponse(BaseModel):
     output: str
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -99,8 +93,7 @@ class GetLinearSugarResponse(BaseModel):
 
 
 class GetCircularSugarResponse(BaseModel):
-    """
-    A Pydantic model representing a successful response.
+    """A Pydantic model representing a successful response.
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").
@@ -111,8 +104,7 @@ class GetCircularSugarResponse(BaseModel):
     output: str
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -130,8 +122,7 @@ class GetCircularSugarResponse(BaseModel):
 
 
 class GetCircularandLinearSugarResponse(BaseModel):
-    """
-    A Pydantic model representing a successful response.
+    """A Pydantic model representing a successful response.
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").
@@ -142,8 +133,7 @@ class GetCircularandLinearSugarResponse(BaseModel):
     output: str
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.

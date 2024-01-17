@@ -9,8 +9,8 @@ from pydantic import Field
 
 
 class GenerateStereoisomersResponse(BaseModel):
-    """
-    Represents a response containing enumerated stereo isomers for a molecule.
+    """Represents a response containing enumerated stereo isomers for a
+    molecule.
 
     Properties:
     - stereoisomers (List[str]): A list of stereoisomer SMILES strings.
@@ -23,8 +23,7 @@ class GenerateStereoisomersResponse(BaseModel):
     )
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -42,8 +41,7 @@ class GenerateStereoisomersResponse(BaseModel):
 
 
 class GenerateDescriptorsResponse(BaseModel):
-    """
-    Represents a successful response containing descriptors for a molecule.
+    """Represents a successful response containing descriptors for a molecule.
 
     Properties:
     - descriptors (dict): A dictionary of descriptors and their values.
@@ -56,8 +54,7 @@ class GenerateDescriptorsResponse(BaseModel):
     )
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -75,8 +72,8 @@ class GenerateDescriptorsResponse(BaseModel):
 
 
 class GenerateMultipleDescriptorsResponse(BaseModel):
-    """
-    Represents a response containing multiple descriptors for a list of SMILES strings.
+    """Represents a response containing multiple descriptors for a list of
+    SMILES strings.
 
     Properties:
     - descriptors (dict): A dictionary with each SMILES as the key and the corresponding descriptors as the value.
@@ -89,8 +86,7 @@ class GenerateMultipleDescriptorsResponse(BaseModel):
     )
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -108,8 +104,7 @@ class GenerateMultipleDescriptorsResponse(BaseModel):
 
 
 class GenerateHOSECodeResponse(BaseModel):
-    """
-    Represents a response containing HOSE codes for a molecule.
+    """Represents a response containing HOSE codes for a molecule.
 
     Properties:
     - hose_codes (List[str]): A list of HOSE codes for each atom in the molecule.
@@ -122,8 +117,7 @@ class GenerateHOSECodeResponse(BaseModel):
     )
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -141,8 +135,7 @@ class GenerateHOSECodeResponse(BaseModel):
 
 
 class GenerateStandardizeResponse(BaseModel):
-    """
-    Represents a response containing standardized molecule information.
+    """Represents a response containing standardized molecule information.
 
     Properties:
     - standardized_mol (str): The standardized molblock of the molecule.
@@ -173,8 +166,7 @@ class GenerateStandardizeResponse(BaseModel):
     )
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -197,8 +189,7 @@ class GenerateStandardizeResponse(BaseModel):
 
 
 class NPlikelinessScoreResponse(BaseModel):
-    """
-    Represents a response containing the natural product likeness score.
+    """Represents a response containing the natural product likeness score.
 
     Properties:
     - np_score (float): The calculated natural product likeness score.
@@ -211,8 +202,7 @@ class NPlikelinessScoreResponse(BaseModel):
     )
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -230,8 +220,7 @@ class NPlikelinessScoreResponse(BaseModel):
 
 
 class TanimotoSimilarityResponse(BaseModel):
-    """
-    Represents the Tanimoto similarity index for a pair of SMILES strings.
+    """Represents the Tanimoto similarity index for a pair of SMILES strings.
 
     Properties:
     - similarity (float): The Tanimoto similarity index.
@@ -244,8 +233,7 @@ class TanimotoSimilarityResponse(BaseModel):
     )
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -263,8 +251,7 @@ class TanimotoSimilarityResponse(BaseModel):
 
 
 class TanimotoMatrixResponse(BaseModel):
-    """
-    Response model for Tanimoto similarity matrix.
+    """Response model for Tanimoto similarity matrix.
 
     Attributes:
     - similarity_matrix (List[List[float]]): A 2D list representing the Tanimoto similarity matrix.
@@ -279,8 +266,7 @@ class TanimotoMatrixResponse(BaseModel):
     )
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -298,8 +284,7 @@ class TanimotoMatrixResponse(BaseModel):
 
 
 class FilteredMoleculesResponse(BaseModel):
-    """
-    Represents a response containing standardized molecule information.
+    """Represents a response containing standardized molecule information.
 
     Properties:
     - filtered_smiles (str): The canonical SMILES representation of the molecule.
@@ -318,8 +303,7 @@ class FilteredMoleculesResponse(BaseModel):
     )
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -337,8 +321,8 @@ class FilteredMoleculesResponse(BaseModel):
 
 
 class GenerateFunctionalGroupResponse(BaseModel):
-    """
-    Represents a response containing a list of identified functional groups in the molecule.
+    """Represents a response containing a list of identified functional groups
+    in the molecule.
 
     Properties:
     - stereoisomers (List[str]): a list of identified functional groups in the molecule
@@ -351,8 +335,7 @@ class GenerateFunctionalGroupResponse(BaseModel):
     )
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.

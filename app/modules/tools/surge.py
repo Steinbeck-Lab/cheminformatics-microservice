@@ -7,8 +7,7 @@ from typing import Union
 
 
 def get_heavy_atom_count(formula: str) -> int:
-    """
-    Calculate the heavy atom count from a given molecular formula.
+    """Calculate the heavy atom count from a given molecular formula.
 
     Args:
         formula (str): The molecular formula of the molecule.
@@ -36,8 +35,8 @@ def get_heavy_atom_count(formula: str) -> int:
 
 
 def generate_structures_SURGE(molecular_formula: str) -> Union[list, str]:
-    """
-    Generate chemical structures using the surge tool based on the canonical generation path method.
+    """Generate chemical structures using the surge tool based on the canonical
+    generation path method.
 
     Args:
         molecular_formula (str): Molecular formula provided by the user.

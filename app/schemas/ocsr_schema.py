@@ -4,8 +4,7 @@ from pydantic import BaseModel
 
 
 class ExtractChemicalInfoResponse(BaseModel):
-    """
-    A Pydantic model representing a successful response.
+    """A Pydantic model representing a successful response.
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").

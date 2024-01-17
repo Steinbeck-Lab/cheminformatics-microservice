@@ -89,8 +89,7 @@ templates = Jinja2Templates(directory="app/templates")
     response_model=HealthCheck,
 )
 def get_health() -> HealthCheck:
-    """
-    ## Perform a Health Check.
+    """## Perform a Health Check.
 
     Endpoint to perform a health check on. This endpoint can primarily be used by Docker
     to ensure a robust container orchestration and management are in place. Other
@@ -131,8 +130,8 @@ async def get_stereoisomers(
         },
     ),
 ):
-    """
-    For a given SMILES string this function enumerates all possible stereoisomers.
+    """For a given SMILES string this function enumerates all possible
+    stereoisomers.
 
     Parameters:
     - **SMILES**: required (query parameter): The SMILES string to be enumerated.
@@ -189,8 +188,7 @@ async def get_descriptors(
         description="Cheminformatics toolkit used in the backend",
     ),
 ):
-    """
-    Generates standard descriptors for the input molecule (SMILES).
+    """Generates standard descriptors for the input molecule (SMILES).
 
     Parameters:
     - **SMILES**: required (query): The SMILES representation of the molecule.
@@ -272,8 +270,7 @@ async def get_multiple_descriptors(
         description="Cheminformatics toolkit used in the backend",
     ),
 ):
-    """
-    Retrieve multiple descriptors for a list of SMILES strings.
+    """Retrieve multiple descriptors for a list of SMILES strings.
 
     Parameters:
     - **SMILES**: required (query): Comma-separated list of SMILES strings.
@@ -357,8 +354,7 @@ async def hose_codes(
         description="Determines whether to include information about ring sizes",
     ),
 ):
-    """
-    Generates HOSE codes for a given SMILES string.
+    """Generates HOSE codes for a given SMILES string.
 
     Parameters:
     - **SMILES**: required (query): The SMILES string represents the chemical compound.
@@ -424,8 +420,7 @@ M  END""",
         ),
     ],
 ):
-    """
-    Standardize molblock using the ChEMBL curation pipeline.
+    """Standardize molblock using the ChEMBL curation pipeline.
 
     and return the standardized molecule, SMILES, InChI, and InCHI-Key.
 
@@ -508,8 +503,8 @@ async def check_errors(
         description="Flag indicating whether to fix the issues by standardizing the SMILES.",
     ),
 ):
-    """
-    Check a given SMILES string and the represented structure for issues and standardize it using the ChEMBL curation pipeline.
+    """Check a given SMILES string and the represented structure for issues and
+    standardize it using the ChEMBL curation pipeline.
 
     Parameters:
     - **SMILES**: required (str, query) The SMILES string to check and standardize.
@@ -594,8 +589,8 @@ async def np_likeness_score(
         },
     ),
 ):
-    """
-    Calculates the natural product likeness score based on the RDKit implementation.
+    """Calculates the natural product likeness score based on the RDKit
+    implementation.
 
     Parameters:
     - **SMILES**: required (query): The SMILES representation of the molecule.
@@ -662,8 +657,8 @@ async def tanimoto_similarity(
         description="ECFP 2/4/6 are allowed for using CDK Circular fingerprinter. The default is 6",
     ),
 ):
-    """
-    Calculate the Tanimoto similarity index for a pair of SMILES strings using specified parameters.
+    """Calculate the Tanimoto similarity index for a pair of SMILES strings
+    using specified parameters.
 
     Args:
         smiles (str): A comma-separated pair of SMILES strings for the molecules to compare.
@@ -761,8 +756,9 @@ async def coconut_preprocessing(
         },
     ),
 ):
-    """
-    Generates an Input JSON file with information on different molecular representations and descriptors suitable for submission to the COCONUT database.
+    """Generates an Input JSON file with information on different molecular
+    representations and descriptors suitable for submission to the COCONUT
+    database.
 
     Parameters:
     - **SMILES**: required (query): The SMILES string represents a chemical compound.
@@ -818,8 +814,7 @@ async def classyfire_classify(
         },
     ),
 ):
-    """
-    Generate ClassyFire-based classifications using SMILES as input.
+    """Generate ClassyFire-based classifications using SMILES as input.
 
     Parameters:
     - **SMILES**: required (query): The SMILES representation of the compound to be classified.
@@ -855,8 +850,8 @@ async def classyfire_classify(
     },
 )
 async def classyfire_result(jobid: str):
-    """
-    Retrieve the ClassyFire classification results based on the provided Job ID.
+    """Retrieve the ClassyFire classification results based on the provided Job
+    ID.
 
     To obtain the results from ClassyFire, please initiate a new request and obtain a unique job ID.
     Once you have the job ID, you need to submit another request using this ID in order to retrieve the desired outcome.
@@ -1068,8 +1063,8 @@ async def get_functional_groups(
         },
     ),
 ):
-    """
-    For a given SMILES string this function generates a list of identified functional groups.
+    """For a given SMILES string this function generates a list of identified
+    functional groups.
 
     Parameters:
     - **SMILES**: required (query parameter): The SMILES string to be checked for functional groups.

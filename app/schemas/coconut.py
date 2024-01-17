@@ -5,8 +5,7 @@ from pydantic import Field
 
 
 class MoleculeHash(BaseModel):
-    """
-    Represents a molecule's hash information.
+    """Represents a molecule's hash information.
 
     Attributes:
         Formula (str): Chemical formula of the molecule.
@@ -20,8 +19,7 @@ class MoleculeHash(BaseModel):
 
 
 class Representations(BaseModel):
-    """
-    Represents different representations of a molecule.
+    """Represents different representations of a molecule.
 
     Attributes:
         InChI (str): IUPAC International Chemical Identifier (InChI) representation.
@@ -35,8 +33,7 @@ class Representations(BaseModel):
 
 
 class Descriptors(BaseModel):
-    """
-    Represents a collection of molecular descriptors.
+    """Represents a collection of molecular descriptors.
 
     This class provides a structure for storing various molecular descriptors
     that characterize a molecule's chemical properties.
@@ -91,8 +88,7 @@ class Descriptors(BaseModel):
 
 
 class Parent(BaseModel):
-    """
-    Represents the parent molecule with various properties.
+    """Represents the parent molecule with various properties.
 
     Attributes:
         field_2D_mol (str): The 2D molecular structure of the parent molecule.
@@ -110,8 +106,7 @@ class Parent(BaseModel):
 
 
 class COCONUTPreprocessingModel(BaseModel):
-    """
-    Represents a molecule after CocoNut preprocessing.
+    """Represents a molecule after CocoNut preprocessing.
 
     Attributes:
         original_mol (str): Original molecule information.

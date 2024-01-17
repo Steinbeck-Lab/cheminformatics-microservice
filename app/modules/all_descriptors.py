@@ -20,8 +20,7 @@ from app.modules.toolkits.rdkit_wrapper import get_tanimoto_similarity_rdkit
 
 
 def get_all_rdkit_descriptors(molecule: any) -> Union[tuple, str]:
-    """
-    Calculate a selected set of molecular descriptors using RDKit.
+    """Calculate a selected set of molecular descriptors using RDKit.
 
     This function takes an input SMILES string and calculates various molecular descriptors
     using RDKit.
@@ -79,8 +78,7 @@ def get_all_rdkit_descriptors(molecule: any) -> Union[tuple, str]:
 
 
 def get_all_cdk_descriptors(molecule: any) -> Union[tuple, str]:
-    """
-    Calculate a set of molecular descriptors using the CDK.
+    """Calculate a set of molecular descriptors using the CDK.
 
     This function takes a SMILES string as input and calculates various molecular descriptors
     using the CDK. The calculated descriptors are returned as a tuple.
@@ -196,8 +194,8 @@ def get_all_cdk_descriptors(molecule: any) -> Union[tuple, str]:
 def get_cdk_rdkit_combined_descriptors(
     smiles: str,
 ) -> Union[dict, str]:
-    """
-    Calculate a selected set of molecular descriptors using CDK and RDKit for a given SMILES string.
+    """Calculate a selected set of molecular descriptors using CDK and RDKit
+    for a given SMILES string.
 
     Args:
         smiles (str): A SMILES string representing a chemical compound.
@@ -252,8 +250,7 @@ def get_cdk_rdkit_combined_descriptors(
 
 
 def get_table(tanimoto_values: list) -> str:
-    """
-    Convert a list of Tanimoto similarity values into an HTML table.
+    """Convert a list of Tanimoto similarity values into an HTML table.
 
     Args:
         tanimoto_values (list): A list of lists containing Tanimoto similarity values.
@@ -282,8 +279,7 @@ def get_table(tanimoto_values: list) -> str:
 
 
 def get_tanimoto_similarity(smileslist: str, toolkit: str = "cdk") -> list:
-    """
-    Calculate the Tanimoto similarity index between pairs of SMILES strings.
+    """Calculate the Tanimoto similarity index between pairs of SMILES strings.
 
     This function takes a list of SMILES strings, splits them, and calculates
     the Tanimoto similarity index between every pair of SMILES strings.
