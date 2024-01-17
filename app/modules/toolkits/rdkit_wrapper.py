@@ -109,7 +109,6 @@ def get_3d_conformers(molecule: any, depict=True) -> Chem.Mol:
     Returns:
         str or rdkit.Chem.rdchem.Mol: If `depict` is True, returns the 3D structure in MolBlock format.
             Otherwise, returns an RDKit Mol object.
-
     """
     if molecule:
         molecule = Chem.AddHs(molecule)
@@ -192,6 +191,7 @@ def get_tanimoto_similarity_rdkit(
 async def get_rdkit_HOSE_codes(molecule: any, noOfSpheres: int) -> List[str]:
     """
     Calculate and retrieve RDKit HOSE codes for a given SMILES string.
+
     This function takes a SMILES string as input and returns the calculated HOSE codes.
 
     Args:
@@ -361,7 +361,8 @@ def get_sas_score(molecule: any) -> float:
 
 def get_PAINS(molecule: any) -> Union[bool, Tuple[str, str]]:
     """
-    Check if a molecule contains a PAINS (Pan Assay INterference compoundS)
+    Check if a molecule contains a PAINS (Pan Assay INterference compoundS).
+
     substructure.
 
     Parameters:
@@ -481,7 +482,6 @@ def get_REOSFilter(molecule: any) -> bool:
 
     Returns:
         bool: True if the molecule passes the REOS filter, False otherwise.
-
     """
     MW = Descriptors.ExactMolWt(molecule)
     logP = Descriptors.MolLogP(molecule)
@@ -523,7 +523,6 @@ def get_RuleofThree(molecule: any) -> bool:
 
     Returns:
         bool: True if the molecule meets the Rule of Three criteria, False otherwise.
-
     """
     MW = Descriptors.ExactMolWt(molecule)
     logP = Descriptors.MolLogP(molecule)
@@ -539,7 +538,8 @@ def get_RuleofThree(molecule: any) -> bool:
 
 def get_ertl_functional_groups(molecule: any) -> list:
     """
-    This function takes an organic molecule as input and uses the algorithm proposed by Peter Ertl to
+    This function takes an organic molecule as input and uses the algorithm proposed by Peter Ertl to.
+
     identify functional groups within the molecule. The identification is based on the analysis of
     chemical fragments present in the molecular structure.
 
@@ -556,7 +556,6 @@ def get_ertl_functional_groups(molecule: any) -> list:
 
     If no functional groups are found, the function returns a list with a single element:
     [{'None': 'No fragments found'}]
-
     """
     if molecule:
         fragments = ifg.identify_functional_groups(molecule)

@@ -90,7 +90,8 @@ templates = Jinja2Templates(directory="app/templates")
 )
 def get_health() -> HealthCheck:
     """
-    ## Perform a Health Check
+    ## Perform a Health Check.
+
     Endpoint to perform a health check on. This endpoint can primarily be used by Docker
     to ensure a robust container orchestration and management are in place. Other
     services that rely on the proper functioning of the API service will not deploy if this
@@ -131,7 +132,7 @@ async def get_stereoisomers(
     ),
 ):
     """
-    For a given SMILES string this function enumerates all possible stereoisomers
+    For a given SMILES string this function enumerates all possible stereoisomers.
 
     Parameters:
     - **SMILES**: required (query parameter): The SMILES string to be enumerated.
@@ -141,7 +142,6 @@ async def get_stereoisomers(
 
     Raises:
     - ValueError: If the SMILES string is not provided or is invalid.
-
     """
     mol = parse_input(smiles, "rdkit", False)
     if mol:
@@ -205,7 +205,6 @@ async def get_descriptors(
 
     Raises:
     - None
-
     """
     data = get_COCONUT_descriptors(smiles, toolkit)
     if format == "html":
@@ -293,7 +292,6 @@ async def get_multiple_descriptors(
 
     - Request: GET /descriptors/multiple?smiles=CCC
       Response: "Error invalid SMILES"
-
     """
     molecules = [m.strip() for m in smiles.split(",")]
 
@@ -376,7 +374,6 @@ async def hose_codes(
 
     Raises:
     - ValueError: If the SMILES string is not provided or is invalid.
-
     """
     if toolkit == "cdk":
         mol = parse_input(smiles, "cdk", False)
@@ -428,7 +425,8 @@ M  END""",
     ],
 ):
     """
-    Standardize molblock using the ChEMBL curation pipeline
+    Standardize molblock using the ChEMBL curation pipeline.
+
     and return the standardized molecule, SMILES, InChI, and InCHI-Key.
 
     Parameters:
@@ -443,7 +441,6 @@ M  END""",
 
     Raises:
     - ValueError: If the SMILES string is not provided or is invalid.
-
     """
     try:
         if data:
@@ -534,7 +531,6 @@ async def check_errors(
     Notes:
     - If the SMILES string contains spaces, they will be replaced with "+" characters before processing.
     - If the SMILES string cannot be read, the function returns the string "Error reading SMILES string, check again."
-
     """
     mol = Chem.MolFromSmiles(smiles, sanitize=False)
     if mol:
@@ -609,7 +605,6 @@ async def np_likeness_score(
 
     Raises:
     - ValueError: If the SMILES string is not provided or is invalid.
-
     """
     mol = parse_input(smiles, "rdkit", False)
     try:
@@ -777,7 +772,6 @@ async def coconut_preprocessing(
 
     Raises:
     - HTTPException: If there is an error reading the SMILES string.
-
     """
     try:
         data = get_COCONUT_preprocessing(smiles)
@@ -839,7 +833,6 @@ async def classyfire_classify(
     Note:
     - ClassyFire is a chemical taxonomy classification tool that predicts the chemical class and subclass of a compound based on its structural features.
     - This service pings the http://classyfire.wishartlab.com server for information retrieval.
-
     """
     mol = parse_input(smiles, "rdkit", False)
     if mol:
@@ -864,6 +857,7 @@ async def classyfire_classify(
 async def classyfire_result(jobid: str):
     """
     Retrieve the ClassyFire classification results based on the provided Job ID.
+
     To obtain the results from ClassyFire, please initiate a new request and obtain a unique job ID.
     Once you have the job ID, you need to submit another request using this ID in order to retrieve the desired outcome.
 
@@ -876,7 +870,6 @@ async def classyfire_result(jobid: str):
 
     Returns:
     - The ClassyFire classification results as JSON.
-
     """
 
     if jobid:
@@ -1076,7 +1069,7 @@ async def get_functional_groups(
     ),
 ):
     """
-    For a given SMILES string this function generates a list of identified functional groups
+    For a given SMILES string this function generates a list of identified functional groups.
 
     Parameters:
     - **SMILES**: required (query parameter): The SMILES string to be checked for functional groups.
@@ -1086,7 +1079,6 @@ async def get_functional_groups(
 
     Raises:
     - ValueError: If the SMILES string is not provided or is invalid.
-
     """
     mol = parse_input(smiles, "rdkit", False)
     if mol:

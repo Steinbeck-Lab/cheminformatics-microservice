@@ -15,7 +15,6 @@ def get_heavy_atom_count(formula: str) -> int:
 
     Returns:
         count (int): The number of heavy atoms in the molecule.
-
     """
 
     elements = re.findall(r"[A-Z][a-z]*\d*", formula)

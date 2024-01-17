@@ -50,7 +50,8 @@ router = APIRouter(
 )
 def get_health() -> HealthCheck:
     """
-    ## Perform a Health Check
+    ## Perform a Health Check.
+
     Endpoint to perform a health check on. This endpoint can primarily be used by Docker
     to ensure a robust container orchestration and management are in place. Other
     services that rely on the proper functioning of the API service will not deploy if this
@@ -146,7 +147,6 @@ async def depict_2d_molecule(
         - The `rotate` parameter specifies the rotation angle of the molecule in degrees.
         - The `CIP` parameter controls whether Cahn-Ingold-Prelog (CIP) stereochemistry information should be included / not.
         - The `unicolor` parameter determines whether a single colour is used for the molecule.
-
     """
     try:
         if toolkit == "cdk":
@@ -223,7 +223,6 @@ async def depict_3d_molecule(
     Note:
     - The function expects a GET request to the "/3D" endpoint.
     - The generated depictions are rendered using the "mol.html" template found under the templates directory.
-
     """
     try:
         if toolkit == "openbabel":

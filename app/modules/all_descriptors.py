@@ -22,6 +22,7 @@ from app.modules.toolkits.rdkit_wrapper import get_tanimoto_similarity_rdkit
 def get_all_rdkit_descriptors(molecule: any) -> Union[tuple, str]:
     """
     Calculate a selected set of molecular descriptors using RDKit.
+
     This function takes an input SMILES string and calculates various molecular descriptors
     using RDKit.
 
@@ -80,6 +81,7 @@ def get_all_rdkit_descriptors(molecule: any) -> Union[tuple, str]:
 def get_all_cdk_descriptors(molecule: any) -> Union[tuple, str]:
     """
     Calculate a set of molecular descriptors using the CDK.
+
     This function takes a SMILES string as input and calculates various molecular descriptors
     using the CDK. The calculated descriptors are returned as a tuple.
 

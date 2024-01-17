@@ -10,7 +10,6 @@ class Depict2DResponse(BaseModel):
     Attributes:
         message (str): A message indicating the success status (default: "Success").
         output (str): SVG code block of the depicted image
-
     """
 
     message: str = "Success"
@@ -38,7 +37,6 @@ class Depict3DResponse(BaseModel):
     Attributes:
         message (str): A message indicating the success status (default: "Success").
         output (str): HTML code block of the depicted image
-
     """
 
     message: str = "Success"

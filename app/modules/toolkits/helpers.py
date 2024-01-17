@@ -30,7 +30,9 @@ def parse_input(input: str, framework: str = "rdkit", standardize: bool = False)
 
 def parse_SMILES(smiles: str, framework: str = "rdkit", standardize: bool = False):
     """
-    Check whether the input SMILES string is valid. If not, attempt to standardize
+    Check whether the input SMILES string is valid.
+
+    If not, attempt to standardize
     the molecule using the ChEMBL standardization pipeline.
 
     Args:

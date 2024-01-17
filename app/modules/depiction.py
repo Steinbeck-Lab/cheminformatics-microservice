@@ -19,7 +19,8 @@ def get_cdk_depiction(
     unicolor=False,
 ):
     """
-    This function takes the user input SMILES and Depicts it
+    This function takes the user input SMILES and Depicts it.
+
     using the CDK Depiction Generator.
 
     Args:

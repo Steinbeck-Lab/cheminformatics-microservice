@@ -21,7 +21,6 @@ def get_mol_block(input_text: str) -> str:
 
     Raises:
         ValueError: If input_text is not a valid Mol or SMILES.
-
     """
     check = rdkitmodules.is_valid_molecule(input_text)
 
@@ -47,7 +46,6 @@ def get_molecule_hash(molecule: any) -> dict:
 
     Returns:
         dict: Dictionary containing Formula, Isomeric SMILES, and Canonical SMILES.
-
     """
     if molecule:
         Formula = Chem.rdMolDescriptors.CalcMolFormula(molecule)
@@ -75,7 +73,6 @@ def get_representations(molecule: any) -> dict:
 
     Returns:
         dict: Dictionary containing InChI, InChi Key, and Murko framework.
-
     """
     if molecule:
         InChI = Chem.inchi.MolToInchi(molecule)
@@ -96,7 +93,6 @@ def get_COCONUT_preprocessing(input_text: str) -> dict:
 
     Returns:
         dict: COCONUT preprocessed data.
-
     """
     original_mol = get_mol_block(input_text)
     standarised_mol_block = standardizer.standardize_molblock(original_mol)

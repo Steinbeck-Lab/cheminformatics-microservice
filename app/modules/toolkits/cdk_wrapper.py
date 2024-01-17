@@ -84,7 +84,8 @@ def get_CDK_IAtomContainer(smiles: str):
 
 def get_CDK_SDG(molecule: any):
     """
-    This function takes the input IAtomContainer and Creates a
+    This function takes the input IAtomContainer and Creates a.
+
     Structure Diagram Layout using the CDK.
 
     Args:
@@ -125,7 +126,8 @@ def get_CDK_SDG_mol(molecule: any, V3000=False) -> str:
 
 def get_murko_framework(molecule: any) -> str:
     """
-    This function takes the user input SMILES and returns
+    This function takes the user input SMILES and returns.
+
     the Murko framework
 
     Args:
@@ -198,7 +200,8 @@ def get_vander_waals_volume(molecule: any) -> float:
 
 def get_CDK_descriptors(molecule: any) -> Union[tuple, str]:
     """
-    Take an input SMILES and generate a selected set of molecular
+    Take an input SMILES and generate a selected set of molecular.
+
     descriptors generated using CDK as a list.
 
     Args (str):
@@ -366,6 +369,7 @@ def get_tanimoto_similarity_PubChem_CDK(mol1: any, mol2: any) -> str:
 def get_tanimoto_similarity_ECFP_CDK(mol1: any, mol2: any, ECFP: int = 2) -> str:
     """
     Calculate the Tanimoto similarity index between two molecules using CircularFingerprinter fingerprints.
+
     https://cdk.github.io/cdk/2.8/docs/api/org/openscience/cdk/fingerprint/CircularFingerprinter.html
 
     Args:
@@ -447,7 +451,6 @@ def get_cip_annotation(molecule: any) -> str:
 
     Returns:
         str: A CIP annotated molecule block.
-
     """
     SDGMol = get_CDK_SDG(molecule)
     centres_base = "com.simolecule.centres"

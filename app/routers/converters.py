@@ -64,7 +64,8 @@ router = APIRouter(
 )
 def get_health() -> HealthCheck:
     """
-    ## Perform a Health Check
+    ## Perform a Health Check.
+
     Endpoint to perform a health check on. This endpoint can primarily be used by Docker
     to ensure a robust container orchestration and management are in place. Other
     services that rely on the proper functioning of the API service will not deploy if this
@@ -183,7 +184,6 @@ async def create3d_coordinates(
     - **SMILES**: required (str): The SMILES representation of the molecule.
     - **toolkit**: optional (str): The molecule toolkit to use.
         - Supported values: "rdkit" (default) & "openbabel".
-
 
     Returns:
     - molblock (str): The generated mol block with 3D coordinates as a plain text response.
@@ -332,7 +332,6 @@ async def smiles_canonicalise(
     Raises:
     - ValueError: If the SMILES string is empty or contains invalid characters.
     - ValueError: If an unsupported toolkit option is provided.
-
     """
     if toolkit == "cdk":
         mol = parse_input(smiles, "cdk", False)
@@ -379,7 +378,9 @@ async def smiles_to_cxsmiles(
     ),
 ):
     """
-    Convert SMILES to CXSMILES. For more information:
+    Convert SMILES to CXSMILES.
+
+    For more information:
     - https://docs.chemaxon.com/display/docs/chemaxon-extended-smiles-and-smarts-cxsmiles-and-cxsmarts.md
 
     Parameters:
@@ -456,7 +457,6 @@ async def smiles_to_inchi(
     Raises:
     - ValueError: If the SMILES string is empty or contains invalid characters.
     - ValueError: If an unsupported toolkit option is provided.
-
     """
     if toolkit == "cdk":
         mol = parse_input(smiles, "cdk", False)
@@ -522,7 +522,6 @@ async def smiles_to_inchikey(
     Raises:
     - ValueError: If the SMILES string is empty or contains invalid characters.
     - ValueError: If an unsupported toolkit option is provided.
-
     """
     if toolkit == "cdk":
         mol = parse_input(smiles, "cdk", False)
@@ -572,7 +571,9 @@ async def smiles_to_iupac_name(
     ),
 ):
     """
-    Generates IUPAC name using STOUT package. For more information:
+    Generates IUPAC name using STOUT package.
+
+    For more information:
     - Rajan, K., Zielesny, A. & Steinbeck, C. STOUT: SMILES to IUPAC names using neural machine translation. J Cheminform 13, 34 (2021). https://doi.org/10.1186/s13321-021-00512-4
 
     Parameters:
@@ -589,7 +590,6 @@ async def smiles_to_iupac_name(
 
     Disclaimer:
     - Due to the fact that STOUT is a deep learning model, it may occasionally display hallucinations or provide incorrect IUPAC names.
-
     """
     try:
         iupac = translate_forward(smiles)
@@ -634,7 +634,9 @@ async def encode_selfies(
     ),
 ):
     """
-    Generates SELFIES string for a given SMILES string. For more information:
+    Generates SELFIES string for a given SMILES string.
+
+    For more information:
     - Krenn et al, SELFIES and the future of molecular string representations, Patterns, https://doi.org/10.1016/j.patter.2022.100588.
 
     Parameters:

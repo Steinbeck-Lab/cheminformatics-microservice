@@ -12,7 +12,6 @@ class GenerateStructuresResponse(BaseModel):
     Attributes:
         message (str): A message indicating the success status (default: "Success").
         output (List[str]): A list of generated structures.
-
     """
 
     message: str = "Success"
@@ -44,7 +43,6 @@ class GetSugarInformationResponse(BaseModel):
     Attributes:
         message (str): A message indicating the success status (default: "Success").
         output (str): Information on containing sugar
-
     """
 
     message: str = "Success"
@@ -76,7 +74,6 @@ class GetLinearSugarResponse(BaseModel):
     Attributes:
         message (str): A message indicating the success status (default: "Success").
         output (str): SMILES without linear sugar
-
     """
 
     message: str = "Success"
@@ -108,7 +105,6 @@ class GetCircularSugarResponse(BaseModel):
     Attributes:
         message (str): A message indicating the success status (default: "Success").
         output (str): SMILES without circular sugar
-
     """
 
     message: str = "Success"
@@ -140,7 +136,6 @@ class GetCircularandLinearSugarResponse(BaseModel):
     Attributes:
         message (str): A message indicating the success status (default: "Success").
         output (str): SMILES without circular and Linear sugar
-
     """
 
     message: str = "Success"
