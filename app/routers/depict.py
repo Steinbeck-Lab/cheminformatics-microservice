@@ -119,7 +119,8 @@ async def depict_2d_molecule(
         description="Whether to use a single colour for the molecule.",
     ),
 ):
-    """Generates a 2D depiction of a molecule using CDK or RDKit with the given
+    """Generates a 2D depiction of a molecule using CDK or RDKit with the given.
+
     parameters.
 
     Parameters:

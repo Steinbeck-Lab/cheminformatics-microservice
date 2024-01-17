@@ -43,7 +43,8 @@ def check_RO5_violations(molecule: any) -> int:
 
 
 def get_rdkit_descriptors(molecule: any) -> Union[tuple, str]:
-    """Calculate a selected set of molecular descriptors for the input SMILES
+    """Calculate a selected set of molecular descriptors for the input SMILES.
+
     string.
 
     Args:
@@ -101,12 +102,10 @@ def get_3d_conformers(molecule: any, depict=True) -> Chem.Mol:
 
     Args:
         molecule (Chem.Mol): RDKit molecule object.
-        depict (bool, optional): If True, returns the molecule's 3D structure in MolBlock format.
-            If False, returns the 3D molecule without hydrogen atoms.
+        depict (bool, optional): If True, returns the molecule's 3D structure in MolBlock format. If False, returns the 3D molecule without hydrogen atoms.
 
     Returns:
-        str or rdkit.Chem.rdchem.Mol: If `depict` is True, returns the 3D structure in MolBlock format.
-            Otherwise, returns an RDKit Mol object.
+        str or rdkit.Chem.rdchem.Mol: If `depict` is True, returns the 3D structure in MolBlock format. Otherwise, returns an RDKit Mol object.
     """
     if molecule:
         molecule = Chem.AddHs(molecule)
@@ -133,7 +132,10 @@ def get_tanimoto_similarity_rdkit(
     radius=2,
     nBits=2048,
 ) -> Union[float, str]:
-    """Calculate the Tanimoto similarity index between two molecular structures
+    """Calculate the Tanimoto similarity index between two molecular.
+
+    structures.
+
     represented as RDKit Mol objects.
 
     This function computes the Tanimoto similarity index, a measure of structural similarity, between two chemical compounds
@@ -147,8 +149,7 @@ def get_tanimoto_similarity_rdkit(
         nBits (int, optional): The number of bits for fingerprint vectors. Ignored for MACCS keys.
 
     Returns:
-        Union[float, str]: The Tanimoto similarity index between the two molecules if they are valid.
-            If molecules are not valid, returns a string indicating an error.
+        Union[float, str]: The Tanimoto similarity index between the two molecules if they are valid. If molecules are not valid, returns a string indicating an error.
 
     Note:
         - Supported fingerprinter options: "ECFP", "RDKit", "Atompairs", "MACCS".
@@ -211,7 +212,8 @@ async def get_rdkit_HOSE_codes(molecule: any, noOfSpheres: int) -> List[str]:
 
 
 def is_valid_molecule(input_text) -> Union[str, bool]:
-    """Check whether the input text represents a valid molecule in SMILES or
+    """Check whether the input text represents a valid molecule in SMILES or.
+
     Molblock format.
 
     Args:
@@ -272,7 +274,8 @@ def get_2d_mol(molecule: any) -> str:
 
 
 def get_rdkit_CXSMILES(molecule: any) -> str:
-    """Generate CXSMILES representation with coordinates from a given SMILES
+    """Generate CXSMILES representation with coordinates from a given SMILES.
+
     string.
 
     Args:
@@ -353,18 +356,13 @@ def get_sas_score(molecule: any) -> float:
 
 
 def get_PAINS(molecule: any) -> Union[bool, Tuple[str, str]]:
-    """Check if a molecule contains a PAINS (Pan Assay INterference compoundS).
-
-    substructure.
+    """Check if a molecule contains a PAINS (Pan Assay INterference compoundS)substructure.
 
     Parameters:
     molecule (any): A molecule represented as an RDKit Mol object.
 
     Returns:
-    Union[bool, Tuple[str, str]]:
-        - If a PAINS substructure is found in the molecule, a tuple containing
-          the PAINS family and its description is returned.
-        - If no PAINS substructure is found, False is returned.
+    Union[bool, Tuple[str, str]]: The function returns a tuple with the PAINS family and its description if a PAINS substructure is detected in the molecule. Otherwise, it returns False.
 
     This function uses the RDKit library to check if the given molecule contains
     any PAINS substructure. PAINS are known substructures that may interfere
@@ -452,7 +450,8 @@ def get_VeberFilter(molecule: any) -> bool:
 
 
 def get_REOSFilter(molecule: any) -> bool:
-    """Determine if a molecule passes the REOS (Rapid Elimination Of Swill)
+    """Determine if a molecule passes the REOS (Rapid Elimination Of Swill).
+
     filter.
 
     The REOS filter is a set of criteria that a molecule must meet to be considered
@@ -526,7 +525,8 @@ def get_RuleofThree(molecule: any) -> bool:
 
 
 def get_ertl_functional_groups(molecule: any) -> list:
-    """This function takes an organic molecule as input and uses the algorithm
+    """This function takes an organic molecule as input and uses the algorithm.
+
     proposed by Peter Ertl to.
 
     identify functional groups within the molecule. The identification is based on the analysis of
@@ -539,9 +539,7 @@ def get_ertl_functional_groups(molecule: any) -> list:
         list: A list of identified functional groups in the molecule.
 
     References:
-    - Ertl, Peter. "Implementation of an algorithm to identify functional groups in organic molecules."
-      Journal of Cheminformatics 9.1 (2017): 9.
-      https://jcheminf.springeropen.com/articles/10.1186/s13321-017-0225-z
+    - Ertl, Peter. "Implementation of an algorithm to identify functional groups in organic molecules." Journal of Cheminformatics 9.1 (2017): 9. https://jcheminf.springeropen.com/articles/10.1186/s13321-017-0225-z
 
     If no functional groups are found, the function returns a list with a single element:
     [{'None': 'No fragments found'}]

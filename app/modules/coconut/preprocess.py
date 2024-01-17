@@ -82,7 +82,8 @@ def get_representations(molecule: any) -> dict:
 
 
 def get_COCONUT_preprocessing(input_text: str) -> dict:
-    """Preprocess user input text suitable for the COCONUT database submission
+    """Preprocess user input text suitable for the COCONUT database submission.
+
     data.
 
     Args:

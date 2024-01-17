@@ -85,7 +85,8 @@ def score_mol(molecule) -> float:
 
 
 def get_np_score(molecule: any) -> str:
-    """Convert SMILES string to RDKit molecule object and generate the NP
+    """Convert SMILES string to RDKit molecule object and generate the NP.
+
     Score.
 
     Parameters:

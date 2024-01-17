@@ -83,7 +83,8 @@ async def generate_structures(
         },
     ),
 ):
-    """Generates structures using the chemical structure generator based on the
+    """Generates structures using the chemical structure generator based on the.
+
     canonical generation path method.
 
     For more information refer to:
@@ -142,7 +143,8 @@ async def get_sugar_information(
         },
     ),
 ):
-    """Get information on whether a given molecule has circular or linear
+    """Get information on whether a given molecule has circular or linear.
+
     sugars.
 
     For more information refer to:
@@ -204,7 +206,8 @@ async def remove_linear_sugars(
         },
     ),
 ):
-    """Detect and remove linear sugars from a given SMILES string using Sugar
+    """Detect and remove linear sugars from a given SMILES string using Sugar.
+
     Removal Utility.
 
     Parameters:
@@ -253,7 +256,8 @@ async def remove_circular_sugars(
         },
     ),
 ):
-    """Detect and remove circular sugars from a given SMILES string using Sugar
+    """Detect and remove circular sugars from a given SMILES string using Sugar.
+
     Removal Utility.
 
     Parameters:
@@ -305,7 +309,8 @@ async def remove_linear_and_circular_sugars(
         },
     ),
 ):
-    """Detect and remove linear and circular sugars from a given SMILES string
+    """Detect and remove linear and circular sugars from a given SMILES string.
+
     using Sugar Removal Utility.
 
     Parameters:

@@ -108,7 +108,8 @@ async def create2d_coordinates(
         description="Cheminformatics toolkit used in the backend",
     ),
 ):
-    """Generates 2D Coordinates using the CDK Structure diagram
+    """Generates 2D Coordinates using the CDK Structure diagram.
+
     generator/RDKit/Open Babel and returns the mol block.
 
     Parameters:
@@ -176,7 +177,8 @@ async def create3d_coordinates(
         description="Cheminformatics toolkit used in the backend",
     ),
 ):
-    """Generates a random 3D conformer from SMILES using the specified molecule
+    """Generates a random 3D conformer from SMILES using the specified molecule.
+
     toolkit.
 
     Parameters:

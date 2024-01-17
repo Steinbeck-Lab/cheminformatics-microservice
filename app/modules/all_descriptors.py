@@ -194,7 +194,8 @@ def get_all_cdk_descriptors(molecule: any) -> Union[tuple, str]:
 def get_cdk_rdkit_combined_descriptors(
     smiles: str,
 ) -> Union[dict, str]:
-    """Calculate a selected set of molecular descriptors using CDK and RDKit
+    """Calculate a selected set of molecular descriptors using CDK and RDKit.
+
     for a given SMILES string.
 
     Args:
@@ -286,12 +287,10 @@ def get_tanimoto_similarity(smileslist: str, toolkit: str = "cdk") -> list:
 
     Args:
         smileslist (str): A comma-separated list of SMILES strings.
-        toolkit (str, optional): The toolkit to use for calculating similarity.
-            Can be "cdk" (Chemistry Development Kit) or "rdkit" (RDKit).Defaults to "cdk".
+        toolkit (str, optional): The toolkit to use for calculating similarity.Can be "cdk" (Chemistry Development Kit) or "rdkit" (RDKit). Defaults to "cdk".
 
     Returns:
-        list: A matrix containing Tanimoto similarity scores.
-        Rows and columns correspond to SMILES strings in the input list.
+        list: A matrix containing Tanimoto similarity scores.Rows and columns correspond to SMILES strings in the input list.
 
     Raises:
         ValueError: If an unsupported toolkit is provided.

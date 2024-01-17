@@ -97,7 +97,8 @@ async def Extract_ChemicalInfo_From_File(
         description="Image: Bytes content of the chemical structure depiction image",
     ),
 ):
-    """Detect, segment and convert a chemical structure depiction into a SMILES
+    """Detect, segment and convert a chemical structure depiction into a SMILES.
+
     string using the DECIMER modules.
 
     Parameters:
@@ -165,7 +166,8 @@ async def Extract_ChemicalInfo_From_File(
 async def extract_chemicalinfo_from_upload(
     file: Annotated[UploadFile, File(description="Chemical structure depiction image")],
 ):
-    """Detect, segment and convert a chemical structure depiction in the
+    """Detect, segment and convert a chemical structure depiction in the.
+
     uploaded image file into a SMILES string using the DECIMER modules.
 
     Parameters:

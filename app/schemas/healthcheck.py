@@ -4,7 +4,8 @@ from pydantic import BaseModel
 
 
 class HealthCheck(BaseModel):
-    """Represents the response model for validating and returning the result of
+    """Represents the response model for validating and returning the result of.
+
     a health check.
 
     Attributes:

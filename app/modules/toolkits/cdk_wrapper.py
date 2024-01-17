@@ -102,7 +102,8 @@ def get_CDK_SDG(molecule: any):
 
 
 def get_CDK_SDG_mol(molecule: any, V3000=False) -> str:
-    """Returns a mol block string with Structure Diagram Layout for the given
+    """Returns a mol block string with Structure Diagram Layout for the given.
+
     SMILES.
 
     Args:
@@ -302,7 +303,8 @@ def get_CDK_descriptors(molecule: any) -> Union[tuple, str]:
 
 
 def get_tanimoto_similarity_PubChem_CDK(mol1: any, mol2: any) -> str:
-    """Calculate the Tanimoto similarity index between two molecules using
+    """Calculate the Tanimoto similarity index between two molecules using.
+
     PubChem fingerprints.
 
     Args:
@@ -360,7 +362,8 @@ def get_tanimoto_similarity_PubChem_CDK(mol1: any, mol2: any) -> str:
 
 
 def get_tanimoto_similarity_ECFP_CDK(mol1: any, mol2: any, ECFP: int = 2) -> str:
-    """Calculate the Tanimoto similarity index between two molecules using
+    """Calculate the Tanimoto similarity index between two molecules using.
+
     CircularFingerprinter fingerprints.
 
     https://cdk.github.io/cdk/2.8/docs/api/org/openscience/cdk/fingerprint/CircularFingerprinter.html
@@ -405,14 +408,14 @@ def get_tanimoto_similarity_CDK(
     fingerprinter: str = "PubChem",
     ECFP: int = 6,
 ) -> float:
-    """Calculate the Tanimoto similarity between two molecules using
+    """Calculate the Tanimoto similarity between two molecules using.
+
     PubChem/CircularFingerprints in CDK.
 
     Args:
         mol1 (IAtomContainer): First molecule given by the user.
         mol2 (IAtomContainer): Second molecule given by the user.
-        fingerprinter (str, optional): The fingerprinter to use. Currently, only "PubChem/ECFP6"
-                                        is supported. Defaults to "PubChem".
+        fingerprinter (str, optional): The fingerprinter to use. Currently, only "PubChem/ECFP6" is supported. Defaults to "PubChem".
 
     Returns:
         float: The Tanimoto similarity score between the two molecules.
@@ -433,7 +436,8 @@ def get_tanimoto_similarity_CDK(
 
 
 def get_cip_annotation(molecule: any) -> str:
-    """Return the CIP (Cahn–Ingold–Prelog) annotations using the CDK CIP
+    """Return the CIP (Cahn–Ingold–Prelog) annotations using the CDK CIP.
+
     toolkit.
 
     This function takes a SMILES (Simplified Molecular Input Line Entry System) string
@@ -550,7 +554,10 @@ def get_cip_annotation(molecule: any) -> str:
 
 
 def get_CXSMILES(molecule: any) -> str:
-    """Generate CXSMILES representation with 2D atom coordinates from the given
+    """Generate CXSMILES representation with 2D atom coordinates from the.
+
+    given.
+
     SMILES.
 
     Args:
@@ -569,7 +576,8 @@ def get_CXSMILES(molecule: any) -> str:
 
 
 def get_canonical_SMILES(molecule: any) -> str:
-    """Generate Canonical SMILES representation with 2D atom coordinates from
+    """Generate Canonical SMILES representation with 2D atom coordinates from.
+
     the given SMILES.
 
     Args:
@@ -618,8 +626,7 @@ def get_smiles_opsin(input_text: str) -> str:
     - str: The SMILES notation corresponding to the given IUPAC name.
 
     Raises:
-    - Exception: If the IUPAC name is not valid or if there are issues in the conversion process.
-      The exception message will guide the user to check the data again.
+    - Exception: If the IUPAC name is not valid or if there are issues in the conversion process. The exception message will guide the user to check the data again.
     """
     try:
         print(input_text)

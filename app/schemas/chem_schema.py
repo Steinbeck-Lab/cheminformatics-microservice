@@ -9,7 +9,8 @@ from pydantic import Field
 
 
 class GenerateStereoisomersResponse(BaseModel):
-    """Represents a response containing enumerated stereo isomers for a
+    """Represents a response containing enumerated stereo isomers for a.
+
     molecule.
 
     Properties:
@@ -72,7 +73,8 @@ class GenerateDescriptorsResponse(BaseModel):
 
 
 class GenerateMultipleDescriptorsResponse(BaseModel):
-    """Represents a response containing multiple descriptors for a list of
+    """Represents a response containing multiple descriptors for a list of.
+
     SMILES strings.
 
     Properties:
@@ -321,7 +323,8 @@ class FilteredMoleculesResponse(BaseModel):
 
 
 class GenerateFunctionalGroupResponse(BaseModel):
-    """Represents a response containing a list of identified functional groups
+    """Represents a response containing a list of identified functional groups.
+
     in the molecule.
 
     Properties:

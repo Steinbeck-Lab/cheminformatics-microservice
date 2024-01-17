@@ -6,7 +6,8 @@ import requests
 
 
 async def classify(smiles: str) -> dict:
-    """This function queries the ClassyFire API to classify a chemical
+    """This function queries the ClassyFire API to classify a chemical.
+
     compound.
 
     represented by a SMILES string.

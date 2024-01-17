@@ -90,7 +90,8 @@ def get_cdk_depiction(
 
 
 def get_rdkit_depiction(molecule: any, molSize=(512, 512), rotate=0, kekulize=True):
-    """This function takes the user input SMILES and Canonicalize it using the
+    """This function takes the user input SMILES and Canonicalize it using the.
+
     RDKit.
 
     Args:

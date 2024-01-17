@@ -130,7 +130,8 @@ async def get_stereoisomers(
         },
     ),
 ):
-    """For a given SMILES string this function enumerates all possible
+    """For a given SMILES string this function enumerates all possible.
+
     stereoisomers.
 
     Parameters:
@@ -503,7 +504,8 @@ async def check_errors(
         description="Flag indicating whether to fix the issues by standardizing the SMILES.",
     ),
 ):
-    """Check a given SMILES string and the represented structure for issues and
+    """Check a given SMILES string and the represented structure for issues and.
+
     standardize it using the ChEMBL curation pipeline.
 
     Parameters:
@@ -589,7 +591,8 @@ async def np_likeness_score(
         },
     ),
 ):
-    """Calculates the natural product likeness score based on the RDKit
+    """Calculates the natural product likeness score based on the RDKit.
+
     implementation.
 
     Parameters:
@@ -657,7 +660,8 @@ async def tanimoto_similarity(
         description="ECFP 2/4/6 are allowed for using CDK Circular fingerprinter. The default is 6",
     ),
 ):
-    """Calculate the Tanimoto similarity index for a pair of SMILES strings
+    """Calculate the Tanimoto similarity index for a pair of SMILES strings.
+
     using specified parameters.
 
     Args:
@@ -756,7 +760,8 @@ async def coconut_preprocessing(
         },
     ),
 ):
-    """Generates an Input JSON file with information on different molecular
+    """Generates an Input JSON file with information on different molecular.
+
     representations and descriptors suitable for submission to the COCONUT
     database.
 
@@ -850,7 +855,8 @@ async def classyfire_classify(
     },
 )
 async def classyfire_result(jobid: str):
-    """Retrieve the ClassyFire classification results based on the provided Job
+    """Retrieve the ClassyFire classification results based on the provided Job.
+
     ID.
 
     To obtain the results from ClassyFire, please initiate a new request and obtain a unique job ID.
@@ -1063,7 +1069,8 @@ async def get_functional_groups(
         },
     ),
 ):
-    """For a given SMILES string this function generates a list of identified
+    """For a given SMILES string this function generates a list of identified.
+
     functional groups.
 
     Parameters:

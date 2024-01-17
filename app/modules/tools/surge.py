@@ -35,7 +35,8 @@ def get_heavy_atom_count(formula: str) -> int:
 
 
 def generate_structures_SURGE(molecular_formula: str) -> Union[list, str]:
-    """Generate chemical structures using the surge tool based on the canonical
+    """Generate chemical structures using the surge tool based on the canonical.
+
     generation path method.
 
     Args:

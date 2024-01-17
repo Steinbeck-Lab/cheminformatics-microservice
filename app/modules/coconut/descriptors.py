@@ -35,7 +35,8 @@ def get_descriptors(smiles: str, toolkit: str) -> Union[tuple, str]:
 
 
 def get_COCONUT_descriptors(smiles: str, toolkit: str) -> Union[Dict[str, float], str]:
-    """Calculate COCONUT descriptors using RDKit or CDK toolkit for the given
+    """Calculate COCONUT descriptors using RDKit or CDK toolkit for the given.
+
     SMILES.
 
     Args:
