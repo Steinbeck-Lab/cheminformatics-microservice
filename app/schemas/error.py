@@ -4,8 +4,7 @@ from pydantic import BaseModel
 
 
 class ErrorResponse(BaseModel):
-    """
-    Represents an error response.
+    """Represents an error response.
 
     Attributes:
         detail (str): A description of the error. This attribute contains a human-readable description of the error.
@@ -15,8 +14,7 @@ class ErrorResponse(BaseModel):
 
 
 class BadRequestModel(BaseModel):
-    """
-    Represents a Bad Request response in an API.
+    """Represents a Bad Request response in an API.
 
     Args:
         detail (str): A detailed message describing the nature of the bad request.
@@ -27,8 +25,7 @@ class BadRequestModel(BaseModel):
 
 
 class NotFoundModel(BaseModel):
-    """
-    Represents a Not Found response in an API.
+    """Represents a Not Found response in an API.
 
     Args:
         detail (str): A detailed message indicating that the requested resource was not found.

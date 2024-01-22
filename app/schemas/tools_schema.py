@@ -6,21 +6,18 @@ from pydantic import BaseModel
 
 
 class GenerateStructuresResponse(BaseModel):
-    """
-    A Pydantic model representing a successful response.
+    """A Pydantic model representing a successful response.
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").
         output (List[str]): A list of generated structures.
-
     """
 
     message: str = "Success"
     output: List[str]
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -38,21 +35,18 @@ class GenerateStructuresResponse(BaseModel):
 
 
 class GetSugarInformationResponse(BaseModel):
-    """
-    A Pydantic model representing a successful response.
+    """A Pydantic model representing a successful response.
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").
         output (str): Information on containing sugar
-
     """
 
     message: str = "Success"
     output: str
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -70,21 +64,18 @@ class GetSugarInformationResponse(BaseModel):
 
 
 class GetLinearSugarResponse(BaseModel):
-    """
-    A Pydantic model representing a successful response.
+    """A Pydantic model representing a successful response.
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").
         output (str): SMILES without linear sugar
-
     """
 
     message: str = "Success"
     output: str
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -102,21 +93,18 @@ class GetLinearSugarResponse(BaseModel):
 
 
 class GetCircularSugarResponse(BaseModel):
-    """
-    A Pydantic model representing a successful response.
+    """A Pydantic model representing a successful response.
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").
         output (str): SMILES without circular sugar
-
     """
 
     message: str = "Success"
     output: str
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -134,21 +122,18 @@ class GetCircularSugarResponse(BaseModel):
 
 
 class GetCircularandLinearSugarResponse(BaseModel):
-    """
-    A Pydantic model representing a successful response.
+    """A Pydantic model representing a successful response.
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").
         output (str): SMILES without circular and Linear sugar
-
     """
 
     message: str = "Success"
     output: str
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.

@@ -4,21 +4,18 @@ from pydantic import BaseModel
 
 
 class Depict2DResponse(BaseModel):
-    """
-    A Pydantic model representing a successful response.
+    """A Pydantic model representing a successful response.
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").
         output (str): SVG code block of the depicted image
-
     """
 
     message: str = "Success"
     output: str
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -32,21 +29,18 @@ class Depict2DResponse(BaseModel):
 
 
 class Depict3DResponse(BaseModel):
-    """
-    A Pydantic model representing a successful response.
+    """A Pydantic model representing a successful response.
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").
         output (str): HTML code block of the depicted image
-
     """
 
     message: str = "Success"
     output: str
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.

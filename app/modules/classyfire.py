@@ -6,8 +6,10 @@ import requests
 
 
 async def classify(smiles: str) -> dict:
-    """
-    This function queries the ClassyFire API to classify a chemical compound
+    """This function queries the ClassyFire API to classify a chemical.
+
+    compound.
+
     represented by a SMILES string.
 
     Args:
@@ -42,8 +44,7 @@ async def classify(smiles: str) -> dict:
 
 
 async def result(id: str) -> dict:
-    """
-    Fetches JSON response from the ClassyFire API for a given ID.
+    """Fetches JSON response from the ClassyFire API for a given ID.
 
     This function takes an ID and retrieves the corresponding chemical classification
     information from the ClassyFire API in JSON format.

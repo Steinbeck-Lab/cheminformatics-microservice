@@ -103,8 +103,8 @@ async def root():
     response_model=HealthCheck,
 )
 def get_health() -> HealthCheck:
-    """
-    ## Perform a Health Check
+    """## Perform a Health Check.
+
     Endpoint to perform a health check on. This endpoint can primarily be used by Docker
     to ensure a robust container orchestration and management are in place. Other
     services that rely on the proper functioning of the API service will not deploy if this

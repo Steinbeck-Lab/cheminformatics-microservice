@@ -4,8 +4,7 @@ from pydantic import BaseModel
 
 
 class SMILESValidationResult(BaseModel):
-    """
-    Represents the result of validating a SMILES string.
+    """Represents the result of validating a SMILES string.
 
     Attributes:
         smi (str): The SMILES string.
@@ -17,8 +16,7 @@ class SMILESValidationResult(BaseModel):
 
 
 class SMILESStandardizedResult(BaseModel):
-    """
-    Represents the original and standardized versions of a molecule.
+    """Represents the original and standardized versions of a molecule.
 
     Attributes:
         original (SMILESValidationResult): The original SMILES validation result.
@@ -30,8 +28,7 @@ class SMILESStandardizedResult(BaseModel):
 
 
 class StandardizedResult(BaseModel):
-    """
-    Represents a standardized result for a molecule.
+    """Represents a standardized result for a molecule.
 
     Attributes:
         standardized_mol (str): The standardized molecule representation.

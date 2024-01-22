@@ -45,8 +45,8 @@ router = APIRouter(
     include_in_schema=False,
 )
 def get_health() -> HealthCheck:
-    """
-    ## Perform a Health Check
+    """## Perform a Health Check.
+
     Endpoint to perform a health check on. This endpoint can primarily be used by Docker
     to ensure a robust container orchestration and management are in place. Other
     services that rely on the proper functioning of the API service will not deploy if this
@@ -83,11 +83,12 @@ async def generate_structures(
         },
     ),
 ):
-    """
-    Generates structures using the chemical structure generator based on the canonical generation path method.
+    """Generates structures using the chemical structure generator based on the.
+
+    canonical generation path method.
+
     For more information refer to:
     - McKay, B.D., Yirik, M.A. & Steinbeck, C. Surge: a fast open-source chemical graph generator. J Cheminform 14, 24 (2022). https://doi.org/10.1186/s13321-022-00604-9
-
 
     Parameters:
      - **Molecular_Formula**: required (str): The molecular formula of the compound.
@@ -103,7 +104,6 @@ async def generate_structures(
 
     Note:
     - The maximum allowable count of heavy atoms is restricted to 10 to mitigate excessive utilization of this service.
-
     """
     try:
         structures = generate_structures_SURGE(molecular_formula)
@@ -143,8 +143,10 @@ async def get_sugar_information(
         },
     ),
 ):
-    """
-    Get information on whether a given molecule has circular or linear sugars.
+    """Get information on whether a given molecule has circular or linear.
+
+    sugars.
+
     For more information refer to:
     - Schaub, J., Zielesny, A., Steinbeck, C. et al. Too sweet: cheminformatics for deglycosylation in natural products. J Cheminform 12, 67 (2020). https://doi.org/10.1186/s13321-020-00467-y.
 
@@ -162,7 +164,6 @@ async def get_sugar_information(
         - If only linear sugar is present, it returns "The molecule contains only Linear sugar."
         - If only circular sugars are present, it returns "The molecule contains only Circular sugar."
         - If no sugars are found, it returns "The molecule contains no sugar."
-
     """
     mol = parse_input(smiles, "cdk", False)
     try:
@@ -205,15 +206,15 @@ async def remove_linear_sugars(
         },
     ),
 ):
-    """
-    Detect and remove linear sugars from a given SMILES string using Sugar Removal Utility.
+    """Detect and remove linear sugars from a given SMILES string using Sugar.
+
+    Removal Utility.
 
     Parameters:
     - **SMILES string**: (str): SMILES: string representation of the molecule (required, query parameter)
 
     Returns:
     - str: The modified SMILES string with linear sugars removed.
-
     """
     mol = parse_input(smiles, "cdk", False)
     try:
@@ -255,15 +256,15 @@ async def remove_circular_sugars(
         },
     ),
 ):
-    """
-    Detect and remove circular sugars from a given SMILES string using Sugar Removal Utility.
+    """Detect and remove circular sugars from a given SMILES string using Sugar.
+
+    Removal Utility.
 
     Parameters:
     - **SMILES string**: (str): SMILES: string representation of the molecule (required, query parameter)
 
     Returns:
     - str: The modified SMILES string with circular sugars removed.
-
     """
     mol = parse_input(smiles, "cdk", False)
     try:
@@ -308,15 +309,15 @@ async def remove_linear_and_circular_sugars(
         },
     ),
 ):
-    """
-    Detect and remove linear and circular sugars from a given SMILES string using Sugar Removal Utility.
+    """Detect and remove linear and circular sugars from a given SMILES string.
+
+    using Sugar Removal Utility.
 
     Parameters:
     - **SMILES string**: (str): SMILES: string representation of the molecule (required, query parameter)
 
     Returns:
     - str: The modified SMILES string with linear and circular sugars removed.
-
     """
     mol = parse_input(smiles, "cdk", False)
     try:
