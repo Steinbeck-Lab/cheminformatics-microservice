@@ -17,7 +17,7 @@ openbabel-wheel
 opencv-python==4.7.0.68
 pandas
 pdf2image==1.16.2
-pillow==10.0.1
+pillow==10.2.0
 pillow-heif==0.10.0
 pre-commit
 prometheus-fastapi-instrumentator
