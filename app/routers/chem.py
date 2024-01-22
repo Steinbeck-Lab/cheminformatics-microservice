@@ -32,6 +32,7 @@ from app.modules.toolkits.cdk_wrapper import get_CDK_HOSE_codes
 from app.modules.toolkits.cdk_wrapper import get_tanimoto_similarity_CDK
 from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.rdkit_wrapper import check_RO5_violations
+from app.modules.toolkits.rdkit_wrapper import get_ertl_functional_groups
 from app.modules.toolkits.rdkit_wrapper import get_GhoseFilter
 from app.modules.toolkits.rdkit_wrapper import get_PAINS
 from app.modules.toolkits.rdkit_wrapper import get_properties
@@ -45,6 +46,7 @@ from app.modules.toolkits.rdkit_wrapper import QED
 from app.schemas import HealthCheck
 from app.schemas.chem_schema import FilteredMoleculesResponse
 from app.schemas.chem_schema import GenerateDescriptorsResponse
+from app.schemas.chem_schema import GenerateFunctionalGroupResponse
 from app.schemas.chem_schema import GenerateHOSECodeResponse
 from app.schemas.chem_schema import GenerateMultipleDescriptorsResponse
 from app.schemas.chem_schema import GenerateStandardizeResponse
@@ -87,8 +89,8 @@ templates = Jinja2Templates(directory="app/templates")
     response_model=HealthCheck,
 )
 def get_health() -> HealthCheck:
-    """
-    ## Perform a Health Check
+    """## Perform a Health Check.
+
     Endpoint to perform a health check on. This endpoint can primarily be used by Docker
     to ensure a robust container orchestration and management are in place. Other
     services that rely on the proper functioning of the API service will not deploy if this
@@ -128,8 +130,9 @@ async def get_stereoisomers(
         },
     ),
 ):
-    """
-    For a given SMILES string this function enumerates all possible stereoisomers
+    """For a given SMILES string this function enumerates all possible.
+
+    stereoisomers.
 
     Parameters:
     - **SMILES**: required (query parameter): The SMILES string to be enumerated.
@@ -139,7 +142,6 @@ async def get_stereoisomers(
 
     Raises:
     - ValueError: If the SMILES string is not provided or is invalid.
-
     """
     mol = parse_input(smiles, "rdkit", False)
     if mol:
@@ -187,8 +189,7 @@ async def get_descriptors(
         description="Cheminformatics toolkit used in the backend",
     ),
 ):
-    """
-    Generates standard descriptors for the input molecule (SMILES).
+    """Generates standard descriptors for the input molecule (SMILES).
 
     Parameters:
     - **SMILES**: required (query): The SMILES representation of the molecule.
@@ -203,7 +204,6 @@ async def get_descriptors(
 
     Raises:
     - None
-
     """
     data = get_COCONUT_descriptors(smiles, toolkit)
     if format == "html":
@@ -271,8 +271,7 @@ async def get_multiple_descriptors(
         description="Cheminformatics toolkit used in the backend",
     ),
 ):
-    """
-    Retrieve multiple descriptors for a list of SMILES strings.
+    """Retrieve multiple descriptors for a list of SMILES strings.
 
     Parameters:
     - **SMILES**: required (query): Comma-separated list of SMILES strings.
@@ -291,7 +290,6 @@ async def get_multiple_descriptors(
 
     - Request: GET /descriptors/multiple?smiles=CCC
       Response: "Error invalid SMILES"
-
     """
     molecules = [m.strip() for m in smiles.split(",")]
 
@@ -357,8 +355,7 @@ async def hose_codes(
         description="Determines whether to include information about ring sizes",
     ),
 ):
-    """
-    Generates HOSE codes for a given SMILES string.
+    """Generates HOSE codes for a given SMILES string.
 
     Parameters:
     - **SMILES**: required (query): The SMILES string represents the chemical compound.
@@ -374,7 +371,6 @@ async def hose_codes(
 
     Raises:
     - ValueError: If the SMILES string is not provided or is invalid.
-
     """
     if toolkit == "cdk":
         mol = parse_input(smiles, "cdk", False)
@@ -425,8 +421,8 @@ M  END""",
         ),
     ],
 ):
-    """
-    Standardize molblock using the ChEMBL curation pipeline
+    """Standardize molblock using the ChEMBL curation pipeline.
+
     and return the standardized molecule, SMILES, InChI, and InCHI-Key.
 
     Parameters:
@@ -441,7 +437,6 @@ M  END""",
 
     Raises:
     - ValueError: If the SMILES string is not provided or is invalid.
-
     """
     try:
         if data:
@@ -509,8 +504,9 @@ async def check_errors(
         description="Flag indicating whether to fix the issues by standardizing the SMILES.",
     ),
 ):
-    """
-    Check a given SMILES string and the represented structure for issues and standardize it using the ChEMBL curation pipeline.
+    """Check a given SMILES string and the represented structure for issues and.
+
+    standardize it using the ChEMBL curation pipeline.
 
     Parameters:
     - **SMILES**: required (str, query) The SMILES string to check and standardize.
@@ -532,7 +528,6 @@ async def check_errors(
     Notes:
     - If the SMILES string contains spaces, they will be replaced with "+" characters before processing.
     - If the SMILES string cannot be read, the function returns the string "Error reading SMILES string, check again."
-
     """
     mol = Chem.MolFromSmiles(smiles, sanitize=False)
     if mol:
@@ -596,8 +591,9 @@ async def np_likeness_score(
         },
     ),
 ):
-    """
-    Calculates the natural product likeness score based on the RDKit implementation.
+    """Calculates the natural product likeness score based on the RDKit.
+
+    implementation.
 
     Parameters:
     - **SMILES**: required (query): The SMILES representation of the molecule.
@@ -607,7 +603,6 @@ async def np_likeness_score(
 
     Raises:
     - ValueError: If the SMILES string is not provided or is invalid.
-
     """
     mol = parse_input(smiles, "rdkit", False)
     try:
@@ -665,8 +660,9 @@ async def tanimoto_similarity(
         description="ECFP 2/4/6 are allowed for using CDK Circular fingerprinter. The default is 6",
     ),
 ):
-    """
-    Calculate the Tanimoto similarity index for a pair of SMILES strings using specified parameters.
+    """Calculate the Tanimoto similarity index for a pair of SMILES strings.
+
+    using specified parameters.
 
     Args:
         smiles (str): A comma-separated pair of SMILES strings for the molecules to compare.
@@ -764,8 +760,10 @@ async def coconut_preprocessing(
         },
     ),
 ):
-    """
-    Generates an Input JSON file with information on different molecular representations and descriptors suitable for submission to the COCONUT database.
+    """Generates an Input JSON file with information on different molecular.
+
+    representations and descriptors suitable for submission to the COCONUT
+    database.
 
     Parameters:
     - **SMILES**: required (query): The SMILES string represents a chemical compound.
@@ -775,7 +773,6 @@ async def coconut_preprocessing(
 
     Raises:
     - HTTPException: If there is an error reading the SMILES string.
-
     """
     try:
         data = get_COCONUT_preprocessing(smiles)
@@ -822,8 +819,7 @@ async def classyfire_classify(
         },
     ),
 ):
-    """
-    Generate ClassyFire-based classifications using SMILES as input.
+    """Generate ClassyFire-based classifications using SMILES as input.
 
     Parameters:
     - **SMILES**: required (query): The SMILES representation of the compound to be classified.
@@ -837,7 +833,6 @@ async def classyfire_classify(
     Note:
     - ClassyFire is a chemical taxonomy classification tool that predicts the chemical class and subclass of a compound based on its structural features.
     - This service pings the http://classyfire.wishartlab.com server for information retrieval.
-
     """
     mol = parse_input(smiles, "rdkit", False)
     if mol:
@@ -860,8 +855,10 @@ async def classyfire_classify(
     },
 )
 async def classyfire_result(jobid: str):
-    """
-    Retrieve the ClassyFire classification results based on the provided Job ID.
+    """Retrieve the ClassyFire classification results based on the provided Job.
+
+    ID.
+
     To obtain the results from ClassyFire, please initiate a new request and obtain a unique job ID.
     Once you have the job ID, you need to submit another request using this ID in order to retrieve the desired outcome.
 
@@ -874,7 +871,6 @@ async def classyfire_result(jobid: str):
 
     Returns:
     - The ClassyFire classification results as JSON.
-
     """
 
     if jobid:
@@ -1042,3 +1038,59 @@ async def all_filter_molecules(
             all_smiles.append(final_results)
 
     return all_smiles
+
+
+@router.get(
+    "/ertlfunctionalgroup",
+    summary="using the algorithm proposed by Peter Ertl to identify functional groups",
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": GenerateFunctionalGroupResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
+)
+async def get_functional_groups(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES string to be enumerated",
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
+    ),
+):
+    """For a given SMILES string this function generates a list of identified.
+
+    functional groups.
+
+    Parameters:
+    - **SMILES**: required (query parameter): The SMILES string to be checked for functional groups.
+
+    Returns:
+    - List[str]: A list of identified functional groups, otherwise returns an error message.
+
+    Raises:
+    - ValueError: If the SMILES string is not provided or is invalid.
+    """
+    mol = parse_input(smiles, "rdkit", False)
+    if mol:
+        try:
+            f_groups = get_ertl_functional_groups(mol)
+            return f_groups
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+    else:
+        raise HTTPException(
+            status_code=422,
+            detail="Error reading SMILES string, please check again.",
+        )

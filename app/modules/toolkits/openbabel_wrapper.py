@@ -7,8 +7,7 @@ from app.exception_handlers import InvalidInputException
 
 
 def get_ob_canonical_SMILES(smiles: str) -> str:
-    """
-    Convert a SMILES string to Canonical SMILES.
+    """Convert a SMILES string to Canonical SMILES.
 
     Args:
         smiles (str): Input SMILES string.
@@ -34,8 +33,7 @@ def get_ob_canonical_SMILES(smiles: str) -> str:
 
 
 def get_ob_InChI(smiles: str, InChIKey: bool = False) -> str:
-    """
-    Convert a SMILES string to InChI.
+    """Convert a SMILES string to InChI.
 
     Args:
         smiles (str): Input SMILES string.
@@ -68,8 +66,7 @@ def get_ob_InChI(smiles: str, InChIKey: bool = False) -> str:
 
 
 def get_ob_mol(smiles: str, threeD: bool = False, depict: bool = False) -> str:
-    """
-    Convert a SMILES string to a 2D/3D mol block.
+    """Convert a SMILES string to a 2D/3D mol block.
 
     Args:
         smiles (str): Input SMILES string.

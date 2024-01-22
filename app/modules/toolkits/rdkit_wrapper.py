@@ -17,12 +17,12 @@ from rdkit.Chem import rdMolDescriptors
 from rdkit.Chem import rdmolops
 from rdkit.Chem.FilterCatalog import FilterCatalog
 from rdkit.Chem.FilterCatalog import FilterCatalogParams
+from rdkit.Contrib.IFG import ifg
 from rdkit.Contrib.SA_Score import sascorer
 
 
 def check_RO5_violations(molecule: any) -> int:
-    """
-    Check the molecule for violations of Lipinski's Rule of Five.
+    """Check the molecule for violations of Lipinski's Rule of Five.
 
     Args:
         molecule (Chem.Mol): RDKit molecule object.
@@ -43,8 +43,9 @@ def check_RO5_violations(molecule: any) -> int:
 
 
 def get_rdkit_descriptors(molecule: any) -> Union[tuple, str]:
-    """
-    Calculate a selected set of molecular descriptors for the input SMILES string.
+    """Calculate a selected set of molecular descriptors for the input SMILES.
+
+    string.
 
     Args:
         molecule (Chem.Mol): RDKit molecule object.
@@ -97,18 +98,14 @@ def get_rdkit_descriptors(molecule: any) -> Union[tuple, str]:
 
 
 def get_3d_conformers(molecule: any, depict=True) -> Chem.Mol:
-    """
-    Convert a SMILES string to an RDKit Mol object with 3D coordinates.
+    """Convert a SMILES string to an RDKit Mol object with 3D coordinates.
 
     Args:
         molecule (Chem.Mol): RDKit molecule object.
-        depict (bool, optional): If True, returns the molecule's 3D structure in MolBlock format.
-            If False, returns the 3D molecule without hydrogen atoms.
+        depict (bool, optional): If True, returns the molecule's 3D structure in MolBlock format. If False, returns the 3D molecule without hydrogen atoms.
 
     Returns:
-        str or rdkit.Chem.rdchem.Mol: If `depict` is True, returns the 3D structure in MolBlock format.
-            Otherwise, returns an RDKit Mol object.
-
+        str or rdkit.Chem.rdchem.Mol: If `depict` is True, returns the 3D structure in MolBlock format. Otherwise, returns an RDKit Mol object.
     """
     if molecule:
         molecule = Chem.AddHs(molecule)
@@ -135,8 +132,11 @@ def get_tanimoto_similarity_rdkit(
     radius=2,
     nBits=2048,
 ) -> Union[float, str]:
-    """
-    Calculate the Tanimoto similarity index between two molecular structures represented as RDKit Mol objects.
+    """Calculate the Tanimoto similarity index between two molecular.
+
+    structures.
+
+    represented as RDKit Mol objects.
 
     This function computes the Tanimoto similarity index, a measure of structural similarity, between two chemical compounds
     using various fingerprinting methods available in RDKit.
@@ -149,8 +149,7 @@ def get_tanimoto_similarity_rdkit(
         nBits (int, optional): The number of bits for fingerprint vectors. Ignored for MACCS keys.
 
     Returns:
-        Union[float, str]: The Tanimoto similarity index between the two molecules if they are valid.
-            If molecules are not valid, returns a string indicating an error.
+        Union[float, str]: The Tanimoto similarity index between the two molecules if they are valid. If molecules are not valid, returns a string indicating an error.
 
     Note:
         - Supported fingerprinter options: "ECFP", "RDKit", "Atompairs", "MACCS".
@@ -189,8 +188,8 @@ def get_tanimoto_similarity_rdkit(
 
 
 async def get_rdkit_HOSE_codes(molecule: any, noOfSpheres: int) -> List[str]:
-    """
-    Calculate and retrieve RDKit HOSE codes for a given SMILES string.
+    """Calculate and retrieve RDKit HOSE codes for a given SMILES string.
+
     This function takes a SMILES string as input and returns the calculated HOSE codes.
 
     Args:
@@ -213,8 +212,9 @@ async def get_rdkit_HOSE_codes(molecule: any, noOfSpheres: int) -> List[str]:
 
 
 def is_valid_molecule(input_text) -> Union[str, bool]:
-    """
-    Check whether the input text represents a valid molecule in SMILES or Molblock format.
+    """Check whether the input text represents a valid molecule in SMILES or.
+
+    Molblock format.
 
     Args:
         input_text (str): SMILES string or Molblock.
@@ -237,8 +237,7 @@ def is_valid_molecule(input_text) -> Union[str, bool]:
 
 
 def has_stereochemistry(molecule: any) -> bool:
-    """
-    Check if the given SMILES string contains stereochemistry information.
+    """Check if the given SMILES string contains stereochemistry information.
 
     Args:
         molecule (Chem.Mol): RDKit molecule object.
@@ -258,8 +257,7 @@ def has_stereochemistry(molecule: any) -> bool:
 
 
 def get_2d_mol(molecule: any) -> str:
-    """
-    Generate a 2D Mol block representation from a given SMILES string.
+    """Generate a 2D Mol block representation from a given SMILES string.
 
     Args:
         molecule (Chem.Mol): RDKit molecule object.
@@ -276,8 +274,9 @@ def get_2d_mol(molecule: any) -> str:
 
 
 def get_rdkit_CXSMILES(molecule: any) -> str:
-    """
-    Generate CXSMILES representation with coordinates from a given SMILES string.
+    """Generate CXSMILES representation with coordinates from a given SMILES.
+
+    string.
 
     Args:
         molecule (Chem.Mol): RDKit molecule object.
@@ -293,8 +292,7 @@ def get_rdkit_CXSMILES(molecule: any) -> str:
 
 
 def get_properties(sdf_file) -> dict:
-    """
-    Extracts properties from a single molecule contained in an SDF file.
+    """Extracts properties from a single molecule contained in an SDF file.
 
     This function uses the RDKit library to read an SDF (Structure-Data File) and extract properties
     from the first molecule in the file. It checks if the supplied SDF file contains a valid molecule
@@ -326,8 +324,7 @@ def get_properties(sdf_file) -> dict:
 
 
 def get_sas_score(molecule: any) -> float:
-    """
-    Calculate the Synthetic Accessibility Score (SAS) for a given molecule.
+    """Calculate the Synthetic Accessibility Score (SAS) for a given molecule.
 
     The Synthetic Accessibility Score is a measure of how easy or difficult it is to synthesize a given molecule.
     A higher score indicates a molecule that is more challenging to synthesize, while a lower score suggests a molecule
@@ -359,18 +356,13 @@ def get_sas_score(molecule: any) -> float:
 
 
 def get_PAINS(molecule: any) -> Union[bool, Tuple[str, str]]:
-    """
-    Check if a molecule contains a PAINS (Pan Assay INterference compoundS)
-    substructure.
+    """Check if a molecule contains a PAINS (Pan Assay INterference compoundS)substructure.
 
     Parameters:
     molecule (any): A molecule represented as an RDKit Mol object.
 
     Returns:
-    Union[bool, Tuple[str, str]]:
-        - If a PAINS substructure is found in the molecule, a tuple containing
-          the PAINS family and its description is returned.
-        - If no PAINS substructure is found, False is returned.
+    Union[bool, Tuple[str, str]]: The function returns a tuple with the PAINS family and its description if a PAINS substructure is detected in the molecule. Otherwise, it returns False.
 
     This function uses the RDKit library to check if the given molecule contains
     any PAINS substructure. PAINS are known substructures that may interfere
@@ -390,8 +382,7 @@ def get_PAINS(molecule: any) -> Union[bool, Tuple[str, str]]:
 
 
 def get_GhoseFilter(molecule: any) -> bool:
-    """
-    Determine if a molecule satisfies Ghose's filter criteria.
+    """Determine if a molecule satisfies Ghose's filter criteria.
 
     Ghose's filter is a set of criteria for drug-like molecules.
     This function checks if a given molecule meets the criteria defined by Ghose.
@@ -426,18 +417,17 @@ def get_GhoseFilter(molecule: any) -> bool:
 
 
 def get_VeberFilter(molecule: any) -> bool:
-    """
-    Apply the Veber filter to evaluate the drug-likeness of a molecule.
+    """Apply the Veber filter to evaluate the drug-likeness of a molecule.
 
     The Veber filter assesses drug-likeness based on two criteria: the number of
     rotatable bonds and the polar surface area (TPSA). A molecule is considered
     drug-like if it has 10 or fewer rotatable bonds and a TPSA of 140 or less.
 
     Parameters:
-    molecule (any):  A molecule represented as an RDKit Mol object.
+        molecule (any):  A molecule represented as an RDKit Mol object.
 
     Returns:
-    bool: True if the molecule passes the Veber filter criteria, indicating
+        bool: True if the molecule passes the Veber filter criteria, indicating
           drug-likeness; False otherwise.
 
     Note:
@@ -460,8 +450,9 @@ def get_VeberFilter(molecule: any) -> bool:
 
 
 def get_REOSFilter(molecule: any) -> bool:
-    """
-    Determine if a molecule passes the REOS (Rapid Elimination Of Swill) filter.
+    """Determine if a molecule passes the REOS (Rapid Elimination Of Swill).
+
+    filter.
 
     The REOS filter is a set of criteria that a molecule must meet to be considered
     a viable drug-like compound. This function takes a molecule as input and checks
@@ -480,7 +471,6 @@ def get_REOSFilter(molecule: any) -> bool:
 
     Returns:
         bool: True if the molecule passes the REOS filter, False otherwise.
-
     """
     MW = Descriptors.ExactMolWt(molecule)
     logP = Descriptors.MolLogP(molecule)
@@ -505,8 +495,7 @@ def get_REOSFilter(molecule: any) -> bool:
 
 
 def get_RuleofThree(molecule: any) -> bool:
-    """
-    Check if a molecule meets the Rule of Three criteria.
+    """Check if a molecule meets the Rule of Three criteria.
 
     The Rule of Three is a guideline for drug-likeness in chemical compounds.
     It suggests that a molecule is more likely to be a good drug candidate if it
@@ -522,7 +511,6 @@ def get_RuleofThree(molecule: any) -> bool:
 
     Returns:
         bool: True if the molecule meets the Rule of Three criteria, False otherwise.
-
     """
     MW = Descriptors.ExactMolWt(molecule)
     logP = Descriptors.MolLogP(molecule)
@@ -534,3 +522,31 @@ def get_RuleofThree(molecule: any) -> bool:
         return True
     else:
         return False
+
+
+def get_ertl_functional_groups(molecule: any) -> list:
+    """This function takes an organic molecule as input and uses the algorithm.
+
+    proposed by Peter Ertl to.
+
+    identify functional groups within the molecule. The identification is based on the analysis of
+    chemical fragments present in the molecular structure.
+
+    Parameters:
+        molecule (any): A molecule represented as an RDKit Mol object.
+
+    Returns:
+        list: A list of identified functional groups in the molecule.
+
+    References:
+    - Ertl, Peter. "Implementation of an algorithm to identify functional groups in organic molecules." Journal of Cheminformatics 9.1 (2017): 9. https://jcheminf.springeropen.com/articles/10.1186/s13321-017-0225-z
+
+    If no functional groups are found, the function returns a list with a single element:
+    [{'None': 'No fragments found'}]
+    """
+    if molecule:
+        fragments = ifg.identify_functional_groups(molecule)
+        if fragments:
+            return fragments
+        else:
+            return [{"None": "No fragments found"}]

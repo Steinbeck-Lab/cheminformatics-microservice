@@ -8,8 +8,7 @@ from pydantic import Field
 
 
 class ClassyFireJob(BaseModel):
-    """
-    Represents a ClassyFire job.
+    """Represents a ClassyFire job.
 
     Attributes:
         id (int): The ID of the job.
@@ -45,8 +44,7 @@ class ClassyFireJob(BaseModel):
 
 
 class Kingdom(BaseModel):
-    """
-    Represents a Kingdom in ClassyFire taxonomy.
+    """Represents a Kingdom in ClassyFire taxonomy.
 
     Attributes:
         name (str): The name of the Kingdom.
@@ -62,8 +60,7 @@ class Kingdom(BaseModel):
 
 
 class Superclass(BaseModel):
-    """
-    Represents a Superclass in ClassyFire taxonomy.
+    """Represents a Superclass in ClassyFire taxonomy.
 
     Attributes:
         name (str): The name of the Superclass.
@@ -79,8 +76,7 @@ class Superclass(BaseModel):
 
 
 class Class(BaseModel):
-    """
-    Represents a Class in ClassyFire taxonomy.
+    """Represents a Class in ClassyFire taxonomy.
 
     Attributes:
         name (str): The name of the Class.
@@ -96,8 +92,7 @@ class Class(BaseModel):
 
 
 class Subclass(BaseModel):
-    """
-    Represents a Subclass within a classification.
+    """Represents a Subclass within a classification.
 
     Attributes:
         name (str): The name of the subclass.
@@ -113,8 +108,7 @@ class Subclass(BaseModel):
 
 
 class DirectParent(BaseModel):
-    """
-    Represents a Direct Parent within a classification.
+    """Represents a Direct Parent within a classification.
 
     Attributes:
         name (str): The name of the direct parent.
@@ -130,8 +124,7 @@ class DirectParent(BaseModel):
 
 
 class ExternalDescriptor(BaseModel):
-    """
-    Represents an External Descriptor associated with an Entity.
+    """Represents an External Descriptor associated with an Entity.
 
     Attributes:
         source (str): The source of the external descriptor.
@@ -145,8 +138,7 @@ class ExternalDescriptor(BaseModel):
 
 
 class Entity(BaseModel):
-    """
-    Represents a chemical Entity with classification information.
+    """Represents a chemical Entity with classification information.
 
     Attributes:
         identifier (str): Unique identifier for the entity.
@@ -190,8 +182,7 @@ class Entity(BaseModel):
 
 
 class ClassyFireResult(BaseModel):
-    """
-    Represents a classification result from ClassyFire.
+    """Represents a classification result from ClassyFire.
 
     Attributes:
         id (int): Identifier for the result.

@@ -10,8 +10,7 @@ from app.modules.toolkits.openbabel_wrapper import get_ob_mol
 
 
 def parse_input(input: str, framework: str = "rdkit", standardize: bool = False):
-    """
-    Parse and check if the input is valid.
+    """Parse and check if the input is valid.
 
     Args:
         input (str): Input string.
@@ -29,8 +28,9 @@ def parse_input(input: str, framework: str = "rdkit", standardize: bool = False)
 
 
 def parse_SMILES(smiles: str, framework: str = "rdkit", standardize: bool = False):
-    """
-    Check whether the input SMILES string is valid. If not, attempt to standardize
+    """Check whether the input SMILES string is valid.
+
+    If not, attempt to standardize
     the molecule using the ChEMBL standardization pipeline.
 
     Args:

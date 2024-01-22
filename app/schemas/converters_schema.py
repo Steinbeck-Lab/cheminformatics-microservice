@@ -5,8 +5,7 @@ from pydantic import Field
 
 
 class TwoDCoordinatesResponse(BaseModel):
-    """
-    Represents a response containing 2D coordinates for a molecule.
+    """Represents a response containing 2D coordinates for a molecule.
 
     Properties:
     - molblock (str): The generated mol block with 2D coordinates.
@@ -19,8 +18,7 @@ class TwoDCoordinatesResponse(BaseModel):
     )
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -45,8 +43,7 @@ M  END""",
 
 
 class ThreeDCoordinatesResponse(BaseModel):
-    """
-    Represents a response containing 3D coordinates for a molecule.
+    """Represents a response containing 3D coordinates for a molecule.
 
     Properties:
     - molblock (str): The generated mol block with 3D coordinates.
@@ -59,8 +56,7 @@ class ThreeDCoordinatesResponse(BaseModel):
     )
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -86,8 +82,7 @@ M  END""",
 
 
 class GenerateSMILESResponse(BaseModel):
-    """
-    Represents a response containing a generated SMILES string.
+    """Represents a response containing a generated SMILES string.
 
     Properties:
     - smiles (str): The generated SMILES string.
@@ -100,8 +95,7 @@ class GenerateSMILESResponse(BaseModel):
     )
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -119,8 +113,7 @@ class GenerateSMILESResponse(BaseModel):
 
 
 class GenerateCanonicalResponse(BaseModel):
-    """
-    Represents a response containing a generated SMILES string.
+    """Represents a response containing a generated SMILES string.
 
     Properties:
     - smiles (str): The generated Canonical SMILES string.
@@ -133,8 +126,7 @@ class GenerateCanonicalResponse(BaseModel):
     )
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -152,8 +144,7 @@ class GenerateCanonicalResponse(BaseModel):
 
 
 class GenerateCXSMILESResponse(BaseModel):
-    """
-    Represents a response containing a generated CXSMILES string.
+    """Represents a response containing a generated CXSMILES string.
 
     Properties:
     - smiles (str): The generated CXSMILES string.
@@ -166,8 +157,7 @@ class GenerateCXSMILESResponse(BaseModel):
     )
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -185,8 +175,7 @@ class GenerateCXSMILESResponse(BaseModel):
 
 
 class GenerateInChIResponse(BaseModel):
-    """
-    Represents a response containing a generated InChI string.
+    """Represents a response containing a generated InChI string.
 
     Properties:
     - inchi (str): The generated InChI string.
@@ -199,8 +188,7 @@ class GenerateInChIResponse(BaseModel):
     )
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -218,8 +206,7 @@ class GenerateInChIResponse(BaseModel):
 
 
 class GenerateInChIKeyResponse(BaseModel):
-    """
-    Represents a response containing a generated InChI Key string.
+    """Represents a response containing a generated InChI Key string.
 
     Properties:
     - inchikey (str): The generated InChI Key string.
@@ -232,8 +219,7 @@ class GenerateInChIKeyResponse(BaseModel):
     )
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -251,8 +237,7 @@ class GenerateInChIKeyResponse(BaseModel):
 
 
 class GenerateIUPACResponse(BaseModel):
-    """
-    Represents a response containing a generated IUPAC string.
+    """Represents a response containing a generated IUPAC string.
 
     Properties:
     - iupac (str): The generated IUPAC name.
@@ -265,8 +250,7 @@ class GenerateIUPACResponse(BaseModel):
     )
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -284,8 +268,7 @@ class GenerateIUPACResponse(BaseModel):
 
 
 class GenerateSELFIESResponse(BaseModel):
-    """
-    Represents a response containing a generated SELFIES string.
+    """Represents a response containing a generated SELFIES string.
 
     Properties:
     - iupac (str): The generated SELFIES string.
@@ -298,8 +281,7 @@ class GenerateSELFIESResponse(BaseModel):
     )
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.
@@ -317,8 +299,7 @@ class GenerateSELFIESResponse(BaseModel):
 
 
 class GenerateFormatsResponse(BaseModel):
-    """
-    Represents a response containing a generated SELFIES string.
+    """Represents a response containing a generated SELFIES string.
 
     Properties:
     - iupac (str): The generated SELFIES string.
@@ -331,8 +312,7 @@ class GenerateFormatsResponse(BaseModel):
     )
 
     class Config:
-        """
-        Pydantic model configuration.
+        """Pydantic model configuration.
 
         JSON Schema Extra:
         - Includes examples of the response structure.

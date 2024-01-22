@@ -10,8 +10,7 @@ from app.modules.toolkits.helpers import parse_input
 
 
 def get_mol_block(input_text: str) -> str:
-    """
-    Generate a Molblock from input text using CDK.
+    """Generate a Molblock from input text using CDK.
 
     Args:
         input_text (str): Input text (Mol/SMILES).
@@ -21,7 +20,6 @@ def get_mol_block(input_text: str) -> str:
 
     Raises:
         ValueError: If input_text is not a valid Mol or SMILES.
-
     """
     check = rdkitmodules.is_valid_molecule(input_text)
 
@@ -39,15 +37,13 @@ def get_mol_block(input_text: str) -> str:
 
 
 def get_molecule_hash(molecule: any) -> dict:
-    """
-    Return various molecule hashes for the provided SMILES.
+    """Return various molecule hashes for the provided SMILES.
 
     Args:
         smiles (str): Standardized SMILES string.
 
     Returns:
         dict: Dictionary containing Formula, Isomeric SMILES, and Canonical SMILES.
-
     """
     if molecule:
         Formula = Chem.rdMolDescriptors.CalcMolFormula(molecule)
@@ -67,15 +63,13 @@ def get_molecule_hash(molecule: any) -> dict:
 
 
 def get_representations(molecule: any) -> dict:
-    """
-    Return COCONUT representations for the provided SMILES.
+    """Return COCONUT representations for the provided SMILES.
 
     Args:
         smiles (str): SMILES string.
 
     Returns:
         dict: Dictionary containing InChI, InChi Key, and Murko framework.
-
     """
     if molecule:
         InChI = Chem.inchi.MolToInchi(molecule)
@@ -88,15 +82,15 @@ def get_representations(molecule: any) -> dict:
 
 
 def get_COCONUT_preprocessing(input_text: str) -> dict:
-    """
-    Preprocess user input text suitable for the COCONUT database submission data.
+    """Preprocess user input text suitable for the COCONUT database submission.
+
+    data.
 
     Args:
         input_text (str): Input text (Mol/str).
 
     Returns:
         dict: COCONUT preprocessed data.
-
     """
     original_mol = get_mol_block(input_text)
     standarised_mol_block = standardizer.standardize_molblock(original_mol)

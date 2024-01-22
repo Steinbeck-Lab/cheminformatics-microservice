@@ -14,6 +14,7 @@ from app.modules.npscorer import get_np_score
 from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.rdkit_wrapper import check_RO5_violations
 from app.modules.toolkits.rdkit_wrapper import get_3d_conformers
+from app.modules.toolkits.rdkit_wrapper import get_ertl_functional_groups
 from app.modules.toolkits.rdkit_wrapper import get_tanimoto_similarity_rdkit
 
 
@@ -326,3 +327,22 @@ def test_valid_cdk_smiles(test_smiles):
 def test_valid_openbabel_smiles(test_smiles):
     mol = parse_input(test_smiles, framework="openbabel")
     assert mol is not None
+
+
+def test_get_ertl_functional_groups_valid_molecule(test_smiles):
+    mol = parse_input(test_smiles, framework="rdkit")
+
+    result = get_ertl_functional_groups(mol)
+
+    assert isinstance(result, list)
+    assert len(result) > 0
+    assert str(result[0]) == "IFG(atomIds=(1,), atoms='n', type='cn(c)C')"
+
+
+def test_get_ertl_functional_groups_no_fragments():
+    mol = parse_input("CC", framework="rdkit")
+    result = get_ertl_functional_groups(mol)
+
+    assert isinstance(result, list)
+    assert len(result) == 1
+    assert result[0] == {"None": "No fragments found"}
