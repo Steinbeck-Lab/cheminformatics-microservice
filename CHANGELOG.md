@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.1.1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v2.1.0...v2.1.1) (2024-02-19)
+
+
+### Bug Fixes
+
+* build doc strings ([d1d160f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d1d160f77e41ff987a1f2f2d0ad3bedffd5e962a))
+* format doc strings ([f47dc80](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/f47dc80381b104154717716f80c1b6e96989134c))
+* format doc strings using docformatter ([63616d6](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/63616d69261676ee4cc1eb4ca50e8043b2d9d50b))
+* readthedocs build ([9846f54](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/9846f547a1a5a5ef1022a900ec9aa6799c82f71a))
+* to use pydocstringformatter ([3711a29](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/3711a29501e1912e9ce275163223c7aa279a8bdc))
+
 ## [2.1.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v2.0.0...v2.1.0) (2024-01-11)
 
 
