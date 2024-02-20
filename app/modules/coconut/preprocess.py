@@ -97,6 +97,7 @@ def get_COCONUT_preprocessing(input_text: str) -> dict:
         dict: COCONUT preprocessed data.
     """
     try:
+        input_text = input_text.replace(" ", "+").replace("\\\\", "\\")
         original_mol = parse_input(input_text, "rdkit", False)
         original_mol_block = get_mol_block(input_text)
         original_mol_hash = get_molecule_hash(original_mol)
