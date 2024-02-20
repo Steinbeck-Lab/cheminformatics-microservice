@@ -154,4 +154,5 @@ def get_COCONUT_preprocessing(input_text: str) -> dict:
             },
         }
     except InvalidInputException as e:
-        return {"Error": f"Invalid input SMILES {e}"}
+        print(e)
+        return {"Error": f"Invalid input SMILES: {input_text}"}
