@@ -87,46 +87,79 @@ def get_representations(molecule: any) -> dict:
         return {"Error": "Check input SMILES"}
 
 
-def get_COCONUT_preprocessing(input_text: str) -> dict:
+def get_COCONUT_preprocessing(
+    input_text: str, _3d_mol: bool = False, descriptors: bool = False
+) -> dict:
     """Preprocess user input text suitable for the COCONUT database submission.
 
     Args:
-        input_text (str): Input text (Mol/str).
+        input_text (str): The input text representing a chemical compound in Mol format.
+        _3d_mol (bool, optional): Flag indicating whether to generate 3D coordinates for the molecule. Defaults to False.
+        descriptors (bool, optional): Flag indicating whether to generate COCONUT descriptors for the molecule. Defaults to False.
 
     Returns:
-        dict: COCONUT preprocessed data.
+        dict: A dictionary containing COCONUT preprocessed data with representations, descriptors, and errors.
+
+    Raises:
+        InvalidInputException: If the input SMILES string is invalid.
     """
     try:
+        # Preprocess input text
         input_text = input_text.replace(" ", "+").replace("\\\\", "\\")
+
+        # Original molecule
         original_mol = parse_input(input_text, "rdkit", False)
         original_mol_block = get_mol_block(input_text)
         original_mol_hash = get_molecule_hash(original_mol)
         original_representations = get_representations(original_mol)
-        original_descriptors = get_COCONUT_descriptors(input_text, "rdkit")
-        standarised_mol_block = standardizer.standardize_molblock(original_mol_block)
 
+        # Standardized molecule
+        standardized_mol_block = standardizer.standardize_molblock(original_mol_block)
         standardized_SMILES = Chem.MolToSmiles(
-            Chem.MolFromMolBlock(standarised_mol_block),
-            kekuleSmiles=True,
+            Chem.MolFromMolBlock(standardized_mol_block), kekuleSmiles=True
         )
-
         standardized_mol = parse_input(standardized_SMILES, "rdkit", False)
         standardized_representations = get_representations(standardized_mol)
-        standardized_descriptors = get_COCONUT_descriptors(standardized_SMILES, "rdkit")
 
+        # Parent molecule
         parent_canonical_smiles = original_mol_hash["Canonical_SMILES"]
+        parent_mol_block = get_mol_block(parent_canonical_smiles)
         rdkitParentMol = parse_input(parent_canonical_smiles, "rdkit", False)
-        parent_3D_molblock = rdkitmodules.get_3d_conformers(rdkitParentMol)
-
         parent_representations = get_representations(rdkitParentMol)
-        parent_descriptors = get_COCONUT_descriptors(parent_canonical_smiles, "rdkit")
 
+        # Compute descriptors if requested
+        if descriptors:
+            original_descriptors = get_COCONUT_descriptors(input_text, "rdkit")
+            standardized_descriptors = get_COCONUT_descriptors(
+                standardized_SMILES, "rdkit"
+            )
+            parent_descriptors = get_COCONUT_descriptors(
+                parent_canonical_smiles, "rdkit"
+            )
+        else:
+            original_descriptors = {"descriptors": "Not computed, enable for computing"}
+            standardized_descriptors = {
+                "descriptors": "Not computed, enable for computing"
+            }
+            parent_descriptors = {"descriptors": "Not computed, enable for computing"}
+
+        # Compute 3D conformers if requested
+        if _3d_mol:
+            original_3d_mol_block = rdkitmodules.get_3d_conformers(original_mol)
+            standardized_3d_mol_block = rdkitmodules.get_3d_conformers(standardized_mol)
+            parent_3D_mol_block = rdkitmodules.get_3d_conformers(rdkitParentMol)
+        else:
+            original_3d_mol_block = "Not computed, enable for computing"
+            standardized_3d_mol_block = "Not computed, enable for computing"
+            parent_3D_mol_block = "Not computed, enable for computing"
+
+        # Construct and return the COCONUT preprocessed data
         return {
             "original": {
                 "representations": {
                     "2D_MOL": original_mol_block,
-                    "3D_MOL": rdkitmodules.get_3d_conformers(original_mol),
-                    "cannonical_smiles": original_mol_hash["Isomeric_SMILES"],
+                    "3D_MOL": original_3d_mol_block,
+                    "canonical_smiles": original_mol_hash["Isomeric_SMILES"],
                     **original_representations,
                 },
                 "has_stereo": rdkitmodules.has_stereochemistry(original_mol),
@@ -136,24 +169,24 @@ def get_COCONUT_preprocessing(input_text: str) -> dict:
             "standardized": {
                 "representations": {
                     "2D_MOL": original_mol_block,
-                    "3D_MOL": rdkitmodules.get_3d_conformers(standardized_mol),
-                    "cannonical_smiles": standardized_SMILES,
+                    "3D_MOL": standardized_3d_mol_block,
+                    "canonical_smiles": standardized_SMILES,
                     **standardized_representations,
                 },
                 "has_stereo": rdkitmodules.has_stereochemistry(standardized_mol),
                 "descriptors": standardized_descriptors,
-                "errors": checker.check_molblock(standarised_mol_block),
+                "errors": checker.check_molblock(standardized_mol_block),
             },
             "parent": {
                 "representations": {
-                    "3D_MOL": parent_3D_molblock,
-                    "cannonical_smiles": parent_canonical_smiles,
+                    "2D_MOL": parent_mol_block,
+                    "3D_MOL": parent_3D_mol_block,
+                    "canonical_smiles": parent_canonical_smiles,
                     **parent_representations,
                 },
                 "has_stereo": rdkitmodules.has_stereochemistry(rdkitParentMol),
                 "descriptors": parent_descriptors,
             },
         }
-    except InvalidInputException as e:
-        print(e)
-        return {"Error": f"Invalid input SMILES: {input_text}"}
+    except InvalidInputException:
+        raise InvalidInputException(f"Invalid input SMILES: {input_text}")
