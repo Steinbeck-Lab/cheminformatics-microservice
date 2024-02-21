@@ -749,12 +749,12 @@ async def coconut_preprocessing(
         ...,
         title="SMILES",
         description="SMILES string representing a chemical compound",
-        examples={
-            "Caffeine": {
+        openapi_examples={
+            "example1": {
                 "summary": "Example: Caffeine",
                 "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
             },
-            "Topiramate-13C6": {
+            "example2": {
                 "summary": "Example: Topiramate-13C6",
                 "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
             },
