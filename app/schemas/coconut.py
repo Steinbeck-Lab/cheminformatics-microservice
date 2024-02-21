@@ -22,11 +22,15 @@ class Representations(BaseModel):
     """Represents different representations of a molecule.
 
     Attributes:
+        field_2D_mol (str): The 2D molecular structure of the parent molecule.
+        field_3D_mol (str): The 3D molecular structure of the parent molecule.
         InChI (str): IUPAC International Chemical Identifier (InChI) representation.
         InChI_Key (str): InChI key.
         Murko (str): Murcko scaffold representation.
     """
 
+    field_2D_mol: str = Field(..., alias="2D_mol")
+    field_3D_mol: str = Field(..., alias="3D_mol")
     InChI: str
     InChI_Key: str
     Murko: str
@@ -87,39 +91,63 @@ class Descriptors(BaseModel):
     nplikeness: float
 
 
+class Original(BaseModel):
+    """Represents the parent molecule with various properties.
+
+    Attributes:
+        representations (Representations): Molecular representations.
+        has_stereo (bool): Indicates presence of stereochemical variants.
+        descriptors (Descriptors): Molecular descriptors.
+        errors (dict): Information on the errors found in the given molecule
+    """
+
+    representations: Representations
+    has_stereo: bool
+    descriptors: Descriptors
+    errors: dict
+
+
+class Standardized(BaseModel):
+    """Represents the parent molecule with various properties.
+
+    Attributes:
+        representations (Representations): Molecular representations.
+        has_stereo (bool): Indicates presence of stereochemical variants.
+        descriptors (Descriptors): Molecular descriptors.
+        errors (dict): Information on the errors found in the given molecule
+    """
+
+    representations: Representations
+    has_stereo: bool
+    descriptors: Descriptors
+    errors: dict
+
+
 class Parent(BaseModel):
     """Represents the parent molecule with various properties.
 
     Attributes:
-        field_2D_mol (str): The 2D molecular structure of the parent molecule.
-        field_3D_mol (str): The 3D molecular structure of the parent molecule.
-        v3000 (str): A specific molecular structure format.
         representations (Representations): Molecular representations.
+        has_stereo (bool): Indicates presence of stereochemical variants.
         descriptors (Descriptors): Molecular descriptors.
+        errors (dict): Information on the errors found in the given molecule
     """
 
-    field_2D_mol: str = Field(..., alias="2D_mol")
-    field_3D_mol: str = Field(..., alias="3D_mol")
-    v3000: str
     representations: Representations
+    has_stereo: bool
     descriptors: Descriptors
+    errors: dict
 
 
 class COCONUTPreprocessingModel(BaseModel):
     """Represents a molecule after CocoNut preprocessing.
 
     Attributes:
-        original_mol (str): Original molecule information.
-        standardised_mol (str): Standardized molecule information.
-        standardised_SMILES (str): Standardized SMILES notation.
-        molecule_hash (MoleculeHash): Hash information of the molecule.
-        parent (Parent): Parent molecule details.
-        stereochemical_variants (bool): Indicates presence of stereochemical variants.
+        original_mol (Original): Original molecule information.
+        standardised_mol (Standardized): Standardized molecule information.
+        parent (Parent): Parent molecule information.
     """
 
-    original_mol: str
-    standardised_mol: str
-    standardised_SMILES: str
-    molecule_hash: MoleculeHash
+    original_mol: Original
+    standardised_mol: Standardized
     parent: Parent
-    stereochemical_variants: bool

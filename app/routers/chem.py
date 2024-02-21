@@ -746,18 +746,29 @@ async def tanimoto_similarity(
 )
 async def coconut_preprocessing(
     smiles: str = Query(
+        ...,
         title="SMILES",
         description="SMILES string representing a chemical compound",
-        openapi_examples={
-            "example1": {
+        examples={
+            "Caffeine": {
                 "summary": "Example: Caffeine",
                 "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
             },
-            "example2": {
+            "Topiramate-13C6": {
                 "summary": "Example: Topiramate-13C6",
                 "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
             },
         },
+    ),
+    _3d_mol: bool = Query(
+        False,
+        title="3D_mol",
+        description="Flag indicating whether to generate 3D coordinates for a given molecule",
+    ),
+    descriptors: bool = Query(
+        False,
+        title="descriptors",
+        description="Flag indicating whether to generate COCONUT descriptors for a given molecule",
     ),
 ):
     """Generates an Input JSON file with information on different molecular.
@@ -775,9 +786,9 @@ async def coconut_preprocessing(
     - HTTPException: If there is an error reading the SMILES string.
     """
     try:
-        data = get_COCONUT_preprocessing(smiles)
+        data = get_COCONUT_preprocessing(smiles, _3d_mol, descriptors)
         if data:
-            return JSONResponse(content=data)
+            return data
         else:
             raise HTTPException(
                 status_code=422,

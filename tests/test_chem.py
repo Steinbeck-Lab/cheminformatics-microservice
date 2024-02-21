@@ -262,7 +262,7 @@ def test_exception_standardize_mol(invalid_molfile, exception_response_code):
 
 @pytest.mark.parametrize(
     "smiles, response_code",
-    [("CCO", 200), ("INVALID_INPUT", 200)],
+    [("CCO", 200), ("INVALID_INPUT", 422)],
 )
 def test_successful_coconut_preprocessing(smiles, response_code):
     response = client.get(
