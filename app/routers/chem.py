@@ -349,7 +349,7 @@ async def hose_codes(
         default="rdkit",
         description="Cheminformatics toolkit used in the backend",
     ),
-    ringsize: Optional[bool] = Query(
+    ringsize: bool = Query(
         False,
         title="ringsize",
         description="Determines whether to include information about ring sizes",
@@ -498,7 +498,7 @@ async def check_errors(
             },
         },
     ),
-    fix: Optional[bool] = Query(
+    fix: bool = Query(
         False,
         title="Fix",
         description="Flag indicating whether to fix the issues by standardizing the SMILES.",
