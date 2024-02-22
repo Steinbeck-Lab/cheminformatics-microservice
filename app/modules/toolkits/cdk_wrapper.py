@@ -629,9 +629,7 @@ def get_smiles_opsin(input_text: str) -> str:
     - Exception: If the IUPAC name is not valid or if there are issues in the conversion process. The exception message will guide the user to check the data again.
     """
     try:
-        print(input_text)
         OpsinResult = _nametostruct.parseChemicalName(input_text)
-        print(OpsinResult)
         if str(OpsinResult.getStatus()) == "FAILURE":
             raise Exception(
                 (
@@ -639,7 +637,6 @@ def get_smiles_opsin(input_text: str) -> str:
                     % (input_text, format, OpsinResult.getMessage())
                 ),
             )
-        print(OpsinResult.getSmiles())
         return str(OpsinResult.getSmiles())
     except Exception:
         return str(
