@@ -23,19 +23,16 @@ def get_mol_block(input_text: str) -> str:
     Raises:
         ValueError: If input_text is not a valid Mol or SMILES.
     """
-    check = rdkitmodules.is_valid_molecule(input_text)
 
-    if check == "smiles":
+    try:
         molecule = parse_input(input_text, "cdk", False)
         mol_block = cdk.get_CDK_SDG_mol(
             molecule,
             V3000=False,
         ).replace("$$$$\n", "")
         return mol_block
-    elif check == "mol":
-        return input_text
-    else:
-        return "Error!, Check the input text."
+    except InvalidInputException:
+        raise InvalidInputException(f"Invalid input SMILES: {input_text}")
 
 
 def get_molecule_hash(molecule: any) -> dict:
@@ -109,6 +106,7 @@ def get_COCONUT_preprocessing(
 
         # Original molecule
         original_mol = parse_input(input_text, "rdkit", False)
+
         original_mol_block = get_mol_block(input_text)
         original_mol_hash = get_molecule_hash(original_mol)
         original_representations = get_representations(original_mol)
