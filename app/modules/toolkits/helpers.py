@@ -35,6 +35,8 @@ def parse_SMILES(smiles: str, framework: str = "rdkit", standardize: bool = Fals
 
     Args:
         smiles (str): Input SMILES string.
+        framework (str): Framework to use for parsing. Default is "rdkit".
+        standardize (bool): Whether to standardize the molecule. Default is False.
 
     Returns:
         Chem.Mol or None: Valid molecule object or None if an error occurs.
@@ -43,7 +45,7 @@ def parse_SMILES(smiles: str, framework: str = "rdkit", standardize: bool = Fals
     try:
         smiles = smiles.replace(" ", "+")
         if framework == "rdkit":
-            if smiles.__contains__("R"):
+            if "R" in smiles:
                 mol = get_CDK_IAtomContainer(smiles)
                 mol_str = get_CDK_SDG_mol(mol)
                 mol = Chem.MolFromMolBlock(mol_str)
@@ -55,9 +57,15 @@ def parse_SMILES(smiles: str, framework: str = "rdkit", standardize: bool = Fals
             mol = get_CDK_IAtomContainer(smiles)
         elif framework == "openbabel":
             mol = get_ob_mol(smiles)
+        else:
+            raise ValueError(f"Invalid framework specified: {framework}")
+
         if mol:
             return mol
         else:
-            raise InvalidInputException(name="smiles", value=smiles)
+            mol = get_CDK_IAtomContainer(smiles)
+            mol_str = get_CDK_SDG_mol(mol)
+            return Chem.MolFromMolBlock(mol_str)
+
     except Exception:
         raise InvalidInputException(name="smiles", value=smiles)
