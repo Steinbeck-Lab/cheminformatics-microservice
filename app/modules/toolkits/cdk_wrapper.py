@@ -13,32 +13,38 @@ from jpype import JVMNotFoundException
 from jpype import startJVM
 
 
-# Start JVM to use CDK in python
-try:
-    jvmPath = getDefaultJVMPath()
-except JVMNotFoundException:
-    print("If you see this message, for some reason JPype cannot find jvm.dll.")
-    print("This indicates that the environment variable JAVA_HOME is not set properly.")
-    print("You can set it or set it manually in the code")
-    jvmPath = "Define/path/or/set/JAVA_HOME/variable/properly"
+def setup_jvm():
+    try:
+        jvmPath = getDefaultJVMPath()
+    except JVMNotFoundException:
+        print("If you see this message, for some reason JPype cannot find jvm.dll.")
+        print(
+            "This indicates that the environment variable JAVA_HOME is not set properly."
+        )
+        print("You can set it or set it manually in the code")
+        jvmPath = "Define/path/or/set/JAVA_HOME/variable/properly"
 
-if not isJVMStarted():
-    paths = {
-        "cdk-2.9": "https://github.com/cdk/cdk/releases/download/cdk-2.9/cdk-2.9.jar",
-        "SugarRemovalUtility-jar-with-dependencies": "https://github.com/JonasSchaub/SugarRemoval/releases/download/v1.3.2/SugarRemovalUtility-jar-with-dependencies.jar",
-        "centres": "https://github.com/SiMolecule/centres/releases/download/1.0/centres.jar",
-        "opsin-cli-2.8.0-jar-with-dependencies": "https://github.com/dan2097/opsin/releases/download/2.8.0/opsin-cli-2.8.0-jar-with-dependencies.jar",
-    }
+    print(jvmPath)
 
-    jar_paths = {
-        key: str(pystow.join("STOUT-V2")) + f"/{key}.jar" for key in paths.keys()
-    }
-    for key, url in paths.items():
-        if not os.path.exists(jar_paths[key]):
-            pystow.ensure("STOUT-V2", url=url)
+    if not isJVMStarted():
+        paths = {
+            "cdk-2.9": "https://github.com/cdk/cdk/releases/download/cdk-2.9/cdk-2.9.jar",
+            "SugarRemovalUtility-jar-with-dependencies": "https://github.com/JonasSchaub/SugarRemoval/releases/download/v1.3.2/SugarRemovalUtility-jar-with-dependencies.jar",
+            "centres": "https://github.com/SiMolecule/centres/releases/download/1.0/centres.jar",
+            "opsin-cli-2.8.0-jar-with-dependencies": "https://github.com/dan2097/opsin/releases/download/2.8.0/opsin-cli-2.8.0-jar-with-dependencies.jar",
+        }
 
-    startJVM("-ea", "-Xmx4096M", classpath=[jar_paths[key] for key in jar_paths])
+        jar_paths = {
+            key: str(pystow.join("STOUT-V2")) + f"/{key}.jar" for key in paths.keys()
+        }
+        for key, url in paths.items():
+            if not os.path.exists(jar_paths[key]):
+                pystow.ensure("STOUT-V2", url=url)
 
+        startJVM("-ea", "-Xmx4096M", classpath=[jar_paths[key] for key in jar_paths])
+
+
+setup_jvm()
 cdk_base = "org.openscience.cdk"
 opsin_base = JPackage("uk").ac.cam.ch.wwmm.opsin
 _nametostruct = opsin_base.NameToStructure.getInstance()
