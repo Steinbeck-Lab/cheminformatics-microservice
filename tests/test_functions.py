@@ -11,6 +11,8 @@ from app.modules.all_descriptors import get_tanimoto_similarity
 from app.modules.depiction import get_cdk_depiction
 from app.modules.depiction import get_rdkit_depiction
 from app.modules.npscorer import get_np_score
+from app.modules.toolkits.cdk_wrapper import JVMNotFoundException
+from app.modules.toolkits.cdk_wrapper import setup_jvm
 from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.rdkit_wrapper import check_RO5_violations
 from app.modules.toolkits.rdkit_wrapper import get_3d_conformers
@@ -346,3 +348,21 @@ def test_get_ertl_functional_groups_no_fragments():
     assert isinstance(result, list)
     assert len(result) == 1
     assert result[0] == {"None": "No fragments found"}
+
+
+def test_setup_jvm_exception(monkeypatch, capsys):
+    def mock_get_default_jvm_path():
+        raise JVMNotFoundException
+
+    monkeypatch.setattr(
+        "app.modules.toolkits.cdk_wrapper.getDefaultJVMPath", mock_get_default_jvm_path
+    )
+
+    setup_jvm()
+    captured = capsys.readouterr()
+    assert "If you see this message" in captured.out
+    assert (
+        "This indicates that the environment variable JAVA_HOME is not set properly"
+        in captured.out
+    )
+    assert "You can set it or set it manually in the code" in captured.out
