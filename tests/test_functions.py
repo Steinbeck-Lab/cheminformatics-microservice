@@ -350,26 +350,6 @@ def test_get_ertl_functional_groups_no_fragments():
     assert result[0] == {"None": "No fragments found"}
 
 
-@pytest.fixture
-def mock_get_default_jvm_path(monkeypatch):
-    def mock_get_default_jvm_path():
-        return "/dummy/jvm/path"
-
-    monkeypatch.setattr(
-        "app.modules.toolkits.cdk_wrapper.getDefaultJVMPath", mock_get_default_jvm_path
-    )
-
-
-@pytest.fixture
-def mock_is_jvm_started(monkeypatch):
-    def mock_is_jvm_started():
-        return False
-
-    monkeypatch.setattr(
-        "app.modules.toolkits.cdk_wrapper.isJVMStarted", mock_is_jvm_started
-    )
-
-
 def test_setup_jvm_exception(monkeypatch, capsys):
     def mock_get_default_jvm_path():
         raise JVMNotFoundException
