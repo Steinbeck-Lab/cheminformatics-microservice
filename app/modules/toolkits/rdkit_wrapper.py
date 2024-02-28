@@ -129,7 +129,7 @@ def get_tanimoto_similarity_rdkit(
     mol1,
     mol2,
     fingerprinter="ECFP",
-    radius=2,
+    diameter=2,
     nBits=2048,
 ) -> Union[float, str]:
     """Calculate the Tanimoto similarity index between two molecular.
@@ -145,8 +145,8 @@ def get_tanimoto_similarity_rdkit(
         mol1 (Chem.Mol): The RDKit Mol object representing the first molecule.
         mol2 (Chem.Mol): The RDKit Mol object representing the second molecule.
         fingerprinter (str, optional): The type of fingerprint to use. Defaults to "ECFP".
-        radius (int, optional): The radius parameter for ECFP fingerprints. Ignored for other fingerprint types.
-        nBits (int, optional): The number of bits for fingerprint vectors. Ignored for MACCS keys.
+        diameter (int, optional): The diameter parameter for Morgan fingerprints to use ECFP it it divided by half. Ignored for other fingerprint types. Defaults to 2.
+        nBits (int, optional): The number of bits for fingerprint vectors. Defaults to 2048. Ignored for MACCS keys.
 
     Returns:
         Union[float, str]: The Tanimoto similarity index between the two molecules if they are valid. If molecules are not valid, returns a string indicating an error.
@@ -161,10 +161,10 @@ def get_tanimoto_similarity_rdkit(
         if fingerprinter == "ECFP":
             # Generate Morgan fingerprints for each molecule
             fp1 = AllChem.GetMorganFingerprintAsBitVect(
-                mol1, int(radius / 2), nBits, useChirality=True
+                mol1, int(diameter / 2), nBits, useChirality=True
             )
             fp2 = AllChem.GetMorganFingerprintAsBitVect(
-                mol2, int(radius / 2), nBits, useChirality=True
+                mol2, int(diameter / 2), nBits, useChirality=True
             )
         elif fingerprinter == "RDKit":
             # Generate RDKit fingerprints for each molecule

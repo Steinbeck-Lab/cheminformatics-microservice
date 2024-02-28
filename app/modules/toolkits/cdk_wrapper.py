@@ -360,7 +360,7 @@ def get_tanimoto_similarity_ECFP_CDK(
     Args:
         mol1 (IAtomContainer): First molecule given by the user.
         mol2 (IAtomContainer): Second molecule given by the user.
-        ECFP (int): The ECFP version to use (2, 4, or 6).
+        ECFP (int): The ECFP version to use (2, 4, or 6) defaults to 2.
         bitset_len (int): The length of the bitset.
 
     Returns:
@@ -397,7 +397,7 @@ def get_tanimoto_similarity_CDK(
     mol1: any,
     mol2: any,
     fingerprinter: str = "PubChem",
-    ECFP: int = 6,
+    ECFP: int = 2,
     bitset_len: int = 2048,
 ) -> float:
     """Calculate the Tanimoto similarity between two molecules using.
@@ -407,8 +407,8 @@ def get_tanimoto_similarity_CDK(
     Args:
         mol1 (IAtomContainer): First molecule given by the user.
         mol2 (IAtomContainer): Second molecule given by the user.
-        fingerprinter (str, optional): The fingerprinter to use. Currently, only "PubChem/ECFP6" is supported. Defaults to "PubChem".
-        ECFP (int, optional): The ECFP version to use (2, 4, or 6). Defaults to 6.
+        fingerprinter (str, optional): The fingerprinter to use. Currently, only "PubChem/ECFP" is supported. Defaults to "PubChem".
+        ECFP (int, optional): The ECFP version to use (2, 4, or 6). Defaults to 2.
         bitset_len (int, optional): The length of the bitset. Defaults to 2048.
 
     Returns:
@@ -423,7 +423,7 @@ def get_tanimoto_similarity_CDK(
         tanimoto = get_tanimoto_similarity_ECFP_CDK(mol1, mol2, ECFP, bitset_len)
     else:
         raise ValueError(
-            "Unsupported fingerprinter. Currently, only 'PubChem' is supported.",
+            "Unsupported fingerprinter. Currently, only 'PubChem' and 'ECFP' is supported.",
         )
 
     return tanimoto
