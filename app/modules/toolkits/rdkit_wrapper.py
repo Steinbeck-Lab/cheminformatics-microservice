@@ -160,8 +160,12 @@ def get_tanimoto_similarity_rdkit(
     if mol1 and mol2:
         if fingerprinter == "ECFP":
             # Generate Morgan fingerprints for each molecule
-            fp1 = AllChem.GetMorganFingerprintAsBitVect(mol1, radius, nBits)
-            fp2 = AllChem.GetMorganFingerprintAsBitVect(mol2, radius, nBits)
+            fp1 = AllChem.GetMorganFingerprintAsBitVect(
+                mol1, int(radius / 2), nBits, useChirality=True
+            )
+            fp2 = AllChem.GetMorganFingerprintAsBitVect(
+                mol2, int(radius / 2), nBits, useChirality=True
+            )
         elif fingerprinter == "RDKit":
             # Generate RDKit fingerprints for each molecule
             rdkgen = rdFingerprintGenerator.GetRDKitFPGenerator(fpSize=nBits)

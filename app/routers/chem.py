@@ -652,7 +652,7 @@ async def tanimoto_similarity(
     nBits: Optional[int] = Query(
         "2048",
         title="nBits size",
-        description="The number of bits for fingerprint vectors in RDKit. Ignored for MACCS keys.",
+        description="The number of bits for fingerprint vectors in RDKit and CDK. Ignored for MACCS and PubChem keys.",
     ),
     radius: Optional[int] = Query(
         "6",
@@ -696,8 +696,8 @@ async def tanimoto_similarity(
                     mol1,
                     mol2,
                     fingerprinter,
-                    nBits,
                     radius,
+                    nBits,
                 )
             else:
                 mol1 = parse_input(smiles1, "cdk", False)
@@ -707,6 +707,7 @@ async def tanimoto_similarity(
                     mol2,
                     fingerprinter,
                     radius,
+                    nBits,
                 )
             return float(Tanimoto)
         except Exception:

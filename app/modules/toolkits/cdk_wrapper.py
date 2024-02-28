@@ -348,7 +348,9 @@ def get_tanimoto_similarity_PubChem_CDK(mol1: any, mol2: any) -> str:
         return "Check the SMILES string for errors"
 
 
-def get_tanimoto_similarity_ECFP_CDK(mol1: any, mol2: any, ECFP: int = 2) -> str:
+def get_tanimoto_similarity_ECFP_CDK(
+    mol1: any, mol2: any, ECFP: int = 2, bitset_len: int = 2048
+) -> str:
     """Calculate the Tanimoto similarity index between two molecules using.
 
     CircularFingerprinter fingerprints.
@@ -358,6 +360,8 @@ def get_tanimoto_similarity_ECFP_CDK(mol1: any, mol2: any, ECFP: int = 2) -> str
     Args:
         mol1 (IAtomContainer): First molecule given by the user.
         mol2 (IAtomContainer): Second molecule given by the user.
+        ECFP (int): The ECFP version to use (2, 4, or 6).
+        bitset_len (int): The length of the bitset.
 
     Returns:
         str: The Tanimoto similarity as a string with 5 decimal places, or an error message.
@@ -377,7 +381,7 @@ def get_tanimoto_similarity_ECFP_CDK(mol1: any, mol2: any, ECFP: int = 2) -> str
 
     CircularFingerprinter_ECFP = JClass(
         cdk_base + ".fingerprint.CircularFingerprinter",
-    )(fingerprinter_class)
+    )(fingerprinter_class, bitset_len)
 
     if mol1 and mol2:
         fingerprint1 = CircularFingerprinter_ECFP.getBitFingerprint(mol1)
@@ -394,6 +398,7 @@ def get_tanimoto_similarity_CDK(
     mol2: any,
     fingerprinter: str = "PubChem",
     ECFP: int = 6,
+    bitset_len: int = 2048,
 ) -> float:
     """Calculate the Tanimoto similarity between two molecules using.
 
@@ -403,6 +408,8 @@ def get_tanimoto_similarity_CDK(
         mol1 (IAtomContainer): First molecule given by the user.
         mol2 (IAtomContainer): Second molecule given by the user.
         fingerprinter (str, optional): The fingerprinter to use. Currently, only "PubChem/ECFP6" is supported. Defaults to "PubChem".
+        ECFP (int, optional): The ECFP version to use (2, 4, or 6). Defaults to 6.
+        bitset_len (int, optional): The length of the bitset. Defaults to 2048.
 
     Returns:
         float: The Tanimoto similarity score between the two molecules.
@@ -413,7 +420,7 @@ def get_tanimoto_similarity_CDK(
     if fingerprinter == "PubChem":
         tanimoto = get_tanimoto_similarity_PubChem_CDK(mol1, mol2)
     elif fingerprinter == "ECFP":
-        tanimoto = get_tanimoto_similarity_ECFP_CDK(mol1, mol2, ECFP)
+        tanimoto = get_tanimoto_similarity_ECFP_CDK(mol1, mol2, ECFP, bitset_len)
     else:
         raise ValueError(
             "Unsupported fingerprinter. Currently, only 'PubChem' is supported.",
