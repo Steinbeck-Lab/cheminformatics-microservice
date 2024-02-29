@@ -144,9 +144,10 @@ def get_tanimoto_similarity_rdkit(
     Args:
         mol1 (Chem.Mol): The RDKit Mol object representing the first molecule.
         mol2 (Chem.Mol): The RDKit Mol object representing the second molecule.
-        fingerprinter (str, optional): The type of fingerprint to use. Defaults to "ECFP".
-        diameter (int, optional): The diameter parameter for Morgan fingerprints to use ECFP it it divided by half. Ignored for other fingerprint types. Defaults to 2.
-        nBits (int, optional): The number of bits for fingerprint vectors. Defaults to 2048. Ignored for MACCS keys.
+        fingerprinter (str, optional): The type of fingerprint to use. Options are "ECFP", "RDKit", "AtomPairs", "MACCS". Defaults to "ECFP".
+        diameter (int, optional): The diameter parameter for ECFP fingerprints (e.g. diameter 2 for generating ECFP2 fingerprints, default value). 
+        Internally, it is divided by 2 to get the radius as input for the RDKit Morgan fingerprinter. 
+        Ignored for all other fingerprinter options than "ECFP".
 
     Returns:
         Union[float, str]: The Tanimoto similarity index between the two molecules if they are valid. If molecules are not valid, returns a string indicating an error.
