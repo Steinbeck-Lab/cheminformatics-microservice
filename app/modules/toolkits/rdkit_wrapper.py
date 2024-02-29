@@ -129,7 +129,7 @@ def get_tanimoto_similarity_rdkit(
     mol1,
     mol2,
     fingerprinter="ECFP",
-    radius=2,
+    diameter=2,
     nBits=2048,
 ) -> Union[float, str]:
     """Calculate the Tanimoto similarity index between two molecular.
@@ -144,9 +144,10 @@ def get_tanimoto_similarity_rdkit(
     Args:
         mol1 (Chem.Mol): The RDKit Mol object representing the first molecule.
         mol2 (Chem.Mol): The RDKit Mol object representing the second molecule.
-        fingerprinter (str, optional): The type of fingerprint to use. Defaults to "ECFP".
-        radius (int, optional): The radius parameter for ECFP fingerprints. Ignored for other fingerprint types.
-        nBits (int, optional): The number of bits for fingerprint vectors. Ignored for MACCS keys.
+        fingerprinter (str, optional): The type of fingerprint to use. Options are "ECFP", "RDKit", "AtomPairs", "MACCS". Defaults to "ECFP".
+        diameter (int, optional): The diameter parameter for ECFP fingerprints (e.g. diameter 2 for generating ECFP2 fingerprints, default value).
+        Internally, it is divided by 2 to get the radius as input for the RDKit Morgan fingerprinter.
+        Ignored for all other fingerprinter options than "ECFP".
 
     Returns:
         Union[float, str]: The Tanimoto similarity index between the two molecules if they are valid. If molecules are not valid, returns a string indicating an error.
@@ -160,8 +161,12 @@ def get_tanimoto_similarity_rdkit(
     if mol1 and mol2:
         if fingerprinter == "ECFP":
             # Generate Morgan fingerprints for each molecule
-            fp1 = AllChem.GetMorganFingerprintAsBitVect(mol1, radius, nBits)
-            fp2 = AllChem.GetMorganFingerprintAsBitVect(mol2, radius, nBits)
+            fp1 = AllChem.GetMorganFingerprintAsBitVect(
+                mol1, int(diameter / 2), nBits, useChirality=True
+            )
+            fp2 = AllChem.GetMorganFingerprintAsBitVect(
+                mol2, int(diameter / 2), nBits, useChirality=True
+            )
         elif fingerprinter == "RDKit":
             # Generate RDKit fingerprints for each molecule
             rdkgen = rdFingerprintGenerator.GetRDKitFPGenerator(fpSize=nBits)
