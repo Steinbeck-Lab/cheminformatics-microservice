@@ -6,10 +6,8 @@ from typing import Union
 from app.modules.all_descriptors import get_cdk_rdkit_combined_descriptors
 from app.modules.npscorer import get_np_score
 from app.modules.toolkits.cdk_wrapper import get_CDK_descriptors
-from app.modules.toolkits.cdk_wrapper import (
-    get_murko_framework,
-    get_CDK_MolecularFormula,
-)
+from app.modules.toolkits.cdk_wrapper import get_CDK_MolecularFormula
+from app.modules.toolkits.cdk_wrapper import get_murko_framework
 from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.rdkit_wrapper import get_rdkit_descriptors
 from app.modules.tools.sugar_removal import get_sugar_info
