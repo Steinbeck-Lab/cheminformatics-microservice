@@ -179,8 +179,9 @@ def get_vander_waals_volume(molecule: any) -> float:
         cdk_base + ".geometry.volume.VABCVolume",
     )().calculate(molecule)
     return VABCVolume
-    
-def get_CDK_MolecularFormula(molecule: any)->str:
+
+
+def get_CDK_MolecularFormula(molecule: any) -> str:
     """This function takes the input SMILES and creates a CDK IAtomContainer.
 
     Args:
@@ -189,10 +190,13 @@ def get_CDK_MolecularFormula(molecule: any)->str:
     Returns:
         str : MolecularFormula generated using CDK.
     """
-    MolecularFormulaManipulator = JClass(cdk_base + ".tools.manipulator.MolecularFormulaManipulator")
+    MolecularFormulaManipulator = JClass(
+        cdk_base + ".tools.manipulator.MolecularFormulaManipulator"
+    )
 
     MolecularFormula = MolecularFormulaManipulator.getMolecularFormula(molecule)
     return MolecularFormulaManipulator.getString(MolecularFormula)
+
 
 def get_CDK_descriptors(molecule: any) -> Union[tuple, str]:
     """Take an input SMILES and generate a selected set of molecular.
