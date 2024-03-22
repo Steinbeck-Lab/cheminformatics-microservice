@@ -86,7 +86,6 @@ def get_COCONUT_descriptors(smiles: str, toolkit: str) -> Union[Dict[str, float]
             "fractioncsp3",
             "number_of_minimal_rings",
             "van_der_walls_volume",
-            "molecular_formula",
         )
 
     combinedDescriptors = dict(zip(DescriptorList, Descriptors))
@@ -96,6 +95,7 @@ def get_COCONUT_descriptors(smiles: str, toolkit: str) -> Union[Dict[str, float]
             "circular_sugars": hasCircularSugars,
             "murko_framework": framework,
             "nplikeness": nplikeliness,
+            "molecular_formula": str(molFormula),
         },
     )
 
