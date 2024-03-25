@@ -85,7 +85,7 @@ def get_COCONUT_descriptors(smiles: str, toolkit: str) -> Union[Dict[str, float]
             "formal_charge",
             "fractioncsp3",
             "number_of_minimal_rings",
-            "van_der_walls_volume",
+            "van_der_waals_volume",
         )
 
     combinedDescriptors = dict(zip(DescriptorList, Descriptors))

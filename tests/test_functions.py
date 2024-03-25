@@ -153,7 +153,7 @@ def test_all_rdkit_descriptors(test_smiles):
         0,
         0.38,
         2,
-        None,
+        165.97,
     )
     assert expected_result == descriptors
 
@@ -205,7 +205,7 @@ def test_all_combined_descriptors(test_smiles):
         "Formal Charge": (0, 0),
         "FractionCSP3": (0.38, 0.38),
         "Number of Minimal Rings": (2, 2),
-        "Van der Waals Volume": (None, 162.33307773672266),
+        "Van der Waals Volume": (165.9, 162.33307773672266),
     }
     assert expected_result == descriptors
 
