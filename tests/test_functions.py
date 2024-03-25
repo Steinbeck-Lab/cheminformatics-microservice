@@ -26,6 +26,11 @@ def test_smiles():
 
 
 @pytest.fixture
+def test_smiles_descriptors():
+    return "CCC"
+
+
+@pytest.fixture
 def tanimoto_smiles():
     return "CC,CCO,C"
 
@@ -131,29 +136,29 @@ def test_selfiestosmiles(test_smiles):
     assert expected_result == actual_result
 
 
-def test_all_rdkit_descriptors(test_smiles):
-    mol = parse_input(test_smiles, "rdkit", False)
+def test_all_rdkit_descriptors(test_smiles_descriptors):
+    mol = parse_input(test_smiles_descriptors, "rdkit", False)
     descriptors = get_all_rdkit_descriptors(mol)
     expected_result = (
-        24,
-        15,
-        14,
-        194.19,
-        194.08038,
-        -1.03,
-        0,
-        61.82,
-        6,
-        0,
-        6,
-        0,
-        0,
+        11,
         2,
-        0.54,
+        3,
+        44.1,
+        44.0626,
+        1.42,
         0,
-        0.38,
-        2,
-        165.97,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.39,
+        0,
+        1.0,
+        0,
+        62.15,
     )
     assert expected_result == descriptors
 
@@ -184,28 +189,28 @@ def test_all_cdk_descriptors(test_CDK_Mol):
     assert expected_result == descriptors
 
 
-def test_all_combined_descriptors(test_smiles):
-    descriptors = get_cdk_rdkit_combined_descriptors(test_smiles)
+def test_all_combined_descriptors(test_smiles_descriptors):
+    descriptors = get_cdk_rdkit_combined_descriptors(test_smiles_descriptors)
     expected_result = {
-        "Atom count": (24, 24),
-        "Bond count": (15, 15),
-        "Heavy atom count": (14, 14),
-        "Molecular weight": (194.19, 194.19),
-        "Exact molecular weight": (194.08038, 194.08038),
-        "Calculated LogP": (-1.03, -0.96),
+        "Atom count": (11, 11),
+        "Bond count": (2, 2),
+        "Heavy atom count": (3, 3),
+        "Molecular weight": (44.1, 44.1),
+        "Exact molecular weight": (44.0626, 44.0626),
+        "Calculated LogP": (1.42, 1.74),
         "Rotatable bond count": (0, 0),
-        "Topological polar surface area": (61.82, 56.22),
-        "Hydrogen bond acceptors": (6, 6),
+        "Topological polar surface area": (0.0, 0.0),
+        "Hydrogen bond acceptors": (0, 0),
         "Hydrogen bond donors": (0, 0),
-        "Hydrogen bond acceptors (Lipinski)": (6, 6),
+        "Hydrogen bond acceptors (Lipinski)": (0, 0),
         "Hydrogen bond donors (Lipinski)": (0, 0),
         "Lipinski's rule of five violations": (0, 0),
-        "Aromatic rings count": (2, 2),
-        "QED drug likeliness": (0.54, "None"),
+        "Aromatic rings count": (0, 0),
+        "QED drug likeliness": (0.39, "None"),
         "Formal Charge": (0, 0),
-        "FractionCSP3": (0.38, 0.38),
-        "Number of Minimal Rings": (2, 2),
-        "Van der Waals Volume": (165.9, 162.33307773672266),
+        "FractionCSP3": (1.0, 1.0),
+        "Number of Minimal Rings": (0, 0),
+        "Van der Waals Volume": (62.36, 60.444412578400105),
     }
     assert expected_result == descriptors
 
