@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from chembl_structure_pipeline import checker
 from chembl_structure_pipeline import standardizer
 from rdkit import Chem
 
 import app.modules.toolkits.cdk_wrapper as cdk
 import app.modules.toolkits.rdkit_wrapper as rdkitmodules
 from app.modules.coconut.descriptors import get_COCONUT_descriptors
+from app.modules.toolkits.helpers import InvalidInputException
 from app.modules.toolkits.helpers import parse_input
 
 
@@ -21,19 +23,16 @@ def get_mol_block(input_text: str) -> str:
     Raises:
         ValueError: If input_text is not a valid Mol or SMILES.
     """
-    check = rdkitmodules.is_valid_molecule(input_text)
 
-    if check == "smiles":
+    try:
         molecule = parse_input(input_text, "cdk", False)
         mol_block = cdk.get_CDK_SDG_mol(
             molecule,
             V3000=False,
         ).replace("$$$$\n", "")
         return mol_block
-    elif check == "mol":
-        return input_text
-    else:
-        return "Error!, Check the input text."
+    except InvalidInputException:
+        raise InvalidInputException(f"Invalid input SMILES: {input_text}")
 
 
 def get_molecule_hash(molecule: any) -> dict:
@@ -76,103 +75,116 @@ def get_representations(molecule: any) -> dict:
         InChI_Key = Chem.inchi.MolToInchiKey(molecule)
         cdkMolecule = parse_input(Chem.MolToSmiles(molecule), "cdk", False)
         Murko = cdk.get_murko_framework(cdkMolecule)
-        return {"InChI": InChI, "InChI_Key": InChI_Key, "Murko": Murko}
+        return {
+            "standard_inchi": InChI,
+            "standard_inchikey": InChI_Key,
+            "murko_framework": Murko,
+        }
     else:
         return {"Error": "Check input SMILES"}
 
 
-def get_COCONUT_preprocessing(input_text: str) -> dict:
+def get_COCONUT_preprocessing(
+    input_text: str, _3d_mol: bool = False, descriptors: bool = False
+) -> dict:
     """Preprocess user input text suitable for the COCONUT database submission.
 
-    data.
-
     Args:
-        input_text (str): Input text (Mol/str).
+        input_text (str): The input text representing a chemical compound in Mol format.
+        _3d_mol (bool, optional): Flag indicating whether to generate 3D coordinates for the molecule. Defaults to False.
+        descriptors (bool, optional): Flag indicating whether to generate COCONUT descriptors for the molecule. Defaults to False.
 
     Returns:
-        dict: COCONUT preprocessed data.
+        dict: A dictionary containing COCONUT preprocessed data with representations, descriptors, and errors.
+
+    Raises:
+        InvalidInputException: If the input SMILES string is invalid.
     """
-    original_mol = get_mol_block(input_text)
-    standarised_mol_block = standardizer.standardize_molblock(original_mol)
-    standardised_SMILES = Chem.MolToSmiles(
-        Chem.MolFromMolBlock(standarised_mol_block),
-        kekuleSmiles=True,
-    )
+    try:
+        # Preprocess input text
+        input_text = input_text.replace(" ", "+").replace("\\\\", "\\")
 
-    rdkitMol = parse_input(standardised_SMILES, "rdkit", False)
-    molecule_hash = get_molecule_hash(rdkitMol)
+        # Original molecule
+        original_mol = parse_input(input_text, "rdkit", False)
 
-    parent_canonical_smiles = molecule_hash["Canonical_SMILES"]
-    cdkParentMol = parse_input(parent_canonical_smiles, "cdk", False)
-    parent_2D_molblock = cdk.get_CDK_SDG_mol(cdkParentMol, V3000=False).replace(
-        "$$$$\n",
-        "",
-    )
-    parent_2D_molblock_v3 = cdk.get_CDK_SDG_mol(cdkParentMol, V3000=True).replace(
-        "$$$$\n",
-        "",
-    )
-    rdkitParentMol = parse_input(parent_canonical_smiles, "rdkit", False)
-    parent_3D_molblock = rdkitmodules.get_3d_conformers(rdkitParentMol)
+        original_mol_block = get_mol_block(input_text)
+        original_mol_hash = get_molecule_hash(original_mol)
+        original_representations = get_representations(original_mol)
 
-    parent_representations = get_representations(rdkitParentMol)
-    parent_descriptors = get_COCONUT_descriptors(
-        parent_canonical_smiles,
-        "rdkit",
-    )
-
-    if rdkitmodules.has_stereochemistry(rdkitMol):
-        variant_isomeric_smiles = molecule_hash["Isomeric_SMILES"]
-        cdkVariantMol = parse_input(variant_isomeric_smiles, "cdk", False)
-        variant_2D_molblock = cdk.get_CDK_SDG_mol(cdkVariantMol, V3000=False).replace(
-            "$$$$\n",
-            "",
+        # Standardized molecule
+        standardized_mol_block = standardizer.standardize_molblock(original_mol_block)
+        standardized_SMILES = Chem.MolToSmiles(
+            Chem.MolFromMolBlock(standardized_mol_block), kekuleSmiles=True
         )
-        variant_2D_molblock_v3 = cdk.get_CDK_SDG_mol(cdkVariantMol, V3000=True).replace(
-            "$$$$\n",
-            "",
-        )
-        rdkitVariantMol = parse_input(standardised_SMILES, "rdkit", False)
-        variant_3D_molblock = rdkitmodules.get_3d_conformers(rdkitVariantMol)
-        variant_representations = get_representations(rdkitVariantMol)
-        variant_descriptors = get_COCONUT_descriptors(
-            variant_isomeric_smiles,
-            "rdkit",
-        )
+        standardized_mol = parse_input(standardized_SMILES, "rdkit", False)
+        standardized_representations = get_representations(standardized_mol)
 
+        # Parent molecule
+        parent_canonical_smiles = original_mol_hash["Canonical_SMILES"]
+        parent_mol_block = get_mol_block(parent_canonical_smiles)
+        rdkitParentMol = parse_input(parent_canonical_smiles, "rdkit", False)
+        parent_representations = get_representations(rdkitParentMol)
+
+        # Compute descriptors if requested
+        if descriptors:
+            original_descriptors = get_COCONUT_descriptors(input_text, "rdkit")
+            standardized_descriptors = get_COCONUT_descriptors(
+                standardized_SMILES, "rdkit"
+            )
+            parent_descriptors = get_COCONUT_descriptors(
+                parent_canonical_smiles, "rdkit"
+            )
+        else:
+            original_descriptors = {"descriptors": "Not computed, enable for computing"}
+            standardized_descriptors = {
+                "descriptors": "Not computed, enable for computing"
+            }
+            parent_descriptors = {"descriptors": "Not computed, enable for computing"}
+
+        # Compute 3D conformers if requested
+        if _3d_mol:
+            original_3d_mol_block = rdkitmodules.get_3d_conformers(original_mol)
+            standardized_3d_mol_block = rdkitmodules.get_3d_conformers(standardized_mol)
+            parent_3D_mol_block = rdkitmodules.get_3d_conformers(rdkitParentMol)
+        else:
+            original_3d_mol_block = "Not computed, enable for computing"
+            standardized_3d_mol_block = "Not computed, enable for computing"
+            parent_3D_mol_block = "Not computed, enable for computing"
+
+        # Construct and return the COCONUT preprocessed data
         return {
-            "original_mol": original_mol,
-            "standardised_mol": standarised_mol_block,
-            "standardised_SMILES": standardised_SMILES,
-            "molecule_hash": molecule_hash,
+            "original": {
+                "representations": {
+                    "2D_MOL": original_mol_block,
+                    "3D_MOL": original_3d_mol_block,
+                    "canonical_smiles": original_mol_hash["Isomeric_SMILES"],
+                    **original_representations,
+                },
+                "has_stereo": rdkitmodules.has_stereochemistry(original_mol),
+                "descriptors": original_descriptors,
+                "errors": checker.check_molblock(original_mol_block),
+            },
+            "standardized": {
+                "representations": {
+                    "2D_MOL": original_mol_block,
+                    "3D_MOL": standardized_3d_mol_block,
+                    "canonical_smiles": standardized_SMILES,
+                    **standardized_representations,
+                },
+                "has_stereo": rdkitmodules.has_stereochemistry(standardized_mol),
+                "descriptors": standardized_descriptors,
+                "errors": checker.check_molblock(standardized_mol_block),
+            },
             "parent": {
-                "2D_mol": parent_2D_molblock,
-                "3D_mol": parent_3D_molblock,
-                "v3000": parent_2D_molblock_v3,
-                "representations": parent_representations,
+                "representations": {
+                    "2D_MOL": parent_mol_block,
+                    "3D_MOL": parent_3D_mol_block,
+                    "canonical_smiles": parent_canonical_smiles,
+                    **parent_representations,
+                },
+                "has_stereo": rdkitmodules.has_stereochemistry(rdkitParentMol),
                 "descriptors": parent_descriptors,
             },
-            "stereochemical_variants": True,
-            "variants": {
-                "2D_mol": variant_2D_molblock,
-                "3D_mol": variant_3D_molblock,
-                "v3000": variant_2D_molblock_v3,
-                "representations": variant_representations,
-                "descriptors": variant_descriptors,
-            },
         }
-
-    return {
-        "original_mol": original_mol,
-        "standardised_mol": standarised_mol_block,
-        "standardised_SMILES": standardised_SMILES,
-        "molecule_hash": molecule_hash,
-        "parent": {
-            "2D_mol": parent_2D_molblock,
-            "3D_mol": parent_3D_molblock,
-            "v3000": parent_2D_molblock_v3,
-            "representations": parent_representations,
-            "descriptors": parent_descriptors,
-        },
-        "stereochemical_variants": False,
-    }
+    except InvalidInputException:
+        raise InvalidInputException(f"Invalid input SMILES: {input_text}")

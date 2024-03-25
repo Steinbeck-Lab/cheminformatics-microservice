@@ -6,6 +6,7 @@ from typing import Union
 from app.modules.all_descriptors import get_cdk_rdkit_combined_descriptors
 from app.modules.npscorer import get_np_score
 from app.modules.toolkits.cdk_wrapper import get_CDK_descriptors
+from app.modules.toolkits.cdk_wrapper import get_CDK_MolecularFormula
 from app.modules.toolkits.cdk_wrapper import get_murko_framework
 from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.rdkit_wrapper import get_rdkit_descriptors
@@ -59,17 +60,18 @@ def get_COCONUT_descriptors(smiles: str, toolkit: str) -> Union[Dict[str, float]
         cdkMolecule = parse_input(smiles, "cdk", False)
         hasLinearSugar, hasCircularSugars = get_sugar_info(cdkMolecule)
         framework = get_murko_framework(cdkMolecule)
+        molFormula = get_CDK_MolecularFormula(cdkMolecule)
 
         CombinedDescriptors = list(Descriptors)
         CombinedDescriptors.extend(
-            [hasLinearSugar, hasCircularSugars, framework, nplikeliness],
+            [hasLinearSugar, hasCircularSugars, framework, nplikeliness, molFormula],
         )
 
         DescriptorList = (
             "atom_count",
             "heavy_atom_count",
             "molecular_weight",
-            "exactmolecular_weight",
+            "exact_molecular_weight",
             "alogp",
             "rotatable_bond_count",
             "topological_polar_surface_area",
@@ -83,7 +85,7 @@ def get_COCONUT_descriptors(smiles: str, toolkit: str) -> Union[Dict[str, float]
             "formal_charge",
             "fractioncsp3",
             "number_of_minimal_rings",
-            "van_der_walls_volume",
+            "van_der_waals_volume",
         )
 
     combinedDescriptors = dict(zip(DescriptorList, Descriptors))
@@ -93,6 +95,7 @@ def get_COCONUT_descriptors(smiles: str, toolkit: str) -> Union[Dict[str, float]
             "circular_sugars": hasCircularSugars,
             "murko_framework": framework,
             "nplikeness": nplikeliness,
+            "molecular_formula": str(molFormula),
         },
     )
 

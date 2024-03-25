@@ -349,7 +349,7 @@ async def hose_codes(
         default="rdkit",
         description="Cheminformatics toolkit used in the backend",
     ),
-    ringsize: Optional[bool] = Query(
+    ringsize: bool = Query(
         False,
         title="ringsize",
         description="Determines whether to include information about ring sizes",
@@ -498,7 +498,7 @@ async def check_errors(
             },
         },
     ),
-    fix: Optional[bool] = Query(
+    fix: bool = Query(
         False,
         title="Fix",
         description="Flag indicating whether to fix the issues by standardizing the SMILES.",
@@ -652,7 +652,7 @@ async def tanimoto_similarity(
     nBits: Optional[int] = Query(
         "2048",
         title="nBits size",
-        description="The number of bits for fingerprint vectors in RDKit. Ignored for MACCS keys.",
+        description="The number of bits for fingerprint vectors in RDKit and CDK. Ignored for MACCS and PubChem keys.",
     ),
     radius: Optional[int] = Query(
         "6",
@@ -696,8 +696,8 @@ async def tanimoto_similarity(
                     mol1,
                     mol2,
                     fingerprinter,
-                    nBits,
                     radius,
+                    nBits,
                 )
             else:
                 mol1 = parse_input(smiles1, "cdk", False)
@@ -707,6 +707,7 @@ async def tanimoto_similarity(
                     mol2,
                     fingerprinter,
                     radius,
+                    nBits,
                 )
             return float(Tanimoto)
         except Exception:
@@ -746,6 +747,7 @@ async def tanimoto_similarity(
 )
 async def coconut_preprocessing(
     smiles: str = Query(
+        ...,
         title="SMILES",
         description="SMILES string representing a chemical compound",
         openapi_examples={
@@ -758,6 +760,16 @@ async def coconut_preprocessing(
                 "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
             },
         },
+    ),
+    _3d_mol: bool = Query(
+        False,
+        title="3D_mol",
+        description="Flag indicating whether to generate 3D coordinates for a given molecule",
+    ),
+    descriptors: bool = Query(
+        False,
+        title="descriptors",
+        description="Flag indicating whether to generate COCONUT descriptors for a given molecule",
     ),
 ):
     """Generates an Input JSON file with information on different molecular.
@@ -775,9 +787,9 @@ async def coconut_preprocessing(
     - HTTPException: If there is an error reading the SMILES string.
     """
     try:
-        data = get_COCONUT_preprocessing(smiles)
+        data = get_COCONUT_preprocessing(smiles, _3d_mol, descriptors)
         if data:
-            return JSONResponse(content=data)
+            return data
         else:
             raise HTTPException(
                 status_code=422,

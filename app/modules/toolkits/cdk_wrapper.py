@@ -12,56 +12,43 @@ from jpype import JPackage
 from jpype import JVMNotFoundException
 from jpype import startJVM
 
-# Start JVM to use CDK in python
-try:
-    jvmPath = getDefaultJVMPath()
-except JVMNotFoundException:
-    print(
-        "If you see this message, for some reason JPype",
-        "cannot find jvm.dll.",
-        "This indicates that the environment variable JAVA_HOME",
-        "is not set properly.",
-        "You can set it or set it manually in the code",
-    )
-    jvmPath = "Define/path/or/set/JAVA_HOME/variable/properly"
-if not isJVMStarted():
-    cdk_path = "https://github.com/cdk/cdk/releases/download/cdk-2.9/cdk-2.9.jar"
-    sru_path = "https://github.com/JonasSchaub/SugarRemoval/releases/download/v1.3.2/SugarRemovalUtility-jar-with-dependencies.jar"
-    centres_path = (
-        "https://github.com/SiMolecule/centres/releases/download/1.0/centres.jar"
-    )
-    opsin_path = "https://github.com/dan2097/opsin/releases/download/2.8.0/opsin-cli-2.8.0-jar-with-dependencies.jar"
 
-    cdkjar_path = str(pystow.join("STOUT-V2")) + "/cdk-2.9.jar"
-    srujar_path = (
-        str(pystow.join("STOUT-V2")) + "/SugarRemovalUtility-jar-with-dependencies.jar"
-    )
-    centresjar_path = str(pystow.join("STOUT-V2")) + "/centres.jar"
-    opsinjar_path = (
-        str(pystow.join("STOUT-V2")) + "/opsin-cli-2.8.0-jar-with-dependencies.jar"
-    )
+def setup_jvm():
+    try:
+        jvmPath = getDefaultJVMPath()
+    except JVMNotFoundException:
+        print("If you see this message, for some reason JPype cannot find jvm.dll.")
+        print(
+            "This indicates that the environment variable JAVA_HOME is not set properly."
+        )
+        print("You can set it or set it manually in the code")
+        jvmPath = "Define/path/or/set/JAVA_HOME/variable/properly"
 
-    if not os.path.exists(cdkjar_path):
-        jar_path = pystow.ensure("STOUT-V2", url=cdk_path)
+    print(jvmPath)
 
-    if not os.path.exists(srujar_path):
-        jar_path = pystow.ensure("STOUT-V2", url=sru_path)
+    if not isJVMStarted():
+        paths = {
+            "cdk-2.9": "https://github.com/cdk/cdk/releases/download/cdk-2.9/cdk-2.9.jar",
+            "SugarRemovalUtility-jar-with-dependencies": "https://github.com/JonasSchaub/SugarRemoval/releases/download/v1.3.2/SugarRemovalUtility-jar-with-dependencies.jar",
+            "centres": "https://github.com/SiMolecule/centres/releases/download/1.0/centres.jar",
+            "opsin-cli-2.8.0-jar-with-dependencies": "https://github.com/dan2097/opsin/releases/download/2.8.0/opsin-cli-2.8.0-jar-with-dependencies.jar",
+        }
 
-    if not os.path.exists(centresjar_path):
-        jar_path = pystow.ensure("STOUT-V2", url=centres_path)
+        jar_paths = {
+            key: str(pystow.join("STOUT-V2")) + f"/{key}.jar" for key in paths.keys()
+        }
+        for key, url in paths.items():
+            if not os.path.exists(jar_paths[key]):
+                pystow.ensure("STOUT-V2", url=url)
 
-    if not os.path.exists(opsinjar_path):
-        jar_path = pystow.ensure("STOUT-V2", url=opsin_path)
+        startJVM("-ea", "-Xmx4096M", classpath=[jar_paths[key] for key in jar_paths])
 
-    startJVM(
-        "-ea",
-        "-Xmx4096M",
-        classpath=[cdkjar_path, srujar_path, centresjar_path, opsinjar_path],
-    )
-    cdk_base = "org.openscience.cdk"
-    opsin_base = JPackage("uk").ac.cam.ch.wwmm.opsin
-    _nametostruct = opsin_base.NameToStructure.getInstance()
-    _restoinchi = opsin_base.NameToInchi.convertResultToInChI
+
+setup_jvm()
+cdk_base = "org.openscience.cdk"
+opsin_base = JPackage("uk").ac.cam.ch.wwmm.opsin
+_nametostruct = opsin_base.NameToStructure.getInstance()
+_restoinchi = opsin_base.NameToInchi.convertResultToInChI
 
 
 def get_CDK_IAtomContainer(smiles: str):
@@ -192,6 +179,23 @@ def get_vander_waals_volume(molecule: any) -> float:
         cdk_base + ".geometry.volume.VABCVolume",
     )().calculate(molecule)
     return VABCVolume
+
+
+def get_CDK_MolecularFormula(molecule: any) -> str:
+    """This function takes the input SMILES and creates a CDK IAtomContainer.
+
+    Args:
+        molecule (IAtomContainer): molecule given by the user.
+
+    Returns:
+        str : MolecularFormula generated using CDK.
+    """
+    MolecularFormulaManipulator = JClass(
+        cdk_base + ".tools.manipulator.MolecularFormulaManipulator"
+    )
+
+    MolecularFormula = MolecularFormulaManipulator.getMolecularFormula(molecule)
+    return MolecularFormulaManipulator.getString(MolecularFormula)
 
 
 def get_CDK_descriptors(molecule: any) -> Union[tuple, str]:
@@ -361,7 +365,9 @@ def get_tanimoto_similarity_PubChem_CDK(mol1: any, mol2: any) -> str:
         return "Check the SMILES string for errors"
 
 
-def get_tanimoto_similarity_ECFP_CDK(mol1: any, mol2: any, ECFP: int = 2) -> str:
+def get_tanimoto_similarity_ECFP_CDK(
+    mol1: any, mol2: any, ECFP: int = 2, bitset_len: int = 2048
+) -> str:
     """Calculate the Tanimoto similarity index between two molecules using.
 
     CircularFingerprinter fingerprints.
@@ -371,6 +377,8 @@ def get_tanimoto_similarity_ECFP_CDK(mol1: any, mol2: any, ECFP: int = 2) -> str
     Args:
         mol1 (IAtomContainer): First molecule given by the user.
         mol2 (IAtomContainer): Second molecule given by the user.
+        ECFP (int): The ECFP version to use (2, 4, or 6) defaults to 2.
+        bitset_len (int): The length of the bitset.
 
     Returns:
         str: The Tanimoto similarity as a string with 5 decimal places, or an error message.
@@ -390,7 +398,7 @@ def get_tanimoto_similarity_ECFP_CDK(mol1: any, mol2: any, ECFP: int = 2) -> str
 
     CircularFingerprinter_ECFP = JClass(
         cdk_base + ".fingerprint.CircularFingerprinter",
-    )(fingerprinter_class)
+    )(fingerprinter_class, bitset_len)
 
     if mol1 and mol2:
         fingerprint1 = CircularFingerprinter_ECFP.getBitFingerprint(mol1)
@@ -406,7 +414,8 @@ def get_tanimoto_similarity_CDK(
     mol1: any,
     mol2: any,
     fingerprinter: str = "PubChem",
-    ECFP: int = 6,
+    ECFP: int = 2,
+    bitset_len: int = 2048,
 ) -> float:
     """Calculate the Tanimoto similarity between two molecules using.
 
@@ -415,7 +424,9 @@ def get_tanimoto_similarity_CDK(
     Args:
         mol1 (IAtomContainer): First molecule given by the user.
         mol2 (IAtomContainer): Second molecule given by the user.
-        fingerprinter (str, optional): The fingerprinter to use. Currently, only "PubChem/ECFP6" is supported. Defaults to "PubChem".
+        fingerprinter (str, optional): The fingerprinter to use. Currently, only "PubChem/ECFP" is supported. Defaults to "PubChem".
+        ECFP (int, optional): The ECFP version to use (2, 4, or 6). Defaults to 2.
+        bitset_len (int, optional): The length of the bitset. Defaults to 2048.
 
     Returns:
         float: The Tanimoto similarity score between the two molecules.
@@ -426,10 +437,10 @@ def get_tanimoto_similarity_CDK(
     if fingerprinter == "PubChem":
         tanimoto = get_tanimoto_similarity_PubChem_CDK(mol1, mol2)
     elif fingerprinter == "ECFP":
-        tanimoto = get_tanimoto_similarity_ECFP_CDK(mol1, mol2, ECFP)
+        tanimoto = get_tanimoto_similarity_ECFP_CDK(mol1, mol2, ECFP, bitset_len)
     else:
         raise ValueError(
-            "Unsupported fingerprinter. Currently, only 'PubChem' is supported.",
+            "Unsupported fingerprinter. Currently, only 'PubChem' and 'ECFP' is supported.",
         )
 
     return tanimoto
@@ -629,9 +640,7 @@ def get_smiles_opsin(input_text: str) -> str:
     - Exception: If the IUPAC name is not valid or if there are issues in the conversion process. The exception message will guide the user to check the data again.
     """
     try:
-        print(input_text)
         OpsinResult = _nametostruct.parseChemicalName(input_text)
-        print(OpsinResult)
         if str(OpsinResult.getStatus()) == "FAILURE":
             raise Exception(
                 (
@@ -639,7 +648,6 @@ def get_smiles_opsin(input_text: str) -> str:
                     % (input_text, format, OpsinResult.getMessage())
                 ),
             )
-        print(OpsinResult.getSmiles())
         return str(OpsinResult.getSmiles())
     except Exception:
         return str(

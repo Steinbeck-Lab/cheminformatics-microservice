@@ -42,6 +42,25 @@ def check_RO5_violations(molecule: any) -> int:
     return num_of_violations
 
 
+def get_MolVolume(molecule: any) -> float:
+    """
+    Calculate the volume of a molecule.
+
+    This function calculates the volume of a molecule using RDKit's molecular modeling functionalities.
+    It adds hydrogens to the molecule, embeds it into 3D space, and computes the molecular volume.
+
+    Args:
+        molecule (any): The molecule for which the volume needs to be calculated.
+
+    Returns:
+        float: The volume of the molecule.
+    """
+    molecule = Chem.AddHs(molecule)
+    AllChem.EmbedMolecule(molecule)
+    volume = AllChem.ComputeMolVolume(molecule, gridSpacing=0.2)
+    return volume
+
+
 def get_rdkit_descriptors(molecule: any) -> Union[tuple, str]:
     """Calculate a selected set of molecular descriptors for the input SMILES.
 
@@ -72,7 +91,7 @@ def get_rdkit_descriptors(molecule: any) -> Union[tuple, str]:
         FormalCharge = rdmolops.GetFormalCharge(molecule)
         fsp3 = "%.3f" % rdMolDescriptors.CalcFractionCSP3(molecule)
         NumRings = rdMolDescriptors.CalcNumRings(molecule)
-        VABCVolume = None
+        VABCVolume = "%.2f" % get_MolVolume(molecule)
         return (
             AtomC,
             HeavyAtomsC,
@@ -91,7 +110,7 @@ def get_rdkit_descriptors(molecule: any) -> Union[tuple, str]:
             FormalCharge,
             float(fsp3),
             NumRings,
-            str(VABCVolume),
+            float(VABCVolume),
         )
     else:
         return "Error reading SMILES string, check again."
@@ -129,7 +148,7 @@ def get_tanimoto_similarity_rdkit(
     mol1,
     mol2,
     fingerprinter="ECFP",
-    radius=2,
+    diameter=2,
     nBits=2048,
 ) -> Union[float, str]:
     """Calculate the Tanimoto similarity index between two molecular.
@@ -144,9 +163,10 @@ def get_tanimoto_similarity_rdkit(
     Args:
         mol1 (Chem.Mol): The RDKit Mol object representing the first molecule.
         mol2 (Chem.Mol): The RDKit Mol object representing the second molecule.
-        fingerprinter (str, optional): The type of fingerprint to use. Defaults to "ECFP".
-        radius (int, optional): The radius parameter for ECFP fingerprints. Ignored for other fingerprint types.
-        nBits (int, optional): The number of bits for fingerprint vectors. Ignored for MACCS keys.
+        fingerprinter (str, optional): The type of fingerprint to use. Options are "ECFP", "RDKit", "AtomPairs", "MACCS". Defaults to "ECFP".
+        diameter (int, optional): The diameter parameter for ECFP fingerprints (e.g. diameter 2 for generating ECFP2 fingerprints, default value).
+        Internally, it is divided by 2 to get the radius as input for the RDKit Morgan fingerprinter.
+        Ignored for all other fingerprinter options than "ECFP".
 
     Returns:
         Union[float, str]: The Tanimoto similarity index between the two molecules if they are valid. If molecules are not valid, returns a string indicating an error.
@@ -160,8 +180,12 @@ def get_tanimoto_similarity_rdkit(
     if mol1 and mol2:
         if fingerprinter == "ECFP":
             # Generate Morgan fingerprints for each molecule
-            fp1 = AllChem.GetMorganFingerprintAsBitVect(mol1, radius, nBits)
-            fp2 = AllChem.GetMorganFingerprintAsBitVect(mol2, radius, nBits)
+            fp1 = AllChem.GetMorganFingerprintAsBitVect(
+                mol1, int(diameter / 2), nBits, useChirality=True
+            )
+            fp2 = AllChem.GetMorganFingerprintAsBitVect(
+                mol2, int(diameter / 2), nBits, useChirality=True
+            )
         elif fingerprinter == "RDKit":
             # Generate RDKit fingerprints for each molecule
             rdkgen = rdFingerprintGenerator.GetRDKitFPGenerator(fpSize=nBits)
