@@ -79,9 +79,10 @@ def get_ob_mol(smiles: str, threeD: bool = False, depict: bool = False) -> str:
     smiles = smiles.replace(" ", "+")
 
     if threeD:
-        mol = pybel.readstring("smi", smiles)
-        if mol.OBMol.NumAtoms() <= 0:
-            raise InvalidInputException(name="smiles", value=smiles)
+        try:
+            mol = pybel.readstring("smi", smiles)
+        except OSError as e:
+            raise InvalidInputException(name="smiles", value=smiles) from e
         else:
             mol.addh()
             mol.make3D()

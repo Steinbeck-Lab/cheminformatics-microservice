@@ -1,6 +1,7 @@
 import pytest
 
-from app.modules.toolkits.helpers import parse_input, InvalidInputException
+from app.modules.toolkits.helpers import InvalidInputException
+from app.modules.toolkits.helpers import parse_input
 
 
 @pytest.fixture
@@ -43,6 +44,13 @@ def test_parse_SMILES_invalid_framework(test_smiles):
 
 def test_smiles_with_r_groups():
     smiles = "C1=CC=C[R]C=C1"
+    mol = parse_input(smiles, standardize=False)
+    assert mol is not None
+    assert mol.GetNumAtoms() > 0
+
+
+def test_smiles_with_non_r_groups():
+    smiles = "C1=CC=C[X]C=C1"
     mol = parse_input(smiles, standardize=False)
     assert mol is not None
     assert mol.GetNumAtoms() > 0
