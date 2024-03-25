@@ -77,7 +77,3 @@ def test_get_REOSFilter(molecule1, molecule2):
 def test_get_RuleofThree(molecule3, molecule2):
     assert get_RuleofThree(molecule3) is True
     assert get_RuleofThree(molecule2) is False
-
-
-if __name__ == "__main__":
-    pytest.main()
