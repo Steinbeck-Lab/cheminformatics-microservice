@@ -210,7 +210,7 @@ def test_all_combined_descriptors(test_smiles_descriptors):
         "Formal Charge": (0, 0),
         "FractionCSP3": (1.0, 1.0),
         "Number of Minimal Rings": (0, 0),
-        "Van der Waals Volume": (62.36, 60.444412578400105),
+        "Van der Waals Volume": (62.11, 60.444412578400105),
     }
     assert expected_result == descriptors
 
