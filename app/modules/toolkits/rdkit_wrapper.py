@@ -112,8 +112,6 @@ def get_rdkit_descriptors(molecule: any) -> Union[tuple, str]:
             NumRings,
             float(VABCVolume),
         )
-    else:
-        return "Error reading SMILES string, check again."
 
 
 def get_3d_conformers(molecule: any, depict=True) -> Chem.Mol:
