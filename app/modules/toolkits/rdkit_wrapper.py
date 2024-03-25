@@ -42,6 +42,25 @@ def check_RO5_violations(molecule: any) -> int:
     return num_of_violations
 
 
+def get_MolVolume(molecule: any) -> float:
+    """
+    Calculate the volume of a molecule.
+
+    This function calculates the volume of a molecule using RDKit's molecular modeling functionalities.
+    It adds hydrogens to the molecule, embeds it into 3D space, and computes the molecular volume.
+
+    Args:
+        molecule (any): The molecule for which the volume needs to be calculated.
+
+    Returns:
+        float: The volume of the molecule.
+    """
+    molecule = Chem.AddHs(molecule)
+    AllChem.EmbedMolecule(molecule)
+    volume = AllChem.ComputeMolVolume(molecule, gridSpacing=0.2)
+    return volume
+
+
 def get_rdkit_descriptors(molecule: any) -> Union[tuple, str]:
     """Calculate a selected set of molecular descriptors for the input SMILES.
 
@@ -72,7 +91,7 @@ def get_rdkit_descriptors(molecule: any) -> Union[tuple, str]:
         FormalCharge = rdmolops.GetFormalCharge(molecule)
         fsp3 = "%.3f" % rdMolDescriptors.CalcFractionCSP3(molecule)
         NumRings = rdMolDescriptors.CalcNumRings(molecule)
-        VABCVolume = None
+        VABCVolume = "%.2f" % get_MolVolume(molecule)
         return (
             AtomC,
             HeavyAtomsC,
@@ -91,7 +110,7 @@ def get_rdkit_descriptors(molecule: any) -> Union[tuple, str]:
             FormalCharge,
             float(fsp3),
             NumRings,
-            str(VABCVolume),
+            float(VABCVolume),
         )
     else:
         return "Error reading SMILES string, check again."

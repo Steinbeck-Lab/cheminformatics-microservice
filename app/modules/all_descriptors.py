@@ -16,6 +16,7 @@ from app.modules.toolkits.cdk_wrapper import get_vander_waals_volume
 from app.modules.toolkits.cdk_wrapper import JClass
 from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.rdkit_wrapper import check_RO5_violations
+from app.modules.toolkits.rdkit_wrapper import get_MolVolume
 from app.modules.toolkits.rdkit_wrapper import get_tanimoto_similarity_rdkit
 
 
@@ -51,7 +52,7 @@ def get_all_rdkit_descriptors(molecule: any) -> Union[tuple, str]:
         FormalCharge = rdmolops.GetFormalCharge(molecule)
         fsp3 = "%.2f" % rdMolDescriptors.CalcFractionCSP3(molecule)
         NumRings = rdMolDescriptors.CalcNumRings(molecule)
-        VABCVolume = None
+        VABCVolume = "%.2f" % get_MolVolume(molecule)
         return (
             AtomC,
             BondC,
@@ -71,7 +72,7 @@ def get_all_rdkit_descriptors(molecule: any) -> Union[tuple, str]:
             FormalCharge,
             float(fsp3),
             NumRings,
-            VABCVolume,
+            float(VABCVolume),
         )
     else:
         return "Error reading SMILES string, check again."

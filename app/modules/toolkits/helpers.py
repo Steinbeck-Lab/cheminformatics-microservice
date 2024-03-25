@@ -52,7 +52,9 @@ def parse_SMILES(smiles: str, framework: str = "rdkit", standardize: bool = Fals
             else:
                 mol = Chem.MolFromSmiles(smiles)
             if standardize:
-                mol = standardizer.standardize_molblock(mol)
+                mol_block = Chem.MolToMolBlock(mol)
+                standardized_mol = standardizer.standardize_molblock(mol_block)
+                mol = Chem.MolFromMolBlock(standardized_mol)
         elif framework == "cdk":
             mol = get_CDK_IAtomContainer(smiles)
         elif framework == "openbabel":
@@ -66,6 +68,5 @@ def parse_SMILES(smiles: str, framework: str = "rdkit", standardize: bool = Fals
             mol = get_CDK_IAtomContainer(smiles)
             mol_str = get_CDK_SDG_mol(mol)
             return Chem.MolFromMolBlock(mol_str)
-
     except Exception:
         raise InvalidInputException(name="smiles", value=smiles)
