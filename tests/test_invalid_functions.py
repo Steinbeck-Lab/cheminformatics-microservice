@@ -1,19 +1,16 @@
 from __future__ import annotations
 
 import pytest
-from app.modules.toolkits.openbabel_wrapper import (
-    get_ob_canonical_SMILES,
-    get_ob_InChI,
-    get_ob_mol,
-)
-from app.exception_handlers import InvalidInputException
 from rdkit import Chem
-from app.modules.toolkits.rdkit_wrapper import (
-    check_RO5_violations,
-    is_valid_molecule,
-    get_3d_conformers,
-    has_stereochemistry,
-)
+
+from app.exception_handlers import InvalidInputException
+from app.modules.toolkits.openbabel_wrapper import get_ob_canonical_SMILES
+from app.modules.toolkits.openbabel_wrapper import get_ob_InChI
+from app.modules.toolkits.openbabel_wrapper import get_ob_mol
+from app.modules.toolkits.rdkit_wrapper import check_RO5_violations
+from app.modules.toolkits.rdkit_wrapper import get_3d_conformers
+from app.modules.toolkits.rdkit_wrapper import has_stereochemistry
+from app.modules.toolkits.rdkit_wrapper import is_valid_molecule
 
 
 @pytest.fixture
