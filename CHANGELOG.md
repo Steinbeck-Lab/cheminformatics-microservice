@@ -1,5 +1,43 @@
 # Changelog
 
+## [2.2.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v2.1.1...v2.2.0) (2024-03-25)
+
+
+### Features
+
+* add Molecular formula ([40e66f3](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/40e66f3b039f5b56f0b562e2a214aae9f7026709))
+* add tests helpers ([e40ee25](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/e40ee259356950faf09d26851ee86b3059e4aca2))
+* enhanced coconut preprocessing ([e48b015](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/e48b0156fb3165723429e694609f0a28b980754f))
+* enhanced coconut preprocessing ([245a7d5](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/245a7d5821865b02db082c6b9a60a7bbccd9d3a5))
+* include jvm tests ([911c714](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/911c714b7c334668afbf7e8a23dc8c1a024c2778))
+* include True,False options ([c13fba5](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/c13fba5a7f18a59894bec85b03f15c8567e45be1))
+
+
+### Bug Fixes
+
+* add Molecular formula ([c3e6a5f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/c3e6a5f5e9dfc2ad50f03891340c1d9bff4f4565))
+* COCONUT preprocessing examples ([b2fdba0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/b2fdba0bf9568efc6b715f2a8e4e4b88c2cdeac7))
+* code cleanup ([3820cb2](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/3820cb29fecad4b87673a38df6681f9ef2c8269b))
+* descriptors ([9feb1b5](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/9feb1b5d2a430a82041a87598379bda95a4cd256))
+* encoding issues ([32753f2](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/32753f2f0eb1c28dfecbcd25bcab66c20a91f4d6))
+* encoding issues ([093665b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/093665b717e9455a2d145623ef59a2e9149f8521))
+* include bitset length in CDK, bugfix rdkit [#468](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/468) ([725f779](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/725f77936d15563a3253bc2ab5c3f68e6e650476))
+* linting ([d76a213](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d76a2130e4eb88765e7d1589fa01eeda9db9a1e2))
+* linting ([db2e173](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/db2e173340ee627c5103c500a961afead3962557))
+* molecule volume rdkit ([321feec](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/321feece2fde06ae0a55b836a8dcc832bc9ff095))
+* preprocessing test ([c48cd37](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/c48cd37a1fca703eef878b58de9663a457aa68d0))
+* remove dubugging lines ([11ea923](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/11ea923ef28698db68fbd44189eb9b47adeadf4b))
+* remove mock tests test_functions.py ([a50068b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/a50068bc8399275c4e4639cfb592230c6874c8e1))
+* SMILES parse error handling ([3ba35b5](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/3ba35b5604a3a930f2a1570d732bfabaef975df7))
+* test functions ([930274f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/930274f195ddae9a253b63f756cadfc284e9826c))
+* test_functions ([148734b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/148734b29dc5cdd097ca007910f219f6378c5465))
+
+
+### Documentation
+
+* fix rdkit_wrapper.py ([b07938e](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/b07938e3a10e5bcb26d550d608ce5aeaa2848a29))
+* Update docs for tanimoto ([b90206d](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/b90206db36dbfefafceeea486be959fd58a8fea5))
+
 ## [2.1.1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v2.1.0...v2.1.1) (2024-02-19)
 
 
