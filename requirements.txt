@@ -13,7 +13,7 @@ matplotlib>=3.4.3
 opencv-python==4.7.0.68
 pandas
 pdf2image==1.16.2
-pillow==10.2.0
+pillow==10.3.0
 pillow-heif==0.10.0
 pre-commit
 prometheus-fastapi-instrumentator
