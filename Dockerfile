@@ -1,4 +1,4 @@
-FROM continuumio/miniconda3 AS cheminf-python-ms
+FROM continuumio/miniconda3:24.1.2-0 AS cheminf-python-ms
 
 ENV PYTHON_VERSION=3.10
 ENV RDKIT_VERSION=2023.09.4
