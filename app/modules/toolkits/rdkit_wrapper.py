@@ -112,8 +112,6 @@ def get_rdkit_descriptors(molecule: any) -> Union[tuple, str]:
             NumRings,
             float(VABCVolume),
         )
-    else:
-        return "Error reading SMILES string, check again."
 
 
 def get_3d_conformers(molecule: any, depict=True) -> Chem.Mol:
@@ -260,14 +258,15 @@ def is_valid_molecule(input_text) -> Union[str, bool]:
         return False
 
 
-def has_stereochemistry(molecule: any) -> bool:
-    """Check if the given SMILES string contains stereochemistry information.
+def has_chiral_centers(molecule: Chem.Mol) -> bool:
+    """
+    Checks if a molecular structure represented by an RDKit molecule object has any chiral centers.
 
     Args:
-        molecule (Chem.Mol): RDKit molecule object.
+        molecule (Chem.Mol): An RDKit molecule object representing the molecular structure.
 
     Returns:
-        bool: True if the SMILES contains stereochemistry information, False otherwise.
+        bool: True if the molecule has at least one chiral center, False otherwise.
     """
     if molecule is None:
         return False
@@ -278,6 +277,30 @@ def has_stereochemistry(molecule: any) -> bool:
             return True
 
     return False
+
+
+def has_stereochemistry(molecule: Chem.Mol) -> bool:
+    """
+    Checks if a molecular structure represented by an RDKit molecule object has any stereochemistry information.
+
+    Args:
+        molecule (Chem.Mol): An RDKit molecule object representing the molecular structure.
+
+    Returns:
+        bool: True if the molecule has stereochemistry information, False otherwise.
+
+    This function uses the RDKit's FindPotentialStereo function to identify potential stereochemistry information
+    in the molecule. If any stereochemistry information is found, the function returns True, otherwise False.
+    """
+
+    if molecule is None:
+        return False
+
+    stereo_info = Chem.FindPotentialStereo(molecule)
+    if len(list(stereo_info)) > 0:
+        return True
+    else:
+        return False
 
 
 def get_2d_mol(molecule: any) -> str:

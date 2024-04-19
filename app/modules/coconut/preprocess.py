@@ -35,11 +35,48 @@ def get_mol_block(input_text: str) -> str:
         raise InvalidInputException(f"Invalid input SMILES: {input_text}")
 
 
-def get_molecule_hash(molecule: any) -> dict:
+def get_parent_smiles(molecule: Chem.Mol) -> str:
+    """
+    Retrieves the parent SMILES string for a given SMILES string.
+
+    Args:
+        molecule (Chem.Mol): An RDKit molecule object representing the molecular structure.
+
+    Returns:
+        str: The parent SMILES string for the given SMILES string.
+
+    This function uses the RDKit and ChEMBL standardizer libraries to standardize the input structure
+    and retrieve the parent molecule. The parent molecule represents the core molecular structure.
+
+    If the input SMILES string is invalid or cannot be processed, the function returns an empty string.
+    """
+
+    if molecule:
+        mol_block = Chem.MolToMolBlock(molecule)
+        standarized = standardizer.standardize_molblock(mol_block)
+        parent, _ = standardizer.get_parent_molblock(standarized)
+        parent_mol = Chem.MolFromMolBlock(parent)
+
+        if parent_mol:
+            parent_smiles = Chem.MolToSmiles(
+                parent_mol, isomericSmiles=False, kekuleSmiles=True
+            )
+            parent_canonical_mol = Chem.MolFromSmiles(Chem.CanonSmiles(parent_smiles))
+
+            if parent_canonical_mol:
+                new_parent_smiles = Chem.MolToSmiles(
+                    parent_canonical_mol, isomericSmiles=False, kekuleSmiles=True
+                )
+                return new_parent_smiles
+
+    return "Error Check input SMILES"
+
+
+def get_molecule_hash(molecule: Chem.Mol) -> dict:
     """Return various molecule hashes for the provided SMILES.
 
     Args:
-        smiles (str): Standardized SMILES string.
+        molecule (Chem.Mol): An RDKit molecule object representing the molecular structure.
 
     Returns:
         dict: Dictionary containing Formula, Isomeric SMILES, and Canonical SMILES.
@@ -52,20 +89,22 @@ def get_molecule_hash(molecule: any) -> dict:
             kekuleSmiles=True,
             isomericSmiles=False,
         )
+        Parent_SMILES = get_parent_smiles(molecule)
         return {
             "Formula": Formula,
             "Isomeric_SMILES": Isomeric_SMILES,
             "Canonical_SMILES": Canonical_SMILES,
+            "Parent_SMILES": Parent_SMILES,
         }
     else:
         return {"Error": "Check input SMILES"}
 
 
-def get_representations(molecule: any) -> dict:
+def get_representations(molecule: Chem.Mol) -> dict:
     """Return COCONUT representations for the provided SMILES.
 
     Args:
-        smiles (str): SMILES string.
+        molecule (Chem.Mol): An RDKit molecule object representing the molecular structure.
 
     Returns:
         dict: Dictionary containing InChI, InChi Key, and Murko framework.
@@ -120,7 +159,7 @@ def get_COCONUT_preprocessing(
         standardized_representations = get_representations(standardized_mol)
 
         # Parent molecule
-        parent_canonical_smiles = original_mol_hash["Canonical_SMILES"]
+        parent_canonical_smiles = original_mol_hash["Parent_SMILES"]
         parent_mol_block = get_mol_block(parent_canonical_smiles)
         rdkitParentMol = parse_input(parent_canonical_smiles, "rdkit", False)
         parent_representations = get_representations(rdkitParentMol)
