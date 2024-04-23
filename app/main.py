@@ -10,7 +10,10 @@ from fastapi_versioning import VersionedFastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from .routers import chem
-
+from .routers import converters
+from .routers import depict
+from .routers import ocsr
+from .routers import tools
 from app.exception_handlers import input_exception_handler
 from app.exception_handlers import InvalidInputException
 from app.schemas import HealthCheck
@@ -31,7 +34,10 @@ app = FastAPI(
 )
 
 app.include_router(chem.router)
-
+app.include_router(converters.router)
+app.include_router(depict.router)
+app.include_router(tools.router)
+app.include_router(ocsr.router)
 
 app = VersionedFastAPI(
     app,
