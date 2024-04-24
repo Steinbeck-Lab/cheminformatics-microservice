@@ -58,7 +58,7 @@ def get_parent_smiles(molecule: Chem.Mol) -> str:
         parent_mol = Chem.MolFromMolBlock(parent)
 
         if parent_mol:
-            [a.SetAtomMapNum(0) for i,a in enumerate(parent_mol.GetAtoms())]
+            [a.SetAtomMapNum(0) for i, a in enumerate(parent_mol.GetAtoms())]
             parent_smiles = Chem.MolToSmiles(
                 parent_mol, isomericSmiles=False, kekuleSmiles=True
             )
