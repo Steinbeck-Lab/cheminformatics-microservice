@@ -86,7 +86,7 @@ def get_smiles(molecule: Chem.Mol, isomeric: bool = True) -> str:
         str: The Isomeric or Canonical SMILES string for the given molecule.
     """
     if molecule:
-        [a.SetAtomMapNum(0) for i,a in enumerate(molecule.GetAtoms())]
+        [a.SetAtomMapNum(0) for i, a in enumerate(molecule.GetAtoms())]
         initial_smiles = Chem.MolToSmiles(
             molecule, isomericSmiles=isomeric, kekuleSmiles=True
         )
@@ -115,7 +115,7 @@ def get_standardized_smiles(standardized_mol_block: str) -> str:
         str: The standardized SMILES representation of the molecule.
     """
     mol = Chem.MolFromMolBlock(standardized_mol_block)
-    [a.SetAtomMapNum(0) for i,a in enumerate(mol.GetAtoms())]
+    [a.SetAtomMapNum(0) for i, a in enumerate(mol.GetAtoms())]
     standardized_smiles = Chem.MolToSmiles(
         mol, kekuleSmiles=True
     )
