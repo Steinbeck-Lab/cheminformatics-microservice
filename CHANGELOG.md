@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v2.2.0...v2.3.0) (2024-04-19)
+
+
+### Features
+
+* add rdkit findpotential stereo & bugfixes ([f94a705](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/f94a70517cb40e8eadfe96e5d1563618d76a6ba5))
+
 ## [2.2.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v2.1.1...v2.2.0) (2024-03-25)
 
 
