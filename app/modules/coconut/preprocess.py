@@ -58,6 +58,7 @@ def get_parent_smiles(molecule: Chem.Mol) -> str:
         parent_mol = Chem.MolFromMolBlock(parent)
 
         if parent_mol:
+            [a.SetAtomMapNum(0) for i, a in enumerate(parent_mol.GetAtoms())]
             parent_smiles = Chem.MolToSmiles(
                 parent_mol, isomericSmiles=False, kekuleSmiles=True
             )
@@ -68,6 +69,62 @@ def get_parent_smiles(molecule: Chem.Mol) -> str:
                     parent_canonical_mol, isomericSmiles=False, kekuleSmiles=True
                 )
                 return new_parent_smiles
+
+    return "Error Check input SMILES"
+
+
+def get_smiles(molecule: Chem.Mol, isomeric: bool = True) -> str:
+    """
+    Retrieves the SMILES string (Isomeric or Canonical) for a given RDKit molecule object.
+
+    Args:
+        molecule (Chem.Mol): An RDKit molecule object representing the molecular structure.
+        isomeric (bool, optional): Whether to retrieve the Isomeric SMILES (True) or the Canonical SMILES (False).
+                                   Defaults to True.
+
+    Returns:
+        str: The Isomeric or Canonical SMILES string for the given molecule.
+    """
+    if molecule:
+        [a.SetAtomMapNum(0) for i, a in enumerate(molecule.GetAtoms())]
+        initial_smiles = Chem.MolToSmiles(
+            molecule, isomericSmiles=isomeric, kekuleSmiles=True
+        )
+        canonical_mol = Chem.MolFromSmiles(Chem.CanonSmiles(initial_smiles))
+
+        if canonical_mol:
+            new_smiles = Chem.MolToSmiles(
+                canonical_mol, isomericSmiles=isomeric, kekuleSmiles=True
+            )
+            return new_smiles
+
+    return "Error Check input SMILES"
+
+
+def get_standardized_smiles(standardized_mol_block: str) -> str:
+    """
+    Get the standardized SMILES representation of a molecule.
+
+    This function takes a standardized molecular structure represented as a MolBlock and generates the corresponding
+    standardized SMILES representation.
+
+    Args:
+        standardized_mol_block (str): The standardized molecular structure in MolBlock format.
+
+    Returns:
+        str: The standardized SMILES representation of the molecule.
+    """
+    mol = Chem.MolFromMolBlock(standardized_mol_block)
+    [a.SetAtomMapNum(0) for i, a in enumerate(mol.GetAtoms())]
+    standardized_smiles = Chem.MolToSmiles(
+        mol, kekuleSmiles=True
+    )
+    canonical_mol = Chem.MolFromSmiles(Chem.CanonSmiles(standardized_smiles))
+    if canonical_mol:
+        new_smiles = Chem.MolToSmiles(
+            canonical_mol, isomericSmiles=True, kekuleSmiles=True
+        )
+        return new_smiles
 
     return "Error Check input SMILES"
 
@@ -83,12 +140,8 @@ def get_molecule_hash(molecule: Chem.Mol) -> dict:
     """
     if molecule:
         Formula = Chem.rdMolDescriptors.CalcMolFormula(molecule)
-        Isomeric_SMILES = Chem.MolToSmiles(molecule, kekuleSmiles=True)
-        Canonical_SMILES = Chem.MolToSmiles(
-            molecule,
-            kekuleSmiles=True,
-            isomericSmiles=False,
-        )
+        Isomeric_SMILES = get_smiles(molecule, isomeric=True)
+        Canonical_SMILES = get_smiles(molecule, isomeric=False)
         Parent_SMILES = get_parent_smiles(molecule)
         return {
             "Formula": Formula,
@@ -152,9 +205,7 @@ def get_COCONUT_preprocessing(
 
         # Standardized molecule
         standardized_mol_block = standardizer.standardize_molblock(original_mol_block)
-        standardized_SMILES = Chem.MolToSmiles(
-            Chem.MolFromMolBlock(standardized_mol_block), kekuleSmiles=True
-        )
+        standardized_SMILES = get_standardized_smiles(standardized_mol_block)
         standardized_mol = parse_input(standardized_SMILES, "rdkit", False)
         standardized_representations = get_representations(standardized_mol)
 
