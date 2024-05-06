@@ -358,3 +358,36 @@ class GenerateFunctionalGroupResponse(BaseModel):
                 },
             ],
         }
+
+
+class StandarizedTautomerResponse(BaseModel):
+    """Represents a response containing enumerated stereo isomers for a.
+
+    molecule.
+
+    Properties:
+    - stereoisomers (str): Standarized Tautomer SMILES string
+    """
+
+    stereoisomers: str = Field(
+        ...,
+        title="Stereoisomers",
+        description="Standarized Tautomer SMILES string.",
+    )
+
+    class Config:
+        """Pydantic model configuration.
+
+        JSON Schema Extra:
+        - Includes examples of the response structure.
+        """
+
+        json_schema_extra = {
+            "examples": [
+                {
+                    "input": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+                    "message": "Success",
+                    "output": "CN1C(=O)C2=C(N=CN2C)N(C)C1=O",
+                },
+            ],
+        }
