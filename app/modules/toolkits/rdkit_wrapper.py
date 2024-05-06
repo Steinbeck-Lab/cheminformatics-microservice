@@ -19,6 +19,7 @@ from rdkit.Chem.FilterCatalog import FilterCatalog
 from rdkit.Chem.FilterCatalog import FilterCatalogParams
 from rdkit.Contrib.IFG import ifg
 from rdkit.Contrib.SA_Score import sascorer
+from rdkit.Chem.MolStandardize.rdMolStandardize import TautomerEnumerator
 
 
 def check_RO5_violations(molecule: any) -> int:
@@ -597,3 +598,36 @@ def get_ertl_functional_groups(molecule: any) -> list:
             return fragments
         else:
             return [{"None": "No fragments found"}]
+
+
+def get_standardized_tautomer(
+    molecule: any,
+    isomeric: bool = True,
+) -> str:
+    """Generate the standardized tautomer SMILES for a given molecule.
+
+    Args:
+        molecule (any): RDKit molecule object.
+        isomeric (bool, optional): Flag to generate isomeric SMILES. Defaults to True.
+
+    Returns:
+        str: The standardized tautomer SMILES, or an error message.
+    """
+
+    if molecule:
+        [a.SetAtomMapNum(0) for i, a in enumerate(molecule.GetAtoms())]
+        initial_smiles = Chem.MolToSmiles(
+            molecule, isomericSmiles=isomeric, kekuleSmiles=True
+        )
+        canonical_mol = Chem.MolFromSmiles(Chem.CanonSmiles(initial_smiles))
+
+        if canonical_mol:
+            te = TautomerEnumerator()
+            standardized_mol = te.Canonicalize(canonical_mol)
+            new_smiles = Chem.MolToSmiles(
+                standardized_mol, isomericSmiles=isomeric, kekuleSmiles=True
+            )
+
+            return new_smiles
+    else:
+        return "Error Check input SMILES"
