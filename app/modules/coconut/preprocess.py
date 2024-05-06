@@ -116,9 +116,7 @@ def get_standardized_smiles(standardized_mol_block: str) -> str:
     """
     mol = Chem.MolFromMolBlock(standardized_mol_block)
     [a.SetAtomMapNum(0) for i, a in enumerate(mol.GetAtoms())]
-    standardized_smiles = Chem.MolToSmiles(
-        mol, kekuleSmiles=True
-    )
+    standardized_smiles = Chem.MolToSmiles(mol, kekuleSmiles=True)
     canonical_mol = Chem.MolFromSmiles(Chem.CanonSmiles(standardized_smiles))
     if canonical_mol:
         new_smiles = Chem.MolToSmiles(

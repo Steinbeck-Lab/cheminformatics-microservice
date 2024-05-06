@@ -42,6 +42,7 @@ from app.modules.toolkits.rdkit_wrapper import get_RuleofThree
 from app.modules.toolkits.rdkit_wrapper import get_sas_score
 from app.modules.toolkits.rdkit_wrapper import get_tanimoto_similarity_rdkit
 from app.modules.toolkits.rdkit_wrapper import get_VeberFilter
+from app.modules.toolkits.rdkit_wrapper import get_standardized_tautomer
 from app.modules.toolkits.rdkit_wrapper import QED
 from app.schemas import HealthCheck
 from app.schemas.chem_schema import FilteredMoleculesResponse
@@ -54,6 +55,7 @@ from app.schemas.chem_schema import GenerateStereoisomersResponse
 from app.schemas.chem_schema import NPlikelinessScoreResponse
 from app.schemas.chem_schema import TanimotoMatrixResponse
 from app.schemas.chem_schema import TanimotoSimilarityResponse
+from app.schemas.chem_schema import StandarizedTautomerResponse
 from app.schemas.chemblstandardizer import SMILESStandardizedResult
 from app.schemas.chemblstandardizer import SMILESValidationResult
 from app.schemas.classyfire import ClassyFireJob
@@ -1106,3 +1108,38 @@ async def get_functional_groups(
             status_code=422,
             detail="Error reading SMILES string, please check again.",
         )
+
+
+@router.get(
+    "/standarizedTautomer",
+    summary="Enumerate all possible stereoisomers",
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": StandarizedTautomerResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
+)
+async def get_standardized_tautomer_smiles(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES string to be enumerated",
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
+    ),
+):
+    mol = parse_input(smiles, "rdkit", False)
+    if mol:
+        standardized_smiles = get_standardized_tautomer(mol)
+        return standardized_smiles
