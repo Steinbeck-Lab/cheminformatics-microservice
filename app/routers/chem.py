@@ -1112,7 +1112,7 @@ async def get_functional_groups(
 
 @router.get(
     "/standarizedTautomer",
-    summary="Enumerate all possible stereoisomers",
+    summary="Standardize tautomeric SMILES using RDKit EnumerateStereoisomers module",
     responses={
         200: {
             "description": "Successful response",
@@ -1126,7 +1126,7 @@ async def get_functional_groups(
 async def get_standardized_tautomer_smiles(
     smiles: str = Query(
         title="SMILES",
-        description="SMILES string to be enumerated",
+        description="SMILES string to be standardized",
         openapi_examples={
             "example1": {
                 "summary": "Example: Caffeine",
