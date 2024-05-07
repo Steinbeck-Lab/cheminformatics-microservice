@@ -259,15 +259,15 @@ def is_valid_molecule(input_text) -> Union[str, bool]:
         return False
 
 
-def has_chiral_centers(molecule: Chem.Mol) -> bool:
+def has_stereo_defined(molecule: Chem.Mol) -> bool:
     """
-    Checks if a molecular structure represented by an RDKit molecule object has any chiral centers.
+    Checks if a molecular structure represented by an RDKit molecule object has any chiral centers defined.
 
     Args:
         molecule (Chem.Mol): An RDKit molecule object representing the molecular structure.
 
     Returns:
-        bool: True if the molecule has at least one chiral center, False otherwise.
+        bool: True if the molecule has at least one chiral center defined, False otherwise.
     """
     if molecule is None:
         return False
@@ -280,7 +280,7 @@ def has_chiral_centers(molecule: Chem.Mol) -> bool:
     return False
 
 
-def has_stereochemistry(molecule: Chem.Mol) -> bool:
+def has_potential_stereochemistry(molecule: Chem.Mol) -> bool:
     """
     Checks if a molecular structure represented by an RDKit molecule object has any stereochemistry information.
 
