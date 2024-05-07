@@ -248,7 +248,8 @@ def get_COCONUT_preprocessing(
                     "canonical_smiles": original_mol_hash["Isomeric_SMILES"],
                     **original_representations,
                 },
-                "has_stereo": rdkitmodules.has_stereochemistry(original_mol),
+                "has_stereo": rdkitmodules.has_potential_stereochemistry(original_mol),
+                "has_stereo_defined": rdkitmodules.has_stereo_defined(original_mol),
                 "descriptors": original_descriptors,
                 "errors": checker.check_molblock(original_mol_block),
             },
@@ -259,7 +260,10 @@ def get_COCONUT_preprocessing(
                     "canonical_smiles": standardized_SMILES,
                     **standardized_representations,
                 },
-                "has_stereo": rdkitmodules.has_stereochemistry(standardized_mol),
+                "has_stereo": rdkitmodules.has_potential_stereochemistry(
+                    standardized_mol
+                ),
+                "has_stereo_defined": rdkitmodules.has_stereo_defined(standardized_mol),
                 "descriptors": standardized_descriptors,
                 "errors": checker.check_molblock(standardized_mol_block),
             },
@@ -270,7 +274,6 @@ def get_COCONUT_preprocessing(
                     "canonical_smiles": parent_canonical_smiles,
                     **parent_representations,
                 },
-                "has_stereo": rdkitmodules.has_stereochemistry(rdkitParentMol),
                 "descriptors": parent_descriptors,
             },
         }
