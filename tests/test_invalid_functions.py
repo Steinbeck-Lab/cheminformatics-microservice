@@ -9,7 +9,7 @@ from app.modules.toolkits.openbabel_wrapper import get_ob_InChI
 from app.modules.toolkits.openbabel_wrapper import get_ob_mol
 from app.modules.toolkits.rdkit_wrapper import check_RO5_violations
 from app.modules.toolkits.rdkit_wrapper import get_3d_conformers
-from app.modules.toolkits.rdkit_wrapper import has_stereochemistry
+from app.modules.toolkits.rdkit_wrapper import has_stereo_defined
 from app.modules.toolkits.rdkit_wrapper import is_valid_molecule
 
 
@@ -113,21 +113,21 @@ def test_invalid_input(invalid_smiles):
 def test_no_stereochemistry():
     smiles = "C1=CC=CC=C1"
     mol = Chem.MolFromSmiles(smiles)
-    assert has_stereochemistry(mol) is False
+    assert has_stereo_defined(mol) is False
 
 
 def test_chiral_center():
     smiles = "C[C@H](Cl)Br"
     mol = Chem.MolFromSmiles(smiles)
-    assert has_stereochemistry(mol) is True
+    assert has_stereo_defined(mol) is True
 
 
 def test_tetrahedral_stereochemistry():
     smiles = "C[C@@H]1CCCC[C@H]1Br"
     mol = Chem.MolFromSmiles(smiles)
-    assert has_stereochemistry(mol) is True
+    assert has_stereo_defined(mol) is True
 
 
 def test_invalid_molecule():
     mol = None
-    assert has_stereochemistry(mol) is False
+    assert has_stereo_defined(mol) is False
