@@ -1,8 +1,10 @@
 FROM continuumio/miniconda3:24.1.2-0 AS cheminf-python-ms
 
-ENV PYTHON_VERSION=3.10
-ENV RDKIT_VERSION=2023.09.4
-ENV OPENBABEL_VERSION=v3.1.1
+# Set environment variables
+ENV PYTHON_VERSION=3.10 \
+    RDKIT_VERSION=2023.09.4 \
+    OPENBABEL_VERSION=v3.1.1 \
+    JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
 
 # Install runtime dependencies
 RUN apt-get update && \
@@ -36,9 +38,6 @@ RUN pip3 install rdkit
 RUN pip3 install --no-deps decimer-segmentation==1.1.3
 RUN pip3 install --no-deps decimer==2.3.0
 RUN pip3 install --no-deps STOUT-pypi>=2.0.5
-
-RUN python3 -m pip uninstall -y uvicorn
-
 RUN python3 -m pip install uvicorn[standard]
 
 RUN pip3 install --no-cache-dir chembl_structure_pipeline --no-deps
