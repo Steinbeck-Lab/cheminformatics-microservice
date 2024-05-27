@@ -89,32 +89,64 @@ def get_cdk_depiction(
         return "Error reading SMILES string, check again."
 
 
-def get_rdkit_depiction(molecule: any, molSize=(512, 512), rotate=0, kekulize=True):
-    """This function takes the user input SMILES and Canonicalize it using the.
-
-    RDKit.
+def get_rdkit_depiction(
+    molecule: Chem.Mol,
+    mol_size=(512, 512),
+    rotate=0,
+    kekulize=True,
+    highlight: str = "",
+) -> str:
+    """
+    Generate a 2D depiction of the input molecule using RDKit.
 
     Args:
         molecule (Chem.Mol): RDKit molecule object.
+        mol_size (tuple, optional): Size of the output image. Defaults to (512, 512).
+        rotate (int, optional): Rotation angle of the molecule. Defaults to 0.
+        kekulize (bool, optional): Whether to kekulize the molecule. Defaults to True.
+        highlight (str, optional): SMARTS pattern to highlight atoms/bonds. Defaults to empty.
 
     Returns:
-        image (SVG): RDKit Structure Depiction as an SVG image.
+        str: RDKit Structure Depiction as an SVG image.
     """
-    if molecule:
-        mc = Chem.Mol(molecule.ToBinary())
-        if kekulize:
-            try:
-                Chem.Kekulize(mc)
-            except Exception as e:
-                print(e, flush=True)
-                mc = Chem.Mol(molecule.ToBinary())
-        if not mc.GetNumConformers():
-            rdDepictor.Compute2DCoords(mc)
-        drawer = rdMolDraw2D.MolDraw2DSVG(molSize[0], molSize[1])
-        drawer.drawOptions().rotate = rotate
-        drawer.DrawMolecule(mc)
-        drawer.FinishDrawing()
-        svg = drawer.GetDrawingText()
-        return svg.replace("svg:", "")
-    else:
+    if not molecule:
         return "Error reading SMILES string, check again."
+
+    mc = Chem.Mol(molecule.ToBinary())
+
+    if kekulize:
+        try:
+            Chem.Kekulize(mc)
+        except Exception:
+            mc = Chem.Mol(molecule.ToBinary())
+
+    if not mc.GetNumConformers():
+        rdDepictor.Compute2DCoords(mc)
+
+    drawer = rdMolDraw2D.MolDraw2DSVG(mol_size[0], mol_size[1])
+    drawer.drawOptions().rotate = rotate
+
+    if highlight:
+        patt = Chem.MolFromSmarts(highlight)
+        if patt:
+            hit_ats = list(mc.GetSubstructMatch(patt))
+            if hit_ats:
+                hit_bonds = [
+                    mc.GetBondBetweenAtoms(
+                        hit_ats[bond.GetBeginAtomIdx()], hit_ats[bond.GetEndAtomIdx()]
+                    ).GetIdx()
+                    for bond in patt.GetBonds()
+                ]
+                rdMolDraw2D.PrepareAndDrawMolecule(
+                    drawer, mc, highlightAtoms=hit_ats, highlightBonds=hit_bonds
+                )
+            else:
+                drawer.DrawMolecule(mc)
+        else:
+            drawer.DrawMolecule(mc)
+    else:
+        drawer.DrawMolecule(mc)
+
+    drawer.FinishDrawing()
+    svg = drawer.GetDrawingText()
+    return svg.replace("svg:", "")

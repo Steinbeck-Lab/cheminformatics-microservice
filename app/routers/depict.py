@@ -118,6 +118,11 @@ async def depict_2d_molecule(
         title="Unicolor",
         description="Whether to use a single colour for the molecule.",
     ),
+    highlight: Optional[str] = Query(
+        "COSN",
+        title="Substructure",
+        description="SMARTS pattern to highlight atoms/bonds.",
+    ),
 ):
     """Generates a 2D depiction of a molecule using CDK or RDKit with the given.
 
@@ -132,6 +137,7 @@ async def depict_2d_molecule(
     - **rotate**: (int, optional): The rotation angle of the molecule in degrees. Defaults to 0.
     - CIP (bool, optional): Whether to include Cahn-Ingold-Prelog (CIP) stereochemistry information. Defaults to False.
     - unicolor (bool, optional): Whether to use a single colour for the molecule. Defaults to False.
+    - highlight (Optional[str], optional): SMARTS pattern to highlight atoms/bonds. Defaults to "COSN".
 
     Returns:
         Response: An HTTP response containing the generated image in SVG+xml format.
@@ -160,7 +166,9 @@ async def depict_2d_molecule(
             )
         elif toolkit == "rdkit":
             mol = parse_input(smiles, "rdkit", False)
-            depiction = get_rdkit_depiction(mol, [width, height], rotate)
+            depiction = get_rdkit_depiction(
+                mol, [width, height], rotate, highlight=highlight
+            )
         else:
             raise HTTPException(
                 status_code=422,
