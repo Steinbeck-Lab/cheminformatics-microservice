@@ -647,7 +647,9 @@ async def tanimoto_similarity(
         default="rdkit",
         description="Cheminformatics toolkit used in the backend",
     ),
-    fingerprinter: Literal["RDKit", "Atompairs", "MACCS", "PubChem", "ECFP"] = Query(
+    fingerprinter: Literal[
+        "RDKit", "Atompairs", "MACCS", "PubChem", "ECFP", "MAPC"
+    ] = Query(
         "ECFP",
         description="Molecule fingerprint generation algorithm to use for RDKit and CDK",
     ),
@@ -657,9 +659,9 @@ async def tanimoto_similarity(
         description="The number of bits for fingerprint vectors in RDKit and CDK. Ignored for MACCS and PubChem keys.",
     ),
     radius: Optional[int] = Query(
-        "6",
+        "2",
         title="radius size - ECFP",
-        description="ECFP 2/4/6 are allowed for using CDK Circular fingerprinter. The default is 6",
+        description="ECFP 2/4/6 are allowed for using CDK Circular fingerprinter and for MAPC default is radius 2 and permutations 2048. The default is 6",
     ),
 ):
     """Calculate the Tanimoto similarity index for a pair of SMILES strings.

@@ -20,6 +20,7 @@ from rdkit.Chem.FilterCatalog import FilterCatalogParams
 from rdkit.Contrib.IFG import ifg
 from rdkit.Contrib.SA_Score import sascorer
 from rdkit.Chem.MolStandardize.rdMolStandardize import TautomerEnumerator
+from mapchiral.mapchiral import encode, jaccard_similarity
 
 
 def check_RO5_violations(molecule: any) -> int:
@@ -175,6 +176,7 @@ def get_tanimoto_similarity_rdkit(
         - ECFP fingerprints are based on atom environments up to a specified radius.
         - RDKit and Atom Pair fingerprints are based on different molecular descriptors.
         - MACCS keys are a fixed-length binary fingerprint.
+        - MAPC (MinHashed Atom-Pair Fingerprint Chiral): https://github.com/reymond-group/mapchiral
     """
     if mol1 and mol2:
         if fingerprinter == "ECFP":
@@ -199,6 +201,12 @@ def get_tanimoto_similarity_rdkit(
             # Generate MACCSkeys for each molecule
             fp1 = MACCSkeys.GenMACCSKeys(mol1)
             fp2 = MACCSkeys.GenMACCSKeys(mol2)
+        elif fingerprinter == "MAPC":
+            # Generate MAPC for each molecule
+            fp1 = encode(mol1, max_radius=diameter, n_permutations=nBits, mapping=False)
+            fp2 = encode(mol2, max_radius=diameter, n_permutations=nBits, mapping=False)
+            similarity = jaccard_similarity(fp1, fp2)
+            return similarity
         else:
             return "Unsupported fingerprinter!"
 
@@ -259,15 +267,15 @@ def is_valid_molecule(input_text) -> Union[str, bool]:
         return False
 
 
-def has_chiral_centers(molecule: Chem.Mol) -> bool:
+def has_stereo_defined(molecule: Chem.Mol) -> bool:
     """
-    Checks if a molecular structure represented by an RDKit molecule object has any chiral centers.
+    Checks if a molecular structure represented by an RDKit molecule object has any chiral centers defined.
 
     Args:
         molecule (Chem.Mol): An RDKit molecule object representing the molecular structure.
 
     Returns:
-        bool: True if the molecule has at least one chiral center, False otherwise.
+        bool: True if the molecule has at least one chiral center defined, False otherwise.
     """
     if molecule is None:
         return False
@@ -280,7 +288,7 @@ def has_chiral_centers(molecule: Chem.Mol) -> bool:
     return False
 
 
-def has_stereochemistry(molecule: Chem.Mol) -> bool:
+def has_potential_stereochemistry(molecule: Chem.Mol) -> bool:
     """
     Checks if a molecular structure represented by an RDKit molecule object has any stereochemistry information.
 
