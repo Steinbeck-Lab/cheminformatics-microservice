@@ -158,11 +158,7 @@ async def depict_2d_molecule(
         if toolkit == "cdk":
             mol = parse_input(smiles, "cdk", False)
             depiction = get_cdk_depiction(
-                mol,
-                [width, height],
-                rotate,
-                CIP,
-                unicolor,
+                mol, [width, height], rotate, CIP, unicolor, highlight=highlight
             )
         elif toolkit == "rdkit":
             mol = parse_input(smiles, "rdkit", False)
