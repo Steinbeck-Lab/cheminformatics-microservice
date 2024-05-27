@@ -15,8 +15,10 @@ def get_cdk_depiction(
     molecule: any,
     molSize=(512, 512),
     rotate=0,
+    kekulize=True,
     CIP=True,
     unicolor=False,
+    highlight="",
 ):
     """This function takes the user input SMILES and Depicts it.
 
@@ -36,6 +38,10 @@ def get_cdk_depiction(
     Color = JClass("java.awt.Color")
     UniColor = JClass(cdk_base + ".renderer.color.UniColor")
     CDK2DAtomColors = JClass(cdk_base + ".renderer.color.CDK2DAtomColors")()
+    Kekulization = JClass(cdk_base + ".aromaticity.Kekulization")
+    SmartsPattern = JClass(cdk_base + ".smarts.SmartsPattern")
+    SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
+
     if unicolor:
         DepictionGenerator = (
             JClass(cdk_base + ".depict.DepictionGenerator")()
@@ -63,6 +69,12 @@ def get_cdk_depiction(
 
     if SDGMol:
         # Rotate molecule
+        if kekulize:
+            try:
+                Kekulization.kekulize(SDGMol)
+            except Exception as e:
+                print(e + "Can't Kekulize molecule")
+
         point = JClass(
             cdk_base + ".geometry.GeometryTools",
         ).get2DCenter(SDGMol)
@@ -71,6 +83,15 @@ def get_cdk_depiction(
             point,
             (rotate * JClass("java.lang.Math").PI / 180.0),
         )
+
+        if highlight and highlight.strip():
+            tmpPattern = SmartsPattern.create(highlight, SCOB.getInstance())
+            SmartsPattern.prepare(SDGMol)
+            tmpMappings = tmpPattern.matchAll(SDGMol)
+            tmpSubstructures = tmpMappings.toSubstructures()
+            DepictionGenerator = DepictionGenerator.withHighlight(
+                tmpSubstructures, Color.RED
+            ).withOuterGlowHighlight()
 
         mol_imageSVG = (
             DepictionGenerator.depict(
