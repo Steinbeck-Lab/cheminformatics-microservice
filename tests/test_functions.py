@@ -88,7 +88,7 @@ def test_get_rdkit_depiction_rotate(test_RDKit_Mol):
 
 
 def test_get_rdkit_depiction_size(test_RDKit_Mol):
-    svg = get_rdkit_depiction(test_RDKit_Mol, molSize=(512, 512))
+    svg = get_rdkit_depiction(test_RDKit_Mol, mol_size=(512, 512))
     assert isinstance(svg, str)
     assert "svg" in svg
     assert "Error" not in svg
