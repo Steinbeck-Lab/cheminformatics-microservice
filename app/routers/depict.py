@@ -108,12 +108,12 @@ async def depict_2d_molecule(
         title="Rotate",
         description="The rotation angle of the molecule in degrees.",
     ),
-    CIP: Optional[bool] = Query(
+    CIP: bool = Query(
         False,
         title="CIP",
         description="Whether to include Cahn-Ingold-Prelog (CIP) stereochemistry information.",
     ),
-    unicolor: Optional[bool] = Query(
+    unicolor: bool = Query(
         False,
         title="Unicolor",
         description="Whether to use a single colour for the molecule.",
@@ -158,12 +158,17 @@ async def depict_2d_molecule(
         if toolkit == "cdk":
             mol = parse_input(smiles, "cdk", False)
             depiction = get_cdk_depiction(
-                mol, [width, height], rotate, CIP, unicolor, highlight=highlight
+                mol,
+                [width, height],
+                rotate,
+                CIP=CIP,
+                unicolor=unicolor,
+                highlight=highlight,
             )
         elif toolkit == "rdkit":
             mol = parse_input(smiles, "rdkit", False)
             depiction = get_rdkit_depiction(
-                mol, [width, height], rotate, highlight=highlight
+                mol, [width, height], rotate, unicolor=unicolor, highlight=highlight
             )
         else:
             raise HTTPException(
