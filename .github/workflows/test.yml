@@ -39,8 +39,15 @@ jobs:
       run: |
         python3 -m pytest --cov=./ --cov-report=xml
     - name: Upload coverage to Codecov
-      run: |
-        curl -Os https://cli.codecov.io/latest/linux/codecov
-        chmod +x codecov
-        ./codecov --verbose upload-process --fail-on-error -t ${{ secrets.CODECOV_TOKEN }} -n 'service'-${{ github.run_id }} -F service -f coverage.xml
+      uses: Wandalen/wretry.action@v3.5.0
+      with:
+          action: codecov/codecov-action@v4.4.1
+          with: |
+            token: ${{ secrets.CODECOV_TOKEN }}
+            file: ./coverage.xml
+            name: codecov-umbrella
+            fail_ci_if_error: true
+            verbose: true
+          attempt_limit: 5
+          attempt_delay: 30000
 
