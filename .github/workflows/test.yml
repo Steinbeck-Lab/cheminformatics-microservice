@@ -17,9 +17,9 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Print all environment variables
       run: printenv
-    - name: Check Codecov Token
+    - name: Check if Codecov token is set
       run: |
-        if [ -z "${{ secrets.CODECOV_TOKEN }}" ]; then
+        if [ -z "${CODECOV_TOKEN}" ]; then
           echo "Codecov token is not set"
           exit 1
         else
