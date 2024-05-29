@@ -38,10 +38,6 @@ jobs:
     - name: Run test
       run: |
         python3 -m pytest --cov=./ --cov-report=xml
-    - name: Check Codecov Token
-      run: echo "Codecov token is set"
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4.4.1
       with:
@@ -51,7 +47,6 @@ jobs:
         files: ./coverage.xml
         flags: unittests
         name: codecov-umbrella
-        token: ${{ secrets.CODECOV_TOKEN }}
         verbose: true
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
