@@ -15,6 +15,17 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Check Codecov Token
+      run: |
+        if [ -z "${{ secrets.CODECOV_TOKEN }}" ]; then
+          echo "Codecov token is not set"
+          exit 1
+        else
+          echo "Codecov token is set"
+          echo "Codecov token: ${CODECOV_TOKEN:0:4}******"
+        fi
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -38,17 +49,6 @@ jobs:
     - name: Run test
       run: |
         python3 -m pytest --cov=./ --cov-report=xml
-    - name: Check Codecov Token
-      run: |
-        if [ -z "${{ secrets.CODECOV_TOKEN }}" ]; then
-          echo "Codecov token is not set"
-          exit 1
-        else
-          echo "Codecov token is set"
-          echo "Codecov token: ${CODECOV_TOKEN:0:4}******"
-        fi
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
