@@ -39,13 +39,13 @@ jobs:
       run: |
         python3 -m pytest --cov=./ --cov-report=xml
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4.0.0
+      uses: Wandalen/wretry.action@v3.5.0
       with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        directory: ./coverage/reports/
-        fail_ci_if_error: true
-        files: /home/runner/work/cheminformatics-microservice/cheminformatics-microservice/coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        verbose: true
-
+        action: codecov/codecov-action@v4.0.0
+        with: |
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.xml
+          name: codecov-umbrella
+          fail_ci_if_error: true
+        attempt_limit: 5
+        attempt_delay: 30000
