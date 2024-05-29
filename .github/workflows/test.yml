@@ -38,13 +38,19 @@ jobs:
     - name: Run test
       run: |
         python3 -m pytest --cov=./ --cov-report=xml
-    - name: List coverage files
-      run: ls -l ./coverage.xml
     - name: Check Codecov Token
-      run: echo "Codecov token is set"
+      run: |
+        if [ -z "${{ secrets.CODECOV_TOKEN }}" ]; then
+          echo "Codecov token is not set"
+          exit 1
+        else
+          echo "Codecov token is set"
+          echo "Codecov token: ${CODECOV_TOKEN:0:4}******"
+        fi
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-    - uses: codecov/codecov-action@v4
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
       with:
         fail_ci_if_error: true
         files: ./coverage.xml
