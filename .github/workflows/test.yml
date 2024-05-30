@@ -49,4 +49,5 @@ jobs:
         files: coverage.xml
         flags: unittests
         name: codecov-umbrella
+        token: ${{ env.CODECOV_TOKEN }}
         verbose: true
