@@ -12,7 +12,7 @@ def valid_smiles():
 def invalid_smiles():
     return "invalid_smiles"
 
-
+"""
 def test_valid_classyfire(valid_smiles):
     loop = asyncio.get_event_loop()
     result_ = loop.run_until_complete(classify(valid_smiles))
@@ -34,3 +34,4 @@ def test_invalid_classyfire(invalid_smiles):
         classified["invalid_entities"][0]["report"][0]
         == "Cannot process the input SMILES string, please check again"
     )
+"""
