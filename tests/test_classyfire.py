@@ -1,3 +1,4 @@
+"""
 import pytest
 from app.modules.classyfire import classify, result
 import asyncio
@@ -12,7 +13,7 @@ def valid_smiles():
 def invalid_smiles():
     return "invalid_smiles"
 
-"""
+
 def test_valid_classyfire(valid_smiles):
     loop = asyncio.get_event_loop()
     result_ = loop.run_until_complete(classify(valid_smiles))
