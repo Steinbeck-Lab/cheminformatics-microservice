@@ -1,5 +1,8 @@
 name: test
 
+env:
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  
 on:
   workflow_call:
 
@@ -17,17 +20,6 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Print all environment variables
       run: printenv
-    - name: Check if Codecov token is set
-      run: |
-        if [ -z "${CODECOV_TOKEN}" ]; then
-          echo "Codecov token is not set"
-          exit 1
-        else
-          echo "Codecov token is set"
-          echo "Codecov token: ${CODECOV_TOKEN:0:4}******"
-        fi
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -54,10 +46,10 @@ jobs:
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
+        token: ${{ env.CODECOV_TOKEN }}
         fail_ci_if_error: true
         files: ./coverage.xml
         flags: unittests
         name: codecov-umbrella
         verbose: true
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
