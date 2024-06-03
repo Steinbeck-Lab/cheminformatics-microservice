@@ -44,4 +44,4 @@ RUN pip3 install --no-cache-dir chembl_structure_pipeline --no-deps
 
 COPY ./app /code/app
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--workers", "8"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--workers", "4"]
