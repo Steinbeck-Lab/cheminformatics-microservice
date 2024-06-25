@@ -88,7 +88,7 @@ def test_get_rdkit_depiction_rotate(test_RDKit_Mol):
 
 
 def test_get_rdkit_depiction_size(test_RDKit_Mol):
-    svg = get_rdkit_depiction(test_RDKit_Mol, molSize=(512, 512))
+    svg = get_rdkit_depiction(test_RDKit_Mol, mol_size=(512, 512))
     assert isinstance(svg, str)
     assert "svg" in svg
     assert "Error" not in svg
@@ -158,7 +158,7 @@ def test_all_rdkit_descriptors(test_smiles_descriptors):
         0,
         1.0,
         0,
-        62.15,
+        62.12,
     )
     assert expected_result == descriptors
 
@@ -210,7 +210,7 @@ def test_all_combined_descriptors(test_smiles_descriptors):
         "Formal Charge": (0, 0),
         "FractionCSP3": (1.0, 1.0),
         "Number of Minimal Rings": (0, 0),
-        "Van der Waals Volume": (62.11, 60.444412578400105),
+        "Van der Waals Volume": (62.01, 60.444412578400105),
     }
     assert expected_result == descriptors
 

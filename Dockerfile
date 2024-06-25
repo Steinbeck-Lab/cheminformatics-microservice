@@ -1,10 +1,8 @@
 FROM continuumio/miniconda3:24.1.2-0 AS cheminf-python-ms
 
-# Set environment variables
-ENV PYTHON_VERSION=3.10 \
-    RDKIT_VERSION=2023.09.4 \
-    OPENBABEL_VERSION=v3.1.1 \
-    JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
+ENV PYTHON_VERSION=3.10
+ENV RDKIT_VERSION=2023.09.4
+ENV OPENBABEL_VERSION=v3.1.1
 
 # Install runtime dependencies
 RUN apt-get update && \
@@ -44,4 +42,4 @@ RUN pip3 install --no-cache-dir chembl_structure_pipeline --no-deps
 
 COPY ./app /code/app
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--workers", "8"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--workers", "2"]

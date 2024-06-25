@@ -58,7 +58,7 @@ def get_MolVolume(molecule: any) -> float:
         float: The volume of the molecule.
     """
     molecule = Chem.AddHs(molecule)
-    AllChem.EmbedMolecule(molecule)
+    AllChem.EmbedMolecule(molecule, useRandomCoords=True)
     volume = AllChem.ComputeMolVolume(molecule, gridSpacing=0.2)
     return volume
 
