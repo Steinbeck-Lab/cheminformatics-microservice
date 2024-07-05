@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.5.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v2.4.0...v2.5.0) (2024-07-05)
+
+
+### Features
+
+* add slowapi throttling ([5ed1f7b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/5ed1f7b65c0eff13166219364bdbfc81c085b9ed))
+
+
+### Bug Fixes
+
+* test functions ertl ([e1f7ce2](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/e1f7ce23c5ae28ce5eb8bd835f7df967f82d663e))
+
 ## [2.4.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v2.3.0...v2.4.0) (2024-06-25)
 
 
