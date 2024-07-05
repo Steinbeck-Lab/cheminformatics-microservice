@@ -3,11 +3,16 @@ from __future__ import annotations
 from typing import Literal
 
 import selfies as sf
+from fastapi import FastAPI
 from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi import Query
 from fastapi import status
+from fastapi import Request
 from fastapi.responses import Response
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from rdkit import Chem
 from STOUT import translate_forward
 from STOUT import translate_reverse
@@ -38,6 +43,16 @@ from app.schemas.converters_schema import TwoDCoordinatesResponse
 from app.schemas.error import BadRequestModel
 from app.schemas.error import ErrorResponse
 from app.schemas.error import NotFoundModel
+
+# Create the Limiter instance
+limiter = Limiter(key_func=get_remote_address)
+
+# Initialize FastAPI app
+app = FastAPI()
+
+# Add the middleware to handle rate limit exceeded errors
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 router = APIRouter(
     prefix="/convert",
@@ -88,7 +103,9 @@ def get_health() -> HealthCheck:
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
+@limiter.limit("20/minute")
 async def create2d_coordinates(
+    request: Request,
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
@@ -157,7 +174,9 @@ async def create2d_coordinates(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
+@limiter.limit("20/minute")
 async def create3d_coordinates(
+    request: Request,
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
@@ -173,7 +192,7 @@ async def create3d_coordinates(
         },
     ),
     toolkit: Literal["rdkit", "openbabel"] = Query(
-        default="rdkit",
+        default="openbabel",
         description="Cheminformatics toolkit used in the backend",
     ),
 ):
@@ -184,7 +203,7 @@ async def create3d_coordinates(
     Parameters:
     - **SMILES**: required (str): The SMILES representation of the molecule.
     - **toolkit**: optional (str): The molecule toolkit to use.
-        - Supported values: "rdkit" (default) & "openbabel".
+        - Supported values: "rdkit"  & "openbabel" (default).
 
     Returns:
     - molblock (str): The generated mol block with 3D coordinates as a plain text response.
@@ -221,7 +240,9 @@ async def create3d_coordinates(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
+@limiter.limit("10/minute")
 async def iupac_name_or_selfies_to_smiles(
+    request: Request,
     input_text: str = Query(
         title="Input IUPAC name or SELFIES",
         description="IUPAC name or SELFIES representation of the molecule",

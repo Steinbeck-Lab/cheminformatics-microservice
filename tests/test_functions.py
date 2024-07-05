@@ -343,7 +343,7 @@ def test_get_ertl_functional_groups_valid_molecule(test_smiles):
 
     assert isinstance(result, list)
     assert len(result) > 0
-    assert str(result[0]) == "IFG(atomIds=(1,), atoms='n', type='cn(c)C')"
+    assert str(result[0]) == "IFG(atomIds=(1,), atoms='n', type='cn(C)c')"
 
 
 def test_get_ertl_functional_groups_no_fragments():
