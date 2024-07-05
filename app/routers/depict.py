@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Literal
 from typing import Optional
 
+from fastapi import FastAPI
 from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi import Query
@@ -10,6 +11,9 @@ from fastapi import Request
 from fastapi import status
 from fastapi.responses import Response
 from fastapi.templating import Jinja2Templates
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from app.modules.depiction import get_cdk_depiction
 from app.modules.depiction import get_rdkit_depiction
@@ -24,6 +28,15 @@ from app.schemas.error import ErrorResponse
 from app.schemas.error import NotFoundModel
 
 templates = Jinja2Templates(directory="app/templates")
+# Create the Limiter instance
+limiter = Limiter(key_func=get_remote_address)
+
+# Initialize FastAPI app
+app = FastAPI()
+
+# Add the middleware to handle rate limit exceeded errors
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 router = APIRouter(
     prefix="/depict",
@@ -193,6 +206,7 @@ async def depict_2d_molecule(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
+@limiter.limit("25/minute")
 async def depict_3d_molecule(
     request: Request,
     smiles: str = Query(
