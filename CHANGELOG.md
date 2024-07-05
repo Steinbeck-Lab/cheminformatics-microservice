@@ -1,5 +1,36 @@
 # Changelog
 
+## [2.4.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v2.3.0...v2.4.0) (2024-06-25)
+
+
+### Features
+
+* add MAPC tanimoto and cleanup ([59f189c](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/59f189c88653d05cf29eda4d080c4d81814b74f9))
+* check for has stereo defined ([d713451](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d7134513651657dc4561202ae6f6309ddc6fb9b5))
+* include CIP, unicolor configurations rdkit ([d38a75b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d38a75bbbaf88340cc4e2f1b0b153841a1f46ab9))
+* substructure highlighting CDK ([c71b609](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/c71b609d96f09d9958a1f962e1864c9ffc39e482))
+* substruture highlighting in depict ([320647b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/320647be92bb768bf42e75868f8597354e5d02b1))
+* Tautomer standardization ([eb954bf](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/eb954bf61bcc03f8f4b47ced647a1b58e1f4ee8f))
+
+
+### Bug Fixes
+
+* add canonicalisation to smiles generation ([f5c2713](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/f5c2713a6c3cf24439628ffd51451443a7a79c07))
+* classyfire tests ([7d2d533](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/7d2d5339709bc1c47be49c5a1d196c10a4110807))
+* codecov token issue test.yml ([8781b8f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/8781b8fe99c0042ba47e167cbc3ef5be962b7376))
+* codecov upload ([ad0dd1f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/ad0dd1f847a28e1f032c8437b79efeaab9d67809))
+* keyword argument ([a504d30](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/a504d30b32b19fbed807aa70e2f88988a22f9a71))
+* linting ([d4d9b8d](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d4d9b8d865fde989c049ddee9fda2e951c58d91f))
+* reduce worker count Dockerfile ([976583d](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/976583da761eca763382ea90b6becaf5e2e691d5))
+* reinstate delete ([af5a076](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/af5a076ddd7fd4d5ccba14be843dbdff5b380966))
+* revert to old Dockerfile ([f5c7a53](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/f5c7a53f4d0e1847ea58d44d58e875ef7bb7253b))
+* set workers to 4 in Dockerfile ([1f88c74](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/1f88c74a57dac999ac5bf6c2c6b6cb94def08955))
+* test function ([4f36004](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/4f3600487cbb5bb753e50e14f27a92495d21aa13))
+* the function import ([0c79078](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/0c79078bcb62c2eea07d99d8c8be3b170090ffe2))
+* update codecov test.yml ([901f6cf](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/901f6cfaae01c5cabc4a628fc4fa3779cf70e266))
+* update codecov version to 4.3.1 ([8430ac2](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/8430ac25a5667dd4d72e9f772dfdbb984a3a3c44))
+* Update test.yml - upgraded action checkout to v4.1.4 ([b877b59](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/b877b59ed67d7e4c65b86588519b89ea17c51a27))
+
 ## [2.3.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v2.2.0...v2.3.0) (2024-04-19)
 
 
