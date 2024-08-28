@@ -224,7 +224,7 @@ async def depict_3d_molecule(
         },
     ),
     toolkit: Literal["rdkit", "openbabel"] = Query(
-        default="rdkit",
+        default="openbabel",
         description="Cheminformatics toolkit used in the backend",
     ),
 ):
