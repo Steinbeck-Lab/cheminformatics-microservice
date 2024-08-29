@@ -1,6 +1,6 @@
 FROM continuumio/miniconda3:24.1.2-0 AS cheminf-python-ms
 
-ENV PYTHON_VERSION=3.10
+ENV PYTHON_VERSION=3.11
 ENV RDKIT_VERSION=2023.09.4
 ENV OPENBABEL_VERSION=v3.1.1
 
@@ -16,7 +16,7 @@ RUN wget -O surge "https://github.com/StructureGenerator/surge/releases/download
 RUN chmod +x surge
 RUN mv surge /usr/bin
 
-RUN conda install -c conda-forge python>=PYTHON_VERSION
+RUN conda install -c conda-forge python=${PYTHON_VERSION} sqlite --force-reinstall
 #RUN conda install -c conda-forge rdkit==RDKIT_VERSION
 RUN conda install -c conda-forge openbabel>=OPENBABEL_VERSION
 
