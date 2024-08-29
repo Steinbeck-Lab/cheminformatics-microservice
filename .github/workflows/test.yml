@@ -41,7 +41,7 @@ jobs:
       run: |
         python3 -m pytest --cov=./ --cov-report=xml
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4.0.0
+      uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457
       with:
         directory: ./coverage/reports/
         env_vars: OS,PYTHON
