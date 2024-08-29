@@ -28,7 +28,7 @@ jobs:
         pip3 install openbabel-wheel
         pip3 install --no-deps decimer-segmentation==1.1.3
         pip3 install --no-deps decimer==2.3.0
-        pip3 install --no-deps STOUT-pypi>=2.0.5
+        pip3 install --no-deps STOUT-pypi==2.0.5
         pip install flake8 pytest
         pip install pytest-cov
         wget -O surge "https://github.com/StructureGenerator/surge/releases/download/v1.0/surge-linux-v1.0"
