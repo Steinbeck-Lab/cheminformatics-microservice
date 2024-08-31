@@ -14,7 +14,7 @@ keras_preprocessing==1.1.2
 matplotlib==3.4.3
 nbsphinx
 openbabel-wheel
-opencv-python==4.7.0.68
+opencv-python==4.8.1.78
 pandas
 pdf2image==1.16.2
 pillow==10.3.0
