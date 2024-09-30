@@ -22,13 +22,12 @@ env:
 
 jobs:
   push_to_registry:
-    name: Push Docker image to Docker Hub
+    name: Push Docker images to Docker Hub
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
-
-      #Fetch Latest release
+      
       - name: Fetch latest release
         id: fetch-latest-release
         uses: InsonusK/get-latest-release@v1.0.1
@@ -36,19 +35,18 @@ jobs:
           myToken: ${{ github.token }}
           exclude_types: "draft"
           view_top: 10
+      
       - name: "Print release name"
         run: |
           echo "tag_name: ${{ steps.fetch-latest-release.outputs.tag_name }}"
-
-      #Login to Docker Hub
+      
       - name: Log in to Docker Hub
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
-          username: ${{ env.DOCKER_HUB_USERNAME  }}
-          password: ${{ env.DOCKER_HUB_PASSWORD  }}
-
-      #Build and push Docker image
-      - name: Build and push Docker image
+          username: ${{ env.DOCKER_HUB_USERNAME }}
+          password: ${{ env.DOCKER_HUB_PASSWORD }}
+      
+      - name: Build and push full Docker image
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -56,6 +54,22 @@ jobs:
           push: true
           build-args: |
             RELEASE_VERSION=${{ steps.fetch-latest-release.outputs.tag_name }}
-          tags: ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:${{ steps.fetch-latest-release.outputs.tag_name }}, ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest
-          username: ${{ env.DOCKER_HUB_USERNAME  }}
-          password: ${{ env.DOCKER_HUB_PASSWORD  }}
+          tags: |
+            ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:${{ steps.fetch-latest-release.outputs.tag_name }}
+            ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest
+          username: ${{ env.DOCKER_HUB_USERNAME }}
+          password: ${{ env.DOCKER_HUB_PASSWORD }}
+
+      - name: Build and push lite Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile.lite
+          push: true
+          build-args: |
+            RELEASE_VERSION=${{ steps.fetch-latest-release.outputs.tag_name }}
+          tags: |
+            ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:${{ steps.fetch-latest-release.outputs.tag_name }}-lite
+            ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest-lite
+          username: ${{ env.DOCKER_HUB_USERNAME }}
+          password: ${{ env.DOCKER_HUB_PASSWORD }}
