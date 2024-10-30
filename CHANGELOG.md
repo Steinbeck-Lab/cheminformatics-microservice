@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.6.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v2.5.0...v2.6.0) (2024-10-01)
+
+
+### Features
+
+* include a light version of the docker build ([7205a86](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/7205a86fcdd19a5e114de0fd2d06d9266fd45eea))
+
+
+### Bug Fixes
+
+* default openbabel for 3D depict.py ([5ece8eb](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/5ece8ebfda46ace3dc655126d5341c52cc7f33ed))
+* open babel installation issues ([08f04d7](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/08f04d746f0c437ba87e5749efd9dab75b333e88))
+* python sqlite error ([2481997](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/2481997d45ff661d03dd5f57630d67623da3ef60))
+* set STOUT to 2.0.5 test.yml ([210aa5c](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/210aa5c3b4570a1952593f71d63c33499cea0c1a))
+* undo renamingf dockerfile ([b09d58d](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/b09d58db8135790c7e61f24fe5eef08b44db211c))
+* Update README.md ([8530418](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/85304180887464bf7982567fdb95026f247e3a56))
+* use STOUT specific version Dockerfile ([f438b4d](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/f438b4d9acdefca5b3139682da130353ae6f029d))
+
 ## [2.5.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v2.4.0...v2.5.0) (2024-07-05)
 
 
