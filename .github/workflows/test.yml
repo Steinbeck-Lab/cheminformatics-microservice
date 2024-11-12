@@ -1,16 +1,17 @@
-name: test
-  
-on:
-  workflow_call:
+name: API workflow
+
+on: [push, pull_request]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     strategy:
       matrix:
         python-version: ["3.10"]
     steps:
-    - uses: actions/checkout@v4.1.4
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:
@@ -37,16 +38,16 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         flake8 --per-file-ignores="__init__.py:F401" --ignore E402,E501,W503 $(git ls-files '*.py') .
-    - name: Run test
+    - name: Run tests and collect coverage
       run: |
         python3 -m pytest --cov=./ --cov-report=xml
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4.6.0
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       with:
-        directory: ./coverage/reports/
+        file: ./coverage.xml
         fail_ci_if_error: true
-        files: /home/runner/work/cheminformatics-microservice/cheminformatics-microservice/coverage.xml
-        flags: unittests
+        flags: service
         name: codecov-umbrella
         verbose: true
-        token: ${{ secrets.CODECOV_TOKEN }}
