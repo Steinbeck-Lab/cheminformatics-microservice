@@ -1,7 +1,14 @@
-name: test
-  
+name: API workflow
+
 on:
-  workflow_call:
+  push:
+    branches:
+      - main
+      - development
+  pull_request:
+    branches:
+      - main
+      - development
 
 jobs:
   test:
