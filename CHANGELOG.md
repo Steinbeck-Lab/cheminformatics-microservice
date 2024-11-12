@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.6.1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v2.6.0...v2.6.1) (2024-11-12)
+
+
+### Bug Fixes
+
+* update CITATION.cff ([c972839](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/c972839b08291b1c98a825727c926155c57c873f))
+* update README.md ([bd56c3a](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/bd56c3ab2837b191d685187184b1784763d6fbf1))
+
 ## [2.6.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v2.5.0...v2.6.0) (2024-10-01)
 
 
