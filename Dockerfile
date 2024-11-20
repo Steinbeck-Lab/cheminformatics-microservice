@@ -1,45 +1,42 @@
 FROM continuumio/miniconda3:24.1.2-0 AS cheminf-python-ms
 
-ENV PYTHON_VERSION=3.11
-ENV RDKIT_VERSION=2023.09.4
-ENV OPENBABEL_VERSION=v3.1.1
-ENV INCLUDE_OCSR=true
+ENV PYTHON_VERSION=3.11 \
+    INCLUDE_OCSR=true \
+    JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/ \
+    # Add default number of workers
+    WORKERS=2 \
+    # Add other Python configurations
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
 # Install runtime dependencies
 RUN apt-get update && \
-    apt-get install -y software-properties-common && \
-    apt-get update -y && \
-    apt-get install -y openjdk-11-jre && \
-    apt-get install -y curl && \
-    conda update -n base -c defaults conda
+    apt-get install -y --no-install-recommends \
+        software-properties-common \
+        openjdk-11-jre \
+        curl \
+        build-essential \
+        gcc \
+        wget && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    wget -O /usr/bin/surge "https://github.com/StructureGenerator/surge/releases/download/v1.0/surge-linux-v1.0" && \
+    chmod +x /usr/bin/surge
 
-RUN wget -O surge "https://github.com/StructureGenerator/surge/releases/download/v1.0/surge-linux-v1.0"
-RUN chmod +x surge
-RUN mv surge /usr/bin
-
-RUN conda install -c conda-forge python=${PYTHON_VERSION} sqlite --force-reinstall
-#RUN conda install -c conda-forge rdkit==RDKIT_VERSION
-#RUN conda install -c conda-forge openbabel
-
-RUN python3 -m pip install -U pip
-
-ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
-RUN export JAVA_HOME
-
+# Combine conda and pip operations to reduce layers
 WORKDIR /code
-COPY ./requirements.txt /code/requirements.txt
+COPY requirements.txt .
+RUN conda install -c conda-forge python=${PYTHON_VERSION} sqlite --force-reinstall && \
+    python3 -m pip install --no-cache-dir -U pip setuptools && \
+    pip3 install --no-cache-dir -r requirements.txt && \
+    # Install specific packages without dependencies
+    pip3 install --no-cache-dir --no-deps \
+        decimer-segmentation==1.1.3 \
+        decimer==2.3.0 \
+        STOUT-pypi==2.0.5 \
+        chembl_structure_pipeline
 
-RUN pip3 install --upgrade setuptools pip
-RUN pip3 install --no-cache-dir -r /code/requirements.txt
-RUN python3 -m pip uninstall -y imantics
-RUN pip3 install imantics==0.1.12
-RUN pip3 install rdkit openbabel-wheel
-RUN pip3 install --no-deps decimer-segmentation==1.1.3
-RUN pip3 install --no-deps decimer==2.3.0
-RUN pip3 install --no-deps STOUT-pypi==2.0.5
-RUN python3 -m pip install uvicorn[standard]
 
-RUN pip3 install --no-cache-dir chembl_structure_pipeline --no-deps
+COPY ./app ./app
 
-COPY ./app /code/app
-
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--workers", "2"]
+CMD uvicorn app.main:app --host 0.0.0.0 --port 80 --workers ${WORKERS}
