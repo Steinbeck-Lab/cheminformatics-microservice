@@ -19,3 +19,7 @@ unicodedata2==15.0.0
 websockets==10.4
 mapchiral
 slowapi
+imantics==0.1.12
+rdkit
+openbabel-wheel
+uvicorn[standard]
