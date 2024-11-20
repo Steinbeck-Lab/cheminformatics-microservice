@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.2](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v2.6.1...v2.6.2) (2024-11-20)
+
+
+### Bug Fixes
+
+* docker mac build [#486](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/486) ([131894a](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/131894a1a11f9b625d7c9c561c6d6b34fc76ae6f))
+
 ## [2.6.1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v2.6.0...v2.6.1) (2024-11-12)
 
 
