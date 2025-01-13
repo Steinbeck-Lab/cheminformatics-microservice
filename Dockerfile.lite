@@ -25,7 +25,7 @@ RUN apt-get update && \
 
 # Combine conda and pip operations to reduce layers
 WORKDIR /code
-COPY requirements.txt .
+COPY requirements_lite.txt .
 RUN conda install -c conda-forge python=${PYTHON_VERSION} sqlite --force-reinstall && \
     python3 -m pip install --no-cache-dir -U pip setuptools && \
     pip3 install --no-cache-dir -r requirements_lite.txt && \
