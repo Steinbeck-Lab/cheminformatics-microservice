@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.0.0...v3.0.1) (2025-01-13)
+
+
+### Bug Fixes
+
+* added requirements_lite.txt ([a44a6e1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/a44a6e1c1cded3d7e65e20d1fb34664bd262bfae))
+
 ## [2.7.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v2.6.1...v2.7.0) (2025-01-13)
 
 
