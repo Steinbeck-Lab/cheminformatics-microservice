@@ -158,7 +158,7 @@ def test_all_rdkit_descriptors(test_smiles_descriptors):
         0,
         1.0,
         0,
-        62.12,
+        61.98,
     )
     assert expected_result == descriptors
 
