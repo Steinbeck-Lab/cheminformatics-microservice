@@ -1,4 +1,3 @@
-"""
 import pytest
 from app.modules.classyfire import classify, result
 import asyncio
@@ -19,7 +18,11 @@ def test_valid_classyfire(valid_smiles):
     result_ = loop.run_until_complete(classify(valid_smiles))
     assert result_["query_type"] == "STRUCTURE"
     id_ = result_["id"]
-    classified = loop.run_until_complete(result(id_))
+    while True:
+        classified = loop.run_until_complete(result(id_))
+        if classified["classification_status"] == "Done":
+            break
+        asyncio.run(asyncio.sleep(2))
     assert classified["classification_status"] == "Done"
     assert classified["entities"][0]["class"]["name"] == "Imidazopyrimidines"
 
@@ -35,4 +38,3 @@ def test_invalid_classyfire(invalid_smiles):
         classified["invalid_entities"][0]["report"][0]
         == "Cannot process the input SMILES string, please check again"
     )
-"""
