@@ -32,7 +32,11 @@ def test_invalid_classyfire(invalid_smiles):
     result_ = loop.run_until_complete(classify(invalid_smiles))
     assert result_["query_input"] == "invalid_smiles"
     id_ = result_["id"]
-    classified = loop.run_until_complete(result(id_))
+    while True:
+        classified = loop.run_until_complete(result(id_))
+        if classified["classification_status"] == "Done":
+            break
+        asyncio.run(asyncio.sleep(2))
     assert classified["classification_status"] == "Done"
     assert (
         classified["invalid_entities"][0]["report"][0]
