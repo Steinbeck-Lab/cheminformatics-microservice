@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.7.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v2.6.1...v2.7.0) (2025-01-13)
+
+
+### Features
+
+* upgrade to CDK 2.10 ([071f20b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/071f20b4f369331ee4ccafec138897ac62bc90e8))
+
+
+### Bug Fixes
+
+* classyfire test ([c9c4883](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/c9c488310d1128b05be2fccce4df85859d07433a))
+* docker mac build [#486](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/486) ([131894a](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/131894a1a11f9b625d7c9c561c6d6b34fc76ae6f))
+* functions test ([f207401](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/f2074011fc7c3a4c6f1986abaebafb4ca37da134))
+
 ## [2.6.1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v2.6.0...v2.6.1) (2024-11-12)
 
 
