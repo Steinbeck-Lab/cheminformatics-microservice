@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.0.2](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.0.1...v3.0.2) (2025-02-10)
+
+
+### Bug Fixes
+
+* classyfire tests ([1868b38](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/1868b3883cc5c3f79390c8835804f5083add18d4))
+* classyfire tests ([6eb3ae1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/6eb3ae1da32c122cb70d14b9677aeb1a3968b1ad))
+* remove STOUT completely ([cb3d8b8](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/cb3d8b83f06c43e89c57f9393f305a4830746426))
+
 ## [3.0.1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.0.0...v3.0.1) (2025-01-13)
 
 
