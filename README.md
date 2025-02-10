@@ -35,7 +35,7 @@
 
 ## 🌐 Overview
 
-The Cheminformatics Microservice is a set of essential and valuable services designed to support cheminformatics through API calls. It primarily works with SMILES-based inputs and offers functionalities such as:
+A set of microservices to support cheminformatics through API calls. It primarily works with SMILES-based inputs and offers functionalities such as:
 
 - Translating between different machine-readable representations
 - Calculating Natural Product (NP) likeliness scores
