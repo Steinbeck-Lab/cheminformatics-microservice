@@ -13,30 +13,34 @@ def invalid_smiles():
     return "invalid_smiles"
 
 
-def test_valid_classyfire(valid_smiles):
-    loop = asyncio.get_event_loop()
-    result_ = loop.run_until_complete(classify(valid_smiles))
+@pytest.mark.asyncio
+async def test_valid_classyfire(valid_smiles):
+    result_ = await classify(valid_smiles)
     assert result_["query_type"] == "STRUCTURE"
     id_ = result_["id"]
+
     while True:
-        classified = loop.run_until_complete(result(id_))
+        classified = await result(id_)
         if classified["classification_status"] == "Done":
             break
-        asyncio.run(asyncio.sleep(2))
+        await asyncio.sleep(2)
+
     assert classified["classification_status"] == "Done"
     assert classified["entities"][0]["class"]["name"] == "Imidazopyrimidines"
 
 
-def test_invalid_classyfire(invalid_smiles):
-    loop = asyncio.get_event_loop()
-    result_ = loop.run_until_complete(classify(invalid_smiles))
+@pytest.mark.asyncio
+async def test_invalid_classyfire(invalid_smiles):
+    result_ = await classify(invalid_smiles)
     assert result_["query_input"] == "invalid_smiles"
     id_ = result_["id"]
+
     while True:
-        classified = loop.run_until_complete(result(id_))
+        classified = await result(id_)
         if classified["classification_status"] == "Done":
             break
-        asyncio.run(asyncio.sleep(2))
+        await asyncio.sleep(2)
+
     assert classified["classification_status"] == "Done"
     assert (
         classified["invalid_entities"][0]["report"][0]

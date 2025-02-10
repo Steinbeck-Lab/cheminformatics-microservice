@@ -14,8 +14,6 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from rdkit import Chem
-from STOUT import translate_forward
-from STOUT import translate_reverse
 
 from app.modules.toolkits.cdk_wrapper import get_canonical_SMILES
 from app.modules.toolkits.cdk_wrapper import get_CDK_SDG_mol
@@ -35,7 +33,6 @@ from app.schemas.converters_schema import GenerateCXSMILESResponse
 from app.schemas.converters_schema import GenerateFormatsResponse
 from app.schemas.converters_schema import GenerateInChIKeyResponse
 from app.schemas.converters_schema import GenerateInChIResponse
-from app.schemas.converters_schema import GenerateIUPACResponse
 from app.schemas.converters_schema import GenerateSELFIESResponse
 from app.schemas.converters_schema import GenerateSMILESResponse
 from app.schemas.converters_schema import ThreeDCoordinatesResponse
@@ -261,7 +258,7 @@ async def iupac_name_or_selfies_to_smiles(
         default="iupac",
         description="Required type of format conversion",
     ),
-    converter: Literal["opsin", "stout"] = Query(
+    converter: Literal["opsin"] = Query(
         default="opsin",
         description="Required type of converter for IUPAC",
     ),
@@ -289,8 +286,6 @@ async def iupac_name_or_selfies_to_smiles(
         if representation == "iupac":
             if converter == "opsin":
                 iupac_name = get_smiles_opsin(input_text)
-            else:
-                iupac_name = translate_reverse(input_text)
             if iupac_name:
                 return str(iupac_name)
         elif representation == "selfies":
@@ -556,68 +551,6 @@ async def smiles_to_inchikey(
         inchikey = get_ob_InChI(smiles, InChIKey=True)
         if inchikey:
             return str(inchikey)
-
-
-@router.get(
-    "/iupac",
-    summary="Generates IUPAC name using STOUT package",
-    responses={
-        200: {
-            "description": "Successful response",
-            "model": GenerateIUPACResponse,
-        },
-        400: {"description": "Bad Request", "model": BadRequestModel},
-        404: {"description": "Not Found", "model": NotFoundModel},
-        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
-    },
-)
-async def smiles_to_iupac_name(
-    smiles: str = Query(
-        title="SMILES",
-        description="SMILES representation of the molecule",
-        openapi_examples={
-            "example1": {
-                "summary": "Example: Caffeine",
-                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
-            },
-            "example2": {
-                "summary": "Example: Topiramate-13C6",
-                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
-            },
-        },
-    ),
-):
-    """Generates IUPAC name using STOUT package.
-
-    For more information:
-    - Rajan, K., Zielesny, A. & Steinbeck, C. STOUT: SMILES to IUPAC names using neural machine translation. J Cheminform 13, 34 (2021). https://doi.org/10.1186/s13321-021-00512-4
-
-    Parameters:
-    - **SMILES**: required (str): The input SMILES string to convert.
-
-    Returns:
-    - IUPAC name (str): The resulting IUPAC name of the chemical compound.
-
-    Raises:
-    - ValueError: If the SMILES string is empty or contains invalid characters.
-
-    Note:
-    - Here we are using STOUT v2.0 which is available at: https://github.com/Kohulan/Smiles-TO-iUpac-Translator
-
-    Disclaimer:
-    - Due to the fact that STOUT is a deep learning model, it may occasionally display hallucinations or provide incorrect IUPAC names.
-    """
-    try:
-        iupac = translate_forward(smiles)
-        if iupac:
-            return str(iupac)
-        else:
-            raise HTTPException(
-                status_code=422,
-                detail="Error parsing input text, please check again.",
-            )
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=str(e))
 
 
 @router.get(

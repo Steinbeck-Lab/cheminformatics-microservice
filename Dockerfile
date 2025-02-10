@@ -33,7 +33,6 @@ RUN conda install -c conda-forge python=${PYTHON_VERSION} sqlite --force-reinsta
     pip3 install --no-cache-dir --no-deps \
         decimer-segmentation==1.1.3 \
         decimer==2.3.0 \
-        STOUT-pypi==2.0.5 \
         chembl_structure_pipeline
 
 

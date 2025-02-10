@@ -35,7 +35,7 @@
 
 ## 🌐 Overview
 
-The Cheminformatics Microservice is a set of essential and valuable services designed to support cheminformatics through API calls. It primarily works with SMILES-based inputs and offers functionalities such as:
+A set of microservices to support cheminformatics through API calls. It primarily works with SMILES-based inputs and offers functionalities such as:
 
 - Translating between different machine-readable representations
 - Calculating Natural Product (NP) likeliness scores
@@ -43,8 +43,8 @@ The Cheminformatics Microservice is a set of essential and valuable services des
 - Generating descriptors
 
 Additionally, it hosts instances of:
-- [STOUT](https://github.com/Kohulan/Smiles-TO-iUpac-Translator): A deep learning model for IUPAC name generation
 - [DECIMER](https://github.com/Kohulan/DECIMER-Image_Transformer): A deep learning model for optical chemical structure recognition
+> Important Note: STOUT (Smiles-TO-iUpac-Translator) is currently unavailable due to legal issues.
 
 ## 📚 Documentation
 
