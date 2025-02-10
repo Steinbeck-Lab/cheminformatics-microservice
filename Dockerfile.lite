@@ -31,7 +31,6 @@ RUN conda install -c conda-forge python=${PYTHON_VERSION} sqlite --force-reinsta
     pip3 install --no-cache-dir -r requirements_lite.txt && \
     # Install specific packages without dependencies
     pip3 install --no-cache-dir --no-deps \
-        STOUT-pypi==2.0.5 \
         chembl_structure_pipeline
 
 COPY ./app /code/app
