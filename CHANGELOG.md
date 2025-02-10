@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.3](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.0.2...v3.0.3) (2025-02-10)
+
+
+### Bug Fixes
+
+* main text ([e0e5bdd](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/e0e5bddb3f41e338c342c82ca63369fd04701db4))
+
 ## [3.0.2](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.0.1...v3.0.2) (2025-02-10)
 
 
