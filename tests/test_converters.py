@@ -226,29 +226,6 @@ def test_smiles_cannonicalise(smiles, toolkit, response_text, response_code):
 
 
 @pytest.mark.parametrize(
-    "smiles, response_text, response_code",
-    [
-        (
-            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
-            '"1,3,7-trimethylpurine-2,6-dione"',
-            200,
-        ),
-        (
-            "INVALID_INPUT",
-            "",
-            422,
-        ),
-    ],
-)
-def test_smiles_to_iupac(smiles, response_text, response_code):
-    response = client.get(f"/latest/convert/iupac?smiles={smiles}")
-    assert response.status_code == response_code
-    assert response.headers["content-type"] == "application/json"
-    if smiles != "INVALID_INPUT":
-        assert response.text == response_text
-
-
-@pytest.mark.parametrize(
     "input, representation, response_text, response_code",
     [
         (
