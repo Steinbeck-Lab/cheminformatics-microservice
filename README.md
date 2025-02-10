@@ -43,8 +43,8 @@ A set of microservices to support cheminformatics through API calls. It primaril
 - Generating descriptors
 
 Additionally, it hosts instances of:
-- [STOUT](https://github.com/Kohulan/Smiles-TO-iUpac-Translator): A deep learning model for IUPAC name generation
 - [DECIMER](https://github.com/Kohulan/DECIMER-Image_Transformer): A deep learning model for optical chemical structure recognition
+> Important Note: STOUT (Smiles-TO-iUpac-Translator) is currently unavailable due to legal issues.
 
 ## 📚 Documentation
 
