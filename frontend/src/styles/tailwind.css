@@ -1,0 +1,189 @@
+/* src/styles/tailwind.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Define CSS Variables for theming */
+@layer base {
+  :root {
+    /* Light Mode Colors (Default) */
+    --bg-primary: theme('colors.slate.100');
+    --bg-secondary: theme('colors.white');
+    --text-primary: theme('colors.slate.900');
+    --text-secondary: theme('colors.slate.600');
+    --text-accent: theme('colors.sky.700');
+    --text-accent-hover: theme('colors.sky.800');
+    --border-primary: theme('colors.slate.300');
+    --border-secondary: theme('colors.slate.200');
+    --link-primary: theme('colors.sky.600');
+    --link-hover: theme('colors.sky.700');
+    --input-bg: theme('colors.white');
+    --input-border: theme('colors.slate.300');
+    --input-text: theme('colors.slate.900');
+    --input-focus-ring: theme('colors.sky.500');
+    --placeholder-color: theme('colors.slate.400');
+    --shadow-color-rgb: 0, 0, 0; /* For light mode shadows */
+  }
+
+  .dark {
+    /* Dark Mode Colors */
+    --bg-primary: theme('colors.gray.950');
+    --bg-secondary: theme('colors.slate.800');
+    --text-primary: theme('colors.slate.100');
+    --text-secondary: theme('colors.slate.300');
+    --text-accent: theme('colors.sky.400');
+    --text-accent-hover: theme('colors.sky.300');
+    --border-primary: theme('colors.slate.700');
+    --border-secondary: theme('colors.slate.800'); /* Darker secondary border */
+    --link-primary: theme('colors.sky.400');
+    --link-hover: theme('colors.sky.300');
+    --input-bg: theme('colors.slate.800');
+    --input-border: theme('colors.slate.700');
+    --input-text: theme('colors.white');
+    --input-focus-ring: theme('colors.sky.400');
+    --placeholder-color: theme('colors.slate.500');
+    --shadow-color-rgb: 255, 255, 255; /* For dark mode subtle glows/shadows if needed */
+  }
+
+  /* Base element styling using CSS Variables */
+  body {
+    @apply min-h-screen antialiased;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+    color: var(--text-primary);
+  }
+
+  /* Form elements using CSS Variables */
+  input, select, textarea {
+    @apply rounded-md px-3 py-2 border transition-colors duration-200;
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--input-text);
+    @apply placeholder-[var(--placeholder-color)];
+  }
+  input:focus, select:focus, textarea:focus {
+     @apply outline-none ring-2 border-transparent;
+     border-color: var(--input-focus-ring);
+     --tw-ring-color: var(--input-focus-ring);
+     --tw-ring-opacity: 0.5;
+  }
+
+
+  /* Links using CSS Variables */
+  a {
+    color: var(--link-primary);
+    @apply hover:underline decoration-transparent hover:decoration-current underline-offset-4 transition-all duration-200;
+  }
+  a:hover {
+    color: var(--link-hover);
+  }
+
+  /* Ensure smooth color transitions */
+  * {
+    @apply transition-colors duration-200 ease-in-out;
+  }
+}
+
+/* Custom components using CSS Variables and dark: modifier */
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-md font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply focus:ring-offset-[var(--bg-primary)];
+  }
+
+  .btn-primary {
+    @apply btn bg-sky-600 hover:bg-sky-700 text-white focus:ring-sky-500;
+    @apply dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-500;
+  }
+
+  .btn-secondary {
+    @apply btn bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 focus:ring-slate-400;
+    @apply dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white dark:border-slate-600 dark:focus:ring-slate-500;
+  }
+
+  .btn-danger {
+    @apply btn bg-red-600 hover:bg-red-700 text-white focus:ring-red-500;
+  }
+
+  .card {
+    @apply bg-[var(--bg-secondary)] border rounded-lg shadow-md dark:shadow-xl overflow-hidden;
+    @apply dark:bg-slate-800/80 dark:border-slate-700/80;
+    border-color: var(--border-primary);
+  }
+
+  .card-header {
+    @apply p-4 border-b font-semibold;
+    background-color: color-mix(in srgb, var(--bg-secondary) 95%, black 5%);
+    border-color: var(--border-primary);
+    @apply dark:bg-slate-900/50 dark:border-slate-700;
+  }
+
+  .card-body {
+    @apply p-4;
+  }
+
+  .card-footer {
+    @apply p-4 border-t text-sm;
+    background-color: color-mix(in srgb, var(--bg-secondary) 95%, black 5%);
+    border-color: var(--border-primary);
+    color: var(--text-secondary);
+    @apply dark:bg-slate-900/50 dark:border-slate-700 dark:text-slate-400;
+  }
+
+  /* Form group */
+  .form-group {
+    @apply mb-4;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium mb-1;
+    color: var(--text-secondary);
+  }
+
+  /* .form-control uses base input styles */
+}
+
+/* Custom utilities using CSS Variables and dark: modifier */
+@layer utilities {
+  /* Glass effect - Adaptive */
+  .glass {
+    /* Light mode */
+    @apply bg-white/70 backdrop-blur-lg border border-slate-300/50;
+    /* Dark mode */
+    @apply dark:bg-slate-800/70 dark:backdrop-blur-xl dark:border-slate-700/50; /* Matched definition from previous Header component */
+  }
+
+  /* Gradient text - Adaptive */
+  .text-gradient {
+    /* Light mode */
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-indigo-600;
+    /* Dark mode */
+    @apply dark:from-sky-400 dark:to-cyan-400; /* Matched definition from previous Header component */
+  }
+
+  /* Subtle pulse animation for theme toggle button */
+  @keyframes subtle-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(var(--tw-ring-color), 0.3); }
+    50% { box-shadow: 0 0 0 5px rgba(var(--tw-ring-color), 0); }
+  }
+
+  /* Apply pulse on hover to the theme toggle */
+  .theme-toggle-button:hover {
+     /* Define --tw-ring-color based on theme */
+     --tw-ring-color: theme('colors.sky.500'); /* Light mode */
+     animation: subtle-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  .dark .theme-toggle-button:hover {
+     --tw-ring-color: theme('colors.sky.400'); /* Dark mode */
+  }
+
+  /* Add other utilities as needed */
+}
+
+/* Removed the duplicate @layer utilities block */
+
