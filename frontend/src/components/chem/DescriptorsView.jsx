@@ -11,6 +11,7 @@ import SMILESInput from '../common/SMILESInput';
 import LoadingScreen from '../common/LoadingScreen';
 // Assuming this service is configured correctly
 import { getDescriptors } from '../../services/chemService'; // Assuming this service exists
+import DOMPurify from 'dompurify'; // Import DOMPurify for sanitizing HTML
 
 const DescriptorsView = () => {
   const [smiles, setSmiles] = useState('');
@@ -53,11 +54,14 @@ const DescriptorsView = () => {
     // Handle HTML format response
     if (format === 'html' && typeof descriptors === 'string') {
       // Apply base styling for the container, actual table style comes from API
+      // Import DOMPurify at the top of your file
+      // import DOMPurify from 'dompurify';
+      
       return (
         <div
           className="prose prose-sm dark:prose-invert max-w-none bg-white dark:bg-gray-800 p-4 rounded border border-gray-200 dark:border-gray-700 shadow-sm"
-          // Ensure the HTML from the API is trusted or sanitized
-          dangerouslySetInnerHTML={{ __html: descriptors }}
+          // Sanitize HTML before rendering to prevent XSS attacks
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(descriptors) }}
         />
       );
     }
