@@ -15,15 +15,17 @@ import ClassyfireView from '../components/chem/ClassyfireView';
 import ErtlFunctionalGroupView from '../components/chem/ErtlFunctionalGroupView';
 import StandardizedTautomerView from '../components/chem/StandardizedTautomerView';
 import AllFiltersView from '../components/chem/AllFiltersView';
+import PubChemLookupView from '../components/chem/PubChemLookupView';
 
 // Import icons
 import {
     HiOutlineBeaker, HiOutlineDatabase, HiOutlineChartSquareBar,
-  /* HiOutlineColorSwatch, */ HiOutlineFingerPrint, HiOutlineTag, // Removed HiOutlineColorSwatch
+    HiOutlineFingerPrint, HiOutlineTag, 
     HiOutlineRefresh, HiOutlineFilter,
     HiOutlineCollection, HiOutlineCode, HiOutlineCheckCircle, HiOutlineViewList, HiOutlineTemplate,
-    HiOutlineMenuAlt1, HiOutlineX, /* HiChevronDown, */ // Removed HiChevronDown
-    HiOutlineDocumentDuplicate
+    HiOutlineMenuAlt1, HiOutlineX,
+    HiOutlineDocumentDuplicate,
+    HiOutlineGlobeAlt,
 } from 'react-icons/hi';
 
 // Define tab data with icons, categories, and components
@@ -39,6 +41,8 @@ const tabs = [
     { id: 'nplikeness', name: 'NP-likeness', description: 'Calculate NP-likeness score', icon: HiOutlineBeaker, category: 'analysis', component: NPlikenessView },
     // Comparison
     { id: 'similarity', name: 'Similarity', description: 'Compare structures (Tanimoto)', icon: HiOutlineFingerPrint, category: 'comparison', component: TanimotoView },
+    // Search
+    { id: 'pubchem', name: 'PubChem Lookup', description: 'Search PubChem database', icon: HiOutlineGlobeAlt, category: 'search', component: PubChemLookupView },
     // Validation
     { id: 'structureerror', name: 'Check Structure', description: 'Validate chemical structures', icon: HiOutlineCheckCircle, category: 'validation', component: StructureErrorView },
     { id: 'filters', name: 'All Filters', description: 'Apply multiple chemical filters', icon: HiOutlineFilter, category: 'validation', component: AllFiltersView },
@@ -53,9 +57,10 @@ const categories = {
     'analysis': { name: 'Property Analysis', color: 'purple' },
     'comparison': { name: 'Comparison', color: 'indigo' },
     'validation': { name: 'Validation & Filtering', color: 'green' },
-    'advanced': { name: 'Advanced / Specific', color: 'orange' }
+    'advanced': { name: 'Advanced / Specific', color: 'orange' },
+    'search': { name: 'Search & Retrieval', color: 'yellow' },
 };
-const categoryOrder = ['structure', 'analysis', 'comparison', 'validation', 'advanced'];
+const categoryOrder = ['structure', 'search', 'analysis', 'comparison', 'validation', 'advanced'];
 
 // --- Animation Variants ---
 const pageVariants = {
