@@ -110,10 +110,10 @@ def get_CDK_SDG_mol(molecule: any, V3000=False) -> str:
     return mol_str
 
 
-def get_murko_framework(molecule: any) -> str:
+def get_murcko_framework(molecule: any) -> str:
     """This function takes the user input SMILES and returns.
 
-    the Murko framework
+    the Murcko framework
 
     Args:
         molecule (IAtomContainer): molecule given by the user.
@@ -122,12 +122,12 @@ def get_murko_framework(molecule: any) -> str:
         smiles (string): Murko Framework as SMILES.
     """
 
-    MurkoFragmenter = JClass(cdk_base + ".fragment.MurckoFragmenter")(True, 3)
-    MurkoFragmenter.generateFragments(molecule)
-    if len(MurkoFragmenter.getFrameworks()) == 0:
+    MurckoFragmenter = JClass(cdk_base + ".fragment.MurckoFragmenter")(True, 3)
+    MurckoFragmenter.generateFragments(molecule)
+    if len(MurckoFragmenter.getFrameworks()) == 0:
         return "None"
 
-    return str(MurkoFragmenter.getFrameworks()[0])
+    return str(MurckoFragmenter.getFrameworks()[0])
 
 
 def get_aromatic_ring_count(molecule) -> int:

@@ -44,6 +44,7 @@ from app.modules.toolkits.rdkit_wrapper import get_tanimoto_similarity_rdkit
 from app.modules.toolkits.rdkit_wrapper import get_VeberFilter
 from app.modules.toolkits.rdkit_wrapper import get_standardized_tautomer
 from app.modules.toolkits.rdkit_wrapper import QED
+from app.modules.pubchem_retrieve import PubChemClient
 from app.schemas import HealthCheck
 from app.schemas.chem_schema import FilteredMoleculesResponse
 from app.schemas.chem_schema import GenerateDescriptorsResponse
@@ -60,10 +61,12 @@ from app.schemas.chemblstandardizer import SMILESStandardizedResult
 from app.schemas.chemblstandardizer import SMILESValidationResult
 from app.schemas.classyfire import ClassyFireJob
 from app.schemas.classyfire import ClassyFireResult
+from app.schemas.pubchem_schema import PubChemResponse
 from app.schemas.coconut import COCONUTPreprocessingModel
 from app.schemas.error import BadRequestModel
 from app.schemas.error import ErrorResponse
 from app.schemas.error import NotFoundModel
+
 
 router = APIRouter(
     prefix="/chem",
@@ -78,6 +81,8 @@ router = APIRouter(
 )
 
 templates = Jinja2Templates(directory="app/templates")
+
+pubchem_client = PubChemClient()
 
 
 @router.get("/", include_in_schema=False)
@@ -1145,3 +1150,108 @@ async def get_standardized_tautomer_smiles(
     if mol:
         standardized_smiles = get_standardized_tautomer(mol)
         return standardized_smiles
+
+
+@router.get(
+    "/pubchem/smiles",
+    summary="Retrieve canonical SMILES from PubChem for a given chemical identifier",
+    responses={
+        200: {"description": "Successful response", "model": PubChemResponse},
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
+)
+async def get_pubchem_smiles(
+    identifier: str = Query(
+        title="Chemical Identifier",
+        description="Chemical identifier (name, CID, InChI, InChIKey, SMILES, formula, CAS number)",
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Aspirin by name",
+                "value": "aspirin",
+            },
+            "example2": {
+                "summary": "Example: Ethanol by SMILES",
+                "value": "CCO",
+            },
+            "example3": {
+                "summary": "Example: Glucose by formula",
+                "value": "C6H12O6",
+            },
+            "example4": {
+                "summary": "Example: Water by CAS",
+                "value": "7732-18-5",
+            },
+        },
+    ),
+):
+    """
+    Retrieve the canonical SMILES for a molecule from PubChem via the PUG REST API.
+
+    The endpoint automatically detects the input type and handles:
+      - CID: a string of digits
+      - InChI: a string starting with "InChI="
+      - InChIKey: matching the standard format (e.g., "LFQSCWFLJHTTHZ-UHFFFAOYSA-N")
+      - CAS number: if the input matches a pattern like "7732-18-5"
+      - Molecular formula: if the input matches a formula pattern (e.g., "C6H12O6")
+      - SMILES: if the input contains no spaces, is short, and is composed of SMILES characters
+      - Chemical name: default option (covers IUPAC names, synonyms, trivial names, etc.)
+
+    Parameters:
+        identifier (str): The chemical identifier to look up
+
+    Returns:
+        SMILESResponse: Object containing the input, canonical SMILES, detected input type, and success status
+
+    Raises:
+        HTTPException: If the identifier is invalid or no results are found
+    """
+    if not identifier:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Chemical identifier is required",
+        )
+
+    try:
+        # Get the SMILES from PubChem
+        result = pubchem_client.get_smiles(identifier)
+
+        # Determine input type (simplified for endpoint response)
+        input_type = "name"  # Default
+        if identifier.isdigit():
+            input_type = "CID"
+        elif identifier.startswith("InChI="):
+            input_type = "InChI"
+        elif (
+            len(identifier) == 27
+            and identifier.count("-") == 2
+            and all(c.isupper() or c.isdigit() or c == "-" for c in identifier)
+            and identifier[14] == "-"
+            and identifier[25] == "-"
+        ):
+            input_type = "InChIKey"
+        elif "-" in identifier and sum(c.isdigit() for c in identifier) > 5:
+            input_type = "CAS"
+
+        # Create response
+        if result:
+            return PubChemResponse(
+                input=identifier,
+                canonical_smiles=result,
+                input_type=input_type,
+                success=True,
+            )
+        else:
+            return PubChemResponse(
+                input=identifier,
+                canonical_smiles=None,
+                input_type=input_type,
+                success=False,
+            )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Error processing request: {str(e)}",
+        )
