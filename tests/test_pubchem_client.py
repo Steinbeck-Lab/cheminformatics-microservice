@@ -1,10 +1,10 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import pytest
-import requests
 from requests.exceptions import RequestException
 
 from app.modules.pubchem_retrieve import PubChemClient
+
 
 # Mock client class to replace TestClient
 class MockClient:
