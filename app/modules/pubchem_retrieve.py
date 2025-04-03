@@ -188,7 +188,14 @@ class PubChemClient:
             logger.error(f"Error querying by name: {str(e)}")
             return None
 
-    @lru_cache(maxsize=128)
+    def cache_with_dynamic_size(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            cache = lru_cache(maxsize=self.cache_size)(func)
+            return cache(self, *args, **kwargs)
+        return wrapper
+
+    @cache_with_dynamic_size
     def get_smiles(self, user_input: str) -> Optional[str]:
         """
         Retrieve the canonical SMILES for a molecule from PubChem via the PUG REST API.
