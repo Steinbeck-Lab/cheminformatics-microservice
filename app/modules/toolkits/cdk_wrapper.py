@@ -119,7 +119,7 @@ def get_murcko_framework(molecule: any) -> str:
         molecule (IAtomContainer): molecule given by the user.
 
     Returns:
-        smiles (string): Murko Framework as SMILES.
+        smiles (string): Murcko Framework as SMILES.
     """
 
     MurckoFragmenter = JClass(cdk_base + ".fragment.MurckoFragmenter")(True, 3)
