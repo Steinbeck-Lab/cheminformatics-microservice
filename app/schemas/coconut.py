@@ -26,14 +26,14 @@ class Representations(BaseModel):
         field_3D_mol (str): The 3D molecular structure of the parent molecule.
         InChI (str): IUPAC International Chemical Identifier (InChI) representation.
         InChI_Key (str): InChI key.
-        Murko (str): Murcko scaffold representation.
+        Murcko (str): Murcko scaffold representation.
     """
 
     field_2D_mol: str = Field(..., alias="2D_mol")
     field_3D_mol: str = Field(..., alias="3D_mol")
     InChI: str
     InChI_Key: str
-    Murko: str
+    Murcko: str
 
 
 class Descriptors(BaseModel):
@@ -63,7 +63,7 @@ class Descriptors(BaseModel):
         van_der_waals_volume (str): Van der Waals volume description.
         linear_sugars (bool): True if linear sugars are present, False otherwise.
         circular_sugars (bool): True if circular sugars are present, False otherwise.
-        murko_framework (str): Murcko framework description.
+        Murcko_framework (str): Murcko framework description.
         nplikeness (float): NP-likeness value.
     """
 
@@ -87,7 +87,7 @@ class Descriptors(BaseModel):
     van_der_waals_volume: str
     linear_sugars: bool
     circular_sugars: bool
-    murko_framework: str
+    Murcko_framework: str
     nplikeness: float
 
 

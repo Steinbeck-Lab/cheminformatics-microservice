@@ -7,7 +7,7 @@ from app.modules.all_descriptors import get_cdk_rdkit_combined_descriptors
 from app.modules.npscorer import get_np_score
 from app.modules.toolkits.cdk_wrapper import get_CDK_descriptors
 from app.modules.toolkits.cdk_wrapper import get_CDK_MolecularFormula
-from app.modules.toolkits.cdk_wrapper import get_murko_framework
+from app.modules.toolkits.cdk_wrapper import get_murcko_framework
 from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.rdkit_wrapper import get_rdkit_descriptors
 from app.modules.tools.sugar_removal import get_sugar_info
@@ -59,7 +59,7 @@ def get_COCONUT_descriptors(smiles: str, toolkit: str) -> Union[Dict[str, float]
 
         cdkMolecule = parse_input(smiles, "cdk", False)
         hasLinearSugar, hasCircularSugars = get_sugar_info(cdkMolecule)
-        framework = get_murko_framework(cdkMolecule)
+        framework = get_murcko_framework(cdkMolecule)
         molFormula = get_CDK_MolecularFormula(cdkMolecule)
 
         CombinedDescriptors = list(Descriptors)
@@ -93,7 +93,7 @@ def get_COCONUT_descriptors(smiles: str, toolkit: str) -> Union[Dict[str, float]
         {
             "linear_sugars": hasLinearSugar,
             "circular_sugars": hasCircularSugars,
-            "murko_framework": framework,
+            "murcko_framework": framework,
             "nplikeness": nplikeliness,
             "molecular_formula": str(molFormula),
         },

@@ -32,22 +32,26 @@ def create_app_metadata() -> Dict:
         "contact": {
             "name": "Steinbeck Lab",
             "url": "https://cheminf.uni-jena.de",
-            "email": "caffeine@listserv.uni-jena.de"
+            "email": "caffeine@listserv.uni-jena.de",
         },
         "license_info": {
             "name": "CC BY 4.0",
-            "url": "https://creativecommons.org/licenses/by/4.0"
+            "url": "https://creativecommons.org/licenses/by/4.0",
         },
-        "openapi_tags": [{
-            "name": "Chemical Analysis",
-            "description": "Advanced molecular structure analysis and property prediction"
-        }, {
-            "name": "Visualization",
-            "description": "High-fidelity chemical structure rendering and visualization"
-        }, {
-            "name": "Conversion",
-            "description": "Sophisticated molecular format transformation tools"
-        }]
+        "openapi_tags": [
+            {
+                "name": "Chemical Analysis",
+                "description": "Advanced molecular structure analysis and property prediction",
+            },
+            {
+                "name": "Visualization",
+                "description": "High-fidelity chemical structure rendering and visualization",
+            },
+            {
+                "name": "Conversion",
+                "description": "Sophisticated molecular format transformation tools",
+            },
+        ],
     }
 
 
