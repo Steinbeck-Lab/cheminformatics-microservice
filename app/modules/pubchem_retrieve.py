@@ -1,6 +1,6 @@
 import re
 import logging
-from functools import lru_cache, wraps
+from functools import lru_cache
 from typing import Optional
 from urllib.parse import quote
 
@@ -52,7 +52,9 @@ class PubChemClient:
         self.session.mount("http://", adapter)
         self.session.mount("https://", adapter)
 
-    @lru_cache(maxsize=128)
+        # Create a cached version of the internal _get_smiles method
+        self._get_smiles_cached = lru_cache(maxsize=self.cache_size)(self._get_smiles)
+
     def _query_by_cid(self, cid: str) -> Optional[str]:
         """
         Retrieve the canonical SMILES for a compound by its PubChem CID.
@@ -188,42 +190,10 @@ class PubChemClient:
             logger.error(f"Error querying by name: {str(e)}")
             return None
 
-    def cache_with_dynamic_size(func):
-        @wraps(func)
-        def wrapper(self, *args, **kwargs):
-            cache = lru_cache(maxsize=self.cache_size)(func)
-            return cache(self, *args, **kwargs)
-
-        return wrapper
-
-    @cache_with_dynamic_size
-    def get_smiles(self, user_input: str) -> Optional[str]:
+    def _get_smiles(self, user_input: str) -> Optional[str]:
         """
-        Retrieve the canonical SMILES for a molecule from PubChem via the PUG REST API.
-
-        The function supports multiple input types:
-          - CID: a string of digits.
-          - InChI: a string starting with "InChI=".
-          - InChIKey: matching the standard format (e.g., "LFQSCWFLJHTTHZ-UHFFFAOYSA-N").
-          - CAS number: if the input matches a pattern like "7732-18-5" (handled as a name).
-          - Molecular formula: if the input matches a formula pattern (e.g., "C6H12O6").
-          - SMILES: if the input contains no spaces, is short (≤10 chars), and is composed solely of characters typically found in SMILES.
-          - Chemical name: default option (covers IUPAC names, synonyms, trivial names, etc.).
-
-        Args:
-            user_input (str): The chemical identifier.
-
-        Returns:
-            Optional[str]: The canonical SMILES string if found, None otherwise.
-
-        Examples:
-            >>> client = PubChemClient()
-            >>> client.get_smiles("2244")  # Aspirin by CID
-            'CC(=O)OC1=CC=CC=C1C(=O)O'
-            >>> client.get_smiles("aspirin")  # Aspirin by name
-            'CC(=O)OC1=CC=CC=C1C(=O)O'
-            >>> client.get_smiles("C6H12O6")  # Glucose by formula
-            'C([C@@H]1[C@H]([C@@H]([C@H](C(O1)O)O)O)O)O'
+        Internal implementation of get_smiles without caching.
+        This will be wrapped with LRU cache in the constructor.
         """
         if not user_input or not isinstance(user_input, str):
             logger.error(f"Invalid input: {user_input}")
@@ -262,3 +232,33 @@ class PubChemClient:
 
         # 7. Default: treat as a chemical name
         return self._query_by_name(user_input)
+
+    def get_smiles(self, user_input: str) -> Optional[str]:
+        """
+        Retrieve the canonical SMILES for a molecule from PubChem via the PUG REST API.
+
+        The function supports multiple input types:
+          - CID: a string of digits.
+          - InChI: a string starting with "InChI=".
+          - InChIKey: matching the standard format (e.g., "LFQSCWFLJHTTHZ-UHFFFAOYSA-N").
+          - CAS number: if the input matches a pattern like "7732-18-5" (handled as a name).
+          - Molecular formula: if the input matches a formula pattern (e.g., "C6H12O6").
+          - SMILES: if the input contains no spaces, is short (≤10 chars), and is composed solely of characters typically found in SMILES.
+          - Chemical name: default option (covers IUPAC names, synonyms, trivial names, etc.).
+
+        Args:
+            user_input (str): The chemical identifier.
+
+        Returns:
+            Optional[str]: The canonical SMILES string if found, None otherwise.
+
+        Examples:
+            >>> client = PubChemClient()
+            >>> client.get_smiles("2244")  # Aspirin by CID
+            'CC(=O)OC1=CC=CC=C1C(=O)O'
+            >>> client.get_smiles("aspirin")  # Aspirin by name
+            'CC(=O)OC1=CC=CC=C1C(=O)O'
+            >>> client.get_smiles("C6H12O6")  # Glucose by formula
+            'C([C@@H]1[C@H]([C@@H]([C@H](C(O1)O)O)O)O)O'
+        """
+        return self._get_smiles_cached(user_input)
