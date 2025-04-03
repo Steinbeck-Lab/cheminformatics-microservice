@@ -1,6 +1,6 @@
 import re
 import logging
-from functools import lru_cache
+from functools import lru_cache, wraps
 from typing import Optional
 from urllib.parse import quote
 
@@ -193,6 +193,7 @@ class PubChemClient:
         def wrapper(self, *args, **kwargs):
             cache = lru_cache(maxsize=self.cache_size)(func)
             return cache(self, *args, **kwargs)
+
         return wrapper
 
     @cache_with_dynamic_size
