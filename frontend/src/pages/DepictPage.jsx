@@ -10,12 +10,14 @@ import {
 import Depict3DView from "../components/depict/Depict3DView";
 import Depict2DMultiView from "../components/depict/Depict2DMultiView";
 import StructureVisualizerView from "../components/depict/StructureVisualizerView";
-//import StructureSketcherView from '../components/depict/StructureDrawView';
+import StructureDrawView from "../components/depict/StructureDrawView";
+
 // Import icons
 import {
   HiOutlineViewGrid,
   HiOutlineCube,
   HiOutlineSearch,
+  HiOutlinePencil,
 } from "react-icons/hi";
 
 // Tab data
@@ -44,6 +46,14 @@ const tabs = [
     icon: HiOutlineSearch,
     description:
       "Find structures by name or identifier and visualize them in 2D and 3D",
+  },
+  {
+    id: "structure-draw",
+    name: "Structure Draw",
+    component: StructureDrawView,
+    icon: HiOutlinePencil,
+    description:
+      "Draw and edit chemical structures using a user-friendly interface",
   },
 ];
 
@@ -98,20 +108,32 @@ const DepictPage = () => {
 
   return (
     <motion.div
-      className="relative min-h-screen w-full bg-slate-100 dark:bg-gray-950 text-slate-900 dark:text-slate-100 font-sans overflow-x-hidden isolate"
+      className="relative min-h-screen w-full bg-gradient-to-b from-slate-100 to-slate-200 dark:from-gray-950 dark:to-indigo-950/60 text-slate-900 dark:text-slate-100 font-sans overflow-x-hidden isolate"
       variants={pageVariants}
       initial="hidden"
       animate="visible"
     >
-      {/* --- Adaptive Background Effects --- */}
+      {/* --- Enhanced Background Effects --- */}
       <div className="absolute inset-0 -z-20 overflow-hidden dark:opacity-100 opacity-0 transition-opacity duration-500">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-slate-900 to-indigo-950"></div>
-        <motion.div className="animated-mesh-gradient" style={{ y: meshY }} />
+        <motion.div
+          className="animated-mesh-gradient"
+          style={{ y: meshY }}
+          animate={{
+            filter: ["blur(40px)", "blur(60px)", "blur(40px)"],
+            opacity: [0.4, 0.5, 0.4],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            repeatType: "reverse",
+          }}
+        />
       </div>
       <div className="absolute inset-0 -z-20 overflow-hidden dark:opacity-0 opacity-100 transition-opacity duration-500">
         <div className="absolute inset-0 bg-gradient-to-br from-sky-50 via-white to-indigo-100"></div>
         <motion.div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 opacity-[0.05]"
           style={{
             y: noiseY,
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='70' height='70' viewBox='0 0 70 70' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23AAB' fill-opacity='.25'%3E%3Cpath d='M35 0v70M0 35h70' stroke-width='1.5'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
@@ -119,9 +141,37 @@ const DepictPage = () => {
         />
       </div>
       <motion.div
-        className="absolute inset-0 -z-10 opacity-[0.02] dark:opacity-[0.03]"
+        className="absolute inset-0 -z-10 opacity-[0.03] dark:opacity-[0.04]"
         style={{ y: noiseY, backgroundImage: "url(/noise.svg)" }}
+        animate={{
+          backgroundPosition: ["0% 0%", "100% 100%"],
+        }}
+        transition={{
+          duration: 120,
+          repeat: Infinity,
+          repeatType: "reverse",
+          ease: "linear",
+        }}
       ></motion.div>
+      {/* Floating particles in dark mode */}
+      <div className="absolute inset-0 -z-10 dark:opacity-40 opacity-0 transition-opacity duration-500 overflow-hidden">
+        <div className="absolute w-2 h-2 bg-blue-400 rounded-full top-1/4 left-1/4"></div>
+        <motion.div
+          className="absolute w-3 h-3 bg-purple-500 rounded-full top-1/3 right-1/4"
+          animate={{ y: [0, -30, 0], opacity: [0.4, 0.8, 0.4] }}
+          transition={{ duration: 6, repeat: Infinity, repeatType: "reverse" }}
+        ></motion.div>
+        <motion.div
+          className="absolute w-2 h-2 bg-indigo-400 rounded-full bottom-1/4 left-1/3"
+          animate={{ y: [0, 20, 0], opacity: [0.3, 0.7, 0.3] }}
+          transition={{ duration: 8, repeat: Infinity, repeatType: "reverse" }}
+        ></motion.div>
+        <motion.div
+          className="absolute w-4 h-4 bg-sky-400 rounded-full bottom-1/3 right-1/3 opacity-20"
+          animate={{ y: [0, -40, 0], opacity: [0.2, 0.5, 0.2] }}
+          transition={{ duration: 10, repeat: Infinity, repeatType: "reverse" }}
+        ></motion.div>
+      </div>
       {/* Content Area - Outer padding container */}
       <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 z-10">
         {/* FIX: Wrapper div for width constraint (matches ChemPage: lg:w-3/4) */}
@@ -147,16 +197,18 @@ const DepictPage = () => {
               chemical structures.
             </motion.p>
           </motion.div>
-          {/* Tab Container - Animated */}
+          {/* Tab Container - Enhanced visual design */}
           <motion.div
-            className="glass bg-white/75 dark:bg-slate-800/80 backdrop-blur-xl dark:backdrop-blur-2xl rounded-xl shadow-xl dark:shadow-2xl border border-slate-200/80 dark:border-slate-700/60 overflow-hidden"
+            className="glass bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl dark:backdrop-blur-2xl rounded-xl shadow-2xl dark:shadow-2xl border border-slate-200/80 dark:border-slate-700/60 overflow-hidden"
             variants={tabContainerVariant}
             initial="hidden"
             animate="visible"
+            whileHover={{ boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
+            transition={{ duration: 0.5 }}
           >
-            {/* Tab Navigation */}
-            <div className="relative border-b border-slate-200/80 dark:border-slate-700/50 bg-slate-100/60 dark:bg-slate-800/40">
-              <div className="flex justify-center overflow-x-auto p-2 space-x-2">
+            {/* Tab Navigation - Enhanced */}
+            <div className="relative border-b border-slate-200/80 dark:border-slate-700/50 bg-gradient-to-r from-slate-100/80 to-slate-200/80 dark:from-slate-800/60 dark:to-slate-900/60">
+              <div className="flex justify-center overflow-x-auto py-3 px-4 space-x-3">
                 <LayoutGroup id="depict-tabs-enhanced">
                   {tabs.map((tab) => {
                     const isActive = activeTabId === tab.id;
@@ -164,7 +216,7 @@ const DepictPage = () => {
                       <motion.button
                         key={tab.id}
                         onClick={() => setActiveTabId(tab.id)}
-                        className={`tab-button relative flex items-center px-5 py-3 text-sm font-medium rounded-lg transition-colors duration-200 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-secondary)] focus-visible:ring-[var(--text-accent)] ${
+                        className={`tab-button relative flex items-center px-5 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-secondary)] focus-visible:ring-[var(--text-accent)] ${
                           isActive
                             ? "text-sky-700 dark:text-white"
                             : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -181,7 +233,7 @@ const DepictPage = () => {
                       >
                         {isActive && (
                           <motion.div
-                            className="absolute inset-0 bg-white dark:bg-slate-700 rounded-lg shadow-sm"
+                            className="absolute inset-0 bg-white dark:bg-slate-700/90 rounded-lg shadow-sm"
                             layoutId="activeTabPill"
                             transition={{
                               type: "spring",
@@ -213,37 +265,44 @@ const DepictPage = () => {
               </div>
             </div>
 
-            {/* Tab Content Header */}
+            {/* Tab Content Header - Adaptive gradient design for both modes */}
             {activeTab && (
               <motion.div
-                className="p-5 sm:p-6 border-b border-slate-200/80 dark:border-slate-700/50 bg-white/20 dark:bg-slate-800/10"
                 key={`${activeTabId}-header`}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.15 }}
+                className="mx-4 mt-4 mb-2"
               >
-                {/* This content is now inside the 3/4 width container */}
-                <div className="flex items-start sm:items-center max-w-5xl mx-auto">
-                  <motion.div
-                    initial={{ scale: 0.8 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <activeTab.icon className="h-7 w-7 sm:h-8 sm:w-8 text-[var(--text-accent)] mr-3 sm:mr-4 flex-shrink-0 mt-0.5 sm:mt-0" />
-                  </motion.div>
-                  <div>
-                    <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
-                      {activeTab.name}
-                    </h2>
-                    <p className="text-sm text-[var(--text-secondary)] mt-1">
-                      {activeTab.description}
-                    </p>
+                <div className="bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-800 dark:to-purple-950 rounded-lg shadow-lg overflow-hidden relative">
+                  {/* Animated background elements with theme-adaptive colors */}
+                  <div className="absolute inset-0 overflow-hidden opacity-10">
+                    <div className="absolute left-0 top-0 w-32 h-32 rounded-full bg-white dark:bg-slate-300 transform -translate-x-1/2 -translate-y-1/2"></div>
+                    <div className="absolute right-16 bottom-0 w-48 h-48 rounded-full bg-white dark:bg-slate-300 transform translate-x-1/2 translate-y-1/2"></div>
+                    <div className="absolute left-1/3 top-1/2 w-24 h-24 rounded-full bg-white dark:bg-slate-300 transform -translate-y-1/2"></div>
+                  </div>
+
+                  <div className="relative p-5 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                    {/* Title and description with improved text contrast */}
+                    <div className="space-y-1 text-center md:text-left max-w-3xl">
+                      <h1 className="text-2xl md:text-3xl font-bold leading-tight text-white dark:text-slate-50">
+                        {activeTab.name}
+                      </h1>
+                      <p className="text-blue-50 dark:text-blue-100 text-sm md:text-base opacity-90">
+                        {activeTab.description}
+                      </p>
+                    </div>
+
+                    {/* Decorative icon with adaptive background */}
+                    <div className="hidden md:flex items-center justify-center bg-white/15 dark:bg-slate-200/10 backdrop-blur-sm p-4 rounded-full w-16 h-16 border border-white/20 dark:border-slate-300/20 shadow-lg">
+                      <activeTab.icon className="w-8 h-8 text-white dark:text-slate-50" />
+                    </div>
                   </div>
                 </div>
               </motion.div>
             )}
 
-            {/* Tab Content Area */}
+            {/* Tab Content Area - Enhanced with adaptive decorative elements */}
             <div className="relative overflow-hidden min-h-[50vh]">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -254,6 +313,10 @@ const DepictPage = () => {
                   variants={contentVariants}
                   className="p-5 sm:p-6"
                 >
+                  {/* Decorative elements with theme-adaptive colors */}
+                  <div className="absolute -top-20 -right-20 w-40 h-40 bg-blue-100/30 dark:bg-blue-700/20 rounded-full filter blur-3xl"></div>
+                  <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-purple-100/30 dark:bg-purple-700/20 rounded-full filter blur-3xl"></div>
+
                   {/* ActiveComponent will render within the 3/4 width */}
                   {ActiveComponent && (
                     <ActiveComponent
@@ -271,27 +334,119 @@ const DepictPage = () => {
       {/* End Content Area */}
       {/* Global Styles */}
       <style jsx global>{`
-        /* Ensure required CSS variables and utilities like .glass are defined */
-        /* --- Animated Mesh Gradient (Dark Mode Only) --- */
+        :root {
+          --text-primary: #1e293b;
+          --text-secondary: #64748b;
+          --text-accent: #0284c7;
+          --bg-primary: #ffffff;
+          --bg-secondary: #f1f5f9;
+        }
+
+        .dark {
+          --text-primary: #f1f5f9;
+          --text-secondary: #94a3b8;
+          --text-accent: #38bdf8;
+          --bg-primary: #0f172a;
+          --bg-secondary: #1e293b;
+        }
+
+        /* Glass effect */
+        .glass {
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+        }
+
+        /* Animated Mesh Gradient */
         @keyframes mesh-gradient-move {
-          /* ... */
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
         }
+
         .animated-mesh-gradient {
-          /* ... */
+          position: absolute;
+          inset: -100%;
+          background-image: radial-gradient(
+              circle at 25% 25%,
+              rgba(60, 90, 180, 0.4) 0%,
+              transparent 50%
+            ),
+            radial-gradient(
+              circle at 75% 75%,
+              rgba(120, 50, 200, 0.4) 0%,
+              transparent 50%
+            ),
+            radial-gradient(
+              circle at 85% 15%,
+              rgba(90, 40, 180, 0.4) 0%,
+              transparent 50%
+            );
+          filter: blur(60px);
+          opacity: 0.5;
+          transform-origin: center;
+          animation: mesh-gradient-move 30s ease infinite;
+          overflow: hidden;
         }
+
         .dark .animated-mesh-gradient {
-          /* ... */
+          background-image: radial-gradient(
+              circle at 25% 25%,
+              rgba(75, 100, 255, 0.5) 0%,
+              transparent 50%
+            ),
+            radial-gradient(
+              circle at 75% 75%,
+              rgba(160, 70, 240, 0.5) 0%,
+              transparent 50%
+            ),
+            radial-gradient(
+              circle at 85% 15%,
+              rgba(100, 60, 200, 0.5) 0%,
+              transparent 50%
+            );
+          filter: blur(50px);
+          opacity: 0.6;
         }
-        /* Noise overlay needs noise.svg in public folder */
-        /* --- Inactive Tab Border Reveal --- */
+
+        /* Tab button styling */
         .tab-button {
           position: relative;
         }
+
         .tab-button::before {
-          /* ... same as before ... */
+          content: "";
+          position: absolute;
+          bottom: -2px;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: linear-gradient(to right, #3b82f6, #8b5cf6);
+          opacity: 0;
+          transition: opacity 0.2s ease;
         }
+
         .tab-button:not([aria-selected="true"]):hover::before {
-          /* ... same as before ... */
+          opacity: 0.5;
+        }
+
+        /* Fade in animation for content */
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        .fadeIn {
+          animation: fadeIn 0.5s ease forwards;
         }
       `}</style>
     </motion.div> // End Main Container
