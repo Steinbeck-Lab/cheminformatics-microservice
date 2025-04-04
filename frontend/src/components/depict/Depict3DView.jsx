@@ -60,9 +60,9 @@ const Depict3DView = ({ isActive = true }) => { // isActive prop might control i
   const [error, setError] = useState(null);
   const [toolkit, setToolkit] = useState('openbabel'); // Default toolkit for 3D
   const [style, setStyle] = useState('stick');
-  const [backgroundColor, setBackgroundColor] = useState('black'); // Default bg color ID
+  const [backgroundColor, setBackgroundColor] = useState('white'); // Default bg color ID
   const [colorScheme, setColorScheme] = useState('default');
-  const [showLabels, setShowLabels] = useState(true);
+  const [showLabels, setShowLabels] = useState(false);
   const [spin, setSpin] = useState(false);
   const [molData, setMolData] = useState(null); // Stores the 3D molblock string
   const [viewerInitialized, setViewerInitialized] = useState(false); // Tracks if $3Dmol viewer is ready
@@ -151,68 +151,110 @@ const Depict3DView = ({ isActive = true }) => { // isActive prop might control i
   }, [backgroundColor, destroyViewer]);
 
 
-  // --- Apply visual style settings (LABEL LOGIC MODIFIED HERE) ---
-  const applyStyle = useCallback(() => {
-    if (!viewerRef.current || !modelRef.current) return false;
-    const viewer = viewerRef.current;
-    try {
-      viewer.setStyle({}, {}); // Reset styles first
-      viewer.removeAllLabels(); // Remove previous labels
-
-      const styleColorScheme = colorScheme === 'default' ? undefined : colorScheme;
-      const styleConfig = { colorscheme: styleColorScheme };
-
-      switch (style) {
-        case 'stick': viewer.setStyle({}, { stick: { radius: 0.15, ...styleConfig } }); break;
-        case 'line': viewer.setStyle({}, { line: { linewidth: 2, ...styleConfig } }); break;
-        case 'sphere': viewer.setStyle({}, { sphere: { scale: 0.3, ...styleConfig } }); break;
-        default: viewer.setStyle({}, { stick: { ...styleConfig } });
-      }
-
-      // --- MODIFIED LABEL LOGIC ---
-      if (showLabels && modelRef.current) {
+    // --- Apply visual style settings (LABEL LOGIC MODIFIED HERE) ---
+      const applyStyle = useCallback(() => {
+        // Ensure viewer and model references are valid
+        if (!viewerRef.current || !modelRef.current) return false;
+        const viewer = viewerRef.current;
+    
         try {
-          const model = modelRef.current;
-          const atoms = model.atoms || [];
-          // Basic theme detection (adjust if your theme logic is different)
-          const isDarkMode = typeof window !== 'undefined' && document.documentElement.classList.contains('dark');
-          const labelFontColor = isDarkMode ? 'white' : '#374151'; // White on dark, dark gray on light
-          const labelOffset = { x: 0.1, y: 0.1, z: 0 }; // Small offset
-
-          for (let i = 0; i < atoms.length; i++) {
-            const atom = atoms[i];
-            if (atom && atom.elem && atom.elem !== 'H' && typeof atom.x === 'number' && typeof atom.y === 'number' && typeof atom.z === 'number') {
-              viewer.addLabel(atom.elem, {
-                position: { // Apply small offset
-                  x: atom.x + labelOffset.x,
-                  y: atom.y + labelOffset.y,
-                  z: atom.z + labelOffset.z
-                },
-                useScreen: false, // Position in 3D space near atom (DEFAULT)
-                fontColor: labelFontColor, // Theme-aware font color
-                fontSize: 12, // Slightly larger font
-                // Removed background and border for cleaner look
-                // backgroundColor: 'rgba(0,0,0,0)', // Fully transparent
-                // showBackground: false,
-                // borderThickness: 0,
-                alignment: 'center'
-              });
+          // Reset existing styles and labels before applying new ones
+          viewer.setStyle({}, {}); // Clear previous styles for the model
+          viewer.removeAllLabels(); // Remove all existing labels
+    
+          // Determine the color scheme for the molecule visualization
+          // Use undefined for the default element-based coloring in $3Dmol
+          const styleColorScheme = colorScheme === 'default' ? undefined : colorScheme;
+          // Base configuration for styles, including the selected color scheme
+          const styleConfig = { colorscheme: styleColorScheme };
+    
+          // Apply the selected visualization style (stick, line, sphere)
+          switch (style) {
+            case 'stick':
+              viewer.setStyle({}, { stick: { radius: 0.15, ...styleConfig } });
+              break;
+            case 'line':
+              viewer.setStyle({}, { line: { linewidth: 2, ...styleConfig } });
+              break;
+            case 'sphere':
+              viewer.setStyle({}, { sphere: { scale: 0.3, ...styleConfig } });
+              break;
+            default: // Default to stick style if selection is somehow invalid
+              viewer.setStyle({}, { stick: { ...styleConfig } });
+          }
+    
+          // --- MODIFIED LABEL LOGIC ---
+          // Add atom labels if the 'showLabels' option is enabled and a model exists
+          if (showLabels && modelRef.current) {
+            try {
+              const model = modelRef.current;
+              // Ensure the model has atoms data
+              const atoms = model.atoms || [];
+    
+              // Detect if dark mode is active to choose the appropriate label color
+              // This assumes a standard 'dark' class on the <html> element
+              const isDarkMode = typeof window !== 'undefined' && document.documentElement.classList.contains('dark');
+    
+              // Set label font color: white for dark mode, a very dark gray for light mode for better contrast
+              // Determine label font color based on background color for optimal contrast
+              let labelFontColor;
+              switch (backgroundColor) {
+                case 'white':
+                  labelFontColor = '#black'; // Dark text on white background
+                  break;
+                case 'black':
+                case 'gray':
+                case 'blue':
+                  labelFontColor = 'white'; // White text on dark backgrounds
+                  break;
+                default:
+                  // Fallback to dark mode detection
+                  labelFontColor = isDarkMode ? 'white' : '#1f2937';
+              }
+    
+              // Define a small offset to position labels slightly away from the atom center
+              const labelOffset = { x: 0.1, y: 0.1, z: 0 };
+    
+              // Iterate through each atom in the model
+              for (let i = 0; i < atoms.length; i++) {
+                const atom = atoms[i];
+                // Add label only for non-Hydrogen atoms with valid coordinates
+                if (atom && atom.elem && atom.elem !== 'H' && typeof atom.x === 'number' && typeof atom.y === 'number' && typeof atom.z === 'number') {
+                  viewer.addLabel(atom.elem, { // Add the element symbol as the label text
+                    position: { // Position the label near the atom with the offset
+                      x: atom.x + labelOffset.x,
+                      y: atom.y + labelOffset.y,
+                      z: atom.z + labelOffset.z
+                    },
+                    useScreen: false, // Position label in 3D space (relative to atom)
+                    fontColor: labelFontColor, // Apply the theme-aware font color
+                    fontSize: 14, // Set the font size
+                    showBackground: false, 
+                    borderThickness: 1.0,
+                      borderColor: "cyan", // Set border color to cyan
+                      alignment: 'center' // Center the label text horizontally
+                  });
+                }
+              }
+            } catch (labelError) {
+              // Log a warning if adding labels fails, but don't block rendering
+              console.warn("Could not add atom labels:", labelError);
             }
           }
-        } catch (labelError) { console.warn("Could not add atom labels:", labelError); }
-      }
-      // --- END MODIFIED LABEL LOGIC ---
-
-      viewer.spin(spin);
-      viewer.render();
-      return true;
-    } catch (e) {
-      console.error("Error applying style:", e);
-      setError(`Failed to apply style: ${e.message}`);
-      return false;
-    }
-  }, [style, colorScheme, showLabels, spin]); // Dependencies
-
+          // --- END MODIFIED LABEL LOGIC ---
+    
+          // Apply spin animation if enabled
+          viewer.spin(spin);
+          // Render the changes in the viewer
+          viewer.render();
+          return true; // Indicate success
+        } catch (e) {
+          // Catch and log errors during style application
+          console.error("Error applying style:", e);
+          setError(`Failed to apply style: ${e.message}`);
+          return false; // Indicate failure
+        }
+      }, [style, colorScheme, showLabels, spin, backgroundColor]); // Dependencies for the useCallback hook
 
   // Render the molecule data in the viewer
   const renderMolecule = useCallback(() => {
@@ -506,7 +548,7 @@ const Depict3DView = ({ isActive = true }) => { // isActive prop might control i
                 }`}
             >
               <HiOutlineRefresh className="mr-2 h-5 w-5" />
-              {spin ? 'Stop Rotation' : 'Start Rotation'}
+              {spin ? 'Stop Rotation' : 'Rotate'}
             </button>
             {/* Reset View Button */}
             <button
@@ -566,70 +608,79 @@ const Depict3DView = ({ isActive = true }) => { // isActive prop might control i
         </div>
       )}
 
-      {/* 3D Viewer Container */}
-      {/* Themed outer container */}
-      <div className="relative bg-gray-100 dark:bg-black rounded-lg shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-        {/* Container for $3Dmol.js */}
-        <div
-          className="w-full h-[500px] relative" // Fixed height, adjust as needed
-          ref={containerRef}
-          data-testid="molecule-3d-container"
-        >
-          {/* $3Dmol viewer mounts here */}
-        </div>
-
-        {/* Loading/Initialization Overlay */}
-        {/* Show if component is active but viewer not yet initialized */}
-        {isActive && (!viewerInitialized || !viewerMounted) && (
-          <div
-            className="absolute inset-0 flex flex-col items-center justify-center bg-gray-200/80 dark:bg-black/80 backdrop-blur-sm z-10"
-          >
-            {/* Themed overlay content box */}
-            <div className="text-center p-6 rounded-lg bg-white/70 dark:bg-gray-800/80 shadow-lg border border-gray-300 dark:border-gray-700">
-              {/* Spinner */}
-              <div className="animate-spin mb-4 h-10 w-10 border-4 border-blue-500 dark:border-blue-400 border-t-transparent rounded-full mx-auto"></div>
-              <p className="text-gray-700 dark:text-white text-lg font-medium">
-                Initializing 3D viewer...
-              </p>
-              <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-                Please wait a moment
-              </p>
-            </div>
-          </div>
-        )}
+      {/* NEW: Side-by-side container for 3D viewer and molblock */}
+  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    {/* 3D Viewer Container - modified height */}
+    <div 
+  className="relative rounded-lg shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700"
+  style={{ 
+    backgroundColor: BACKGROUND_COLORS.find(c => c.id === backgroundColor)?.value || '#000000' 
+  }}
+>
+      {/* Container for $3Dmol.js - reduced height */}
+      <div
+        className="w-full h-[500px] relative"
+        ref={containerRef}
+        data-testid="molecule-3d-container"
+      >
+        {/* $3Dmol viewer mounts here */}
       </div>
 
-      {/* Molblock Display Section (Only show if molData exists) */}
-      {molData && !loading && !error && (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
-          <div className="flex justify-between items-center mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Generated 3D Molblock
-            </h3>
-            <div className="flex space-x-2">
-              <button
-                onClick={handleCopy}
-                className={`p-1.5 rounded-md transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 ${copied ? 'text-green-500 dark:text-green-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'}`}
-                title={copied ? "Copied!" : "Copy Molblock"}
-                aria-label={copied ? "Molblock Copied" : "Copy Molblock"}
-              >
-                {copied ? <HiOutlineCheck className="h-5 w-5" /> : <HiOutlineClipboard className="h-5 w-5" />}
-              </button>
-              <button
-                onClick={downloadMolblock}
-                className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500"
-                title="Download Molblock (.mol)"
-                aria-label="Download Molblock"
-              >
-                <HiOutlineDownload className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
-          <div className="mt-2 p-3 bg-gray-100 dark:bg-gray-900 rounded-md font-mono text-xs overflow-auto max-h-60 border border-gray-200 dark:border-gray-700 shadow-sm">
-            <pre className="whitespace-pre text-gray-700 dark:text-gray-300">{molData}</pre>
+      {/* Loading/Initialization Overlay - unchanged */}
+      {isActive && (!viewerInitialized || !viewerMounted) && (
+        <div
+          className="absolute inset-0 flex flex-col items-center justify-center bg-gray-200/80 dark:bg-black/80 backdrop-blur-sm z-10"
+        >
+          {/* Themed overlay content box */}
+          <div className="text-center p-6 rounded-lg bg-white/70 dark:bg-gray-800/80 shadow-lg border border-gray-300 dark:border-gray-700">
+            {/* Spinner */}
+            <div className="animate-spin mb-4 h-10 w-10 border-4 border-blue-500 dark:border-blue-400 border-t-transparent rounded-full mx-auto"></div>
+            <p className="text-gray-700 dark:text-white text-lg font-medium">
+              Initializing 3D viewer...
+            </p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+              Please wait a moment
+            </p>
           </div>
         </div>
       )}
+    </div>
+
+    {/* Molblock Display Section - moved to be side-by-side on larger screens */}
+    {molData && !loading && !error ? (
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
+        <div className="flex justify-between items-center mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Generated 3D Molblock
+          </h3>
+          <div className="flex space-x-2">
+            <button
+              onClick={handleCopy}
+              className={`p-1.5 rounded-md transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 ${copied ? 'text-green-500 dark:text-green-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+              title={copied ? "Copied!" : "Copy Molblock"}
+              aria-label={copied ? "Molblock Copied" : "Copy Molblock"}
+            >
+              {copied ? <HiOutlineCheck className="h-5 w-5" /> : <HiOutlineClipboard className="h-5 w-5" />}
+            </button>
+            <button
+              onClick={downloadMolblock}
+              className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500"
+              title="Download Molblock (.mol)"
+              aria-label="Download Molblock"
+            >
+              <HiOutlineDownload className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+        <div className="mt-2 p-3 bg-gray-100 dark:bg-gray-900 rounded-lg font-mono text-xs overflow-auto max-h-[500px] border border-gray-200 dark:border-gray-700 shadow-sm">
+          <pre className="whitespace-pre text-gray-700 dark:text-gray-300">{molData}</pre>
+        </div>
+      </div>
+    ) : (
+      // Empty placeholder div to maintain grid layout when molblock isn't shown
+      <div className="hidden lg:block"></div>
+    )}
+  </div>
 
 
       {/* Interaction Instructions */}

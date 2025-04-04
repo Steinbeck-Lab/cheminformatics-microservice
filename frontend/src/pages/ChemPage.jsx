@@ -42,7 +42,7 @@ const tabs = [
     // Comparison
     { id: 'similarity', name: 'Similarity', description: 'Compare structures (Tanimoto)', icon: HiOutlineFingerPrint, category: 'comparison', component: TanimotoView },
     // Search
-    { id: 'pubchem', name: 'PubChem Lookup', description: 'Search PubChem database', icon: HiOutlineGlobeAlt, category: 'search', component: PubChemLookupView },
+    { id: 'structure-finder', name: 'Structure Finder', description: 'Find chemical structures by name or identifier', icon: HiOutlineGlobeAlt, category: 'search', component: PubChemLookupView },
     // Validation
     { id: 'structureerror', name: 'Check Structure', description: 'Validate chemical structures', icon: HiOutlineCheckCircle, category: 'validation', component: StructureErrorView },
     { id: 'filters', name: 'All Filters', description: 'Apply multiple chemical filters', icon: HiOutlineFilter, category: 'validation', component: AllFiltersView },
