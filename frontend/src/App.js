@@ -16,6 +16,7 @@ import ConvertPage from './pages/ConvertPage';
 import DepictPage from './pages/DepictPage';
 import ToolsPage from './pages/ToolsPage';
 import OCSRPage from './pages/OCSRPage';
+import AboutPage from './pages/AboutPage';
 
 // Layout component with header/footer
 const Layout = () => (
@@ -54,6 +55,7 @@ const router = createBrowserRouter(
       <Route path="/depict" element={<DepictPage />} />
       <Route path="/tools" element={<ToolsPage />} />
       <Route path="/ocsr" element={<OCSRPage />} />
+      <Route path="/about" element={<AboutPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Route>
   ),
