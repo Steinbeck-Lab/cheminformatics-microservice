@@ -4,8 +4,6 @@ import {
   HiOutlineSearch,
   HiOutlineExclamationCircle,
   HiOutlineInformationCircle,
-  HiOutlineDocumentDuplicate,
-  HiOutlineCheck
 } from 'react-icons/hi';
 import LoadingScreen from '../common/LoadingScreen';
 import MoleculeCard from '../common/MoleculeCard';
@@ -20,7 +18,6 @@ const PubChemLookupView = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
-  const [copySuccess, setCopySuccess] = useState(false);
   const { addRecentMolecule } = useAppContext();
 
   // Examples for each identifier type
@@ -70,18 +67,6 @@ const PubChemLookupView = () => {
 
   const handleUseExample = (exampleValue) => {
     setIdentifier(exampleValue);
-  };
-
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text).then(
-      () => {
-        setCopySuccess(true);
-        setTimeout(() => setCopySuccess(false), 2000);
-      },
-      (err) => {
-        console.error('Failed to copy text:', err);
-      }
-    );
   };
 
   return (
@@ -202,22 +187,6 @@ const PubChemLookupView = () => {
                   <h4 className="text-md font-medium text-gray-700 dark:text-gray-300">
                     Canonical SMILES
                   </h4>
-                  <button
-                    onClick={() => copyToClipboard(result.canonical_smiles)}
-                    className="flex items-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-                  >
-                    {copySuccess ? (
-                      <>
-                        <HiOutlineCheck className="h-4 w-4 mr-1" />
-                        <span>Copied!</span>
-                      </>
-                    ) : (
-                      <>
-                        <HiOutlineDocumentDuplicate className="h-4 w-4 mr-1" />
-                        <span>Copy</span>
-                      </>
-                    )}
-                  </button>
                 </div>
                 <SMILESDisplay 
                   smiles={result.canonical_smiles} 
