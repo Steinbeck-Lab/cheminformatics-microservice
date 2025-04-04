@@ -6,90 +6,91 @@ import {
   HiOutlineBeaker,
   HiOutlineInformationCircle,
   HiOutlineRefresh,
-  HiOutlinePencil
+  HiOutlinePencil,
+  HiOutlineX
 } from 'react-icons/hi';
 
-// Add CSS animations only once when component is loaded
-const injectStyles = () => {
-  if (typeof document !== 'undefined' && !document.getElementById('structure-draw-styles')) {
-    const styleSheet = document.createElement('style');
-    styleSheet.id = 'structure-draw-styles';
-    styleSheet.type = 'text/css';
-    styleSheet.innerText = `
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      .animate-fadeIn {
-        animation: fadeIn 0.5s ease-out forwards;
-      }
-    `;
-    document.head.appendChild(styleSheet);
-  }
-};
+// Add custom styles for animations
+const styles = `
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+`;
 
-// Common molecule examples for quick selection
-const MOLECULE_EXAMPLES = [
-  { name: 'Ethanol', value: 'CCO', description: 'Alcohol' },
-  { name: 'Aspirin', value: 'CC(=O)OC1=CC=CC=C1C(=O)O', description: 'Pain reliever' },
-  { name: 'Caffeine', value: 'CN1C=NC2=C1C(=O)N(C)C(=O)N2C', description: 'Stimulant' },
-  { name: 'Ibuprofen', value: 'CC(C)CC1=CC=C(C=C1)C(C)C(=O)O', description: 'Anti-inflammatory' },
-];
-
-// Message timeout in milliseconds
-const MESSAGE_TIMEOUT = 10000;
+// Add the styles to the document
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement('style');
+  styleSheet.type = 'text/css';
+  styleSheet.innerText = styles;
+  document.head.appendChild(styleSheet);
+}
 
 const StructureDrawView = () => {
-  // State variables
   const [smiles, setSmiles] = useState('');
   const [inputSmiles, setInputSmiles] = useState('');
   const [copySuccess, setCopySuccess] = useState(false);
+  const [showCopyModal, setShowCopyModal] = useState(false);
+  const [copyModalText, setCopyModalText] = useState('');
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isEditorReady, setIsEditorReady] = useState(false);
   const [retryAttempt, setRetryAttempt] = useState(0);
-  
-  // Refs
   const ketcherFrame = useRef(null);
+  const copyTextRef = useRef(null);
   const messageHandlers = useRef({});
   const messageId = useRef(0);
 
-  // Inject styles on component mount
-  useEffect(() => {
-    injectStyles();
-  }, []);
+  // Examples of common molecules
+  const examples = [
+    { name: 'Ethanol', value: 'CCO', description: 'Alcohol' },
+    { name: 'Aspirin', value: 'CC(=O)OC1=CC=CC=C1C(=O)O', description: 'Pain reliever' },
+    { name: 'Caffeine', value: 'CN1C=NC2=C1C(=O)N(C)C(=O)N2C', description: 'Stimulant' },
+    { name: 'Ibuprofen', value: 'CC(C)CC1=CC=C(C=C1)C(C)C(=O)O', description: 'Anti-inflammatory' },
+  ];
 
-  // Clear error when input changes
+  // Reset error state when input changes
   useEffect(() => {
     if (error) setError(null);
   }, [inputSmiles, error]);
 
+  // Auto-select text in copy modal when it appears
+  useEffect(() => {
+    if (showCopyModal && copyTextRef.current) {
+      copyTextRef.current.select();
+    }
+  }, [showCopyModal]);
+
   // Set up message communication with the iframe
   useEffect(() => {
+    // Message handler for communications from the iframe
     const handleMessage = (event) => {
       // Only accept messages from our iframe
-      if (!ketcherFrame.current || event.source !== ketcherFrame.current.contentWindow) return;
-      
-      const { id, type, status, data, error } = event.data;
-      
-      // Handle response to our message
-      if (id && messageHandlers.current[id]) {
-        const handler = messageHandlers.current[id];
+      if (ketcherFrame.current && event.source === ketcherFrame.current.contentWindow) {
+        const { id, type, status, data, error } = event.data;
         
-        if (status === 'success') {
-          handler.resolve(data);
-        } else if (status === 'error') {
-          handler.reject(new Error(error || 'Unknown error'));
+        // Handle response to our message
+        if (id && messageHandlers.current[id]) {
+          const handler = messageHandlers.current[id];
+          
+          if (status === 'success') {
+            handler.resolve(data);
+          } else if (status === 'error') {
+            handler.reject(new Error(error || 'Unknown error'));
+          }
+          
+          // Remove the handler after it's been used
+          delete messageHandlers.current[id];
         }
         
-        // Remove the handler after it's been used
-        delete messageHandlers.current[id];
-      }
-      
-      // Handle initialization message
-      if (type === 'ketcher-ready') {
-        console.log('Ketcher ready message received');
-        setIsEditorReady(true);
+        // Handle initialization message
+        if (type === 'ketcher-ready') {
+          console.log('Ketcher ready message received');
+          setIsEditorReady(true);
+        }
       }
     };
 
@@ -103,24 +104,69 @@ const StructureDrawView = () => {
     };
   }, []);
   
-  // Initialize Ketcher iframe communication
-  useEffect(() => {
-    const initializeKetcher = () => {
-      if (!ketcherFrame.current) return;
+  // Function to send messages to the iframe and wait for response
+  const sendMessage = (type, payload = {}) => {
+    return new Promise((resolve, reject) => {
+      if (!ketcherFrame.current || !ketcherFrame.current.contentWindow) {
+        reject(new Error('Ketcher frame not available'));
+        return;
+      }
       
-      // Set up iframe onload handler
-      ketcherFrame.current.onload = () => {
-        console.log('Ketcher iframe loaded, injecting script');
-        // Let the iframe load completely before injecting
-        setTimeout(injectCommunicationScript, 500);
-      };
-    };
+      // Generate unique ID for this message
+      const id = messageId.current++;
+      
+      // Store promise handlers
+      messageHandlers.current[id] = { resolve, reject };
+      
+      // Send message to iframe
+      const message = { id, type, payload };
+      
+      try {
+        ketcherFrame.current.contentWindow.postMessage(message, '*');
+      } catch (err) {
+        delete messageHandlers.current[id];
+        reject(new Error(`Failed to send message: ${err.message}`));
+      }
+      
+      // Set timeout to reject if no response
+      setTimeout(() => {
+        if (messageHandlers.current[id]) {
+          delete messageHandlers.current[id];
+          reject(new Error('Timeout waiting for response'));
+        }
+      }, 10000); // 10 second timeout
+    });
+  };
+
+  // Function to communicate with ketcher through both direct access and messaging
+  const executeKetcherCommand = async (command, args = []) => {
+    // First try direct access method
+    try {
+      if (ketcherFrame.current && ketcherFrame.current.contentWindow.ketcher) {
+        const ketcher = ketcherFrame.current.contentWindow.ketcher;
+        if (typeof ketcher[command] === 'function') {
+          return await ketcher[command](...args);
+        }
+      }
+    } catch (directError) {
+      console.debug(`Direct Ketcher access failed for ${command}`, directError);
+      // Fall through to postMessage method
+    }
     
+    // Fall back to message passing
+    try {
+      return await sendMessage('ketcher-command', { command, args });
+    } catch (msgError) {
+      console.error(`Message passing failed for ${command}`, msgError);
+      throw new Error(`Failed to execute ${command}: ${msgError.message}`);
+    }
+  };
+
+  // Initialize Ketcher iframe communication
+  const initializeKetcher = () => {
     // Function to inject communication script into iframe
     const injectCommunicationScript = () => {
       try {
-        if (!ketcherFrame.current) return;
-        
         const iframeWindow = ketcherFrame.current.contentWindow;
         const iframeDocument = iframeWindow.document;
         
@@ -179,80 +225,75 @@ const StructureDrawView = () => {
       }
     };
     
+    // Wait for iframe to load, then inject script
+    if (ketcherFrame.current) {
+      // Clear any previous onload
+      ketcherFrame.current.onload = () => {
+        console.log('Ketcher iframe loaded, injecting script');
+        // Let the iframe load completely before injecting
+        setTimeout(injectCommunicationScript, 500);
+      };
+    }
+  };
+
+  // Re-initialize when retry attempt changes
+  useEffect(() => {
     initializeKetcher();
   }, [retryAttempt]);
-  
-  /**
-   * Sends a message to the iframe and waits for a response
-   * @param {string} type - The type of message
-   * @param {Object} payload - The message payload
-   * @returns {Promise} - Resolves with the response or rejects with an error
-   */
-  const sendMessage = (type, payload = {}) => {
-    return new Promise((resolve, reject) => {
-      if (!ketcherFrame.current || !ketcherFrame.current.contentWindow) {
-        reject(new Error('Ketcher frame not available'));
+
+  // Enhanced copyToClipboard function with multiple fallback methods
+  const copyToClipboard = async (text = null) => {
+    const textToCopy = text || smiles;
+    
+    if (!textToCopy) {
+      setError('No SMILES to copy. Generate SMILES first.');
+      return;
+    }
+    
+    // Try multiple clipboard copy methods in sequence
+    try {
+      // Method 1: Use the Clipboard API (modern browsers)
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(textToCopy);
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
         return;
       }
       
-      // Generate unique ID for this message
-      const id = messageId.current++;
+      // Method 2: Use execCommand (older browsers)
+      const textArea = document.createElement('textarea');
+      textArea.value = textToCopy;
       
-      // Store promise handlers
-      messageHandlers.current[id] = { resolve, reject };
+      // Make the textarea out of viewport
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
       
-      // Send message to iframe
-      const message = { id, type, payload };
+      // Select and copy
+      textArea.focus();
+      textArea.select();
       
-      try {
-        ketcherFrame.current.contentWindow.postMessage(message, '*');
-      } catch (err) {
-        delete messageHandlers.current[id];
-        reject(new Error(`Failed to send message: ${err.message}`));
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      if (successful) {
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+        return;
+      } else {
+        throw new Error('execCommand copy failed');
       }
+    } catch (err) {
+      console.error('Failed to copy text:', err);
       
-      // Set timeout to reject if no response
-      setTimeout(() => {
-        if (messageHandlers.current[id]) {
-          delete messageHandlers.current[id];
-          reject(new Error('Timeout waiting for response'));
-        }
-      }, MESSAGE_TIMEOUT);
-    });
-  };
-
-  /**
-   * Executes a command in Ketcher using direct access or message passing
-   * @param {string} command - The command to execute
-   * @param {Array} args - The arguments for the command
-   * @returns {Promise} - Resolves with the command result
-   */
-  const executeKetcherCommand = async (command, args = []) => {
-    // First try direct access method
-    try {
-      if (ketcherFrame.current && ketcherFrame.current.contentWindow.ketcher) {
-        const ketcher = ketcherFrame.current.contentWindow.ketcher;
-        if (typeof ketcher[command] === 'function') {
-          return await ketcher[command](...args);
-        }
-      }
-    } catch (directError) {
-      console.debug(`Direct Ketcher access failed for ${command}`, directError);
-      // Fall through to postMessage method
-    }
-    
-    // Fall back to message passing
-    try {
-      return await sendMessage('ketcher-command', { command, args });
-    } catch (msgError) {
-      console.error(`Message passing failed for ${command}`, msgError);
-      throw new Error(`Failed to execute ${command}: ${msgError.message}`);
+      // Method 3: Show a modal with text to copy manually
+      setCopyModalText(textToCopy);
+      setShowCopyModal(true);
     }
   };
 
-  /**
-   * Loads a SMILES string into the Ketcher editor
-   */
+  // Load SMILES into Ketcher
   const loadSmiles = async () => {
     if (!inputSmiles.trim()) {
       setError('Please enter a SMILES string');
@@ -268,6 +309,7 @@ const StructureDrawView = () => {
     setError(null);
     
     try {
+      // Use the command execution function
       await executeKetcherCommand('setMolecule', [inputSmiles]);
       console.log('SMILES loaded successfully');
       setSmiles(inputSmiles);
@@ -279,10 +321,7 @@ const StructureDrawView = () => {
     }
   };
 
-  /**
-   * Gets the SMILES string representation of the current structure
-   * @returns {string} - The SMILES string or empty string on error
-   */
+  // Get SMILES from Ketcher
   const getSmiles = async () => {
     if (!isEditorReady) {
       setError('Editor not ready. Please try again in a moment.');
@@ -293,6 +332,7 @@ const StructureDrawView = () => {
     setError(null);
     
     try {
+      // Use the command execution function
       const newSmiles = await executeKetcherCommand('getSmiles');
       
       if (!newSmiles || newSmiles === '') {
@@ -313,31 +353,7 @@ const StructureDrawView = () => {
     return '';
   };
 
-  /**
-   * Copies text to clipboard
-   * @param {string} text - The text to copy, defaults to current SMILES
-   */
-  const copyToClipboard = async (text = null) => {
-    const textToCopy = text || smiles;
-    
-    if (!textToCopy) {
-      setError('No SMILES to copy. Generate SMILES first.');
-      return;
-    }
-    
-    try {
-      await navigator.clipboard.writeText(textToCopy);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy text:', err);
-      setError('Failed to copy to clipboard');
-    }
-  };
-
-  /**
-   * Clears the editor
-   */
+  // Clear the editor
   const clearEditor = async () => {
     if (!isEditorReady) {
       console.warn('Editor not ready for clearing');
@@ -345,6 +361,7 @@ const StructureDrawView = () => {
     }
     
     try {
+      // Use the command execution function
       await executeKetcherCommand('setMolecule', ['']);
       setSmiles('');
       console.log('Editor cleared successfully');
@@ -354,17 +371,11 @@ const StructureDrawView = () => {
     }
   };
 
-  /**
-   * Sets example SMILES in the input field
-   * @param {string} exampleValue - Example SMILES value
-   */
   const handleUseExample = (exampleValue) => {
     setInputSmiles(exampleValue);
   };
 
-  /**
-   * Retries initialization of the editor
-   */
+  // Function to retry initialization
   const handleRetryInit = () => {
     setIsEditorReady(false);
     setError(null);
@@ -373,6 +384,69 @@ const StructureDrawView = () => {
 
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6 bg-gradient-to-br from-sky-50 to-indigo-100 dark:from-gray-900 dark:to-slate-900 min-h-screen">
+      {/* Header with animated background */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-700 dark:from-blue-700 dark:to-purple-900 rounded-xl shadow-xl overflow-hidden relative">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden opacity-10">
+          <div className="absolute left-0 top-0 w-40 h-40 rounded-full bg-white transform -translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute right-20 bottom-0 w-64 h-64 rounded-full bg-white transform translate-x-1/2 translate-y-1/2"></div>
+          <div className="absolute left-1/3 top-1/2 w-32 h-32 rounded-full bg-white transform -translate-y-1/2"></div>
+        </div>
+
+        <div className="relative p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
+          {/* Title and description */}
+          <div className="text-white space-y-2 text-center md:text-left">
+            <h1 className="text-3xl md:text-4xl font-bold">Molecular Structure Editor</h1>
+            <p className="text-blue-100 dark:text-blue-200 opacity-90 max-w-xl">
+              Draw, edit, and convert chemical structures
+            </p>
+          </div>
+          
+          {/* Decorative icon */}
+          <div className="hidden md:flex items-center justify-center bg-white/10 backdrop-blur-sm p-6 rounded-full w-24 h-24 border border-white/20 shadow-lg">
+            <HiOutlineBeaker className="w-12 h-12 text-white" />
+          </div>
+        </div>
+      </div>
+
+      {/* Copy Modal - For fallback copying */}
+      {showCopyModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">Copy SMILES</h3>
+              <button 
+                onClick={() => setShowCopyModal(false)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <HiOutlineX className="w-5 h-5" />
+              </button>
+            </div>
+            <p className="mb-4 text-gray-700 dark:text-gray-300">
+              Automatic copying failed. Please select and copy this text manually:
+            </p>
+            <div className="mb-4">
+              <input
+                type="text"
+                ref={copyTextRef}
+                value={copyModalText}
+                readOnly
+                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded font-mono text-sm bg-gray-50 dark:bg-gray-900"
+                onClick={e => e.target.select()}
+              />
+            </div>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowCopyModal(false)}
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main content area */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left sidebar with controls */}
@@ -422,7 +496,7 @@ const StructureDrawView = () => {
                 Quick Examples:
               </p>
               <div className="flex flex-wrap gap-2">
-                {MOLECULE_EXAMPLES.map((example, index) => (
+                {examples.map((example, index) => (
                   <button
                     key={index}
                     onClick={() => handleUseExample(example.value)}

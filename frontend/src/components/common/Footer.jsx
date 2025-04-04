@@ -487,7 +487,7 @@ const Footer = () => {
             }}
           />
 
-          <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-[10px] flex flex-wrap items-center justify-center gap-1">
+          <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-[12px] flex flex-wrap items-center justify-center gap-1">
             &copy; {currentYear} Cheminformatics Microservice UI. Built with
             <motion.span
               className="inline-flex items-center"
@@ -515,7 +515,7 @@ const Footer = () => {
           </p>
 
           <motion.p
-            className="mt-1 text-[9px] sm:text-[8px] text-slate-500 dark:text-slate-400 px-2"
+            className="mt-1 text-[12px] sm:text-[10px] text-slate-500 dark:text-slate-400 px-2"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.5 }}

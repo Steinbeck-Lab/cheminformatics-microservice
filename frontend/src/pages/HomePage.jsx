@@ -138,7 +138,7 @@ const HomePage = () => {
 
             {/* Headline */}
             <motion.h1 variants={heroTextVariants} custom={0} className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold text-slate-900 dark:text-white mb-5 sm:mb-6 leading-tight tracking-tighter">
-              Quick and Easy Access to
+            Seamless Access to
               <motion.span variants={heroTextVariants} custom={1} className="block text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-cyan-500 to-indigo-600 dark:from-sky-400 dark:via-cyan-400 dark:to-emerald-400 mt-1 md:mt-2">
                 Open Cheminformatics Toolkits
               </motion.span>
