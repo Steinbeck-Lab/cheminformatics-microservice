@@ -200,7 +200,7 @@ const Depict3DView = ({ isActive = true }) => { // isActive prop might control i
               let labelFontColor;
               switch (backgroundColor) {
                 case 'white':
-                  labelFontColor = '#black'; // Dark text on white background
+                  labelFontColor = '#000000'; // Dark text on white background
                   break;
                 case 'black':
                 case 'gray':
