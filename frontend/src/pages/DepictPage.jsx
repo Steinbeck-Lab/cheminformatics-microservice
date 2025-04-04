@@ -49,7 +49,7 @@ const tabs = [
   },
   {
     id: "structure-draw",
-    name: "Structure Draw",
+    name: "Draw a Structure",
     component: StructureDrawView,
     icon: HiOutlinePencil,
     description:
