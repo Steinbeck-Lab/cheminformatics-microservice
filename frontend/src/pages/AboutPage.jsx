@@ -540,7 +540,7 @@ const AboutPage = () => {
                     >
                       <div className="flex-shrink-0 w-16 h-16 bg-white dark:bg-slate-700 rounded-lg flex items-center justify-center p-2 shadow-md group-hover:shadow-lg transition-shadow">
                         <img
-                          src="https://upload.wikimedia.org/wikipedia/commons/6/6d/Open_Babel_computer_icon.png"
+                          src="https://upload.wikimedia.org/wikipedia/commons/c/ce/Open_Babel_computer_icon.png"
                           alt="OpenBabel Logo"
                           className="w-full h-full object-contain"
                         />
