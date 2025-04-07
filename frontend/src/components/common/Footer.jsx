@@ -6,6 +6,8 @@ import {
   FaUniversity,
   FaCoffee,
   FaCode,
+  FaShieldAlt,
+  FaFileContract,
 } from "react-icons/fa";
 import { motion, useAnimation, useInView } from "framer-motion";
 import { useAppContext } from "../../context/AppContext";
@@ -344,6 +346,32 @@ const Footer = () => {
               Modern interface for chemical data analysis, conversion, and
               visualization powered by the Cheminformatics Microservice API.
             </p>
+
+            {/* Enhanced but simplified legal links */}
+            <motion.div
+              className="flex justify-center md:justify-start space-x-3 mt-3 md:ml-1"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+            >
+              {/* Terms of Service Link - Simplified */}
+              <Link
+                to="/terms"
+                className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-gray-800 rounded-md text-xs font-medium text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-300 transition-colors border border-slate-200 dark:border-slate-700"
+              >
+                <FaFileContract className="h-3 w-3 text-slate-500 dark:text-slate-400" />
+                <span>Terms of Service</span>
+              </Link>
+
+              {/* Privacy Policy Link - Simplified */}
+              <Link
+                to="/privacy"
+                className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-gray-800 rounded-md text-xs font-medium text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-300 transition-colors border border-slate-200 dark:border-slate-700"
+              >
+                <FaShieldAlt className="h-3 w-3 text-slate-500 dark:text-slate-400" />
+                <span>Privacy Policy</span>
+              </Link>
+            </motion.div>
           </motion.div>
 
           {/* Resources with Enhanced Icons - improved mobile grid */}
@@ -515,13 +543,31 @@ const Footer = () => {
           </p>
 
           <motion.p
-  className="mt-1 text-[12px] sm:text-[10px] text-slate-500 dark:text-slate-400 px-2"
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  transition={{ delay: 0.5, duration: 0.5 }}
->
-  Developed by the <a href="https://cheminf.uni-jena.de" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-700 dark:hover:text-slate-300">Steinbeck Lab</a> at <a href="https://www.uni-jena.de/en" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-700 dark:hover:text-slate-300">Friedrich Schiller University Jena</a>, with funding from the Deutsche Forschungsgemeinschaft (DFG).
-</motion.p>
+            className="mt-1 text-[12px] sm:text-[10px] text-slate-500 dark:text-slate-400 px-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+          >
+            Developed by the{" "}
+            <a
+              href="https://cheminf.uni-jena.de"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-slate-700 dark:hover:text-slate-300"
+            >
+              Steinbeck Lab
+            </a>{" "}
+            at{" "}
+            <a
+              href="https://www.uni-jena.de/en"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-slate-700 dark:hover:text-slate-300"
+            >
+              Friedrich Schiller University Jena
+            </a>
+            , with funding from the Deutsche Forschungsgemeinschaft (DFG).
+          </motion.p>
         </motion.div>
       </motion.div>
     </motion.footer>

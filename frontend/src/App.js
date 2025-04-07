@@ -1,22 +1,24 @@
 // src/App.js
-import React from 'react';
+import React from "react";
 import {
   createBrowserRouter,
   RouterProvider,
   createRoutesFromElements,
   Route,
-  Outlet
-} from 'react-router-dom';
-import { AppProvider } from './context/AppContext';
-import Header from './components/common/Header';
-import Footer from './components/common/Footer';
-import HomePage from './pages/HomePage';
-import ChemPage from './pages/ChemPage';
-import ConvertPage from './pages/ConvertPage';
-import DepictPage from './pages/DepictPage';
-import ToolsPage from './pages/ToolsPage';
-import OCSRPage from './pages/OCSRPage';
-import AboutPage from './pages/AboutPage';
+  Outlet,
+} from "react-router-dom";
+import { AppProvider } from "./context/AppContext";
+import Header from "./components/common/Header";
+import Footer from "./components/common/Footer";
+import HomePage from "./pages/HomePage";
+import ChemPage from "./pages/ChemPage";
+import ConvertPage from "./pages/ConvertPage";
+import DepictPage from "./pages/DepictPage";
+import ToolsPage from "./pages/ToolsPage";
+import OCSRPage from "./pages/OCSRPage";
+import AboutPage from "./pages/AboutPage";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 // Layout component with header/footer
 const Layout = () => (
@@ -56,14 +58,16 @@ const router = createBrowserRouter(
       <Route path="/tools" element={<ToolsPage />} />
       <Route path="/ocsr" element={<OCSRPage />} />
       <Route path="/about" element={<AboutPage />} />
+      <Route path="/terms" element={<TermsOfService />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="*" element={<NotFoundPage />} />
     </Route>
   ),
   {
     future: {
       v7_startTransition: true,
-      v7_relativeSplatPath: true
-    }
+      v7_relativeSplatPath: true,
+    },
   }
 );
 
