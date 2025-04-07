@@ -158,17 +158,17 @@ def get_representations(molecule: Chem.Mol) -> dict:
         molecule (Chem.Mol): An RDKit molecule object representing the molecular structure.
 
     Returns:
-        dict: Dictionary containing InChI, InChi Key, and Murko framework.
+        dict: Dictionary containing InChI, InChi Key, and Murcko framework.
     """
     if molecule:
         InChI = Chem.inchi.MolToInchi(molecule)
         InChI_Key = Chem.inchi.MolToInchiKey(molecule)
         cdkMolecule = parse_input(Chem.MolToSmiles(molecule), "cdk", False)
-        Murko = cdk.get_murko_framework(cdkMolecule)
+        Murcko = cdk.get_murcko_framework(cdkMolecule)
         return {
             "standard_inchi": InChI,
             "standard_inchikey": InChI_Key,
-            "murko_framework": Murko,
+            "Murcko_framework": Murcko,
         }
     else:
         return {"Error": "Check input SMILES"}

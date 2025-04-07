@@ -405,7 +405,7 @@
 * add roatation to CDKDepict ([01b90f0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/01b90f06efa35459621c593f88ad18d130a0cb4f))
 * add rotation to CDKDepict ([9e3c29e](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/9e3c29ed6de98606d74ac74b3274721c3bf946d9))
 * add SMILES parser error handling ([9c9202a](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/9c9202a814cd64733edf99ecc9959e3c00780778))
-* add SRU, Murko framework and implement COCONUT related descriptors ([abf9991](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/abf9991815adbc98c48a0c1f19fdf1e0d162d326))
+* add SRU, Murcko framework and implement COCONUT related descriptors ([abf9991](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/abf9991815adbc98c48a0c1f19fdf1e0d162d326))
 * Add sugar removal utility [#231](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/231) ([7d9d8cf](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/7d9d8cfc7f9fcf5fe6619a90441dd243fd67af7f))
 * Add table preview & JSON,HTML toggle [#76](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/76),[#77](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/77) ([7e2e063](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/7e2e0632f22f1bccee02dcbed387a6c67db8b3cc))
 * add test workflow ([d484b9d](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d484b9d347b967883cc9c121f4ced6f6e7b63501))
@@ -884,7 +884,7 @@
 
 ### Features
 
-* add SRU, Murko framework and implement COCONUT related descriptors ([abf9991](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/abf9991815adbc98c48a0c1f19fdf1e0d162d326))
+* add SRU, Murcko framework and implement COCONUT related descriptors ([abf9991](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/abf9991815adbc98c48a0c1f19fdf1e0d162d326))
 
 
 ### Bug Fixes
