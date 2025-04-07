@@ -515,23 +515,13 @@ const Footer = () => {
           </p>
 
           <motion.p
-            className="mt-1 text-[12px] sm:text-[10px] text-slate-500 dark:text-slate-400 px-2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
-          >
-            Developed by{" "}
-            <a
-              href="https://kohulanr.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
-            >
-              Kohulan Rajan
-            </a>{" "}
-            at the Steinbeck Lab, Friedrich Schiller University Jena, with
-            funding from the Deutsche Forschungsgemeinschaft (DFG).
-          </motion.p>
+  className="mt-1 text-[12px] sm:text-[10px] text-slate-500 dark:text-slate-400 px-2"
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ delay: 0.5, duration: 0.5 }}
+>
+  Developed by the <a href="https://cheminf.uni-jena.de" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-700 dark:hover:text-slate-300">Steinbeck Lab</a> at <a href="https://www.uni-jena.de/en" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-700 dark:hover:text-slate-300">Friedrich Schiller University Jena</a>, with funding from the Deutsche Forschungsgemeinschaft (DFG).
+</motion.p>
         </motion.div>
       </motion.div>
     </motion.footer>
