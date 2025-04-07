@@ -17,7 +17,7 @@ export const AppProvider = ({ children }) => {
 
   // API settings
   const [apiConfig, setApiConfig] = useState({
-    baseUrl: process.env.REACT_APP_API_URL || 'https://api.naturalproducts.net/latest',
+    baseUrl: process.env.REACT_APP_API_URL || 'https://dev.api.naturalproducts.net/latest',
     timeout: 30000,
   });
 

@@ -182,8 +182,26 @@ const generateStandardizedTautomer = async (smiles) => {
   }
 };
 
+
+/**
+ * Find chemical structure by name, formula, or identifier using the PubChem database
+ * @param {string} identifier - Chemical name, formula, or identifier (CAS, InChI, SMILES, etc.)
+ * @returns {Promise<Object>} - Object containing canonical_smiles, input, input_type, and success status
+ */
+const lookupPubChem = async (identifier) => {
+  try {
+    const response = await api.get(`${CHEM_URL}/pubchem/smiles`, {
+      params: { identifier }
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(`Failed to look up structure in PubChem: ${error.message}`);
+  }
+};
+
 // Create an alias for calculateDescriptors as getDescriptors for backward compatibility
 const getDescriptors = calculateDescriptors;
+
 
 // Export individual functions
 export {
@@ -197,7 +215,8 @@ export {
   coconutPreprocessing,
   generateFunctionalGroups,
   generateStandardizedTautomer,
-  getDescriptors  // Export the alias
+  getDescriptors,
+  lookupPubChem
 };
 
 // Assemble all functions into a service object
@@ -212,7 +231,8 @@ const chemService = {
   calculateTanimotoSimilarity,
   coconutPreprocessing,
   generateFunctionalGroups,
-  generateStandardizedTautomer
+  generateStandardizedTautomer,
+  lookupPubChem
 };
 
 export default chemService;

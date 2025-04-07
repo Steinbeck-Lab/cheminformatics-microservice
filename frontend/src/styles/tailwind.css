@@ -23,6 +23,18 @@
     --input-focus-ring: theme('colors.sky.500');
     --placeholder-color: theme('colors.slate.400');
     --shadow-color-rgb: 0, 0, 0; /* For light mode shadows */
+    
+    /* Pattern definitions for backgrounds */
+    --dots-pattern: url("data:image/svg+xml,%3Csvg width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1' fill='%23000' opacity='0.07'/%3E%3C/svg%3E");
+    --grid-pattern: url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0z' fill='none'/%3E%3Cpath d='M0 0h1v40H0zM39 0h1v40h-1zM0 0h40v1H0zM0 39h40v1H0z' fill='%23000' opacity='0.1'/%3E%3C/svg%3E");
+    --mesh-pattern: radial-gradient(at 40% 20%, rgba(0, 163, 255, 0.1) 0px, transparent 50%), 
+                    radial-gradient(at 80% 0%, rgba(59, 130, 246, 0.1) 0px, transparent 50%), 
+                    radial-gradient(at 0% 50%, rgba(59, 130, 246, 0.1) 0px, transparent 50%), 
+                    radial-gradient(at 80% 50%, rgba(0, 163, 255, 0.1) 0px, transparent 50%), 
+                    radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%), 
+                    radial-gradient(at 80% 100%, rgba(0, 163, 255, 0.1) 0px, transparent 50%), 
+                    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.1) 0px, transparent 50%);
+    --noise-pattern: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.1'/%3E%3C/svg%3E");
   }
 
   .dark {
@@ -43,6 +55,18 @@
     --input-focus-ring: theme('colors.sky.400');
     --placeholder-color: theme('colors.slate.500');
     --shadow-color-rgb: 255, 255, 255; /* For dark mode subtle glows/shadows if needed */
+    
+    /* Dark mode pattern definitions */
+    --dots-pattern: url("data:image/svg+xml,%3Csvg width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1' fill='%23fff' opacity='0.07'/%3E%3C/svg%3E");
+    --grid-pattern: url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0z' fill='none'/%3E%3Cpath d='M0 0h1v40H0zM39 0h1v40h-1zM0 0h40v1H0zM0 39h40v1H0z' fill='%23fff' opacity='0.1'/%3E%3C/svg%3E");
+    --mesh-pattern: radial-gradient(at 40% 20%, rgba(0, 163, 255, 0.2) 0px, transparent 50%), 
+                    radial-gradient(at 80% 0%, rgba(59, 130, 246, 0.2) 0px, transparent 50%), 
+                    radial-gradient(at 0% 50%, rgba(59, 130, 246, 0.2) 0px, transparent 50%), 
+                    radial-gradient(at 80% 50%, rgba(0, 163, 255, 0.2) 0px, transparent 50%), 
+                    radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%), 
+                    radial-gradient(at 80% 100%, rgba(0, 163, 255, 0.2) 0px, transparent 50%), 
+                    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.2) 0px, transparent 50%);
+    --noise-pattern: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.2'/%3E%3C/svg%3E");
   }
 
   /* Base element styling using CSS Variables */
@@ -145,6 +169,27 @@
     color: var(--text-secondary);
   }
 
+  /* Pattern components for backgrounds */
+  .dots-bg {
+    background-image: var(--dots-pattern);
+    background-size: 20px 20px;
+  }
+
+  .grid-bg {
+    background-image: var(--grid-pattern);
+    background-size: 40px 40px;
+  }
+
+  .mesh-bg {
+    background-image: var(--mesh-pattern);
+    background-size: 200% 200%;
+    animation: mesh-gradient-move 15s ease infinite;
+  }
+
+  .noise-bg {
+    background-image: var(--noise-pattern);
+  }
+
   /* .form-control uses base input styles */
 }
 
@@ -182,8 +227,26 @@
      --tw-ring-color: theme('colors.sky.400'); /* Dark mode */
   }
 
-  /* Add other utilities as needed */
+  /* Animation for mesh gradients */
+  @keyframes mesh-gradient-move {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  /* Define radial gradient utility */
+  .bg-gradient-radial {
+    background-image: radial-gradient(var(--tw-gradient-stops));
+  }
+
+  /* Transform style utility for 3D effects */
+  .transform-style-3d {
+    transform-style: preserve-3d;
+  }
 }
-
-/* Removed the duplicate @layer utilities block */
-

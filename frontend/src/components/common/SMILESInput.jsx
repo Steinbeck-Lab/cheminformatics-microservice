@@ -5,7 +5,8 @@ import {
   HiOutlineX,
   HiOutlineLightBulb,
   HiOutlineClipboard,
-  HiOutlineClock // Replaced SVG for Recent
+  HiOutlineClock,
+  HiOutlineExclamationCircle // Added for paste modal
 } from 'react-icons/hi';
 import { useAppContext } from '../../context/AppContext'; // Assuming context provides recentMolecules
 
@@ -39,6 +40,86 @@ const DropdownItem = ({ molecule, onClick }) => (
   </li>
 );
 
+// Paste Modal Component
+const PasteModal = ({ isOpen, onClose, onPaste }) => {
+  const [text, setText] = useState('');
+  const textareaRef = useRef(null);
+
+  useEffect(() => {
+    if (isOpen && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full animate-fadeIn">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center">
+            <HiOutlineClipboard className="h-5 w-5 mr-2 text-indigo-500 dark:text-indigo-400" />
+            Paste SMILES
+          </h3>
+          <button 
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            aria-label="Close"
+          >
+            <HiOutlineX className="w-5 h-5" />
+          </button>
+        </div>
+        <p className="mb-4 text-gray-700 dark:text-gray-300">
+          Please paste your SMILES string in the area below:
+        </p>
+        <div className="mb-4">
+          <textarea
+            ref={textareaRef}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded font-mono text-sm bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 h-24"
+            placeholder="Paste SMILES here..."
+            autoFocus
+          />
+        </div>
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              onPaste(text);
+              onClose();
+            }}
+            className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+            disabled={!text.trim()}
+          >
+            Use SMILES
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Add custom styles for animations
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement('style');
+  styleSheet.type = 'text/css';
+  styleSheet.textContent = `
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+  `;
+  document.head.appendChild(styleSheet);
+}
 
 const SMILESInput = ({
   value,
@@ -51,6 +132,9 @@ const SMILESInput = ({
 }) => {
   const [showExampleList, setShowExampleList] = useState(false);
   const [showRecentList, setShowRecentList] = useState(false);
+  const [showPasteModal, setShowPasteModal] = useState(false);
+  const [pasteError, setPasteError] = useState('');
+  
   // Refs for detecting outside clicks
   const examplesRef = useRef(null);
   const recentRef = useRef(null);
@@ -74,33 +158,75 @@ const SMILESInput = ({
     };
   }, []);
 
-
   const handleClear = () => {
     onChange('');
+    setPasteError('');
   };
 
   const handleExampleClick = (smiles) => {
     onChange(smiles);
     setShowExampleList(false); // Close dropdown after selection
+    setPasteError('');
   };
 
   const handleRecentClick = (smiles) => {
     onChange(smiles);
     setShowRecentList(false); // Close dropdown after selection
+    setPasteError('');
   };
 
+  // Enhanced paste functionality with multiple approaches
   const handlePaste = async () => {
-    if (!navigator.clipboard?.readText) {
-      console.error("Clipboard API not available or permission denied.");
-      // Optionally show user feedback
-      return;
+    setPasteError('');
+    
+    // Method 1: Try using navigator.clipboard API
+    if (navigator.clipboard && navigator.clipboard.readText) {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          onChange(text);
+          return;
+        }
+      } catch (err) {
+        console.debug('Clipboard readText failed:', err);
+        // Fall through to alternatives
+      }
     }
+    
+    // Method 2: Try using document.execCommand
     try {
-      const text = await navigator.clipboard.readText();
-      onChange(text); // Update input value with pasted text
+      // Create a hidden textarea
+      const textArea = document.createElement('textarea');
+      textArea.style.position = 'fixed';
+      textArea.style.top = '-999px';
+      textArea.style.left = '-999px';
+      document.body.appendChild(textArea);
+      
+      // Focus and select content (may trigger paste permission in some browsers)
+      textArea.focus();
+      document.execCommand('paste');
+      
+      // Get pasted content
+      const pastedText = textArea.value;
+      document.body.removeChild(textArea);
+      
+      if (pastedText) {
+        onChange(pastedText);
+        return;
+      }
     } catch (err) {
-      console.error('Failed to read clipboard:', err);
-      // Optionally show user feedback
+      console.debug('execCommand paste failed:', err);
+      // Fall through to manual method
+    }
+    
+    // Method 3: Show modal for manual paste
+    setShowPasteModal(true);
+  };
+
+  // Handle paste from the modal
+  const handleModalPaste = (text) => {
+    if (text && text.trim()) {
+      onChange(text.trim());
     }
   };
 
@@ -140,6 +266,14 @@ const SMILESInput = ({
           </button>
         )}
       </div>
+
+      {/* Paste Error Display */}
+      {pasteError && (
+        <div className="text-sm text-red-600 dark:text-red-400 flex items-start">
+          <HiOutlineExclamationCircle className="h-4 w-4 mt-0.5 mr-1" />
+          <span>{pasteError}</span>
+        </div>
+      )}
 
       {/* Action Buttons and Dropdowns */}
       <div className="flex flex-wrap items-center gap-2 text-sm pt-1">
@@ -238,6 +372,13 @@ const SMILESInput = ({
           Enter a valid SMILES string.
         </p>
       </div>
+
+      {/* Manual Paste Modal */}
+      <PasteModal 
+        isOpen={showPasteModal} 
+        onClose={() => setShowPasteModal(false)} 
+        onPaste={handleModalPaste}
+      />
     </div>
   );
 };

@@ -14,7 +14,7 @@ RUN npm ci --silent
 COPY . .
 
 # Set any build arguments with defaults
-ARG REACT_APP_API_URL=https://api.naturalproducts.net/latest
+ARG REACT_APP_API_URL=https://dev.api.naturalproducts.net/latest
 ENV REACT_APP_API_URL=$REACT_APP_API_URL
 
 # Build the application
