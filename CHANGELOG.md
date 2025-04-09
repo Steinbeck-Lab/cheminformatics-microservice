@@ -11,8 +11,8 @@
 * include information about frontend README.md ([fd1a852](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/fd1a852aed3aa9de670dd882693f6548203ce4e8))
 * legal pages ([d504c6b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d504c6b332b29c25988bc47f1e430209baeb0cec))
 * Microservices Frontend ([76331ed](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/76331eda3df59b43c23c25d3e3ae7a0ab6ce9864))
-* Pubchem serach and depict ([de778ad](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/de778ad1a63e9c26440550e82286856bf6c15eb4))
-* PubChem serach for frontend ([525322b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/525322b49e278f9090cee6334eb5b5410d2f0fef))
+* Pubchem search and depict ([de778ad](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/de778ad1a63e9c26440550e82286856bf6c15eb4))
+* PubChem search for frontend ([525322b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/525322b49e278f9090cee6334eb5b5410d2f0fef))
 * structure drawing component ([49d3953](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/49d39539c62b3137bc4f5919fc6f007608bd1107))
 * update ketcher to 3.1.0 ([2dbf26c](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/2dbf26cea02d363a204de343824ca6aa796e5815))
 
