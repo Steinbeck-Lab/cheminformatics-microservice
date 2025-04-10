@@ -1,13 +1,15 @@
 // Description: This page contains tools for structure generation and sugar removal.
 import React, { useState } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
-import SugarRemovalView from '../components/tools/SugarRemovalView'; // Assuming path is correct
-import StructureGenView from '../components/tools/StructureGenView'; // Assuming path is correct
+import SugarRemovalView from '../components/tools/SugarRemovalView';
+import StructureGenView from '../components/tools/StructureGenView';
+import InChIView from '../components/tools/InChIView';
 
 // Import icons for the tabs
 import {
   HiOutlineCube,
-  HiOutlinePuzzle
+  HiOutlinePuzzle,
+  HiOutlineDocumentText,
 } from 'react-icons/hi';
 
 // Tab data with added icons and descriptions
@@ -25,6 +27,13 @@ const tabs = [
     component: StructureGenView,
     icon: HiOutlinePuzzle,
     description: 'Generate chemical structures based on specified parameters'
+  },
+  {
+    id: 'inchi-converter',
+    name: 'InChI Converter',
+    component: InChIView,
+    icon: HiOutlineDocumentText,
+    description: 'Convert between different chemical structure formats'
   },
 ];
 

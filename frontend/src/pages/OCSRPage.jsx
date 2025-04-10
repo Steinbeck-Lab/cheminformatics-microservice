@@ -67,7 +67,7 @@ const OCSRPage = () => {
             </motion.p>
           </motion.div>
 
-          {/* DECIMER and MARCUS Buttons */}
+          {/* DECIMER Button Only */}
           <motion.div
             className="flex flex-col md:flex-row gap-4 md:gap-6 justify-center items-center mb-8 md:mb-10"
             variants={headerContainerVariants}
@@ -85,22 +85,12 @@ const OCSRPage = () => {
               <span className="mr-2 text-lg">Visit DECIMER</span>
               <HiOutlineExternalLink className="h-5 w-5" />
             </motion.a>
-            <motion.a
-              href="https://marcus.decimer.ai"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center px-6 py-4 bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 text-white font-semibold rounded-lg shadow-lg w-full md:w-auto"
-              variants={buttonVariant}
-              whileHover="hover"
-            >
-              <span className="mr-2 text-lg">Visit MARCUS</span>
-              <HiOutlineExternalLink className="h-5 w-5" />
-            </motion.a>
+            {/* Marcus button removed */}
           </motion.div>
 
-          {/* DECIMER and MARCUS Info Cards */}
+          {/* DECIMER Info Card Only */}
           <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8 md:mb-10"
+            className="grid grid-cols-1 gap-4 md:gap-6 mb-8 md:mb-10"
             variants={headerContainerVariants}
             initial="hidden"
             animate="visible"
@@ -117,19 +107,7 @@ const OCSRPage = () => {
                 It can process images from scientific publications, patents, and other documents, converting visual chemical structures into machine-readable formats like SMILES.
               </p>
             </motion.div>
-
-            <motion.div
-              className="bg-white dark:bg-slate-800/80 rounded-lg p-5 border border-slate-200 dark:border-slate-700/50 shadow-md"
-              variants={headerItemVariants}
-            >
-              <h3 className="text-lg font-semibold text-purple-600 dark:text-purple-400 mb-2">What is MARCUS?</h3>
-              <p className="text-[var(--text-secondary)] mb-3">
-                MARCUS (Molecular Annotation and Recognition for Curating Unravelled Structures) extracts text data and annotates Natural Product information.
-              </p>
-              <p className="text-[var(--text-secondary)]">
-                It extends DECIMER's capabilities by not only extracting structures but also translating them into machine-readable formats and providing comprehensive annotation of natural product information.
-              </p>
-            </motion.div>
+            {/* Marcus info card removed */}
           </motion.div>
 
           {/* Main Content Container - Animated */}
@@ -186,8 +164,6 @@ const OCSRPage = () => {
                       </span>
                     </p>
                   </div>
-
-
                 </motion.div>
               </div>
             </motion.div> {/* End Main Content Body */}
