@@ -233,179 +233,53 @@ export const convertInchiToMolfile = async (inchi, options, version) => {
   }
 };
 
-// Set to true for development without WASM modules,
-// set to false to use the remote WASM modules
-export const useMockImplementation = false;
-
 /**
- * Mock implementation of convertMolfileToInchi
- * @param {string} molfile - Molfile content
- * @param {string} options - InChI options string
- * @returns {Promise<Object>} - Mock InChI result
+ * Converts AuxInfo to a molfile
+ * @param {string} auxinfo - AuxInfo string
+ * @param {number} doNotAddH - Option to control hydrogen addition (0 or 1)
+ * @param {number} diffUnkUndfStereo - Option to differentiate unknown/undefined stereo (0 or 1)
+ * @param {string} version - InChI version to use
+ * @returns {Promise<Object>} - Molfile result
  */
-export const mockConvertMolfileToInchi = async (molfile, options) => {
-  await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate processing time
+export const convertAuxinfoToMolfile = async (
+  auxinfo,
+  doNotAddH = 0,
+  diffUnkUndfStereo = 0,
+  version
+) => {
+  if (!auxinfo || !auxinfo.trim() || !auxinfo.startsWith("AuxInfo=")) {
+    return Promise.reject(new Error("Invalid AuxInfo provided"));
+  }
 
-  // Simple heuristic to categorize the structure based on molfile content
-  const containsBenzene =
-    molfile.includes("C6H6") ||
-    (molfile.match(/C\s+0\s+0/g)?.length >= 6 &&
-      molfile.match(/H\s+0\s+0/g)?.length >= 6);
+  try {
+    const module = await loadInchiModule(version);
 
-  const containsEthanol =
-    molfile.includes("C2H6O") ||
-    (molfile.match(/C\s+0\s+0/g)?.length >= 2 &&
-      molfile.match(/O\s+0\s+0/g)?.length >= 1 &&
-      molfile.match(/H\s+0\s+0/g)?.length >= 6);
+    const ptr = module.ccall(
+      "molfile_from_auxinfo",
+      "number",
+      ["string", "number", "number"],
+      [auxinfo, doNotAddH, diffUnkUndfStereo]
+    );
 
-  if (containsBenzene) {
-    return {
-      return_code: 0,
-      inchi: "InChI=1S/C6H6/c1-2-4-6-5-3-1/h1-6H",
-      auxinfo:
-        "AuxInfo=1/0/N:1,2,3,4,5,6/E:(1,2,3,4,5,6)/rA:6nCCCCCC/rB:d1;d2;d3;d4;d5;/rC:;;;;;",
-      message: `Generated with options: ${options}`,
-      log: "",
-    };
-  } else if (containsEthanol) {
-    return {
-      return_code: 0,
-      inchi: "InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3",
-      auxinfo: "AuxInfo=1/0/N:1,2,3/E:(1,2)/rA:3nCCO/rB:s1;s2;/rC:;;;",
-      message: `Generated with options: ${options}`,
-      log: "",
-    };
-  } else {
-    // Generic mock response
-    return {
-      return_code: 0,
-      inchi: "InChI=1S/C10H16/c1-7-4-5-8(2)10(7)6-3-9(10)1/h7-9H,3-6H2,1-2H3",
-      auxinfo:
-        "AuxInfo=1/0/N:1,2,3,4,5,6,7,8,9,10/rA:10nCCCCCCCCCC/rB:s1;s2;s3;s4;s5;s6;s7;s8;s9;/rC:;;;;;;;;;;",
-      message: `Generated with options: ${options}`,
-      log: "",
-    };
+    const resultStr = module.UTF8ToString(ptr);
+    module._free(ptr);
+
+    return JSON.parse(resultStr);
+  } catch (err) {
+    console.error("Error converting AuxInfo to molfile:", err);
+    throw new Error(`Failed to convert AuxInfo to structure: ${err.message}`);
   }
 };
 
 /**
- * Mock implementation of generateInchiKey
- * @param {string} inchi - InChI string
- * @returns {Promise<Object>} - Mock InChIKey result
+ * Converts a SMILES string to molfile format
+ * This is a helper function to be implemented if needed
+ * Not directly supported by InChI WASM modules
  */
-export const mockGenerateInchiKey = async (inchi) => {
-  await new Promise((resolve) => setTimeout(resolve, 300)); // Simulate processing time
-
-  // Map of known InChI strings to their InChIKeys
-  const knownKeys = {
-    "InChI=1S/C6H6/c1-2-4-6-5-3-1/h1-6H": "UHOVQNZJYSORNB-UHFFFAOYSA-N",
-    "InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3": "LFQSCWFLJHTTHZ-UHFFFAOYSA-N",
-    "InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)":
-      "BSYNRYMUTXBXSQ-UHFFFAOYSA-N",
-    "InChI=1S/C8H10N4O2/c1-10-4-9-6-5(10)7(13)12(3)8(14)11(6)2/h4H,1-3H3":
-      "RYYVLZVUVIJVGH-UHFFFAOYSA-N",
-    "InChI=1S/C10H16/c1-7-4-5-8(2)10(7)6-3-9(10)1/h7-9H,3-6H2,1-2H3":
-      "YQIGLHPSVFAIAV-UHFFFAOYSA-N",
-  };
-
-  // Return the known key or a generated one based on the hash of the InChI string
-  if (knownKeys[inchi]) {
-    return {
-      return_code: 0,
-      inchikey: knownKeys[inchi],
-      message: "",
-    };
-  } else {
-    // Generate a simple hash value from the InChI string
-    let hash = 0;
-    for (let i = 0; i < inchi.length; i++) {
-      hash = (hash << 5) - hash + inchi.charCodeAt(i);
-      hash = hash & hash; // Convert to 32bit integer
-    }
-
-    // Generate a mock InChIKey
-    const mockKey = `MOCK${Math.abs(hash)
-      .toString(16)
-      .padStart(10, "0")
-      .toUpperCase()}-UHFFFAOYSA-N`;
-
-    return {
-      return_code: 0,
-      inchikey: mockKey,
-      message: "",
-    };
-  }
-};
-
-/**
- * Mock implementation of convertInchiToMolfile
- * @param {string} inchi - InChI string
- * @returns {Promise<Object>} - Mock molfile result
- */
-export const mockConvertInchiToMolfile = async (inchi) => {
-  await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate processing time
-
-  let mockMolfile = "";
-
-  // Generate different mock molfiles based on the input InChI
-  if (inchi === "InChI=1S/C6H6/c1-2-4-6-5-3-1/h1-6H") {
-    // Benzene
-    mockMolfile = `
-Benzene
-  
-  6  6  0  0  0  0  0  0  0  0999 V2000
-    1.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-    0.5000    0.8660    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-   -0.5000    0.8660    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-   -1.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-   -0.5000   -0.8660    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-    0.5000   -0.8660    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-  1  2  2  0  0  0  0
-  2  3  1  0  0  0  0
-  3  4  2  0  0  0  0
-  4  5  1  0  0  0  0
-  5  6  2  0  0  0  0
-  6  1  1  0  0  0  0
-M  END
-`;
-  } else if (inchi === "InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3") {
-    // Ethanol
-    mockMolfile = `
-Ethanol
-  
-  3  2  0  0  0  0  0  0  0  0999 V2000
-    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-    1.5000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-    3.0000    0.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
-  1  2  1  0  0  0  0
-  2  3  1  0  0  0  0
-M  END
-`;
-  } else {
-    // Generic structure for other InChI strings
-    mockMolfile = `
-Structure
-  
-  6  5  0  0  0  0  0  0  0  0999 V2000
-    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-    1.5000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-    3.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-    4.5000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-    6.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-    7.5000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-  1  2  1  0  0  0  0
-  2  3  1  0  0  0  0
-  3  4  1  0  0  0  0
-  4  5  1  0  0  0  0
-  5  6  1  0  0  0  0
-M  END
-`;
-  }
-
-  return {
-    return_code: 0,
-    molfile: mockMolfile,
-    message: "",
-    log: "",
-  };
+export const convertSmilesToMolfile = async (smiles) => {
+  // This would require integration with a SMILES parser or service
+  // Not implemented in the original InChI WASM modules
+  throw new Error(
+    "SMILES to Molfile conversion not directly supported by InChI modules"
+  );
 };
