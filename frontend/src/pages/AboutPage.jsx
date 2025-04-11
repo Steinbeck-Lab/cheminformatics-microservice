@@ -629,6 +629,27 @@ const AboutPage = () => {
                         </p>
                       </div>
                     </motion.li>
+                    <motion.li
+                      className="flex items-start"
+                      whileHover={{ x: 5 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div className="flex-shrink-0 w-12 h-12 bg-white dark:bg-slate-700 rounded-lg flex items-center justify-center p-2 shadow-md mr-4">
+                        <img
+                          src="https://github.com/IUPAC-InChI/InChI-Web-Demo/blob/main/pages/img/InChI-logo2.png?raw=true"
+                          alt="InChI Logo"
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                      <div>
+                        <span className="font-semibold">
+                          InChI Web Application
+                        </span>
+                        <p className="text-sm">
+                          InChI evaluation from chemical depictions
+                        </p>
+                      </div>
+                    </motion.li>
                   </ul>
                 </div>
               </div>
