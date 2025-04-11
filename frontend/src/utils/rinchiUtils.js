@@ -154,38 +154,41 @@ export const convertRxnfileToRinchi = async (
 
     const out_rinchi_stringPtr = module._malloc(4);
     const out_rinchi_auxinfoPtr = module._malloc(4);
-    const res = module.ccall(
-      "rinchilib_rinchi_from_file_text",
-      "number",
-      ["string", "string", "boolean", "number", "number"],
-      [
-        "AUTO",
-        rxnfile,
-        forceEquilibrium,
-        out_rinchi_stringPtr,
-        out_rinchi_auxinfoPtr,
-      ]
-    );
-    const rinchi = module.UTF8ToString(
-      module.getValue(out_rinchi_stringPtr, "i32")
-    );
-    const rauxinfo = module.UTF8ToString(
-      module.getValue(out_rinchi_auxinfoPtr, "i32")
-    );
-    module._free(out_rinchi_stringPtr);
-    module._free(out_rinchi_auxinfoPtr);
+    try {
+      const res = module.ccall(
+        "rinchilib_rinchi_from_file_text",
+        "number",
+        ["string", "string", "boolean", "number", "number"],
+        [
+          "AUTO",
+          rxnfile,
+          forceEquilibrium,
+          out_rinchi_stringPtr,
+          out_rinchi_auxinfoPtr,
+        ]
+      );
+      const rinchi = module.UTF8ToString(
+        module.getValue(out_rinchi_stringPtr, "i32")
+      );
+      const rauxinfo = module.UTF8ToString(
+        module.getValue(out_rinchi_auxinfoPtr, "i32")
+      );
 
-    let error = "";
-    if (res !== 0) {
-      error = module.ccall("rinchilib_latest_err_msg", "string", [], []);
+      let error = "";
+      if (res !== 0) {
+        error = module.ccall("rinchilib_latest_err_msg", "string", [], []);
+      }
+
+      return {
+        return_code: res,
+        rinchi: rinchi,
+        rauxinfo: rauxinfo,
+        error: error,
+      };
+    } finally {
+      module._free(out_rinchi_stringPtr);
+      module._free(out_rinchi_auxinfoPtr);
     }
-
-    return {
-      return_code: res,
-      rinchi: rinchi,
-      rauxinfo: rauxinfo,
-      error: error,
-    };
   } catch (err) {
     console.error("Error converting RXN/RD file to RInChI:", err);
     throw new Error(`Failed to convert reaction to RInChI: ${err.message}`);
