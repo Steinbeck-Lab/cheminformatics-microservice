@@ -47,7 +47,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
   const [t15, setT15] = useState(false);
   const [polymers, setPolymers] = useState(false);
   const [NPZz, setNPZz] = useState(false);
-  const [orgMet, setOrgMet] = useState(false);
+  const [orgMet, setOrgMet] = useState(inchiVersion === "1.07.3-orgmet");
   const [showTautomerism, setShowTautomerism] = useState(true); // Add state for tautomerism visibility
 
   // Additional stereo options
@@ -145,8 +145,10 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
 
   // Update OrgMet option when InChI version changes
   useEffect(() => {
-    if (inchiVersion !== "1.07.3-orgmet" && orgMet) {
-      setOrgMet(false);
+    if (inchiVersion === "1.07.3-orgmet") {
+      setOrgMet(true); // Enable orgMet when switching to 1.07.3-orgmet
+    } else if (orgMet) {
+      setOrgMet(false); // Disable orgMet when switching away from 1.07.3-orgmet
     }
   }, [inchiVersion, orgMet]);
 
@@ -169,7 +171,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
     setT15(false);
     setPolymers(false);
     setNPZz(false);
-    setOrgMet(inchiVersion === "1.07.3-orgmet" ? false : orgMet);
+    setOrgMet(inchiVersion === "1.07.3-orgmet" ? true : false);
     setSUU(false);
     setSLUUD(false);
     setNEWPSOFF(false);
