@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.2.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.1.0...v3.2.0) (2025-04-14)
+
+
+### Features
+
+* InChI generator ([7ada690](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/7ada690f95cbd8780b7b564ee58cd2572e078146))
+* RInChI and InChI cleanup ([9e4a7d4](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/9e4a7d42a5f42ad58cd740eb1fc380870a14f43f))
+
+
+### Bug Fixes
+
+* about page ([35e14f6](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/35e14f6ba523acaa49e769d6d09969657d53fe58))
+* setOrgMet default on ([11ce740](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/11ce740094439aed07dbc0e3bd002c983ba26f80))
+
 ## [3.1.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.0.3...v3.1.0) (2025-04-07)
 
 
