@@ -1,5 +1,36 @@
 # Changelog
 
+## [3.1.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.0.3...v3.1.0) (2025-04-07)
+
+
+### Features
+
+* about page ([cd43905](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/cd43905dad700e46daf87385050f76fd0953b7b5))
+* get smiles from pubchem ([c1a2f02](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/c1a2f0242db7ef2796dda1af2375ccfa821478ad))
+* improved home page ([2b804f5](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/2b804f5793573cb1c71ce2ca14776e839e608d1c))
+* include information about frontend README.md ([fd1a852](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/fd1a852aed3aa9de670dd882693f6548203ce4e8))
+* legal pages ([d504c6b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d504c6b332b29c25988bc47f1e430209baeb0cec))
+* Microservices Frontend ([76331ed](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/76331eda3df59b43c23c25d3e3ae7a0ab6ce9864))
+* Pubchem search and depict ([de778ad](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/de778ad1a63e9c26440550e82286856bf6c15eb4))
+* PubChem search for frontend ([525322b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/525322b49e278f9090cee6334eb5b5410d2f0fef))
+* structure drawing component ([49d3953](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/49d39539c62b3137bc4f5919fc6f007608bd1107))
+* update ketcher to 3.1.0 ([2dbf26c](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/2dbf26cea02d363a204de343824ca6aa796e5815))
+
+
+### Bug Fixes
+
+* 3D molecule depiction disclaimer ([30749a1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/30749a169ffa6e6eccdbcd9879383bd675f85536))
+* backend app port ([9107140](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/910714049b65b4bb848c528b189b632db28f4614))
+* dfg logo and footer ([bab91ad](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/bab91ad25f16bd686db700dbd9245ab04f981ad7))
+* ketcher CORS issue ([90bab16](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/90bab165b02f006c5d26efb105d21926507a0f17))
+* molecule card ([9ce7687](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/9ce7687dcc53a199e8b3ffd406b01d3af2824490))
+* naming convention ([c6c1f76](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/c6c1f760511aee93362f3e30ab977dba8f44155f))
+* openbabel logo ([76163d4](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/76163d4c5b9c642a455b3fa41da829e9b4bedf54))
+* pubchem retrieve ([ec40b6c](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/ec40b6ca25bd1a085a96b05500620822ed3fc378))
+* sanitize html content Descriptors ([5c89b4f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/5c89b4fa9d590a2e0c91aec0138aef7606753bf8))
+* vite build ([d0314e9](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d0314e9d91a4eee4c678a5641f415ff9ec504b09))
+* vite build ([c47d8d0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/c47d8d01243fd6ad91f7007ce102c458b72adf7b))
+
 ## [3.0.3](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.0.2...v3.0.3) (2025-02-10)
 
 
