@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi import status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi_versioning import VersionedFastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
 from typing import Dict
+from fastapi_mcp import FastApiMCP
 
 from .routers import chem
 from .routers import converters
@@ -38,24 +39,13 @@ def create_app_metadata() -> Dict:
             "name": "CC BY 4.0",
             "url": "https://creativecommons.org/licenses/by/4.0",
         },
-        "openapi_tags": [
-            {
-                "name": "Chemical Analysis",
-                "description": "Advanced molecular structure analysis and property prediction",
-            },
-            {
-                "name": "Visualization",
-                "description": "High-fidelity chemical structure rendering and visualization",
-            },
-            {
-                "name": "Conversion",
-                "description": "Sophisticated molecular format transformation tools",
-            },
-        ],
     }
 
 
 app = FastAPI(**create_app_metadata())
+
+mcp = FastApiMCP(app, name="cheminformatics")
+mcp.mount()
 
 app.include_router(chem.router)
 app.include_router(converters.router)
@@ -66,23 +56,7 @@ app.include_router(tools.router)
 if os.getenv("INCLUDE_OCSR", "true").lower() == "true":
     app.include_router(ocsr.router)
 
-app = VersionedFastAPI(
-    app,
-    version_format="{major}",
-    prefix_format="/v{major}",
-    enable_latest=True,
-    terms_of_service="https://docs.api.naturalproducts.net",
-    contact={
-        "name": "Steinbeck Lab",
-        "url": "https://cheminf.uni-jena.de/",
-        "email": "caffeine@listserv.uni-jena.de",
-    },
-    license_info={
-        "name": "CC BY 4.0",
-        "url": "https://creativecommons.org/licenses/by/4.0/",
-    },
-    version=os.getenv("RELEASE_VERSION", "1.0"),
-)
+mcp.setup_server()
 
 Instrumentator().instrument(app).expose(app)
 
@@ -90,12 +64,12 @@ origins = ["*"]
 
 
 @app.middleware("http")
-async def add_cors_headers(request, call_next):
+async def add_cors_headers(request: Request, call_next):
     response = await call_next(request)
     response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Credentials"] = "true"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With"
     return response
 
 
@@ -105,6 +79,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 # register exception handlers

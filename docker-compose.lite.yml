@@ -1,0 +1,32 @@
+services:
+  web:
+    build:
+      context: ./
+      dockerfile: Dockerfile.lite
+    container_name: cheminformatics-microservice-lite
+    environment:
+      - HOMEPAGE_URL=https://docs.api.naturalproducts.net
+      - RELEASE_VERSION=v2.6.0
+      - WORKERS=1
+      - INCLUDE_OCSR=false
+    ports:
+      - "80:80"
+    healthcheck:
+      test: curl -f http://localhost:80/latest/chem/health || exit 1
+      interval: 90s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ./app:/code/app
+      - ./requirements_lite.txt:/code/requirements_lite.txt
+    networks:
+      - cm_fastapi_lite
+
+networks:
+  cm_fastapi_lite:
+    name: cm_fastapi_lite
+    driver: bridge
