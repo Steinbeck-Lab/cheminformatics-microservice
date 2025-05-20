@@ -17,11 +17,6 @@ from app.exception_handlers import input_exception_handler
 from app.exception_handlers import InvalidInputException
 from app.schemas import HealthCheck
 
-# Import OCSR router if necessary
-if os.getenv("INCLUDE_OCSR", "true").lower() == "true":
-    from .routers import ocsr
-
-
 def create_app_metadata() -> Dict:
     return {
         "title": "Cheminformatics API",
@@ -64,6 +59,7 @@ app.include_router(tools.router)
 
 # Import OCSR router if necessary
 if os.getenv("INCLUDE_OCSR", "true").lower() == "true":
+    from .routers import ocsr
     app.include_router(ocsr.router)
 
 app = VersionedFastAPI(
