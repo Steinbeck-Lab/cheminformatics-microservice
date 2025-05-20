@@ -8,7 +8,8 @@ import {
   HiOutlineInformationCircle,
   HiCheck,
   HiX,
-  HiOutlineExclamationCircle // Added missing icon import
+  HiOutlineExclamationCircle, // Added missing icon import
+  HiOutlineSwitchHorizontal // Added for the filter operator toggle
 } from 'react-icons/hi';
 import LoadingScreen from '../common/LoadingScreen'; // Assuming this component is theme-aware
 import { useAppContext } from '../../context/AppContext'; // Assuming this provides theme-aware context if needed
@@ -20,6 +21,7 @@ const AllFiltersView = () => {
   const [error, setError] = useState(null);
   const [results, setResults] = useState([]);
   const [copied, setCopied] = useState(false);
+  const [filterOperator, setFilterOperator] = useState('AND'); // Default to AND logic
   const { addRecentMolecule } = useAppContext(); // Assuming context provides this function
 
   // Filter options state
@@ -54,7 +56,10 @@ const AllFiltersView = () => {
     try {
       // Prepare parameters for the API call
       // Adjust the params object construction based on your actual API requirements.
-      const apiParams = { ...filterOptions };
+      const apiParams = { 
+        ...filterOptions,
+        filterOperator: filterOperator // Add filter operator (AND/OR) to the API params
+      };
 
       // Assuming api.post sends text data correctly and handles params
       const response = await api.post('/chem/all_filters', trimmedInput, {
@@ -331,6 +336,40 @@ const AllFiltersView = () => {
             </div>
           </div>
 
+          {/* Filter Operator Toggle */}
+          <div className="pt-4 pb-2 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+              <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                <HiOutlineSwitchHorizontal className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
+                Filter Match Logic:
+              </label>
+              <div className="flex p-1 space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <button
+                  type="button"
+                  onClick={() => setFilterOperator('AND')}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    filterOperator === 'AND'
+                      ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  Match All Filters (AND)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilterOperator('OR')}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    filterOperator === 'OR'
+                      ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  Match Any Filter (OR)
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Submit Button */}
           <div className="pt-4">
             <button
@@ -459,6 +498,9 @@ const AllFiltersView = () => {
             <p className="text-sm text-gray-600 dark:text-gray-400"><strong>REOS</strong>: Rapid Elimination Of Swill - property filters for lead-like compounds</p>
             <p className="text-sm text-gray-600 dark:text-gray-400"><strong>Ghose</strong>: Filters based on logP, molecular weight, and number of atoms</p>
             <p className="text-sm text-gray-600 dark:text-gray-400"><strong>Rule of 3</strong>: Criteria for fragment-based drug discovery</p>
+            <p className="mt-4 text-sm text-gray-600 dark:text-gray-400 border-t border-blue-100 dark:border-blue-800 pt-4">
+              <strong>Filter Match Logic</strong>: Choose how filters are combined - "Match All Filters" requires molecules to pass all selected filters (AND logic), while "Match Any Filter" includes molecules that pass at least one filter (OR logic).
+            </p>
           </div>
         </div>
       )}
