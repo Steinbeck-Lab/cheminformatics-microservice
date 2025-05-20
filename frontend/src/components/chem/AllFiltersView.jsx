@@ -8,8 +8,10 @@ import {
   HiOutlineInformationCircle,
   HiCheck,
   HiX,
-  HiOutlineExclamationCircle, // Added missing icon import
-  HiOutlineSwitchHorizontal // Added for the filter operator toggle
+  HiOutlineExclamationCircle,
+  HiOutlineSwitchHorizontal,
+  HiOutlineBeaker,
+  HiX as HiXMark
 } from 'react-icons/hi';
 import LoadingScreen from '../common/LoadingScreen'; // Assuming this component is theme-aware
 import { useAppContext } from '../../context/AppContext'; // Assuming this provides theme-aware context if needed
@@ -22,6 +24,7 @@ const AllFiltersView = () => {
   const [results, setResults] = useState([]);
   const [copied, setCopied] = useState(false);
   const [filterOperator, setFilterOperator] = useState('AND'); // Default to AND logic
+  const [showInfoModal, setShowInfoModal] = useState(false); // State for showing info modal
   const { addRecentMolecule } = useAppContext(); // Assuming context provides this function
 
   // Filter options state
@@ -41,8 +44,12 @@ const AllFiltersView = () => {
   });
 
   // Function to apply filters via API
-  const applyFilters = async (e) => {
-    e.preventDefault();
+  const applyFilters = async (e, overrideOperator = null) => {
+    // If called from an event, prevent default behavior
+    if (e && e.preventDefault) {
+      e.preventDefault();
+    }
+    
     const trimmedInput = smilesInput.trim();
     if (!trimmedInput) {
       setError('Please enter at least one SMILES string.');
@@ -55,11 +62,13 @@ const AllFiltersView = () => {
 
     try {
       // Prepare parameters for the API call
-      // Adjust the params object construction based on your actual API requirements.
+      // Use override operator if provided (for toggle functionality)
       const apiParams = { 
         ...filterOptions,
-        filterOperator: filterOperator // Add filter operator (AND/OR) to the API params
+        filterOperator: overrideOperator || filterOperator
       };
+
+      console.log(`Applying filters with operator: ${apiParams.filterOperator}`);
 
       // Assuming api.post sends text data correctly and handles params
       const response = await api.post('/chem/all_filters', trimmedInput, {
@@ -130,6 +139,25 @@ const AllFiltersView = () => {
     handleFilterChange(name, value);
   };
 
+  // Handle filter operator change - now automatically applies filters
+  const handleFilterOperatorChange = (newOperator) => {
+    // Update filter operator first
+    setFilterOperator(newOperator);
+    
+    // Only apply filters automatically if there's already input present
+    if (smilesInput.trim()) {
+      // Using async function to ensure state is updated before applying filters
+      const updateAndApplyFilters = async () => {
+        // Wait for state update to complete
+        await new Promise(resolve => setTimeout(resolve, 10));
+        // Explicitly call applyFilters with the new operator value
+        applyFilters(null, newOperator);
+      };
+      
+      updateAndApplyFilters();
+    }
+  };
+
   // Copy results to clipboard
   const copyToClipboard = () => {
     if (results.length === 0 || !navigator.clipboard) return;
@@ -198,6 +226,21 @@ const AllFiltersView = () => {
   };
 
 
+  // Function to load example molecules
+  const loadExampleMolecules = () => {
+    // A set of common, diverse, and representative drug-like molecules
+    const exampleSmiles = [
+      'CC1=CC=C(C=C1)C(=O)NC=CC(=O)O', // Acetaminophen
+      'CN1C=NC2=C1C(=O)N(C(=O)N2C)C', // Caffeine
+      'CC(=O)OC1=CC=CC=C1C(=O)O', // Aspirin
+      'COC1=CC=C(CCN(C)C)C=C1', // Metoclopramide
+      'CC(C)CC1=CC=C(C=C1)C(C)C(=O)O', // Ibuprofen
+      'CCN(CC)CCOC(=O)C1=CC=CC=C1N', // Procaine
+    ].join('\n');
+    
+    setSmilesInput(exampleSmiles);
+  };
+
   // Define column headers - makes the table more maintainable
   const filterColumns = [
     { key: 'pains', label: 'PAINS' },
@@ -211,6 +254,21 @@ const AllFiltersView = () => {
     { key: 'nplikeness', label: 'NP-like' }, // Shortened label
   ];
 
+  // Filter information content
+  const filterInfoContent = (
+    <div className="space-y-2">
+      <p className="text-sm text-gray-600 dark:text-gray-400"><strong>PAINS</strong>: Pan-Assay Interference compounds - structures known to interfere with biochemical assays</p>
+      <p className="text-sm text-gray-600 dark:text-gray-400"><strong>Lipinski Rule of 5</strong>: Evaluates drug-likeness based on molecular weight, logP, H-bond donors/acceptors</p>
+      <p className="text-sm text-gray-600 dark:text-gray-400"><strong>Veber</strong>: Filters for oral bioavailability based on rotatable bonds and polar surface area</p>
+      <p className="text-sm text-gray-600 dark:text-gray-400"><strong>REOS</strong>: Rapid Elimination Of Swill - property filters for lead-like compounds</p>
+      <p className="text-sm text-gray-600 dark:text-gray-400"><strong>Ghose</strong>: Filters based on logP, molecular weight, and number of atoms</p>
+      <p className="text-sm text-gray-600 dark:text-gray-400"><strong>Rule of 3</strong>: Criteria for fragment-based drug discovery</p>
+      <p className="mt-4 text-sm text-gray-600 dark:text-gray-400 border-t border-blue-100 dark:border-blue-800 pt-4">
+        <strong>Filter Match Logic</strong>: Choose how filters are combined - "Match All Filters" requires molecules to pass all selected filters (AND logic), while "Match Any Filter" includes molecules that pass at least one filter (OR logic).
+      </p>
+    </div>
+  );
+
 
   return (
     // Main container with spacing
@@ -220,11 +278,11 @@ const AllFiltersView = () => {
         {/* Card Header */}
         <div className="flex justify-between items-start mb-4">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-blue-400">Chemical Filters</h2>
-          {/* Info button - consider adding a tooltip or modal onClick */}
+          {/* Info button - now opens the modal */}
           <button
             className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-            title="Information about filters (Not implemented)" // Add tooltip text
-            onClick={() => alert('Filter information modal/tooltip not implemented yet.')} // Placeholder action
+            title="Information about filters"
+            onClick={() => setShowInfoModal(true)}
           >
             <HiOutlineInformationCircle className="h-5 w-5" aria-hidden="true" />
           </button>
@@ -246,9 +304,19 @@ const AllFiltersView = () => {
               required
               aria-required="true"
             />
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              Enter one or more SMILES strings. Separate multiple entries with new lines, spaces, commas, or semicolons.
-            </p>
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Enter one or more SMILES strings. Separate multiple entries with new lines, spaces, commas, or semicolons.
+              </p>
+              <button 
+                type="button"
+                onClick={loadExampleMolecules}
+                className="px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors duration-150 flex items-center"
+              >
+                <HiOutlineBeaker className="mr-1 h-3.5 w-3.5" />
+                Load Examples
+              </button>
+            </div>
           </div>
 
           {/* Filter Options Grid */}
@@ -346,7 +414,7 @@ const AllFiltersView = () => {
               <div className="flex p-1 space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <button
                   type="button"
-                  onClick={() => setFilterOperator('AND')}
+                  onClick={() => handleFilterOperatorChange('AND')}
                   className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     filterOperator === 'AND'
                       ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
@@ -357,7 +425,7 @@ const AllFiltersView = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setFilterOperator('OR')}
+                  onClick={() => handleFilterOperatorChange('OR')}
                   className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     filterOperator === 'OR'
                       ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
@@ -387,17 +455,83 @@ const AllFiltersView = () => {
         </form>
       </div>
 
+      {/* Information Modal */}
+      {showInfoModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            {/* Background overlay */}
+            <div 
+              className="fixed inset-0 bg-gray-500 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-75 transition-opacity" 
+              aria-hidden="true"
+              onClick={() => setShowInfoModal(false)}
+            ></div>
+
+            {/* Modal panel */}
+            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg leading-6 font-medium text-blue-800 dark:text-blue-300" id="modal-title">
+                        About Chemical Filters
+                      </h3>
+                      <button
+                        type="button"
+                        className="bg-white dark:bg-gray-800 rounded-md text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        onClick={() => setShowInfoModal(false)}
+                      >
+                        <span className="sr-only">Close</span>
+                        <HiXMark className="h-6 w-6" aria-hidden="true" />
+                      </button>
+                    </div>
+                    <div className="mt-2">
+                      <p className="text-gray-700 dark:text-gray-300 mb-4">
+                        This tool allows you to filter a list of molecules based on various medicinal chemistry and
+                        drug-like property filters.
+                      </p>
+                      {/* Reused filter information content */}
+                      {filterInfoContent}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="button"
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                  onClick={() => setShowInfoModal(false)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Loading Indicator */}
       {loading && <LoadingScreen text="Applying filters to molecules..." />}
 
       {/* Error Message */}
       {error && (
-        // Use the imported HiOutlineExclamationCircle here
         <div className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow" role="alert">
           <HiOutlineExclamationCircle className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400" aria-hidden="true" />
           <div>
             <h4 className="font-medium">Error</h4>
             <p className="text-sm">{error}</p>
+          </div>
+        </div>
+      )}
+
+      {/* No Results Message - Display when a filter operation was performed but returned no results */}
+      {!loading && !error && smilesInput.trim() && results.length === 0 && (
+        <div className="p-4 rounded-md bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-30 text-yellow-700 dark:text-yellow-200 border border-yellow-300 dark:border-yellow-700 flex items-start shadow" role="alert">
+          <HiOutlineExclamationCircle className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-yellow-500 dark:text-yellow-400" aria-hidden="true" />
+          <div>
+            <h4 className="font-medium">No Molecules Matched Your Filters</h4>
+            <p className="text-sm">
+              None of the provided molecules passed the selected filter criteria. Try changing your filter settings or switch between AND/OR logic.
+            </p>
           </div>
         </div>
       )}
@@ -482,26 +616,16 @@ const AllFiltersView = () => {
       )}
 
       {/* Initial State / Info Box */}
-      {/* Show only if not loading, no error, and no results */}
-      {/* Restored detailed about section with light/dark mode styling */}
-      {!loading && !error && results.length === 0 && (
+      {/* Show only if not loading, no error, no input has been entered, and no results */}
+      {!loading && !error && !smilesInput.trim() && results.length === 0 && (
         <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 shadow" role="complementary">
           <h3 className="text-lg font-medium text-blue-800 dark:text-blue-300 mb-3">About Chemical Filters</h3>
           <p className="text-gray-700 dark:text-gray-300 mb-4">
             This tool allows you to filter a list of molecules based on various medicinal chemistry and
             drug-like property filters.
           </p>
-          <div className="space-y-2">
-            <p className="text-sm text-gray-600 dark:text-gray-400"><strong>PAINS</strong>: Pan-Assay Interference compounds - structures known to interfere with biochemical assays</p>
-            <p className="text-sm text-gray-600 dark:text-gray-400"><strong>Lipinski Rule of 5</strong>: Evaluates drug-likeness based on molecular weight, logP, H-bond donors/acceptors</p>
-            <p className="text-sm text-gray-600 dark:text-gray-400"><strong>Veber</strong>: Filters for oral bioavailability based on rotatable bonds and polar surface area</p>
-            <p className="text-sm text-gray-600 dark:text-gray-400"><strong>REOS</strong>: Rapid Elimination Of Swill - property filters for lead-like compounds</p>
-            <p className="text-sm text-gray-600 dark:text-gray-400"><strong>Ghose</strong>: Filters based on logP, molecular weight, and number of atoms</p>
-            <p className="text-sm text-gray-600 dark:text-gray-400"><strong>Rule of 3</strong>: Criteria for fragment-based drug discovery</p>
-            <p className="mt-4 text-sm text-gray-600 dark:text-gray-400 border-t border-blue-100 dark:border-blue-800 pt-4">
-              <strong>Filter Match Logic</strong>: Choose how filters are combined - "Match All Filters" requires molecules to pass all selected filters (AND logic), while "Match Any Filter" includes molecules that pass at least one filter (OR logic).
-            </p>
-          </div>
+          {/* Reused filter information content */}
+          {filterInfoContent}
         </div>
       )}
     </div>
