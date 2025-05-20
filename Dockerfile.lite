@@ -2,7 +2,7 @@ FROM continuumio/miniconda3:24.1.2-0 AS cheminf-python-ms
 
 ENV PYTHON_VERSION=3.11 \
     INCLUDE_OCSR=false \
-    JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/ \
+    JAVA_HOME=/usr/lib/jvm/java-11-openjdk-arm64/ \
     # Add default number of workers
     WORKERS=1 \
     # Add other Python configurations
@@ -23,6 +23,11 @@ RUN apt-get update && \
     wget -O /usr/bin/surge "https://github.com/StructureGenerator/surge/releases/download/v1.0/surge-linux-v1.0" && \
     chmod +x /usr/bin/surge
 
+# Create necessary directories and download OPSIN
+RUN mkdir -p /root/.data/JAVA-DEPENDENCIES && \
+    wget -O /root/.data/JAVA-DEPENDENCIES/opsin-cli-2.8.0-jar-with-dependencies.jar \
+    https://github.com/dan2097/opsin/releases/download/2.8.0/opsin-cli-2.8.0-jar-with-dependencies.jar
+
 # Combine conda and pip operations to reduce layers
 WORKDIR /code
 COPY requirements_lite.txt .
@@ -34,5 +39,8 @@ RUN conda install -c conda-forge python=${PYTHON_VERSION} sqlite --force-reinsta
         chembl_structure_pipeline
 
 COPY ./app /code/app
+
+# Set proper permissions for the OPSIN jar
+RUN chmod 644 /root/.data/JAVA-DEPENDENCIES/opsin-cli-2.8.0-jar-with-dependencies.jar
 
 CMD uvicorn app.main:app --host 0.0.0.0 --port 80 --workers ${WORKERS}

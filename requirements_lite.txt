@@ -2,6 +2,7 @@ chembl_structure_pipeline
 fastapi>=0.110.3
 fastapi-pagination==0.10.0
 fastapi-versioning>=0.10.0
+fastapi-mcp==0.3.4
 HOSE_code_generator @ git+https://github.com/Ratsemaat/HOSE_code_generator
 httpx>=0.24.1
 IPython

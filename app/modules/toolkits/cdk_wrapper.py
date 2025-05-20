@@ -35,11 +35,11 @@ def setup_jvm():
         }
 
         jar_paths = {
-            key: str(pystow.join("STOUT-V2")) + f"/{key}.jar" for key in paths.keys()
+            key: str(pystow.join("JAVA-DEPENDENCIES")) + f"/{key}.jar" for key in paths.keys()
         }
         for key, url in paths.items():
             if not os.path.exists(jar_paths[key]):
-                pystow.ensure("STOUT-V2", url=url)
+                pystow.ensure("JAVA-DEPENDENCIES", url=url)
 
         startJVM("-ea", "-Xmx4096M", classpath=[jar_paths[key] for key in jar_paths])
 

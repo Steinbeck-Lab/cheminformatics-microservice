@@ -1,0 +1,71 @@
+services:
+  mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.lite
+    container_name: cheminformatics-microservice-mcp
+    ports:
+      - "80:80"
+    environment:
+      - HOMEPAGE_URL=https://github.com/nfdi4chem/cheminformatics-microservice
+      - RELEASE_VERSION=0.1.0
+      - WORKERS=1
+      - INCLUDE_OCSR=false
+      - ENABLE_MCP=true
+    volumes:
+      - ./app:/app/app  # Mount the app directory for local development
+      - ./requirements.txt:/app/requirements.txt  # Mount requirements for dependency changes
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 90s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - cm_fastapi
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus_data/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    restart: unless-stopped
+    networks:
+      - cm_fastapi
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    user: "472"
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    networks:
+      - cm_fastapi
+
+volumes:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  cm_fastapi:
+    name: cm_fastapi
+    driver: bridge 
