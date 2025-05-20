@@ -76,6 +76,7 @@ def get_health() -> HealthCheck:
 
 @router.get(
     "/2D",
+    operation_id="generate_2d_depiction",
     summary="Generates a 2D depiction of a molecule",
     responses={
         200: {
@@ -105,6 +106,10 @@ async def depict_2d_molecule(
     toolkit: Literal["cdk", "rdkit"] = Query(
         default="rdkit",
         description="Cheminformatics toolkit used in the backend",
+    ),
+    format: Literal["svg", "png"] = Query(
+        default="svg",
+        description="Output format of the molecule depiction",
     ),
     width: Optional[int] = Query(
         512,
@@ -137,35 +142,26 @@ async def depict_2d_molecule(
         description="SMARTS pattern to highlight atoms/bonds.",
     ),
 ):
-    """Generates a 2D depiction of a molecule using CDK or RDKit with the given.
-
-    parameters.
+    """Generates a 2D depiction of a molecule using CDK or RDKit with the given parameters.
 
     Parameters:
     - **SMILES**: required (query): The SMILES representation of the molecule. [required]
-    - **toolkit**: (str, optional): The toolkit to use for the depiction. Defaults to "cdk".
+    - **toolkit**: (str, optional): The toolkit to use for the depiction. Defaults to "rdkit".
         - Supported values: "cdk"/ "rdkit" (default), "cdk".
+    - **format**: (str, optional): The output format of the molecule depiction. Defaults to "svg".
+        - Supported values: "svg" (default), "png"
     - **width**: (int, optional): The width of the generated image in pixels. Defaults to 512.
     - **height**: (int, optional): The height of the generated image in pixels. Defaults to 512.
     - **rotate**: (int, optional): The rotation angle of the molecule in degrees. Defaults to 0.
-    - CIP (bool, optional): Whether to include Cahn-Ingold-Prelog (CIP) stereochemistry information. Defaults to False.
-    - unicolor (bool, optional): Whether to use a single colour for the molecule. Defaults to False.
-    - highlight (Optional[str], optional): SMARTS pattern to highlight atoms/bonds. Defaults to "COSN".
+    - **CIP**: (bool, optional): Whether to include Cahn-Ingold-Prelog (CIP) stereochemistry information. Defaults to False.
+    - **unicolor**: (bool, optional): Whether to use a single colour for the molecule. Defaults to False.
+    - **highlight**: (Optional[str], optional): SMARTS pattern to highlight atoms/bonds. Defaults to "COSN".
 
     Returns:
-        Response: An HTTP response containing the generated image in SVG+xml format.
+        Response: An HTTP response containing the generated image in the specified format (SVG or PNG).
 
     Raises:
     - ValueError: If the SMILES string is not provided or is invalid.
-
-    Note:
-        - The `smiles` parameter is required and must be provided as a query parameter.
-        - The `toolkit` parameter determines the backend library to use for molecule depiction.
-          Currently supported options are "cdksdg" (CDK with SDG) and RDKit (default).
-        - The `width` and `height` parameters control the dimensions of the generated image.
-        - The `rotate` parameter specifies the rotation angle of the molecule in degrees.
-        - The `CIP` parameter controls whether Cahn-Ingold-Prelog (CIP) stereochemistry information should be included / not.
-        - The `unicolor` parameter determines whether a single colour is used for the molecule.
     """
     try:
         if toolkit == "cdk":
@@ -188,7 +184,11 @@ async def depict_2d_molecule(
                 status_code=422,
                 detail="Error reading SMILES string, please check again.",
             )
-        return Response(content=depiction, media_type="image/svg+xml")
+        
+        # Set the appropriate media type based on the format
+        media_type = "image/svg+xml" if format == "svg" else "image/png"
+        
+        return Response(content=depiction, media_type=media_type)
     except Exception as e:
         raise HTTPException(status_code=422, detail=str(e))
 
@@ -209,6 +209,7 @@ async def depict_2d_molecule(
 @limiter.limit("25/minute")
 async def depict_3d_molecule(
     request: Request,
+    operation_id="generate_3d_depiction",
     smiles: str = Query(
         title="SMILES",
         description="SMILES string to be converted",

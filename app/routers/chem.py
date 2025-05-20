@@ -110,6 +110,7 @@ def get_health() -> HealthCheck:
 
 @router.get(
     "/stereoisomers",
+    operation_id="enumerate_stereoisomers",
     summary="Enumerate all possible stereoisomers",
     responses={
         200: {
@@ -161,6 +162,7 @@ async def get_stereoisomers(
 
 @router.get(
     "/descriptors",
+    operation_id="generate_descriptors",
     summary="Generates descriptors for the input molecule",
     responses={
         200: {
@@ -212,7 +214,7 @@ async def get_descriptors(
     Raises:
     - None
     """
-    data = get_COCONUT_descriptors(smiles, toolkit)
+    data = get_descriptors(smiles, toolkit)
     if format == "html":
         if toolkit == "all":
             headers = [
@@ -247,6 +249,7 @@ async def get_descriptors(
 
 @router.get(
     "/descriptors/multiple",
+    operation_id="generate_multiple_descriptors",
     summary="Generates descriptors for the input molecules",
     responses={
         200: {
@@ -318,6 +321,7 @@ async def get_multiple_descriptors(
 
 @router.get(
     "/HOSEcode",
+    operation_id="generate_HOSE_codes",
     summary="Generates HOSE codes for the input molecules",
     responses={
         200: {
@@ -397,6 +401,7 @@ async def hose_codes(
 
 @router.post(
     "/standardize",
+    operation_id="standardize_molblock",
     summary="Standardize molblock using the ChEMBL curation pipeline",
     responses={
         200: {
@@ -479,6 +484,7 @@ M  END""",
 
 @router.get(
     "/errors",
+    operation_id="check_errors",
     summary="Check a given SMILES string and the represented structure for issues and standardize it",
     responses={
         200: {
@@ -571,6 +577,7 @@ async def check_errors(
 
 @router.get(
     "/nplikeness/score",
+    operation_id="generate_nplikeness_score",
     summary="Generates descriptors for the input molecules",
     responses={
         200: {
@@ -622,6 +629,7 @@ async def np_likeness_score(
 
 @router.get(
     "/tanimoto",
+    operation_id="generate_tanimoto_similarity",
     summary="Generates the Tanimoto similarity index for a given pair of SMILES strings",
     responses={
         200: {
@@ -743,6 +751,7 @@ async def tanimoto_similarity(
 
 @router.get(
     "/coconut/pre-processing",
+    operation_id="generate_coconut_preprocessing",
     summary="Generates an Input JSON file with information for COCONUT database",
     responses={
         200: {
@@ -813,6 +822,7 @@ async def coconut_preprocessing(
 
 @router.get(
     "/classyfire/classify",
+    operation_id="generate_classyfire_classifications",
     summary="Generate ClassyFire-based classifications using SMILES as input",
     responses={
         200: {
@@ -864,6 +874,7 @@ async def classyfire_classify(
 
 @router.get(
     "/classyfire/{jobid}/result",
+    operation_id="retrieve_classyfire_results",
     summary="Retrieve the ClassyFire classification results based on the provided Job ID",
     responses={
         200: {
@@ -910,6 +921,7 @@ async def classyfire_result(jobid: str):
 
 @router.post(
     "/all_filters",
+    operation_id="filter_molecules",
     summary="Filters a given list of molecules using selected filters",
     responses={
         200: {
@@ -1063,6 +1075,7 @@ async def all_filter_molecules(
 
 @router.get(
     "/ertlfunctionalgroup",
+    operation_id="generate_ertl_functional_groups",
     summary="using the algorithm proposed by Peter Ertl to identify functional groups",
     responses={
         200: {
@@ -1119,6 +1132,7 @@ async def get_functional_groups(
 
 @router.get(
     "/standarizedTautomer",
+    operation_id="standardize_tautomer",
     summary="Standardize tautomeric SMILES using RDKit EnumerateStereoisomers module",
     responses={
         200: {
@@ -1154,6 +1168,7 @@ async def get_standardized_tautomer_smiles(
 
 @router.get(
     "/pubchem/smiles",
+    operation_id="retrieve_pubchem_smiles",
     summary="Retrieve canonical SMILES from PubChem for a given chemical identifier",
     responses={
         200: {"description": "Successful response", "model": PubChemResponse},

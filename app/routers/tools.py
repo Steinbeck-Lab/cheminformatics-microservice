@@ -59,6 +59,7 @@ def get_health() -> HealthCheck:
 
 @router.get(
     "/generate-structures",
+    operation_id="generate_structures",
     summary="Generates structures using the chemical structure generator",
     responses={
         200: {
@@ -115,6 +116,7 @@ async def generate_structures(
 
 @router.get(
     "/sugars-info",
+    operation_id="get_sugar_information",
     response_model=str,
     summary="Get information whether a given molecule has circular or linear sugars",
     responses={
@@ -182,6 +184,7 @@ async def get_sugar_information(
 
 @router.get(
     "/remove-linear-sugars",
+    operation_id="remove_linear_sugars",
     summary="Detect and remove linear sugars",
     responses={
         200: {"description": "Successful response", "model": GetLinearSugarResponse},
@@ -232,6 +235,7 @@ async def remove_linear_sugars(
 
 @router.get(
     "/remove-circular-sugars",
+    operation_id="remove_circular_sugars",
     summary="Detect and remove linear sugars",
     responses={
         200: {"description": "Successful response", "model": GetCircularSugarResponse},
@@ -282,6 +286,7 @@ async def remove_circular_sugars(
 
 @router.get(
     "/remove-sugars",
+    operation_id="remove_linear_and_circular_sugars",
     summary="Detect and remove linear sugars",
     responses={
         200: {

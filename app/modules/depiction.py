@@ -19,16 +19,22 @@ def get_cdk_depiction(
     CIP=True,
     unicolor=False,
     highlight="",
+    format="svg",
 ):
-    """This function takes the user input SMILES and Depicts it.
-
-    using the CDK Depiction Generator.
+    """This function takes the user input SMILES and Depicts it using the CDK Depiction Generator.
 
     Args:
         molecule (any): CDK IAtomContainer parsed from SMILES string given by the user.
+        molSize (tuple, optional): Size of the output image. Defaults to (512, 512).
+        rotate (int, optional): Rotation angle in degrees. Defaults to 0.
+        kekulize (bool, optional): Whether to kekulize the molecule. Defaults to True.
+        CIP (bool, optional): Whether to include CIP stereochemistry. Defaults to True.
+        unicolor (bool, optional): Whether to use a single color. Defaults to False.
+        highlight (str, optional): SMARTS pattern to highlight. Defaults to "".
+        format (str, optional): Output format ("svg" or "png"). Defaults to "svg".
 
     Returns:
-        image (SVG): CDK Structure Depiction as an SVG image.
+        str: CDK Structure Depiction as an SVG or PNG image.
     """
     print(unicolor)
 
@@ -95,17 +101,27 @@ def get_cdk_depiction(
                 tmpSubstructures, lightBlue
             ).withOuterGlowHighlight()
 
-        mol_imageSVG = (
-            DepictionGenerator.depict(
-                SDGMol,
+        if format == "svg":
+            mol_image = (
+                DepictionGenerator.depict(
+                    SDGMol,
+                )
+                .toSvgStr("px")
+                .getBytes()
             )
-            .toSvgStr("px")
-            .getBytes()
-        )
-        encoded_image = ET.tostring(
-            ET.fromstring(mol_imageSVG),
-            encoding="unicode",
-        )
+            encoded_image = ET.tostring(
+                ET.fromstring(mol_image),
+                encoding="unicode",
+            )
+        else:  # PNG format
+            mol_image = (
+                DepictionGenerator.depict(
+                    SDGMol,
+                )
+                .toPngStr()
+                .getBytes()
+            )
+            encoded_image = mol_image
 
         return encoded_image
     else:
@@ -120,6 +136,7 @@ def get_rdkit_depiction(
     CIP=False,
     unicolor=False,
     highlight: str = "",
+    format: str = "svg",
 ) -> str:
     """
     Generate a 2D depiction of the input molecule using RDKit.
@@ -132,11 +149,11 @@ def get_rdkit_depiction(
         CIP (bool, optional): Whether to assign CIP stereochemistry. Defaults to False.
         unicolor (bool, optional): Whether to use a unicolor palette. Defaults to False.
         highlight (str, optional): SMARTS pattern to highlight atoms/bonds. Defaults to empty.
+        format (str, optional): Output format ("svg" or "png"). Defaults to "svg".
 
     Returns:
-        str: RDKit Structure Depiction as an SVG image.
+        str: RDKit Structure Depiction as an SVG or PNG image.
     """
-
     mc = Chem.Mol(molecule.ToBinary())
 
     if kekulize:
@@ -151,7 +168,11 @@ def get_rdkit_depiction(
     if CIP:
         Chem.AssignStereochemistry(mc, force=True, cleanIt=True)
 
-    drawer = rdMolDraw2D.MolDraw2DSVG(mol_size[0], mol_size[1])
+    if format == "svg":
+        drawer = rdMolDraw2D.MolDraw2DSVG(mol_size[0], mol_size[1])
+    else:  # PNG format
+        drawer = rdMolDraw2D.MolDraw2DCairo(mol_size[0], mol_size[1])
+
     drawer.drawOptions().rotate = rotate
     drawer.drawOptions().addStereoAnnotation = CIP
 
@@ -175,5 +196,9 @@ def get_rdkit_depiction(
         drawer.DrawMolecule(mc)
 
     drawer.FinishDrawing()
-    svg = drawer.GetDrawingText()
-    return svg.replace("svg:", "")
+    
+    if format == "svg":
+        svg = drawer.GetDrawingText()
+        return svg.replace("svg:", "")
+    else:  # PNG format
+        return drawer.GetDrawingText()

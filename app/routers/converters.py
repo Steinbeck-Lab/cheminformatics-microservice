@@ -89,6 +89,7 @@ def get_health() -> HealthCheck:
 
 @router.get(
     "/mol2D",
+    operation_id="generate_2d_coordinates",
     summary="Generates 2D Coordinates for the input molecules",
     responses={
         200: {
@@ -160,6 +161,7 @@ async def create2d_coordinates(
 
 @router.get(
     "/mol3D",
+    operation_id="generate_3d_coordinates",
     summary="Generates 3D Coordinates for the input molecules",
     responses={
         200: {
@@ -226,6 +228,7 @@ async def create3d_coordinates(
 
 @router.get(
     "/smiles",
+    operation_id="generate_smiles",
     summary="Generate SMILES from a given input",
     responses={
         200: {
@@ -303,6 +306,7 @@ async def iupac_name_or_selfies_to_smiles(
 
 @router.get(
     "/canonicalsmiles",
+    operation_id="generate_canonical_smiles",
     summary="Generate CanonicalSMILES from a given SMILES",
     responses={
         200: {
@@ -361,6 +365,7 @@ async def smiles_canonicalise(
 
 @router.get(
     "/cxsmiles",
+    operation_id="generate_cxsmiles",
     summary="Generate CXSMILES from a given SMILES",
     responses={
         200: {
@@ -426,6 +431,7 @@ async def smiles_to_cxsmiles(
 
 @router.get(
     "/inchi",
+    operation_id="generate_inchi",
     summary="Generate InChI from a given SMILES",
     responses={
         200: {
@@ -490,6 +496,7 @@ async def smiles_to_inchi(
 
 @router.get(
     "/inchikey",
+    operation_id="generate_inchikey",
     summary="Generate InChI-Key from a given SMILES",
     responses={
         200: {
@@ -555,6 +562,7 @@ async def smiles_to_inchikey(
 
 @router.get(
     "/selfies",
+    operation_id="generate_selfies",
     summary="Generates SELFIES string for a given SMILES string",
     responses={
         200: {
@@ -611,6 +619,7 @@ async def encode_selfies(
 
 @router.get(
     "/formats",
+    operation_id="generate_formats",    
     summary="Convert SMILES to various molecular formats using different toolkits",
     responses={
         200: {

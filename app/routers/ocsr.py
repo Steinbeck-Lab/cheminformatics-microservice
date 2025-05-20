@@ -59,6 +59,7 @@ def get_health() -> HealthCheck:
 
 @router.post(
     "/process",
+    operation_id="extract_chemical_info_from_file",
     summary="Detect, segment and convert a chemical structure depiction into a SMILES string using the DECIMER",
     responses={
         200: {
@@ -152,6 +153,7 @@ async def Extract_ChemicalInfo_From_File(
 
 @router.post(
     "/process-upload",
+    operation_id="extract_chemical_info_from_upload",
     summary="Detect, segment and convert a chemical structure depiction in the uploaded file into a SMILES string using the DECIMER",
     responses={
         200: {
