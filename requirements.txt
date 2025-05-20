@@ -8,7 +8,6 @@ httpx>=0.24.1
 IPython
 jinja2
 jpype1==1.4.1
-keras_preprocessing==1.1.2
 matplotlib>=3.4.3
 opencv-python==4.8.1.78
 pandas
@@ -22,6 +21,7 @@ python-multipart
 scikit-image
 selfies>=2.1.1
 tensorflow==2.15.1
+Keras-Preprocessing==1.1.2
 unicodedata2==15.0.0
 websockets==10.4
 mapchiral
