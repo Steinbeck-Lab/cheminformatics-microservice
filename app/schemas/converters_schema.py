@@ -90,7 +90,7 @@ class GenerateSMILESResponse(BaseModel):
 
     smiles: str = Field(
         ...,
-        title="SMILES",
+        title="SMARTS",
         description="The generated SMILES string corresponding to the input text.",
     )
 
@@ -271,10 +271,10 @@ class GenerateSELFIESResponse(BaseModel):
     """Represents a response containing a generated SELFIES string.
 
     Properties:
-    - iupac (str): The generated SELFIES string.
+    - selfies (str): The generated SELFIES string.
     """
 
-    iupac: str = Field(
+    selfies: str = Field(
         ...,
         title="SMILES",
         description="The generated SELFIES string corresponding to the input SMILES.",
@@ -293,6 +293,37 @@ class GenerateSELFIESResponse(BaseModel):
                     "input": "CN1C(=O)C2=C(N=CN2C)N(C)C1=O",
                     "message": "Success",
                     "output": "[C][N][C][=Branch1][C][=O][C][=C][Branch1][#Branch1][N][=C][N][Ring1][Branch1][C][N][Branch1][C][C][C][Ring1][N][=O]",
+                },
+            ],
+        }
+
+
+class GenerateSMARTSResponse(BaseModel):
+    """Represents a response containing a generated SMARTS string.
+
+    Properties:
+    - smarts (str): The generated SMARTS string.
+    """
+
+    smarts: str = Field(
+        ...,
+        title="SMILES",
+        description="The generated SMARTS string corresponding to the input SMILES.",
+    )
+
+    class Config:
+        """Pydantic model configuration.
+
+        JSON Schema Extra:
+        - Includes examples of the response structure.
+        """
+
+        json_schema_extra = {
+            "examples": [
+                {
+                    "input": "CN1C(=O)C2=C(N=CN2C)N(C)C1=O",
+                    "message": "Success",
+                    "output": "[#6]-[#7]1:[#6]:[#7]:[#6]2:[#6]:1:[#6](=[#8]):[#7](:[#6](=[#8]):[#7]:2-[#6])-[#6]",
                 },
             ],
         }

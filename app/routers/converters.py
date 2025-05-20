@@ -37,6 +37,7 @@ from app.schemas.converters_schema import GenerateSELFIESResponse
 from app.schemas.converters_schema import GenerateSMILESResponse
 from app.schemas.converters_schema import ThreeDCoordinatesResponse
 from app.schemas.converters_schema import TwoDCoordinatesResponse
+from app.schemas.converters_schema import GenerateSMARTSResponse
 from app.schemas.error import BadRequestModel
 from app.schemas.error import ErrorResponse
 from app.schemas.error import NotFoundModel
@@ -702,3 +703,45 @@ async def smiles_convert_to_formats(
             status_code=422,
             detail="Error processing request: " + str(e),
         )
+
+
+@router.get(
+    "/smarts",
+    summary="Generate SMARTS from a given SMILES",
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": GenerateSMARTSResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
+)
+async def smiles_to_smarts(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES representation of the molecule",
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Topiramate-13C6",
+                "value": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
+    ),
+    toolkit: Literal["rdkit"] = Query(
+        default="rdkit",
+        description="Cheminformatics toolkit used in the backend",
+    ),
+):
+
+    if toolkit == "rdkit":
+        mol = parse_input(smiles, "rdkit", False)
+        if mol:
+            smarts = Chem.MolToSmarts(mol)
+            if smarts:
+                return str(smarts)

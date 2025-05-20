@@ -321,3 +321,30 @@ def test_smiles_to_formats(smiles, toolkit, response_code):
 @pytest.fixture(autouse=True)
 def ignore_deprecation_warnings():
     warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+
+@pytest.mark.parametrize(
+    "smiles, toolkit, response_text, response_code",
+    [
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "rdkit",
+            '"[#6]-[#7]1:[#6]:[#7]:[#6]2:[#6]:1:[#6](=[#8]):[#7](:[#6](=[#8]):[#7]:2-[#6])-[#6]"',
+            200,
+        ),
+        (
+            "INVALID_INPUT",
+            "cdk",
+            "",
+            422,
+        ),
+    ],
+)
+def test_smiles_smarts(smiles, toolkit, response_text, response_code):
+    response = client.get(
+        f"/latest/convert/smarts?smiles={smiles}&toolkit={toolkit}",
+    )
+    assert response.status_code == response_code
+    assert response.headers["content-type"] == "application/json"
+    if smiles != "INVALID_INPUT":
+        assert response.text == response_text
