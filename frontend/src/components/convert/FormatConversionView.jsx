@@ -28,7 +28,8 @@ const OUTPUT_FORMAT_OPTIONS = [
   { id: 'inchi', label: 'InChI', method: 'generateInChI' },
   { id: 'inchikey', label: 'InChI Key', method: 'generateInChIKey' },
   { id: 'cxsmiles', label: 'CXSMILES', method: 'generateCXSMILES' },
-  { id: 'selfies', label: 'SELFIES', method: 'generateSELFIES' }
+  { id: 'selfies', label: 'SELFIES', method: 'generateSELFIES' },
+  { id: 'smarts', label: 'SMARTS', method: 'generateSMARTS' }
 ];
 
 // Toolkit options configuration
@@ -61,6 +62,16 @@ const FormatConversionView = () => {
     // If switching to IUPAC or SELFIES, automatically set output to SMILES
     if (format === 'iupac' || format === 'selfies') {
       setOutputFormat('smiles');
+    }
+  };
+
+  // When output format changes, we may need to adjust toolkit availability
+  const handleOutputFormatChange = (format) => {
+    setOutputFormat(format);
+    
+    // SMARTS only supports RDKit
+    if (format === 'smarts') {
+      setToolkit('rdkit');
     }
   };
 
@@ -168,7 +179,8 @@ const FormatConversionView = () => {
 
   // Determine if toolkit selection should be shown based on input/output format
   const showToolkitSelection = inputFormat === 'smiles' &&
-    outputFormat !== 'selfies'; // Some conversions don't need toolkit selection
+    outputFormat !== 'selfies' &&
+    outputFormat !== 'smarts'; // SMARTS only uses RDKit
 
   // Determine if IUPAC converter selection should be shown
   const showIupacConverterSelection = inputFormat === 'iupac';
@@ -265,7 +277,7 @@ const FormatConversionView = () => {
             <select
               id="output-format-select"
               value={outputFormat}
-              onChange={(e) => setOutputFormat(e.target.value)}
+              onChange={(e) => handleOutputFormatChange(e.target.value)}
               className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
               disabled={inputFormat !== 'smiles'} // Disable selection if input is IUPAC or SELFIES
             >
@@ -278,6 +290,11 @@ const FormatConversionView = () => {
             {(inputFormat === 'iupac' || inputFormat === 'selfies') && (
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 {inputFormat === 'iupac' ? 'IUPAC names' : 'SELFIES'} can only be converted to SMILES format
+              </p>
+            )}
+            {outputFormat === 'smarts' && (
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                SMARTS (SMiles ARbitrary Target Specification) is an extension of SMILES for describing molecular patterns and properties. It's used for substructure searching and matching.
               </p>
             )}
           </div>
@@ -303,6 +320,13 @@ const FormatConversionView = () => {
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 Note: Toolkit support may vary for different format conversions.
               </p>
+            </div>
+          )}
+          
+          {/* Information about toolkit for SMARTS (when relevant) */}
+          {outputFormat === 'smarts' && (
+            <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 rounded text-xs text-blue-600 dark:text-blue-300">
+              <p>SMARTS conversion is only available using RDKit.</p>
             </div>
           )}
 
