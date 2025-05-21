@@ -7,7 +7,7 @@ services:
     ports:
       - "80:80"
     environment:
-      - HOMEPAGE_URL=https://github.com/nfdi4chem/cheminformatics-microservice
+      - HOMEPAGE_URL=https://docs.api.naturalproducts.net
       - RELEASE_VERSION=0.1.0
       - WORKERS=1
       - INCLUDE_OCSR=false
