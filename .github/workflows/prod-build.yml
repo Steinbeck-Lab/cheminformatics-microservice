@@ -1,4 +1,3 @@
-
 # This worklflow will perform following actions when a release is published:
 # - Fetch Latest release.
 # - Build the latest docker image in production.
@@ -57,8 +56,6 @@ jobs:
           tags: |
             ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:${{ steps.fetch-latest-release.outputs.tag_name }}
             ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest
-          username: ${{ env.DOCKER_HUB_USERNAME }}
-          password: ${{ env.DOCKER_HUB_PASSWORD }}
 
       - name: Build and push lite Docker image
         uses: docker/build-push-action@v4
@@ -71,5 +68,15 @@ jobs:
           tags: |
             ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:${{ steps.fetch-latest-release.outputs.tag_name }}-lite
             ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest-lite
-          username: ${{ env.DOCKER_HUB_USERNAME }}
-          password: ${{ env.DOCKER_HUB_PASSWORD }}
+
+      - name: Build and push frontend Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          build-args: |
+            REACT_APP_API_URL=/api/latest # For prod Traefik setup
+          tags: |
+            ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:app-${{ steps.fetch-latest-release.outputs.tag_name }}
+            ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:app
