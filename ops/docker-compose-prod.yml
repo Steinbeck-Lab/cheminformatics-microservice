@@ -75,7 +75,6 @@ volumes:
       o: bind
       type: none
       device: /mnt/data/grafana_data
-  postgres_data:
 networks:
   default:
     name: cm_fastapi
