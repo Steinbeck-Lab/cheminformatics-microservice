@@ -42,7 +42,7 @@ jobs:
           push: true
           build-args: |
             RELEASE_VERSION=dev-latest
-          tags: ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:dev-latest
+          tags: ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:api-dev
 
       - name: Build and push frontend Docker image
         uses: docker/build-push-action@v5.3.0

@@ -1,65 +1,99 @@
 services:
   traefik:
-    image: traefik:v2.10
+    image: traefik:v3.1.5
+    container_name: traefik-dev
     command:
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
     ports:
-      - 80:80
-     # - 8080:8080 # Optional: Expose Traefik dashboard on port 8080
+      - "80:80"
+      - "8081:8080"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+    networks:
+      - cm_network_dev
 
-  web:
-    image: nfdi4chem/cheminformatics-microservice:dev-latest
+  api:
+    image: nfdi4chem/cheminformatics-microservice:api-dev
+    container_name: cheminformatics-api-dev
     environment:
-      HOMEPAGE_URL:  "https://docs.api.naturalproducts.net"
+      HOMEPAGE_URL: "/latest/docs"
       RELEASE_VERSION: dev-latest
     pull_policy: always
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.web.rule=Host(`dev.api.naturalproducts.net`)"
-      - "traefik.http.routers.web.entrypoints=web"
-      - "traefik.http.services.web.loadbalancer.server.port=80"
+      - "traefik.http.routers.api-dev.rule=Host(`localhost`) && PathPrefix(`/latest`)"
+      - "traefik.http.routers.api-dev.entrypoints=web"
+      - "traefik.http.services.api-dev.loadbalancer.server.port=80"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/latest/chem/health"]
       interval: 1m
       timeout: 10s
       retries: 10
       start_period: 40s
+    restart: unless-stopped
+    networks:
+      - cm_network_dev
+
+  web:
+    image: nfdi4chem/cheminformatics-microservice:app-dev
+    container_name: cheminformatics-frontend-dev
+    environment:
+      REACT_APP_API_URL: "/latest"
+    pull_policy: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend-dev.rule=Host(`localhost`)"
+      - "traefik.http.routers.frontend-dev.entrypoints=web"
+      - "traefik.http.services.frontend-dev.loadbalancer.server.port=80"
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - cm_network_dev
 
   prometheus:
-    image: prom/prometheus
-    container_name: prometheus
+    image: prom/prometheus:latest
+    container_name: prometheus-dev
     ports:
-      - 9090:9090
+      - "9090:9090"
     volumes:
-      - ./../prometheus_data/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./../prometheus_data/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data_dev:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    restart: unless-stopped
+    networks:
+      - cm_network_dev
+
   grafana:
-    image: grafana/grafana
-    container_name: grafana
+    image: grafana/grafana:latest
+    container_name: grafana-dev
+    user: "472"
     ports:
-      - 3000:3000
+      - "3000:3000"
     volumes:
-      - /mnt/data/grafana_data:/var/lib/grafana
+      - grafana_data_dev:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin_dev}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    networks:
+      - cm_network_dev
+
 volumes:
-  prometheus_data:
+  prometheus_data_dev:
     driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /mnt/data/prometheus_data
-  grafana_data:
+  grafana_data_dev:
     driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /mnt/data/grafana_data
-  postgres_data:
+
 networks:
-  default:
-    name: cm_fastapi
+  cm_network_dev:
+    name: cm_network_dev
+    driver: bridge
