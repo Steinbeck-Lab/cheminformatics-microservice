@@ -977,6 +977,11 @@ async def all_filter_molecules(
         title="NPlikenessScore",
         description="Calculate NPlikenessScore in the range (e.g., 0-10)",
     ),
+    filterOperator: Literal["AND", "OR"] = Query(
+        "OR",
+        title="Filter Operator",
+        description="Logic for combining filter results: AND requires all selected filters to pass, OR requires at least one filter to pass",
+    ),
 ):
     all_smiles = []
     for item in io.StringIO(smiles_list):
@@ -1051,12 +1056,30 @@ async def all_filter_molecules(
                 else:
                     results.append("False")
 
-            output_list = [
-                x if x != "True" and x != "False" else ("T" if x == "True" else "F")
-                for x in results
-            ]
-            final_results = ", ".join(output_list).replace(":,", " : ")
-            all_smiles.append(final_results)
+            # Filter results based on AND/OR operator
+            # First element is the SMILES, so we start checking from index 1
+            filter_results = (
+                [r == "True" for r in results[1:]] if len(results) > 1 else []
+            )
+
+            # Apply filter operator logic
+            passes_filters = False
+            if filter_results:
+                if filterOperator == "AND":
+                    passes_filters = all(filter_results)  # All filters must pass
+                else:  # OR
+                    passes_filters = any(
+                        filter_results
+                    )  # At least one filter must pass
+
+            # Only include SMILES that pass the filter operator logic
+            if not filter_results or passes_filters:
+                output_list = [
+                    x if x != "True" and x != "False" else ("T" if x == "True" else "F")
+                    for x in results
+                ]
+                final_results = ", ".join(output_list).replace(":,", " : ")
+                all_smiles.append(final_results)
 
     return all_smiles
 

@@ -2,7 +2,7 @@ FROM continuumio/miniconda3:24.1.2-0 AS cheminf-python-ms
 
 ENV PYTHON_VERSION=3.11 \
     INCLUDE_OCSR=true \
-    JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/ \
+    JAVA_HOME=/usr/lib/jvm/java-11-openjdk-arm64/ \
     # Add default number of workers
     WORKERS=2 \
     # Add other Python configurations

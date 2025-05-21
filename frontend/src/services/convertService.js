@@ -148,6 +148,24 @@ export const generateSELFIES = async (smiles) => {
 };
 
 /**
+ * Generate SMARTS pattern
+ * @param {string} smiles - SMILES string
+ * @param {string} toolkit - Toolkit to use (rdkit)
+ * @returns {Promise<string>} - SMARTS pattern
+ */
+export const generateSMARTS = async (smiles, toolkit = 'rdkit') => {
+  try {
+    const response = await api.get(`${CONVERT_URL}/smarts`, {
+      params: { smiles, toolkit },
+      responseType: 'text'
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(`Failed to generate SMARTS: ${error.message}`);
+  }
+};
+
+/**
  * Generate multiple formats at once
  * @param {string} smiles - SMILES string
  * @param {string} toolkit - Toolkit to use (cdk, rdkit, openbabel)
@@ -174,6 +192,7 @@ const convertService = {
   generateInChI,
   generateInChIKey,
   generateSELFIES,
+  generateSMARTS,
   generateMultipleFormats
 };
 
