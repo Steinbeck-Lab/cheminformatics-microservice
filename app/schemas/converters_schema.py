@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 from pydantic import Field
-from pydantic import TypeAdapter
 
 
 class TwoDCoordinatesResponse(BaseModel):
@@ -327,29 +326,33 @@ class GenerateFormatsResponse(BaseModel):
 
 class ConversionInput(BaseModel):
     """Represents a single input for chemical structure conversion.
-    
+
     Properties:
     - value (str): The chemical structure to convert
     - input_format (str): The format of the input structure
     """
-    
-    value: str = Field(..., 
-                      description="The chemical structure to convert (e.g., SMILES, InChI)")
-    input_format: str = Field(..., 
-                             description="Format of the input (e.g., smiles, inchi, iupac, selfies)",
-                             examples=["smiles", "inchi", "iupac", "selfies"])
+
+    value: str = Field(
+        ...,
+        description="The chemical structure to convert (e.g., SMILES, InChI)"
+    )
+    input_format: str = Field(
+        ...,
+        description="Format of the input (e.g., smiles, inchi, iupac, selfies)",
+        examples=["smiles", "inchi", "iupac", "selfies"]
+    )
 
 
 class ConversionResult(BaseModel):
     """Represents the result of a single conversion.
-    
+
     Properties:
     - input (ConversionInput): The original input
     - output (str): The converted output
     - success (bool): Whether the conversion was successful
     - error (str): Error message if conversion failed
     """
-    
+
     input: ConversionInput = Field(..., description="The original input")
     output: str = Field(default="", description="The converted output (empty if conversion failed)")
     success: bool = Field(..., description="Whether the conversion was successful")
@@ -358,22 +361,24 @@ class ConversionResult(BaseModel):
 
 class BatchConversionRequest(BaseModel):
     """Request body for batch conversion endpoint.
-    
+
     Properties:
     - inputs (List[ConversionInput]): List of inputs to convert
     """
-    
-    inputs: list[ConversionInput] = Field(..., 
-                                       description="List of chemical structures to convert")
+
+    inputs: list[ConversionInput] = Field(
+        ...,
+        description="List of chemical structures to convert"
+    )
 
 
 class BatchConversionResponse(BaseModel):
     """Response for batch conversion endpoint.
-    
+
     Properties:
     - results (List[ConversionResult]): Results of conversions
     - summary (dict): Summary of conversion results
     """
-    
+
     results: list[ConversionResult] = Field(..., description="Results of each conversion")
     summary: dict = Field(..., description="Summary of conversion results (count of successes/failures)")

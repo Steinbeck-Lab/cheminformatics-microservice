@@ -775,10 +775,10 @@ async def batch_convert(
     ),
 ):
     """Batch convert chemical structures to various formats.
-    
+
     This endpoint accepts a list of inputs with different formats and converts them
     to the specified output format using the selected toolkit.
-    
+
     Parameters:
     - **body**: required (dict): JSON object with a list of inputs to convert.
         - Structure:
@@ -796,10 +796,10 @@ async def batch_convert(
         - Supported values: "smiles", "canonicalsmiles", "inchi", "inchikey", "selfies", "cxsmiles", "smarts", "mol2d", "mol3d".
     - **toolkit**: optional (str): Toolkit to use for conversion.
         - Supported values: "cdk" (default), "rdkit", "openbabel".
-    
+
     Returns:
     - JSON object containing conversion results and summary.
-    
+
     Note:
     - Some conversion combinations may not be supported by all toolkits.
     - Failed conversions will be included in the response with error messages.
@@ -807,24 +807,24 @@ async def batch_convert(
     results = []
     success_count = 0
     failure_count = 0
-    
+
     # Convert dict to our expected format
     inputs = []
     if "inputs" in body:
         inputs = body["inputs"]
-    
+
     for input_item in inputs:
         try:
             # Extract values from the input dictionary
             value = input_item.get("value", "")
             input_format = input_item.get("input_format", "")
-            
+
             if not value or not input_format:
                 raise ValueError("Missing required fields: value or input_format")
-                
+
             # First convert input to SMILES if it's not already in SMILES format
             smiles = value
-            
+
             if input_format.lower() == "iupac":
                 smiles = get_smiles_opsin(value)
                 if not smiles:
@@ -841,13 +841,13 @@ async def batch_convert(
                 smiles = Chem.MolToSmiles(mol)
             elif input_format.lower() != "smiles":
                 raise ValueError(f"Unsupported input format: {input_format}")
-            
+
             # Now convert SMILES to the desired output format
             output_value = ""
-            
+
             if output_format.lower() == "smiles":
                 output_value = smiles
-            
+
             elif output_format.lower() == "canonicalsmiles":
                 if toolkit == "cdk":
                     mol = parse_input(smiles, "cdk", False)
@@ -857,7 +857,7 @@ async def batch_convert(
                     output_value = str(Chem.MolToSmiles(mol, kekuleSmiles=True))
                 elif toolkit == "openbabel":
                     output_value = get_ob_canonical_SMILES(smiles)
-            
+
             elif output_format.lower() == "inchi":
                 if toolkit == "cdk":
                     mol = parse_input(smiles, "cdk", False)
@@ -867,7 +867,7 @@ async def batch_convert(
                     output_value = str(Chem.inchi.MolToInchi(mol))
                 elif toolkit == "openbabel":
                     output_value = get_ob_InChI(smiles)
-            
+
             elif output_format.lower() == "inchikey":
                 if toolkit == "cdk":
                     mol = parse_input(smiles, "cdk", False)
@@ -877,10 +877,10 @@ async def batch_convert(
                     output_value = str(Chem.inchi.MolToInchiKey(mol))
                 elif toolkit == "openbabel":
                     output_value = get_ob_InChI(smiles, InChIKey=True)
-            
+
             elif output_format.lower() == "selfies":
                 output_value = str(sf.encoder(smiles))
-            
+
             elif output_format.lower() == "cxsmiles":
                 if toolkit == "cdk":
                     mol = parse_input(smiles, "cdk", False)
@@ -890,14 +890,14 @@ async def batch_convert(
                     output_value = str(get_rdkit_CXSMILES(mol))
                 else:
                     raise ValueError(f"CXSMILES conversion not supported by toolkit: {toolkit}")
-            
+
             elif output_format.lower() == "smarts":
                 if toolkit == "rdkit":
                     mol = parse_input(smiles, "rdkit", False)
                     output_value = str(Chem.MolToSmarts(mol))
                 else:
                     raise ValueError(f"SMARTS conversion not supported by toolkit: {toolkit}")
-            
+
             elif output_format.lower() == "mol2d":
                 if toolkit == "cdk":
                     mol = parse_input(smiles, "cdk", False)
@@ -907,7 +907,7 @@ async def batch_convert(
                     output_value = get_2d_mol(mol)
                 elif toolkit == "openbabel":
                     output_value = get_ob_mol(smiles)
-            
+
             elif output_format.lower() == "mol3d":
                 if toolkit == "rdkit":
                     mol = parse_input(smiles, "rdkit", False)
@@ -916,10 +916,10 @@ async def batch_convert(
                     output_value = get_ob_mol(smiles, threeD=True)
                 else:
                     raise ValueError(f"3D coordinates generation not supported by toolkit: {toolkit}")
-            
+
             else:
                 raise ValueError(f"Unsupported output format: {output_format}")
-            
+
             # Create a result dictionary
             results.append({
                 "input": {
@@ -931,7 +931,7 @@ async def batch_convert(
                 "error": ""
             })
             success_count += 1
-            
+
         except Exception as e:
             # Create an error result dictionary
             results.append({
@@ -944,13 +944,13 @@ async def batch_convert(
                 "error": str(e)
             })
             failure_count += 1
-    
+
     summary = {
         "total": len(inputs),
         "successful": success_count,
         "failed": failure_count
     }
-    
+
     # Return the response as a dictionary
     return {
         "results": results,
