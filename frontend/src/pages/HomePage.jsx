@@ -162,8 +162,8 @@ const HomePage = () => {
       {/* --- Content Container --- */}
       {/* Outer container for padding ONLY */}
       <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 z-10">
-        {/* Inner wrapper for width constraint (lg:w-3/4) applied to main content sections */}
-        <div className="w-full lg:w-3/4 mx-auto">
+        {/* Inner wrapper - using full width */}
+        <div className="w-full mx-auto">
           {/* --- Hero Section (Constrained) --- */}
           <motion.section
             className="relative text-center mb-24 md:mb-40 pt-8 sm:pt-12 md:pt-16 pb-10"
@@ -268,16 +268,16 @@ const HomePage = () => {
                 Capabilities
               </span>
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 lg:gap-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-1.0">
               {/* ... features.map ... */}
               {features.map((feature, index) => {
                 const Icon = feature.icon;
                 return (
-                  <motion.div key={index} variants={itemVariants}>
+                  <motion.div key={index} variants={itemVariants} className="mx-auto w-[85%]">
                     <TiltCard tiltIntensity={7}>
                       <Link
                         to={feature.link}
-                        className="feature-card-enhanced group relative flex flex-col h-full min-h-[270px] sm:min-h-[290px] bg-white/80 dark:bg-slate-800/75 backdrop-blur-xl border border-transparent rounded-3xl p-6 sm:p-8 transition-all duration-400 ease-out shadow-lg dark:shadow-xl hover:shadow-xl dark:hover:shadow-blue-900/30 overflow-hidden transform-style-3d"
+                        className="feature-card-enhanced group relative flex flex-col h-full min-h-[270px] sm:min-h-[290px] bg-white/80 dark:bg-slate-800/75 backdrop-blur-xl border border-transparent rounded-3xl p-4 sm:p-6 transition-all duration-400 ease-out shadow-lg dark:shadow-xl hover:shadow-xl dark:hover:shadow-blue-900/30 overflow-hidden transform-style-3d"
                         style={{
                           transform: "translateZ(0)",
                           willChange: "border-color, backdrop-filter",
@@ -335,7 +335,7 @@ const HomePage = () => {
                 </Link>
               </div>
               <motion.div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-0.5"
                 variants={containerVariants}
                 initial="hidden"
                 whileInView="visible"
@@ -343,7 +343,7 @@ const HomePage = () => {
               >
                 {/* ... recentMolecules.map ... */}
                 {recentMolecules.slice(0, 3).map((molecule, index) => (
-                  <motion.div key={index} variants={itemVariants}>
+                  <motion.div key={index} variants={itemVariants} className="mx-auto w-[85%]">
                     <TiltCard tiltIntensity={5}>
                       <div className="relative bg-white/80 dark:bg-slate-800/70 backdrop-blur-lg sm:backdrop-blur-xl rounded-2xl shadow-lg dark:shadow-xl border border-slate-200 dark:border-slate-700/80 overflow-hidden transition-all duration-300 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/80 p-1">
                         <div className="absolute inset-0 rounded-2xl bg-gradient-radial from-[var(--primary-accent-fainter)] via-transparent to-transparent opacity-0 hover:opacity-70 transition-opacity duration-500 pointer-events-none"></div>
@@ -360,69 +360,73 @@ const HomePage = () => {
               </motion.div>
             </motion.section>
           )}
-        </div>{" "}
-        {/* End Width Constraint Wrapper */}
-        {/* --- API Information Section (Ribbon Style - Outside Width Constraint) --- */}
-        {/* This section remains full-width background */}
-        <motion.section
-          className="relative bg-gradient-to-r from-sky-100 via-indigo-100 to-fuchsia-100 dark:from-gray-900 dark:via-indigo-950/80 dark:to-fuchsia-950/70 py-12 sm:py-16 md:py-20" // Removed horizontal margin/padding from here
-          variants={sectionFadeIn}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-        >
-          {/* Internal container centers content within the ribbon */}
-          <div className="max-w-screen-lg mx-auto flex flex-col lg:flex-row items-center text-center lg:text-left px-4 sm:px-6 lg:px-8">
-            <motion.div
-              className="mb-8 sm:mb-10 lg:mb-0 lg:mr-16 flex-shrink-0 text-sky-600 dark:text-blue-500/90"
-              variants={ribbonContentVariants}
-              custom={0}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.5 }}
-              animate={{ rotate: 360 }}
-              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-            >
-              <HiOutlineCubeTransparent className="h-28 w-28 sm:h-32 sm:w-32 md:h-40 md:w-40 mx-auto lg:mx-0 opacity-90 drop-shadow-lg" />
-            </motion.div>
-            <motion.div
-              className="flex-grow lg:max-w-3xl"
-              variants={ribbonContentVariants}
-              custom={1}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
-            >
-              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-5 tracking-tight">
-                Designed for Chemists. Fueled by Open-Source.
-              </h3>
-              <p className="text-base md:text-lg text-slate-700 dark:text-slate-300 leading-relaxed">
-                Built upon the open-source Cheminformatics Microservice API
-                developed by the{" "}
-                <a
-                  href="https://cheminf.uni-jena.de"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sky-700 dark:text-sky-300 hover:text-indigo-700 dark:hover:text-cyan-300 font-medium transition-colors duration-300 hover-underline-link"
-                >
-                  Steinbeck Lab
-                </a>{" "}
-                at the{" "}
-                <a
-                  href="https://www.uni-jena.de/en"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sky-700 dark:text-sky-300 hover:text-indigo-700 dark:hover:text-cyan-300 font-medium transition-colors duration-300 hover-underline-link"
-                >
-                  Friedrich Schiller University Jena
-                </a>
-                .
-              </p>
-            </motion.div>
-          </div>
-        </motion.section>
-      </div>{" "}
-      {/* End Outer Padding Container */}
+        </div>{" "} {/* End Width Constraint Wrapper */}
+        {/*
+          The API Information Section, previously here (lines approx. 363-409),
+          is moved out of this container to achieve full-width background.
+        */}
+      </div>{" "} {/* End Outer Padding Container */}
+
+      {/* --- API Information Section (Ribbon Style - Full Width Background) --- */}
+      {/* This section's background spans full width; content is centered by its own container. */}
+      <motion.section
+        className="relative bg-gradient-to-r from-sky-100 via-indigo-100 to-fuchsia-100 dark:from-gray-900 dark:via-indigo-950/80 dark:to-fuchsia-950/70 py-12 sm:py-16 md:py-20"
+        variants={sectionFadeIn}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+      >
+        {/* Internal container centers content within the ribbon */}
+        <div className="max-w-screen-lg mx-auto flex flex-col lg:flex-row items-center text-center lg:text-left px-4 sm:px-6 lg:px-8">
+          <motion.div
+            className="mb-8 sm:mb-10 lg:mb-0 lg:mr-16 flex-shrink-0 text-sky-600 dark:text-blue-500/90"
+            variants={ribbonContentVariants}
+            custom={0}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.5 }}
+            animate={{ rotate: 360 }}
+            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          >
+            <HiOutlineCubeTransparent className="h-28 w-28 sm:h-32 sm:w-32 md:h-40 md:w-40 mx-auto lg:mx-0 opacity-90 drop-shadow-lg" />
+          </motion.div>
+          <motion.div
+            className="flex-grow lg:max-w-3xl"
+            variants={ribbonContentVariants}
+            custom={1}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+          >
+            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-5 tracking-tight whitespace-nowrap">
+              Designed for Chemists. Fueled by Open-Source.
+            </h3>
+            <p className="text-base md:text-lg text-slate-700 dark:text-slate-300 leading-relaxed whitespace-nowrap">
+              Built upon the open-source Cheminformatics Microservice API
+              developed by the{" "}
+              <a
+                href="https://cheminf.uni-jena.de"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sky-700 dark:text-sky-300 hover:text-indigo-700 dark:hover:text-cyan-300 font-medium transition-colors duration-300 hover-underline-link"
+              >
+                Steinbeck Lab
+              </a>{" "}
+              at the{" "}
+              <a
+                href="https://www.uni-jena.de/en"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sky-700 dark:text-sky-300 hover:text-indigo-700 dark:hover:text-cyan-300 font-medium transition-colors duration-300 hover-underline-link"
+              >
+                Friedrich Schiller University Jena
+              </a>
+              .
+            </p>
+          </motion.div>
+        </div>
+      </motion.section>
+
       {/* Global Styles */}
       <style jsx="true" global="true">{`
         /* Ensure required CSS variables and utilities are defined */

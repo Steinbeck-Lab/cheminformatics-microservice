@@ -337,31 +337,52 @@ const BatchDepictionView = () => {
   };
 
   // Download a single depiction image
-  const downloadSingleDepiction = (depiction) => {
-    // Check if depictService and the method exist before proceeding
-    if (!depictService || typeof depictService.get2DDepictionUrl !== 'function') {
-      console.error("depictService.get2DDepictionUrl is not available for single download.");
-      setError("Depiction service is not configured correctly.");
-      return;
+  const downloadSingleDepiction = async (depiction) => {
+    try {
+      // Check if depictService and the method exist before proceeding
+      if (!depictService || typeof depictService.get2DDepictionUrl !== 'function') {
+        console.error("depictService.get2DDepictionUrl is not available for single download.");
+        setError("Depiction service is not configured correctly.");
+        return;
+      }
+      
+      setLoading(true); // Show loading indicator while downloading
+      const rotation = rotations[depiction.id] || 0;
+      
+      // Generate URL with current options and selected download format
+      const options = {
+        toolkit, width, height, rotate: rotation,
+        CIP: toolkit === 'cdk' ? showCIP : undefined,
+        unicolor: useUnicolor, highlight: highlight || undefined,
+        format: downloadFormat // Use selected format for single download too
+      };
+      
+      // Get the URL for fetching the image
+      const url = depictService.get2DDepictionUrl(depiction.smiles, options);
+      
+      // Fetch the image data as a blob
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
+      const blob = await response.blob();
+      const downloadUrl = URL.createObjectURL(blob);
+      
+      // Trigger download using an anchor tag
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = `${depiction.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'molecule'}.${downloadFormat}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
+      // Clean up the blob URL
+      URL.revokeObjectURL(downloadUrl);
+    } catch (err) {
+      console.error("Error downloading single depiction:", err);
+      setError(`Error downloading depiction: ${err.message || 'Unknown error'}`);
+    } finally {
+      setLoading(false); // Hide loading indicator
     }
-    const rotation = rotations[depiction.id] || 0;
-    // Generate URL with current options and selected download format
-    const options = {
-      toolkit, width, height, rotate: rotation,
-      CIP: toolkit === 'cdk' ? showCIP : undefined,
-      unicolor: useUnicolor, highlight: highlight || undefined,
-      format: downloadFormat // Use selected format for single download too
-    };
-    // Use a potentially different URL for download if format differs
-    const url = depictService.get2DDepictionUrl(depiction.smiles, options);
-
-    // Trigger download using an anchor tag
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${depiction.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'molecule'}.${downloadFormat}`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
   };
 
 
@@ -722,6 +743,7 @@ const BatchDepictionView = () => {
                     className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500"
                     title={`Download ${downloadFormat.toUpperCase()}`}
                     aria-label={`Download ${depiction.title} as ${downloadFormat.toUpperCase()}`}
+                    disabled={loading}
                   >
                     <HiOutlineDownload className="h-5 w-5" />
                   </button>

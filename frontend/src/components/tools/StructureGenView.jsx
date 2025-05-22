@@ -106,12 +106,12 @@ const StructureGenView = () => {
               value={formula}
               onChange={(e) => setFormula(e.target.value)}
               placeholder="e.g., C6H6"
-              className="w-full form-control text-sm" // Use adaptive form-control
+              className="w-full form-control text-sm text-[var(--text-primary)] dark:text-[var(--text-primary)] placeholder-slate-400 dark:placeholder-slate-500" // Enhanced styling for dark mode visibility
               required
             />
             {/* Use adaptive text color */}
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              Enter a molecular formula (e.g., C6H6, C8H10N4O2). Max 10 heavy atoms.
+              Enter a molecular formula (e.g., C6H6, C8H10). Max 10 heavy atoms.
             </p>
           </div>
 

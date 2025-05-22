@@ -430,12 +430,33 @@ const Depict3DView = ({ isActive = true }) => {
 
   // Handler to reset the camera view
   const handleResetView = () => {
-    if (!viewerRef.current || !viewerInitialized) return;
+    if (!viewerRef.current || !viewerInitialized || !modelRef.current) return;
     try {
+      // Stop spinning if active
+      if (spin) {
+        viewerRef.current.spin(false);
+      }
+      
+      // Make sure we have a valid model before resetting
+      if (viewerRef.current.getModel() && modelRef.current) {
+        // Reset the view more safely
+        viewerRef.current.setView(new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]), 
+                                  100); // Use identity matrix
+      }
+      
+      // Center the molecule
       viewerRef.current.zoomTo();
+      
+      // Re-apply spin if needed
+      if (spin) {
+        viewerRef.current.spin(spin);
+      }
+      
+      // Render the updated view
       viewerRef.current.render();
     } catch (e) {
-      console.warn("Error resetting view:", e);
+      console.error("Error resetting view:", e);
+      setError(`Failed to reset view: ${e.message}`);
     }
   };
 

@@ -3,7 +3,6 @@ import {
   HiOutlineClipboardCopy, 
   HiOutlineCheck, 
   HiOutlineExclamationCircle,
-  HiOutlineBeaker,
   HiOutlineInformationCircle,
   HiOutlineRefresh,
   HiOutlinePencil,
@@ -383,7 +382,7 @@ const StructureDrawView = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-4 md:p-6 bg-gradient-to-br from-sky-50 to-indigo-100 dark:from-gray-900 dark:to-slate-900 min-h-screen">
+    <div className="flex flex-col gap-6 p-4 md:p-6 bg-white dark:bg-gray-900 min-h-screen">
       {/* Header with animated background */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-700 dark:from-blue-700 dark:to-purple-900 rounded-xl shadow-xl overflow-hidden relative">
         {/* Animated background elements */}
@@ -393,20 +392,7 @@ const StructureDrawView = () => {
           <div className="absolute left-1/3 top-1/2 w-32 h-32 rounded-full bg-white transform -translate-y-1/2"></div>
         </div>
 
-        <div className="relative p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
-          {/* Title and description */}
-          <div className="text-white space-y-2 text-center md:text-left">
-            <h1 className="text-3xl md:text-4xl font-bold">Molecular Structure Editor</h1>
-            <p className="text-blue-100 dark:text-blue-200 opacity-90 max-w-xl">
-              Draw, edit, and convert chemical structures
-            </p>
-          </div>
-          
-          {/* Decorative icon */}
-          <div className="hidden md:flex items-center justify-center bg-white/10 backdrop-blur-sm p-6 rounded-full w-24 h-24 border border-white/20 shadow-lg">
-            <HiOutlineBeaker className="w-12 h-12 text-white" />
-          </div>
-        </div>
+        
       </div>
 
       {/* Copy Modal - For fallback copying */}

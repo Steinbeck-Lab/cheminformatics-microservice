@@ -172,7 +172,7 @@ const StructureVisualizerView = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-4 md:p-6 bg-gradient-to-br from-sky-50 to-indigo-100 dark:from-gray-900 dark:to-slate-900 min-h-screen">
+    <div className="flex flex-col gap-6 p-4 md:p-6 bg-white dark:bg-gray-900 min-h-screen">
       {/* Header with animated background */}
 
       {/* Main content area */}
