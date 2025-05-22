@@ -20,7 +20,6 @@ services:
     #   context: ./../ # Assuming this is the root of your project
     #   dockerfile: ./Dockerfile.lite # Or your main Dockerfile if lite isn't intended for this
     image: nfdi4chem/cheminformatics-microservice:latest
-    container_name: cheminformatics-api-prod
     environment:
       HOMEPAGE_URL: "/latest/docs" # App serves docs at /latest/docs
       RELEASE_VERSION: v2.6.0 # Or dynamically set from release tag
@@ -48,7 +47,6 @@ services:
     #   args:
     #     REACT_APP_API_URL: "http://localhost:80/latest"
     image: nfdi4chem/cheminformatics-microservice:app
-    container_name: cheminformatics-frontend-prod
     # pull_policy: always # Use if pulling pre-built images
     labels:
       - "traefik.enable=true"

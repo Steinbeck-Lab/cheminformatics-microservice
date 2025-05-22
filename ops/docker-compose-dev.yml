@@ -19,7 +19,6 @@ services:
 
   api:
     image: nfdi4chem/cheminformatics-microservice:api-dev
-    container_name: cheminformatics-api-dev
     environment:
       HOMEPAGE_URL: "/latest/docs"
       RELEASE_VERSION: dev-latest
@@ -41,7 +40,6 @@ services:
 
   web:
     image: nfdi4chem/cheminformatics-microservice:app-dev
-    container_name: cheminformatics-frontend-dev
     pull_policy: always
     labels:
       - "traefik.enable=true"
