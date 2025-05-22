@@ -23,7 +23,7 @@ const AllFiltersView = () => {
   const [error, setError] = useState(null);
   const [results, setResults] = useState([]);
   const [copied, setCopied] = useState(false);
-  const [filterOperator, setFilterOperator] = useState("AND"); // Default to AND logic
+  const [filterOperator, setFilterOperator] = useState("OR"); // Default to OR logic
   const [showInfoModal, setShowInfoModal] = useState(false); // State for showing info modal
   const { addRecentMolecule } = useAppContext(); // Assuming context provides this function
 
@@ -800,9 +800,8 @@ const AllFiltersView = () => {
         </div>
       )}
 
-      {/* Initial State / Info Box */}
-      {/* Show only if not loading, no error, no input has been entered, and no results */}
-      {!loading && !error && !smilesInput.trim() && results.length === 0 && (
+      {/* About Chemical Filters Info Box - Always visible */}
+      {!loading && !error && (
         <div
           className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 shadow"
           role="complementary"

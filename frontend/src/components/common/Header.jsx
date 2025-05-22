@@ -126,10 +126,10 @@ const Header = () => {
   const logoDark = "https://raw.githubusercontent.com/Steinbeck-Lab/cheminformatics-microservice/main/public/img/logo_small_inverted.png";
   const logoLight = "https://raw.githubusercontent.com/Steinbeck-Lab/cheminformatics-microservice/main/public/img/logo_small.png";
 
-  // Calculate header background classes based on scroll state
+  // Calculate header background classes based on scroll state - always white in light mode
   const headerBgClasses = isScrolled
-    ? `backdrop-blur-lg ${isDarkMode ? 'bg-slate-900/90' : 'bg-white/90'} shadow-lg ${isDarkMode ? 'shadow-slate-900/30' : 'shadow-slate-200/50'}`
-    : `backdrop-blur-sm ${isDarkMode ? 'bg-slate-900/80' : 'bg-white/80'} shadow-md ${isDarkMode ? 'shadow-slate-900/20' : 'shadow-slate-200/30'}`;
+    ? `backdrop-blur-lg ${isDarkMode ? 'bg-slate-900/90' : 'bg-white'} shadow-lg ${isDarkMode ? 'shadow-slate-900/30' : 'shadow-slate-200/50'}`
+    : `backdrop-blur-sm ${isDarkMode ? 'bg-slate-900/80' : 'bg-white'} shadow-md ${isDarkMode ? 'shadow-slate-900/20' : 'shadow-slate-200/30'}`;
 
   return (
     <motion.header
@@ -295,7 +295,7 @@ const Header = () => {
             className={`md:hidden absolute top-full left-0 right-0 overflow-hidden backdrop-blur-md ${
               isDarkMode 
                 ? 'bg-slate-900/95 border-t border-slate-800/40 shadow-lg shadow-slate-900/50' 
-                : 'bg-white/95 border-t border-slate-200/70 shadow-lg shadow-slate-200/50'
+                : 'bg-white border-t border-slate-200/70 shadow-lg shadow-slate-200/50'
             }`}
             variants={mobileMenuVariants}
             initial="hidden"
