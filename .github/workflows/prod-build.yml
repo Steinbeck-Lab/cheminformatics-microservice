@@ -1,4 +1,4 @@
-# This worklflow will perform following actions when a release is published:
+# This workflow will perform the following actions when a release is published:
 # - Fetch Latest release.
 # - Build the latest docker image in production.
 # - Push the docker image to Github Artifact Registry-Prod.
@@ -7,15 +7,15 @@
 #   - name: Nisha Sharma
 #   - email: nisha.sharma@uni-jena.de
 
-name : Prod Build, Test and Publish
+name: Prod Build, Test and Publish
 
 on:
   release:
     types: [published]
 
 env:
-  DOCKER_HUB_USERNAME : ${{ secrets.DOCKER_USERNAME  }}
-  DOCKER_HUB_PASSWORD : ${{ secrets.DOCKER_PASSWORD  }}
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   REPOSITORY_NAME: cheminformatics-microservice
   REPOSITORY_NAMESPACE: nfdi4chem
 
@@ -35,12 +35,11 @@ jobs:
           exclude_types: "draft"
           view_top: 10
       
-      - name: "Print release name"
-        run: |
-          echo "tag_name: ${{ steps.fetch-latest-release.outputs.tag_name }}"
+      - name: Print release name
+        run: echo "tag_name: ${{ steps.fetch-latest-release.outputs.tag_name }}"
       
       - name: Log in to Docker Hub
-        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+        uses: docker/login-action@v4
         with:
           username: ${{ env.DOCKER_HUB_USERNAME }}
           password: ${{ env.DOCKER_HUB_PASSWORD }}
@@ -76,7 +75,7 @@ jobs:
           file: ./frontend/Dockerfile
           push: true
           build-args: |
-            REACT_APP_API_URL=/api/latest # For prod Traefik setup
+            REACT_APP_API_URL=https://api.naturalproducts.net/latest
           tags: |
             ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:app-${{ steps.fetch-latest-release.outputs.tag_name }}
             ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:app

@@ -9,7 +9,6 @@ services:
       - "--entrypoints.web.address=:80"
     ports:
       - "80:80"
-      - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: unless-stopped
@@ -21,16 +20,15 @@ services:
     #   context: ./../ # Assuming this is the root of your project
     #   dockerfile: ./Dockerfile.lite # Or your main Dockerfile if lite isn't intended for this
     image: nfdi4chem/cheminformatics-microservice:latest
-    container_name: cheminformatics-api-prod
     environment:
       HOMEPAGE_URL: "/latest/docs" # App serves docs at /latest/docs
       RELEASE_VERSION: v2.6.0 # Or dynamically set from release tag
     # pull_policy: always # Use if pulling pre-built images
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api-prod.rule=Host(`localhost`) && PathPrefix(`/latest`)"
-      - "traefik.http.routers.api-prod.entrypoints=web"
-      - "traefik.http.services.api-prod.loadbalancer.server.port=80" # Internal port of the API container
+      - "traefik.http.routers.api.rule=Host(`api.naturalproducts.net`) || Host(`app.naturalproducts.net`) && PathPrefix(`/latest`)"
+      - "traefik.http.routers.api.entrypoints=web"
+      - "traefik.http.services.api.loadbalancer.server.port=80" # Internal port of the API container
       # No stripprefix middleware needed if the app expects /latest
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/latest/chem/health"] # Internal health check, app expects /latest
@@ -49,15 +47,12 @@ services:
     #   args:
     #     REACT_APP_API_URL: "http://localhost:80/latest"
     image: nfdi4chem/cheminformatics-microservice:app
-    container_name: cheminformatics-frontend-prod
-    environment:
-      REACT_APP_API_URL: "http://localhost:80/latest"
     # pull_policy: always # Use if pulling pre-built images
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend-prod.rule=Host(`localhost`)" # Catches all other traffic
-      - "traefik.http.routers.frontend-prod.entrypoints=web"
-      - "traefik.http.services.frontend-prod.loadbalancer.server.port=80" # Internal port of the frontend container
+      - "traefik.http.routers.web.rule=Host(`app.naturalproducts.net`) || Host(`api.naturalproducts.net`)" # Catches all other traffic
+      - "traefik.http.routers.web.entrypoints=web"
+      - "traefik.http.services.web.loadbalancer.server.port=80" # Internal port of the frontend container
     depends_on:
       - api
     restart: unless-stopped
