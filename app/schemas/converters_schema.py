@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 from pydantic import Field
+from pydantic import TypeAdapter
 
 
 class TwoDCoordinatesResponse(BaseModel):
@@ -17,14 +18,8 @@ class TwoDCoordinatesResponse(BaseModel):
         description="The generated mol block with 2D coordinates as plain text.",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "examples": [
                 {
                     "input": "CC",
@@ -40,6 +35,7 @@ M  END""",
                 },
             ],
         }
+    }
 
 
 class ThreeDCoordinatesResponse(BaseModel):
@@ -55,14 +51,8 @@ class ThreeDCoordinatesResponse(BaseModel):
         description="The generated mol block with 3D coordinates as plain text.",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "examples": [
                 {
                     "input": "CC",
@@ -79,6 +69,7 @@ M  END""",
                 },
             ],
         }
+    }
 
 
 class GenerateSMILESResponse(BaseModel):
@@ -94,14 +85,8 @@ class GenerateSMILESResponse(BaseModel):
         description="The generated SMILES string corresponding to the input text.",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "examples": [
                 {
                     "input": "1,3,7-trimethylpurine-2,6-dione",
@@ -110,6 +95,7 @@ class GenerateSMILESResponse(BaseModel):
                 },
             ],
         }
+    }
 
 
 class GenerateCanonicalResponse(BaseModel):
@@ -125,14 +111,8 @@ class GenerateCanonicalResponse(BaseModel):
         description="The generated Canonical SMILES string corresponding to the input SMILES.",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "examples": [
                 {
                     "input": "CN1C(=O)C2=C(N=CN2C)N(C)C1=O",
@@ -141,6 +121,7 @@ class GenerateCanonicalResponse(BaseModel):
                 },
             ],
         }
+    }
 
 
 class GenerateCXSMILESResponse(BaseModel):
@@ -156,14 +137,8 @@ class GenerateCXSMILESResponse(BaseModel):
         description="The generated CXSMILES string corresponding to the input SMILES.",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "examples": [
                 {
                     "input": "CN1C(=O)C2=C(N=CN2C)N(C)C1=O",
@@ -172,6 +147,7 @@ class GenerateCXSMILESResponse(BaseModel):
                 },
             ],
         }
+    }
 
 
 class GenerateInChIResponse(BaseModel):
@@ -187,14 +163,8 @@ class GenerateInChIResponse(BaseModel):
         description="The generated InChI string corresponding to the input SMILES.",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "examples": [
                 {
                     "input": "CN1C(=O)C2=C(N=CN2C)N(C)C1=O",
@@ -203,6 +173,7 @@ class GenerateInChIResponse(BaseModel):
                 },
             ],
         }
+    }
 
 
 class GenerateInChIKeyResponse(BaseModel):
@@ -218,14 +189,8 @@ class GenerateInChIKeyResponse(BaseModel):
         description="The generated InChI Key string corresponding to the input SMILES.",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "examples": [
                 {
                     "input": "CN1C(=O)C2=C(N=CN2C)N(C)C1=O",
@@ -234,6 +199,7 @@ class GenerateInChIKeyResponse(BaseModel):
                 },
             ],
         }
+    }
 
 
 class GenerateIUPACResponse(BaseModel):
@@ -249,14 +215,8 @@ class GenerateIUPACResponse(BaseModel):
         description="The generated IUPAC name corresponding to the input SMILES.",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "examples": [
                 {
                     "input": "CN1C(=O)C2=C(N=CN2C)N(C)C1=O",
@@ -265,6 +225,7 @@ class GenerateIUPACResponse(BaseModel):
                 },
             ],
         }
+    }
 
 
 class GenerateSELFIESResponse(BaseModel):
@@ -280,14 +241,8 @@ class GenerateSELFIESResponse(BaseModel):
         description="The generated SELFIES string corresponding to the input SMILES.",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "examples": [
                 {
                     "input": "CN1C(=O)C2=C(N=CN2C)N(C)C1=O",
@@ -296,6 +251,7 @@ class GenerateSELFIESResponse(BaseModel):
                 },
             ],
         }
+    }
 
 
 class GenerateSMARTSResponse(BaseModel):
@@ -311,14 +267,8 @@ class GenerateSMARTSResponse(BaseModel):
         description="The generated SMARTS string corresponding to the input SMILES.",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "examples": [
                 {
                     "input": "CN1C(=O)C2=C(N=CN2C)N(C)C1=O",
@@ -327,34 +277,103 @@ class GenerateSMARTSResponse(BaseModel):
                 },
             ],
         }
+    }
 
 
 class GenerateFormatsResponse(BaseModel):
-    """Represents a response containing a generated SELFIES string.
+    """Represents a response containing multiple molecular formats.
 
     Properties:
-    - iupac (str): The generated SELFIES string.
+    - mol (str): The mol block representation
+    - canonicalsmiles (str): The canonical SMILES representation
+    - inchi (str): The InChI representation
+    - inchikey (str): The InChI Key representation
     """
 
-    iupac: str = Field(
+    mol: str = Field(
         ...,
-        title="SMILES",
-        description="The generated SELFIES string corresponding to the input SMILES.",
+        description="The mol block representation of the molecule",
+    )
+    canonicalsmiles: str = Field(
+        ...,
+        description="The canonical SMILES representation of the molecule",
+    )
+    inchi: str = Field(
+        ...,
+        description="The InChI representation of the molecule",
+    )
+    inchikey: str = Field(
+        ...,
+        description="The InChI Key representation of the molecule",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "examples": [
                 {
                     "input": "CN1C(=O)C2=C(N=CN2C)N(C)C1=O",
                     "message": "Success",
-                    "output": "molblock, SMILES, InChI and InChI-Key",
+                    "output": {
+                        "mol": "molecule block data...",
+                        "canonicalsmiles": "CN1C=NC2=C1C(=O)N(C)C(=O)N2C",
+                        "inchi": "InChI=1S/C8H10N4O2/c1-10-4-9-6-5(10)7(13)12(3)8(14)11(6)2/h4H,1-3H3",
+                        "inchikey": "RYYVLZVUVIJVGH-UHFFFAOYSA-N"
+                    },
                 },
             ],
         }
+    }
+
+
+class ConversionInput(BaseModel):
+    """Represents a single input for chemical structure conversion.
+    
+    Properties:
+    - value (str): The chemical structure to convert
+    - input_format (str): The format of the input structure
+    """
+    
+    value: str = Field(..., 
+                      description="The chemical structure to convert (e.g., SMILES, InChI)")
+    input_format: str = Field(..., 
+                             description="Format of the input (e.g., smiles, inchi, iupac, selfies)",
+                             examples=["smiles", "inchi", "iupac", "selfies"])
+
+
+class ConversionResult(BaseModel):
+    """Represents the result of a single conversion.
+    
+    Properties:
+    - input (ConversionInput): The original input
+    - output (str): The converted output
+    - success (bool): Whether the conversion was successful
+    - error (str): Error message if conversion failed
+    """
+    
+    input: ConversionInput = Field(..., description="The original input")
+    output: str = Field(default="", description="The converted output (empty if conversion failed)")
+    success: bool = Field(..., description="Whether the conversion was successful")
+    error: str = Field(default="", description="Error message if conversion failed")
+
+
+class BatchConversionRequest(BaseModel):
+    """Request body for batch conversion endpoint.
+    
+    Properties:
+    - inputs (List[ConversionInput]): List of inputs to convert
+    """
+    
+    inputs: list[ConversionInput] = Field(..., 
+                                       description="List of chemical structures to convert")
+
+
+class BatchConversionResponse(BaseModel):
+    """Response for batch conversion endpoint.
+    
+    Properties:
+    - results (List[ConversionResult]): Results of conversions
+    - summary (dict): Summary of conversion results
+    """
+    
+    results: list[ConversionResult] = Field(..., description="Results of each conversion")
+    summary: dict = Field(..., description="Summary of conversion results (count of successes/failures)")
