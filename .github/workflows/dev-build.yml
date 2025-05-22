@@ -50,6 +50,8 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
+          build-args: |
+            REACT_APP_API_URL=https://dev.api.naturalproducts.net/latest
           # REACT_APP_API_URL will use the default from frontend/Dockerfile (https://dev.api.naturalproducts.net/latest)
           # If a specific one is needed for this dev build, add build-args here.
           # build-args: |
