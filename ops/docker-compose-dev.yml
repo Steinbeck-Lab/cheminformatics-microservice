@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   traefik:
     image: traefik:v3.1.5
@@ -9,7 +11,6 @@ services:
       - "--entrypoints.web.address=:80"
     ports:
       - "80:80"
-      - "8081:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: unless-stopped
@@ -25,9 +26,9 @@ services:
     pull_policy: always
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api-dev.rule=Host(`localhost`) && PathPrefix(`/latest`)"
-      - "traefik.http.routers.api-dev.entrypoints=web"
-      - "traefik.http.services.api-dev.loadbalancer.server.port=80"
+      - "traefik.http.routers.api.rule=Host(`dev.api.naturalproducts.net`) && PathPrefix(`/latest`)"
+      - "traefik.http.routers.api.entrypoints=web"
+      - "traefik.http.services.api.loadbalancer.server.port=80"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/latest/chem/health"]
       interval: 1m
@@ -41,14 +42,12 @@ services:
   web:
     image: nfdi4chem/cheminformatics-microservice:app-dev
     container_name: cheminformatics-frontend-dev
-    environment:
-      REACT_APP_API_URL: "/latest"
     pull_policy: always
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend-dev.rule=Host(`localhost`)"
-      - "traefik.http.routers.frontend-dev.entrypoints=web"
-      - "traefik.http.services.frontend-dev.loadbalancer.server.port=80"
+      - "traefik.http.routers.web.rule=Host(`dev.api.naturalproducts.net`)"
+      - "traefik.http.routers.web.entrypoints=web"
+      - "traefik.http.services.web.loadbalancer.server.port=80"
     depends_on:
       - api
     restart: unless-stopped
@@ -97,3 +96,5 @@ networks:
   cm_network_dev:
     name: cm_network_dev
     driver: bridge
+
+# Note: The above docker-compose file is for dev environment.
