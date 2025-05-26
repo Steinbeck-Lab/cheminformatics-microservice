@@ -47,7 +47,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
   const [t15, setT15] = useState(false);
   const [polymers, setPolymers] = useState(false);
   const [NPZz, setNPZz] = useState(false);
-  const [orgMet, setOrgMet] = useState(inchiVersion === "1.07.3-orgmet");
+  const [molecularInorganics, setMolecularInorganics] = useState(inchiVersion === "1.07.3-orgmet");
   const [showTautomerism, setShowTautomerism] = useState(true); // Add state for tautomerism visibility
 
   // Additional stereo options
@@ -111,8 +111,8 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
 
     if (NPZz) options.push("NPZz");
 
-    // orgMet is only available in the 1.07.3-orgmet version
-    if (orgMet && inchiVersion === "1.07.3-orgmet") options.push("OrgMet");
+    // molecularInorganics is only available in the 1.07.3-orgmet version
+    if (molecularInorganics && inchiVersion === "1.07.3-orgmet") options.push("MolecularInorganics");
 
     // Format the options string as required by the API
     const optionsString = options.map((opt) => `-${opt}`).join(" ");
@@ -126,7 +126,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
     t15,
     polymers,
     NPZz,
-    orgMet,
+    molecularInorganics,
     SUU,
     SLUUD,
     NEWPSOFF,
@@ -143,14 +143,14 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
     onChange,
   ]);
 
-  // Update OrgMet option when InChI version changes
+  // Update MolecularInorganics option when InChI version changes
   useEffect(() => {
     if (inchiVersion === "1.07.3-orgmet") {
-      setOrgMet(true); // Enable orgMet when switching to 1.07.3-orgmet
-    } else if (orgMet) {
-      setOrgMet(false); // Disable orgMet when switching away from 1.07.3-orgmet
+      setMolecularInorganics(true); // Enable MolecularInorganics when switching to 1.07.3-orgmet
+    } else if (molecularInorganics) {
+      setMolecularInorganics(false); // Disable MolecularInorganics when switching away from 1.07.3-orgmet
     }
-  }, [inchiVersion, orgMet]);
+  }, [inchiVersion, molecularInorganics]);
 
   // Update polymer-related options when polymers toggle changes
   useEffect(() => {
@@ -171,7 +171,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
     setT15(false);
     setPolymers(false);
     setNPZz(false);
-    setOrgMet(inchiVersion === "1.07.3-orgmet" ? true : false);
+    setMolecularInorganics(inchiVersion === "1.07.3-orgmet" ? true : false);
     setSUU(false);
     setSLUUD(false);
     setNEWPSOFF(false);
@@ -666,14 +666,14 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
         {inchiVersion === "1.07.3-orgmet" && (
           <div className="flex items-center border-t border-gray-200 dark:border-gray-700 pt-3">
             <input
-              id="orgmet"
+              id="molecularInorganics"
               type="checkbox"
-              checked={orgMet}
-              onChange={(e) => setOrgMet(e.target.checked)}
+              checked={molecularInorganics}
+              onChange={(e) => setMolecularInorganics(e.target.checked)}
               className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
             />
             <label
-              htmlFor="orgmet"
+              htmlFor="molecularInorganics"
               className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
             >
               Molecular inorganics
