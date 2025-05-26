@@ -1,5 +1,39 @@
 # Changelog
 
+## [3.2.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.1.0...v3.2.0) (2025-05-26)
+
+
+### Features
+
+* chain filters ([ed2675b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/ed2675b317c600b6c7634b67d766a1fcb13577b8))
+* dev & prod build updates and prod docker compose updates ([469be59](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/469be591f06eb549d582ba35b413eb92648defc9))
+* dev docker compose updates ([0a36e50](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/0a36e5017935c70eceeed4a9ad3fc77689b936eb))
+* InChI generator ([7ada690](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/7ada690f95cbd8780b7b564ee58cd2572e078146))
+* RInChI and InChI cleanup ([9e4a7d4](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/9e4a7d42a5f42ad58cd740eb1fc380870a14f43f))
+* SMARTS convertion ([ef2f1fc](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/ef2f1fc8c9c8ffb6e914854ee62cc95abeae4916))
+* SMARTS convertion test ([5130668](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/51306689633bd28aa96f628c30f399321bc33885))
+* updated docker compose to include frontend and api. enabled lite mode docker compose ([d5c041d](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d5c041db9f4b0f0fc718ed79e9e6e7fb17f5ca9b))
+* various minor updates and tidyup ([a65d76d](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/a65d76dc6349f9002e21745ba9e14264ef6dca6f))
+
+
+### Bug Fixes
+
+* about page ([35e14f6](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/35e14f6ba523acaa49e769d6d09969657d53fe58))
+* add comments to github workflows ([298e7ec](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/298e7ec380a256e3d004481e1f066e28154148c6))
+* add healthcheck to docker-compose-prod.yml ([1558f75](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/1558f75247c48fa9080604228d1ea24989016be5))
+* Chain filters frontend ([ef23d65](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/ef23d650d0cac407d8c59e1c534afe643b61aac9))
+* docker-compose files for dev and prod env ([abe820e](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/abe820ebbd109cd3c57266dbc72be05996098ba6))
+* filter updates ([c628349](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/c628349d74ec39ab1331ee2c162c01be92b4210f))
+* fix syntax error in prod-build.yml ([4464d9f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/4464d9fbf5532fbae6b4c403672b60bae5f85504))
+* frontend adjustments ([d19719f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d19719f7118d786a5cb664c7dbb4f7e83d2789a4))
+* prod-build.yml ([ac44bf4](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/ac44bf42a1fa42cbf48eb801dc025c6de619db7b))
+* removed container name from docker-compose ([93e12bb](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/93e12bb79873762191e1ed79dfc03324b1e823af))
+* setOrgMet default on ([11ce740](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/11ce740094439aed07dbc0e3bd002c983ba26f80))
+* update clear InChI logs to frontend ([e104222](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/e104222b16bab9c4a1d66061d9a674050e346eea))
+* update docker-compose and deployment script ([4d62c87](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/4d62c87d5527518fcb451d607b40e7fb540f72ba))
+* update Github action to add build condition ([640670f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/640670f9aee4aaebd486d95566578536db1744d3))
+* update release-please ([b8e44f4](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/b8e44f4dd305f97fc1277f6368fc6646579a22fc))
+
 ## [3.1.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.0.3...v3.1.0) (2025-04-07)
 
 
