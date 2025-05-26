@@ -47,7 +47,9 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
   const [t15, setT15] = useState(false);
   const [polymers, setPolymers] = useState(false);
   const [NPZz, setNPZz] = useState(false);
-  const [molecularInorganics, setMolecularInorganics] = useState(inchiVersion === "1.07.3-orgmet");
+  const [molecularInorganics, setMolecularInorganics] = useState(
+    inchiVersion === "1.07.3-orgmet"
+  );
   const [showTautomerism, setShowTautomerism] = useState(true); // Add state for tautomerism visibility
 
   // Additional stereo options
@@ -112,7 +114,8 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
     if (NPZz) options.push("NPZz");
 
     // molecularInorganics is only available in the 1.07.3-orgmet version
-    if (molecularInorganics && inchiVersion === "1.07.3-orgmet") options.push("MolecularInorganics");
+    if (molecularInorganics && inchiVersion === "1.07.3-orgmet")
+      options.push("MolecularInorganics");
 
     // Format the options string as required by the API
     const optionsString = options.map((opt) => `-${opt}`).join(" ");
@@ -948,6 +951,7 @@ const InChIView = () => {
         return result;
       } catch (err) {
         console.error("Failed to generate InChI from molfile:", err);
+        setLogMessage(`Failed to generate InChI: ${err.message}`);
         setError(`Failed to generate InChI: ${err.message}`);
         throw err;
       } finally {
@@ -1000,6 +1004,7 @@ const InChIView = () => {
       await generateInChIFromMolfile(molfile);
     } catch (err) {
       console.error("Failed to generate InChI:", err);
+      setLogMessage(`Error: ${err.message}`);
       setError(`Failed to generate InChI: ${err.message}`);
       setIsLoading(false);
     }
