@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.2.0...v3.2.1) (2025-05-26)
+
+
+### Bug Fixes
+
+* update docker login version in workflows ([0290770](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/029077091aa4ef2f097748584fa82746e80a0c99))
+
 ## [3.2.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.1.0...v3.2.0) (2025-05-26)
 
 
