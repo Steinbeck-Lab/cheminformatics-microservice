@@ -53,6 +53,12 @@ services:
       - "traefik.http.routers.web.rule=Host(`app.naturalproducts.net`) || Host(`api.naturalproducts.net`)" # Catches all other traffic
       - "traefik.http.routers.web.entrypoints=web"
       - "traefik.http.services.web.loadbalancer.server.port=80" # Internal port of the frontend container
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 1m
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     depends_on:
       - api
     restart: unless-stopped
