@@ -35,9 +35,6 @@ jobs:
           exclude_types: "draft"
           view_top: 10
       
-      - name: Print release name
-        run: echo "tag_name: ${{ steps.fetch-latest-release.outputs.tag_name }}"
-      
       - name: Log in to Docker Hub
         uses: docker/login-action@v4
         with:
