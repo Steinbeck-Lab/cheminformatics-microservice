@@ -28,9 +28,7 @@ const tabs = [
     name: "2D Depiction",
     component: Depict2DMultiView,
     icon: HiOutlineViewGrid,
-    description: `Generate 2D depictions for multiple molecules at once. 
-                 Enter one SMILES string per line. 
-                 Optional: add a title after each SMILES separated by a space or tab.`,
+    description: "Generate 2D depictions for multiple molecules at once.",
   },
   {
     id: "3d-depiction",

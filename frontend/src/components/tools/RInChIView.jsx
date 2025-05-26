@@ -573,12 +573,17 @@ const RInChIView = () => {
   // Generate RInChI from Ketcher
   const generateRInChI = async () => {
     if (!isEditorReady) {
-      setError("Editor not ready. Please try again in a moment.");
+      const errorMsg = "Editor not ready. Please try again in a moment.";
+      setError(errorMsg);
+      setLogMessage(errorMsg);
       return;
     }
 
     if (!rinchiModuleLoaded) {
-      setError("RInChI module not loaded. Please wait or refresh the page.");
+      const errorMsg =
+        "RInChI module not loaded. Please wait or refresh the page.";
+      setError(errorMsg);
+      setLogMessage(errorMsg);
       return;
     }
 
@@ -595,9 +600,10 @@ const RInChIView = () => {
       // Check if there's a reaction
       const hasReaction = await checkForReaction();
       if (!hasReaction) {
-        setError(
-          "No reaction found. Please draw a reaction with reactants and products."
-        );
+        const errorMsg =
+          "No reaction found. Please draw a reaction with reactants and products.";
+        setError(errorMsg);
+        setLogMessage(errorMsg);
         setIsLoading(false);
         return;
       }
@@ -606,9 +612,10 @@ const RInChIView = () => {
       const rxnFile = await executeKetcherCommand("getRxn");
 
       if (!rxnFile || rxnFile.trim() === "") {
-        setError(
-          "Failed to get reaction data. Please ensure you've drawn a valid reaction."
-        );
+        const errorMsg =
+          "Failed to get reaction data. Please ensure you've drawn a valid reaction.";
+        setError(errorMsg);
+        setLogMessage(errorMsg);
         setIsLoading(false);
         return;
       }
@@ -626,6 +633,7 @@ const RInChIView = () => {
       await convertReactionToRinchiAndWriteResults(rxnFile, isEquilibrium);
     } catch (err) {
       console.error("Failed to generate RInChI:", err);
+      setLogMessage(`Failed to generate RInChI: ${err.message}`);
       setError(`Failed to generate RInChI: ${err.message}`);
       setIsLoading(false);
     }
@@ -685,7 +693,9 @@ const RInChIView = () => {
       return result;
     } catch (err) {
       console.error("Failed to generate RInChI from reaction:", err);
-      setError(`Failed to generate RInChI: ${err.message}`);
+      const errorMsg = `Failed to generate RInChI: ${err.message}`;
+      setError(errorMsg);
+      setLogMessage(errorMsg);
       throw err;
     } finally {
       setIsLoading(false);
@@ -707,12 +717,17 @@ const RInChIView = () => {
   // Process RXN/RD file
   const processRxnFile = async () => {
     if (!rxnfileContent.trim()) {
-      setError("Please enter or upload a RXN/RD file");
+      const errorMsg = "Please enter or upload a RXN/RD file";
+      setError(errorMsg);
+      setLogMessage(errorMsg);
       return;
     }
 
     if (!rinchiModuleLoaded) {
-      setError("RInChI module not loaded. Please wait or refresh the page.");
+      const errorMsg =
+        "RInChI module not loaded. Please wait or refresh the page.";
+      setError(errorMsg);
+      setLogMessage(errorMsg);
       return;
     }
 
@@ -731,7 +746,9 @@ const RInChIView = () => {
         !rxnfileContent.includes("$RXN") &&
         !rxnfileContent.includes("$RDFILE")
       ) {
-        setError("Invalid RXN/RD file format. Please check your input.");
+        const errorMsg = "Invalid RXN/RD file format. Please check your input.";
+        setError(errorMsg);
+        setLogMessage(errorMsg);
         setIsLoading(false);
         return;
       }
@@ -754,6 +771,7 @@ const RInChIView = () => {
       }
     } catch (err) {
       console.error("Failed to process RXN/RD file:", err);
+      setLogMessage(`Failed to process RXN/RD file: ${err.message}`);
       setError(`Failed to process RXN/RD file: ${err.message}`);
     } finally {
       setIsLoading(false);
@@ -882,6 +900,7 @@ const RInChIView = () => {
       }
     } catch (err) {
       console.error("Failed to load RInChI:", err);
+      setLogMessage(`Failed to convert RInChI to reaction: ${err.message}`);
       setError(`Failed to convert RInChI to reaction: ${err.message}`);
     } finally {
       setIsLoading(false);
@@ -938,6 +957,9 @@ const RInChIView = () => {
       );
     } catch (err) {
       console.error("Failed to convert RInChI to file:", err);
+      setLogMessage(
+        `Failed to convert RInChI to ${outputFormat} file: ${err.message}`
+      );
       setError(
         `Failed to convert RInChI to ${outputFormat} file: ${err.message}`
       );

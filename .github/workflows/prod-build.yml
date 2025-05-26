@@ -39,7 +39,7 @@ jobs:
           myToken: ${{ github.token }}
           exclude_types: "draft"
           view_top: 10
-      
+          
       # Docker Hub login
       - name: Log in to Docker Hub
         uses: docker/login-action@v4
