@@ -1,87 +1,102 @@
 #!/bin/bash
 
-# Define variables
+set -e
+
 COMPOSE_FILE="/mnt/data/cheminformatics-microservice/ops/docker-compose-dev.yml"
-DOCKER_REPO_NAME="nfdi4chem/cheminformatics-microservice:dev-latest"
-IMAGE_NAME="nfdi4chem/cheminformatics-microservice:dev-latest"
+API_IMAGE="nfdi4chem/cheminformatics-microservice:api-dev"
+WEB_IMAGE="nfdi4chem/cheminformatics-microservice:app-dev"
 NEW_CONTAINER_ID=""
-IS_CONTAINER_HEALTHY=1
 
-# Function to check the health of the container
+# === Functions ===
+
 check_health() {
-
-    HEALTH=$(docker inspect --format='{{json .State.Health.Status}}' $NEW_CONTAINER_ID)
-
-    if [[ $HEALTH == *"healthy"* ]]; then
-        echo "Container is healthy."
+    HEALTH=$(docker inspect --format='{{json .State.Health.Status}}' "$NEW_CONTAINER_ID")
+    if [[ "$HEALTH" == *"healthy"* ]]; then
+        echo "✅ Container is healthy."
         return 0
     else
-        echo "Container is unhealthy or still starting"
+        echo "⏳ Container is unhealthy or still starting."
         return 1
     fi
-
 }
 
-# Check if there is a new image available in the Docker repository
-if [ "$(docker pull $DOCKER_REPO_NAME | grep "Status: Image is up to date" | wc -l)" -eq 0 ]; then
+deploy_service(){
+    local service_name=$1   # e.g., "api"
 
-  # Scale up a new container
-   echo "Scale up new container.."
-   docker-compose -f $COMPOSE_FILE up -d --scale web=2 --no-recreate
+    IS_CONTAINER_HEALTHY=1
 
-   NEW_CONTAINER_ID=$(docker ps -q -l)
+    echo "🚀 Scaling up $service_name container..."
+    docker compose -f "$COMPOSE_FILE" up -d --scale "$service_name=2" --no-recreate
 
-  echo "New Container Id is.."
-  echo "$NEW_CONTAINER_ID"
+    NEW_CONTAINER_ID=$(docker ps -q -l)
+    echo "🔍 New container ID: $NEW_CONTAINER_ID"
 
-  # Wait for new containers to start and health checks to pass
-   echo "Waiting for the new containers to start and health check to pass retry 5 times.."
-   n=0;
-   while [ $n -le 10 ]
-   do
-         if ! check_health; then
-                n=$(( $n + 1 ))
-                sleep 1m
-                echo "Container not healthy.. Check again.."
-         else
-                IS_CONTAINER_HEALTHY=0
-                break
-         fi
-   done
+    echo "⏳ Waiting for new container to pass health check (up to 10 retries)..."
+    for i in {1..10}; do
+        if check_health; then
+            IS_CONTAINER_HEALTHY=0
+            break
+        else
+            echo "Retry $i/10: Waiting 60s..."
+            sleep 60
+        fi
+    done
 
-  # Remove old containers and images
-  if [ $IS_CONTAINER_HEALTHY == 0 ] ; then
+    if [ "$IS_CONTAINER_HEALTHY" == 0 ]; then
+        echo "🧼 Replacing old $service_name container(s)..."
 
-        # Set the desired container name prefix
-        CONTAINER_NAME_PREFIX="ops_web"
-
-        # Retrieve the container IDs that match the prefix
-        container_ids=$(docker ps -a --filter "name=^/${CONTAINER_NAME_PREFIX}" --format "{{.ID}}")
-
-        # Sort the container IDs by creation date in ascending order
+        # Retrieve and sort containers with matching name prefix
+        container_ids=$(docker ps -a --filter "name=$service_name" --format "{{.ID}}")
         sorted_container_ids=$(echo "$container_ids" | xargs docker inspect --format='{{.Created}} {{.ID}}' | sort | awk '{print $2}')
-
-        # Get the oldest container ID
         oldest_container_id=$(echo "$sorted_container_ids" | head -n 1)
 
-        # Check if any container IDs were found
         if [[ -z "$oldest_container_id" ]]; then
-                echo "No containers found with the name prefix '${CONTAINER_NAME_PREFIX}'."
-                exit 1
+            echo "❌ No containers found with name prefix: ${service_name}"
+            exit 1
         fi
 
-        # Delete the old container and unused images
-        docker stop $oldest_container_id
-        docker rm $oldest_container_id
+        docker stop "$oldest_container_id"
+        docker rm "$oldest_container_id"
         docker image prune -af
-        echo "Deleted the oldest container with ID: ${oldest_container_id}"
 
-  else
-        echo "Couldnot complete the deployment as the container is unhealthy.."
-        docker stop $NEW_CONTAINER_ID
-        docker rm $NEW_CONTAINER_ID
-  fi
+        echo "✅ Deleted old container ID: $oldest_container_id"
+    else
+        echo "❌ Deployment aborted: new $service_name container is unhealthy."
+        docker stop "$NEW_CONTAINER_ID"
+        docker rm "$NEW_CONTAINER_ID"
+    fi
+}
 
-else
-       echo "Skipping deployment as no new image available.."
+# === Image Update Check ===
+
+echo "🔍 Checking for updated images..."
+
+deploy_api=false
+deploy_web=false
+
+if [ "$(docker pull "$API_IMAGE" | grep -c "Status: Image is up to date")" -eq 0 ]; then
+    echo "📦 New API image available."
+    deploy_api=true
 fi
+
+if [ "$(docker pull "$WEB_IMAGE" | grep -c "Status: Image is up to date")" -eq 0 ]; then
+    echo "📦 New WEB image available."
+    deploy_web=true
+fi
+
+if [[ "$deploy_api" = false && "$deploy_web" = false ]]; then
+    echo "✅ No updates. Deployment not needed."
+    exit 0
+fi
+
+# === Deployment ===
+
+if [[ "$deploy_api" = true ]]; then
+    deploy_service api
+fi
+
+if [[ "$deploy_web" = true ]]; then
+    deploy_service web
+fi
+
+echo "🎉 Deployment completed successfully!"
