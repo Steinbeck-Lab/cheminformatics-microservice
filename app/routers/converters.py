@@ -620,7 +620,7 @@ async def encode_selfies(
 
 @router.get(
     "/formats",
-    operation_id="generate_formats",    
+    operation_id="generate_formats",
     summary="Convert SMILES to various molecular formats using different toolkits",
     responses={
         200: {

@@ -196,7 +196,7 @@ def get_rdkit_depiction(
         drawer.DrawMolecule(mc)
 
     drawer.FinishDrawing()
-    
+
     if format == "svg":
         svg = drawer.GetDrawingText()
         return svg.replace("svg:", "")

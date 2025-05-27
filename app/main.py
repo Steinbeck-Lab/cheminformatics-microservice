@@ -18,6 +18,7 @@ from app.exception_handlers import input_exception_handler
 from app.exception_handlers import InvalidInputException
 from app.schemas import HealthCheck
 
+
 def create_app_metadata() -> Dict:
     return {
         "title": "Cheminformatics API",
@@ -50,6 +51,7 @@ def create_app_metadata() -> Dict:
         ],
     }
 
+
 # Create base FastAPI app
 app = FastAPI(**create_app_metadata())
 
@@ -78,6 +80,7 @@ app.include_router(tools.router)
 # Import OCSR router if necessary
 if os.getenv("INCLUDE_OCSR", "true").lower() == "true":
     from .routers import ocsr
+
     app.include_router(ocsr.router)
 
 # Setup MCP server if enabled
@@ -97,6 +100,7 @@ async def add_cors_headers(request, call_next):
     response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
     return response
 
+
 # register exception handlers
 for sub_app in app.routes:
     if hasattr(sub_app.app, "add_exception_handler"):
@@ -105,9 +109,11 @@ for sub_app in app.routes:
             input_exception_handler,
         )
 
+
 @app.get("/", include_in_schema=False)
 async def root():
     return RedirectResponse(url=os.getenv("HOMEPAGE_URL", "/latest/docs"))
+
 
 @app.get(
     "/health",
