@@ -22,7 +22,7 @@ const StrobingIcon = ({ icon: Icon, className }) => {
 // Navigation links configuration
 const navLinks = [
   {
-    to: '/',
+    to: '/home',
     label: 'Home',
     icon: HiOutlineHome,
     exact: true,
