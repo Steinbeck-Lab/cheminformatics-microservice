@@ -184,10 +184,10 @@ async def depict_2d_molecule(
                 status_code=422,
                 detail="Error reading SMILES string, please check again.",
             )
-        
+
         # Set the appropriate media type based on the format
         media_type = "image/svg+xml" if format == "svg" else "image/png"
-        
+
         return Response(content=depiction, media_type=media_type)
     except Exception as e:
         raise HTTPException(status_code=422, detail=str(e))

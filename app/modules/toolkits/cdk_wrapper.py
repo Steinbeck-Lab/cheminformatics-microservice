@@ -35,7 +35,8 @@ def setup_jvm():
         }
 
         jar_paths = {
-            key: str(pystow.join("JAVA-DEPENDENCIES")) + f"/{key}.jar" for key in paths.keys()
+            key: str(pystow.join("JAVA-DEPENDENCIES")) + f"/{key}.jar"
+            for key in paths.keys()
         }
         for key, url in paths.items():
             if not os.path.exists(jar_paths[key]):

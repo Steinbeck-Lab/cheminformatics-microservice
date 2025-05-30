@@ -1,5 +1,12 @@
 from __future__ import annotations
-
+import os
+import uuid
+from PyPDF2 import PdfReader
+from fastapi import (
+    UploadFile,
+    File,
+    Form,
+)
 from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi import Query
@@ -20,6 +27,12 @@ from app.schemas.tools_schema import GetCircularandLinearSugarResponse
 from app.schemas.tools_schema import GetCircularSugarResponse
 from app.schemas.tools_schema import GetLinearSugarResponse
 from app.schemas.tools_schema import GetSugarInformationResponse
+from app.config import PDF_DIR
+from app.modules.docling_wrapper import (
+    get_converted_document,
+    extract_from_docling_document,
+    combine_to_paragraph,
+)
 
 router = APIRouter(
     prefix="/tools",
@@ -336,3 +349,125 @@ async def remove_linear_and_circular_sugars(
             )
     except Exception as e:
         raise HTTPException(status_code=422, detail=str(e))
+
+
+@router.post(
+    "/extract_json",
+    summary="Extract JSON data from PDF",
+    response_description="Return extracted document structure as JSON",
+    status_code=status.HTTP_200_OK,
+)
+async def extract_pdf_json(
+    pdf_file: UploadFile = File(...),
+    pages: int = Form(1, description="Number of pages to process"),
+):
+    """
+    Upload a PDF file and extract its content as a structured JSON document.
+
+    Args:
+        pdf_file: The PDF file to process
+        pages: Number of pages to process (default: 1)
+
+    Returns:
+        JSON: The extracted document structure
+    """
+    if not pdf_file.filename.lower().endswith(".pdf"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Uploaded file must be a PDF",
+        )
+
+    try:
+        # Generate unique filename to prevent collisions
+        unique_id = str(uuid.uuid4())[:8]
+        original_filename = pdf_file.filename
+        filename_parts = os.path.splitext(original_filename)
+        safe_filename = f"{filename_parts[0]}_{unique_id}{filename_parts[1]}"
+
+        # Create the full file path
+        file_path = os.path.join(PDF_DIR, safe_filename)
+
+        # Save the uploaded file
+        with open(file_path, "wb") as buffer:
+            content = await pdf_file.read()
+            buffer.write(content)
+
+        # Process the PDF file
+        json_data = get_converted_document(file_path, number_of_pages=3)
+
+        # Keep the file for future reference
+        # (you can implement a cleanup strategy if needed)
+
+        return json_data
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error processing PDF: {str(e)}",
+        )
+
+
+@router.post(
+    "/extract_text",
+    summary="Extract combined text from PDF",
+    response_description="Return combined text extracted from PDF",
+    status_code=status.HTTP_200_OK,
+)
+async def extract_pdf_text(
+    pdf_file: UploadFile = File(...),
+    pages: int = Form(1, description="Number of pages to process"),
+):
+    """
+    Upload a PDF file and extract its content as a combined text paragraph.
+
+    Args:
+        pdf_file: The PDF file to process
+        pages: Number of pages to process (default: 1)
+
+    Returns:
+        JSON: Object containing the combined text
+    """
+    if not pdf_file.filename.lower().endswith(".pdf"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Uploaded file must be a PDF",
+        )
+
+    try:
+        # Use original filename without adding unique IDs
+        original_filename = pdf_file.filename
+        safe_filename = original_filename.replace(" ", "_")
+
+        # Create the full file path
+        file_path = os.path.join(PDF_DIR, safe_filename)
+
+        # Check if file already exists
+        if os.path.exists(file_path):
+            # Use existing file
+            pass
+        else:
+            # Save the uploaded file with original name
+            with open(file_path, "wb") as buffer:
+                content = await pdf_file.read()
+                buffer.write(content)
+
+        # Process the PDF file
+        json_data = get_converted_document(file_path, number_of_pages=pages)
+        result = extract_from_docling_document(json_data)
+        combined_text = combine_to_paragraph(result)
+
+        # Check if the extracted text has more than 10 words
+        word_count = len(combined_text.split())
+        if word_count <= 10:
+            reader = PdfReader(file_path)
+            if len(reader.pages) > 0:
+                first_page_text = reader.pages[0].extract_text()
+                combined_text = first_page_text.strip()
+
+        return {"text": combined_text, "pdf_filename": safe_filename}
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error processing PDF: {str(e)}",
+        )

@@ -29,4 +29,7 @@ slowapi
 imantics==0.1.12
 rdkit
 openbabel-wheel
+fastapi-mcp
+docling
+PyPDF2
 uvicorn[standard]
