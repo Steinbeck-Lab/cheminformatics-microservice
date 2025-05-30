@@ -51,7 +51,8 @@ const NotFoundPage = () => (
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Layout />}>
-      <Route index element={<HomePage />} />
+      <Route index element={<DepictPage />} />
+      <Route path="/home" element={<HomePage />} />
       <Route path="/chem" element={<ChemPage />} />
       <Route path="/convert" element={<ConvertPage />} />
       <Route path="/depict" element={<DepictPage />} />

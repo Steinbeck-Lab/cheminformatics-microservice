@@ -99,14 +99,14 @@ const StructureGenView = () => {
             <label htmlFor="formula-input" className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
               Molecular Formula
             </label>
-            {/* Use form-control class for adaptive styles */}
+            {/* Form input with proper dark mode styling */}
             <input
               id="formula-input"
               type="text"
               value={formula}
               onChange={(e) => setFormula(e.target.value)}
               placeholder="e.g., C6H6"
-              className="w-full form-control text-sm text-[var(--text-primary)] dark:text-[var(--text-primary)] placeholder-slate-400 dark:placeholder-slate-500" // Enhanced styling for dark mode visibility
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
               required
             />
             {/* Use adaptive text color */}
