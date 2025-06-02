@@ -9,10 +9,13 @@
 
 name: Prod Build, Test and Publish
 
-on:
-  release:
-    types: [published]
+# on:
+#   release:
+#     types: [published]
 
+on:
+  push:
+    branches: [main]
 
 # Set global environment variables
 env:
@@ -60,15 +63,6 @@ jobs:
             ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:${{ steps.fetch-latest-release.outputs.tag_name }}
             ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest
 
-      # Check if frontend files have changed to optimize build process
-      - name: Check for frontend changes
-        uses: dorny/paths-filter@v2
-        id: frontend-changes
-        with:
-          filters: |
-            frontend:
-              - 'frontend/**'
-
       # Build and push lite version of backend image
       - name: Build and push lite Docker image
         uses: docker/build-push-action@v4
@@ -82,9 +76,18 @@ jobs:
             ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:${{ steps.fetch-latest-release.outputs.tag_name }}-lite
             ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest-lite
 
+      # Check if frontend files have changed to optimize build process
+      - name: Check for frontend changes
+        uses: dorny/paths-filter@v2
+        id: frontend-changes
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
+
       # Build frontend Docker image only if frontend files changed
       - name: Build and push frontend Docker image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5.3.0
         if: steps.frontend-changes.outputs.frontend == 'true'
         with:
           context: ./frontend
