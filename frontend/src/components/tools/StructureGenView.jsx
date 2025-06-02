@@ -40,23 +40,48 @@ const StructureGenView = () => {
   const [error, setError] = useState(null);
   const [structures, setStructures] = useState([]);
   const [selectedStructures, setSelectedStructures] = useState([]);
-  // Removed unused addRecentMolecule
-  // const { addRecentMolecule } = useAppContext(); // Removed unused import
+  const [generationResult, setGenerationResult] = useState(null); // Store full result with metadata
 
   // --- Functions ---
   const handleGenerateStructures = async (e) => {
     e.preventDefault();
     if (!formula) { setError('Please enter a molecular formula'); return; }
-    setIsLoading(true); setError(null); setStructures([]); setSelectedStructures([]); // Clear selections too
+    setIsLoading(true); setError(null); setStructures([]); setSelectedStructures([]); setGenerationResult(null);
 
     try {
       const result = await toolsService.generateStructures(formula);
       // Handle different API response formats
-      if (typeof result === 'string') { setError(result); setStructures([]); }
-      else if (result?.output && Array.isArray(result.output)) { setStructures(result.output); }
-      else if (Array.isArray(result)) { setStructures(result); }
-      else { console.error('Unexpected API response format:', result); setError('Unexpected response format from API'); setStructures([]); }
-    } catch (err) { console.error('Error generating structures:', err); setError(`Error generating structures: ${err.message || 'Unknown error'}`); setStructures([]); }
+      if (typeof result === 'string') { 
+        setError(result); 
+        setStructures([]); 
+        setGenerationResult(null);
+      }
+      else if (result?.output?.structures && Array.isArray(result.output.structures)) { 
+        setStructures(result.output.structures); 
+        setGenerationResult(result.output);
+      }
+      else if (result?.output && Array.isArray(result.output)) { 
+        // Legacy format - just structures array
+        setStructures(result.output); 
+        setGenerationResult(null);
+      }
+      else if (Array.isArray(result)) { 
+        // Direct array format
+        setStructures(result); 
+        setGenerationResult(null);
+      }
+      else { 
+        console.error('Unexpected API response format:', result); 
+        setError('Unexpected response format from API'); 
+        setStructures([]); 
+        setGenerationResult(null);
+      }
+    } catch (err) { 
+      console.error('Error generating structures:', err); 
+      setError(`Error generating structures: ${err.message || 'Unknown error'}`); 
+      setStructures([]); 
+      setGenerationResult(null);
+    }
     finally { setIsLoading(false); }
   };
 
@@ -111,7 +136,7 @@ const StructureGenView = () => {
             />
             {/* Use adaptive text color */}
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              Enter a molecular formula (e.g., C6H6, C8H10). Max 10 heavy atoms.
+              Enter a molecular formula (e.g., C6H6, C8H10). Max 10 heavy atoms. Results limited to first 1000 structures when total exceeds this limit.
             </p>
           </div>
 
@@ -195,6 +220,62 @@ const StructureGenView = () => {
           initial="hidden"
           animate="visible"
         >
+          {/* Generation Summary */}
+          {generationResult && (
+            <motion.div
+              className="glass p-4 rounded-lg border border-[var(--border-secondary)] dark:border-[var(--border-primary)]"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <h3 className="text-lg font-medium text-[var(--text-primary)] mb-3">Generation Summary</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-[var(--text-accent)]">{generationResult.total_count?.toLocaleString()}</div>
+                  <div className="text-sm text-[var(--text-secondary)]">Total Possible</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-[var(--text-accent)]">{generationResult.generated_count?.toLocaleString()}</div>
+                  <div className="text-sm text-[var(--text-secondary)]">Generated</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-[var(--text-accent)]">{selectedStructures.length}</div>
+                  <div className="text-sm text-[var(--text-secondary)]">Selected</div>
+                </div>
+                <div className="text-center">
+                  <div className={`text-sm px-2 py-1 rounded ${generationResult.limit_applied ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300' : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'}`}>
+                    {generationResult.limit_applied ? 'Limited' : 'Complete'}
+                  </div>
+                  <div className="text-sm text-[var(--text-secondary)]">Results</div>
+                </div>
+              </div>
+              
+              {/* Generation Settings */}
+              {generationResult.settings && (
+                <div>
+                  <h4 className="text-sm font-medium text-[var(--text-primary)] mb-2">Generation Settings</h4>
+                  <div className="space-y-1">
+                    {Object.entries(generationResult.settings).map(([flag, description]) => (
+                      <div key={flag} className="text-xs flex">
+                        <code className="bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded mr-2 font-mono text-[var(--text-accent)]">{flag}</code>
+                        <span className="text-[var(--text-secondary)]">{description}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {generationResult.limit_applied && (
+                <div className="mt-3 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800/50 rounded text-sm">
+                  <HiOutlineInformationCircle className="inline h-4 w-4 mr-1.5 text-orange-600 dark:text-orange-400" />
+                  <span className="text-orange-700 dark:text-orange-300">
+                    Results limited to first {generationResult.generated_count} structures out of {generationResult.total_count?.toLocaleString()} total possible isomers.
+                  </span>
+                </div>
+              )}
+            </motion.div>
+          )}
+
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             {/* Use adaptive text color */}
             <h3 className="text-lg font-medium text-[var(--text-primary)]">

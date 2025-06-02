@@ -20,22 +20,60 @@ def test_generate_structures_exception():
     response = client.get(
         f"/latest/tools/generate-structures?molecular_formula={molecular_formula}",
     )
+    # Should return 500 for invalid formula that causes surge to fail
     assert response.status_code == 500
 
 
 @pytest.mark.parametrize(
-    "input,response_text, response_code",
+    "input, response_code",
     [
-        ("C6H6", '["C=C1C=CC=C1","C1=CC=CC=C1"]', 200),
+        ("C6H6", 200),
+        ("C4H8", 200),
     ],
 )
-def test_generate_structures(input, response_text, response_code):
+def test_generate_structures(input, response_code):
     response = client.get(
         f"/latest/tools/generate-structures?molecular_formula={input}",
     )
     assert response.status_code == response_code
-    assert response.text == response_text
     assert response.headers["content-type"] == "application/json"
+
+    # Check the new response format
+    response_data = response.json()
+    assert "message" in response_data
+    assert "output" in response_data
+    assert response_data["message"] == "Success"
+
+    # Check output structure
+    output = response_data["output"]
+    assert "total_count" in output
+    assert "generated_count" in output
+    assert "structures" in output
+    assert "settings" in output
+    assert "formula" in output
+    assert "limit_applied" in output
+
+    # Check data types
+    assert isinstance(output["total_count"], int)
+    assert isinstance(output["generated_count"], int)
+    assert isinstance(output["structures"], list)
+    assert isinstance(output["settings"], dict)
+    assert isinstance(output["formula"], str)
+    assert isinstance(output["limit_applied"], bool)
+
+    # Check that we have structures
+    assert len(output["structures"]) > 0
+    assert output["formula"] == input
+
+
+def test_generate_structures_heavy_atom_limit():
+    # Test formula with more than 10 heavy atoms (C15H32 has 15 carbon atoms)
+    molecular_formula = "C15H32"
+    response = client.get(
+        f"/latest/tools/generate-structures?molecular_formula={molecular_formula}",
+    )
+    assert response.status_code == 400
+    assert "heavy atoms" in response.json()["detail"]
 
 
 @pytest.mark.parametrize(

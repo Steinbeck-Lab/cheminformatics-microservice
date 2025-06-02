@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List
+from typing import List, Dict, Union
 
 from pydantic import BaseModel
 
@@ -10,11 +10,17 @@ class GenerateStructuresResponse(BaseModel):
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").
-        output (List[str]): A list of generated structures.
+        output (Dict): A dictionary containing structure generation results with:
+            - total_count: Total number of possible structures
+            - generated_count: Number of structures actually generated
+            - structures: List of SMILES strings (limited)
+            - settings: Dictionary describing the surge settings used
+            - formula: The input molecular formula
+            - limit_applied: Whether a limit was applied to results
     """
 
     message: str = "Success"
-    output: List[str]
+    output: Dict[str, Union[int, List[str], Dict[str, str], str, bool]]
 
     class Config:
         """Pydantic model configuration.
@@ -26,9 +32,22 @@ class GenerateStructuresResponse(BaseModel):
         json_schema_extra = {
             "examples": [
                 {
-                    "input": "C4H8",
                     "message": "Success",
-                    "output": ["CC(C)C", "CCCC"],
+                    "output": {
+                        "total_count": 24000,
+                        "generated_count": 1000,
+                        "structures": ["CC(C)C", "CCCC"],
+                        "settings": {
+                            "-P": "Require planarity",
+                            "-T": "Disallow triple bonds",
+                            "-B1,2,3,4,5,7,9": "Avoid substructures: no triple bonds in small rings, Bredt's rule violations, cumulative double bonds, forbidden topologies",
+                            "-t0": "No rings of length 3 allowed",
+                            "-f0": "No cycles of length 4 allowed",
+                            "-S": "Output in SMILES format",
+                        },
+                        "formula": "C10H16",
+                        "limit_applied": True,
+                    },
                 },
             ],
         }
