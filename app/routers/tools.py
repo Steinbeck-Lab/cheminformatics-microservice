@@ -94,7 +94,13 @@ async def generate_structures(
      - **Molecular_Formula**: required (str): The molecular formula of the compound.
 
     Returns:
-    - List[str]: A list of generated structures.
+    - Dict: A dictionary containing structure generation results with:
+        - total_count: Total number of possible structures
+        - generated_count: Number of structures actually generated
+        - structures: List of SMILES strings (limited to 1000)
+        - settings: Dictionary describing the surge settings used
+        - formula: The input molecular formula
+        - limit_applied: Whether a limit was applied to results
 
     Raises:
     - HTTPException: If there was an error generating the structures.
@@ -104,11 +110,18 @@ async def generate_structures(
 
     Note:
     - The maximum allowable count of heavy atoms is restricted to 10 to mitigate excessive utilization of this service.
+    - Results are limited to the first 1000 structures when the total count exceeds this limit.
     """
     try:
-        structures = generate_structures_SURGE(molecular_formula)
-        if structures:
-            return structures
+        result = generate_structures_SURGE(molecular_formula)
+        if isinstance(result, str):
+            # Error message returned
+            raise HTTPException(status_code=400, detail=result)
+        else:
+            # Success - return the structured response
+            return GenerateStructuresResponse(message="Success", output=result)
+    except HTTPException:
+        raise  # Re-raise HTTP exceptions
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
