@@ -88,7 +88,7 @@ jobs:
       # Build frontend Docker image only if frontend files changed
       - name: Build and push frontend Docker image
         uses: docker/build-push-action@v5.3.0
-        if: steps.frontend-changes.outputs.frontend == 'true'
+        #if: steps.frontend-changes.outputs.frontend == 'true'
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
