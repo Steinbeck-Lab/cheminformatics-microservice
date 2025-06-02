@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.3.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.2.0...v3.3.0) (2025-06-02)
+
+
+### Features
+
+* surge count ([4d93c15](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/4d93c15270bcd0c3c170a1a1df2ab1ee3241b066))
+
+
+### Bug Fixes
+
+* Landing page and structure input ([7d97f1f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/7d97f1fa933ab8d4612cdedf968a6a5dbc0ec7f2))
+* remove unused import ([0ed766f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/0ed766f1392e4e0e187657f97117067adbe0de50))
+
 ## [3.3.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.2.0...v3.3.0) (2025-05-26)
 
 
