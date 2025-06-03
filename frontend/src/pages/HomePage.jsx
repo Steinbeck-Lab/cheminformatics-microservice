@@ -10,8 +10,8 @@ import {
   HiOutlineWrenchScrewdriver,
   HiOutlineCamera,
   HiOutlineCubeTransparent,
-  HiOutlineCodeBracketSquare,
 } from "react-icons/hi2";
+import { FaBook, FaCode } from "react-icons/fa";
 import { useAppContext } from "../context/AppContext";
 import MoleculeCard from "../components/common/MoleculeCard";
 
@@ -237,7 +237,19 @@ const HomePage = () => {
                   <HiOutlineArrowRight className="ml-2.5 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1.5" />
                 </span>
               </Link>
-              {/* Secondary Button */}
+              {/* Secondary Buttons */}
+              <a
+                href="https://docs.api.naturalproducts.net/introduction.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group w-full sm:w-auto relative inline-flex items-center justify-center px-7 py-3 sm:px-9 sm:py-4 text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-200 bg-white/90 dark:bg-slate-800/80 backdrop-blur-md border border-slate-300 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700/90 hover:border-slate-400 dark:hover:border-slate-500 rounded-xl shadow-md hover:shadow-lg dark:hover:shadow-slate-700/40 transition-all duration-300 ease-out transform hover:scale-[1.06] focus:outline-none focus:ring-4 focus:ring-slate-400/50 dark:focus:ring-slate-600/50 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950"
+              >
+                <span className="absolute inset-0 rounded-xl bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-50 dark:from-white/5 dark:group-hover:opacity-100 transition-opacity duration-300"></span>
+                <span className="relative z-10 flex items-center">
+                  <FaCode className="mr-2 h-5 w-5 text-green-600 dark:text-green-400" />{" "}
+                  Guides
+                </span>
+              </a>
               <a
                 href="https://api.naturalproducts.net/latest/docs"
                 target="_blank"
@@ -246,7 +258,7 @@ const HomePage = () => {
               >
                 <span className="absolute inset-0 rounded-xl bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-50 dark:from-white/5 dark:group-hover:opacity-100 transition-opacity duration-300"></span>
                 <span className="relative z-10 flex items-center">
-                  <HiOutlineCodeBracketSquare className="mr-2 h-5 w-5 text-sky-600 dark:text-sky-400" />{" "}
+                  <FaBook className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />{" "}
                   API Docs
                 </span>
               </a>

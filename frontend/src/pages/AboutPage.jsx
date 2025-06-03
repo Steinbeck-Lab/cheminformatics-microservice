@@ -760,7 +760,7 @@ const AboutPage = () => {
                 />
                 <CitationCard
                   title="Citing the software:"
-                  citation="Venkata, C., Sharma, N., Schaub, J., Steinbeck, C., & Rajan, K. (2023). cheminformatics-microservice (Version v2.6.0) [Computer software]. https://doi.org/10.5281/zenodo.13867839"
+                  citation="Venkata, C., Sharma, N., Schaub, J., Steinbeck, C., & Rajan, K. (2025). cheminformatics-microservice (Version v3.3.0) [Computer software]. https://doi.org/10.5281/zenodo.15575699"
                 />
               </div>
             </div>
