@@ -9,10 +9,13 @@
 
 name: Prod Build, Test and Publish
 
-on:
-  release:
-    types: [published]
+# on:
+#   release:
+#     types: [published]
 
+on:
+  push:
+    branches: [main]
 
 # Set global environment variables
 env:
@@ -72,6 +75,15 @@ jobs:
           tags: |
             ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:${{ steps.fetch-latest-release.outputs.tag_name }}-lite
             ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest-lite
+
+      # Check if frontend files have changed to optimize build process
+      - name: Check for frontend changes
+        uses: dorny/paths-filter@v2
+        id: frontend-changes
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
 
       # Build frontend Docker image only if frontend files changed
       - name: Build and push frontend Docker image
