@@ -8,7 +8,7 @@ outline: deep
 
 MIT License
 
-Copyright (c) 2023 Venkata Chandrasekhar Nainala, Nisha Shrama & Kohulan Rajan
+Copyright (c) 2025 Venkata Chandrasekhar Nainala, Nisha Sharma & Kohulan Rajan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

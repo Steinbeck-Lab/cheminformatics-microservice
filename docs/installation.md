@@ -2,97 +2,165 @@
 outline: deep
 ---
 
-# Local development instructions
+# Local development setup
 
-Clone the project from GitHub
+## ✅ Prerequisites
 
-1. Install Git: Download and install Git from the [official website](https://git-scm.com/).
+Before you begin, install the following:
 
-2. Copy the repository URL - https://github.com/Steinbeck-Lab/cheminformatics-microservice.git or Go to the GitHub repository and click the "Code" button on the GitHub repository https://github.com/Steinbeck-Lab/cheminformatics-microservice to get the HTTPS URL.
+1. **Git** - [https://git-scm.com/downloads](https://git-scm.com/downloads)
+2. **Docker Desktop** - [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
 
-3. Open a terminal or command prompt.
+---
 
-4. Navigate to the desired directory: Use `cd` to navigate to the directory where you want to clone the project.
+## 🚀 Step 1: Clone the Repository
 
-5. Clone the repository: Run the command `git clone https://github.com/Steinbeck-Lab/cheminformatics-microservice.git` to clone the project.
+1. Open a terminal (Command Prompt on Windows, Terminal on Mac/Linux).
+2. Run the following command to download the project:
+   ```bash
+   git clone https://github.com/Steinbeck-Lab/cheminformatics-microservice.git
+   ```
+3. Move into the project folder:
+   ```bash
+   cd cheminformatics-microservice
+   ```
 
-6. Use `cd` to navigate into the cloned project directory.
+---
 
-You have successfully cloned the project from GitHub onto your local machine.
+## 🐳 Step 2: Run the Application with Docker
 
-Once cloned you can either choose to run the project via Docker (recommended) or locally (need to make sure you have all the dependencies resolved).
-
-## Docker
-
-1. Install Docker: Install Docker on your machine by following the instructions for your specific operating system.
-
-2. Use `cd` to navigate into the cloned project directory.
-
-3. You will find a docker-compose.yml file in the project. If you don't have a docker-compose.yaml file uses the following template.
-
+1. Make sure Docker is running on your machine.
+2. Use the below docker-compose file to start the project
 ```yaml
-version: "3.8"
-
 services:
-  web:
+  api:
     build:
       context: ./
       dockerfile: Dockerfile
-    container_name: cheminformatics-microservice
+    container_name: cheminformatics-microservice-api
     environment:
-      HOMEPAGE_URL:  "https://docs.api.naturalproducts.net"
-      RELEASE_VERSION: v1.0.0
+      - HOMEPAGE_URL=https://docs.api.naturalproducts.net
+      - RELEASE_VERSION=v2.6.0
+      - WORKERS=2
+    ports:
+      - "8000:80"
     volumes:
       - ./app:/code/app
-    ports:
-      - "80:80"
+      - ./requirements.txt:/code/requirements.txt
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/latest/chem/health"]
-      interval: 1m30s
+      test: curl -f http://localhost:8000/latest/chem/health || exit 1
+      interval: 90s
       timeout: 10s
       retries: 20
       start_period: 60s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - cm_network
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile
+    container_name: cheminformatics-microservice-frontend
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000/latest
+      - NODE_ENV=development
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/package.json:/app/package.json
+      - ./frontend/package-lock.json:/app/package-lock.json
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - cm_network
+
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:latest
     container_name: prometheus
     ports:
-      - 9090:9090
+      - "9090:9090"
     volumes:
-      - ./prometheus_data/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus_data/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    restart: unless-stopped
+    networks:
+      - cm_network
+
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:latest
     container_name: grafana
+    user: "472"
     ports:
-      - 3000:3000
+      - "3001:3000"
     volumes:
       - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    networks:
+      - cm_network
+
 volumes:
   prometheus_data:
     driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./prometheus_data
   grafana_data:
     driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./grafana_data
+
 networks:
-  default:
-    name: cm_fastapi
+  cm_network:
+    name: cm_network
+    driver: bridge
+
 ```
+2. Run the following command to start the project:
+   ```bash
+   docker-compose up
+   ```
+3. Wait for Docker to finish setting up the containers.
 
-4. Run Docker Compose: Execute the command ```docker-compose up``` to start the containers defined in the Compose file.
+---
 
-5. Wait for the containers to start: Docker Compose will start the containers and display their logs in the terminal or command prompt.
+## 🌐 Step 3: Access the Services
 
-Unicorn will start the app and display the server address (usually `http://localhost:80`) and the Grafana dashboard can be accessed at `http://localhost:3000`
+- **Backend API**: [http://localhost:8000](http://localhost:8000)
+- **Frontend App**: [http://localhost:3000](http://localhost:3000)
+- **Grafana Dashboard** (Metrics): [http://localhost:3001](http://localhost:3001)
 
-You may update the docker-compose file to disable or add additional services but by default, the docker-compose file shipped with the project has the web (cheminformatics-microservice FAST API app), Prometheus and Grafana (logging and visualisation of metrics) services and associated volumes shared via a network.
+---
+
+## 📊 Step 4: Set Up Grafana Dashboard (First Time Only)
+
+1. Visit [http://localhost:3001](http://localhost:3001)
+2. Login with:
+   - Username: `admin`
+   - Password: `admin`
+3. Change the password when prompted.
+4. Click **“Add your first data source”** and choose **Prometheus**.
+5. Set the URL as:
+   ```
+   http://prometheus:9090
+   ```
+6. Click **“Save & Test”**.
+7. Download and import the prebuilt dashboard JSON from:
+   [cm-dashboard.json](https://github.com/Steinbeck-Lab/cheminformatics-microservice/blob/main/cm-dashboard.json)
+
+---
+You may update the docker-compose file to disable or add additional services but by default, the docker-compose file shipped with the project has the backend and the front-end, Prometheus and Grafana (logging and visualisation of metrics) services and associated volumes shared via a network.
+
 
 ## Workers
 

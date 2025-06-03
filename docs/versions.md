@@ -13,14 +13,14 @@ The CM codebase is updated twice a year (bi-annual release cycle) with documenta
 The Cheminformatics Microservice, framework is developed using Python and [FastAPI](https://fastapi.tiangolo.com/), leveraging the [RDKit](https://www.rdkit.org/), [OpenBabel](http://openbabel.org/wiki/Main_Page) and [Chemistry Development Kit (CDK)](https://cdk.github.io/) libraries in the backend. CDK is accessed through [jpype](https://jpype.readthedocs.io/en/latest/index.html), allowing the implementation of functions that can be seamlessly utilized within the Python environment. For detailed information about the specific versions employed, please refer to the list provided below.
 </div>
 
-## v1.0.0
+## v3.3.0
 
 **Cheminformatics toolkits Versions**
 
 | Toolkits    | Version     |
 |-------------|-------------|
-| RDKit <sup>1</sup>    | 2023.09.4  |
-| CDK <sup>2</sup>      | 2.9.0       |
+| RDKit <sup>1</sup>    | 2025.3.2  |
+| CDK <sup>2</sup>      | 2.11      |
 | Open Babel <sup>3</sup> | 3.1.1       |
 
 
@@ -28,12 +28,14 @@ The Cheminformatics Microservice, framework is developed using Python and [FastA
 
 | Toolkits                  | Version   |
 |---------------------------|-----------|
-| STOUT<sup>4</sup>         | 2.0.5     |
 | DECIMER<sup>5,6</sup>     | 2.3.0     |
-| DECIMER-Segmentation<sup>7</sup> | 2.3.0     |
+| DECIMER-Segmentation<sup>7</sup> | 1.1.3     |
 | Surge<sup>8</sup>         | 1.3.2     |
-| SRU<sup>9</sup>           | 1.3.2     |
+| SRU<sup>9</sup>           | 1.5     |
 | ClassyFire<sup>10</sup>   | 1.0.0     |
+| Ketcher                   | v3.0.0    |
+| InChI                   | v1.0.6   |
+| RInChI                  | v1.1-dev |
 
 
 ## References
