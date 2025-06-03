@@ -1,5 +1,26 @@
 # Changelog
 
+## [3.3.1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.3.0...v3.3.1) (2025-06-03)
+
+
+### Bug Fixes
+
+* classyfier tests ([763c6e7](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/763c6e7a40e0702cc07d40307929d70574a3c89b))
+* ignore deadlinks in docs ([678b249](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/678b249382ee2ae84996f5b546499a2623bd2c37))
+* link documentation & CFF update ([3d61c12](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/3d61c12fc74af75cce93694cf7edc2021ecb7f6a))
+* link documentation & CFF update ([d120c43](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d120c4378bcd03c8f72c0a129a2d9041ce74b107))
+* remove frontend build step from prod workflow ([565eb66](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/565eb6632e86bf1f7308aadc1184aecd9e9040d9))
+* remove frontend build step from prod workflow ([c2cd46b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/c2cd46b9de797f7d379f76af4eeff5fa1a5feb24))
+* remove test for python 3.10 ([8563f0b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/8563f0ba919590f509ba39badaaa0fa3ac495ef3))
+* Update GitHub Actions workflows ([0227ab7](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/0227ab76dd4d55c5997903f8c495cde9586fe233))
+* update prod build workflow ([698d6f8](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/698d6f89e8dba3af53c067b7bb1d5c0abebea7bb))
+* update prod build workflow ([87a8bfd](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/87a8bfde1867ceec6db296e5dd436cb8928f0159))
+
+
+### Documentation
+
+* update documentation ([9dd5170](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/9dd51704416d0d3ed269fafce670241083fa9d3c))
+
 ## [3.3.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.2.0...v3.3.0) (2025-06-02)
 
 
