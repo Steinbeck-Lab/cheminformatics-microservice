@@ -2,22 +2,82 @@
 outline: deep
 ---
 
-# Architecture
-
-Cheminformatics toolkits are based on different underlying programming languages. RDkit is based on C++ and Python, CDK is based on JAVA, and OpenBabel is based on C++, to name a few. These toolkits require different environmental setups for their integration. Being able to package and use any or all of these toolkits through a unified API would offer several advantages in the ease of use and integration into the existing workflows or applications. In addition, including these toolkits with the application code can be challenging because of compatibility issues and could become a maintenance nightmare. To address these issues, we have reached out to two typical software development techniques: containerization and microservices.
+# Architecture 
 
 <p align="center">
   <img align="center" src="/architecture.png" alt="Logo" width="90%">
 </p>
 
-Microservices, also known as microservice architecture, is a software development approach that involves building applications as a collection of small, independent services that can be deployed, scaled and maintained independently. Each microservice performs a specific business function and communicates with other microservices using well-defined APIs. Containers are lightweight and isolated environments that package applications and their dependencies, allowing them to run consistently across different systems and environments. Containers provide a consistent and reproducible execution environment, ensuring that applications work the same way across development, testing, and production environments. Docker is a leading platform for containerization, providing a comprehensive set of tools and services for creating and managing containers. CM is containerized using Docker and is distributed publicly via the docker hub, a cloud-based registry provided by Docker that allows developers to store, share, and distribute Docker images.
 
-REST (Representational State Transfer) API is widely used and preferred for application development due to several advantages it offers in terms of simplicity and ease of use, scalability, and performance. REST API also offers platform and language independence, flexibility extensibility and wide range compatibility in its integrations. We have chosen FAST API, a modern, fast, and highly efficient web framework for building APIs with Python. It allows you to create robust and scalable APIs quickly and easily. Our REST API is built on the OpenAPI Specification 3.1.0 (OpenAPI, formerly known as Swagger, is an open standard for defining, documenting, and designing RESTful APIs. It allows you to describe the endpoints, request/response payloads, authentication methods, and other details of your API in a machine-readable format), which improves the functionality of REST APIs by offering standard documentation, promoting interoperability, enabling code generation, simplifying validation, and integrating with various tools and libraries.
+<p align="center">
+  <img align="center" src="/abstract.png" alt="Logo" width="90%">
+</p>
 
-This Cheminformatics Microservice project utilizes the containerized microservices approach to package chemistry toolkits and state-of-the-art deep learning tools to provide various functionalities from format conversions, OSR and chemical data standardises accessible via standard REST API. Cheminformatics Microservice comes pre-packaged with toolkits RDKit, CDK, OpenBabel and deep learning tools (DECIMER, STOUT) for handling chemical data - OSR, format conversions, and descriptor calculation. This enables efficient handling of large data volumes and improved performance and development of cheminformatics applications that are scalable and interoperable.
 
-Combining FastAPI with Docker will also simplify the deployment process, making it easier to distribute and run your API in various environments. Moreover, the microservice architecture can help improve the maintainability and flexibility of cheminformatics applications. Changes to one microservice can be made without affecting the other services, which reduces the risk of introducing bugs or errors. It also allows developers to modify or update individual services without having to rewrite the entire application.
+## Backend Architecture
+- Written in **Python** using the **FastAPI** framework.
+- Provides **RESTful APIs** for cheminformatics operations.
+- **Hybrid toolkit integration**:
+  - Native Python toolkits: **RDKit**, **Open Babel**.
+  - Java toolkits (e.g., **CDK**, **SRU**, **OPSIN**) accessed via **JPype**.
+- **Docker containerization** ensures reproducibility and consistent deployment.
+- Designed for **scalability** and future extensibility without disrupting current services.
+- Publicly available at https://api.naturalproducts.net/latest/docs.
 
-It's important to note that the cheminformatics toolkits distributed with CM are all packaged under one container. We consciously chose to go against the usual notion/practice that containers are supposed to do one thing, so every cheminformatics toolkit needs to be packaged as a separate microservice. This is to avoid unnecessary complexity of container orchestration across multiple containers while the containers, as such, can scale indefinitely as they are stateless.
+## Frontend Architecture
+- Built using **React** for strong community support and sustainability.
+- **Component-based design** with modular service layers and **custom hooks**.
+- Styled using **Tailwind CSS** for responsive UI.
+- Communicates with backend via RESTful API using **Axios**.
+- API interactions are abstracted through a **dedicated service layer**.
+- Structured into **functionally specialized pages**.
+- Publicly available at **https://app.naturalproducts.net/**.
 
-CM Docker file, a docker-compose YAML file, and other deployment scripts are available on the GitHub repository for anyone to orchestrate their deployment and manage multiple Docker containers as a single unit. HELM charts are also available for users to deploy the CM docker container and its dependencies to their Kubernetes cluster. Prometheus (is a monitoring and alerting tool that collects and stores time-series data metrics from various targets in real-time. It has a flexible query language and powerful data model that allows you to aggregate, analyze, and alert on your metrics data.) and Grafana (a popular open-source data visualization tool that works seamlessly with Prometheus and other data sources. It provides a rich set of features for creating and sharing dynamic, customizable dashboards that display metrics in real time) popular open-source tools are implemented for logging, monitoring, and visualizing usage statistics in a standalone or distributed system.
+## Toolkit Integration Challenge
+- Toolkits use different languages:  
+  - **RDKit/OpenBabel**: C++/Python  
+  - **CDK**: Java
+- Integrating multiple toolkits is complex due to **compatibility and environment setup**.
+- Solution: use **containerization** and **microservices** for abstraction and flexibility.
+
+## Microservices & Containerization
+- Microservices: each function is a **separate, scalable, maintainable unit**.
+- Containers provide isolated, reproducible environments.
+- **Docker** is used for packaging and sharing toolkits.
+- CM (Cheminformatics Microservice) is **publicly available via Docker Hub**.
+
+## API Design
+- Uses **REST API** based on **OpenAPI Specification 3.1.0**.
+- Built with **FastAPI** for speed, efficiency, and automatic documentation.
+- Promotes **interoperability**, **validation**, and **tool integration**.
+
+## Functional Scope
+- Provides:
+  - **Format conversions**
+  - **Optical Structure Recognition (OSR)**
+  - **Chemical data standardization**
+  - **Descriptor calculations**
+- Integrated tools:
+  - Cheminformatics: **RDKit**, **CDK**, **OpenBabel**
+  - Deep learning: **DECIMER**, **STOUT**
+- Enables **scalable**, **interoperable**, and **efficient** cheminformatics applications.
+
+## Architectural Decisions
+- Combines **FastAPI** + **Docker** for seamless deployment.
+- Maintains flexibility via **microservice architecture**:
+  - Individual services can be updated without affecting others.
+- Contrary to usual practice, **all toolkits are packaged in one container**:
+  - Simplifies deployment and avoids **complex orchestration**.
+
+## Deployment & Monitoring
+- **Dockerfile**, **docker-compose YAML**, and deployment scripts are available on GitHub.
+- **HELM charts** provided for Kubernetes-based deployments.
+- **Monitoring and visualization**:
+  - **Prometheus** for metrics collection and alerting.
+  - **Grafana** for real-time dashboards and usage visualization.
+
+
+
+
+
+
