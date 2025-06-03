@@ -9,12 +9,30 @@ from fastapi import HTTPException
 from fastapi import Query
 from fastapi import status
 from fastapi import Request
+from fastapi import Body
 from fastapi.responses import Response
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from rdkit import Chem
 
+# Schema imports
+from app.schemas import HealthCheck
+from app.schemas.error import BadRequestModel
+from app.schemas.error import ErrorResponse
+from app.schemas.error import NotFoundModel
+from app.schemas.converters_schema import GenerateCanonicalResponse
+from app.schemas.converters_schema import GenerateCXSMILESResponse
+from app.schemas.converters_schema import GenerateFormatsResponse
+from app.schemas.converters_schema import GenerateInChIKeyResponse
+from app.schemas.converters_schema import GenerateInChIResponse
+from app.schemas.converters_schema import GenerateSELFIESResponse
+from app.schemas.converters_schema import GenerateSMILESResponse
+from app.schemas.converters_schema import ThreeDCoordinatesResponse
+from app.schemas.converters_schema import TwoDCoordinatesResponse
+from app.schemas.converters_schema import GenerateSMARTSResponse
+
+# Module imports
 from app.modules.toolkits.cdk_wrapper import get_canonical_SMILES
 from app.modules.toolkits.cdk_wrapper import get_CDK_SDG_mol
 from app.modules.toolkits.cdk_wrapper import get_CXSMILES
@@ -27,20 +45,6 @@ from app.modules.toolkits.openbabel_wrapper import get_ob_mol
 from app.modules.toolkits.rdkit_wrapper import get_2d_mol
 from app.modules.toolkits.rdkit_wrapper import get_3d_conformers
 from app.modules.toolkits.rdkit_wrapper import get_rdkit_CXSMILES
-from app.schemas import HealthCheck
-from app.schemas.converters_schema import GenerateCanonicalResponse
-from app.schemas.converters_schema import GenerateCXSMILESResponse
-from app.schemas.converters_schema import GenerateFormatsResponse
-from app.schemas.converters_schema import GenerateInChIKeyResponse
-from app.schemas.converters_schema import GenerateInChIResponse
-from app.schemas.converters_schema import GenerateSELFIESResponse
-from app.schemas.converters_schema import GenerateSMILESResponse
-from app.schemas.converters_schema import ThreeDCoordinatesResponse
-from app.schemas.converters_schema import TwoDCoordinatesResponse
-from app.schemas.converters_schema import GenerateSMARTSResponse
-from app.schemas.error import BadRequestModel
-from app.schemas.error import ErrorResponse
-from app.schemas.error import NotFoundModel
 
 # Create the Limiter instance
 limiter = Limiter(key_func=get_remote_address)
@@ -745,3 +749,210 @@ async def smiles_to_smarts(
             smarts = Chem.MolToSmarts(mol)
             if smarts:
                 return str(smarts)
+
+
+@router.post(
+    "/batch",
+    summary="Batch convert chemical structures to various formats",
+    responses={
+        200: {"description": "Successful response"},
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
+)
+@limiter.limit("10/minute")
+async def batch_convert(
+    request: Request,
+    body: dict = Body(...),
+    output_format: str = Query(
+        default="smiles",
+        description="Format to convert to (smiles, canonicalsmiles, inchi, inchikey, selfies, cxsmiles, smarts, mol2d, mol3d)",
+    ),
+    toolkit: Literal["cdk", "rdkit", "openbabel"] = Query(
+        default="cdk",
+        description="Cheminformatics toolkit to use for conversion",
+    ),
+):
+    """Batch convert chemical structures to various formats.
+
+    This endpoint accepts a list of inputs with different formats and converts them
+    to the specified output format using the selected toolkit.
+
+    Parameters:
+    - **body**: required (dict): JSON object with a list of inputs to convert.
+        - Structure:
+            ```json
+            {
+                "inputs": [
+                    {
+                        "value": "CN1C=NC2=C1C(=O)N(C)C(=O)N2C",
+                        "input_format": "smiles"
+                    }
+                ]
+            }
+            ```
+    - **output_format**: optional (str): Format to convert to.
+        - Supported values: "smiles", "canonicalsmiles", "inchi", "inchikey", "selfies", "cxsmiles", "smarts", "mol2d", "mol3d".
+    - **toolkit**: optional (str): Toolkit to use for conversion.
+        - Supported values: "cdk" (default), "rdkit", "openbabel".
+
+    Returns:
+    - JSON object containing conversion results and summary.
+
+    Note:
+    - Some conversion combinations may not be supported by all toolkits.
+    - Failed conversions will be included in the response with error messages.
+    """
+    results = []
+    success_count = 0
+    failure_count = 0
+
+    # Convert dict to our expected format
+    inputs = []
+    if "inputs" in body:
+        inputs = body["inputs"]
+
+    for input_item in inputs:
+        try:
+            # Extract values from the input dictionary
+            value = input_item.get("value", "")
+            input_format = input_item.get("input_format", "")
+
+            if not value or not input_format:
+                raise ValueError("Missing required fields: value or input_format")
+
+            # First convert input to SMILES if it's not already in SMILES format
+            smiles = value
+
+            if input_format.lower() == "iupac":
+                smiles = get_smiles_opsin(value)
+                if not smiles:
+                    raise ValueError(f"Failed to convert IUPAC name '{value}' to SMILES")
+            elif input_format.lower() == "selfies":
+                smiles = sf.decoder(value)
+                if not smiles:
+                    raise ValueError(f"Failed to decode SELFIES '{value}' to SMILES")
+            elif input_format.lower() == "inchi":
+                # Use RDKit to convert InChI to SMILES
+                mol = Chem.inchi.MolFromInchi(value)
+                if not mol:
+                    raise ValueError(f"Failed to convert InChI '{value}' to molecule")
+                smiles = Chem.MolToSmiles(mol)
+            elif input_format.lower() != "smiles":
+                raise ValueError(f"Unsupported input format: {input_format}")
+
+            # Now convert SMILES to the desired output format
+            output_value = ""
+
+            if output_format.lower() == "smiles":
+                output_value = smiles
+
+            elif output_format.lower() == "canonicalsmiles":
+                if toolkit == "cdk":
+                    mol = parse_input(smiles, "cdk", False)
+                    output_value = str(get_canonical_SMILES(mol))
+                elif toolkit == "rdkit":
+                    mol = parse_input(smiles, "rdkit", False)
+                    output_value = str(Chem.MolToSmiles(mol, kekuleSmiles=True))
+                elif toolkit == "openbabel":
+                    output_value = get_ob_canonical_SMILES(smiles)
+
+            elif output_format.lower() == "inchi":
+                if toolkit == "cdk":
+                    mol = parse_input(smiles, "cdk", False)
+                    output_value = str(get_InChI(mol))
+                elif toolkit == "rdkit":
+                    mol = parse_input(smiles, "rdkit", False)
+                    output_value = str(Chem.inchi.MolToInchi(mol))
+                elif toolkit == "openbabel":
+                    output_value = get_ob_InChI(smiles)
+
+            elif output_format.lower() == "inchikey":
+                if toolkit == "cdk":
+                    mol = parse_input(smiles, "cdk", False)
+                    output_value = str(get_InChI(mol, InChIKey=True))
+                elif toolkit == "rdkit":
+                    mol = parse_input(smiles, "rdkit", False)
+                    output_value = str(Chem.inchi.MolToInchiKey(mol))
+                elif toolkit == "openbabel":
+                    output_value = get_ob_InChI(smiles, InChIKey=True)
+
+            elif output_format.lower() == "selfies":
+                output_value = str(sf.encoder(smiles))
+
+            elif output_format.lower() == "cxsmiles":
+                if toolkit == "cdk":
+                    mol = parse_input(smiles, "cdk", False)
+                    output_value = str(get_CXSMILES(mol))
+                elif toolkit == "rdkit":
+                    mol = parse_input(smiles, "rdkit", False)
+                    output_value = str(get_rdkit_CXSMILES(mol))
+                else:
+                    raise ValueError(f"CXSMILES conversion not supported by toolkit: {toolkit}")
+
+            elif output_format.lower() == "smarts":
+                if toolkit == "rdkit":
+                    mol = parse_input(smiles, "rdkit", False)
+                    output_value = str(Chem.MolToSmarts(mol))
+                else:
+                    raise ValueError(f"SMARTS conversion not supported by toolkit: {toolkit}")
+
+            elif output_format.lower() == "mol2d":
+                if toolkit == "cdk":
+                    mol = parse_input(smiles, "cdk", False)
+                    output_value = get_CDK_SDG_mol(mol).replace("$$$$\n", "")
+                elif toolkit == "rdkit":
+                    mol = parse_input(smiles, "rdkit", False)
+                    output_value = get_2d_mol(mol)
+                elif toolkit == "openbabel":
+                    output_value = get_ob_mol(smiles)
+
+            elif output_format.lower() == "mol3d":
+                if toolkit == "rdkit":
+                    mol = parse_input(smiles, "rdkit", False)
+                    output_value = get_3d_conformers(mol, depict=False)
+                elif toolkit == "openbabel":
+                    output_value = get_ob_mol(smiles, threeD=True)
+                else:
+                    raise ValueError(f"3D coordinates generation not supported by toolkit: {toolkit}")
+
+            else:
+                raise ValueError(f"Unsupported output format: {output_format}")
+
+            # Create a result dictionary
+            results.append({
+                "input": {
+                    "value": value,
+                    "input_format": input_format
+                },
+                "output": output_value,
+                "success": True,
+                "error": ""
+            })
+            success_count += 1
+
+        except Exception as e:
+            # Create an error result dictionary
+            results.append({
+                "input": {
+                    "value": input_item.get("value", ""),
+                    "input_format": input_item.get("input_format", "")
+                },
+                "output": "",
+                "success": False,
+                "error": str(e)
+            })
+            failure_count += 1
+
+    summary = {
+        "total": len(inputs),
+        "successful": success_count,
+        "failed": failure_count
+    }
+
+    # Return the response as a dictionary
+    return {
+        "results": results,
+        "summary": summary
+    }
