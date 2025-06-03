@@ -50,6 +50,7 @@ export default defineConfig({
           { text: 'Depict', link: '/depict' },
           { text: 'Tools', link: '/tools' },
           { text: 'OCSR', link: '/ocsr' },
+          { text: 'Python Documentation', link: 'https://cheminformatics-microservice.readthedocs.io/en/latest/' },
         ]
       },
       {

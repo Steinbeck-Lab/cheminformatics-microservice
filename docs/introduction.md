@@ -14,13 +14,58 @@ The Cheminformatics Microservice offers a collection of versatile functions acce
 This microservice packaged as a docker image (container) enables effortless deployment and scalability, making it suitable for academic, research and industry applications. Because of their modular nature, these microservices can be customized and combined to meet various Cheminformatics research and chemical data analysis needs.
 </div>
 
+
+## Front-end 
+
+<div style="text-align: justify;">
+
+The Cheminformatics Microservice features a modern React frontend that offers an intuitive user interface for a wide range of chemical informatics tasks. Key capabilities include chemical structure analysis and validation, format conversion (e.g., SMILES, InChI, IUPAC), and both 2D and interactive 3D molecular visualization. It also supports Optical Chemical Structure Recognition (OCSR), allowing conversion of chemical structure images into SMILES. Advanced analysis tools include structure validation, molecular descriptor calculation, stereoisomer generation, tautomer standardization, natural product likeness scoring, functional group detection, HOSE code generation, and Tanimoto similarity calculation. Users can perform batch operations and generate 2D/3D coordinates, making the platform robust for cheminformatics research and applications. The platform is publicly accessible at https://app.naturalproducts.net.
+
+### Key Features
+
+#### Chemical Analysis Tools
+- Structure validation and standardization  
+- Molecular descriptor calculation  
+- Stereoisomer generation  
+- Natural product likeness scoring  
+- Functional group detection (**Ertl method**)  
+- Tautomer standardization  
+- HOSE code generation  
+- Tanimoto similarity calculation  
+
+#### Format Conversion
+- **SMILES** to various chemical formats (InChI, InChIKey, SELFIES, etc.)  
+- **IUPAC name** to SMILES conversion  
+- 2D/3D coordinate generation (Molblock)  
+
+#### Molecule Depiction
+- 2D molecule visualization with customizable settings  
+- Interactive 3D molecule visualization  
+- Batch depiction for multiple molecules  
+
+#### OCSR (Optical Chemical Structure Recognition)
+- Convert chemical structure images to **SMILES** notation
+
+
+### Interactive Examples
+Visit the [public API documentation](https://api.naturalproducts.net/latest/docs) to explore interactive examples and test the endpoints directly in your browser.
+
+
 <div style="text-align: justify;">
 
 ::: info
 
-A public instance of the cheminformatics microservice is hosted at [Friedrich-Schiller-Universität Jena](https://www.uni-jena.de) in Germany accessible at https://api.naturalproducts.net/latest/docs. The code for this web application is released under the [MIT license](https://opensource.org/licenses/MIT). Copyright © CC-BY-SA 2023
+## Public Instance of Cheminformatics Microservice
+Both the  public instance of the **Cheminformatics Microservice API server** & **frontend interface** is hosted by [Friedrich Schiller University Jena](https://www.uni-jena.de) in Germany and is accessible at:
+
+👉 **Cheminformatics Microservice API server** - [https://api.naturalproducts.net/latest/docs](https://api.naturalproducts.net/latest/docs)
+
+👉 **Frontend interface** [https://app.naturalproducts.net](https://app.naturalproducts.net)
+
 
 :::
+
+</div>
 
 </div>
 
@@ -29,6 +74,7 @@ A public instance of the cheminformatics microservice is hosted at [Friedrich-Sc
 
 It is strongly recommended that readers cite both the software and the corresponding paper when utilizing this work. By providing appropriate citations for the Cheminformatics Microservice, readers gain a convenient means to precisely track the original source of the utilized source code and data.
 </div>
+
 
 - Citing software:
 
