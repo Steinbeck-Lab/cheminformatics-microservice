@@ -1,57 +1,68 @@
-# GitHub Actions workflow to deploy documentation to GitHub Pages
-
 name: Docs Deployment - GitHub Pages
 
-# Trigger on manual dispatch or push to main branch
+# Trigger on manual dispatch or push to main branch with docs changes
 on:
   workflow_dispatch: {}
   push:
     branches:
       - main
+    paths:
+      - 'docs/**'
+      - 'package*.json'
+      - '.github/workflows/deploy-doc.yml'
 
 jobs:
   deploy:
-    # Job to build and deploy docs
     runs-on: ubuntu-latest
     permissions:
       pages: write
       id-token: write
+      contents: read
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      # Checkout repository
-      - uses: actions/checkout@v4
+      # Checkout repository with full history
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Setup Node.js environment
-      - uses: actions/setup-node@v4
+      # Setup Node.js with caching
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: npm
 
-      # Install dependencies
-      - run: npm ci
+      # Install dependencies with clean install
+      - name: Install dependencies
+        run: npm ci
 
       # Build documentation
-      - name: Build
+      - name: Build documentation
         run: npm run docs:build
 
-      # Debug build output
-      - name: Debug - Check build output
-        run: ls -l docs/.vitepress/dist
+      # Verify build output exists
+      - name: Verify build output
+        run: |
+          if [ ! -d "docs/.vitepress/dist" ]; then
+            echo "Build output directory not found!"
+            exit 1
+          fi
+          ls -la docs/.vitepress/dist
 
       # Configure GitHub Pages
-      - uses: actions/configure-pages@v3
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
 
-      # Upload static site artifact
-      - uses: actions/upload-pages-artifact@v3
+      # Upload build artifacts
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
           path: docs/.vitepress/dist
 
       # Deploy to GitHub Pages
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
