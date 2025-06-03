@@ -30,3 +30,5 @@ imantics==0.1.12
 rdkit
 openbabel-wheel
 uvicorn[standard]
+pytest
+pytest-asyncio
