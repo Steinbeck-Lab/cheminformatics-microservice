@@ -31,11 +31,11 @@ RUN conda install -c conda-forge python=${PYTHON_VERSION} sqlite --force-reinsta
     pip3 install --no-cache-dir -r requirements.txt && \
     # Install specific packages without dependencies
     pip3 install --no-cache-dir --no-deps \
-        decimer-segmentation==1.1.3 \
-        decimer==2.3.0 \
+        git+https://github.com/Kohulan/DECIMER-Image-Segmentation.git@bbox \
+        decimer==2.7.1 \
         chembl_structure_pipeline
 
 
 COPY ./app ./app
 
-CMD uvicorn app.main:app --host 0.0.0.0 --port 80 --workers ${WORKERS}
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 80 --workers ${WORKERS}"]
