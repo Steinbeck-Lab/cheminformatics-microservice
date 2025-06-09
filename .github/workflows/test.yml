@@ -46,7 +46,6 @@ jobs:
         pip3 install --no-cache-dir -r requirements.txt
         pip install git+https://github.com/Kohulan/DECIMER-Image-Segmentation.git@bbox --no-deps
         pip3 install --no-deps decimer
-        pip3 install --no-deps STOUT-pypi==2.0.5
         pip install flake8 pytest
         pip install pytest-cov
         wget -O surge "https://github.com/StructureGenerator/surge/releases/download/v1.0/surge-linux-v1.0"
