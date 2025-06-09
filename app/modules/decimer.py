@@ -106,21 +106,38 @@ def get_predicted_segments(path: str) -> str:
         return ".".join(smiles_predicted)
 
 
-def get_predicted_segments_from_file(content: any, filename: str) -> tuple:
-    """Takes an image file path and returns a set of paths and image names of.
+def get_predicted_segments_from_file(content: any, filename: str) -> str:
+    """Takes an image file content and filename, saves it temporarily, and returns SMILES prediction.
 
-    segmented images.
+    If the image dimensions are below 500 pixels, uses predict_SMILES directly.
+    Otherwise, uses segmentation approach.
 
     Args:
-        input_path (str): the path of an image.
+        content (any): The image file content.
+        filename (str): The filename to save the content to.
 
     Returns:
-        image_name (str): image file name.
-        segments (list): a set of segmented images.
+        str: Predicted SMILES string.
     """
 
+    # Write the content to file and ensure it's closed
     with open(filename, "wb") as f:
         f.write(content)
-        smiles = get_predicted_segments(filename)
-        os.remove(filename)
+
+    try:
+        # Check image dimensions
+        img = Image.open(filename)
+        width, height = img.size
+        img.close()  # Close the image to free resources
+
+        # If image is small (below 500 pixels in either dimension), use direct prediction
+        if width < 500 or height < 500:
+            smiles = predict_SMILES(filename)
+        else:
+            smiles = get_predicted_segments(filename)
+
         return smiles
+    finally:
+        # Ensure the temporary file is always removed
+        if os.path.exists(filename):
+            os.remove(filename)
