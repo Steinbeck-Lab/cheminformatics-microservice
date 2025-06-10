@@ -9,13 +9,9 @@
 
 name: Prod Build, Test and Publish
 
-# on:
-#   release:
-#     types: [published]
-
 on:
-  push:
-    branches: [main]
+  release:
+    types: [published]
 
 # Set global environment variables
 env:
