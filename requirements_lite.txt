@@ -14,7 +14,8 @@ prometheus-fastapi-instrumentator
 pystow>=0.4.9
 python-multipart
 selfies>=2.1.1
-tensorflow==2.12.0
+tensorflow==2.15.1
+Keras-Preprocessing==1.1.2
 unicodedata2==15.0.0
 websockets==10.4
 mapchiral
