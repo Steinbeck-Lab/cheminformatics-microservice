@@ -107,7 +107,7 @@ def test_get_predicted_segments_from_file_small_image(
     mock_predict_smiles, small_image_path
 ):
     """Test that small images (<500 pixels) use direct prediction"""
-    mock_predict_smiles.return_value = "C"
+    mock_predict_smiles.return_value = "CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
 
     with open(small_image_path, "rb") as f:
         content = f.read()
@@ -125,7 +125,7 @@ def test_get_predicted_segments_from_file_tiny_image(
     mock_predict_smiles, tiny_image_path
 ):
     """Test that tiny images (<500 pixels) use direct prediction"""
-    mock_predict_smiles.return_value = "CO"
+    mock_predict_smiles.return_value = "C1CCC1"
 
     with open(tiny_image_path, "rb") as f:
         content = f.read()
