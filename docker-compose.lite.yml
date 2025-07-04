@@ -4,6 +4,8 @@ services:
       context: ./
       dockerfile: Dockerfile.lite
     container_name: cheminformatics-microservice-lite
+    env_file:
+      - .env
     environment:
       - HOMEPAGE_URL=https://docs.api.naturalproducts.net
       - RELEASE_VERSION=v2.6.0

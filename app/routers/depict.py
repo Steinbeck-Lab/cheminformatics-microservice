@@ -26,17 +26,14 @@ from app.schemas.depict_schema import Depict3DResponse
 from app.schemas.error import BadRequestModel
 from app.schemas.error import ErrorResponse
 from app.schemas.error import NotFoundModel
+# Use the shared limiter instance
+from app.limiter import limiter
 
 templates = Jinja2Templates(directory="app/templates")
-# Create the Limiter instance
-limiter = Limiter(key_func=get_remote_address)
 
-# Initialize FastAPI app
-app = FastAPI()
 
-# Add the middleware to handle rate limit exceeded errors
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+## Removed local FastAPI app instance and limiter/exception handler setup in favour of shared one.
 
 router = APIRouter(
     prefix="/depict",

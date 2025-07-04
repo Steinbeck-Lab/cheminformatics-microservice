@@ -11,9 +11,8 @@ from fastapi import status
 from fastapi import Request
 from fastapi import Body
 from fastapi.responses import Response
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
+# Use the shared limiter instance
+from app.limiter import limiter
 from rdkit import Chem
 
 # Schema imports
@@ -46,15 +45,6 @@ from app.modules.toolkits.rdkit_wrapper import get_2d_mol
 from app.modules.toolkits.rdkit_wrapper import get_3d_conformers
 from app.modules.toolkits.rdkit_wrapper import get_rdkit_CXSMILES
 
-# Create the Limiter instance
-limiter = Limiter(key_func=get_remote_address)
-
-# Initialize FastAPI app
-app = FastAPI()
-
-# Add the middleware to handle rate limit exceeded errors
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 router = APIRouter(
     prefix="/convert",
