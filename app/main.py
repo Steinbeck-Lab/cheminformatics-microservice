@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+
+# Import limiter and related objects from the shared limiter module
+from app.limiter import limiter, rate_limit_exceeded_handler, RateLimitExceededExc
+
 import os
 from fastapi import FastAPI
 from fastapi import status
@@ -8,6 +12,7 @@ from fastapi.responses import RedirectResponse
 from fastapi_versioning import VersionedFastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
 from typing import Dict
+from slowapi.middleware import SlowAPIMiddleware
 
 from .routers import chem
 from .routers import converters
@@ -83,6 +88,11 @@ app = VersionedFastAPI(
     },
     version=os.getenv("RELEASE_VERSION", "1.0"),
 )
+
+# Add middleware AFTER VersionedFastAPI creation
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceededExc, rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
 
 Instrumentator().instrument(app).expose(app)
 
