@@ -15,7 +15,7 @@ import LoadingScreen from '../common/LoadingScreen';
 import MoleculeCard from '../common/MoleculeCard';
 import { generate2DCoordinates } from '../../services/convertService';
 // Assuming the API URL is configured correctly via environment variables or defaults
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://api.naturalproducts.net';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://dev.api.naturalproducts.net/latest';
 
 const StandardizeView = () => {
   const [inputMethod, setInputMethod] = useState('molblock'); // 'molblock' or 'smiles'
@@ -25,6 +25,35 @@ const StandardizeView = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [copiedStates, setCopiedStates] = useState({}); // State for copy button feedback (multiple buttons)
+
+  // Helper function to ensure molblock is in proper format for backend
+  const formatMolblockForBackend = (molblock) => {
+    // Normalize line endings first
+    let formatted = molblock
+      .replace(/\r\n/g, '\n')
+      .replace(/\r/g, '\n');
+    
+    // Clean up - remove trailing spaces from each line and trim
+    formatted = formatted
+      .split('\n')
+      .map(line => line.trimEnd())
+      .join('\n')
+      .trim();
+    
+    // Ensure proper molblock format - starts with newline (like the test fixture)
+    if (!formatted.startsWith('\n')) {
+      formatted = '\n' + formatted;
+    }
+    
+    // Ensure it ends with M  END followed by a newline
+    if (!formatted.endsWith('M  END\n')) {
+      if (formatted.endsWith('M  END')) {
+        formatted += '\n';
+      }
+    }
+    
+    return formatted;
+  };
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -51,7 +80,8 @@ const StandardizeView = () => {
         setLoading(true);
         setError(null);
         // Convert SMILES to molblock first
-        molblockToStandardize = await generate2DCoordinates(trimmedSmiles, 'rdkit');
+        const rawMolblock = await generate2DCoordinates(trimmedSmiles, 'rdkit');
+        molblockToStandardize = formatMolblockForBackend(rawMolblock);
       } catch (conversionError) {
         console.error("SMILES to molblock conversion error:", conversionError);
         setError(`Error converting SMILES to molblock: ${conversionError.message || 'Invalid SMILES string.'}`);
@@ -67,30 +97,48 @@ const StandardizeView = () => {
         return;
       }
       
+      // Validate molblock format more thoroughly
+      if (!trimmedMolblock.includes('M  END')) {
+        setError('Invalid molblock format: Missing "M  END" terminator. Please ensure you have pasted a complete molblock.');
+        setStandardizedData(null);
+        return;
+      }
+      
       // Check for multiple molecules in molblock
-      const molblockLines = trimmedMolblock.split('\n');
-      const molBlockCount = molblockLines.filter(line => line.includes('$$$$')).length + 1;
+      const molBlockCount = (trimmedMolblock.match(/M {2}END/g) || []).length;
       if (molBlockCount > 1) {
         setError('Please provide only one molecule at a time. Multiple molecules in a single input are not supported.');
         setStandardizedData(null);
         return;
       }
       
-      molblockToStandardize = trimmedMolblock;
+      // Normalize line endings and ensure proper formatting
+      const normalizedMolblock = formatMolblockForBackend(trimmedMolblock);
+      molblockToStandardize = normalizedMolblock;
+      
       setLoading(true);
       setError(null);
     }
 
     setStandardizedData(null); // Clear previous results before fetching
 
+    // Debug log to see what we're sending
+    console.log('Sending molblock to standardize:', {
+      inputMethod,
+      molblockLength: molblockToStandardize.length,
+      molblockPreview: molblockToStandardize.substring(0, 200) + '...',
+      endsWithNewline: molblockToStandardize.endsWith('\n'),
+      containsMEnd: molblockToStandardize.includes('M  END')
+    });
+
     try {
       const response = await fetch(`${API_BASE_URL}/chem/standardize`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'text/plain', // Sending molblock as plain text
+          'Content-Type': 'text/plain; charset=utf-8', // Be explicit about charset
           'Accept': 'application/json' // Expecting JSON response
         },
-        body: molblockToStandardize // Send molblock
+        body: molblockToStandardize // Send molblock as UTF-8 text
       });
 
       if (!response.ok) {
@@ -111,10 +159,18 @@ const StandardizeView = () => {
       console.error("Standardization error:", err); // Log the error
       // Provide more specific error messages
       let errorMessage = err.message || 'An unknown error occurred.';
+      
       if (errorMessage.includes('cannot access local variable')) {
-        errorMessage = 'Error standardizing molecule: Please ensure you have provided only one valid molecule. Multiple molecules are not supported.';
+        errorMessage = 'Error parsing molblock: The molblock format appears to be invalid or corrupted. Please ensure you have pasted a complete, valid molblock with proper structure and exactly one molecule.';
+      } else if (errorMessage.includes('422') && inputMethod === 'molblock') {
+        errorMessage = 'Invalid molblock format: Please ensure your molblock is in proper MDL MOL format and contains exactly one valid molecule structure.';
+      } else if (errorMessage.includes('Unable to parse molblock') || errorMessage.includes('Failure parsing molblock')) {
+        errorMessage = 'Unable to parse molblock: Please check that your molblock is in valid MDL MOL format and try again.';
+      } else if (errorMessage.includes('500') || errorMessage.includes('Internal Server Error')) {
+        errorMessage = 'Server processing error: There was an issue processing your molblock. Please verify the format is correct and contains a single valid molecule.';
       }
-      setError(`Error standardizing molecule: ${errorMessage}`);
+      
+      setError(errorMessage);
       setStandardizedData(null); // Ensure data is null on error
     } finally {
       setLoading(false);
@@ -151,12 +207,33 @@ const StandardizeView = () => {
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      setMolblock(event.target.result);
+      let fileContent = event.target.result;
+      
+      // Normalize line endings and trim
+      fileContent = fileContent
+        .replace(/\r\n/g, '\n')  // Convert Windows line endings
+        .replace(/\r/g, '\n')    // Convert Mac line endings
+        .trim();
+      
+      // Basic validation for molblock format
+      if (!fileContent.includes('M  END')) {
+        setError('Invalid file format: The uploaded file does not appear to be a valid molblock (missing "M  END").');
+        return;
+      }
+      
+      // Check for multiple molecules
+      const molBlockCount = (fileContent.match(/M {2}END/g) || []).length;
+      if (molBlockCount > 1) {
+        setError('Multiple molecules detected in file. Please upload a file containing only one molecule.');
+        return;
+      }
+      
+      setMolblock(fileContent);
       setError(null); // Clear error on successful load
     };
     reader.onerror = (event) => {
       console.error("File reading error:", event.target.error);
-      setError("Failed to read the uploaded file.");
+      setError("Failed to read the uploaded file. Please ensure it's a valid text file.");
     };
     reader.readAsText(file);
   };
@@ -235,8 +312,22 @@ const StandardizeView = () => {
                 id="molblock-input"
                 value={molblock}
                 onChange={(e) => setMolblock(e.target.value)}
-                placeholder="Paste your molblock here, or upload a .mol/.sdf file below..."
-                rows={10}
+                placeholder={`Paste your molblock here, or upload a .mol/.sdf file below...
+
+Example format (simple molecule):
+
+  CDK     08302311362D
+
+  4  3  0  0  0  0  0  0  0  0999 V2000
+    0.9743    0.5625    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -0.3248    1.3125    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -0.3248    2.8125    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+   -1.6238    0.5625    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+  1  2  1  0  0  0  0
+  2  3  2  0  0  0  0
+  2  4  1  0  0  0  0
+M  END`}
+                rows={12}
                 // Textarea styling for light/dark mode
                 className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white font-mono text-xs sm:text-sm resize-y shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                 required
@@ -257,9 +348,13 @@ const StandardizeView = () => {
                 </label>
                 {/* Info Text */}
                 <div className="text-xs text-gray-500 dark:text-gray-400 text-right">
-                  Ensure the file contains only one molecule record.
+                  Must be in MDL MOL format with "M  END" terminator.
                 </div>
               </div>
+              {/* Format Hint */}
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                Ensure the molblock is in proper MDL MOL format and ends with "M  END". The system expects exactly one complete molecule structure.
+              </p>
             </div>
           )}
 
