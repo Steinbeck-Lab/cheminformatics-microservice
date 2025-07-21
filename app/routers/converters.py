@@ -828,7 +828,9 @@ async def batch_convert(
             if input_format.lower() == "iupac":
                 smiles = get_smiles_opsin(value)
                 if not smiles:
-                    raise ValueError(f"Failed to convert IUPAC name '{value}' to SMILES")
+                    raise ValueError(
+                        f"Failed to convert IUPAC name '{value}' to SMILES"
+                    )
             elif input_format.lower() == "selfies":
                 smiles = sf.decoder(value)
                 if not smiles:
@@ -889,14 +891,18 @@ async def batch_convert(
                     mol = parse_input(smiles, "rdkit", False)
                     output_value = str(get_rdkit_CXSMILES(mol))
                 else:
-                    raise ValueError(f"CXSMILES conversion not supported by toolkit: {toolkit}")
+                    raise ValueError(
+                        f"CXSMILES conversion not supported by toolkit: {toolkit}"
+                    )
 
             elif output_format.lower() == "smarts":
                 if toolkit == "rdkit":
                     mol = parse_input(smiles, "rdkit", False)
                     output_value = str(Chem.MolToSmarts(mol))
                 else:
-                    raise ValueError(f"SMARTS conversion not supported by toolkit: {toolkit}")
+                    raise ValueError(
+                        f"SMARTS conversion not supported by toolkit: {toolkit}"
+                    )
 
             elif output_format.lower() == "mol2d":
                 if toolkit == "cdk":
@@ -915,44 +921,44 @@ async def batch_convert(
                 elif toolkit == "openbabel":
                     output_value = get_ob_mol(smiles, threeD=True)
                 else:
-                    raise ValueError(f"3D coordinates generation not supported by toolkit: {toolkit}")
+                    raise ValueError(
+                        f"3D coordinates generation not supported by toolkit: {toolkit}"
+                    )
 
             else:
                 raise ValueError(f"Unsupported output format: {output_format}")
 
             # Create a result dictionary
-            results.append({
-                "input": {
-                    "value": value,
-                    "input_format": input_format
-                },
-                "output": output_value,
-                "success": True,
-                "error": ""
-            })
+            results.append(
+                {
+                    "input": {"value": value, "input_format": input_format},
+                    "output": output_value,
+                    "success": True,
+                    "error": "",
+                }
+            )
             success_count += 1
 
         except Exception as e:
             # Create an error result dictionary
-            results.append({
-                "input": {
-                    "value": input_item.get("value", ""),
-                    "input_format": input_item.get("input_format", "")
-                },
-                "output": "",
-                "success": False,
-                "error": str(e)
-            })
+            results.append(
+                {
+                    "input": {
+                        "value": input_item.get("value", ""),
+                        "input_format": input_item.get("input_format", ""),
+                    },
+                    "output": "",
+                    "success": False,
+                    "error": str(e),
+                }
+            )
             failure_count += 1
 
     summary = {
         "total": len(inputs),
         "successful": success_count,
-        "failed": failure_count
+        "failed": failure_count,
     }
 
     # Return the response as a dictionary
-    return {
-        "results": results,
-        "summary": summary
-    }
+    return {"results": results, "summary": summary}
