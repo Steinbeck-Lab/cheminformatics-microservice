@@ -619,7 +619,7 @@ def get_ertl_functional_groups(molecule: any) -> list:
                         ),  # Full string representation for display
                     }
                     structured_groups.append(group_data)
-                except Exception as e:
+                except Exception:
                     # Fallback to string representation if structured extraction fails
                     structured_groups.append(
                         {
