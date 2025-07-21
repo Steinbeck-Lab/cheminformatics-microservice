@@ -590,7 +590,7 @@ def get_ertl_functional_groups(molecule: any) -> list:
         molecule (any): A molecule represented as an RDKit Mol object.
 
     Returns:
-        list: A list of identified functional groups in the molecule.
+        list: A list of identified functional groups in the molecule with structured data including atom IDs.
 
     References:
     - Ertl, Peter. "Implementation of an algorithm to identify functional groups in organic molecules." Journal of Cheminformatics 9.1 (2017): 9. https://jcheminf.springeropen.com/articles/10.1186/s13321-017-0225-z
@@ -601,7 +601,35 @@ def get_ertl_functional_groups(molecule: any) -> list:
     if molecule:
         fragments = ifg.identify_functional_groups(molecule)
         if fragments:
-            return fragments
+            # Convert IFG objects to structured dictionaries for better frontend handling
+            structured_groups = []
+            for fragment in fragments:
+                try:
+                    # Extract information from IFG object
+                    group_data = {
+                        "atomIds": list(fragment.atomIds)
+                        if hasattr(fragment, "atomIds")
+                        else [],
+                        "atoms": str(fragment.atoms)
+                        if hasattr(fragment, "atoms")
+                        else "",
+                        "type": str(fragment.type) if hasattr(fragment, "type") else "",
+                        "description": str(
+                            fragment
+                        ),  # Full string representation for display
+                    }
+                    structured_groups.append(group_data)
+                except Exception as e:
+                    # Fallback to string representation if structured extraction fails
+                    structured_groups.append(
+                        {
+                            "atomIds": [],
+                            "atoms": "",
+                            "type": "",
+                            "description": str(fragment),
+                        }
+                    )
+            return structured_groups
         else:
             return [{"None": "No fragments found"}]
 

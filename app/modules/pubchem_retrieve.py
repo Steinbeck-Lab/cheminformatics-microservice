@@ -224,7 +224,7 @@ class PubChemClient:
         if re.match(r"^(?:[A-Z][a-z]?\d+)+$", user_input):
             return self._query_by_formula(user_input)
 
-        # 6. If input is a SMILES string - FIXED VERSION
+        # 6. If input is a SMILES string - IMPROVED VERSION
         # SMILES typically contain organic chemistry characters and structural notation
         # Common SMILES characters: C, N, O, S, P, F, Cl, Br, I, H, numbers,
         # parentheses (), equals =, hash #, plus +, minus -, forward slash /,
@@ -233,11 +233,16 @@ class PubChemClient:
 
         if (
             " " not in user_input  # SMILES shouldn't contain spaces
-            and len(user_input) >= 3  # Minimum reasonable SMILES length
+            and len(user_input) >= 1  # Allow very short SMILES
             and len(user_input) <= 500  # Reasonable maximum length
             and re.match(smiles_pattern, user_input)
-            # Additional heuristic: SMILES usually contain structural elements
-            and any(char in user_input for char in "()=[]#@\\/")
+            # Improved heuristic: SMILES usually contain structural elements OR basic organic patterns
+            and (
+                any(char in user_input for char in "()=[]#@\\/")  # Structural notation
+                or re.match(
+                    r"^[CNOPS]+(Cl|Br|[cnops]|\d)*$", user_input
+                )  # Simple organic patterns
+            )
         ):
             return self._query_by_smiles(user_input)
 
