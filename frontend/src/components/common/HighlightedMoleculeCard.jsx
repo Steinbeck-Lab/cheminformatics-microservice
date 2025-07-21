@@ -2,7 +2,6 @@ import React, { useState, useRef, useMemo } from 'react';
 import {
   HiOutlineClipboard,
   HiOutlineDownload,
-  HiOutlineInformationCircle,
   HiOutlineCheckCircle,
   HiOutlineX
 } from 'react-icons/hi';

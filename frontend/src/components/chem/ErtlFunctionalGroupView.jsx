@@ -1,58 +1,16 @@
 // Description: This component allows users to input a SMILES string and detects functional groups using the Ertl algorithm.
 import React, { useState } from 'react';
-// Ensure all used i                    {/* List of functional groups */}
-                    <ul className="space-y-2">
-                      {functionalGroups.map((fg, index) => (
-                        <li
-                          key={index}
-                          // List item styling with clickable highlighting
-                          className={`p-2 border rounded-md text-sm cursor-pointer transition-all duration-200 ${
-                            selectedGroupIndex === index
-                              ? 'bg-blue-100 dark:bg-blue-900 border-blue-300 dark:border-blue-700 text-blue-800 dark:text-blue-200'
-                              : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-750'
-                          }`}
-                          onClick={() => {
-                            if (fg.None) return; // Don't allow selecting "None" groups
-                            setSelectedGroupIndex(selectedGroupIndex === index ? null : index);
-                          }}
-                          title={fg.None ? undefined : "Click to highlight this functional group in the structure"}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span>{formatFunctionalGroup(fg)}</span>
-                            {!fg.None && (
-                              <div className="flex items-center space-x-2">
-                                {fg.atomIds && fg.atomIds.length > 0 && (
-                                  <span className="text-xs opacity-70">
-                                    {fg.atomIds.length} atom{fg.atomIds.length !== 1 ? 's' : ''}
-                                  </span>
-                                )}
-                                {selectedGroupIndex === index && (
-                                  <span className="text-xs font-medium">Highlighted</span>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                          {/* Show additional details for structured groups */}
-                          {fg.atoms && fg.type && !fg.None && (
-                            <div className="mt-1 text-xs opacity-70">
-                              Type: {fg.type} | Atoms: {fg.atoms}
-                            </div>
-                          )}
-                        </li>
-                      ))}
-                    </ul>orted
 import {
   HiOutlineSearch,
   HiOutlineInformationCircle,
-  HiOutlineExclamationCircle // Added for error display
+  HiOutlineExclamationCircle
 } from 'react-icons/hi';
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from '../common/SMILESInput';
 import LoadingScreen from '../common/LoadingScreen';
-import MoleculeCard from '../common/MoleculeCard';
 import HighlightedMoleculeCard from '../common/HighlightedMoleculeCard';
 // Assuming this service is configured correctly
-import { generateFunctionalGroups } from '../../services/chemService'; // Assuming this service exists
+import { generateFunctionalGroups } from '../../services/chemService';
 
 const ErtlFunctionalGroupView = () => {
   const [smiles, setSmiles] = useState('');
