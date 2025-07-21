@@ -5,17 +5,22 @@ import {
   HiOutlineDocumentReport,
   HiOutlineClipboard,
   HiOutlineUpload,
-  HiOutlineExclamationCircle // Added for error display
+  HiOutlineExclamationCircle, // Added for error display
+  HiOutlineBeaker,
+  HiOutlineDocumentText
 } from 'react-icons/hi';
 // Assuming these components are correctly implemented and styled for dark/light mode
-// import SMILESInput from '../common/SMILESInput'; // Removed unused import
+import SMILESInput from '../common/SMILESInput';
 import LoadingScreen from '../common/LoadingScreen';
 import MoleculeCard from '../common/MoleculeCard';
+import { generate2DCoordinates } from '../../services/convertService';
 // Assuming the API URL is configured correctly via environment variables or defaults
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://api.naturalproducts.net';
 
 const StandardizeView = () => {
+  const [inputMethod, setInputMethod] = useState('molblock'); // 'molblock' or 'smiles'
   const [molblock, setMolblock] = useState('');
+  const [smiles, setSmiles] = useState('');
   const [standardizedData, setStandardizedData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -24,15 +29,58 @@ const StandardizeView = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const trimmedMolblock = molblock.trim();
-    if (!trimmedMolblock) {
-      setError('Please paste or upload a molblock.');
-      setStandardizedData(null); // Clear previous results
-      return;
+    
+    let molblockToStandardize = '';
+    
+    if (inputMethod === 'smiles') {
+      const trimmedSmiles = smiles.trim();
+      if (!trimmedSmiles) {
+        setError('Please enter a SMILES string.');
+        setStandardizedData(null);
+        return;
+      }
+      
+      // Check if SMILES contains multiple molecules
+      if (trimmedSmiles.includes('.') && trimmedSmiles.split('.').filter(s => s.trim().length > 0).length > 1) {
+        setError('Please enter only one molecule at a time. Multiple molecules (separated by dots) are not supported.');
+        setStandardizedData(null);
+        return;
+      }
+      
+      try {
+        setLoading(true);
+        setError(null);
+        // Convert SMILES to molblock first
+        molblockToStandardize = await generate2DCoordinates(trimmedSmiles, 'rdkit');
+      } catch (conversionError) {
+        console.error("SMILES to molblock conversion error:", conversionError);
+        setError(`Error converting SMILES to molblock: ${conversionError.message || 'Invalid SMILES string.'}`);
+        setStandardizedData(null);
+        setLoading(false);
+        return;
+      }
+    } else {
+      const trimmedMolblock = molblock.trim();
+      if (!trimmedMolblock) {
+        setError('Please paste or upload a molblock.');
+        setStandardizedData(null);
+        return;
+      }
+      
+      // Check for multiple molecules in molblock
+      const molblockLines = trimmedMolblock.split('\n');
+      const molBlockCount = molblockLines.filter(line => line.includes('$$$$')).length + 1;
+      if (molBlockCount > 1) {
+        setError('Please provide only one molecule at a time. Multiple molecules in a single input are not supported.');
+        setStandardizedData(null);
+        return;
+      }
+      
+      molblockToStandardize = trimmedMolblock;
+      setLoading(true);
+      setError(null);
     }
 
-    setLoading(true);
-    setError(null);
     setStandardizedData(null); // Clear previous results before fetching
 
     try {
@@ -42,7 +90,7 @@ const StandardizeView = () => {
           'Content-Type': 'text/plain', // Sending molblock as plain text
           'Accept': 'application/json' // Expecting JSON response
         },
-        body: trimmedMolblock // Send trimmed molblock
+        body: molblockToStandardize // Send molblock
       });
 
       if (!response.ok) {
@@ -61,7 +109,12 @@ const StandardizeView = () => {
       setStandardizedData(data);
     } catch (err) {
       console.error("Standardization error:", err); // Log the error
-      setError(`Error standardizing molecule: ${err.message || 'An unknown error occurred.'}`);
+      // Provide more specific error messages
+      let errorMessage = err.message || 'An unknown error occurred.';
+      if (errorMessage.includes('cannot access local variable')) {
+        errorMessage = 'Error standardizing molecule: Please ensure you have provided only one valid molecule. Multiple molecules are not supported.';
+      }
+      setError(`Error standardizing molecule: ${errorMessage}`);
       setStandardizedData(null); // Ensure data is null on error
     } finally {
       setLoading(false);
@@ -113,52 +166,109 @@ const StandardizeView = () => {
     <div className="space-y-6 p-4 md:p-6">
       {/* Input Card */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-blue-400 mb-4">Standardize Molecule (via Molblock)</h2>
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-blue-400 mb-4">Standardize Molecule</h2>
+        
+        {/* Input Method Selection */}
+        <div className="mb-4">
+          <div className="flex rounded-lg bg-gray-100 dark:bg-gray-700 p-1">
+            <button
+              type="button"
+              onClick={() => setInputMethod('smiles')}
+              className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 flex items-center justify-center ${
+                inputMethod === 'smiles'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+              }`}
+            >
+              <HiOutlineBeaker className="mr-2 h-4 w-4" />
+              SMILES Input
+            </button>
+            <button
+              type="button"
+              onClick={() => setInputMethod('molblock')}
+              className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 flex items-center justify-center ${
+                inputMethod === 'molblock'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+              }`}
+            >
+              <HiOutlineDocumentText className="mr-2 h-4 w-4" />
+              Molblock Input
+            </button>
+          </div>
+        </div>
+
+        {/* Important Notice */}
+        <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-20 border border-yellow-200 dark:border-yellow-800 rounded-md">
+          <div className="flex">
+            <HiOutlineExclamationCircle className="h-5 w-5 text-yellow-400 mr-2 flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-yellow-800 dark:text-yellow-200">
+              <strong>Important:</strong> This tool accepts only one molecule at a time. Multiple molecules (separated by dots in SMILES or multiple records in molblock) will cause errors.
+            </div>
+          </div>
+        </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Molblock Textarea */}
-          <div>
-            <label htmlFor="molblock-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Molblock (MDL MOL format)
-            </label>
-            <textarea
-              id="molblock-input"
-              value={molblock}
-              onChange={(e) => setMolblock(e.target.value)}
-              placeholder="Paste your molblock here, or upload a .mol/.sdf file below..."
-              rows={10}
-              // Textarea styling for light/dark mode
-              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white font-mono text-xs sm:text-sm resize-y shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              required
-              aria-required="true"
-            />
-            {/* File Upload and Info */}
-            <div className="mt-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              {/* File Upload Button */}
-              <label className="inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 text-sm font-medium rounded-md cursor-pointer border border-gray-300 dark:border-gray-600 shadow-sm transition-colors duration-150">
-                <HiOutlineUpload className="mr-2 h-5 w-5" aria-hidden="true" />
-                <span>Upload MOL/SDF File</span>
-                <input
-                  type="file"
-                  accept=".mol,.sdf,chemical/x-mdl-molfile,chemical/x-mdl-sdfile" // MIME types
-                  onChange={handleFileUpload}
-                  className="sr-only" // Hide the default file input
-                />
+          {/* Conditional Input Fields */}
+          {inputMethod === 'smiles' ? (
+            /* SMILES Input */
+            <div>
+              <SMILESInput
+                value={smiles}
+                onChange={setSmiles}
+                placeholder="Enter SMILES string (e.g., CN1C=NC2=C1C(=O)N(C(=O)N2C)C)"
+                label="SMILES String"
+                required
+              />
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                Enter a single SMILES string. The system will convert it to molblock format for standardization.
+              </p>
+            </div>
+          ) : (
+            /* Molblock Input */
+            <div>
+              <label htmlFor="molblock-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Molblock (MDL MOL format)
               </label>
-              {/* Info Text */}
-              <div className="text-xs text-gray-500 dark:text-gray-400 text-right">
-                Standardization uses the ChEMBL curation pipeline.
+              <textarea
+                id="molblock-input"
+                value={molblock}
+                onChange={(e) => setMolblock(e.target.value)}
+                placeholder="Paste your molblock here, or upload a .mol/.sdf file below..."
+                rows={10}
+                // Textarea styling for light/dark mode
+                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white font-mono text-xs sm:text-sm resize-y shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                required
+                aria-required="true"
+              />
+              {/* File Upload and Info */}
+              <div className="mt-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                {/* File Upload Button */}
+                <label className="inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 text-sm font-medium rounded-md cursor-pointer border border-gray-300 dark:border-gray-600 shadow-sm transition-colors duration-150">
+                  <HiOutlineUpload className="mr-2 h-5 w-5" aria-hidden="true" />
+                  <span>Upload MOL/SDF File</span>
+                  <input
+                    type="file"
+                    accept=".mol,.sdf,chemical/x-mdl-molfile,chemical/x-mdl-sdfile" // MIME types
+                    onChange={handleFileUpload}
+                    className="sr-only" // Hide the default file input
+                  />
+                </label>
+                {/* Info Text */}
+                <div className="text-xs text-gray-500 dark:text-gray-400 text-right">
+                  Ensure the file contains only one molecule record.
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Submit Button */}
           <div className="pt-2">
             <button
               type="submit"
-              disabled={!molblock.trim() || loading}
-              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${!molblock.trim() || loading
+              disabled={(inputMethod === 'smiles' ? !smiles.trim() : !molblock.trim()) || loading}
+              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${(inputMethod === 'smiles' ? !smiles.trim() : !molblock.trim()) || loading
                 ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
                 : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm'
                 }`}
@@ -166,6 +276,11 @@ const StandardizeView = () => {
               <HiOutlineDocumentReport className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? 'Standardizing...' : 'Standardize Molecule'}
             </button>
+          </div>
+          
+          {/* Additional Info */}
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            Standardization uses the ChEMBL curation pipeline to ensure consistent molecular representation.
           </div>
         </form>
       </div>
@@ -309,9 +424,18 @@ const StandardizeView = () => {
       {/* Initial State Message (Optional) */}
       {!standardizedData && !loading && !error && (
         <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center shadow">
-          <p className="text-gray-600 dark:text-gray-300">
-            Paste a Molblock or upload a MOL/SDF file to standardize the molecule using the ChEMBL curation pipeline.
-          </p>
+          <div className="space-y-3">
+            <HiOutlineBeaker className="h-12 w-12 mx-auto text-blue-500 dark:text-blue-400" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Molecule Standardization</h3>
+            <div className="text-gray-600 dark:text-gray-300 space-y-2">
+              <p>
+                Use either SMILES or Molblock input to standardize your molecule using the ChEMBL curation pipeline.
+              </p>
+              <p className="text-sm">
+                <strong>Note:</strong> Only one molecule per submission is supported. Multiple molecules will result in an error.
+              </p>
+            </div>
+          </div>
         </div>
       )}
 
