@@ -1,6 +1,46 @@
 // Description: This component allows users to input a SMILES string and detects functional groups using the Ertl algorithm.
 import React, { useState } from 'react';
-// Ensure all used icons are imported
+// Ensure all used i                    {/* List of functional groups */}
+                    <ul className="space-y-2">
+                      {functionalGroups.map((fg, index) => (
+                        <li
+                          key={index}
+                          // List item styling with clickable highlighting
+                          className={`p-2 border rounded-md text-sm cursor-pointer transition-all duration-200 ${
+                            selectedGroupIndex === index
+                              ? 'bg-blue-100 dark:bg-blue-900 border-blue-300 dark:border-blue-700 text-blue-800 dark:text-blue-200'
+                              : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-750'
+                          }`}
+                          onClick={() => {
+                            if (fg.None) return; // Don't allow selecting "None" groups
+                            setSelectedGroupIndex(selectedGroupIndex === index ? null : index);
+                          }}
+                          title={fg.None ? undefined : "Click to highlight this functional group in the structure"}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span>{formatFunctionalGroup(fg)}</span>
+                            {!fg.None && (
+                              <div className="flex items-center space-x-2">
+                                {fg.atomIds && fg.atomIds.length > 0 && (
+                                  <span className="text-xs opacity-70">
+                                    {fg.atomIds.length} atom{fg.atomIds.length !== 1 ? 's' : ''}
+                                  </span>
+                                )}
+                                {selectedGroupIndex === index && (
+                                  <span className="text-xs font-medium">Highlighted</span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          {/* Show additional details for structured groups */}
+                          {fg.atoms && fg.type && !fg.None && (
+                            <div className="mt-1 text-xs opacity-70">
+                              Type: {fg.type} | Atoms: {fg.atoms}
+                            </div>
+                          )}
+                        </li>
+                      ))}
+                    </ul>orted
 import {
   HiOutlineSearch,
   HiOutlineInformationCircle,
@@ -10,6 +50,7 @@ import {
 import SMILESInput from '../common/SMILESInput';
 import LoadingScreen from '../common/LoadingScreen';
 import MoleculeCard from '../common/MoleculeCard';
+import HighlightedMoleculeCard from '../common/HighlightedMoleculeCard';
 // Assuming this service is configured correctly
 import { generateFunctionalGroups } from '../../services/chemService'; // Assuming this service exists
 
@@ -18,6 +59,7 @@ const ErtlFunctionalGroupView = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [functionalGroups, setFunctionalGroups] = useState([]); // Initialize as empty array
+  const [selectedGroupIndex, setSelectedGroupIndex] = useState(null); // Track which group is selected for highlighting
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -59,6 +101,11 @@ const ErtlFunctionalGroupView = () => {
     if (typeof fg === 'string') return fg;
     if (!fg || typeof fg !== 'object') return 'Invalid group data'; // Handle null/undefined/non-object
     if (fg.None) return 'No functional groups found'; // Specific check for 'None' object
+
+    // Handle new structured format from backend
+    if (fg.description) {
+      return fg.description; // Use the full description for display
+    }
 
     // Try to extract standard properties (adjust based on actual API response)
     if (fg.type && fg.atoms) {
@@ -147,13 +194,26 @@ const ErtlFunctionalGroupView = () => {
               {/* Molecule Card Column */}
               <div>
                 <div className="mb-4">
-                  {/* Ensure MoleculeCard is theme-aware */}
-                  <MoleculeCard
-                    smiles={smiles} // Show the input SMILES
+                  {/* Use highlighted molecule card for better visualization */}
+                  <HighlightedMoleculeCard
+                    smiles={smiles}
                     title="Input Molecule"
-                    size="md" // Adjust size as needed
+                    size="md"
+                    functionalGroups={functionalGroups}
+                    highlightedGroupIndex={selectedGroupIndex}
+                    showActions={true}
                   />
                 </div>
+                {selectedGroupIndex !== null && functionalGroups[selectedGroupIndex] && !functionalGroups[selectedGroupIndex].None && (
+                  <div className="text-center">
+                    <button
+                      onClick={() => setSelectedGroupIndex(null)}
+                      className="px-3 py-1 text-xs bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                    >
+                      Clear Highlighting
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Functional Groups List Column */}
@@ -169,10 +229,39 @@ const ErtlFunctionalGroupView = () => {
                       {functionalGroups.map((fg, index) => (
                         <li
                           key={index}
-                          // List item styling
-                          className="p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md text-sm text-gray-700 dark:text-gray-300"
+                          // List item styling with clickable highlighting
+                          className={`p-2 border rounded-md text-sm cursor-pointer transition-all duration-200 ${
+                            selectedGroupIndex === index
+                              ? 'bg-blue-100 dark:bg-blue-900 border-blue-300 dark:border-blue-700 text-blue-800 dark:text-blue-200'
+                              : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-750'
+                          }`}
+                          onClick={() => {
+                            if (fg.None) return; // Don't allow selecting "None" groups
+                            setSelectedGroupIndex(selectedGroupIndex === index ? null : index);
+                          }}
+                          title={fg.None ? undefined : "Click to highlight this functional group in the structure"}
                         >
-                          {formatFunctionalGroup(fg)}
+                          <div className="flex items-center justify-between">
+                            <span>{formatFunctionalGroup(fg)}</span>
+                            {!fg.None && (
+                              <div className="flex items-center space-x-2">
+                                {fg.atomIds && fg.atomIds.length > 0 && (
+                                  <span className="text-xs opacity-70">
+                                    {fg.atomIds.length} atom{fg.atomIds.length !== 1 ? 's' : ''}
+                                  </span>
+                                )}
+                                {selectedGroupIndex === index && (
+                                  <span className="text-xs font-medium">Highlighted</span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          {/* Show additional details for structured groups */}
+                          {fg.atoms && fg.type && !fg.None && (
+                            <div className="mt-1 text-xs opacity-70">
+                              Type: {fg.type} | Atoms: {fg.atoms}
+                            </div>
+                          )}
                         </li>
                       ))}
                     </ul>
@@ -188,6 +277,11 @@ const ErtlFunctionalGroupView = () => {
               Functional groups are identified using the algorithm proposed by Peter Ertl, analyzing molecular
               structure for common chemical groups.
             </p>
+            {!noGroupsFound && (
+              <p className="mt-2 text-xs text-blue-700 dark:text-blue-300">
+                💡 <strong>Tip:</strong> Click on any functional group in the list to highlight it in the molecular structure above.
+              </p>
+            )}
             {/* Optionally add reference back here if desired */}
             {/* <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Ref: Ertl, P. J Cheminform 9, 36 (2017).</p> */}
           </div>

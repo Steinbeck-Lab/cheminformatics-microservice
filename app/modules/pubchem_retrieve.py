@@ -69,13 +69,13 @@ class PubChemClient:
             logger.error(f"Invalid CID format: {cid}")
             return None
 
-        url = f"{self.BASE_URL}/cid/{cid}/property/IsomericSMILES/JSON"
+        url = f"{self.BASE_URL}/cid/{cid}/property/SMILES/JSON"
 
         try:
             response = self.session.get(url, timeout=self.timeout)
             response.raise_for_status()
             data = response.json()
-            return data["PropertyTable"]["Properties"][0]["IsomericSMILES"]
+            return data["PropertyTable"]["Properties"][0]["SMILES"]
         except (RequestException, KeyError, IndexError) as e:
             logger.error(f"Error querying by CID {cid}: {str(e)}")
             return None
@@ -113,13 +113,15 @@ class PubChemClient:
         Returns:
             Optional[str]: The canonical SMILES string if found, None otherwise.
         """
-        url = f"{self.BASE_URL}/inchikey/{quote(inchikey, safe='')}/property/IsomericSMILES/JSON"
+        url = (
+            f"{self.BASE_URL}/inchikey/{quote(inchikey, safe='')}/property/SMILES/JSON"
+        )
 
         try:
             response = self.session.get(url, timeout=self.timeout)
             response.raise_for_status()
             data = response.json()
-            return data["PropertyTable"]["Properties"][0]["IsomericSMILES"]
+            return data["PropertyTable"]["Properties"][0]["SMILES"]
         except (RequestException, KeyError, IndexError) as e:
             logger.error(f"Error querying by InChIKey: {str(e)}")
             return None
@@ -179,13 +181,13 @@ class PubChemClient:
             Optional[str]: The canonical SMILES string if found, None otherwise.
         """
         encoded = quote(name, safe="")
-        url = f"{self.BASE_URL}/name/{encoded}/property/IsomericSMILES/JSON"
+        url = f"{self.BASE_URL}/name/{encoded}/property/SMILES/JSON"
 
         try:
             response = self.session.get(url, timeout=self.timeout)
             response.raise_for_status()
             data = response.json()
-            return data["PropertyTable"]["Properties"][0]["IsomericSMILES"]
+            return data["PropertyTable"]["Properties"][0]["SMILES"]
         except (RequestException, KeyError, IndexError) as e:
             logger.error(f"Error querying by name: {str(e)}")
             return None
@@ -222,11 +224,25 @@ class PubChemClient:
         if re.match(r"^(?:[A-Z][a-z]?\d+)+$", user_input):
             return self._query_by_formula(user_input)
 
-        # 6. If input is a SMILES string
+        # 6. If input is a SMILES string - IMPROVED VERSION
+        # SMILES typically contain organic chemistry characters and structural notation
+        # Common SMILES characters: C, N, O, S, P, F, Cl, Br, I, H, numbers,
+        # parentheses (), equals =, hash #, plus +, minus -, forward slash /,
+        # backslash \, at symbol @, square brackets []
+        smiles_pattern = r"^[A-Za-z0-9\(\)\[\]=#+\-\\/\\@\.%:]*$"
+
         if (
-            " " not in user_input
-            and len(user_input) <= 10
-            and re.match(r"^[CHONSPFIClBr0-9@+\-\\/]+$", user_input)
+            " " not in user_input  # SMILES shouldn't contain spaces
+            and len(user_input) >= 1  # Allow very short SMILES
+            and len(user_input) <= 500  # Reasonable maximum length
+            and re.match(smiles_pattern, user_input)
+            # Improved heuristic: SMILES usually contain structural elements OR basic organic patterns
+            and (
+                any(char in user_input for char in "()=[]#@\\/")  # Structural notation
+                or re.match(
+                    r"^[CNOPS]+(Cl|Br|[cnops]|\d)*$", user_input
+                )  # Simple organic patterns
+            )
         ):
             return self._query_by_smiles(user_input)
 

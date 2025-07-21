@@ -148,7 +148,7 @@ def get_tanimoto_similarity_rdkit(
     mol1,
     mol2,
     fingerprinter="ECFP",
-    diameter=2,
+    radius=2,
     nBits=2048,
 ) -> Union[float, str]:
     """Calculate the Tanimoto similarity index between two molecular.
@@ -164,8 +164,7 @@ def get_tanimoto_similarity_rdkit(
         mol1 (Chem.Mol): The RDKit Mol object representing the first molecule.
         mol2 (Chem.Mol): The RDKit Mol object representing the second molecule.
         fingerprinter (str, optional): The type of fingerprint to use. Options are "ECFP", "RDKit", "AtomPairs", "MACCS". Defaults to "ECFP".
-        diameter (int, optional): The diameter parameter for ECFP fingerprints (e.g. diameter 2 for generating ECFP2 fingerprints, default value).
-        Internally, it is divided by 2 to get the radius as input for the RDKit Morgan fingerprinter.
+        radius (int, optional): The radius parameter for ECFP fingerprints (e.g. radius 2 for generating ECFP4 fingerprints, default value).
         Ignored for all other fingerprinter options than "ECFP".
 
     Returns:
@@ -181,12 +180,11 @@ def get_tanimoto_similarity_rdkit(
     if mol1 and mol2:
         if fingerprinter == "ECFP":
             # Generate Morgan fingerprints for each molecule
-            fp1 = AllChem.GetMorganFingerprintAsBitVect(
-                mol1, int(diameter / 2), nBits, useChirality=True
+            morgan_fps = rdFingerprintGenerator.GetMorganGenerator(
+                radius, fpSize=nBits, includeChirality=True
             )
-            fp2 = AllChem.GetMorganFingerprintAsBitVect(
-                mol2, int(diameter / 2), nBits, useChirality=True
-            )
+            fp1 = morgan_fps.GetFingerprint(mol1)
+            fp2 = morgan_fps.GetFingerprint(mol2)
         elif fingerprinter == "RDKit":
             # Generate RDKit fingerprints for each molecule
             rdkgen = rdFingerprintGenerator.GetRDKitFPGenerator(fpSize=nBits)
@@ -203,8 +201,8 @@ def get_tanimoto_similarity_rdkit(
             fp2 = MACCSkeys.GenMACCSKeys(mol2)
         elif fingerprinter == "MAPC":
             # Generate MAPC for each molecule
-            fp1 = encode(mol1, max_radius=diameter, n_permutations=nBits, mapping=False)
-            fp2 = encode(mol2, max_radius=diameter, n_permutations=nBits, mapping=False)
+            fp1 = encode(mol1, max_radius=radius, n_permutations=nBits, mapping=False)
+            fp2 = encode(mol2, max_radius=radius, n_permutations=nBits, mapping=False)
             similarity = jaccard_similarity(fp1, fp2)
             return similarity
         else:
@@ -592,7 +590,7 @@ def get_ertl_functional_groups(molecule: any) -> list:
         molecule (any): A molecule represented as an RDKit Mol object.
 
     Returns:
-        list: A list of identified functional groups in the molecule.
+        list: A list of identified functional groups in the molecule with structured data including atom IDs.
 
     References:
     - Ertl, Peter. "Implementation of an algorithm to identify functional groups in organic molecules." Journal of Cheminformatics 9.1 (2017): 9. https://jcheminf.springeropen.com/articles/10.1186/s13321-017-0225-z
@@ -603,7 +601,35 @@ def get_ertl_functional_groups(molecule: any) -> list:
     if molecule:
         fragments = ifg.identify_functional_groups(molecule)
         if fragments:
-            return fragments
+            # Convert IFG objects to structured dictionaries for better frontend handling
+            structured_groups = []
+            for fragment in fragments:
+                try:
+                    # Extract information from IFG object
+                    group_data = {
+                        "atomIds": list(fragment.atomIds)
+                        if hasattr(fragment, "atomIds")
+                        else [],
+                        "atoms": str(fragment.atoms)
+                        if hasattr(fragment, "atoms")
+                        else "",
+                        "type": str(fragment.type) if hasattr(fragment, "type") else "",
+                        "description": str(
+                            fragment
+                        ),  # Full string representation for display
+                    }
+                    structured_groups.append(group_data)
+                except Exception:
+                    # Fallback to string representation if structured extraction fails
+                    structured_groups.append(
+                        {
+                            "atomIds": [],
+                            "atoms": "",
+                            "type": "",
+                            "description": str(fragment),
+                        }
+                    )
+            return structured_groups
         else:
             return [{"None": "No fragments found"}]
 

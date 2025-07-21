@@ -316,7 +316,7 @@ class GenerateFormatsResponse(BaseModel):
                         "mol": "molecule block data...",
                         "canonicalsmiles": "CN1C=NC2=C1C(=O)N(C)C(=O)N2C",
                         "inchi": "InChI=1S/C8H10N4O2/c1-10-4-9-6-5(10)7(13)12(3)8(14)11(6)2/h4H,1-3H3",
-                        "inchikey": "RYYVLZVUVIJVGH-UHFFFAOYSA-N"
+                        "inchikey": "RYYVLZVUVIJVGH-UHFFFAOYSA-N",
                     },
                 },
             ],
@@ -333,13 +333,12 @@ class ConversionInput(BaseModel):
     """
 
     value: str = Field(
-        ...,
-        description="The chemical structure to convert (e.g., SMILES, InChI)"
+        ..., description="The chemical structure to convert (e.g., SMILES, InChI)"
     )
     input_format: str = Field(
         ...,
         description="Format of the input (e.g., smiles, inchi, iupac, selfies)",
-        examples=["smiles", "inchi", "iupac", "selfies"]
+        examples=["smiles", "inchi", "iupac", "selfies"],
     )
 
 
@@ -354,7 +353,9 @@ class ConversionResult(BaseModel):
     """
 
     input: ConversionInput = Field(..., description="The original input")
-    output: str = Field(default="", description="The converted output (empty if conversion failed)")
+    output: str = Field(
+        default="", description="The converted output (empty if conversion failed)"
+    )
     success: bool = Field(..., description="Whether the conversion was successful")
     error: str = Field(default="", description="Error message if conversion failed")
 
@@ -367,8 +368,7 @@ class BatchConversionRequest(BaseModel):
     """
 
     inputs: list[ConversionInput] = Field(
-        ...,
-        description="List of chemical structures to convert"
+        ..., description="List of chemical structures to convert"
     )
 
 
@@ -380,5 +380,9 @@ class BatchConversionResponse(BaseModel):
     - summary (dict): Summary of conversion results
     """
 
-    results: list[ConversionResult] = Field(..., description="Results of each conversion")
-    summary: dict = Field(..., description="Summary of conversion results (count of successes/failures)")
+    results: list[ConversionResult] = Field(
+        ..., description="Results of each conversion"
+    )
+    summary: dict = Field(
+        ..., description="Summary of conversion results (count of successes/failures)"
+    )
