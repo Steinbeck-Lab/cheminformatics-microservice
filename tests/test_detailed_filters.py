@@ -123,8 +123,10 @@ class TestDetailedFilterStructure:
         assert "properties" in result
         assert "passes" in result
 
-        # Check consistency
-        assert result["passes"] == (result["violations"] == 0)
+        # Check consistency - Ghose returns violations as list, not count
+        violations = result["violations"]
+        assert isinstance(violations, list)
+        assert result["passes"] == (len(violations) == 0)
 
     def test_veber_detailed_structure(self, drug_like_molecule):
         """Test that Veber detailed function returns correct structure."""
@@ -141,6 +143,11 @@ class TestDetailedFilterStructure:
         assert "rotatable_bonds" in properties
         assert "tpsa" in properties
 
+        # Check consistency - Veber returns violations as list, not count
+        violations = result["violations"]
+        assert isinstance(violations, list)
+        assert result["passes"] == (len(violations) == 0)
+
     def test_reos_detailed_structure(self, drug_like_molecule):
         """Test that REOS detailed function returns correct structure."""
         result = get_REOSFilter_detailed(drug_like_molecule)
@@ -151,6 +158,11 @@ class TestDetailedFilterStructure:
         assert "properties" in result
         assert "passes" in result
 
+        # Check consistency - REOS returns violations as list, not count
+        violations = result["violations"]
+        assert isinstance(violations, list)
+        assert result["passes"] == (len(violations) == 0)
+
     def test_rule_of_three_detailed_structure(self, drug_like_molecule):
         """Test that Rule of Three detailed function returns correct structure."""
         result = get_RuleofThree_detailed(drug_like_molecule)
@@ -160,6 +172,11 @@ class TestDetailedFilterStructure:
         assert "details" in result
         assert "properties" in result
         assert "passes" in result
+
+        # Check consistency - Rule of Three returns violations as list, not count
+        violations = result["violations"]
+        assert isinstance(violations, list)
+        assert result["passes"] == (len(violations) == 0)
 
 
 class TestPAINSDetection:
@@ -281,8 +298,12 @@ class TestViolationMessages:
         """Test that violation messages follow consistent format."""
         result = check_RO5_violations_detailed(large_molecule)
 
-        if result["violations"] > 0:
-            for violation in result["details"]:
+        # For Lipinski, violations is a count and details is the list
+        violations_count = result["violations"]
+        violation_messages = result["details"]
+
+        if violations_count > 0:
+            for violation in violation_messages:
                 # Should contain actual value and threshold
                 assert "=" in violation or ">" in violation or "<" in violation
                 # Should be human-readable
