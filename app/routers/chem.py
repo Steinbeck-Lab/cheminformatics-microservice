@@ -32,16 +32,22 @@ from app.modules.toolkits.cdk_wrapper import get_CDK_HOSE_codes
 from app.modules.toolkits.cdk_wrapper import get_tanimoto_similarity_CDK
 from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.rdkit_wrapper import check_RO5_violations
+from app.modules.toolkits.rdkit_wrapper import check_RO5_violations_detailed
 from app.modules.toolkits.rdkit_wrapper import get_ertl_functional_groups
 from app.modules.toolkits.rdkit_wrapper import get_GhoseFilter
+from app.modules.toolkits.rdkit_wrapper import get_GhoseFilter_detailed
 from app.modules.toolkits.rdkit_wrapper import get_PAINS
+from app.modules.toolkits.rdkit_wrapper import get_PAINS_detailed
 from app.modules.toolkits.rdkit_wrapper import get_properties
 from app.modules.toolkits.rdkit_wrapper import get_rdkit_HOSE_codes
 from app.modules.toolkits.rdkit_wrapper import get_REOSFilter
+from app.modules.toolkits.rdkit_wrapper import get_REOSFilter_detailed
 from app.modules.toolkits.rdkit_wrapper import get_RuleofThree
+from app.modules.toolkits.rdkit_wrapper import get_RuleofThree_detailed
 from app.modules.toolkits.rdkit_wrapper import get_sas_score
 from app.modules.toolkits.rdkit_wrapper import get_tanimoto_similarity_rdkit
 from app.modules.toolkits.rdkit_wrapper import get_VeberFilter
+from app.modules.toolkits.rdkit_wrapper import get_VeberFilter_detailed
 from app.modules.toolkits.rdkit_wrapper import get_standardized_tautomer
 from app.modules.toolkits.rdkit_wrapper import QED
 from app.modules.pubchem_retrieve import PubChemClient
@@ -992,10 +998,11 @@ async def all_filter_molecules(
         if mol:
             if pains:
                 pains_status = str(get_PAINS(mol))
+                # PAINS logic: Finding a PAINS is BAD (False), not finding is GOOD (True)
                 if "family" in pains_status:
-                    results.append("True")
+                    results.append("False")  # Found PAINS = BAD = False
                 else:
-                    results.append("False")
+                    results.append("True")  # No PAINS = GOOD = True
             if lipinski:
                 lipinski_violations = check_RO5_violations(mol)
                 if lipinski_violations == 0:
@@ -1082,6 +1089,214 @@ async def all_filter_molecules(
                 all_smiles.append(final_results)
 
     return all_smiles
+
+
+@router.post(
+    "/all_filters_detailed",
+    summary="Filters molecules with detailed information about violations and substructure matches",
+    responses={
+        200: {
+            "description": "Successful response with detailed filter information",
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
+)
+async def all_filter_molecules_detailed(
+    smiles_list: str = Body(
+        embed=False,
+        media_type="text/plain",
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine and problematic compound",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C\nCC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
+            },
+        },
+    ),
+    pains: bool = Query(
+        True,
+        title="PAINS filter",
+        description="Check for Pan-Assay Interference compounds (true or false)",
+    ),
+    lipinski: bool = Query(
+        True,
+        title="Lipinski Rule of 5",
+        description="Check Lipinski Rule of 5 violations (true or false)",
+    ),
+    veber: bool = Query(
+        True,
+        title="Veber filter",
+        description="Check Veber filter criteria (true or false)",
+    ),
+    reos: bool = Query(
+        True,
+        title="REOS filter",
+        description="Check REOS filter criteria (true or false)",
+    ),
+    ghose: bool = Query(
+        True,
+        title="Ghose filter",
+        description="Check Ghose filter criteria (true or false)",
+    ),
+    ruleofthree: bool = Query(
+        True,
+        title="Rule of 3",
+        description="Check Rule of 3 criteria (true or false)",
+    ),
+    qedscore: str = Query(
+        "0-1",
+        title="QED Druglikeliness",
+        description="QED Score range (e.g., 0-1)",
+    ),
+    sascore: str = Query(
+        "0-10",
+        title="SAScore",
+        description="Synthetic Accessibility Score range (e.g., 0-10)",
+    ),
+    nplikeness: str = Query(
+        "-5-5",
+        title="NPlikenessScore",
+        description="Natural Product likeness Score range (e.g., -5-5)",
+    ),
+    filterOperator: Literal["AND", "OR"] = Query(
+        "OR",
+        title="Filter Operator",
+        description="Logic for combining filter results: AND requires all selected filters to pass, OR requires at least one filter to pass",
+    ),
+):
+    """
+    Apply multiple chemical filters with detailed violation information.
+
+    This endpoint provides comprehensive information about why molecules pass or fail
+    specific filters, including:
+    - PAINS substructure family and description when matched
+    - Specific property values that cause Lipinski, Veber, REOS, Ghose, or Rule of 3 violations
+    - Clear indication of whether finding a match is good or bad for drug-likeness
+
+    Returns detailed results for each molecule with pass/fail status and violation details.
+    """
+    results = []
+
+    for item in io.StringIO(smiles_list):
+        smiles = item.strip()
+        if not smiles:
+            continue
+
+        mol = parse_input(smiles, "rdkit", False)
+        if not mol:
+            results.append(
+                {
+                    "smiles": smiles,
+                    "valid": False,
+                    "error": "Invalid SMILES string",
+                    "filters": {},
+                }
+            )
+            continue
+
+        molecule_result = {
+            "smiles": smiles,
+            "valid": True,
+            "filters": {},
+            "overall_pass": False,
+            "filter_passes": [],
+        }
+
+        # Apply each requested filter with detailed information
+        if pains:
+            pains_result = get_PAINS_detailed(mol)
+            molecule_result["filters"]["pains"] = pains_result
+            molecule_result["filter_passes"].append(pains_result["passes"])
+
+        if lipinski:
+            lipinski_result = check_RO5_violations_detailed(mol)
+            molecule_result["filters"]["lipinski"] = lipinski_result
+            molecule_result["filter_passes"].append(lipinski_result["passes"])
+
+        if veber:
+            veber_result = get_VeberFilter_detailed(mol)
+            molecule_result["filters"]["veber"] = veber_result
+            molecule_result["filter_passes"].append(veber_result["passes"])
+
+        if reos:
+            reos_result = get_REOSFilter_detailed(mol)
+            molecule_result["filters"]["reos"] = reos_result
+            molecule_result["filter_passes"].append(reos_result["passes"])
+
+        if ghose:
+            ghose_result = get_GhoseFilter_detailed(mol)
+            molecule_result["filters"]["ghose"] = ghose_result
+            molecule_result["filter_passes"].append(ghose_result["passes"])
+
+        if ruleofthree:
+            ro3_result = get_RuleofThree_detailed(mol)
+            molecule_result["filters"]["rule_of_three"] = ro3_result
+            molecule_result["filter_passes"].append(ro3_result["passes"])
+
+        # Handle numeric score filters
+        if len(qedscore.split("-")) == 2:
+            range_start, range_end = float(qedscore.split("-")[0]), float(
+                qedscore.split("-")[1]
+            )
+            qed_value = QED.qed(mol)
+            qed_passes = range_start <= qed_value <= range_end
+            molecule_result["filters"]["qed"] = {
+                "passes": qed_passes,
+                "value": round(qed_value, 3),
+                "range": f"{range_start}-{range_end}",
+                "details": f"QED = {qed_value:.3f} ({'within' if qed_passes else 'outside'} range {range_start}-{range_end})",
+            }
+            molecule_result["filter_passes"].append(qed_passes)
+
+        if len(sascore.split("-")) == 2:
+            range_start, range_end = float(sascore.split("-")[0]), float(
+                sascore.split("-")[1]
+            )
+            sas_value = get_sas_score(mol)
+            sas_passes = range_start <= sas_value <= range_end
+            molecule_result["filters"]["sa_score"] = {
+                "passes": sas_passes,
+                "value": sas_value,
+                "range": f"{range_start}-{range_end}",
+                "details": f"SA Score = {sas_value} ({'within' if sas_passes else 'outside'} range {range_start}-{range_end})",
+            }
+            molecule_result["filter_passes"].append(sas_passes)
+
+        if len(nplikeness.split("-")) == 2:
+            range_start, range_end = float(nplikeness.split("-")[0]), float(
+                nplikeness.split("-")[1]
+            )
+            np_value = get_np_score(mol)
+            np_passes = range_start <= float(np_value) <= range_end
+            molecule_result["filters"]["np_likeness"] = {
+                "passes": np_passes,
+                "value": float(np_value),
+                "range": f"{range_start}-{range_end}",
+                "details": f"NP-likeness = {np_value} ({'within' if np_passes else 'outside'} range {range_start}-{range_end})",
+            }
+            molecule_result["filter_passes"].append(np_passes)
+
+        # Determine overall pass based on filter operator
+        if molecule_result["filter_passes"]:
+            if filterOperator == "AND":
+                molecule_result["overall_pass"] = all(molecule_result["filter_passes"])
+            else:  # OR
+                molecule_result["overall_pass"] = any(molecule_result["filter_passes"])
+
+        results.append(molecule_result)
+
+    # Filter results based on overall pass status
+    passing_results = [
+        r for r in results if r.get("overall_pass", False) or not r.get("valid", True)
+    ]
+
+    return {
+        "total_molecules": len(results),
+        "passing_molecules": len(passing_results),
+        "filter_operator": filterOperator,
+        "results": passing_results,
+    }
 
 
 @router.get(
