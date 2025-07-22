@@ -132,9 +132,14 @@ async def depict_2d_molecule(
         description="Whether to use a single colour for the molecule.",
     ),
     highlight: Optional[str] = Query(
-        "COSN",
+        None,
         title="Substructure",
         description="SMARTS pattern to highlight atoms/bonds.",
+    ),
+    atomIds: Optional[str] = Query(
+        None,
+        title="Atom Indices",
+        description="Comma-separated list of atom indices to highlight (0-based indexing).",
     ),
 ):
     """Generates a 2D depiction of a molecule using CDK or RDKit with the given.
@@ -168,6 +173,19 @@ async def depict_2d_molecule(
         - The `unicolor` parameter determines whether a single colour is used for the molecule.
     """
     try:
+        # Parse atom indices if provided
+        highlight_atoms = None
+        if atomIds:
+            try:
+                highlight_atoms = [
+                    int(x.strip()) for x in atomIds.split(",") if x.strip().isdigit()
+                ]
+            except ValueError:
+                raise HTTPException(
+                    status_code=422,
+                    detail="Invalid atomIds format. Please provide comma-separated integers.",
+                )
+
         if toolkit == "cdk":
             mol = parse_input(smiles, "cdk", False)
             depiction = get_cdk_depiction(
@@ -177,11 +195,17 @@ async def depict_2d_molecule(
                 CIP=CIP,
                 unicolor=unicolor,
                 highlight=highlight,
+                highlight_atoms=highlight_atoms,
             )
         elif toolkit == "rdkit":
             mol = parse_input(smiles, "rdkit", False)
             depiction = get_rdkit_depiction(
-                mol, [width, height], rotate, unicolor=unicolor, highlight=highlight
+                mol,
+                [width, height],
+                rotate,
+                unicolor=unicolor,
+                highlight=highlight,
+                highlight_atoms=highlight_atoms,
             )
         else:
             raise HTTPException(
