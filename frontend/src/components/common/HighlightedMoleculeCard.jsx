@@ -2,6 +2,7 @@ import React, { useState, useRef, useMemo } from 'react';
 import {
   HiOutlineClipboard,
   HiOutlineDownload,
+  HiOutlineInformationCircle,
   HiOutlineCheckCircle,
   HiOutlineX
 } from 'react-icons/hi';
@@ -42,74 +43,132 @@ const HighlightedMoleculeCard = ({
 
   const baseUrl = 'https://dev.api.naturalproducts.net';
 
-  // Generate highlighting SMARTS pattern from functional groups
-  const highlightPattern = useMemo(() => {
+  // Generate highlighting information from functional groups
+  const highlightInfo = useMemo(() => {
     if (highlightedGroupIndex === null || !functionalGroups[highlightedGroupIndex]) {
-      return '';
+      return { atomIds: null, pattern: '' };
     }
 
     const group = functionalGroups[highlightedGroupIndex];
-    if (group.None) return '';
+    if (group.None) return { atomIds: null, pattern: '' };
 
-    // Try to use atom IDs to create a highlighting pattern
-    if (group.atomIds && group.atomIds.length > 0) {
-      // For now, we'll use a simple pattern based on the group type
-      // This could be enhanced with more sophisticated SMARTS generation
-      if (group.type) {
-        // Use the type as a SMARTS pattern if it looks like one
-        const typeStr = group.type.toString();
-        if (typeStr.includes('[') || typeStr.includes('(')) {
-          return typeStr;
+    // Priority 1: Use the type field as SMARTS pattern - this contains the actual substructure pattern
+    if (group.type) {
+      const typeStr = group.type.toString().trim();
+      if (typeStr) {
+        // If we also have atomIds, return both for combined highlighting
+        if (group.atomIds && Array.isArray(group.atomIds) && group.atomIds.length > 0) {
+          return { 
+            atomIds: group.atomIds,
+            pattern: typeStr 
+          };
         }
-      }
-      
-      // Fallback patterns for common functional groups
-      const commonPatterns = {
-        'alcohol': '[OH]',
-        'hydroxyl': '[OH]',
-        'carbonyl': '[C]=[O]',
-        'carboxyl': '[C](=[O])[OH]',
-        'carboxylic': '[C](=[O])[OH]',
-        'amino': '[NH2]',
-        'amine': '[N]',
-        'amide': '[C](=[O])[N]',
-        'ester': '[C](=[O])[O][C]',
-        'ether': '[O]([C])[C]',
-        'ketone': '[C](=[O])[C]',
-        'aldehyde': '[CHO]',
-        'phenyl': 'c1ccccc1',
-        'aromatic': 'c',
-        'benzene': 'c1ccccc1',
-        'nitro': '[N+](=O)[O-]',
-        'sulfur': '[S]',
-        'phosphorus': '[P]',
-        'halogen': '[F,Cl,Br,I]',
-        'fluorine': '[F]',
-        'chlorine': '[Cl]',
-        'bromine': '[Br]',
-        'iodine': '[I]'
-      };
-
-      // Try to match group description to common patterns
-      const description = (group.description || group.type || group.atoms || '').toLowerCase();
-      for (const [name, pattern] of Object.entries(commonPatterns)) {
-        if (description.includes(name)) {
-          return pattern;
-        }
-      }
-
-      // If we have a simple atom type, try to match it
-      if (group.atoms) {
-        const atomStr = group.atoms.toLowerCase();
-        if (atomStr === 'o') return '[O]';
-        if (atomStr === 'n') return '[N]';
-        if (atomStr === 's') return '[S]';
-        if (atomStr === 'p') return '[P]';
-        if (atomStr === 'c') return '[C]';
+        // Otherwise just use the pattern
+        return { atomIds: null, pattern: typeStr };
       }
     }
 
-    return '';
+    // Priority 2: Use atom indices alone if no type pattern available
+    if (group.atomIds && Array.isArray(group.atomIds) && group.atomIds.length > 0) {
+      return { 
+        atomIds: group.atomIds,
+        pattern: '' 
+      };
+    }
+
+    // Priority 2: Generate SMARTS pattern based on atom type and functional group context
+    if (group.atoms) {
+      const atomStr = group.atoms.toLowerCase();
+      let pattern = '';
+
+      // Create more specific patterns based on the atom type and context
+      switch (atomStr) {
+        case 'o':
+          // Check if it's part of a carbonyl, hydroxyl, etc.
+          if (group.type && group.type.toString().toLowerCase().includes('=o')) {
+            pattern = '[C]=[O]'; // Carbonyl oxygen
+          } else if (group.type && group.type.toString().toLowerCase().includes('oh')) {
+            pattern = '[OH]'; // Hydroxyl oxygen
+          } else {
+            pattern = '[O]'; // Generic oxygen
+          }
+          break;
+        case 'n':
+          // Check for different nitrogen contexts
+          if (group.type && group.type.toString().toLowerCase().includes('nh2')) {
+            pattern = '[NH2]'; // Primary amine
+          } else if (group.type && group.type.toString().toLowerCase().includes('nh')) {
+            pattern = '[NH]'; // Secondary amine
+          } else {
+            pattern = '[N]'; // Generic nitrogen
+          }
+          break;
+        case 's':
+          pattern = '[S]';
+          break;
+        case 'p':
+          pattern = '[P]';
+          break;
+        case 'c':
+          // For carbon, try to be more specific based on context
+          if (group.type && group.type.toString().toLowerCase().includes('=o')) {
+            pattern = '[C]=O'; // Carbonyl carbon
+          } else if (group.type && group.type.toString().toLowerCase().includes('aromatic')) {
+            pattern = '[c]'; // Aromatic carbon
+          } else {
+            pattern = '[C]'; // Aliphatic carbon
+          }
+          break;
+        default:
+          // Try to use the atom string directly as an element symbol
+          pattern = `[${atomStr.toUpperCase()}]`;
+      }
+
+      return { atomIds: null, pattern };
+    }
+
+    // Priority 3: Store atom indices for future use when backend supports it
+    if (group.atomIds && Array.isArray(group.atomIds) && group.atomIds.length > 0) {
+      return { 
+        atomIds: group.atomIds,
+        pattern: '' // Will fallback to basic pattern if atomIds not supported
+      };
+    }
+
+    // Priority 4: Final fallback - try to extract meaningful patterns from description
+    if (group.description) {
+      const desc = group.description.toLowerCase();
+      
+      // Common functional group patterns
+      const patterns = {
+        'hydroxyl': '[OH]',
+        'alcohol': '[OH]',
+        'carbonyl': '[C]=[O]',
+        'ketone': '[C](=[O])[C]',
+        'aldehyde': '[CHO]',
+        'carboxyl': '[C](=[O])[OH]',
+        'carboxylic': '[C](=[O])[OH]',
+        'amine': '[NH2,NH,N]',
+        'amino': '[NH2]',
+        'amide': '[C](=[O])[NH]',
+        'ester': '[C](=[O])[O]',
+        'ether': '[O]([C])[C]',
+        'phenyl': 'c1ccccc1',
+        'benzene': 'c1ccccc1',
+        'aromatic': 'c',
+        'nitro': '[N+](=O)[O-]',
+        'sulfur': '[S]',
+        'phosphorus': '[P]'
+      };
+
+      for (const [name, pattern] of Object.entries(patterns)) {
+        if (desc.includes(name)) {
+          return { atomIds: null, pattern };
+        }
+      }
+    }
+
+    return { atomIds: null, pattern: '' };
   }, [functionalGroups, highlightedGroupIndex]);
 
   // Generate image URL with highlighting
@@ -120,16 +179,32 @@ const HighlightedMoleculeCard = ({
       smiles: smiles,
       width: '512',
       height: '512',
-      toolkit: 'cdk'
+      toolkit: 'rdkit' // Use RDKit for better highlighting support
     });
 
-    // Add highlighting if we have a pattern
-    if (highlightPattern) {
-      params.set('highlight', highlightPattern);
+    // Add highlighting based on available data (use anchor atoms + SMARTS pattern for precision)
+    if (highlightInfo.atomIds && highlightInfo.atomIds.length > 0 && highlightInfo.pattern) {
+      // Combined approach: Use both anchor atoms and SMARTS pattern
+      params.set('atomIds', highlightInfo.atomIds.join(','));
+      params.set('highlight', highlightInfo.pattern);
+      console.log('🎯 Using combined highlighting - atomIds:', highlightInfo.atomIds, 'pattern:', highlightInfo.pattern);
+    } else if (highlightInfo.atomIds && highlightInfo.atomIds.length > 0) {
+      // Use specific atom indices for precise highlighting
+      params.set('atomIds', highlightInfo.atomIds.join(','));
+      console.log('🎯 Using atomIds highlighting:', highlightInfo.atomIds);
+    } else if (highlightInfo.pattern) {
+      // Fallback to SMARTS pattern highlighting
+      params.set('highlight', highlightInfo.pattern);
+      console.log('🎯 Using SMARTS pattern highlighting:', highlightInfo.pattern);
+    } else {
+      console.log('🎯 No highlighting applied');
     }
 
-    return `${baseUrl}/latest/depict/2D?${params.toString()}`;
-  }, [smiles, highlightPattern]);
+    const finalUrl = `${baseUrl}/latest/depict/2D?${params.toString()}`;
+    console.log('🖼️ Generated image URL:', finalUrl);
+    
+    return finalUrl;
+  }, [smiles, highlightInfo]);
 
   // Copy functionality
   const handleCopy = (e) => {
