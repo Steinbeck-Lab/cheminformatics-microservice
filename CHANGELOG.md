@@ -1,5 +1,25 @@
 # Changelog
 
+## [3.4.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.3.1...v3.4.0) (2025-07-22)
+
+
+### Features
+
+* detailed filters ([c1e2993](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/c1e2993f8863400c005885a5f8862235f9d94b2f))
+* Functional group substructure highlighting ([78122d0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/78122d0735e0d6e6c4b361ee4dbf8d60cf2e6839))
+* SMILES input for standardization ([00db957](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/00db957bd12a720aaa3a38f1879e245654f89264))
+
+
+### Bug Fixes
+
+* All filters frontend ([d3c2688](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d3c2688598debe6e45bb82fa13999ba8b06019c8))
+* Ertl Functional Group View ([b2ef505](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/b2ef5055665246d765c0bb3f310598c44d8412a4))
+* functional group highlighting ([81f4220](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/81f42203b3baf433aeaebe2075c630fc08fb364b))
+* linting and unused imports ([4e5720d](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/4e5720d425e5040421006977bf26c5ed84262d9a))
+* PubChem retrieve ([fd1713b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/fd1713b405d33bcaa6f8eb573d6e23e7d49fbe09))
+* Standardization ([e63031e](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/e63031ec743692cddac2b4d9c269685373e109b4))
+* test all filters detailed ([449f93d](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/449f93df8562ae0aa246e384b3c118c95aa13506))
+
 ## [3.4.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.3.0...v3.4.0) (2025-06-10)
 
 
