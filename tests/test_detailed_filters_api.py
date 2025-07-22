@@ -6,7 +6,6 @@ This script tests the API endpoints we created to address reviewer concerns,
 specifically the new /chem/all_filters_detailed endpoint.
 """
 
-import json
 import sys
 from pathlib import Path
 

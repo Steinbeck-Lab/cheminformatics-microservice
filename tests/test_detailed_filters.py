@@ -258,10 +258,6 @@ class TestFilterComparisons:
         from app.modules.toolkits.rdkit_wrapper import (
             check_RO5_violations,
             get_PAINS,
-            get_GhoseFilter,
-            get_VeberFilter,
-            get_REOSFilter,
-            get_RuleofThree,
         )
 
         # Test Lipinski consistency

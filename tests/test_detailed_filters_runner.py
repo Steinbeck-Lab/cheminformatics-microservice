@@ -237,7 +237,7 @@ def run_mock_tests():
 
     for filter_name, result in mock_results.items():
         print(f"\n{filter_name.upper()}:")
-        print(f"  Structure: ✅ Contains all required keys")
+        print("  Structure: ✅ Contains all required keys")
         print(f"  Passes: {'❌ FAIL' if not result['passes'] else '✅ PASS'}")
 
         if "details" in result:
