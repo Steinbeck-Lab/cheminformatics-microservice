@@ -184,6 +184,24 @@ const generateStandardizedTautomer = async (smiles) => {
 
 
 /**
+ * Standardize a molblock using the ChEMBL curation pipeline
+ * @param {string} molblock - Molblock string to standardize
+ * @returns {Promise<Object>} - Object containing standardized molecule data
+ */
+const standardizeMolblock = async (molblock) => {
+  try {
+    const response = await api.post(`${CHEM_URL}/standardize`, molblock, {
+      headers: {
+        'Content-Type': 'text/plain'
+      }
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(`Failed to standardize molblock: ${error.message}`);
+  }
+};
+
+/**
  * Find chemical structure by name, formula, or identifier using the PubChem database
  * @param {string} identifier - Chemical name, formula, or identifier (CAS, InChI, SMILES, etc.)
  * @returns {Promise<Object>} - Object containing canonical_smiles, input, input_type, and success status
@@ -216,7 +234,8 @@ export {
   generateFunctionalGroups,
   generateStandardizedTautomer,
   getDescriptors,
-  lookupPubChem
+  lookupPubChem,
+  standardizeMolblock
 };
 
 // Assemble all functions into a service object
@@ -232,7 +251,8 @@ const chemService = {
   coconutPreprocessing,
   generateFunctionalGroups,
   generateStandardizedTautomer,
-  lookupPubChem
+  lookupPubChem,
+  standardizeMolblock
 };
 
 export default chemService;

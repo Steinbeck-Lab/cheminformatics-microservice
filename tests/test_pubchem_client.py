@@ -56,9 +56,7 @@ class TestPubChemClient(unittest.TestCase):
         self.mock_success_response = MagicMock()
         self.mock_success_response.status_code = 200
         self.mock_success_response.json.return_value = {
-            "PropertyTable": {
-                "Properties": [{"IsomericSMILES": "CC(=O)OC1=CC=CC=C1C(=O)O"}]
-            }
+            "PropertyTable": {"Properties": [{"SMILES": "CC(=O)OC1=CC=CC=C1C(=O)O"}]}
         }
         self.mock_success_response.text = "2244\n"
 
@@ -90,7 +88,7 @@ class TestPubChemClient(unittest.TestCase):
         result = self.client._query_by_cid("2244")
         self.assertEqual(result, "CC(=O)OC1=CC=CC=C1C(=O)O")
         mock_get.assert_called_once_with(
-            f"{PubChemClient.BASE_URL}/cid/2244/property/IsomericSMILES/JSON",
+            f"{PubChemClient.BASE_URL}/cid/2244/property/SMILES/JSON",
             timeout=self.client.timeout,
         )
 
