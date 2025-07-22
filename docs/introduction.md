@@ -28,7 +28,7 @@ The Cheminformatics Microservice features a modern React frontend that offers an
 - Molecular descriptor calculation  
 - Stereoisomer generation  
 - Natural product likeness scoring  
-- Functional group detection (**Ertl method**)  
+- Functional group detection (**Ertl method**) with **interactive highlighting**  
 - Tautomer standardization  
 - HOSE code generation  
 - Tanimoto similarity calculation  

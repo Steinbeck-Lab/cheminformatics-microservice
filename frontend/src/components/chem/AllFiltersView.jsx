@@ -16,12 +16,15 @@ import {
 import LoadingScreen from "../common/LoadingScreen"; // Assuming this component is theme-aware
 import { useAppContext } from "../../context/AppContext"; // Assuming this provides theme-aware context if needed
 import api from "../../services/api"; // Assuming api service is configured
+import { applyChemicalFiltersDetailed } from "../../services/toolsService";
 
 const AllFiltersView = () => {
   const [smilesInput, setSmilesInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [results, setResults] = useState([]);
+  const [detailedResults, setDetailedResults] = useState(null);
+  const [showDetailedView, setShowDetailedView] = useState(false);
   const [copied, setCopied] = useState(false);
   const [filterOperator, setFilterOperator] = useState("OR"); // Default to OR logic
   const [showInfoModal, setShowInfoModal] = useState(false); // State for showing info modal
@@ -63,11 +66,11 @@ const AllFiltersView = () => {
     setLoading(true);
     setError(null);
     setResults([]); // Clear previous results
+    setDetailedResults(null); // Clear previous detailed results
 
     const optionsForApi = explicitOptions || filterOptions;
 
     try {
-      // Prepare parameters for the API call
       const apiParams = {
         ...optionsForApi,
         filterOperator: overrideOperator || filterOperator,
@@ -75,30 +78,59 @@ const AllFiltersView = () => {
 
       console.log("Applying filters with parameters:", apiParams);
       console.log(`Filter operator: ${apiParams.filterOperator}`);
+      console.log(`Detailed view: ${showDetailedView}`);
 
-      // Assuming api.post sends text data correctly and handles params
-      const response = await api.post("/chem/all_filters", trimmedInput, {
-        params: apiParams, // Send filter options as query parameters
-        headers: {
-          "Content-Type": "text/plain", // Sending SMILES list as plain text
-          Accept: "application/json", // Expecting JSON response, adjust if needed
-        },
-      });
+      let responseData = null;
 
-      // Assuming the response data is the array of result strings
-      // Adjust based on actual API response structure
-      if (Array.isArray(response.data)) {
-        console.log("Received filter results:", response.data);
-        setResults(response.data);
+      if (showDetailedView) {
+        // Use detailed endpoint
+        const detailedData = await applyChemicalFiltersDetailed(trimmedInput, apiParams);
+        console.log("Received detailed filter results:", detailedData);
+        setDetailedResults(detailedData);
+        
+        // Also set simple results for backward compatibility
+        const simpleResults = detailedData.results.map(result => {
+          if (!result.valid) {
+            return `${result.smiles} : ERROR`;
+          }
+          
+          // Build simple result format
+          const filterResults = [];
+          Object.keys(result.filters).forEach(filterKey => {
+            const filterResult = result.filters[filterKey];
+            filterResults.push(filterResult.passes ? "T" : "F");
+          });
+          
+          return `${result.smiles} : ${filterResults.join(", ")}`;
+        });
+        setResults(simpleResults);
+        
+        // Set responseData for recent molecules logic
+        responseData = simpleResults;
       } else {
-        // Handle unexpected response format
-        console.warn("Received non-array response:", response.data);
-        setResults([]); // Set to empty or handle appropriately
-        setError("Received unexpected data format from the server.");
+        // Use original endpoint
+        const response = await api.post("/chem/all_filters", trimmedInput, {
+          params: apiParams,
+          headers: {
+            "Content-Type": "text/plain",
+            Accept: "application/json",
+          },
+        });
+
+        if (Array.isArray(response.data)) {
+          console.log("Received filter results:", response.data);
+          setResults(response.data);
+          responseData = response.data;
+        } else {
+          console.warn("Received non-array response:", response.data);
+          setResults([]);
+          setError("Received unexpected data format from the server.");
+          responseData = [];
+        }
       }
 
       // Add molecules to recent list (only if results were successful)
-      if (Array.isArray(response.data)) {
+      if (Array.isArray(responseData) && responseData.length > 0) {
         const smilesList = trimmedInput
           .split(/[\n\s,;]+/)
           .filter((s) => s.trim()); // Split by various delimiters
@@ -311,11 +343,11 @@ const AllFiltersView = () => {
     <div className="space-y-2">
       <p className="text-sm text-gray-600 dark:text-gray-400">
         <strong>PAINS</strong>: Pan-Assay Interference compounds - structures
-        known to interfere with biochemical assays
+        known to interfere with biochemical assays. Finding a PAINS match is <em>undesirable</em> for drug development.
       </p>
       <p className="text-sm text-gray-600 dark:text-gray-400">
         <strong>Lipinski Rule of 5</strong>: Evaluates drug-likeness based on
-        molecular weight, logP, H-bond donors/acceptors
+        molecular weight, logP, H-bond donors/acceptors. Shows specific violations when detailed mode is enabled.
       </p>
       <p className="text-sm text-gray-600 dark:text-gray-400">
         <strong>Veber</strong>: Filters for oral bioavailability based on
@@ -332,6 +364,15 @@ const AllFiltersView = () => {
       <p className="text-sm text-gray-600 dark:text-gray-400">
         <strong>Rule of 3</strong>: Criteria for fragment-based drug discovery
       </p>
+      <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded">
+        <p className="text-sm text-green-800 dark:text-green-200 font-medium mb-1">
+          💡 New: Detailed View Mode
+        </p>
+        <p className="text-xs text-green-700 dark:text-green-300">
+          Enable "Show detailed violation information" to see exactly which properties failed 
+          and by how much, plus specific PAINS substructure families when matched.
+        </p>
+      </div>
       <p className="mt-4 text-sm text-gray-600 dark:text-gray-400 border-t border-blue-100 dark:border-blue-800 pt-4">
         <strong>Filter Match Logic</strong>: Choose how filters are combined -
         "Match All Filters" requires molecules to pass all selected filters (AND
@@ -504,34 +545,59 @@ const AllFiltersView = () => {
 
           {/* Filter Operator Toggle */}
           <div className="pt-4 pb-2 border-t border-gray-200 dark:border-gray-700">
-            <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-              <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
-                <HiOutlineSwitchHorizontal className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
-                Filter Match Logic:
-              </label>
-              <div className="flex p-1 space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                <button
-                  type="button"
-                  onClick={() => handleFilterOperatorChange("AND")}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    filterOperator === "AND"
-                      ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm"
-                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-                  }`}
-                >
-                  Match All Filters (AND)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleFilterOperatorChange("OR")}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    filterOperator === "OR"
-                      ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm"
-                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-                  }`}
-                >
-                  Match Any Filter (OR)
-                </button>
+            <div className="flex flex-col space-y-4">
+              {/* Filter Logic */}
+              <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <HiOutlineSwitchHorizontal className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  Filter Match Logic:
+                </label>
+                <div className="flex p-1 space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                  <button
+                    type="button"
+                    onClick={() => handleFilterOperatorChange("AND")}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      filterOperator === "AND"
+                        ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm"
+                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                    }`}
+                  >
+                    Match All Filters (AND)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleFilterOperatorChange("OR")}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      filterOperator === "OR"
+                        ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm"
+                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                    }`}
+                  >
+                    Match Any Filter (OR)
+                  </button>
+                </div>
+              </div>
+
+              {/* Detailed View Toggle */}
+              <div className="flex items-center space-x-3">
+                <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <HiOutlineInformationCircle className="mr-2 h-5 w-5 text-green-600 dark:text-green-400" />
+                  Result Detail Level:
+                </label>
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={showDetailedView}
+                    onChange={(e) => setShowDetailedView(e.target.checked)}
+                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+                  />
+                  <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                    Show detailed violation information
+                    <span className="block text-xs text-gray-500 dark:text-gray-400">
+                      Display specific property values and PAINS substructure details
+                    </span>
+                  </span>
+                </label>
               </div>
             </div>
           </div>
@@ -796,6 +862,104 @@ const AllFiltersView = () => {
                 })}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* Detailed Results Section */}
+      {!loading && showDetailedView && detailedResults && (
+        <div className="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-lg shadow-md dark:shadow-lg">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+              Detailed Filter Results
+              <span className="text-sm font-normal text-gray-500 dark:text-gray-400 block">
+                {detailedResults.passing_molecules} of {detailedResults.total_molecules} molecules passed filters ({detailedResults.filter_operator} logic)
+              </span>
+            </h3>
+          </div>
+
+          <div className="space-y-4">
+            {detailedResults.results.map((result, index) => (
+              <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3">
+                  <div className="flex items-center space-x-3">
+                    <span className="font-mono text-sm text-blue-600 dark:text-blue-300">
+                      {result.smiles}
+                    </span>
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      result.overall_pass 
+                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                        : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                    }`}>
+                      {result.overall_pass ? "PASS" : "FAIL"}
+                    </span>
+                  </div>
+                </div>
+
+                {!result.valid ? (
+                  <div className="text-red-600 dark:text-red-400 text-sm">
+                    Error: {result.error}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {Object.entries(result.filters).map(([filterName, filterResult]) => (
+                      <div key={filterName} className="border border-gray-100 dark:border-gray-600 rounded p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-medium text-sm text-gray-900 dark:text-white capitalize">
+                            {filterName.replace(/_/g, ' ')}
+                          </h4>
+                          <span className={`px-2 py-1 text-xs font-medium rounded ${
+                            filterResult.passes
+                              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                              : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                          }`}>
+                            {filterResult.passes ? "Pass" : "Fail"}
+                          </span>
+                        </div>
+                        
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          {filterResult.details}
+                        </div>
+
+                        {filterResult.violations && filterResult.violations.length > 0 && (
+                          <div className="mt-2">
+                            <div className="text-xs font-medium text-red-700 dark:text-red-300 mb-1">
+                              Violations:
+                            </div>
+                            <ul className="text-xs text-red-600 dark:text-red-400 space-y-1">
+                              {filterResult.violations.map((violation, i) => (
+                                <li key={i} className="flex items-start">
+                                  <span className="mr-1">•</span>
+                                  <span>{violation}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {filterResult.properties && (
+                          <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                            <details className="cursor-pointer">
+                              <summary className="hover:text-gray-700 dark:hover:text-gray-300">
+                                View properties
+                              </summary>
+                              <div className="mt-1 pl-2 border-l-2 border-gray-200 dark:border-gray-600">
+                                {Object.entries(filterResult.properties).map(([prop, value]) => (
+                                  <div key={prop} className="flex justify-between">
+                                    <span>{prop.replace(/_/g, ' ')}:</span>
+                                    <span className="font-mono">{value}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </details>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       )}
