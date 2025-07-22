@@ -80,6 +80,8 @@ const AllFiltersView = () => {
       console.log(`Filter operator: ${apiParams.filterOperator}`);
       console.log(`Detailed view: ${showDetailedView}`);
 
+      let responseData = null;
+
       if (showDetailedView) {
         // Use detailed endpoint
         const detailedData = await applyChemicalFiltersDetailed(trimmedInput, apiParams);
@@ -102,6 +104,9 @@ const AllFiltersView = () => {
           return `${result.smiles} : ${filterResults.join(", ")}`;
         });
         setResults(simpleResults);
+        
+        // Set responseData for recent molecules logic
+        responseData = simpleResults;
       } else {
         // Use original endpoint
         const response = await api.post("/chem/all_filters", trimmedInput, {
@@ -115,15 +120,17 @@ const AllFiltersView = () => {
         if (Array.isArray(response.data)) {
           console.log("Received filter results:", response.data);
           setResults(response.data);
+          responseData = response.data;
         } else {
           console.warn("Received non-array response:", response.data);
           setResults([]);
           setError("Received unexpected data format from the server.");
+          responseData = [];
         }
       }
 
       // Add molecules to recent list (only if results were successful)
-      if (Array.isArray(response.data)) {
+      if (Array.isArray(responseData) && responseData.length > 0) {
         const smilesList = trimmedInput
           .split(/[\n\s,;]+/)
           .filter((s) => s.trim()); // Split by various delimiters
