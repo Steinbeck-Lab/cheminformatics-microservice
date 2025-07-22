@@ -44,6 +44,53 @@ def check_RO5_violations(molecule: any) -> int:
     return num_of_violations
 
 
+def check_RO5_violations_detailed(molecule: any) -> dict:
+    """Check the molecule for violations of Lipinski's Rule of Five with detailed information.
+
+    Args:
+        molecule (Chem.Mol): RDKit molecule object.
+
+    Returns:
+        dict: Dictionary containing violation details with keys:
+            - violations: int (number of violations)
+            - details: list of violation descriptions
+            - properties: dict of actual property values
+            - passes: bool (True if no violations)
+    """
+    violations = []
+    properties = {}
+
+    # Calculate properties
+    mw = Descriptors.MolWt(molecule)
+    logp = Descriptors.MolLogP(molecule)
+    hba = Lipinski.NumHAcceptors(molecule)
+    hbd = Lipinski.NumHDonors(molecule)
+
+    properties = {
+        "molecular_weight": round(mw, 2),
+        "logp": round(logp, 2),
+        "hb_acceptors": hba,
+        "hb_donors": hbd,
+    }
+
+    # Check violations
+    if logp > 5:
+        violations.append(f"LogP = {logp:.2f} (> 5)")
+    if mw > 500:
+        violations.append(f"MW = {mw:.1f} Da (> 500)")
+    if hba > 10:
+        violations.append(f"HBA = {hba} (> 10)")
+    if hbd > 5:
+        violations.append(f"HBD = {hbd} (> 5)")
+
+    return {
+        "violations": len(violations),
+        "details": violations,
+        "properties": properties,
+        "passes": len(violations) == 0,
+    }
+
+
 def get_MolVolume(molecule: any) -> float:
     """
     Calculate the volume of a molecule.
@@ -435,6 +482,45 @@ def get_PAINS(molecule: any) -> Union[bool, Tuple[str, str]]:
         return False
 
 
+def get_PAINS_detailed(molecule: any) -> dict:
+    """Check if a molecule contains a PAINS substructure with detailed information.
+
+    Parameters:
+    molecule (any): A molecule represented as an RDKit Mol object.
+
+    Returns:
+    dict: Dictionary containing PAINS analysis with keys:
+        - contains_pains: bool (True if PAINS found - this is BAD for drug-likeness)
+        - family: str or None (PAINS family if found)
+        - description: str or None (PAINS description if found)
+        - passes: bool (True if NO PAINS found - this is GOOD for drug-likeness)
+        - details: str (human-readable explanation)
+    """
+    params = FilterCatalogParams()
+    params.AddCatalog(FilterCatalogParams.FilterCatalogs.PAINS)
+    catalog = FilterCatalog(params)
+
+    entry = catalog.GetFirstMatch(molecule)
+    if entry:
+        family = entry.GetProp("Scope")
+        description = entry.GetDescription().capitalize()
+        return {
+            "contains_pains": True,
+            "family": family,
+            "description": description,
+            "passes": False,  # Finding PAINS is BAD, so passes = False
+            "details": f"PAINS match found: {family} - {description}",
+        }
+    else:
+        return {
+            "contains_pains": False,
+            "family": None,
+            "description": None,
+            "passes": True,  # No PAINS found is GOOD, so passes = True
+            "details": "No PAINS substructures detected",
+        }
+
+
 def get_GhoseFilter(molecule: any) -> bool:
     """Determine if a molecule satisfies Ghose's filter criteria.
 
@@ -470,6 +556,47 @@ def get_GhoseFilter(molecule: any) -> bool:
         return False
 
 
+def get_GhoseFilter_detailed(molecule: any) -> dict:
+    """Determine if a molecule satisfies Ghose's filter criteria with detailed information.
+
+    Parameters:
+    molecule (any): A molecule represented as an RDKit Mol object.
+
+    Returns:
+    dict: Dictionary containing Ghose filter analysis with keys:
+        - passes: bool (True if passes Ghose criteria)
+        - violations: list of violation descriptions
+        - properties: dict of actual property values
+        - details: str (human-readable explanation)
+    """
+    MW = Descriptors.ExactMolWt(molecule)
+    logP = Descriptors.MolLogP(molecule)
+    NoAtoms = rdMolDescriptors.CalcNumAtoms(molecule)
+    MolarRefractivity = Chem.Crippen.MolMR(molecule)
+
+    violations = []
+    if not (160 <= MW <= 480):
+        violations.append(f"MW = {MW:.1f} (not in 160-480)")
+    if not (0.4 <= logP <= 5.6):
+        violations.append(f"LogP = {logP:.2f} (not in 0.4-5.6)")
+    if not (20 <= NoAtoms <= 70):
+        violations.append(f"Atoms = {NoAtoms} (not in 20-70)")
+    if not (40 <= MolarRefractivity <= 130):
+        violations.append(f"MR = {MolarRefractivity:.1f} (not in 40-130)")
+
+    return {
+        "passes": len(violations) == 0,
+        "violations": violations,
+        "properties": {
+            "molecular_weight": round(MW, 1),
+            "logp": round(logP, 2),
+            "atom_count": NoAtoms,
+            "molar_refractivity": round(MolarRefractivity, 1),
+        },
+        "details": "No violations" if len(violations) == 0 else "; ".join(violations),
+    }
+
+
 def get_VeberFilter(molecule: any) -> bool:
     """Apply the Veber filter to evaluate the drug-likeness of a molecule.
 
@@ -501,6 +628,36 @@ def get_VeberFilter(molecule: any) -> bool:
         return True
     else:
         return False
+
+
+def get_VeberFilter_detailed(molecule: any) -> dict:
+    """Apply the Veber filter with detailed information about violations.
+
+    Parameters:
+        molecule (any): A molecule represented as an RDKit Mol object.
+
+    Returns:
+        dict: Dictionary containing Veber filter analysis with keys:
+            - passes: bool (True if passes Veber criteria)
+            - violations: list of violation descriptions
+            - properties: dict of actual property values
+            - details: str (human-readable explanation)
+    """
+    rotatable_bonds = rdMolDescriptors.CalcNumRotatableBonds(molecule)
+    tpsa = Descriptors.TPSA(molecule)
+
+    violations = []
+    if rotatable_bonds > 10:
+        violations.append(f"Rotatable bonds = {rotatable_bonds} (> 10)")
+    if tpsa > 140:
+        violations.append(f"TPSA = {tpsa:.1f} (> 140)")
+
+    return {
+        "passes": len(violations) == 0,
+        "violations": violations,
+        "properties": {"rotatable_bonds": rotatable_bonds, "tpsa": round(tpsa, 1)},
+        "details": "No violations" if len(violations) == 0 else "; ".join(violations),
+    }
 
 
 def get_REOSFilter(molecule: any) -> bool:
@@ -548,6 +705,59 @@ def get_REOSFilter(molecule: any) -> bool:
         return False
 
 
+def get_REOSFilter_detailed(molecule: any) -> dict:
+    """Determine if a molecule passes the REOS filter with detailed information.
+
+    Parameters:
+        molecule (any): A molecule represented as an RDKit Mol object.
+
+    Returns:
+        dict: Dictionary containing REOS filter analysis with keys:
+            - passes: bool (True if passes REOS criteria)
+            - violations: list of violation descriptions
+            - properties: dict of actual property values
+            - details: str (human-readable explanation)
+    """
+    MW = Descriptors.ExactMolWt(molecule)
+    logP = Descriptors.MolLogP(molecule)
+    HBD = Descriptors.NumHDonors(molecule)
+    HBA = Descriptors.NumHAcceptors(molecule)
+    FormalCharge = rdmolops.GetFormalCharge(molecule)
+    NumRotatableBonds = rdMolDescriptors.CalcNumRotatableBonds(molecule)
+    HeavyAtomsC = rdMolDescriptors.CalcNumHeavyAtoms(molecule)
+
+    violations = []
+    if not (200 <= MW <= 500):
+        violations.append(f"MW = {MW:.1f} (not in 200-500)")
+    if not (-5 <= logP <= 5):
+        violations.append(f"LogP = {logP:.2f} (not in -5 to 5)")
+    if not (0 <= HBD <= 5):
+        violations.append(f"HBD = {HBD} (not in 0-5)")
+    if not (0 <= HBA <= 10):
+        violations.append(f"HBA = {HBA} (not in 0-10)")
+    if not (-2 <= FormalCharge <= 2):
+        violations.append(f"Charge = {FormalCharge} (not in -2 to 2)")
+    if not (0 <= NumRotatableBonds <= 8):
+        violations.append(f"RotBonds = {NumRotatableBonds} (not in 0-8)")
+    if not (15 <= HeavyAtomsC <= 50):
+        violations.append(f"HeavyAtoms = {HeavyAtomsC} (not in 15-50)")
+
+    return {
+        "passes": len(violations) == 0,
+        "violations": violations,
+        "properties": {
+            "molecular_weight": round(MW, 1),
+            "logp": round(logP, 2),
+            "hb_donors": HBD,
+            "hb_acceptors": HBA,
+            "formal_charge": FormalCharge,
+            "rotatable_bonds": NumRotatableBonds,
+            "heavy_atoms": HeavyAtomsC,
+        },
+        "details": "No violations" if len(violations) == 0 else "; ".join(violations),
+    }
+
+
 def get_RuleofThree(molecule: any) -> bool:
     """Check if a molecule meets the Rule of Three criteria.
 
@@ -576,6 +786,51 @@ def get_RuleofThree(molecule: any) -> bool:
         return True
     else:
         return False
+
+
+def get_RuleofThree_detailed(molecule: any) -> dict:
+    """Check if a molecule meets the Rule of Three criteria with detailed information.
+
+    Parameters:
+        molecule (any): A molecule represented as an RDKit Mol object.
+
+    Returns:
+        dict: Dictionary containing Rule of Three analysis with keys:
+            - passes: bool (True if passes Rule of Three criteria)
+            - violations: list of violation descriptions
+            - properties: dict of actual property values
+            - details: str (human-readable explanation)
+    """
+    MW = Descriptors.ExactMolWt(molecule)
+    logP = Descriptors.MolLogP(molecule)
+    HBD = Descriptors.NumHDonors(molecule)
+    HBA = Descriptors.NumHAcceptors(molecule)
+    NumRotatableBonds = rdMolDescriptors.CalcNumRotatableBonds(molecule)
+
+    violations = []
+    if MW > 300:
+        violations.append(f"MW = {MW:.1f} (> 300)")
+    if logP > 3:
+        violations.append(f"LogP = {logP:.2f} (> 3)")
+    if HBD > 3:
+        violations.append(f"HBD = {HBD} (> 3)")
+    if HBA > 3:
+        violations.append(f"HBA = {HBA} (> 3)")
+    if NumRotatableBonds > 3:
+        violations.append(f"RotBonds = {NumRotatableBonds} (> 3)")
+
+    return {
+        "passes": len(violations) == 0,
+        "violations": violations,
+        "properties": {
+            "molecular_weight": round(MW, 1),
+            "logp": round(logP, 2),
+            "hb_donors": HBD,
+            "hb_acceptors": HBA,
+            "rotatable_bonds": NumRotatableBonds,
+        },
+        "details": "No violations" if len(violations) == 0 else "; ".join(violations),
+    }
 
 
 def get_ertl_functional_groups(molecule: any) -> list:

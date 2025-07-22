@@ -155,6 +155,51 @@ export const applyChemicalFilters = async (smilesList, filterOptions = {}) => {
 };
 
 /**
+ * Apply chemical filters with detailed violation information
+ * @param {string} smilesList - Newline-separated list of SMILES strings
+ * @param {Object} filterOptions - Filter options to apply
+ * @returns {Promise<Object>} - Detailed filter results with violation information
+ */
+export const applyChemicalFiltersDetailed = async (smilesList, filterOptions = {}) => {
+  const {
+    pains = true,
+    lipinski = true,
+    veber = true,
+    reos = true,
+    ghose = true,
+    ruleofthree = true,
+    qedscore = '0-1',
+    sascore = '0-10',
+    nplikeness = '-5-5',
+    filterOperator = 'OR'
+  } = filterOptions;
+
+  try {
+    const response = await api.post(`/chem/all_filters_detailed`, smilesList, {
+      params: {
+        pains,
+        lipinski,
+        veber,
+        reos,
+        ghose,
+        ruleofthree,
+        qedscore,
+        sascore,
+        nplikeness,
+        filterOperator
+      },
+      headers: {
+        'Content-Type': 'text/plain',
+        'Accept': 'application/json'
+      }
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(`Failed to apply detailed chemical filters: ${error.message}`);
+  }
+};
+
+/**
  * Standardize a molecule using the ChEMBL curation pipeline
  * @param {string} molblock - Molecule in molblock format
  * @returns {Promise<Object>} - Standardized molecule data
@@ -212,6 +257,7 @@ const toolsService = {
   removeAllSugars,
   removeSugars, // Add new function
   applyChemicalFilters,
+  applyChemicalFiltersDetailed, // Add detailed filters function
   standardizeMolecule,
   classifyMolecule,
   getClassificationResults
