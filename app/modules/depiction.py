@@ -19,6 +19,7 @@ def get_cdk_depiction(
     CIP=True,
     unicolor=False,
     highlight="",
+    highlight_atoms=None,
 ):
     """This function takes the user input SMILES and Depicts it.
 
@@ -85,7 +86,23 @@ def get_cdk_depiction(
             (rotate * JClass("java.lang.Math").PI / 180.0),
         )
 
-        if highlight and highlight.strip():
+        # Handle highlighting: prioritize atom indices over SMARTS patterns
+        if highlight_atoms and len(highlight_atoms) > 0:
+            # For CDK, we need to create substructures from atom indices
+            # This is more complex and would require additional CDK classes
+            # For now, fall back to SMARTS pattern if available
+            if highlight and highlight.strip():
+                tmpPattern = SmartsPattern.create(highlight, SCOB.getInstance())
+                SmartsPattern.prepare(SDGMol)
+                tmpMappings = tmpPattern.matchAll(SDGMol)
+                tmpSubstructures = tmpMappings.toSubstructures()
+                lightBlue = Color(173, 216, 230)
+                DepictionGenerator = DepictionGenerator.withHighlight(
+                    tmpSubstructures, lightBlue
+                ).withOuterGlowHighlight()
+            # Note: Direct atom index highlighting in CDK requires more complex implementation
+            # This would need creating IAtomContainerSet from specific atoms
+        elif highlight and highlight.strip():
             tmpPattern = SmartsPattern.create(highlight, SCOB.getInstance())
             SmartsPattern.prepare(SDGMol)
             tmpMappings = tmpPattern.matchAll(SDGMol)
@@ -120,6 +137,7 @@ def get_rdkit_depiction(
     CIP=False,
     unicolor=False,
     highlight: str = "",
+    highlight_atoms=None,
 ) -> str:
     """
     Generate a 2D depiction of the input molecule using RDKit.
@@ -158,14 +176,74 @@ def get_rdkit_depiction(
     if unicolor:
         drawer.drawOptions().useBWAtomPalette()
 
-    if highlight:
+    # Handle highlighting based on priority: anchor atoms + SMARTS pattern, then atom indices, then SMARTS pattern alone
+    if highlight_atoms and len(highlight_atoms) > 0 and highlight:
+        # Combined approach: Use SMARTS pattern but only highlight the match that contains the anchor atoms
+        patt = Chem.MolFromSmarts(highlight)
+        if patt:
+            # Find all matches of the SMARTS pattern
+            all_matches = mc.GetSubstructMatches(patt)
+            target_match = None
+
+            # Find the match that contains the anchor atoms
+            for match in all_matches:
+                if any(anchor_atom in match for anchor_atom in highlight_atoms):
+                    target_match = match
+                    break
+
+            if target_match:
+                hit_ats = target_match
+                # Find all bonds within this specific match
+                hit_bonds = []
+                # Check all pairs of atoms in the match to find bonds between them
+                for i in range(len(hit_ats)):
+                    for j in range(i + 1, len(hit_ats)):
+                        bond = mc.GetBondBetweenAtoms(hit_ats[i], hit_ats[j])
+                        if bond:
+                            hit_bonds.append(bond.GetIdx())
+
+                rdMolDraw2D.PrepareAndDrawMolecule(
+                    drawer, mc, highlightAtoms=hit_ats, highlightBonds=hit_bonds
+                )
+            else:
+                # Fallback to just highlighting the anchor atoms if no pattern match contains them
+                hit_ats = tuple(highlight_atoms)
+                rdMolDraw2D.PrepareAndDrawMolecule(
+                    drawer, mc, highlightAtoms=hit_ats, highlightBonds=[]
+                )
+        else:
+            # Invalid SMARTS pattern, fallback to anchor atoms only
+            hit_ats = tuple(highlight_atoms)
+            rdMolDraw2D.PrepareAndDrawMolecule(
+                drawer, mc, highlightAtoms=hit_ats, highlightBonds=[]
+            )
+    elif highlight_atoms and len(highlight_atoms) > 0:
+        # Use specific atom indices for precise highlighting
+        hit_ats = tuple(highlight_atoms)
+        # Find ALL bonds that connect atoms within the functional group
+        hit_bonds = []
+        for i, atom1_idx in enumerate(hit_ats):
+            for j, atom2_idx in enumerate(hit_ats):
+                if i < j:  # Avoid duplicate bonds
+                    bond = mc.GetBondBetweenAtoms(atom1_idx, atom2_idx)
+                    if bond:
+                        hit_bonds.append(bond.GetIdx())
+
+        rdMolDraw2D.PrepareAndDrawMolecule(
+            drawer, mc, highlightAtoms=hit_ats, highlightBonds=hit_bonds
+        )
+    elif highlight:
+        # Fallback to SMARTS pattern highlighting
         patt = Chem.MolFromSmarts(highlight)
         if patt:
             hit_ats = mc.GetSubstructMatch(patt)
-            hit_bonds = [
-                mc.GetBondBetweenAtoms(at1, at2).GetIdx()
-                for at1, at2 in zip(hit_ats[:-1], hit_ats[1:])
-            ]
+            hit_bonds = []
+            # Find all bonds within the matched substructure
+            for i in range(len(hit_ats)):
+                for j in range(i + 1, len(hit_ats)):
+                    bond = mc.GetBondBetweenAtoms(hit_ats[i], hit_ats[j])
+                    if bond:
+                        hit_bonds.append(bond.GetIdx())
             rdMolDraw2D.PrepareAndDrawMolecule(
                 drawer, mc, highlightAtoms=hit_ats, highlightBonds=hit_bonds
             )
