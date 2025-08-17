@@ -167,7 +167,7 @@ const PubChemLookupView = () => {
               }`} 
               aria-hidden="true" 
             />
-            <div>
+            <div className="flex-1">
               <p className="text-sm font-medium">
                 {result.success 
                   ? 'Successfully retrieved structure from PubChem' 
@@ -176,6 +176,35 @@ const PubChemLookupView = () => {
               <p className="text-sm mt-1">
                 Input identifier: <span className="font-mono">{result.input}</span> (detected as {result.input_type})
               </p>
+              {result.success && result.cids && (
+                <div className="mt-3 space-y-2">
+                  <p className="text-sm font-medium">
+                    PubChem CID{result.cids.length > 1 ? 's' : ''}: {result.cids.slice(0, 5).join(', ')}
+                    {result.cids.length > 5 && ` and ${result.cids.length - 5} more`}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {result.pubchem_links && result.pubchem_links.slice(0, 3).map((link, index) => (
+                      <a
+                        key={index}
+                        href={link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors duration-200"
+                      >
+                        View CID {result.cids[index]} in PubChem
+                        <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                    ))}
+                    {result.pubchem_links && result.pubchem_links.length > 3 && (
+                      <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
+                        +{result.pubchem_links.length - 3} more compounds
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import logging
 from typing import Annotated
 from typing import Literal
 from typing import Optional
@@ -89,6 +90,7 @@ router = APIRouter(
 templates = Jinja2Templates(directory="app/templates")
 
 pubchem_client = PubChemClient()
+logger = logging.getLogger(__name__)
 
 
 @router.get("/", include_in_schema=False)
@@ -1440,7 +1442,7 @@ async def get_pubchem_smiles(
         identifier (str): The chemical identifier to look up
 
     Returns:
-        SMILESResponse: Object containing the input, canonical SMILES, detected input type, and success status
+        PubChemResponse: Object containing the input, canonical SMILES, detected input type, CIDs, PubChem links, and success status
 
     Raises:
         HTTPException: If the identifier is invalid or no results are found
@@ -1452,43 +1454,21 @@ async def get_pubchem_smiles(
         )
 
     try:
-        # Get the SMILES from PubChem
-        result = pubchem_client.get_smiles(identifier)
+        # Get comprehensive compound information from PubChem
+        result = pubchem_client.get_compound_info(identifier)
 
-        # Determine input type (simplified for endpoint response)
-        input_type = "name"  # Default
-        if identifier.isdigit():
-            input_type = "CID"
-        elif identifier.startswith("InChI="):
-            input_type = "InChI"
-        elif (
-            len(identifier) == 27
-            and identifier.count("-") == 2
-            and all(c.isupper() or c.isdigit() or c == "-" for c in identifier)
-            and identifier[14] == "-"
-            and identifier[25] == "-"
-        ):
-            input_type = "InChIKey"
-        elif "-" in identifier and sum(c.isdigit() for c in identifier) > 5:
-            input_type = "CAS"
-
-        # Create response
-        if result:
-            return PubChemResponse(
-                input=identifier,
-                canonical_smiles=result,
-                input_type=input_type,
-                success=True,
-            )
-        else:
-            return PubChemResponse(
-                input=identifier,
-                canonical_smiles=None,
-                input_type=input_type,
-                success=False,
-            )
+        # Create response with all available information
+        return PubChemResponse(
+            input=result["input"],
+            canonical_smiles=result["canonical_smiles"],
+            input_type=result["input_type"],
+            success=result["success"],
+            cids=result["cids"],
+            pubchem_links=result["pubchem_links"],
+        )
 
     except Exception as e:
+        logger.error(f"Error processing PubChem request for '{identifier}': {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"Error processing request: {str(e)}",
