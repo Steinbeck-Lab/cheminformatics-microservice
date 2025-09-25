@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.5.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.4.0...v3.5.0) (2025-08-17)
+
+
+### Features
+
+* retrieve PubChem IDs ([f42622b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/f42622ba260c37db2796be3a87a792bdd5369941))
+
+
+### Bug Fixes
+
+* update zero-downtime deployment script to improve logging ([caccd12](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/caccd12bdd1599b82ae109d0286851cc5a342dae))
+
 ## [3.4.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.3.1...v3.4.0) (2025-07-22)
 
 
