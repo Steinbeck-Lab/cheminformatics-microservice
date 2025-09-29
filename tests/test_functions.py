@@ -18,6 +18,7 @@ from app.modules.toolkits.rdkit_wrapper import check_RO5_violations
 from app.modules.toolkits.rdkit_wrapper import get_3d_conformers
 from app.modules.toolkits.rdkit_wrapper import get_ertl_functional_groups
 from app.modules.toolkits.rdkit_wrapper import get_tanimoto_similarity_rdkit
+from app.modules.toolkits.rdkit_wrapper import has_cis_trans_stereochemistry
 
 
 @pytest.fixture
@@ -57,6 +58,10 @@ mol_with_violations = Chem.MolFromSmiles(
     "O=C1OC=2C(=C(O)C(=C(O)C2C(=C1)C=3C=CC=CC3)CC=C(C)C)C(=O)C(C)CC",
 )
 mol_without_violations = Chem.MolFromSmiles("CN1C=NC2=C1C(=O)N(C(=O)N2C)C")
+
+# Test molecules for has_cis_trans_stereochemistry
+mol_with_cis_trans = Chem.MolFromSmiles("C/C=C/C")  # E-isomer
+mol_without_cis_trans = Chem.MolFromSmiles("CCC")  # No double bond
 
 
 def test_npscore(test_RDKit_Mol):
@@ -377,3 +382,29 @@ def test_setup_jvm_exception(monkeypatch, capsys):
         in captured.out
     )
     assert "You can set it or set it manually in the code" in captured.out
+
+
+# =============================================
+# has_cis_trans_stereochemistry Function Tests
+# =============================================
+
+
+def test_has_cis_trans_stereochemistry_with_stereo():
+    """Test has_cis_trans_stereochemistry with E/Z stereochemistry."""
+    result = has_cis_trans_stereochemistry(mol_with_cis_trans)
+    assert isinstance(result, bool)
+    assert result is True
+
+
+def test_has_cis_trans_stereochemistry_without_stereo():
+    """Test has_cis_trans_stereochemistry without double bonds."""
+    result = has_cis_trans_stereochemistry(mol_without_cis_trans)
+    assert isinstance(result, bool)
+    assert result is False
+
+
+def test_has_cis_trans_stereochemistry_none_molecule():
+    """Test has_cis_trans_stereochemistry with None molecule."""
+    result = has_cis_trans_stereochemistry(None)
+    assert isinstance(result, bool)
+    assert result is False

@@ -250,6 +250,9 @@ def get_COCONUT_preprocessing(
                 },
                 "has_stereo": rdkitmodules.has_potential_stereochemistry(original_mol),
                 "has_stereo_defined": rdkitmodules.has_stereo_defined(original_mol),
+                "has_stereogenic_elements": rdkitmodules.has_stereogenic_elements(
+                    original_mol
+                ),
                 "descriptors": original_descriptors,
                 "errors": checker.check_molblock(original_mol_block),
             },
@@ -264,6 +267,9 @@ def get_COCONUT_preprocessing(
                     standardized_mol
                 ),
                 "has_stereo_defined": rdkitmodules.has_stereo_defined(standardized_mol),
+                "has_stereogenic_elements": rdkitmodules.has_stereogenic_elements(
+                    standardized_mol
+                ),
                 "descriptors": standardized_descriptors,
                 "errors": checker.check_molblock(standardized_mol_block),
             },
