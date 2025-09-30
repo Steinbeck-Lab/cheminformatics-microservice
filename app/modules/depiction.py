@@ -20,6 +20,7 @@ def get_cdk_depiction(
     unicolor=False,
     highlight="",
     highlight_atoms=None,
+    showAtomNumbers=False,
 ):
     """This function takes the user input SMILES and Depicts it.
 
@@ -27,6 +28,14 @@ def get_cdk_depiction(
 
     Args:
         molecule (any): CDK IAtomContainer parsed from SMILES string given by the user.
+        molSize (tuple, optional): Size of the output image. Defaults to (512, 512).
+        rotate (int, optional): Rotation angle in degrees. Defaults to 0.
+        kekulize (bool, optional): Whether to kekulize the molecule. Defaults to True.
+        CIP (bool, optional): Whether to annotate CIP stereochemistry. Defaults to True.
+        unicolor (bool, optional): Whether to use black and white colors. Defaults to False.
+        highlight (str, optional): SMARTS pattern to highlight. Defaults to empty.
+        highlight_atoms (list, optional): List of atom indices to highlight. Defaults to None.
+        showAtomNumbers (bool, optional): Whether to display atom numbers. Defaults to False.
 
     Returns:
         image (SVG): CDK Structure Depiction as an SVG image.
@@ -75,7 +84,7 @@ def get_cdk_depiction(
             try:
                 Kekulization.kekulize(SDGMol)
             except Exception as e:
-                print(e + "Can't Kekulize molecule")
+                print(str(e) + " Can't Kekulize molecule")
 
         point = JClass(
             cdk_base + ".geometry.GeometryTools",
@@ -85,6 +94,10 @@ def get_cdk_depiction(
             point,
             (rotate * JClass("java.lang.Math").PI / 180.0),
         )
+
+        # Add atom numbers if requested
+        if showAtomNumbers:
+            DepictionGenerator = DepictionGenerator.withAtomNumbers()
 
         # Handle highlighting: prioritize atom indices over SMARTS patterns
         if highlight_atoms and len(highlight_atoms) > 0:
@@ -138,6 +151,7 @@ def get_rdkit_depiction(
     unicolor=False,
     highlight: str = "",
     highlight_atoms=None,
+    showAtomNumbers=False,
 ) -> str:
     """
     Generate a 2D depiction of the input molecule using RDKit.
@@ -150,6 +164,8 @@ def get_rdkit_depiction(
         CIP (bool, optional): Whether to assign CIP stereochemistry. Defaults to False.
         unicolor (bool, optional): Whether to use a unicolor palette. Defaults to False.
         highlight (str, optional): SMARTS pattern to highlight atoms/bonds. Defaults to empty.
+        highlight_atoms (list, optional): List of atom indices to highlight. Defaults to None.
+        showAtomNumbers (bool, optional): Whether to display atom numbers. Defaults to False.
 
     Returns:
         str: RDKit Structure Depiction as an SVG image.
@@ -175,6 +191,12 @@ def get_rdkit_depiction(
 
     if unicolor:
         drawer.drawOptions().useBWAtomPalette()
+
+    # Add atom numbers if requested
+    if showAtomNumbers:
+        # Set atom numbers as notes on each atom
+        for atom in mc.GetAtoms():
+            atom.SetProp("atomNote", str(atom.GetIdx()))
 
     # Handle highlighting based on priority: anchor atoms + SMARTS pattern, then atom indices, then SMARTS pattern alone
     if highlight_atoms and len(highlight_atoms) > 0 and highlight:
