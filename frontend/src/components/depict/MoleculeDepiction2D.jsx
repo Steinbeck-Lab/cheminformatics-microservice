@@ -8,12 +8,12 @@ import {
 // Assuming this service is configured correctly
 import depictService from '../../services/depictService';
 
-const MoleculeDepiction2D = ({ smiles, title, toolkit = 'rdkit' }) => {
+const MoleculeDepiction2D = ({ smiles, title, toolkit = 'rdkit', showCIP: initialShowCIP = false }) => {
   const [error, setError] = useState(null);
   const [imageUrl, setImageUrl] = useState('');
   const [rotation, setRotation] = useState(0);
   const [useUnicolor, setUseUnicolor] = useState(false);
-  const [showCIP, setShowCIP] = useState(false);
+  const [showCIP, setShowCIP] = useState(initialShowCIP);
   
   // Fixed width and height - not using state to avoid ESLint warnings
   const imageWidth = 400;

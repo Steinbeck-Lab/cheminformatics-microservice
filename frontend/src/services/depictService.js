@@ -14,6 +14,7 @@ const DEPICT_URL = '/depict';
  * @param {boolean} options.CIP - Include Cahn-Ingold-Prelog stereochemistry
  * @param {boolean} options.unicolor - Use a single color for the molecule
  * @param {string} options.highlight - SMARTS pattern to highlight atoms/bonds
+ * @param {boolean} options.showAtomNumbers - Show atom numbers on the depiction
  * @returns {Promise<string>} - SVG depiction as text
  */
 export const generate2DDepiction = async (smiles, options = {}) => {
@@ -24,7 +25,8 @@ export const generate2DDepiction = async (smiles, options = {}) => {
     rotate = 0,
     CIP = false,
     unicolor = false,
-    highlight = 'COSN'
+    highlight = 'COSN',
+    showAtomNumbers = false
   } = options;
 
   try {
@@ -37,7 +39,8 @@ export const generate2DDepiction = async (smiles, options = {}) => {
         rotate,
         CIP,
         unicolor,
-        highlight
+        highlight,
+        showAtomNumbers
       },
       responseType: 'text'
     });
@@ -80,7 +83,8 @@ export const get2DDepictionUrl = (smiles, options = {}) => {
     CIP = false,
     unicolor = false,
     highlight = '',
-    format = 'svg'
+    format = 'svg',
+    showAtomNumbers = false
   } = options;
 
   const baseUrl = api.defaults.baseURL || '';
@@ -100,6 +104,7 @@ export const get2DDepictionUrl = (smiles, options = {}) => {
   url.searchParams.append('rotate', rotate);
   url.searchParams.append('CIP', CIP);
   url.searchParams.append('unicolor', unicolor);
+  url.searchParams.append('showAtomNumbers', showAtomNumbers);
 
   if (highlight) {
     url.searchParams.append('highlight', highlight);
