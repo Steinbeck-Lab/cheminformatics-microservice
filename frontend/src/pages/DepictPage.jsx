@@ -24,6 +24,14 @@ import {
 // Tab data
 const tabs = [
   {
+    id: "structure-explorer",
+    name: "Structure Explorer",
+    component: StructureVisualizerView,
+    icon: HiOutlineSearch,
+    description:
+      "Find structures by name or identifier and visualize them in 2D and 3D",
+  },
+  {
     id: "batch-depiction",
     name: "2D Depiction",
     component: Depict2DMultiView,
@@ -36,14 +44,6 @@ const tabs = [
     component: Depict3DView,
     icon: HiOutlineCube,
     description: "Create interactive 3D visualizations",
-  },
-  {
-    id: "structure-explorer",
-    name: "Structure Explorer",
-    component: StructureVisualizerView,
-    icon: HiOutlineSearch,
-    description:
-      "Find structures by name or identifier and visualize them in 2D and 3D",
   },
   {
     id: "structure-draw",

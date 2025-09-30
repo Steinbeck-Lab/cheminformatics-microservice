@@ -41,6 +41,7 @@ const BatchDepictionView = () => {
   const [showCIP, setShowCIP] = useState(false);
   const [useUnicolor, setUseUnicolor] = useState(false);
   const [highlight, setHighlight] = useState('');
+  const [showAtomNumbers, setShowAtomNumbers] = useState(false);
 
   // UI state
   const [copiedSmiles, setCopiedSmiles] = useState(false); // For "Copy All SMILES" button
@@ -81,7 +82,8 @@ const BatchDepictionView = () => {
           rotate: rotation,
           CIP: currentToolkit === 'cdk' ? showCIP : undefined, // Check updated toolkit
           unicolor: useUnicolor,
-          highlight: highlight || undefined
+          highlight: highlight || undefined,
+          showAtomNumbers
         };
         // DEBUG: Log options and URL generation
         // console.log(`Regen options for ${dep.smiles}:`, options);
@@ -145,7 +147,8 @@ const BatchDepictionView = () => {
           const options = {
             toolkit, width, height, rotate: rotation,
             CIP: toolkit === 'cdk' ? showCIP : undefined,
-            unicolor: useUnicolor, highlight: highlight || undefined
+            unicolor: useUnicolor, highlight: highlight || undefined,
+            showAtomNumbers
           };
           const updatedImageUrl = depictService.get2DDepictionUrl(dep.smiles, options);
           return { ...dep, imageUrl: updatedImageUrl };
@@ -211,7 +214,8 @@ const BatchDepictionView = () => {
         const options = {
           toolkit, width, height, rotate: 0, // Initial rotation
           CIP: toolkit === 'cdk' ? showCIP : undefined,
-          unicolor: useUnicolor, highlight: highlight || undefined
+          unicolor: useUnicolor, highlight: highlight || undefined,
+          showAtomNumbers
         };
 
         // Get the URL (assuming service returns URL directly)
@@ -265,6 +269,7 @@ const BatchDepictionView = () => {
           toolkit, width, height, rotate: rotation,
           CIP: toolkit === 'cdk' ? showCIP : undefined,
           unicolor: useUnicolor, highlight: highlight || undefined,
+          showAtomNumbers,
           format: downloadFormat // Pass format to service if needed
         };
 
@@ -354,6 +359,7 @@ const BatchDepictionView = () => {
         toolkit, width, height, rotate: rotation,
         CIP: toolkit === 'cdk' ? showCIP : undefined,
         unicolor: useUnicolor, highlight: highlight || undefined,
+        showAtomNumbers,
         format: downloadFormat // Use selected format for single download too
       };
       
@@ -575,6 +581,20 @@ const BatchDepictionView = () => {
                       Use black & white color scheme
                     </label>
                   </div>
+                  {/* Atom Numbers Checkbox */}
+                  <div className="flex items-center">
+                    <input
+                      id="atomNumbers"
+                      type="checkbox"
+                      checked={showAtomNumbers}
+                      onChange={(e) => setShowAtomNumbers(e.target.checked)}
+                      // Checkbox Styling
+                      className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-sm focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
+                    />
+                    <label htmlFor="atomNumbers" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                      Show atom numbers
+                    </label>
+                  </div>
                 </div>
               </motion.div>
             )}
@@ -595,6 +615,19 @@ const BatchDepictionView = () => {
               <HiOutlinePhotograph className="mr-2 h-5 w-5" />
               {loading ? 'Generating...' : 'Generate Depictions'}
             </button>
+
+            {/* Regenerate Button - only shown when depictions exist and not loading */}
+            {depictions.length > 0 && !loading && (
+              <button
+                onClick={() => regenerateDepictions()}
+                // Button Styling
+                className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-gray-500 shadow-sm"
+                title="Apply current options to all depictions"
+              >
+                <HiOutlineSwitchHorizontal className="mr-2 h-4 w-4" />
+                Update All
+              </button>
+            )}
 
             {/* Download and Copy buttons - only shown when depictions exist */}
             {depictions.length > 0 && !loading && (

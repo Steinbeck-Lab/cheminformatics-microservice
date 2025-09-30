@@ -11,6 +11,7 @@ import {
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from '../common/SMILESInput';
 import LoadingScreen from '../common/LoadingScreen';
+import MoleculeDepiction2D from '../depict/MoleculeDepiction2D';
 // Assuming this service is configured correctly
 import convertService from '../../services/convertService';
 
@@ -54,6 +55,9 @@ const FormatConversionView = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
+  // State for molecular structure display
+  const [smilesForStructure, setSmilesForStructure] = useState('');
+  const [showStructure, setShowStructure] = useState(false);
 
   // When input format changes, automatically update output format if needed
   const handleInputFormatChange = (format) => {
@@ -88,9 +92,12 @@ const FormatConversionView = () => {
     setLoading(true);
     setError(null);
     setResult('');
+    setSmilesForStructure('');
+    setShowStructure(false);
 
     try {
       let convertedResult;
+      let smilesForDisplay = '';
 
       // Handle IUPAC to SMILES or SELFIES to SMILES conversion
       if (inputFormat !== 'smiles') {
@@ -100,6 +107,9 @@ const FormatConversionView = () => {
           inputFormat,
           inputFormat === 'iupac' ? iupacConverter : undefined
         );
+
+        // Store SMILES for structure display
+        smilesForDisplay = smiles;
 
         // If the output is SMILES, we're done
         if (outputFormat === 'smiles') {
@@ -121,6 +131,9 @@ const FormatConversionView = () => {
         }
       } else {
         // Direct SMILES conversion to target format
+        // Use the input SMILES for structure display
+        smilesForDisplay = trimmedInput;
+
         if (outputFormat === 'smiles') {
           // Just return the input if output is also SMILES
           convertedResult = trimmedInput;
@@ -143,6 +156,8 @@ const FormatConversionView = () => {
       if (!convertedResult) {
         setError(`Conversion resulted in empty output.`);
         setResult('');
+        setSmilesForStructure('');
+        setShowStructure(false);
       } else {
         let finalResult = String(convertedResult);
 
@@ -152,6 +167,18 @@ const FormatConversionView = () => {
         }
 
         setResult(finalResult);
+        
+        // Set SMILES for structure display if we have a valid SMILES
+        if (smilesForDisplay && smilesForDisplay.trim()) {
+          // Clean up SMILES string - remove quotes and trim
+          let cleanedSmiles = smilesForDisplay.trim();
+          if (cleanedSmiles.startsWith('"') && cleanedSmiles.endsWith('"')) {
+            cleanedSmiles = cleanedSmiles.substring(1, cleanedSmiles.length - 1);
+          }
+          
+          setSmilesForStructure(cleanedSmiles);
+          setShowStructure(true);
+        }
       }
     } catch (err) {
       console.error("Conversion failed:", err);
@@ -362,8 +389,8 @@ const FormatConversionView = () => {
       {result && !loading && (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
           {/* Results Header */}
-          <div className="flex justify-between items-center mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Result</h3>
+          <div className="flex justify-between items-center mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Results</h3>
             {/* Copy Button */}
             <button
               onClick={handleCopyResult}
@@ -382,17 +409,41 @@ const FormatConversionView = () => {
             </button>
           </div>
 
-          {/* Result Display Box */}
-          <div className="mt-2 p-3 bg-gray-100 dark:bg-gray-900 rounded-md font-mono text-sm overflow-x-auto border border-gray-200 dark:border-gray-700 shadow-sm">
-            <pre className="whitespace-pre-wrap break-all text-gray-700 dark:text-gray-300">{result}</pre>
-          </div>
+          {/* Results Grid Layout */}
+          <div className={`grid gap-6 ${showStructure ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+            {/* Conversion Result */}
+            <div className="space-y-3">
+              <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">Conversion Result</h4>
+              {/* Result Display Box */}
+              <div className="p-3 bg-gray-100 dark:bg-gray-900 rounded-md font-mono text-sm overflow-x-auto border border-gray-200 dark:border-gray-700 shadow-sm">
+                <pre className="whitespace-pre-wrap break-all text-gray-700 dark:text-gray-300">{result}</pre>
+              </div>
+              {/* Conversion Info Text */}
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                Converted from {INPUT_FORMAT_OPTIONS.find(o => o.id === inputFormat)?.label || inputFormat.toUpperCase()}
+                to {OUTPUT_FORMAT_OPTIONS.find(o => o.id === outputFormat)?.label || outputFormat.toUpperCase()}
+                {showToolkitSelection && ` using ${TOOLKIT_OPTIONS.find(o => o.id === toolkit)?.label || toolkit}`}
+                {showIupacConverterSelection && ` with ${IUPAC_CONVERTER_OPTIONS.find(o => o.id === iupacConverter)?.label || iupacConverter}`}.
+              </div>
+            </div>
 
-          {/* Conversion Info Text */}
-          <div className="mt-4 text-xs text-gray-500 dark:text-gray-400">
-            Converted from {INPUT_FORMAT_OPTIONS.find(o => o.id === inputFormat)?.label || inputFormat.toUpperCase()}
-            to {OUTPUT_FORMAT_OPTIONS.find(o => o.id === outputFormat)?.label || outputFormat.toUpperCase()}
-            {showToolkitSelection && ` using ${TOOLKIT_OPTIONS.find(o => o.id === toolkit)?.label || toolkit}`}
-            {showIupacConverterSelection && ` with ${IUPAC_CONVERTER_OPTIONS.find(o => o.id === iupacConverter)?.label || iupacConverter}`}.
+            {/* Molecular Structure */}
+            {showStructure && smilesForStructure && (
+              <div className="space-y-3">
+                <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">Molecular Structure</h4>
+                <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+                  <MoleculeDepiction2D
+                    smiles={smilesForStructure}
+                    title="Generated Structure"
+                    toolkit="cdk"
+                    showCIP={true}
+                  />
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  Structure generated from SMILES: <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">{smilesForStructure}</code>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

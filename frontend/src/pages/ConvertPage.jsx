@@ -201,20 +201,6 @@ const ConvertPage = () => {
         </div> {/* End Width Constraint Wrapper */}
       </div> {/* End Content Area */}
 
-      {/* Global Styles */}
-      <style jsx global>{`
-        /* Ensure required CSS variables and utilities like .glass are defined */
-        /* --- Animated Mesh Gradient (Dark Mode Only) --- */
-        @keyframes mesh-gradient-move { /* ... */ }
-        .animated-mesh-gradient { /* ... */ }
-        .dark .animated-mesh-gradient { /* ... */ }
-        /* Noise overlay needs noise.svg in public folder */
-        /* --- Inactive Tab Border Reveal (Optional) --- */
-        /* .tab-button { position: relative; } */
-        /* .tab-button::before { ... } */
-        /* .tab-button:not([aria-selected='true']):hover::before { ... } */
-      `}</style>
-
     </motion.div> // End Main Container
   );
 };
