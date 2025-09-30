@@ -141,6 +141,11 @@ async def depict_2d_molecule(
         title="Atom Indices",
         description="Comma-separated list of atom indices to highlight (0-based indexing).",
     ),
+    showAtomNumbers: bool = Query(
+        False,
+        title="Show Atom Numbers",
+        description="Whether to show atom numbers on the molecular depiction.",
+    ),
 ):
     """Generates a 2D depiction of a molecule using CDK or RDKit with the given.
 
@@ -156,6 +161,7 @@ async def depict_2d_molecule(
     - CIP (bool, optional): Whether to include Cahn-Ingold-Prelog (CIP) stereochemistry information. Defaults to False.
     - unicolor (bool, optional): Whether to use a single colour for the molecule. Defaults to False.
     - highlight (Optional[str], optional): SMARTS pattern to highlight atoms/bonds. Defaults to "COSN".
+    - showAtomNumbers (bool, optional): Whether to show atom numbers on the molecular depiction. Defaults to False.
 
     Returns:
         Response: An HTTP response containing the generated image in SVG+xml format.
@@ -171,6 +177,7 @@ async def depict_2d_molecule(
         - The `rotate` parameter specifies the rotation angle of the molecule in degrees.
         - The `CIP` parameter controls whether Cahn-Ingold-Prelog (CIP) stereochemistry information should be included / not.
         - The `unicolor` parameter determines whether a single colour is used for the molecule.
+        - The `showAtomNumbers` parameter controls whether atom numbers are displayed on the depiction.
     """
     try:
         # Parse atom indices if provided
@@ -196,6 +203,7 @@ async def depict_2d_molecule(
                 unicolor=unicolor,
                 highlight=highlight,
                 highlight_atoms=highlight_atoms,
+                showAtomNumbers=showAtomNumbers,
             )
         elif toolkit == "rdkit":
             mol = parse_input(smiles, "rdkit", False)
@@ -206,6 +214,7 @@ async def depict_2d_molecule(
                 unicolor=unicolor,
                 highlight=highlight,
                 highlight_atoms=highlight_atoms,
+                showAtomNumbers=showAtomNumbers,
             )
         else:
             raise HTTPException(
