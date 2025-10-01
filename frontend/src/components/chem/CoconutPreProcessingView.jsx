@@ -149,6 +149,15 @@ const CoconutPreProcessingView = () => {
                     </span>
                   </div>
                 )}
+                {/* Only show 'Has Stereogenic Elements' if the property exists */}
+                {tabData.has_stereogenic_elements !== undefined && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Has Stereogenic Elements</span>
+                    <span className={`font-medium ${tabData.has_stereogenic_elements ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                      {tabData.has_stereogenic_elements ? 'Yes' : 'No'}
+                    </span>
+                  </div>
+                )}
                 {/* Add more properties here if available in tabData */}
               </div>
             </div>
