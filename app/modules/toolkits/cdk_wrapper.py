@@ -28,8 +28,8 @@ def setup_jvm():
 
     if not isJVMStarted():
         paths = {
-            "cdk-2.10": "https://github.com/cdk/cdk/releases/download/cdk-2.10/cdk-2.10.jar",
-            "SugarRemovalUtility-jar-with-dependencies": "https://github.com/JonasSchaub/SugarRemoval/releases/download/v1.3.2/SugarRemovalUtility-jar-with-dependencies.jar",
+            "cdk-2.11": "https://github.com/cdk/cdk/releases/download/cdk-2.11/cdk-2.11.jar",
+            "SugarRemovalUtility-jar-with-dependencies": "https://github.com/JonasSchaub/SugarRemoval/releases/download/v1.6/SugarRemovalUtility-jar-with-dependencies.jar",
             "centres": "https://github.com/SiMolecule/centres/releases/download/1.0/centres.jar",
             "opsin-cli-2.8.0-jar-with-dependencies": "https://github.com/dan2097/opsin/releases/download/2.8.0/opsin-cli-2.8.0-jar-with-dependencies.jar",
         }

@@ -130,7 +130,7 @@ def test_remove_linear_sugars(input, response_text, response_code):
     [
         (
             "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
-            '"C(C(C(C(C(C1C(C(C(C(CO)O1)O)O)O)O)O)O)O)O"',
+            '"C(C(C(C(CO)O)O)O)O"',
             200,
         ),
         ("INVALID_INPUT", "", 422),
