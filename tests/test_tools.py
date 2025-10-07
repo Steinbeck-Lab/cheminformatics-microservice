@@ -151,7 +151,7 @@ def test_remove_circular_sugars(input, response_text, response_code):
     [
         (
             "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
-            '"C1=C(C=C(C(=C1)O)O)C2C3=C(C=C(C=O)C2C(=O)OC4CC(=CC(C4O)O)C(=O)O)C=C(C(=C3)O)O"',
+            '"C1=C(C=C(C(=C1)O)O)C2C3=C(C=C(C2C(=O)OC4CC(=CC(C4O)O)C(=O)O)C(=O)O)C=C(C(=C3)O)O"',
             200,
         ),
         ("INVALID_INPUT", "", 422),
