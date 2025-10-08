@@ -155,16 +155,72 @@ async def get_sugar_information(
             },
         },
     ),
+    gly_bond: bool = Query(
+        default=False,
+        title="Detect only Circular Sugars with O-Glycosidic Bonds",
+        description="Whether to consider only circular sugars with glycosidic bonds in the analysis. Default is False.",
+    ),
+    oxygen_atoms: bool = Query(
+        default=True,
+        title="Detect only Circular Sugars with enough exocyclic Oxygen Atoms",
+        description="Whether to consider only circular sugars with a sufficient number of exocyclic oxygen atoms in the analysis (see oxygen_atoms_threshold). Default is True.",
+    ),
+    oxygen_atoms_threshold : float = Query(
+        default=0.5,
+        minimum=0.0,
+        maximum=1.0,
+        title="Exocyclic Oxygen Atoms to Atoms in Ring Ratio Threshold",
+        description="A number giving the minimum attached exocyclic oxygen atoms to atom number in the ring ratio a circular sugar needs to have to be considered in the analysis. Default is 0.5 (a 6-membered ring needs at least 3 attached exocyclic oxygen atoms). Must be positive!",
+    ),
+    linear_sugars_in_rings : bool = Query(
+        default=False,
+        title="Detect Linear Sugars in Rings",
+        description="Whether to consider linear sugars in rings. Default is False.",
+    ),
+    linear_sugars_min_size : int = Query(
+        default=4,
+        minimum=0,
+        title="Linear Sugars Minimum Size",
+        description="Minimum size of linear sugars to consider. Default is 4. Must be positive and higher than or equal to 0 and also smaller than the linear sugar candidate maximum size.",
+    ),
+    linear_sugars_max_size : int = Query(
+        default=7,
+        minimum=1,
+        title="Linear Sugars Maximum Size",
+        description="Maximum size of linear sugars to consider. Default is 7. Must be positive and higher than or equal to 1 and also higher than the linear sugar candidate minimum size.",
+    ),
+    linear_acidic_sugars : bool = Query(
+        default=False,
+        title="Detect Linear Acidic Sugars",
+        description="Whether to consider linear acidic sugars. Default is False.",
+    ),
+    spiro_sugars : bool = Query(
+        default=False,
+        title="Detect Spiro Sugars",
+        description="Whether spiro rings (rings that share one atom with another cycle) should be included in the circular sugar detection. Default is False.",
+    ),
+    keto_sugars : bool = Query(
+        default=False,
+        title="Detect Keto Sugars",
+        description="Whether circular sugars with keto groups should be detected. Default is False.",
+    ),
 ):
-    """Get information on whether a given molecule has circular or linear.
-
-    sugars.
+    """Get information on whether a given molecule has circular or linear sugars.
 
     For more information refer to:
     - Schaub, J., Zielesny, A., Steinbeck, C. et al. Too sweet: cheminformatics for deglycosylation in natural products. J Cheminform 12, 67 (2020). https://doi.org/10.1186/s13321-020-00467-y.
 
     Parameters:
     - **SMILES string**: (str): SMILES: string representation of the molecule (required, query parameter)
+    - **gly_bond**: (bool): Whether to consider only circular sugars with glycosidic bonds in the analysis. Default is False.
+    - **oxygen_atoms**: (bool): Whether to consider only circular sugars with a sufficient number of exocyclic oxygen atoms in the analysis (see oxygen_atoms_threshold). Default is True.
+    - **oxygen_atoms_threshold**: (float): A number giving the minimum attached exocyclic oxygen atoms to atom number in the ring ratio a circular sugar needs to have to be considered in the analysis. Default is 0.5 (a 6-membered ring needs at least 3 attached exocyclic oxygen atoms). Must be positive!
+    - **linear_sugars_in_rings**: (bool): Whether to consider linear sugars in rings. Default is False.
+    - **linear_sugars_min_size**: (int): Minimum size of linear sugars to consider. Default is 4. Must be positive and higher than or equal to 0 and also smaller than the linear sugar candidate maximum size.
+    - **linear_sugars_max_size**: (int): Maximum size of linear sugars to consider. Default is 7. Must be positive and higher than or equal to 1 and also higher than the linear sugar candidate minimum size.
+    - **linear_acidic_sugars**: (bool): Whether to consider linear acidic sugars. Default is False.
+    - **spiro_sugars**: (bool): Whether spiro rings (rings that share one atom with another cycle) should be included in the circular sugar detection. Default is False.
+    - **keto_sugars**: (bool): Whether circular sugars with keto groups should be detected. Default is False.
 
     Returns:
     - str: A message indicating the type of sugars present in the molecule.
@@ -180,7 +236,16 @@ async def get_sugar_information(
     """
     mol = parse_input(smiles, "cdk", False)
     try:
-        hasLinearSugar, hasCircularSugars = get_sugar_info(mol)
+        hasLinearSugar, hasCircularSugars = get_sugar_info(mol, 
+                                                           gly_bond, 
+                                                           oxygen_atoms, 
+                                                           oxygen_atoms_threshold, 
+                                                           linear_sugars_in_rings, 
+                                                           linear_sugars_min_size, 
+                                                           linear_sugars_max_size, 
+                                                           linear_acidic_sugars, 
+                                                           spiro_sugars, 
+                                                           keto_sugars)
         if hasLinearSugar and hasCircularSugars:
             return "The molecule contains Linear and Circular sugars"
         if hasLinearSugar and not hasCircularSugars:
