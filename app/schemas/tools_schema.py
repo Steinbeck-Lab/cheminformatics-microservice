@@ -177,6 +177,7 @@ class ExtractAglyconeAndSugarsResponse(BaseModel):
         message (str): A message indicating the success status (default: "Success").
         output (str): SMILES representations of the aglycone and sugars, as a printed list of strings (["<SMILES>", "<SMILES>", ...]). The first position is always the aglycone.
     """
+
     message: str = "Success"
     output: List[str]
 

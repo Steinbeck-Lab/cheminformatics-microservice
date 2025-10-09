@@ -762,7 +762,7 @@ async def extract_aglycone_and_sugars_endpoint(
         title="Post-process Sugars",
         description="Whether the extracted sugar moieties should be post-processed, i.e. bond splitting (O-glycosidic, ether, ester, peroxide) to separate the individual sugars, before being output. Default is False.",
     ),
-    limit_post_process_by_size : bool = Query(
+    limit_post_process_by_size: bool = Query(
         default=False,
         title="Limit Post-processing by Size",
         description="Whether the post-processing of extracted sugar moieties should be limited to structures bigger than a defined size (see preservation mode (threshold)) to preserve smaller modifications. Default is False.",
