@@ -20,11 +20,15 @@ class preservation_modes_enum(Enum):
     discard structures that get disconnected from the central core in the sugar removal process.
     """
 
-    ALL = 1  # Preserve all disconnected structures (note: this might lead to no circular sugar moieties being detected, depending on the other settings)
+    ALL = (
+        1  # Preserve all disconnected structures (note: this might lead to no circular sugar moieties being detected, depending on the other settings)
+    )
     HEAVY_ATOM_COUNT = (
         2  # Remove disconnected structures that do not have enough heavy atoms
     )
-    MOLECULAR_WEIGHT = 3  # Remove disconnected structures that do not have a sufficient molecular weight
+    MOLECULAR_WEIGHT = (
+        3  # Remove disconnected structures that do not have a sufficient molecular weight
+    )
 
 
 def get_sugar_info(
@@ -583,14 +587,14 @@ def extract_aglycone_and_sugars(
         post_process_sugars,
         limit_post_process_by_size,
     )
-    result = []
-    for structure in _aglycone_and_sugars:
-        if structure.isEmpty():
-            result.append("")
+    _result = []
+    for _structure in _aglycone_and_sugars:
+        if _structure.isEmpty():
+            _result.append("")
             continue
         try:
-            _smiles = _smiles_generator.create(structure)
-            result.append(str(_smiles))
+            _smiles = _smiles_generator.create(_structure)
+            _result.append(str(_smiles))
         except Exception as e:
             raise Exception(f"{str(e)}")
-    return tuple(result)
+    return tuple(_result)

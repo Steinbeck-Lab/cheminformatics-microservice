@@ -7,6 +7,7 @@ from fastapi import status
 
 from app.modules.toolkits.helpers import parse_input
 from app.modules.tools.sugar_removal import get_sugar_info
+from app.modules.tools.sugar_removal import preservation_modes_enum
 from app.modules.tools.sugar_removal import remove_circular_sugar
 from app.modules.tools.sugar_removal import remove_linear_and_circular_sugar
 from app.modules.tools.sugar_removal import remove_linear_sugar
@@ -208,7 +209,7 @@ async def get_sugar_information(
     """Get information on whether a given molecule has circular or linear sugars.
 
     For more information refer to:
-    - Schaub, J., Zielesny, A., Steinbeck, C. et al. Too sweet: cheminformatics for deglycosylation in natural products. J Cheminform 12, 67 (2020). https://doi.org/10.1186/s13321-020-00467-y.
+    - Schaub, J., Zielesny, A., Steinbeck, C., Sorokina, M. Too sweet: cheminformatics for deglycosylation in natural products. J Cheminform 12, 67 (2020). https://doi.org/10.1186/s13321-020-00467-y.
 
     Parameters:
     - **SMILES string**: (str): SMILES: string representation of the molecule (required, query parameter)
@@ -236,7 +237,7 @@ async def get_sugar_information(
     """
     mol = parse_input(smiles, "cdk", False)
     try:
-        hasLinearSugar, hasCircularSugars = get_sugar_info(
+        _has_linear_sugar, _has_circular_sugars = get_sugar_info(
             mol,
             gly_bond,
             oxygen_atoms,
@@ -248,11 +249,11 @@ async def get_sugar_information(
             spiro_sugars,
             keto_sugars,
         )
-        if hasLinearSugar and hasCircularSugars:
+        if _has_linear_sugar and _has_circular_sugars:
             return "The molecule contains Linear and Circular sugars"
-        if hasLinearSugar and not hasCircularSugars:
+        if _has_linear_sugar and not _has_circular_sugars:
             return "The molecule contains only Linear sugar"
-        if hasCircularSugars and not hasLinearSugar:
+        if _has_circular_sugars and not _has_linear_sugar:
             return "The molecule contains only Circular sugar"
         else:
             return "The molecule contains no sugar"
@@ -292,23 +293,79 @@ async def remove_linear_sugars(
     ),
     preservation_mode: int = Query(
         default=2,
+        minimum=1,
+        maximum=3,
         title="Preservation Mode",
-        description="Mode to determine which disconnected structures to preserve. Default is preservation_modes_enum.HEAVY_ATOM_COUNT.",
+        description="Mode to determine which disconnected structures to preserve. All (1): Preserve all disconnected structures (note: this might lead to no circular sugar moieties being detected, depending on the other settings). Heavy atom count (2): Remove disconnected structures that do not have enough heavy atoms. Molecular weight (3): Remove disconnected structures that do not have a sufficient molecular weight. Default is heavy atom count (2).",
+    ),
+    preservation_threshold: int = Query(
+        default=5,
+        minimum=0,
+        title="Preservation Mode Threshold",
+        description="Threshold value for the selected preservation mode. Default is 5 (heavy atoms).",
+    ),
+    linear_sugars_in_rings: bool = Query(
+        default=False,
+        title="Detect Linear Sugars in Rings",
+        description="Whether to consider linear sugars in rings. Default is False.",
+    ),
+    linear_sugars_min_size: int = Query(
+        default=4,
+        minimum=0,
+        title="Linear Sugars Minimum Size",
+        description="Minimum size of linear sugars to consider. Default is 4. Must be positive and higher than or equal to 0 and also smaller than the linear sugar candidate maximum size.",
+    ),
+    linear_sugars_max_size: int = Query(
+        default=7,
+        minimum=1,
+        title="Linear Sugars Maximum Size",
+        description="Maximum size of linear sugars to consider. Default is 7. Must be positive and higher than or equal to 1 and also higher than the linear sugar candidate minimum size.",
+    ),
+    linear_acidic_sugars: bool = Query(
+        default=False,
+        title="Detect Linear Acidic Sugars",
+        description="Whether to consider linear acidic sugars. Default is False.",
+    ),
+    mark_attach_points: bool = Query(
+        default=False,
+        title="Mark Attachment Points",
+        description="Whether to mark the attachment points of removed sugars with a dummy atom. Default is False.",
     ),
 ):
     """Detect and remove linear sugars from a given SMILES string using Sugar Removal Utility.
 
     Parameters:
     - **SMILES string**: (str): SMILES: string representation of the molecule (required, query parameter)
+    - **only_terminal**: (bool): Whether only terminal linear sugars should be removed. Default is True.
+    - **preservation_mode**: (int): Mode to determine which disconnected structures to preserve. All (1): Preserve all disconnected structures (note: this might lead to no circular sugar moieties being detected, depending on the other settings). Heavy atom count (2): Remove disconnected structures that do not have enough heavy atoms. Molecular weight (3): Remove disconnected structures that do not have a sufficient molecular weight. Default is heavy atom count (2).
+    - **preservation_threshold**: (int): Threshold value for the selected preservation mode. Default is 5 (heavy atoms).
+    - **linear_sugars_in_rings**: (bool): Whether to consider linear sugars in rings. Default is False.
+    - **linear_sugars_min_size**: (int): Minimum size of linear sugars to consider. Default is 4. Must be positive and higher than or equal to 0 and also smaller than the linear sugar candidate maximum size.
+    - **linear_sugars_max_size**: (int): Maximum size of linear sugars to consider. Default is 7. Must be positive and higher than or equal to 1 and also higher than the linear sugar candidate minimum size.
+    - **linear_acidic_sugars**: (bool): Whether to consider linear acidic sugars. Default is False.
+    - **mark_attach_points**: (bool): Whether to mark the attachment points of removed sugars with a dummy atom. Default is False.
 
     Returns:
     - str: The modified SMILES string with linear sugars removed.
     """
     mol = parse_input(smiles, "cdk", False)
+    #tranlates the integer input into the corresponding enum constant
+    _preservation_mode_constant = preservation_modes_enum(preservation_mode)
+
     try:
-        removed_smiles = remove_linear_sugar(mol)
-        if removed_smiles:
-            return removed_smiles
+        _removed_smiles = remove_linear_sugar(
+            mol,
+            only_terminal,
+            _preservation_mode_constant,
+            preservation_threshold,
+            linear_sugars_in_rings,
+            linear_sugars_min_size,
+            linear_sugars_max_size,
+            linear_acidic_sugars,
+            mark_attach_points,
+        )
+        if _removed_smiles:
+            return _removed_smiles
         else:
             raise HTTPException(
                 status_code=422,
