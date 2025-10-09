@@ -400,18 +400,90 @@ async def remove_circular_sugars(
             },
         },
     ),
+    gly_bond: bool = Query(
+        default=False,
+        title="Detect only Circular Sugars with O-Glycosidic Bonds",
+        description="Whether to consider only circular sugars with glycosidic bonds in the analysis. Default is False.",
+    ),
+    only_terminal: bool = Query(
+        default=True,
+        title="Remove Only Terminal Linear Sugars",
+        description="Whether only terminal linear sugars should be removed. Default is True.",
+    ),
+    preservation_mode: int = Query(
+        default=2,
+        minimum=1,
+        maximum=3,
+        title="Preservation Mode",
+        description="Mode to determine which disconnected structures to preserve. All (1): Preserve all disconnected structures (note: this might lead to no circular sugar moieties being detected, depending on the other settings). Heavy atom count (2): Remove disconnected structures that do not have enough heavy atoms. Molecular weight (3): Remove disconnected structures that do not have a sufficient molecular weight. Default is heavy atom count (2).",
+    ),
+    preservation_threshold: int = Query(
+        default=5,
+        minimum=0,
+        title="Preservation Mode Threshold",
+        description="Threshold value for the selected preservation mode. Default is 5 (heavy atoms).",
+    ),
+    oxygen_atoms: bool = Query(
+        default=True,
+        title="Detect only Circular Sugars with enough exocyclic Oxygen Atoms",
+        description="Whether to consider only circular sugars with a sufficient number of exocyclic oxygen atoms in the analysis (see oxygen_atoms_threshold). Default is True.",
+    ),
+    oxygen_atoms_threshold: float = Query(
+        default=0.5,
+        minimum=0.0,
+        maximum=1.0,
+        title="Exocyclic Oxygen Atoms to Atoms in Ring Ratio Threshold",
+        description="A number giving the minimum attached exocyclic oxygen atoms to atom number in the ring ratio a circular sugar needs to have to be considered in the analysis. Default is 0.5 (a 6-membered ring needs at least 3 attached exocyclic oxygen atoms). Must be positive!",
+    ),
+    spiro_sugars: bool = Query(
+        default=False,
+        title="Detect Spiro Sugars",
+        description="Whether spiro rings (rings that share one atom with another cycle) should be included in the circular sugar detection. Default is False.",
+    ),
+    keto_sugars: bool = Query(
+        default=False,
+        title="Detect Keto Sugars",
+        description="Whether circular sugars with keto groups should be detected. Default is False.",
+    ),
+    mark_attach_points: bool = Query(
+        default=False,
+        title="Mark Attachment Points",
+        description="Whether to mark the attachment points of removed sugars with a dummy atom. Default is False.",
+    ),
 ):
     """Detect and remove circular sugars from a given SMILES string using Sugar Removal Utility.
 
     Parameters:
     - **SMILES string**: (str): SMILES: string representation of the molecule (required, query parameter)
-
+    - **gly_bond**: (bool): Whether to consider only circular sugars with glycosidic bonds in the analysis. Default is False.
+    - **only_terminal**: (bool): Whether only terminal linear sugars should be removed. Default is True.
+    - **preservation_mode**: (int): Mode to determine which disconnected structures to preserve. All (1): Preserve all disconnected structures (note: this might lead to no circular sugar moieties being detected, depending on the other settings). Heavy atom count (2): Remove disconnected structures that do not have enough heavy atoms. Molecular weight (3): Remove disconnected structures that do not have a sufficient molecular weight. Default is heavy atom count (2).
+    - **preservation_threshold**: (int): Threshold value for the selected preservation mode. Default is 5 (heavy atoms).
+    - **oxygen_atoms**: (bool): Whether to consider only circular sugars with a sufficient number of exocyclic oxygen atoms in the analysis (see oxygen_atoms_threshold). Default is True.
+    - **oxygen_atoms_threshold**: (float): A number giving the minimum attached exocyclic oxygen atoms to atom number in the ring ratio a circular sugar needs to have to be considered in the analysis. Default is 0.5 (a 6-membered ring needs at least 3 attached exocyclic oxygen atoms). Must be positive!
+    - **spiro_sugars**: (bool): Whether spiro rings (rings that share one atom with another cycle) should be included in the circular sugar detection. Default is False.
+    - **keto_sugars**: (bool): Whether circular sugars with keto groups should be detected. Default is False.
+    - **mark_attach_points**: (bool): Whether to mark the attachment points of removed sugars with a dummy atom. Default is False.
+    
     Returns:
     - str: The modified SMILES string with circular sugars removed.
     """
     mol = parse_input(smiles, "cdk", False)
+    #tranlates the integer input into the corresponding enum constant
+    _preservation_mode_constant = preservation_modes_enum(preservation_mode)
     try:
-        removed_smiles = remove_circular_sugar(mol)
+        removed_smiles = remove_circular_sugar(
+            mol,
+            gly_bond,
+            only_terminal,
+            _preservation_mode_constant,
+            preservation_threshold,
+            oxygen_atoms,
+            oxygen_atoms_threshold,
+            spiro_sugars,
+            keto_sugars,
+            mark_attach_points,
+        )
         if removed_smiles:
             return removed_smiles
         else:
