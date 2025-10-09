@@ -15,6 +15,8 @@ pdf2image==1.16.2
 pillow==10.3.0
 pillow-heif==0.10.0
 pre-commit
+flake8
+black
 prometheus-fastapi-instrumentator
 pystow>=0.4.9
 python-multipart
