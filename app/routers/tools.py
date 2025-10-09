@@ -351,7 +351,7 @@ async def remove_linear_sugars(
     - str: The modified SMILES string with linear sugars removed.
     """
     mol = parse_input(smiles, "cdk", False)
-    #tranlates the integer input into the corresponding enum constant
+    # tranlates the integer input into the corresponding enum constant
     _preservation_mode_constant = preservation_modes_enum(preservation_mode)
 
     try:
@@ -467,12 +467,12 @@ async def remove_circular_sugars(
     - **spiro_sugars**: (bool): Whether spiro rings (rings that share one atom with another cycle) should be included in the circular sugar detection. Default is False.
     - **keto_sugars**: (bool): Whether circular sugars with keto groups should be detected. Default is False.
     - **mark_attach_points**: (bool): Whether to mark the attachment points of removed sugars with a dummy atom. Default is False.
-    
+
     Returns:
     - str: The modified SMILES string with circular sugars removed.
     """
     mol = parse_input(smiles, "cdk", False)
-    #tranlates the integer input into the corresponding enum constant
+    # translates the integer input into the corresponding enum constant
     _preservation_mode_constant = preservation_modes_enum(preservation_mode)
     try:
         removed_smiles = remove_circular_sugar(
@@ -621,7 +621,7 @@ async def remove_linear_and_circular_sugars(
     Returns:
     - str: The modified SMILES string with linear and circular sugars removed.
     """
-    #tranlates the integer input into the corresponding enum constant
+    # tranlates the integer input into the corresponding enum constant
     _preservation_mode_constant = preservation_modes_enum(preservation_mode)
     mol = parse_input(smiles, "cdk", False)
     try:

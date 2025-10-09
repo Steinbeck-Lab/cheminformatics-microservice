@@ -20,15 +20,11 @@ class preservation_modes_enum(Enum):
     discard structures that get disconnected from the central core in the sugar removal process.
     """
 
-    ALL = (
-        1  # Preserve all disconnected structures (note: this might lead to no circular sugar moieties being detected, depending on the other settings)
-    )
+    ALL = 1  # Preserve all disconnected structures (note: this might lead to no circular sugar moieties being detected, depending on the other settings)
     HEAVY_ATOM_COUNT = (
         2  # Remove disconnected structures that do not have enough heavy atoms
     )
-    MOLECULAR_WEIGHT = (
-        3  # Remove disconnected structures that do not have a sufficient molecular weight
-    )
+    MOLECULAR_WEIGHT = 3  # Remove disconnected structures that do not have a sufficient molecular weight
 
 
 def get_sugar_info(
