@@ -175,10 +175,10 @@ class ExtractAglyconeAndSugarsResponse(BaseModel):
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").
-        output (str): SMILES representations of the aglycone and sugars, separated by semicolons. The first position is always the aglycone.
+        output (str): SMILES representations of the aglycone and sugars, as a printed list of strings (["<SMILES>", "<SMILES>", ...]). The first position is always the aglycone.
     """
     message: str = "Success"
-    output: str
+    output: List[str]
 
     class Config:
         """Pydantic model configuration.
@@ -190,10 +190,9 @@ class ExtractAglyconeAndSugarsResponse(BaseModel):
         json_schema_extra = {
             "examples": [
                 {
-                    # TODO: verify example output
-                    "input": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
+                    "input": "C=CC1C(C[C@@H]2NCCC3=C2NC2=CC=CC=C32)C(C(=O)O)=CO[C@H]1O[C@@H]1O[C@H](CO)[C@@H](O)[C@H](O)[C@H]1O",
                     "message": "Success",
-                    "output": "C=CC1C(C[C@@H]2NCCC3=C2NC2=CC=CC=C32)C(C(=O)O)=CO[C@H]1O[C@@H]1O[C@H](CO)[C@@H](O)[C@H](O)[C@H]1O;C=CC1C(C[C@@H]2NCCC3=C2NC4=CC=CC=C34)C(C(=O)O)=CO[C@H]1O;[C@H]1(O[C@H](CO)[C@@H](O)[C@H](O)[C@H]1O)O",
+                    "output": '["C=CC1C(C[C@H]2C3=C(CCN2)C4=C(C=CC=C4)N3)C(=CO[C@H]1O)C(=O)O","C([C@@H]1[C@H]([C@@H]([C@H]([C@H](O)O1)O)O)O)O"]',
                 },
             ],
         }

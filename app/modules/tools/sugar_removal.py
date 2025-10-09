@@ -110,7 +110,7 @@ def get_sugar_info(
     return _has_linear_sugars, _has_circular_sugars
 
 
-def remove_linear_sugar(
+def remove_linear_sugars(
     molecule: any,
     only_terminal: bool = True,
     preservation_mode: preservation_modes_enum = preservation_modes_enum.HEAVY_ATOM_COUNT,
@@ -217,7 +217,7 @@ def remove_linear_sugar(
         return "No Linear sugar found"
 
 
-def remove_circular_sugar(
+def remove_circular_sugars(
     molecule: any,
     gly_bond: bool = False,
     only_terminal: bool = True,
@@ -321,7 +321,7 @@ def remove_circular_sugar(
         return "No Circular sugars found"
 
 
-def remove_linear_and_circular_sugar(
+def remove_linear_and_circular_sugars(
     molecule: any,
     gly_bond: bool = False,
     only_terminal: bool = True,

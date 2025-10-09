@@ -164,4 +164,21 @@ def test_remove_sugars(input, response_text, response_code):
     if input != "INVALID_INPUT":
         assert response.text == response_text
 
-# TODO: add tests for new endpoint
+
+@pytest.mark.parametrize(
+    "input, response_text, response_code",
+    [
+        (
+            "C=CC1C(C[C@@H]2NCCC3=C2NC2=CC=CC=C32)C(C(=O)O)=CO[C@H]1O[C@@H]1O[C@H](CO)[C@@H](O)[C@H](O)[C@H]1O",
+            '["C=CC1C(C[C@H]2C3=C(CCN2)C4=C(C=CC=C4)N3)C(=CO[C@H]1O)C(=O)O","C([C@@H]1[C@H]([C@@H]([C@H]([C@H](O)O1)O)O)O)O"]',
+            200,
+        ),
+        ("INVALID_INPUT", "", 422),
+    ],
+)
+def test_extract_aglycone_and_sugars(input, response_text, response_code):
+    response = client.get(f"/latest/tools/extract-aglycone-and-sugars?smiles={input}")
+    assert response.status_code == response_code
+    assert response.headers["content-type"] == "application/json"
+    if input != "INVALID_INPUT":
+        assert response.text == response_text

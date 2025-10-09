@@ -9,9 +9,9 @@ from app.modules.toolkits.helpers import parse_input
 from app.modules.tools.sugar_removal import extract_aglycone_and_sugars
 from app.modules.tools.sugar_removal import get_sugar_info
 from app.modules.tools.sugar_removal import preservation_modes_enum
-from app.modules.tools.sugar_removal import remove_circular_sugar
-from app.modules.tools.sugar_removal import remove_linear_and_circular_sugar
-from app.modules.tools.sugar_removal import remove_linear_sugar
+from app.modules.tools.sugar_removal import remove_circular_sugars
+from app.modules.tools.sugar_removal import remove_linear_and_circular_sugars
+from app.modules.tools.sugar_removal import remove_linear_sugars
 from app.modules.tools.surge import generate_structures_SURGE
 from app.schemas import HealthCheck
 from app.schemas.error import BadRequestModel
@@ -143,7 +143,7 @@ async def generate_structures(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def get_sugar_information(
+async def get_sugar_info_endpoint(
     smiles: str = Query(
         title="SMILES",
         description="SMILES: string representation of the molecule",
@@ -238,19 +238,19 @@ async def get_sugar_information(
         - If only circular sugars are present, it returns "The molecule contains only Circular sugar."
         - If no sugars are found, it returns "The molecule contains no sugar."
     """
-    mol = parse_input(smiles, "cdk", False)
     try:
+        mol = parse_input(smiles, "cdk", False)
         _has_linear_sugar, _has_circular_sugars = get_sugar_info(
-            mol,
-            gly_bond,
-            oxygen_atoms,
-            oxygen_atoms_threshold,
-            linear_sugars_in_rings,
-            linear_sugars_min_size,
-            linear_sugars_max_size,
-            linear_acidic_sugars,
-            spiro_sugars,
-            keto_sugars,
+            molecule=mol,
+            gly_bond=gly_bond,
+            oxygen_atoms=oxygen_atoms,
+            oxygen_atoms_threshold=oxygen_atoms_threshold,
+            linear_sugars_in_rings=linear_sugars_in_rings,
+            linear_sugars_min_size=linear_sugars_min_size,
+            linear_sugars_max_size=linear_sugars_max_size,
+            linear_acidic_sugars=linear_acidic_sugars,
+            spiro_sugars=spiro_sugars,
+            keto_sugars=keto_sugars,
         )
         if _has_linear_sugar and _has_circular_sugars:
             return "The molecule contains Linear and Circular sugars"
@@ -274,7 +274,7 @@ async def get_sugar_information(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def remove_linear_sugars(
+async def remove_linear_sugars_endpoint(
     smiles: str = Query(
         title="SMILES",
         description="SMILES: string representation of the molecule",
@@ -352,21 +352,18 @@ async def remove_linear_sugars(
     Returns:
     - str: The modified SMILES string with linear sugars removed.
     """
-    mol = parse_input(smiles, "cdk", False)
-    # tranlates the integer input into the corresponding enum constant
-    _preservation_mode_constant = preservation_modes_enum(preservation_mode)
-
     try:
-        _removed_smiles = remove_linear_sugar(
-            mol,
-            only_terminal,
-            _preservation_mode_constant,
-            preservation_threshold,
-            linear_sugars_in_rings,
-            linear_sugars_min_size,
-            linear_sugars_max_size,
-            linear_acidic_sugars,
-            mark_attach_points,
+        mol = parse_input(smiles, "cdk", False)
+        _removed_smiles = remove_linear_sugars(
+            molecule=mol,
+            only_terminal=only_terminal,
+            preservation_mode=preservation_modes_enum(preservation_mode),
+            preservation_threshold=preservation_threshold,
+            linear_sugars_in_rings=linear_sugars_in_rings,
+            linear_sugars_min_size=linear_sugars_min_size,
+            linear_sugars_max_size=linear_sugars_max_size,
+            linear_acidic_sugars=linear_acidic_sugars,
+            mark_attach_points=mark_attach_points,
         )
         if _removed_smiles:
             return _removed_smiles
@@ -389,7 +386,7 @@ async def remove_linear_sugars(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def remove_circular_sugars(
+async def remove_circular_sugars_endpoint(
     smiles: str = Query(
         title="SMILES",
         description="SMILES: string representation of the molecule",
@@ -473,21 +470,19 @@ async def remove_circular_sugars(
     Returns:
     - str: The modified SMILES string with circular sugars removed.
     """
-    mol = parse_input(smiles, "cdk", False)
-    # translates the integer input into the corresponding enum constant
-    _preservation_mode_constant = preservation_modes_enum(preservation_mode)
     try:
-        removed_smiles = remove_circular_sugar(
-            mol,
-            gly_bond,
-            only_terminal,
-            _preservation_mode_constant,
-            preservation_threshold,
-            oxygen_atoms,
-            oxygen_atoms_threshold,
-            spiro_sugars,
-            keto_sugars,
-            mark_attach_points,
+        mol = parse_input(smiles, "cdk", False)
+        removed_smiles = remove_circular_sugars(
+            molecule=mol,
+            gly_bond=gly_bond,
+            only_terminal=only_terminal,
+            preservation_mode=preservation_modes_enum(preservation_mode),
+            preservation_threshold=preservation_threshold,
+            oxygen_atoms=oxygen_atoms,
+            oxygen_atoms_threshold=oxygen_atoms_threshold,
+            spiro_sugars=spiro_sugars,
+            keto_sugars=keto_sugars,
+            mark_attach_points=mark_attach_points,
         )
         if removed_smiles:
             return removed_smiles
@@ -513,7 +508,7 @@ async def remove_circular_sugars(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def remove_linear_and_circular_sugars(
+async def remove_linear_and_circular_sugars_endpoint(
     smiles: str = Query(
         title="SMILES",
         description="SMILES: string representation of the molecule",
@@ -623,25 +618,23 @@ async def remove_linear_and_circular_sugars(
     Returns:
     - str: The modified SMILES string with linear and circular sugars removed.
     """
-    # tranlates the integer input into the corresponding enum constant
-    _preservation_mode_constant = preservation_modes_enum(preservation_mode)
-    mol = parse_input(smiles, "cdk", False)
     try:
-        _removed_smiles = remove_linear_and_circular_sugar(
-            mol,
-            gly_bond,
-            only_terminal,
-            _preservation_mode_constant,
-            preservation_threshold,
-            oxygen_atoms,
-            oxygen_atoms_threshold,
-            linear_sugars_in_rings,
-            linear_sugars_min_size,
-            linear_sugars_max_size,
-            linear_acidic_sugars,
-            spiro_sugars,
-            keto_sugars,
-            mark_attach_points,
+        mol = parse_input(smiles, "cdk", False)
+        _removed_smiles = remove_linear_and_circular_sugars(
+            molecule=mol,
+            gly_bond=gly_bond,
+            only_terminal=only_terminal,
+            preservation_mode=preservation_modes_enum(preservation_mode),
+            preservation_threshold=preservation_threshold,
+            oxygen_atoms=oxygen_atoms,
+            oxygen_atoms_threshold=oxygen_atoms_threshold,
+            linear_sugars_in_rings=linear_sugars_in_rings,
+            linear_sugars_min_size=linear_sugars_min_size,
+            linear_sugars_max_size=linear_sugars_max_size,
+            linear_acidic_sugars=linear_acidic_sugars,
+            spiro_sugars=spiro_sugars,
+            keto_sugars=keto_sugars,
+            mark_attach_points=mark_attach_points,
         )
         if _removed_smiles:
             return _removed_smiles
@@ -656,7 +649,7 @@ async def remove_linear_and_circular_sugars(
 
 @router.get(
     "/extract-aglycone-and-sugars",
-    summary="Extracts the aglycone and the sugars from a given molecule. The first positions is always the aglycone.",
+    summary='Extracts the aglycone and the sugars from a given molecule. Returns a printed tuple (["<SMILES>", "<SMILES>", ...]). The first position is always the aglycone.',
     responses={
         200: {
             "description": "Successful response",
@@ -667,13 +660,12 @@ async def remove_linear_and_circular_sugars(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def extract_aglycone_and_sugars(
+async def extract_aglycone_and_sugars_endpoint(
     smiles: str = Query(
         title="SMILES",
         description="SMILES: string representation of the molecule",
         openapi_examples={
             "example1": {
-                # TODO: review examples
                 "summary": "Example: 1-[3,4,5-trihydroxy-6-(hydroxymethyl)oxan-2-yl]pentane-1,2,3,4,5-pentol",
                 "value": "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
             },
@@ -766,7 +758,7 @@ async def extract_aglycone_and_sugars(
         description="Whether to mark the attachment points of removed sugars with a dummy atom. Default is False.",
     ),
     post_process_sugars: bool = Query(
-        deafault=False,
+        default=False,
         title="Post-process Sugars",
         description="Whether the extracted sugar moieties should be post-processed, i.e. bond splitting (O-glycosidic, ether, ester, peroxide) to separate the individual sugars, before being output. Default is False.",
     ),
@@ -800,37 +792,32 @@ async def extract_aglycone_and_sugars(
     - **limit_post_process_by_size**: (bool): Whether the post-processing of extracted sugar moieties should be limited to structures bigger than a defined size (see preservation mode (threshold)) to preserve smaller modifications. Default is False.
 
     Returns:
-    - str: The SMILES representations of the aglycone and sugars, separated by semicolons.
+    - tuple: The SMILES representations of the aglycone and sugars. The first one is always the aglycone.
     """
-    # tranlates the integer input into the corresponding enum constant
-    _preservation_mode_constant = preservation_modes_enum(preservation_mode)
-    mol = parse_input(smiles, "cdk", False)
     try:
+        mol = parse_input(smiles, "cdk", False)
         _aglycone_and_sugars_tuple = extract_aglycone_and_sugars(
-            mol,
-            extract_circular_sugars,
-            extract_linear_sugars,
-            gly_bond,
-            only_terminal,
-            _preservation_mode_constant,
-            preservation_threshold,
-            oxygen_atoms,
-            oxygen_atoms_threshold,
-            linear_sugars_in_rings,
-            linear_sugars_min_size,
-            linear_sugars_max_size,
-            linear_acidic_sugars,
-            spiro_sugars,
-            keto_sugars,
-            mark_attach_points,
-            post_process_sugars,
-            limit_post_process_by_size,
+            molecule=mol,
+            extract_circular_sugars=extract_circular_sugars,
+            extract_linear_sugars=extract_linear_sugars,
+            gly_bond=gly_bond,
+            only_terminal=only_terminal,
+            preservation_mode=preservation_modes_enum(preservation_mode),
+            preservation_threshold=preservation_threshold,
+            oxygen_atoms=oxygen_atoms,
+            oxygen_atoms_threshold=oxygen_atoms_threshold,
+            linear_sugars_in_rings=linear_sugars_in_rings,
+            linear_sugars_min_size=linear_sugars_min_size,
+            linear_sugars_max_size=linear_sugars_max_size,
+            linear_acidic_sugars=linear_acidic_sugars,
+            spiro_sugars=spiro_sugars,
+            keto_sugars=keto_sugars,
+            mark_attach_points=mark_attach_points,
+            post_process_sugars=post_process_sugars,
+            limit_post_process_by_size=limit_post_process_by_size,
         )
         if _aglycone_and_sugars_tuple:
-            _joined_smiles = _aglycone_and_sugars_tuple[0]
-            for i in range(1, len(_aglycone_and_sugars_tuple)):
-                _joined_smiles += ";" + _aglycone_and_sugars_tuple[i]
-            return _joined_smiles
+            return list(_aglycone_and_sugars_tuple)
         else:
             raise HTTPException(
                 status_code=422,
