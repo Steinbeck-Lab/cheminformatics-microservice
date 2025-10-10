@@ -58,7 +58,7 @@ class GetSugarInformationResponse(BaseModel):
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").
-        output (str): Information on containing sugar
+        output (str): A message indicating the type of sugars present in the molecule, either "The molecule contains Linear and Circular sugars", "The molecule contains only Linear sugar", "The molecule contains only Circular sugar", or "The molecule contains no sugar".
     """
 
     message: str = "Success"
@@ -74,7 +74,7 @@ class GetSugarInformationResponse(BaseModel):
         json_schema_extra = {
             "examples": [
                 {
-                    "input": "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
+                    "input": "CC(=O)N[C@H]1[C@@H](O[C@@H]([C@H](O)[C@@H](O)C=O)[C@H](O)CO)O[C@H](CO)[C@H](O)[C@@H]1O",
                     "message": "Success",
                     "output": "The molecule contains Linear and Circular sugars",
                 },
@@ -87,7 +87,7 @@ class GetLinearSugarResponse(BaseModel):
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").
-        output (str): SMILES without linear sugar
+        output (str): The aglycone SMILES string or "No Linear sugar found".
     """
 
     message: str = "Success"
@@ -103,9 +103,9 @@ class GetLinearSugarResponse(BaseModel):
         json_schema_extra = {
             "examples": [
                 {
-                    "input": "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
+                    "input": "CC1=CC(O)=C2C(=O)C3=C(OC[C@@H](O)[C@@H](O)[C@H](O)[C@@H](O)C(=O)OC[C@@H](O)[C@@](O)(OC[C@@H](O)[C@@H](O)[C@H](O)[C@@H](O)C=O)[C@H](O)[C@@H](O)C=O)C=CC=C3C(=O)C2=C1",
                     "message": "Success",
-                    "output": "C(C1C(C(C(CO1)O)O)O)O",
+                    "output": "CC1=CC(=C2C(=C1)C(=O)C3=CC=CC(=C3C2=O)O)O",
                 },
             ],
         }
@@ -116,7 +116,7 @@ class GetCircularSugarResponse(BaseModel):
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").
-        output (str): SMILES without circular sugar
+        output (str): The aglycone SMILES string or "No Circular sugar found".
     """
 
     message: str = "Success"
@@ -132,9 +132,9 @@ class GetCircularSugarResponse(BaseModel):
         json_schema_extra = {
             "examples": [
                 {
-                    "input": "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
+                    "input": "C=CC1C(C[C@@H]2NCCC3=C2NC2=CC=CC=C32)C(C(=O)O)=CO[C@H]1O[C@@H]1O[C@H](CO)[C@@H](O)[C@H](O)[C@H]1O",
                     "message": "Success",
-                    "output": "C(C(C(C(C(C1C(C(C(C(CO)O1)O)O)O)O)O)O)O)O",
+                    "output": "C=CC1C(C[C@H]2C3=C(CCN2)C4=C(C=CC=C4)N3)C(=CO[C@H]1O)C(=O)O",
                 },
             ],
         }
@@ -145,7 +145,7 @@ class GetCircularandLinearSugarResponse(BaseModel):
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").
-        output (str): SMILES without circular and Linear sugars.
+        output (str): The aglycone SMILES string or "No Linear or Circular sugars found".
     """
 
     message: str = "Success"
@@ -161,9 +161,9 @@ class GetCircularandLinearSugarResponse(BaseModel):
         json_schema_extra = {
             "examples": [
                 {
-                    "input": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
+                    "input": "O=C(O)C1=C[C@@H](O)[C@@H](O)[C@H](OC(=O)[C@@H]2C(C(=O)OC[C@@H](O)[C@@H](O)[C@@H](O)[C@@H](O)[C@@H](O)CO)=CC3=CC(O)=C(O[C@@H]4O[C@H](CO)[C@@H](O)[C@H](O)[C@H]4O)C=C3[C@H]2C2=CC=C(O)C(O)=C2)C1",
                     "message": "Success",
-                    "output": "C1=C(C=C(C(=C1)O)O)C2C3=C(C=C(C=O)C2C(=O)OC4CC(=CC(C4O)O)C(=O)O)C=C(C(=C3)O)O",
+                    "output": "C1=C(C=C(C(=C1)O)O)[C@@H]2C3=C(C=C([C@H]2C(=O)O[C@@H]4CC(=C[C@H]([C@H]4O)O)C(=O)O)C(=O)O)C=C(C(=C3)O)O",
                 },
             ],
         }
@@ -175,7 +175,7 @@ class ExtractAglyconeAndSugarsResponse(BaseModel):
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").
-        output (str): SMILES representations of the aglycone and sugars, as a printed list of strings (["<SMILES>", "<SMILES>", ...]). The first position is always the aglycone.
+        output (str): The SMILES representations of the aglycone and sugars as a printed list (["<SMILES>", "<SMILES>", ...]). The first one is always the aglycone. The list has a variable length dependening on how many sugar moieties were found.
     """
 
     message: str = "Success"
