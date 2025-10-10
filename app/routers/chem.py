@@ -34,7 +34,7 @@ from app.modules.toolkits.cdk_wrapper import get_tanimoto_similarity_CDK
 from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.rdkit_wrapper import check_RO5_violations
 from app.modules.toolkits.rdkit_wrapper import check_RO5_violations_detailed
-from app.modules.toolkits.rdkit_wrapper import get_ertl_functional_groups
+from app.modules.toolkits.rdkit_wrapper import get_ertl_functional_groups_ifg
 from app.modules.toolkits.rdkit_wrapper import get_GhoseFilter
 from app.modules.toolkits.rdkit_wrapper import get_GhoseFilter_detailed
 from app.modules.toolkits.rdkit_wrapper import get_PAINS
@@ -1346,7 +1346,7 @@ async def get_functional_groups(
     mol = parse_input(smiles, "rdkit", False)
     if mol:
         try:
-            f_groups = get_ertl_functional_groups(mol)
+            f_groups = get_ertl_functional_groups_ifg(mol)
             return f_groups
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))

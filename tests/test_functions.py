@@ -16,7 +16,7 @@ from app.modules.toolkits.cdk_wrapper import setup_jvm
 from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.rdkit_wrapper import check_RO5_violations
 from app.modules.toolkits.rdkit_wrapper import get_3d_conformers
-from app.modules.toolkits.rdkit_wrapper import get_ertl_functional_groups
+from app.modules.toolkits.rdkit_wrapper import get_ertl_functional_groups_ifg
 from app.modules.toolkits.rdkit_wrapper import get_tanimoto_similarity_rdkit
 from app.modules.toolkits.rdkit_wrapper import has_cis_trans_stereochemistry
 
@@ -374,7 +374,7 @@ def test_valid_openbabel_smiles(test_smiles):
 def test_get_ertl_functional_groups_valid_molecule(test_smiles):
     mol = parse_input(test_smiles, framework="rdkit")
 
-    result = get_ertl_functional_groups(mol)
+    result = get_ertl_functional_groups_ifg(mol)
 
     assert isinstance(result, list)
     assert len(result) > 0
@@ -389,7 +389,7 @@ def test_get_ertl_functional_groups_valid_molecule(test_smiles):
 
 def test_get_ertl_functional_groups_no_fragments():
     mol = parse_input("CC", framework="rdkit")
-    result = get_ertl_functional_groups(mol)
+    result = get_ertl_functional_groups_ifg(mol)
 
     assert isinstance(result, list)
     assert len(result) == 1

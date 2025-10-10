@@ -17,6 +17,7 @@ from rdkit.Chem import rdMolDescriptors
 from rdkit.Chem import rdmolops
 from rdkit.Chem.FilterCatalog import FilterCatalog
 from rdkit.Chem.FilterCatalog import FilterCatalogParams
+from rdkit.Contrib.efgs import efgs
 from rdkit.Contrib.IFG import ifg
 from rdkit.Contrib.SA_Score import sascorer
 from rdkit.Chem.MolStandardize.rdMolStandardize import TautomerEnumerator
@@ -833,25 +834,26 @@ def get_RuleofThree_detailed(molecule: any) -> dict:
     }
 
 
-def get_ertl_functional_groups(molecule: any) -> list:
-    """This function takes an organic molecule as input and uses the algorithm.
-
-    proposed by Peter Ertl to.
-
-    identify functional groups within the molecule. The identification is based on the analysis of
-    chemical fragments present in the molecular structure.
+def get_ertl_functional_groups_ifg(molecule: any) -> list:
+    """
+    This function takes an organic molecule as input and uses the algorithm
+    proposed by Peter Ertl to identify functional groups within the molecule.
+    The implementation by Richard Hall and Guillaume Godin (IFG) is used here
+    (https://github.com/rdkit/rdkit/tree/master/Contrib/IFG).
 
     Parameters:
-        molecule (any): A molecule represented as an RDKit Mol object.
+    - molecule (any): A molecule represented as an RDKit Mol object.
 
     Returns:
-        list: A list of identified functional groups in the molecule with structured data including atom IDs.
+    - list: A list of identified functional groups in the molecule with structured data including atom IDs. 
+      "atoms" denote the functional group atoms that are marked according to the Ertl algorithm and "type" 
+      represents those marked atoms together with their unmarked, environmental carbon atoms. "atomIds" 
+      include only the IDs of the marked atoms.
+      If no functional groups are found, the function returns a list with a single element:
+      [{'None': 'No fragments found'}]
 
     References:
-    - Ertl, Peter. "Implementation of an algorithm to identify functional groups in organic molecules." Journal of Cheminformatics 9.1 (2017): 9. https://jcheminf.springeropen.com/articles/10.1186/s13321-017-0225-z
-
-    If no functional groups are found, the function returns a list with a single element:
-    [{'None': 'No fragments found'}]
+    - Ertl, P. An algorithm to identify functional groups in organic molecules. J Cheminform 9, 36 (2017). https://doi.org/10.1186/s13321-017-0225-z
     """
     if molecule:
         fragments = ifg.identify_functional_groups(molecule)
@@ -861,6 +863,66 @@ def get_ertl_functional_groups(molecule: any) -> list:
             for fragment in fragments:
                 try:
                     # Extract information from IFG object
+                    group_data = {
+                        "atomIds": (
+                            list(fragment.atomIds)
+                            if hasattr(fragment, "atomIds")
+                            else []
+                        ),
+                        "atoms": (
+                            str(fragment.atoms) if hasattr(fragment, "atoms") else ""
+                        ),
+                        "type": str(fragment.type) if hasattr(fragment, "type") else "",
+                        "description": str(
+                            fragment
+                        ),  # Full string representation for display
+                    }
+                    structured_groups.append(group_data)
+                except Exception:
+                    # Fallback to string representation if structured extraction fails
+                    structured_groups.append(
+                        {
+                            "atomIds": [],
+                            "atoms": "",
+                            "type": "",
+                            "description": str(fragment),
+                        }
+                    )
+            return structured_groups
+        else:
+            return [{"None": "No fragments found"}]
+
+# TODO: finish this implementation and add it to the router as another option
+def get_ertl_functional_groups_efgs(molecule: any) -> list:
+    """
+    This function takes an organic molecule as input and uses the algorithm
+    proposed by Peter Ertl to identify functional groups within the molecule.
+    The implementation by Gonzalo Colmenarejo (EFGS) is used here
+    (https://github.com/rdkit/rdkit/tree/master/Contrib/efgs).
+
+    Parameters:
+    - molecule (any): A molecule represented as an RDKit Mol object.
+
+    Returns:
+    - list: A list of identified functional groups in the molecule with structured data including atom IDs. 
+      "atoms" denote the functional group atoms that are marked according to the Ertl algorithm and "type" 
+      represents those marked atoms together with their unmarked, environmental carbon atoms. "atomIds" 
+      include only the IDs of the marked atoms.
+      If no functional groups are found, the function returns a list with a single element:
+      [{'None': 'No fragments found'}]
+
+    References:
+    - Ertl, P. An algorithm to identify functional groups in organic molecules. J Cheminform 9, 36 (2017). https://doi.org/10.1186/s13321-017-0225-z
+    - Colmenarejo, G. EFGs: A Complete and Accurate Implementation of Ertl’s Functional Group Detection Algorithm in RDKit. J Chem Inf Model 65, 3 (2025). https://doi.org/10.1021/acs.jcim.4c02268
+    """
+    if molecule:
+        fragments = efgs.get_fgs(molecule)
+        if fragments:
+            # Convert EFGS objects to structured dictionaries for better frontend handling
+            structured_groups = []
+            for fragment in fragments:
+                try:
+                    # Extract information from EFGS object
                     group_data = {
                         "atomIds": (
                             list(fragment.atomIds)

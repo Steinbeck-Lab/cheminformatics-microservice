@@ -683,3 +683,5 @@ async def get_CDK_HOSE_codes(
         )
         HOSECodes.append(str(moleculeHOSECode))
     return HOSECodes
+
+# TODO: implement ErtlFunctionalGroupsFinder and Scaffold Generator
