@@ -132,7 +132,7 @@ async def generate_structures(
 @router.get(
     "/sugars-info",
     response_model=str,
-    summary="Get information whether a given molecule has circular or linear sugars",
+    summary="Get the information whether a given molecule contains circular or linear sugar moieties",
     responses={
         200: {
             "description": "Successful response",
@@ -149,12 +149,12 @@ async def get_sugar_info_endpoint(
         description="SMILES: string representation of the molecule",
         openapi_examples={
             "example1": {
-                "summary": "Example: 1-[3,4,5-trihydroxy-6-(hydroxymethyl)oxan-2-yl]pentane-1,2,3,4,5-pentol",
-                "value": "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
+                "summary": "Example: Strictosidinic Acid (COCONUT CNP0225072.3), containing a circular sugar moiety",
+                "value": "C=CC1C(C[C@@H]2NCCC3=C2NC2=CC=CC=C32)C(C(=O)O)=CO[C@H]1O[C@@H]1O[C@H](CO)[C@@H](O)[C@H](O)[C@H]1O",
             },
             "example2": {
-                "summary": "Example: 5-[1-(3,4-dihydroxyphenyl)-3-(2,3,4,5,6,7-hexahydroxyheptoxycarbonyl)-6-hydroxy-7-[3,4,5-trihydroxy-6-(hydroxymethyl)oxan-2-yl]oxy-1,2-dihydronaphthalene-2-carbonyl]oxy-3,4-dihydroxycyclohexene-1-carboxylic acid",
-                "value": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
+                "summary": "Example: COCONUT CNP0254143.1, containing a circular and a linear sugar moiety",
+                "value": "O=C(O)C1=C[C@@H](O)[C@@H](O)[C@H](OC(=O)[C@@H]2C(C(=O)OC[C@@H](O)[C@@H](O)[C@@H](O)[C@@H](O)[C@@H](O)CO)=CC3=CC(O)=C(O[C@@H]4O[C@H](CO)[C@@H](O)[C@H](O)[C@H]4O)C=C3[C@H]2C2=CC=C(O)C(O)=C2)C1",
             },
         },
     ),
@@ -209,7 +209,7 @@ async def get_sugar_info_endpoint(
     ),
 ):
     """
-    Get information on whether a given molecule has circular or linear sugars.
+    Get the information whether a given molecule contains circular or linear sugar moieties. The presence of sugars is determnined using the Sugar Removal Utility.
 
     For more information refer to:
     - Schaub, J., Zielesny, A., Steinbeck, C., Sorokina, M. Too sweet: cheminformatics for deglycosylation in natural products. J Cheminform 12, 67 (2020). https://doi.org/10.1186/s13321-020-00467-y.
@@ -227,16 +227,7 @@ async def get_sugar_info_endpoint(
     - **keto_sugars**: (bool): Whether circular sugars with keto groups should be detected. Default is False.
 
     Returns:
-    - str: A message indicating the type of sugars present in the molecule.
-
-    Note:
-    The function `get_sugar_info` is used internally to determine the presence of linear and circular sugars in the molecule.
-
-    The returned message indicates the types of sugars present in the molecule:
-        - If both linear and circular sugars are present, it returns "The molecule contains Linear and Circular sugars."
-        - If only linear sugar is present, it returns "The molecule contains only Linear sugar."
-        - If only circular sugars are present, it returns "The molecule contains only Circular sugar."
-        - If no sugars are found, it returns "The molecule contains no sugar."
+    - str: A message indicating the type of sugars present in the molecule, either "The molecule contains Linear and Circular sugars", "The molecule contains only Linear sugar", "The molecule contains only Circular sugar", or "The molecule contains no sugar".
     """
     try:
         mol = parse_input(smiles, "cdk", False)
@@ -266,7 +257,7 @@ async def get_sugar_info_endpoint(
 
 @router.get(
     "/remove-linear-sugars",
-    summary="Detect and remove linear sugars",
+    summary="Remove linear sugars from the given molecule and get the aglycone SMILES or a message indicating that no linear sugars were found",
     responses={
         200: {"description": "Successful response", "model": GetLinearSugarResponse},
         400: {"description": "Bad Request", "model": BadRequestModel},
@@ -280,12 +271,12 @@ async def remove_linear_sugars_endpoint(
         description="SMILES: string representation of the molecule",
         openapi_examples={
             "example1": {
-                "summary": "Example: 1-[3,4,5-trihydroxy-6-(hydroxymethyl)oxan-2-yl]pentane-1,2,3,4,5-pentol",
-                "value": "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
+                "summary": "Example: COCONUT CNP0138295.1, containing multiple linear sugar moieties",
+                "value": "CC1=CC(O)=C2C(=O)C3=C(OC[C@@H](O)[C@@H](O)[C@H](O)[C@@H](O)C(=O)OC[C@@H](O)[C@@](O)(OC[C@@H](O)[C@@H](O)[C@H](O)[C@@H](O)C=O)[C@H](O)[C@@H](O)C=O)C=CC=C3C(=O)C2=C1",
             },
             "example2": {
-                "summary": "Example: 5-[1-(3,4-dihydroxyphenyl)-3-(2,3,4,5,6,7-hexahydroxyheptoxycarbonyl)-6-hydroxy-7-[3,4,5-trihydroxy-6-(hydroxymethyl)oxan-2-yl]oxy-1,2-dihydronaphthalene-2-carbonyl]oxy-3,4-dihydroxycyclohexene-1-carboxylic acid",
-                "value": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
+                "summary": "Example: COCONUT CNP0254143.1, containing a circular and a linear sugar moiety",
+                "value": "O=C(O)C1=C[C@@H](O)[C@@H](O)[C@H](OC(=O)[C@@H]2C(C(=O)OC[C@@H](O)[C@@H](O)[C@@H](O)[C@@H](O)[C@@H](O)CO)=CC3=CC(O)=C(O[C@@H]4O[C@H](CO)[C@@H](O)[C@H](O)[C@H]4O)C=C3[C@H]2C2=CC=C(O)C(O)=C2)C1",
             },
         },
     ),
@@ -336,7 +327,7 @@ async def remove_linear_sugars_endpoint(
     ),
 ):
     """
-    Detect and remove linear sugars from a given SMILES string using Sugar Removal Utility.
+    Remove linear sugar moieties from a given molecule using the Sugar Removal Utility and return the aglycone SMILES string or a message indicating that no linear sugars were found.
 
     Parameters:
     - **SMILES string**: (str): SMILES: string representation of the molecule (required, query parameter)
@@ -350,7 +341,7 @@ async def remove_linear_sugars_endpoint(
     - **mark_attach_points**: (bool): Whether to mark the attachment points of removed sugars with a dummy atom. Default is False.
 
     Returns:
-    - str: The modified SMILES string with linear sugars removed.
+    - str: The aglycone SMILES string or "No Linear sugar found".
     """
     try:
         mol = parse_input(smiles, "cdk", False)
@@ -378,7 +369,7 @@ async def remove_linear_sugars_endpoint(
 
 @router.get(
     "/remove-circular-sugars",
-    summary="Detect and remove linear sugars",
+    summary="Remove circular sugars from the given molecule and get the aglycone SMILES or a message indicating that no circular sugars were found",
     responses={
         200: {"description": "Successful response", "model": GetCircularSugarResponse},
         400: {"description": "Bad Request", "model": BadRequestModel},
@@ -392,12 +383,12 @@ async def remove_circular_sugars_endpoint(
         description="SMILES: string representation of the molecule",
         openapi_examples={
             "example1": {
-                "summary": "Example: 1-[3,4,5-trihydroxy-6-(hydroxymethyl)oxan-2-yl]pentane-1,2,3,4,5-pentol",
-                "value": "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
+                "summary": "Example: Strictosidinic Acid (COCONUT CNP0225072.3), containing a circular sugar moiety",
+                "value": "C=CC1C(C[C@@H]2NCCC3=C2NC2=CC=CC=C32)C(C(=O)O)=CO[C@H]1O[C@@H]1O[C@H](CO)[C@@H](O)[C@H](O)[C@H]1O",
             },
             "example2": {
-                "summary": "Example: 5-[1-(3,4-dihydroxyphenyl)-3-(2,3,4,5,6,7-hexahydroxyheptoxycarbonyl)-6-hydroxy-7-[3,4,5-trihydroxy-6-(hydroxymethyl)oxan-2-yl]oxy-1,2-dihydronaphthalene-2-carbonyl]oxy-3,4-dihydroxycyclohexene-1-carboxylic acid",
-                "value": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
+                "summary": "Example: COCONUT CNP0254143.1 containing a circular and a linear sugar moiety",
+                "value": "O=C(O)C1=C[C@@H](O)[C@@H](O)[C@H](OC(=O)[C@@H]2C(C(=O)OC[C@@H](O)[C@@H](O)[C@@H](O)[C@@H](O)[C@@H](O)CO)=CC3=CC(O)=C(O[C@@H]4O[C@H](CO)[C@@H](O)[C@H](O)[C@H]4O)C=C3[C@H]2C2=CC=C(O)C(O)=C2)C1",
             },
         },
     ),
@@ -453,7 +444,7 @@ async def remove_circular_sugars_endpoint(
     ),
 ):
     """
-    Detect and remove circular sugars from a given SMILES string using Sugar Removal Utility.
+    Remove circular sugar moieties from a given molecule using the Sugar Removal Utility and return the aglycone SMILES string or a message indicating that no circular sugars were found.
 
     Parameters:
     - **SMILES string**: (str): SMILES: string representation of the molecule (required, query parameter)
@@ -468,7 +459,7 @@ async def remove_circular_sugars_endpoint(
     - **mark_attach_points**: (bool): Whether to mark the attachment points of removed sugars with a dummy atom. Default is False.
 
     Returns:
-    - str: The modified SMILES string with circular sugars removed.
+    - str: The aglycone SMILES string or "No Circular sugar found".
     """
     try:
         mol = parse_input(smiles, "cdk", False)
@@ -497,7 +488,7 @@ async def remove_circular_sugars_endpoint(
 
 @router.get(
     "/remove-sugars",
-    summary="Detect and remove linear and circular sugars",
+    summary="Remove circular and linear sugars from the given molecule and get the aglycone SMILES or a message indicating that no sugars were found",
     responses={
         200: {
             "description": "Successful response",
@@ -514,12 +505,12 @@ async def remove_linear_and_circular_sugars_endpoint(
         description="SMILES: string representation of the molecule",
         openapi_examples={
             "example1": {
-                "summary": "Example: 1-[3,4,5-trihydroxy-6-(hydroxymethyl)oxan-2-yl]pentane-1,2,3,4,5-pentol",
-                "value": "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
+                "summary": "Example: Strictosidinic Acid (COCONUT CNP0225072.3), containing a circular sugar moiety",
+                "value": "C=CC1C(C[C@@H]2NCCC3=C2NC2=CC=CC=C32)C(C(=O)O)=CO[C@H]1O[C@@H]1O[C@H](CO)[C@@H](O)[C@H](O)[C@H]1O",
             },
             "example2": {
-                "summary": "Example: 5-[1-(3,4-dihydroxyphenyl)-3-(2,3,4,5,6,7-hexahydroxyheptoxycarbonyl)-6-hydroxy-7-[3,4,5-trihydroxy-6-(hydroxymethyl)oxan-2-yl]oxy-1,2-dihydronaphthalene-2-carbonyl]oxy-3,4-dihydroxycyclohexene-1-carboxylic acid",
-                "value": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
+                "summary": "Example: COCONUT CNP0254143.1 containing a circular and a linear sugar moiety",
+                "value": "O=C(O)C1=C[C@@H](O)[C@@H](O)[C@H](OC(=O)[C@@H]2C(C(=O)OC[C@@H](O)[C@@H](O)[C@@H](O)[C@@H](O)[C@@H](O)CO)=CC3=CC(O)=C(O[C@@H]4O[C@H](CO)[C@@H](O)[C@H](O)[C@H]4O)C=C3[C@H]2C2=CC=C(O)C(O)=C2)C1",
             },
         },
     ),
@@ -597,7 +588,7 @@ async def remove_linear_and_circular_sugars_endpoint(
     ),
 ):
     """
-    Detect and remove linear and circular sugars from a given SMILES string using Sugar Removal Utility.
+    Remove circular and linear sugar moieties from a given molecule using the Sugar Removal Utility and return the aglycone SMILES string or a message indicating that no sugars were found.
 
     Parameters:
     - **SMILES string**: (str): SMILES: string representation of the molecule (required, query parameter)
@@ -616,7 +607,7 @@ async def remove_linear_and_circular_sugars_endpoint(
     - **mark_attach_points**: (bool): Whether to mark the attachment points of removed sugars with a dummy atom. Default is False.
 
     Returns:
-    - str: The modified SMILES string with linear and circular sugars removed.
+    - str: The aglycone SMILES string or "No Linear or Circular sugars found".
     """
     try:
         mol = parse_input(smiles, "cdk", False)
@@ -649,7 +640,7 @@ async def remove_linear_and_circular_sugars_endpoint(
 
 @router.get(
     "/extract-aglycone-and-sugars",
-    summary='Extracts the aglycone and the sugars from a given molecule. Returns a printed tuple (["<SMILES>", "<SMILES>", ...]). The first position is always the aglycone.',
+    summary='Extract the aglycone and the sugar moieties from a given molecule and get their SMILES strings as a printed list (["<SMILES>", "<SMILES>", ...]). The first position is always the aglycone.',
     responses={
         200: {
             "description": "Successful response",
@@ -666,12 +657,12 @@ async def extract_aglycone_and_sugars_endpoint(
         description="SMILES: string representation of the molecule",
         openapi_examples={
             "example1": {
-                "summary": "Example: 1-[3,4,5-trihydroxy-6-(hydroxymethyl)oxan-2-yl]pentane-1,2,3,4,5-pentol",
-                "value": "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
+                "summary": "Example: Strictosidinic Acid (COCONUT CNP0225072.3), containing a circular sugar moiety",
+                "value": "C=CC1C(C[C@@H]2NCCC3=C2NC2=CC=CC=C32)C(C(=O)O)=CO[C@H]1O[C@@H]1O[C@H](CO)[C@@H](O)[C@H](O)[C@H]1O",
             },
             "example2": {
-                "summary": "Example: 5-[1-(3,4-dihydroxyphenyl)-3-(2,3,4,5,6,7-hexahydroxyheptoxycarbonyl)-6-hydroxy-7-[3,4,5-trihydroxy-6-(hydroxymethyl)oxan-2-yl]oxy-1,2-dihydronaphthalene-2-carbonyl]oxy-3,4-dihydroxycyclohexene-1-carboxylic acid",
-                "value": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
+                "summary": "Example: COCONUT CNP0254143.1 containing a circular and a linear sugar moiety",
+                "value": "O=C(O)C1=C[C@@H](O)[C@@H](O)[C@H](OC(=O)[C@@H]2C(C(=O)OC[C@@H](O)[C@@H](O)[C@@H](O)[C@@H](O)[C@@H](O)CO)=CC3=CC(O)=C(O[C@@H]4O[C@H](CO)[C@@H](O)[C@H](O)[C@H]4O)C=C3[C@H]2C2=CC=C(O)C(O)=C2)C1",
             },
         },
     ),
@@ -681,9 +672,9 @@ async def extract_aglycone_and_sugars_endpoint(
         description="Whether to extract circular sugars. Default is True.",
     ),
     extract_linear_sugars: bool = Query(
-        default=True,
+        default=False,
         title="Extract Linear Sugars",
-        description="Whether to extract linear sugars. Default is True.",
+        description="Whether to extract linear sugars. Default is False.",
     ),
     gly_bond: bool = Query(
         default=False,
@@ -769,7 +760,7 @@ async def extract_aglycone_and_sugars_endpoint(
     ),
 ):
     """
-    Extracts the aglycone and sugars from a given SMILES string using Sugar Detection Utility.
+    Extracts the aglycone and sugar moieties from a given molecule using the Sugar Detection Utility and returns their SMILES strings as a printed list.
 
     Parameters:
     - **SMILES string**: (str): SMILES: string representation of the molecule (required, query parameter)
@@ -792,7 +783,7 @@ async def extract_aglycone_and_sugars_endpoint(
     - **limit_post_process_by_size**: (bool): Whether the post-processing of extracted sugar moieties should be limited to structures bigger than a defined size (see preservation mode (threshold)) to preserve smaller modifications. Default is False.
 
     Returns:
-    - tuple: The SMILES representations of the aglycone and sugars. The first one is always the aglycone.
+    - list: The SMILES representations of the aglycone and sugars. The first one is always the aglycone. The list has a variable length dependening on how many sugar moieties were found.
     """
     try:
         mol = parse_input(smiles, "cdk", False)
