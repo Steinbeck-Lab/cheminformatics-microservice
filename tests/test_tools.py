@@ -130,7 +130,7 @@ def test_remove_linear_sugars(input, response_text, response_code):
     [
         (
             "OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O",
-            '"C(C(C(C(C(C1C(C(C(C(CO)O1)O)O)O)O)O)O)O)O"',
+            '"C(C(C(C(CO)O)O)O)O"',
             200,
         ),
         ("INVALID_INPUT", "", 422),
@@ -151,7 +151,7 @@ def test_remove_circular_sugars(input, response_text, response_code):
     [
         (
             "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
-            '"C1=C(C=C(C(=C1)O)O)C2C3=C(C=C(C=O)C2C(=O)OC4CC(=CC(C4O)O)C(=O)O)C=C(C(=C3)O)O"',
+            '"C1=C(C=C(C(=C1)O)O)C2C3=C(C=C(C2C(=O)OC4CC(=CC(C4O)O)C(=O)O)C(=O)O)C=C(C(=C3)O)O"',
             200,
         ),
         ("INVALID_INPUT", "", 422),
@@ -159,6 +159,25 @@ def test_remove_circular_sugars(input, response_text, response_code):
 )
 def test_remove_sugars(input, response_text, response_code):
     response = client.get(f"/latest/tools/remove-sugars?smiles={input}")
+    assert response.status_code == response_code
+    assert response.headers["content-type"] == "application/json"
+    if input != "INVALID_INPUT":
+        assert response.text == response_text
+
+
+@pytest.mark.parametrize(
+    "input, response_text, response_code",
+    [
+        (
+            "C=CC1C(C[C@@H]2NCCC3=C2NC2=CC=CC=C32)C(C(=O)O)=CO[C@H]1O[C@@H]1O[C@H](CO)[C@@H](O)[C@H](O)[C@H]1O",
+            '["C=CC1C(C[C@H]2C3=C(CCN2)C4=C(C=CC=C4)N3)C(=CO[C@H]1O)C(=O)O","C([C@@H]1[C@H]([C@@H]([C@H]([C@H](O)O1)O)O)O)O"]',
+            200,
+        ),
+        ("INVALID_INPUT", "", 422),
+    ],
+)
+def test_extract_aglycone_and_sugars(input, response_text, response_code):
+    response = client.get(f"/latest/tools/extract-aglycone-and-sugars?smiles={input}")
     assert response.status_code == response_code
     assert response.headers["content-type"] == "application/json"
     if input != "INVALID_INPUT":

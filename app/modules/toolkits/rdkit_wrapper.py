@@ -862,12 +862,14 @@ def get_ertl_functional_groups(molecule: any) -> list:
                 try:
                     # Extract information from IFG object
                     group_data = {
-                        "atomIds": list(fragment.atomIds)
-                        if hasattr(fragment, "atomIds")
-                        else [],
-                        "atoms": str(fragment.atoms)
-                        if hasattr(fragment, "atoms")
-                        else "",
+                        "atomIds": (
+                            list(fragment.atomIds)
+                            if hasattr(fragment, "atomIds")
+                            else []
+                        ),
+                        "atoms": (
+                            str(fragment.atoms) if hasattr(fragment, "atoms") else ""
+                        ),
                         "type": str(fragment.type) if hasattr(fragment, "type") else "",
                         "description": str(
                             fragment

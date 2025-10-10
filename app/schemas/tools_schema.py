@@ -145,7 +145,7 @@ class GetCircularandLinearSugarResponse(BaseModel):
 
     Attributes:
         message (str): A message indicating the success status (default: "Success").
-        output (str): SMILES without circular and Linear sugar
+        output (str): SMILES without circular and Linear sugars.
     """
 
     message: str = "Success"
@@ -164,6 +164,36 @@ class GetCircularandLinearSugarResponse(BaseModel):
                     "input": "O=C(O)C1=CC(O)C(O)C(OC(=O)C2C(=CC=3C=C(O)C(OC4OC(CO)C(O)C(O)C4O)=CC3C2C5=CC=C(O)C(O)=C5)C(=O)OCC(O)C(O)C(O)C(O)C(O)CO)C1",
                     "message": "Success",
                     "output": "C1=C(C=C(C(=C1)O)O)C2C3=C(C=C(C=O)C2C(=O)OC4CC(=CC(C4O)O)C(=O)O)C=C(C(=C3)O)O",
+                },
+            ],
+        }
+
+
+class ExtractAglyconeAndSugarsResponse(BaseModel):
+    """
+    A Pydantic model representing a successful response.
+
+    Attributes:
+        message (str): A message indicating the success status (default: "Success").
+        output (str): SMILES representations of the aglycone and sugars, as a printed list of strings (["<SMILES>", "<SMILES>", ...]). The first position is always the aglycone.
+    """
+
+    message: str = "Success"
+    output: List[str]
+
+    class Config:
+        """Pydantic model configuration.
+
+        JSON Schema Extra:
+        - Includes examples of the response structure.
+        """
+
+        json_schema_extra = {
+            "examples": [
+                {
+                    "input": "C=CC1C(C[C@@H]2NCCC3=C2NC2=CC=CC=C32)C(C(=O)O)=CO[C@H]1O[C@@H]1O[C@H](CO)[C@@H](O)[C@H](O)[C@H]1O",
+                    "message": "Success",
+                    "output": '["C=CC1C(C[C@H]2C3=C(CCN2)C4=C(C=CC=C4)N3)C(=CO[C@H]1O)C(=O)O","C([C@@H]1[C@H]([C@@H]([C@H]([C@H](O)O1)O)O)O)O"]',
                 },
             ],
         }
