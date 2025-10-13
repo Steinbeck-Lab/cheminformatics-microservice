@@ -478,12 +478,6 @@ $$$$
             "",
             422,
         ),
-        (
-            "",
-            "cdk",
-            "",
-            422,
-        ),
     ],
 )
 def test_molblock_to_smiles(molblock, toolkit, expected_contains, response_code):

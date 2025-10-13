@@ -166,6 +166,52 @@ export const generateSMARTS = async (smiles, toolkit = "rdkit") => {
 };
 
 /**
+ * Convert MOL/SDF block to SMILES
+ * @param {string} molblock - MOL or SDF block string
+ * @param {string} toolkit - Toolkit to use (cdk, rdkit)
+ * @returns {Promise<string>} - SMILES string
+ */
+export const molblockToSMILES = async (molblock, toolkit = "cdk") => {
+  try {
+    // Get the base URL from the api instance or use default
+    const baseURL = api.defaults.baseURL || "https://dev.api.naturalproducts.net/latest";
+
+    // Use fetch API instead of axios to ensure proper text/plain handling
+    const response = await fetch(`${baseURL}${CONVERT_URL}/molblock?toolkit=${toolkit}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        Accept: "application/json",
+      },
+      body: molblock, // Send molblock as plain text
+    });
+
+    if (!response.ok) {
+      let errorMsg = `Error ${response.status}: ${response.statusText}`;
+      try {
+        const errorData = await response.json();
+        errorMsg = errorData.detail || errorMsg;
+      } catch (jsonError) {
+        // Ignore if response is not JSON
+      }
+      throw new Error(errorMsg);
+    }
+
+    // Get the response as text and clean it up
+    let result = await response.text();
+
+    // Remove surrounding quotes if present
+    if (result.startsWith('"') && result.endsWith('"')) {
+      result = result.substring(1, result.length - 1);
+    }
+
+    return result;
+  } catch (error) {
+    throw new Error(`Failed to convert MOL/SDF to SMILES: ${error.message}`);
+  }
+};
+
+/**
  * Generate multiple formats at once
  * @param {string} smiles - SMILES string
  * @param {string} toolkit - Toolkit to use (cdk, rdkit, openbabel)
@@ -193,6 +239,7 @@ const convertService = {
   generateInChIKey,
   generateSELFIES,
   generateSMARTS,
+  molblockToSMILES,
   generateMultipleFormats,
 };
 
