@@ -130,6 +130,34 @@ def get_murcko_framework(molecule: any) -> str:
     return str(MurckoFragmenter.getFrameworks()[0])
 
 
+def get_ertl_functional_groups_efgf(molecule: any) -> list:
+    """
+    This function takes an organic molecule as input and uses the algorithm
+    proposed by Peter Ertl to identify functional groups within the molecule.
+    The implementation by Fritsch et al. (ErtlFunctionalGroupsFinder) is used here
+    (https://github.com/cdk/cdk/blob/main/tool/fragment/src/main/java/org/openscience/cdk/fragment/FunctionalGroupsFinder.java).
+
+    Args:
+        molecule (IAtomContainer): molecule given by the user.
+
+    Returns: TODO!
+        list: A list of dictionaries (one dict for each identified functional group in the molecule) with structured data about each detected functional group (FG).
+        For each dictionary, the "fgs" key value contains the atom IDs of the FG atoms marked according to the Ertl algorithm.
+        "psmis" contains a (canonical) "pseudo" (see Ertl's paper) SMILES representation of the "generalized" (see Ertl's paper) FG and "fg_mols"
+        contains an RDKit Mol object of the generalized FG.
+        "description" contains the full string representation of the EFGs object for display purposes.
+        Example: "[{'fgs': [1, 3, 21], 'psmis': '[R][O]C[O][R]', 'fg_mols': <rdkit.Chem.rdchem.Mol object at 0x00000213936BA030>, 'description': "EFGS([[1, 3, 21], '[R][O]C[O][R]', <rdkit.Chem.rdchem.Mol object at 0x00000213936BA030>])"}, {...}]"
+        If no functional groups are found, the function returns a list with a single element:
+        "[{'None': 'No fragments found'}]"
+
+    References:
+        Ertl, P. An algorithm to identify functional groups in organic molecules. J Cheminform 9, 36 (2017). https://doi.org/10.1186/s13321-017-0225-z
+        Fritsch, S. et al. ErtlFunctionalGroupsFinder: automated rule-based functional group detection with the Chemistry Development Kit (CDK). J Cheminform 11, 37 (2019). https://doi.org/10.1186/s13321-019-0361-8
+    """
+    FGF = JClass(cdk_base + ".fragment.FunctionalGroupsFinder")
+    # TODO finish this implementation
+
+
 def get_aromatic_ring_count(molecule) -> int:
     """Calculate the number of aromatic rings present in a given molecule.
 

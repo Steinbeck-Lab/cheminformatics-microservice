@@ -895,12 +895,13 @@ def get_ertl_functional_groups_ifg(molecule: any) -> list:
         else:
             return [{"None": "No fragments found"}]
 
-# TODO: finish this implementation and add it to the router as another option
+
+# TODO: finish this implementation and add it to the router as another option; add tests also!
 def get_ertl_functional_groups_efgs(molecule: any) -> list:
     """
     This function takes an organic molecule as input and uses the algorithm
     proposed by Peter Ertl to identify functional groups within the molecule.
-    The implementation by Gonzalo Colmenarejo (EFGS) is used here
+    The implementation by Gonzalo Colmenarejo (EFGs) is used here
     (https://github.com/rdkit/rdkit/tree/master/Contrib/efgs).
 
     Parameters:
