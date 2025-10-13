@@ -640,7 +640,7 @@ async def remove_linear_and_circular_sugars_endpoint(
 
 @router.get(
     "/extract-aglycone-and-sugars",
-    summary='Extract the aglycone and the sugar moieties from a given molecule and get their SMILES strings as a printed list (["<SMILES>", "<SMILES>", ...]). The first position is always the aglycone.',
+    summary='Extract the aglycone and the sugar moieties from a given molecule and get their SMILES strings as a printed list.',
     responses={
         200: {
             "description": "Successful response",
