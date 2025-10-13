@@ -61,8 +61,9 @@ const SugarRemovalView = () => {
   // Operation mode: 'detect', 'remove', 'extract'
   const [operationMode, setOperationMode] = useState("detect");
 
-  // Remove sub-type: 'all', 'linear', 'circular'
-  const [removeType, setRemoveType] = useState("all");
+  // Remove sub-options: which sugar types to remove
+  const [removeCircular, setRemoveCircular] = useState(true);
+  const [removeLinear, setRemoveLinear] = useState(false);
 
   // Options state
   const [options, setOptions] = useState(DEFAULT_OPTIONS);
@@ -77,6 +78,9 @@ const SugarRemovalView = () => {
 
   // Results state
   const [results, setResults] = useState(null);
+
+  // Sugar highlighting toggle for detect mode (circular/linear)
+  const [highlightMode, setHighlightMode] = useState("circular");
 
   // Toggle section expansion
   const toggleSection = (section) => {
@@ -125,26 +129,93 @@ const SugarRemovalView = () => {
 
       switch (operationMode) {
         case "detect":
+          // First get detection info
           result = await getSugarInfo(trimmedSmiles, options);
+
+          // Determine which sugars are present from the message
+          const hasCircular = result.toLowerCase().includes("circular");
+          const hasLinear = result.toLowerCase().includes("linear");
+
+          let circularSugars = [];
+          let linearSugars = [];
+
+          // Extract sugars for highlighting if any are present
+          if (hasCircular || hasLinear) {
+            try {
+              // Separate circular and linear sugars by extracting them individually
+              if (hasCircular) {
+                const circularOptions = {
+                  ...options,
+                  extract_circular_sugars: true,
+                  extract_linear_sugars: false,
+                };
+                const circularResult = await extractAglyconeAndSugars(
+                  trimmedSmiles,
+                  circularOptions
+                );
+                if (
+                  Array.isArray(circularResult) &&
+                  circularResult.length > 1
+                ) {
+                  circularSugars = circularResult.slice(1);
+                }
+              }
+
+              if (hasLinear) {
+                const linearOptions = {
+                  ...options,
+                  extract_circular_sugars: false,
+                  extract_linear_sugars: true,
+                };
+                const linearResult = await extractAglyconeAndSugars(
+                  trimmedSmiles,
+                  linearOptions
+                );
+                if (Array.isArray(linearResult) && linearResult.length > 1) {
+                  linearSugars = linearResult.slice(1);
+                }
+              }
+            } catch (extractError) {
+              console.warn(
+                "Could not extract sugars for highlighting:",
+                extractError
+              );
+            }
+          }
+
           setResults({
             type: "detect",
             message: result,
             originalSmiles: trimmedSmiles,
+            hasCircular,
+            hasLinear,
+            circularSugars,
+            linearSugars,
           });
           break;
 
         case "remove":
-          if (removeType === "linear") {
+          // Determine which API to call based on checkbox selections
+          if (removeCircular && removeLinear) {
+            // Both selected - remove all sugars
+            result = await removeAllSugars(trimmedSmiles, options);
+          } else if (removeLinear) {
+            // Only linear sugars
             result = await removeLinearSugars(trimmedSmiles, options);
-          } else if (removeType === "circular") {
+          } else if (removeCircular) {
+            // Only circular sugars
             result = await removeCircularSugars(trimmedSmiles, options);
           } else {
-            result = await removeAllSugars(trimmedSmiles, options);
+            // None selected
+            setError("Please select at least one sugar type to remove");
+            setIsLoading(false);
+            return;
           }
 
           setResults({
             type: "remove",
-            removeType: removeType,
+            removeCircular: removeCircular,
+            removeLinear: removeLinear,
             originalSmiles: trimmedSmiles,
             resultSmiles: result,
           });
@@ -308,7 +379,8 @@ const SugarRemovalView = () => {
                 alt="Sugar Removal Logo"
                 className="relative h-52 w-52 object-contain transform hover:scale-105 transition-transform duration-300"
                 style={{
-                  filter: 'drop-shadow(0 0 20px rgba(96, 165, 250, 0.8)) drop-shadow(0 0 40px rgba(56, 189, 248, 0.6)) drop-shadow(0 0 60px rgba(59, 130, 246, 0.4))'
+                  filter:
+                    "drop-shadow(0 0 20px rgba(96, 165, 250, 0.8)) drop-shadow(0 0 40px rgba(56, 189, 248, 0.6)) drop-shadow(0 0 60px rgba(59, 130, 246, 0.4))",
                 }}
               />
             </div>
@@ -401,7 +473,24 @@ const SugarRemovalView = () => {
                     </svg>
                   </a>{" "}
                   (MOlecule fragmenTation fRamework) - a comprehensive tool for
-                  systematic molecule fragmentation and analysis.
+                  systematic molecule fragmentation and analysis, or the{" "}
+                  <a
+                    href="https://github.com/JonasSchaub/SugarRemoval"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline decoration-2 underline-offset-2 hover:decoration-blue-500 transition-all inline-flex items-center"
+                  >
+                    SugarRemoval CMD app
+                    <svg
+                      className="w-3 h-3 ml-1"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"></path>
+                      <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"></path>
+                    </svg>
+                  </a>{" "}
+                  for command-line batch processing.
                 </p>
               </div>
             </div>
@@ -513,43 +602,29 @@ const SugarRemovalView = () => {
           {operationMode === "remove" && (
             <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                Sugar Type to Remove
+                Sugar Types to Remove
               </label>
-              <div className="flex flex-wrap gap-4">
+              <div className="space-y-2">
                 <label className="flex items-center space-x-2 cursor-pointer">
                   <input
-                    type="radio"
-                    value="all"
-                    checked={removeType === "all"}
-                    onChange={(e) => setRemoveType(e.target.value)}
-                    className="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700"
+                    type="checkbox"
+                    checked={removeCircular}
+                    onChange={(e) => setRemoveCircular(e.target.checked)}
+                    className="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700"
                   />
                   <span className="text-sm text-gray-700 dark:text-gray-300">
-                    All Sugars (Linear & Circular)
+                    Remove Circular Sugars
                   </span>
                 </label>
                 <label className="flex items-center space-x-2 cursor-pointer">
                   <input
-                    type="radio"
-                    value="linear"
-                    checked={removeType === "linear"}
-                    onChange={(e) => setRemoveType(e.target.value)}
-                    className="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700"
+                    type="checkbox"
+                    checked={removeLinear}
+                    onChange={(e) => setRemoveLinear(e.target.checked)}
+                    className="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700"
                   />
                   <span className="text-sm text-gray-700 dark:text-gray-300">
-                    Linear Sugars Only
-                  </span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    value="circular"
-                    checked={removeType === "circular"}
-                    onChange={(e) => setRemoveType(e.target.value)}
-                    className="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700"
-                  />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">
-                    Circular Sugars Only
+                    Remove Linear Sugars
                   </span>
                 </label>
               </div>
@@ -869,17 +944,67 @@ const SugarRemovalView = () => {
                 </p>
               </div>
 
+              {/* Toggle for sugar highlighting - only show if both types are present */}
+              {results.hasCircular && results.hasLinear && (
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                    Highlight Sugar Type
+                  </label>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setHighlightMode("circular")}
+                      className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                        highlightMode === "circular"
+                          ? "bg-blue-600 text-white shadow-md"
+                          : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                      }`}
+                    >
+                      Circular Sugars
+                    </button>
+                    <button
+                      onClick={() => setHighlightMode("linear")}
+                      className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                        highlightMode === "linear"
+                          ? "bg-blue-600 text-white shadow-md"
+                          : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                      }`}
+                    >
+                      Linear Sugars
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
                 <h4 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-4">
-                  Input Molecule
+                  Molecule with Highlighted Sugars
                 </h4>
                 <SMILESDisplay smiles={results.originalSmiles} label="SMILES" />
                 <div className="mt-4">
                   <MoleculeCard
                     smiles={results.originalSmiles}
                     title="Analyzed Molecule"
-                    description={results.message}
+                    description={
+                      results.hasCircular && results.hasLinear
+                        ? `Showing ${highlightMode} sugars highlighted`
+                        : results.hasCircular
+                        ? "Circular sugars highlighted"
+                        : results.hasLinear
+                        ? "Linear sugars highlighted"
+                        : results.message
+                    }
                     showActions={true}
+                    substructures={
+                      results.hasCircular && results.hasLinear
+                        ? highlightMode === "circular"
+                          ? results.circularSugars
+                          : results.linearSugars
+                        : results.hasCircular
+                        ? results.circularSugars
+                        : results.hasLinear
+                        ? results.linearSugars
+                        : []
+                    }
                   />
                 </div>
               </div>
@@ -891,11 +1016,11 @@ const SugarRemovalView = () => {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
                 Sugar Removal Result (
-                {results.removeType === "all"
-                  ? "All Sugars"
-                  : results.removeType === "linear"
-                  ? "Linear Sugars"
-                  : "Circular Sugars"}
+                {results.removeCircular && results.removeLinear
+                  ? "Circular & Linear Sugars"
+                  : results.removeCircular
+                  ? "Circular Sugars Only"
+                  : "Linear Sugars Only"}
                 )
               </h3>
 
@@ -931,11 +1056,11 @@ const SugarRemovalView = () => {
                       smiles={results.resultSmiles}
                       title="After Removal"
                       description={`${
-                        results.removeType === "all"
-                          ? "All sugars"
-                          : results.removeType === "linear"
-                          ? "Linear sugars"
-                          : "Circular sugars"
+                        results.removeCircular && results.removeLinear
+                          ? "Circular & linear sugars"
+                          : results.removeCircular
+                          ? "Circular sugars"
+                          : "Linear sugars"
                       } removed`}
                       showActions={false}
                     />
