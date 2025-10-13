@@ -850,7 +850,7 @@ async def molblock_to_smiles(
                 mol_data = suppl[0]
             if mol_data:
                 return str(
-                    Chem.MolToSmiles(mol_data), kekuleSmiles=True, isomericSmiles=True
+                    Chem.MolToSmiles(mol_data, kekuleSmiles=True, isomericSmiles=True)
                 )
             else:
                 raise HTTPException(
