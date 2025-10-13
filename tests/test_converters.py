@@ -348,3 +348,99 @@ def test_smiles_smarts(smiles, toolkit, response_text, response_code):
     assert response.headers["content-type"] == "application/json"
     if smiles != "INVALID_INPUT":
         assert response.text == response_text
+
+
+# Caffeine MOL block for testing
+CAFFEINE_MOL_BLOCK = """
+     RDKit          2D
+
+ 14 15  0  0  0  0  0  0  0  0999 V2000
+    0.7500    1.2990    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    0.0000    0.8660    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0
+   -0.7500    1.2990    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -0.7500    2.1240    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0
+    0.0000    2.5570    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    0.7500    2.1240    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    1.5000    0.8660    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    1.5000   -0.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    2.2500    1.2990    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0
+    2.2500    2.1240    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    1.5000    2.5570    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    1.5000    3.3820    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    3.0000    0.8660    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+  1  2  1  0
+  2  3  1  0
+  3  4  2  0
+  4  5  1  0
+  5  6  2  0
+  6  1  1  0
+  1  7  1  0
+  7  8  2  0
+  7  9  1  0
+  9 10  1  0
+ 10 11  1  0
+ 11 12  2  0
+ 11  6  1  0
+  9 13  1  0
+  2 14  1  0
+M  END
+"""
+
+CAFFEINE_SDF_BLOCK = CAFFEINE_MOL_BLOCK + "$$$$\n"
+
+
+@pytest.mark.parametrize(
+    "molblock, toolkit, expected_contains, response_code",
+    [
+        (
+            CAFFEINE_MOL_BLOCK,
+            "cdk",
+            "C1",  # Check if SMILES contains at least carbon
+            200,
+        ),
+        (
+            CAFFEINE_MOL_BLOCK,
+            "rdkit",
+            "C1",
+            200,
+        ),
+        (
+            CAFFEINE_SDF_BLOCK,
+            "cdk",
+            "C1",  # SDF block should work too
+            200,
+        ),
+        (
+            CAFFEINE_SDF_BLOCK,
+            "rdkit",
+            "C1",
+            200,
+        ),
+        (
+            "INVALID_MOL_BLOCK",
+            "cdk",
+            "",
+            422,
+        ),
+        (
+            "",
+            "cdk",
+            "",
+            400,
+        ),
+    ],
+)
+def test_molblock_to_smiles(molblock, toolkit, expected_contains, response_code):
+    response = client.post(
+        f"/latest/convert/molblock?toolkit={toolkit}",
+        data=molblock,
+        headers={"Content-Type": "text/plain"},
+    )
+    assert response.status_code == response_code
+    if response_code == 200:
+        smiles = response.text.strip('"')
+        assert len(smiles) > 0
+        assert (
+            expected_contains in smiles or "N" in smiles
+        )  # Caffeine contains both C and N

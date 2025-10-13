@@ -1,7 +1,7 @@
 // This file contains functions to interact with the chemical structure API
-import api from './api';
+import api from "./api";
 
-const CHEM_URL = '/chem';
+const CHEM_URL = "/chem";
 
 /**
  * Generate all possible stereoisomers for a given SMILES string
@@ -11,7 +11,7 @@ const CHEM_URL = '/chem';
 const generateStereoisomers = async (smiles) => {
   try {
     const response = await api.get(`${CHEM_URL}/stereoisomers`, {
-      params: { smiles }
+      params: { smiles },
     });
     return response.data;
   } catch (error) {
@@ -26,10 +26,10 @@ const generateStereoisomers = async (smiles) => {
  * @param {string} format - Output format (json, html)
  * @returns {Promise<Object>} - Object containing calculated descriptors
  */
-const calculateDescriptors = async (smiles, toolkit = 'rdkit', format = 'json') => {
+const calculateDescriptors = async (smiles, toolkit = "rdkit", format = "json") => {
   try {
     const response = await api.get(`${CHEM_URL}/descriptors`, {
-      params: { smiles, toolkit, format }
+      params: { smiles, toolkit, format },
     });
     return response.data;
   } catch (error) {
@@ -43,10 +43,10 @@ const calculateDescriptors = async (smiles, toolkit = 'rdkit', format = 'json') 
  * @param {string} toolkit - Toolkit to use (rdkit, cdk)
  * @returns {Promise<Object>} - Object with SMILES as keys and descriptors as values
  */
-const calculateMultipleDescriptors = async (smilesList, toolkit = 'rdkit') => {
+const calculateMultipleDescriptors = async (smilesList, toolkit = "rdkit") => {
   try {
     const response = await api.get(`${CHEM_URL}/descriptors/multiple`, {
-      params: { smiles: smilesList, toolkit }
+      params: { smiles: smilesList, toolkit },
     });
     return response.data;
   } catch (error) {
@@ -62,10 +62,10 @@ const calculateMultipleDescriptors = async (smilesList, toolkit = 'rdkit') => {
  * @param {boolean} ringsize - Whether to include ringsize information
  * @returns {Promise<Array<string>>} - Array of HOSE codes
  */
-const generateHOSECodes = async (smiles, spheres = 2, toolkit = 'rdkit', ringsize = false) => {
+const generateHOSECodes = async (smiles, spheres = 2, toolkit = "rdkit", ringsize = false) => {
   try {
     const response = await api.get(`${CHEM_URL}/HOSEcode`, {
-      params: { smiles, spheres, toolkit, ringsize }
+      params: { smiles, spheres, toolkit, ringsize },
     });
     return response.data;
   } catch (error) {
@@ -82,7 +82,7 @@ const generateHOSECodes = async (smiles, spheres = 2, toolkit = 'rdkit', ringsiz
 const checkStructureErrors = async (smiles, fix = false) => {
   try {
     const response = await api.get(`${CHEM_URL}/errors`, {
-      params: { smiles, fix }
+      params: { smiles, fix },
     });
     return response.data;
   } catch (error) {
@@ -98,7 +98,7 @@ const checkStructureErrors = async (smiles, fix = false) => {
 const calculateNPLikeness = async (smiles) => {
   try {
     const response = await api.get(`${CHEM_URL}/nplikeness/score`, {
-      params: { smiles }
+      params: { smiles },
     });
     return response.data;
   } catch (error) {
@@ -117,14 +117,14 @@ const calculateNPLikeness = async (smiles) => {
  */
 const calculateTanimotoSimilarity = async (
   smiles,
-  toolkit = 'rdkit',
-  fingerprinter = 'ECFP',
+  toolkit = "rdkit",
+  fingerprinter = "ECFP",
   nBits = 2048,
   radius = 2
 ) => {
   try {
     const response = await api.get(`${CHEM_URL}/tanimoto`, {
-      params: { smiles, toolkit, fingerprinter, nBits, radius }
+      params: { smiles, toolkit, fingerprinter, nBits, radius },
     });
     return response.data;
   } catch (error) {
@@ -142,7 +142,7 @@ const calculateTanimotoSimilarity = async (
 const coconutPreprocessing = async (smiles, _3d_mol = false, descriptors = false) => {
   try {
     const response = await api.get(`${CHEM_URL}/coconut/pre-processing`, {
-      params: { smiles, _3d_mol, descriptors }
+      params: { smiles, _3d_mol, descriptors },
     });
     return response.data;
   } catch (error) {
@@ -158,7 +158,7 @@ const coconutPreprocessing = async (smiles, _3d_mol = false, descriptors = false
 const generateFunctionalGroups = async (smiles) => {
   try {
     const response = await api.get(`${CHEM_URL}/ertlfunctionalgroup`, {
-      params: { smiles }
+      params: { smiles },
     });
     return response.data;
   } catch (error) {
@@ -174,14 +174,13 @@ const generateFunctionalGroups = async (smiles) => {
 const generateStandardizedTautomer = async (smiles) => {
   try {
     const response = await api.get(`${CHEM_URL}/standarizedTautomer`, {
-      params: { smiles }
+      params: { smiles },
     });
     return response.data;
   } catch (error) {
     throw new Error(`Failed to generate standardized tautomer: ${error.message}`);
   }
 };
-
 
 /**
  * Standardize a molblock using the ChEMBL curation pipeline
@@ -192,8 +191,8 @@ const standardizeMolblock = async (molblock) => {
   try {
     const response = await api.post(`${CHEM_URL}/standardize`, molblock, {
       headers: {
-        'Content-Type': 'text/plain'
-      }
+        "Content-Type": "text/plain",
+      },
     });
     return response.data;
   } catch (error) {
@@ -209,7 +208,7 @@ const standardizeMolblock = async (molblock) => {
 const lookupPubChem = async (identifier) => {
   try {
     const response = await api.get(`${CHEM_URL}/pubchem/smiles`, {
-      params: { identifier }
+      params: { identifier },
     });
     return response.data;
   } catch (error) {
@@ -219,7 +218,6 @@ const lookupPubChem = async (identifier) => {
 
 // Create an alias for calculateDescriptors as getDescriptors for backward compatibility
 const getDescriptors = calculateDescriptors;
-
 
 // Export individual functions
 export {
@@ -235,14 +233,14 @@ export {
   generateStandardizedTautomer,
   getDescriptors,
   lookupPubChem,
-  standardizeMolblock
+  standardizeMolblock,
 };
 
 // Assemble all functions into a service object
 const chemService = {
   generateStereoisomers,
   calculateDescriptors,
-  getDescriptors,  // Include the alias
+  getDescriptors, // Include the alias
   calculateMultipleDescriptors,
   generateHOSECodes,
   checkStructureErrors,
@@ -252,7 +250,7 @@ const chemService = {
   generateFunctionalGroups,
   generateStandardizedTautomer,
   lookupPubChem,
-  standardizeMolblock
+  standardizeMolblock,
 };
 
 export default chemService;

@@ -1,12 +1,6 @@
 // Description: This page contains tools for structure generation and sugar removal.
 import React, { useState, useEffect } from "react";
-import {
-  motion,
-  AnimatePresence,
-  LayoutGroup,
-  useScroll,
-  useTransform,
-} from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup, useScroll, useTransform } from "framer-motion";
 import SugarRemovalView from "../components/tools/SugarRemovalView";
 import StructureGenView from "../components/tools/StructureGenView";
 import InChIView from "../components/tools/InChIView";
@@ -226,8 +220,8 @@ const ToolsPage = () => {
               variants={headerItemVariants}
               className="text-[var(--text-secondary)] text-sm md:text-lg max-w-3xl mx-auto"
             >
-              Specialized tools for structure generation, sugar moiety removal,
-              and format conversion.
+              Specialized tools for structure generation, sugar moiety removal, and format
+              conversion.
             </motion.p>
           </motion.div>
           {/* Tab Container - Enhanced visual design */}
@@ -409,9 +403,7 @@ const ToolsPage = () => {
                   <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-purple-100/30 dark:bg-purple-700/20 rounded-full filter blur-3xl"></div>
 
                   {/* ActiveComponent rendered here */}
-                  {ActiveComponent && (
-                    <ActiveComponent isActive={true} isMobile={isMobile} />
-                  )}
+                  {ActiveComponent && <ActiveComponent isActive={true} isMobile={isMobile} />}
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -461,21 +453,10 @@ const ToolsPage = () => {
         .animated-mesh-gradient {
           position: absolute;
           inset: -100%;
-          background-image: radial-gradient(
-              circle at 25% 25%,
-              rgba(60, 90, 180, 0.4) 0%,
-              transparent 50%
-            ),
-            radial-gradient(
-              circle at 75% 75%,
-              rgba(120, 50, 200, 0.4) 0%,
-              transparent 50%
-            ),
-            radial-gradient(
-              circle at 85% 15%,
-              rgba(90, 40, 180, 0.4) 0%,
-              transparent 50%
-            );
+          background-image:
+            radial-gradient(circle at 25% 25%, rgba(60, 90, 180, 0.4) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(120, 50, 200, 0.4) 0%, transparent 50%),
+            radial-gradient(circle at 85% 15%, rgba(90, 40, 180, 0.4) 0%, transparent 50%);
           filter: blur(60px);
           opacity: 0.5;
           transform-origin: center;
@@ -484,21 +465,10 @@ const ToolsPage = () => {
         }
 
         .dark .animated-mesh-gradient {
-          background-image: radial-gradient(
-              circle at 25% 25%,
-              rgba(75, 100, 255, 0.5) 0%,
-              transparent 50%
-            ),
-            radial-gradient(
-              circle at 75% 75%,
-              rgba(160, 70, 240, 0.5) 0%,
-              transparent 50%
-            ),
-            radial-gradient(
-              circle at 85% 15%,
-              rgba(100, 60, 200, 0.5) 0%,
-              transparent 50%
-            );
+          background-image:
+            radial-gradient(circle at 25% 25%, rgba(75, 100, 255, 0.5) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(160, 70, 240, 0.5) 0%, transparent 50%),
+            radial-gradient(circle at 85% 15%, rgba(100, 60, 200, 0.5) 0%, transparent 50%);
           filter: blur(50px);
           opacity: 0.6;
         }

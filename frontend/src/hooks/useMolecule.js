@@ -1,15 +1,15 @@
 // Description: Custom hook for handling molecule data and operations
-import { useState, useCallback, useEffect } from 'react';
-import { useAppContext } from '../context/AppContext';
-import chemService from '../services/chemService';
-import depictService from '../services/depictService';
+import { useState, useCallback, useEffect } from "react";
+import { useAppContext } from "../context/AppContext";
+import chemService from "../services/chemService";
+import depictService from "../services/depictService";
 
 /**
  * Custom hook for handling molecule data and operations
  * @param {string} initialSmiles - Initial SMILES string
  * @returns {Object} - Molecule state and functions
  */
-const useMolecule = (initialSmiles = '') => {
+const useMolecule = (initialSmiles = "") => {
   const [smiles, setSmiles] = useState(initialSmiles);
   const [moleculeData, setMoleculeData] = useState(null);
   const [isValid, setIsValid] = useState(false);
@@ -18,47 +18,53 @@ const useMolecule = (initialSmiles = '') => {
   const { addRecentMolecule } = useAppContext();
 
   // Validate the SMILES string
-  const validateMolecule = useCallback(async (smilesStr) => {
-    if (!smilesStr) {
-      setIsValid(false);
-      setMoleculeData(null);
-      return false;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Use the errors endpoint to check if the SMILES is valid
-      const result = await chemService.checkStructureErrors(smilesStr);
-
-      // Check if the response contains error messages
-      const isValidMolecule = result.messages.includes('No Errors Found');
-      setIsValid(isValidMolecule);
-
-      if (isValidMolecule) {
-        // Add to recent molecules if it's valid
-        addRecentMolecule({
-          smiles: smilesStr,
-          timestamp: new Date().toISOString()
-        });
+  const validateMolecule = useCallback(
+    async (smilesStr) => {
+      if (!smilesStr) {
+        setIsValid(false);
+        setMoleculeData(null);
+        return false;
       }
 
-      return isValidMolecule;
-    } catch (err) {
-      setError(err.message);
-      setIsValid(false);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [addRecentMolecule]);
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        // Use the errors endpoint to check if the SMILES is valid
+        const result = await chemService.checkStructureErrors(smilesStr);
+
+        // Check if the response contains error messages
+        const isValidMolecule = result.messages.includes("No Errors Found");
+        setIsValid(isValidMolecule);
+
+        if (isValidMolecule) {
+          // Add to recent molecules if it's valid
+          addRecentMolecule({
+            smiles: smilesStr,
+            timestamp: new Date().toISOString(),
+          });
+        }
+
+        return isValidMolecule;
+      } catch (err) {
+        setError(err.message);
+        setIsValid(false);
+        return false;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [addRecentMolecule]
+  );
 
   // Update the SMILES string and validate
-  const updateMolecule = useCallback(async (newSmiles) => {
-    setSmiles(newSmiles);
-    return validateMolecule(newSmiles);
-  }, [validateMolecule]);
+  const updateMolecule = useCallback(
+    async (newSmiles) => {
+      setSmiles(newSmiles);
+      return validateMolecule(newSmiles);
+    },
+    [validateMolecule]
+  );
 
   // Fetch additional data for the molecule
   const fetchMoleculeData = useCallback(async () => {
@@ -79,7 +85,7 @@ const useMolecule = (initialSmiles = '') => {
         smiles,
         descriptors,
         npScore,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     } catch (err) {
       setError(err.message);
@@ -107,10 +113,13 @@ const useMolecule = (initialSmiles = '') => {
   }, [smiles]);
 
   // Get depiction URL
-  const getDepictionUrl = useCallback((options = {}) => {
-    if (!smiles) return '';
-    return depictService.get2DDepictionUrl(smiles, options);
-  }, [smiles]);
+  const getDepictionUrl = useCallback(
+    (options = {}) => {
+      if (!smiles) return "";
+      return depictService.get2DDepictionUrl(smiles, options);
+    },
+    [smiles]
+  );
 
   // Get stereoisomers
   const getStereoisomers = useCallback(async () => {
@@ -131,7 +140,7 @@ const useMolecule = (initialSmiles = '') => {
 
   // Clear current molecule data
   const clearMolecule = useCallback(() => {
-    setSmiles('');
+    setSmiles("");
     setMoleculeData(null);
     setIsValid(false);
     setError(null);
@@ -156,7 +165,7 @@ const useMolecule = (initialSmiles = '') => {
     getStandardizedSmiles,
     getDepictionUrl,
     getStereoisomers,
-    clearMolecule
+    clearMolecule,
   };
 };
 

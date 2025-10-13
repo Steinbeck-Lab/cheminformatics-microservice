@@ -1,7 +1,7 @@
 // This file contains functions to interact with the tools API for chemical structure generation, sugar detection, and filtering.
-import api from './api';
+import api from "./api";
 
-const TOOLS_URL = '/tools';
+const TOOLS_URL = "/tools";
 
 /**
  * Generate chemical structures based on a molecular formula
@@ -11,7 +11,7 @@ const TOOLS_URL = '/tools';
 export const generateStructures = async (molecularFormula) => {
   try {
     const response = await api.get(`${TOOLS_URL}/generate-structures`, {
-      params: { molecular_formula: molecularFormula }
+      params: { molecular_formula: molecularFormula },
     });
     return response.data;
   } catch (error) {
@@ -73,7 +73,9 @@ export const removeLinearSugars = async (smiles, options = {}) => {
       linear_acidic_sugars: options.linear_acidic_sugars ?? false,
       mark_attach_points: options.mark_attach_points ?? false,
     };
-    const response = await api.get(`${TOOLS_URL}/remove-linear-sugars`, { params });
+    const response = await api.get(`${TOOLS_URL}/remove-linear-sugars`, {
+      params,
+    });
     return response.data;
   } catch (error) {
     throw new Error(`Failed to remove linear sugars: ${error.message}`);
@@ -100,7 +102,9 @@ export const removeCircularSugars = async (smiles, options = {}) => {
       keto_sugars: options.keto_sugars ?? false,
       mark_attach_points: options.mark_attach_points ?? false,
     };
-    const response = await api.get(`${TOOLS_URL}/remove-circular-sugars`, { params });
+    const response = await api.get(`${TOOLS_URL}/remove-circular-sugars`, {
+      params,
+    });
     return response.data;
   } catch (error) {
     throw new Error(`Failed to remove circular sugars: ${error.message}`);
@@ -166,7 +170,9 @@ export const extractAglyconeAndSugars = async (smiles, options = {}) => {
       post_process_sugars: options.post_process_sugars ?? false,
       limit_post_process_by_size: options.limit_post_process_by_size ?? false,
     };
-    const response = await api.get(`${TOOLS_URL}/extract-aglycone-and-sugars`, { params });
+    const response = await api.get(`${TOOLS_URL}/extract-aglycone-and-sugars`, {
+      params,
+    });
     return response.data;
   } catch (error) {
     throw new Error(`Failed to extract aglycone and sugars: ${error.message}`);
@@ -180,14 +186,14 @@ export const extractAglyconeAndSugars = async (smiles, options = {}) => {
  * @param {Object} options - Removal options
  * @returns {Promise<string>} - SMILES with sugars removed
  */
-export const removeSugars = async (smiles, type = 'all', options = {}) => {
+export const removeSugars = async (smiles, type = "all", options = {}) => {
   try {
     switch (type) {
-      case 'linear':
+      case "linear":
         return await removeLinearSugars(smiles, options);
-      case 'circular':
+      case "circular":
         return await removeCircularSugars(smiles, options);
-      case 'all':
+      case "all":
       default:
         return await removeAllSugars(smiles, options);
     }
@@ -210,9 +216,9 @@ export const applyChemicalFilters = async (smilesList, filterOptions = {}) => {
     reos = true,
     ghose = true,
     ruleofthree = true,
-    qedscore = '0-10',
-    sascore = '0-10',
-    nplikeness = '0-10'
+    qedscore = "0-10",
+    sascore = "0-10",
+    nplikeness = "0-10",
   } = filterOptions;
 
   try {
@@ -226,11 +232,11 @@ export const applyChemicalFilters = async (smilesList, filterOptions = {}) => {
         ruleofthree,
         qedscore,
         sascore,
-        nplikeness
+        nplikeness,
       },
       headers: {
-        'Content-Type': 'text/plain'
-      }
+        "Content-Type": "text/plain",
+      },
     });
     return response.data;
   } catch (error) {
@@ -252,10 +258,10 @@ export const applyChemicalFiltersDetailed = async (smilesList, filterOptions = {
     reos = true,
     ghose = true,
     ruleofthree = true,
-    qedscore = '0-1',
-    sascore = '0-10',
-    nplikeness = '-5-5',
-    filterOperator = 'OR'
+    qedscore = "0-1",
+    sascore = "0-10",
+    nplikeness = "-5-5",
+    filterOperator = "OR",
   } = filterOptions;
 
   try {
@@ -270,12 +276,12 @@ export const applyChemicalFiltersDetailed = async (smilesList, filterOptions = {
         qedscore,
         sascore,
         nplikeness,
-        filterOperator
+        filterOperator,
       },
       headers: {
-        'Content-Type': 'text/plain',
-        'Accept': 'application/json'
-      }
+        "Content-Type": "text/plain",
+        Accept: "application/json",
+      },
     });
     return response.data;
   } catch (error) {
@@ -292,8 +298,8 @@ export const standardizeMolecule = async (molblock) => {
   try {
     const response = await api.post(`/chem/standardize`, molblock, {
       headers: {
-        'Content-Type': 'text/plain'
-      }
+        "Content-Type": "text/plain",
+      },
     });
     return response.data;
   } catch (error) {
@@ -309,7 +315,7 @@ export const standardizeMolecule = async (molblock) => {
 export const classifyMolecule = async (smiles) => {
   try {
     const response = await api.get(`/chem/classyfire/classify`, {
-      params: { smiles }
+      params: { smiles },
     });
     return response.data;
   } catch (error) {
@@ -345,7 +351,7 @@ const toolsService = {
   applyChemicalFiltersDetailed,
   standardizeMolecule,
   classifyMolecule,
-  getClassificationResults
+  getClassificationResults,
 };
 
 export default toolsService;

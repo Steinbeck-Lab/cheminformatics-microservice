@@ -47,11 +47,7 @@ const AllFiltersView = () => {
   });
 
   // Function to apply filters via API
-  const applyFilters = async (
-    e,
-    overrideOperator = null,
-    explicitOptions = null
-  ) => {
+  const applyFilters = async (e, overrideOperator = null, explicitOptions = null) => {
     // If called from an event, prevent default behavior
     if (e && e.preventDefault) {
       e.preventDefault();
@@ -87,24 +83,24 @@ const AllFiltersView = () => {
         const detailedData = await applyChemicalFiltersDetailed(trimmedInput, apiParams);
         console.log("Received detailed filter results:", detailedData);
         setDetailedResults(detailedData);
-        
+
         // Also set simple results for backward compatibility
-        const simpleResults = detailedData.results.map(result => {
+        const simpleResults = detailedData.results.map((result) => {
           if (!result.valid) {
             return `${result.smiles} : ERROR`;
           }
-          
+
           // Build simple result format
           const filterResults = [];
-          Object.keys(result.filters).forEach(filterKey => {
+          Object.keys(result.filters).forEach((filterKey) => {
             const filterResult = result.filters[filterKey];
             filterResults.push(filterResult.passes ? "T" : "F");
           });
-          
+
           return `${result.smiles} : ${filterResults.join(", ")}`;
         });
         setResults(simpleResults);
-        
+
         // Set responseData for recent molecules logic
         responseData = simpleResults;
       } else {
@@ -131,9 +127,7 @@ const AllFiltersView = () => {
 
       // Add molecules to recent list (only if results were successful)
       if (Array.isArray(responseData) && responseData.length > 0) {
-        const smilesList = trimmedInput
-          .split(/[\n\s,;]+/)
-          .filter((s) => s.trim()); // Split by various delimiters
+        const smilesList = trimmedInput.split(/[\n\s,;]+/).filter((s) => s.trim()); // Split by various delimiters
         smilesList.forEach((smiles) => {
           const trimmedSmiles = smiles.trim();
           if (trimmedSmiles) {
@@ -150,10 +144,7 @@ const AllFiltersView = () => {
     } catch (err) {
       console.error("Filter API error:", err);
       // Extract more specific error message if available (e.g., from response)
-      const errorMsg =
-        err.response?.data?.detail ||
-        err.message ||
-        "An unknown error occurred.";
+      const errorMsg = err.response?.data?.detail || err.message || "An unknown error occurred.";
       setError(`Error applying filters: ${errorMsg}`);
       setResults([]); // Clear results on error
     } finally {
@@ -264,14 +255,7 @@ const AllFiltersView = () => {
 
     // Define the order of boolean filters in the API response
     // This is the fixed order the backend returns when all filters are enabled
-    const booleanFilterOrder = [
-      "pains",
-      "lipinski",
-      "veber",
-      "reos",
-      "ghose",
-      "ruleofthree",
-    ];
+    const booleanFilterOrder = ["pains", "lipinski", "veber", "reos", "ghose", "ruleofthree"];
 
     // Create a result array with all filters (enabled and disabled)
     const resultArray = Array(9).fill("N/A");
@@ -284,8 +268,7 @@ const AllFiltersView = () => {
       if (filterOptions[filterKey]) {
         // If this filter is enabled, get its value from the API response
         if (currentValueIndex < filterValues.length) {
-          resultArray[columnIndex] =
-            filterValues[currentValueIndex].toUpperCase() === "T";
+          resultArray[columnIndex] = filterValues[currentValueIndex].toUpperCase() === "T";
           currentValueIndex++;
         } else {
           resultArray[columnIndex] = false; // Default to false if not enough values
@@ -342,24 +325,22 @@ const AllFiltersView = () => {
   const filterInfoContent = (
     <div className="space-y-2">
       <p className="text-sm text-gray-600 dark:text-gray-400">
-        <strong>PAINS</strong>: Pan-Assay Interference compounds - structures
-        known to interfere with biochemical assays. Finding a PAINS match is <em>undesirable</em> for drug development.
+        <strong>PAINS</strong>: Pan-Assay Interference compounds - structures known to interfere
+        with biochemical assays. Finding a PAINS match is <em>undesirable</em> for drug development.
       </p>
       <p className="text-sm text-gray-600 dark:text-gray-400">
-        <strong>Lipinski Rule of 5</strong>: Evaluates drug-likeness based on
-        molecular weight, logP, H-bond donors/acceptors. Shows specific violations when detailed mode is enabled.
+        <strong>Lipinski Rule of 5</strong>: Evaluates drug-likeness based on molecular weight,
+        logP, H-bond donors/acceptors. Shows specific violations when detailed mode is enabled.
       </p>
       <p className="text-sm text-gray-600 dark:text-gray-400">
-        <strong>Veber</strong>: Filters for oral bioavailability based on
-        rotatable bonds and polar surface area
+        <strong>Veber</strong>: Filters for oral bioavailability based on rotatable bonds and polar
+        surface area
       </p>
       <p className="text-sm text-gray-600 dark:text-gray-400">
-        <strong>REOS</strong>: Rapid Elimination Of Swill - property filters for
-        lead-like compounds
+        <strong>REOS</strong>: Rapid Elimination Of Swill - property filters for lead-like compounds
       </p>
       <p className="text-sm text-gray-600 dark:text-gray-400">
-        <strong>Ghose</strong>: Filters based on logP, molecular weight, and
-        number of atoms
+        <strong>Ghose</strong>: Filters based on logP, molecular weight, and number of atoms
       </p>
       <p className="text-sm text-gray-600 dark:text-gray-400">
         <strong>Rule of 3</strong>: Criteria for fragment-based drug discovery
@@ -369,15 +350,14 @@ const AllFiltersView = () => {
           💡 New: Detailed View Mode
         </p>
         <p className="text-xs text-green-700 dark:text-green-300">
-          Enable "Show detailed violation information" to see exactly which properties failed 
-          and by how much, plus specific PAINS substructure families when matched.
+          Enable "Show detailed violation information" to see exactly which properties failed and by
+          how much, plus specific PAINS substructure families when matched.
         </p>
       </div>
       <p className="mt-4 text-sm text-gray-600 dark:text-gray-400 border-t border-blue-100 dark:border-blue-800 pt-4">
-        <strong>Filter Match Logic</strong>: Choose how filters are combined -
-        "Match All Filters" requires molecules to pass all selected filters (AND
-        logic), while "Match Any Filter" includes molecules that pass at least
-        one filter (OR logic).
+        <strong>Filter Match Logic</strong>: Choose how filters are combined - "Match All Filters"
+        requires molecules to pass all selected filters (AND logic), while "Match Any Filter"
+        includes molecules that pass at least one filter (OR logic).
       </p>
     </div>
   );
@@ -398,10 +378,7 @@ const AllFiltersView = () => {
             title="Information about filters"
             onClick={() => setShowInfoModal(true)}
           >
-            <HiOutlineInformationCircle
-              className="h-5 w-5"
-              aria-hidden="true"
-            />
+            <HiOutlineInformationCircle className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -426,8 +403,8 @@ const AllFiltersView = () => {
             />
             <div className="flex items-center justify-between mt-1">
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Enter one or more SMILES strings. Separate multiple entries with
-                new lines, spaces, commas, or semicolons.
+                Enter one or more SMILES strings. Separate multiple entries with new lines, spaces,
+                commas, or semicolons.
               </p>
               <button
                 type="button"
@@ -502,8 +479,7 @@ const AllFiltersView = () => {
                   htmlFor="sascore"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
-                  Synthetic Accessibility (1-10){" "}
-                  {/* Corrected range usually 1-10 */}
+                  Synthetic Accessibility (1-10) {/* Corrected range usually 1-10 */}
                 </label>
                 <select
                   id="sascore"
@@ -512,8 +488,7 @@ const AllFiltersView = () => {
                   onChange={handleSelectChange}
                   className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
                 >
-                  <option value="1-10">1-10 (All)</option>{" "}
-                  {/* Adjusted range */}
+                  <option value="1-10">1-10 (All)</option> {/* Adjusted range */}
                   <option value="1-4">1-4 (Easy synthesis)</option>
                   <option value="4-7">4-7 (Moderate synthesis)</option>
                   <option value="7-10">7-10 (Difficult synthesis)</option>
@@ -659,9 +634,8 @@ const AllFiltersView = () => {
                     </div>
                     <div className="mt-2">
                       <p className="text-gray-700 dark:text-gray-300 mb-4">
-                        This tool allows you to filter a list of molecules based
-                        on various medicinal chemistry and drug-like property
-                        filters.
+                        This tool allows you to filter a list of molecules based on various
+                        medicinal chemistry and drug-like property filters.
                       </p>
                       {/* Reused filter information content */}
                       {filterInfoContent}
@@ -716,9 +690,8 @@ const AllFiltersView = () => {
           <div>
             <h4 className="font-medium">No Molecules Matched Your Filters</h4>
             <p className="text-sm">
-              None of the provided molecules passed the selected filter
-              criteria. Try changing your filter settings or switch between
-              AND/OR logic.
+              None of the provided molecules passed the selected filter criteria. Try changing your
+              filter settings or switch between AND/OR logic.
             </p>
           </div>
         </div>
@@ -758,10 +731,7 @@ const AllFiltersView = () => {
                 className="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md flex items-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500"
                 title="Download results as a text file"
               >
-                <HiOutlineDocumentDownload
-                  className="mr-1.5 h-4 w-4"
-                  aria-hidden="true"
-                />
+                <HiOutlineDocumentDownload className="mr-1.5 h-4 w-4" aria-hidden="true" />
                 Download
               </button>
             </div>
@@ -801,8 +771,7 @@ const AllFiltersView = () => {
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {results.map((resultString, index) => {
-                  const { smiles, results: filterValues } =
-                    parseFilterResult(resultString);
+                  const { smiles, results: filterValues } = parseFilterResult(resultString);
                   return (
                     <tr
                       key={index}
@@ -820,8 +789,7 @@ const AllFiltersView = () => {
                       {filterValues.map((value, filterIndex) => {
                         // Determine if this is a disabled filter based on filterOptions
                         const isDisabled =
-                          filterIndex < 6 &&
-                          !filterOptions[filterColumns[filterIndex].key];
+                          filterIndex < 6 && !filterOptions[filterColumns[filterIndex].key];
 
                         return (
                           <td
@@ -873,24 +841,30 @@ const AllFiltersView = () => {
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">
               Detailed Filter Results
               <span className="text-sm font-normal text-gray-500 dark:text-gray-400 block">
-                {detailedResults.passing_molecules} of {detailedResults.total_molecules} molecules passed filters ({detailedResults.filter_operator} logic)
+                {detailedResults.passing_molecules} of {detailedResults.total_molecules} molecules
+                passed filters ({detailedResults.filter_operator} logic)
               </span>
             </h3>
           </div>
 
           <div className="space-y-4">
             {detailedResults.results.map((result, index) => (
-              <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <div
+                key={index}
+                className="border border-gray-200 dark:border-gray-700 rounded-lg p-4"
+              >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3">
                   <div className="flex items-center space-x-3">
                     <span className="font-mono text-sm text-blue-600 dark:text-blue-300">
                       {result.smiles}
                     </span>
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      result.overall_pass 
-                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                        : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
-                    }`}>
+                    <span
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        result.overall_pass
+                          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                          : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                      }`}
+                    >
                       {result.overall_pass ? "PASS" : "FAIL"}
                     </span>
                   </div>
@@ -903,20 +877,25 @@ const AllFiltersView = () => {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {Object.entries(result.filters).map(([filterName, filterResult]) => (
-                      <div key={filterName} className="border border-gray-100 dark:border-gray-600 rounded p-3">
+                      <div
+                        key={filterName}
+                        className="border border-gray-100 dark:border-gray-600 rounded p-3"
+                      >
                         <div className="flex items-center justify-between mb-2">
                           <h4 className="font-medium text-sm text-gray-900 dark:text-white capitalize">
-                            {filterName.replace(/_/g, ' ')}
+                            {filterName.replace(/_/g, " ")}
                           </h4>
-                          <span className={`px-2 py-1 text-xs font-medium rounded ${
-                            filterResult.passes
-                              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-                              : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
-                          }`}>
+                          <span
+                            className={`px-2 py-1 text-xs font-medium rounded ${
+                              filterResult.passes
+                                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                                : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                            }`}
+                          >
                             {filterResult.passes ? "Pass" : "Fail"}
                           </span>
                         </div>
-                        
+
                         <div className="text-xs text-gray-600 dark:text-gray-400">
                           {filterResult.details}
                         </div>
@@ -946,7 +925,7 @@ const AllFiltersView = () => {
                               <div className="mt-1 pl-2 border-l-2 border-gray-200 dark:border-gray-600">
                                 {Object.entries(filterResult.properties).map(([prop, value]) => (
                                   <div key={prop} className="flex justify-between">
-                                    <span>{prop.replace(/_/g, ' ')}:</span>
+                                    <span>{prop.replace(/_/g, " ")}:</span>
                                     <span className="font-mono">{value}</span>
                                   </div>
                                 ))}
@@ -974,8 +953,8 @@ const AllFiltersView = () => {
             About Chemical Filters
           </h3>
           <p className="text-gray-700 dark:text-gray-300 mb-4">
-            This tool allows you to filter a list of molecules based on various
-            medicinal chemistry and drug-like property filters.
+            This tool allows you to filter a list of molecules based on various medicinal chemistry
+            and drug-like property filters.
           </p>
           {/* Reused filter information content */}
           {filterInfoContent}
