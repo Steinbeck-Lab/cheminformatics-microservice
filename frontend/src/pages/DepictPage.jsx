@@ -1,12 +1,6 @@
 // Description: DepictPage component for generating 2D and 3D depictions of chemical structures
 import React, { useState, useEffect } from "react";
-import {
-  motion,
-  AnimatePresence,
-  LayoutGroup,
-  useScroll,
-  useTransform,
-} from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup, useScroll, useTransform } from "framer-motion";
 import Depict3DView from "../components/depict/Depict3DView";
 import Depict2DMultiView from "../components/depict/Depict2DMultiView";
 import StructureVisualizerView from "../components/depict/StructureVisualizerView";
@@ -28,8 +22,7 @@ const tabs = [
     name: "Structure Explorer",
     component: StructureVisualizerView,
     icon: HiOutlineSearch,
-    description:
-      "Find structures by name or identifier and visualize them in 2D and 3D",
+    description: "Find structures by name or identifier and visualize them in 2D and 3D",
   },
   {
     id: "batch-depiction",
@@ -50,8 +43,7 @@ const tabs = [
     name: "Draw a Structure",
     component: StructureDrawView,
     icon: HiOutlinePencil,
-    description:
-      "Draw and edit chemical structures using a user-friendly interface",
+    description: "Draw and edit chemical structures using a user-friendly interface",
   },
 ];
 
@@ -224,8 +216,7 @@ const DepictPage = () => {
               variants={headerItemVariants}
               className="text-[var(--text-secondary)] text-sm md:text-lg max-w-3xl mx-auto"
             >
-              Generate customizable 2D and interactive 3D visualizations of
-              chemical structures.
+              Generate customizable 2D and interactive 3D visualizations of chemical structures.
             </motion.p>
           </motion.div>
           {/* Tab Container - Enhanced visual design */}
@@ -462,21 +453,10 @@ const DepictPage = () => {
         .animated-mesh-gradient {
           position: absolute;
           inset: -100%;
-          background-image: radial-gradient(
-              circle at 25% 25%,
-              rgba(60, 90, 180, 0.4) 0%,
-              transparent 50%
-            ),
-            radial-gradient(
-              circle at 75% 75%,
-              rgba(120, 50, 200, 0.4) 0%,
-              transparent 50%
-            ),
-            radial-gradient(
-              circle at 85% 15%,
-              rgba(90, 40, 180, 0.4) 0%,
-              transparent 50%
-            );
+          background-image:
+            radial-gradient(circle at 25% 25%, rgba(60, 90, 180, 0.4) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(120, 50, 200, 0.4) 0%, transparent 50%),
+            radial-gradient(circle at 85% 15%, rgba(90, 40, 180, 0.4) 0%, transparent 50%);
           filter: blur(60px);
           opacity: 0.5;
           transform-origin: center;
@@ -485,21 +465,10 @@ const DepictPage = () => {
         }
 
         .dark .animated-mesh-gradient {
-          background-image: radial-gradient(
-              circle at 25% 25%,
-              rgba(75, 100, 255, 0.5) 0%,
-              transparent 50%
-            ),
-            radial-gradient(
-              circle at 75% 75%,
-              rgba(160, 70, 240, 0.5) 0%,
-              transparent 50%
-            ),
-            radial-gradient(
-              circle at 85% 15%,
-              rgba(100, 60, 200, 0.5) 0%,
-              transparent 50%
-            );
+          background-image:
+            radial-gradient(circle at 25% 25%, rgba(75, 100, 255, 0.5) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(160, 70, 240, 0.5) 0%, transparent 50%),
+            radial-gradient(circle at 85% 15%, rgba(100, 60, 200, 0.5) 0%, transparent 50%);
           filter: blur(50px);
           opacity: 0.6;
         }

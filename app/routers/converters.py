@@ -31,10 +31,12 @@ from app.schemas.converters_schema import GenerateSMILESResponse
 from app.schemas.converters_schema import ThreeDCoordinatesResponse
 from app.schemas.converters_schema import TwoDCoordinatesResponse
 from app.schemas.converters_schema import GenerateSMARTSResponse
+from app.schemas.converters_schema import MolToSMILESResponse
 
 # Module imports
 from app.modules.toolkits.cdk_wrapper import get_canonical_SMILES
 from app.modules.toolkits.cdk_wrapper import get_CDK_SDG_mol
+from app.modules.toolkits.cdk_wrapper import get_CDK_IAtomContainer_from_molblock
 from app.modules.toolkits.cdk_wrapper import get_CXSMILES
 from app.modules.toolkits.cdk_wrapper import get_InChI
 from app.modules.toolkits.cdk_wrapper import get_smiles_opsin
@@ -749,6 +751,125 @@ async def smiles_to_smarts(
             smarts = Chem.MolToSmarts(mol)
             if smarts:
                 return str(smarts)
+
+
+@router.post(
+    "/molblock",
+    summary="Convert MOL/SDF block to SMILES",
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": MolToSMILESResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
+)
+@limiter.limit("20/minute")
+async def molblock_to_smiles(
+    request: Request,
+    data: str = Body(
+        ...,
+        title="MOL/SDF Block",
+        description="MOL or SDF block representation of the molecule. If SDF format is detected (contains $$$$), it will be removed and processed as MOL.",
+        media_type="text/plain",
+    ),
+    toolkit: Literal["cdk", "rdkit"] = Query(
+        default="cdk",
+        description="Cheminformatics toolkit used in the backend",
+    ),
+):
+
+    """Convert a MOL or SDF block to SMILES.
+
+    This endpoint accepts a single molecule in MOL or SDF format and converts it to SMILES.
+    If the input is in SDF format (contains $$$$), the SDF terminator will be automatically
+    removed and the content will be processed as a MOL block.
+
+    Parameters:
+    - **molblock**: required (str): The MOL or SDF block string.
+    - **toolkit**: optional (str): The toolkit to use for conversion.
+        - Supported values: "cdk" (default) & "rdkit".
+
+    Returns:
+    - SMILES (str): The SMILES representation of the molecule.
+
+    Raises:
+    - HTTPException: If the MOL block is invalid or cannot be parsed.
+
+    Note:
+    - Only single molecules are supported. For SDF files with multiple molecules,
+      only the first molecule will be processed.
+    - The SDF terminator ($$$$) is automatically detected and removed if present.
+    """
+    try:
+        cleaned_molblock = data
+        if cleaned_molblock:
+            cleaned_molblock.encode("utf-8")
+        else:
+            raise HTTPException(
+                status_code=422,
+                detail="Invalid or missing molblock",
+            )
+        print("Received MOL/SDF block for conversion.")
+        if "$$$$" in cleaned_molblock:
+            # Extract only the first molecule (everything before $$$$)
+            cleaned_molblock = cleaned_molblock.split("$$$$")[0].strip()
+            print("Detected SDF format, processing as MOL block.")
+
+        if not cleaned_molblock:
+            raise HTTPException(
+                status_code=400,
+                detail="Empty MOL block provided",
+            )
+
+        if toolkit == "cdk":
+            # Use CDK to parse MOL block and convert to SMILES
+            mol = get_CDK_IAtomContainer_from_molblock(cleaned_molblock)
+            if mol:
+                smiles = get_canonical_SMILES(mol)
+                if smiles:
+                    return str(smiles)
+                else:
+                    raise HTTPException(
+                        status_code=422,
+                        detail="Failed to generate SMILES from MOL block",
+                    )
+            else:
+                raise HTTPException(
+                    status_code=422,
+                    detail="Failed to parse MOL block",
+                )
+
+        elif toolkit == "rdkit":
+            # Use RDKit to parse MOL block and convert to SMILES
+            suppl = Chem.SDMolSupplier()
+            suppl.SetData(cleaned_molblock)
+            if len(suppl) == 1 and suppl[0]:
+                mol_data = suppl[0]
+            if mol_data:
+                return str(
+                    Chem.MolToSmiles(mol_data), kekuleSmiles=True, isomericSmiles=True
+                )
+            else:
+                raise HTTPException(
+                    status_code=422,
+                    detail="Failed to parse MOL block with RDKit",
+                )
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unsupported toolkit: {toolkit}",
+            )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Error processing MOL block: {str(e)}",
+        )
 
 
 @router.post(

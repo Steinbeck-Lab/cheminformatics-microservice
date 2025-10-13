@@ -16,6 +16,7 @@ import SMILESInput from "../common/SMILESInput";
 import MoleculeCard from "../common/MoleculeCard";
 import LoadingScreen from "../common/LoadingScreen";
 import SMILESDisplay from "../common/SMILESDisplay";
+import depictService from "../../services/depictService";
 import {
   getSugarInfo,
   removeLinearSugars,
@@ -153,10 +154,7 @@ const SugarRemovalView = () => {
                   trimmedSmiles,
                   circularOptions
                 );
-                if (
-                  Array.isArray(circularResult) &&
-                  circularResult.length > 1
-                ) {
+                if (Array.isArray(circularResult) && circularResult.length > 1) {
                   circularSugars = circularResult.slice(1);
                 }
               }
@@ -167,19 +165,13 @@ const SugarRemovalView = () => {
                   extract_circular_sugars: false,
                   extract_linear_sugars: true,
                 };
-                const linearResult = await extractAglyconeAndSugars(
-                  trimmedSmiles,
-                  linearOptions
-                );
+                const linearResult = await extractAglyconeAndSugars(trimmedSmiles, linearOptions);
                 if (Array.isArray(linearResult) && linearResult.length > 1) {
                   linearSugars = linearResult.slice(1);
                 }
               }
             } catch (extractError) {
-              console.warn(
-                "Could not extract sugars for highlighting:",
-                extractError
-              );
+              console.error("Could not extract sugars for highlighting:", extractError);
             }
           }
 
@@ -258,9 +250,7 @@ const SugarRemovalView = () => {
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             {label}
             {isModified && (
-              <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">
-                (Modified)
-              </span>
+              <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">(Modified)</span>
             )}
           </label>
           <button
@@ -286,9 +276,7 @@ const SugarRemovalView = () => {
               onChange={(e) => updateOption(key, e.target.checked)}
               className="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
             />
-            <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-              {description}
-            </span>
+            <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">{description}</span>
           </div>
         ) : type === "number" ? (
           <div className="space-y-1">
@@ -301,9 +289,7 @@ const SugarRemovalView = () => {
               step={step || 1}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {description}
-            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{description}</p>
           </div>
         ) : type === "select" ? (
           <div className="space-y-1">
@@ -312,19 +298,11 @@ const SugarRemovalView = () => {
               onChange={(e) => updateOption(key, parseInt(e.target.value))}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             >
-              <option value={1}>
-                All - Preserve all disconnected structures
-              </option>
-              <option value={2}>
-                Heavy Atom Count - Remove structures below threshold
-              </option>
-              <option value={3}>
-                Molecular Weight - Remove structures below threshold
-              </option>
+              <option value={1}>All - Preserve all disconnected structures</option>
+              <option value={2}>Heavy Atom Count - Remove structures below threshold</option>
+              <option value={3}>Molecular Weight - Remove structures below threshold</option>
             </select>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {description}
-            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{description}</p>
           </div>
         ) : null}
       </div>
@@ -342,9 +320,7 @@ const SugarRemovalView = () => {
           onClick={() => toggleSection(sectionKey)}
           className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 flex items-center justify-between transition-colors"
         >
-          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-            {title}
-          </span>
+          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{title}</span>
           {isExpanded ? (
             <HiChevronUp className="h-5 w-5 text-gray-500 dark:text-gray-400" />
           ) : (
@@ -353,9 +329,7 @@ const SugarRemovalView = () => {
         </button>
 
         {isExpanded && (
-          <div className="px-4 py-4 space-y-4 bg-white dark:bg-gray-800">
-            {children}
-          </div>
+          <div className="px-4 py-4 space-y-4 bg-white dark:bg-gray-800">{children}</div>
         )}
       </div>
     );
@@ -405,8 +379,7 @@ const SugarRemovalView = () => {
                     </strong>
                     <br />
                     <em className="text-gray-600 dark:text-gray-400">
-                      Too sweet: cheminformatics for deglycosylation in natural
-                      products.
+                      Too sweet: cheminformatics for deglycosylation in natural products.
                     </em>
                     <br />
                     <span className="text-gray-500 dark:text-gray-500">
@@ -463,17 +436,13 @@ const SugarRemovalView = () => {
                     className="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline decoration-2 underline-offset-2 hover:decoration-blue-500 transition-all inline-flex items-center"
                   >
                     MORTAR
-                    <svg
-                      className="w-3 h-3 ml-1"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
+                    <svg className="w-3 h-3 ml-1" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"></path>
                       <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"></path>
                     </svg>
                   </a>{" "}
-                  (MOlecule fragmenTation fRamework) - a comprehensive tool for
-                  systematic molecule fragmentation and analysis, or the{" "}
+                  (MOlecule fragmenTation fRamework) - a comprehensive tool for systematic molecule
+                  fragmentation and analysis, or the{" "}
                   <a
                     href="https://github.com/JonasSchaub/SugarRemoval"
                     target="_blank"
@@ -481,11 +450,7 @@ const SugarRemovalView = () => {
                     className="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline decoration-2 underline-offset-2 hover:decoration-blue-500 transition-all inline-flex items-center"
                   >
                     SugarRemoval CMD app
-                    <svg
-                      className="w-3 h-3 ml-1"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
+                    <svg className="w-3 h-3 ml-1" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"></path>
                       <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"></path>
                     </svg>
@@ -642,9 +607,7 @@ const SugarRemovalView = () => {
                   <input
                     type="checkbox"
                     checked={options.extract_circular_sugars}
-                    onChange={(e) =>
-                      updateOption("extract_circular_sugars", e.target.checked)
-                    }
+                    onChange={(e) => updateOption("extract_circular_sugars", e.target.checked)}
                     className="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700"
                   />
                   <span className="text-sm text-gray-700 dark:text-gray-300">
@@ -655,9 +618,7 @@ const SugarRemovalView = () => {
                   <input
                     type="checkbox"
                     checked={options.extract_linear_sugars}
-                    onChange={(e) =>
-                      updateOption("extract_linear_sugars", e.target.checked)
-                    }
+                    onChange={(e) => updateOption("extract_linear_sugars", e.target.checked)}
                     className="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700"
                   />
                   <span className="text-sm text-gray-700 dark:text-gray-300">
@@ -670,11 +631,15 @@ const SugarRemovalView = () => {
         </div>
       </div>
 
-      {/* Settings Section */}
+      {/* Settings Section - Show appropriate options based on operation mode */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-            Detection & Processing Options
+            {operationMode === "detect"
+              ? "Sugar Detection Options"
+              : operationMode === "remove"
+                ? "Sugar Removal Options"
+                : "Sugar Extraction Options"}
           </h3>
           <button
             type="button"
@@ -687,184 +652,302 @@ const SugarRemovalView = () => {
         </div>
 
         <div className="space-y-4">
-          {/* Basic Options Section */}
-          {renderSection(
-            "basic",
-            "Basic Options (Both Sugar Types)",
+          {/* Detection Mode - Show only detection-specific options */}
+          {operationMode === "detect" && (
             <>
-              {renderOption(
-                "only_terminal",
-                "Remove Only Terminal Sugars",
-                "boolean",
-                null,
-                null,
-                null,
-                "Only remove sugars at the terminal positions of the molecule"
+              {renderSection(
+                "circular_detect",
+                "Circular Sugar Detection Options",
+                <>
+                  {renderOption(
+                    "gly_bond",
+                    "Require O-Glycosidic Bonds",
+                    "boolean",
+                    null,
+                    null,
+                    null,
+                    "Consider only circular sugars with glycosidic bonds"
+                  )}
+
+                  {renderOption(
+                    "oxygen_atoms",
+                    "Require Sufficient Exocyclic Oxygen Atoms",
+                    "boolean",
+                    null,
+                    null,
+                    null,
+                    "Consider only circular sugars with enough exocyclic oxygen atoms"
+                  )}
+
+                  {renderOption(
+                    "oxygen_atoms_threshold",
+                    "Exocyclic Oxygen Atoms Ratio",
+                    "number",
+                    0.0,
+                    1.0,
+                    0.1,
+                    "Minimum ratio of exocyclic oxygen atoms to ring atoms (0.5 = 50%)"
+                  )}
+
+                  {renderOption(
+                    "spiro_sugars",
+                    "Include Spiro Sugars",
+                    "boolean",
+                    null,
+                    null,
+                    null,
+                    "Include rings that share one atom with another cycle"
+                  )}
+
+                  {renderOption(
+                    "keto_sugars",
+                    "Detect Keto Sugars",
+                    "boolean",
+                    null,
+                    null,
+                    null,
+                    "Detect circular sugars with keto groups"
+                  )}
+                </>
               )}
 
-              {renderOption(
-                "preservation_mode",
-                "Preservation Mode",
-                "select",
-                1,
-                3,
-                1,
-                "Determines which disconnected structures to preserve after sugar removal"
-              )}
+              {renderSection(
+                "linear_detect",
+                "Linear Sugar Detection Options",
+                <>
+                  {renderOption(
+                    "linear_sugars_in_rings",
+                    "Detect Linear Sugars in Rings",
+                    "boolean",
+                    null,
+                    null,
+                    null,
+                    "Consider linear sugar patterns that are part of ring structures"
+                  )}
 
-              {renderOption(
-                "preservation_threshold",
-                "Preservation Threshold",
-                "number",
-                0,
-                100,
-                1,
-                "Threshold value for the selected preservation mode (e.g., minimum heavy atoms)"
-              )}
+                  {renderOption(
+                    "linear_sugars_min_size",
+                    "Minimum Chain Length",
+                    "number",
+                    0,
+                    20,
+                    1,
+                    "Minimum carbon chain length to be considered a linear sugar"
+                  )}
 
-              {renderOption(
-                "mark_attach_points",
-                "Mark Attachment Points",
-                "boolean",
-                null,
-                null,
-                null,
-                "Mark the attachment points of removed sugars with a dummy atom"
+                  {renderOption(
+                    "linear_sugars_max_size",
+                    "Maximum Chain Length",
+                    "number",
+                    1,
+                    20,
+                    1,
+                    "Maximum carbon chain length to be considered a linear sugar"
+                  )}
+
+                  {renderOption(
+                    "linear_acidic_sugars",
+                    "Detect Acidic Linear Sugars",
+                    "boolean",
+                    null,
+                    null,
+                    null,
+                    "Include linear sugar moieties with acidic functional groups"
+                  )}
+                </>
               )}
             </>
           )}
 
-          {/* Circular Sugar Options Section */}
-          {renderSection(
-            "circular",
-            "Circular Sugar Options",
+          {/* Remove/Extract Mode - Show processing options */}
+          {operationMode !== "detect" && (
             <>
-              {renderOption(
-                "gly_bond",
-                "Detect Only with O-Glycosidic Bonds",
-                "boolean",
-                null,
-                null,
-                null,
-                "Consider only circular sugars with glycosidic bonds"
+              {/* Basic Options Section - shown for both remove and extract */}
+              {renderSection(
+                "basic",
+                "Basic Options",
+                <>
+                  {renderOption(
+                    "only_terminal",
+                    "Only Terminal Sugars",
+                    "boolean",
+                    null,
+                    null,
+                    null,
+                    "Only process sugars at the terminal positions of the molecule"
+                  )}
+
+                  {operationMode === "remove" && (
+                    <>
+                      {renderOption(
+                        "preservation_mode",
+                        "Preservation Mode",
+                        "select",
+                        1,
+                        3,
+                        1,
+                        "Determines which disconnected structures to preserve after sugar removal"
+                      )}
+
+                      {renderOption(
+                        "preservation_threshold",
+                        "Preservation Threshold",
+                        "number",
+                        0,
+                        100,
+                        1,
+                        "Threshold value for the selected preservation mode (e.g., minimum heavy atoms)"
+                      )}
+
+                      {renderOption(
+                        "mark_attach_points",
+                        "Mark Attachment Points",
+                        "boolean",
+                        null,
+                        null,
+                        null,
+                        "Mark the attachment points of removed sugars with a dummy atom"
+                      )}
+                    </>
+                  )}
+                </>
               )}
 
-              {renderOption(
-                "oxygen_atoms",
-                "Require Sufficient Exocyclic Oxygen Atoms",
-                "boolean",
-                null,
-                null,
-                null,
-                "Consider only circular sugars with enough exocyclic oxygen atoms (see threshold below)"
-              )}
+              {/* Circular Sugar Options Section - show when circular sugars are selected */}
+              {(operationMode === "remove" ? removeCircular : options.extract_circular_sugars) &&
+                renderSection(
+                  "circular",
+                  "Circular Sugar Detection Options",
+                  <>
+                    {renderOption(
+                      "gly_bond",
+                      "Require O-Glycosidic Bonds",
+                      "boolean",
+                      null,
+                      null,
+                      null,
+                      "Consider only circular sugars with glycosidic bonds"
+                    )}
 
-              {renderOption(
-                "oxygen_atoms_threshold",
-                "Exocyclic Oxygen Atoms Ratio Threshold",
-                "number",
-                0.0,
-                1.0,
-                0.1,
-                "Minimum ratio of exocyclic oxygen atoms to ring atoms (e.g., 0.5 means a 6-membered ring needs ≥3 exocyclic oxygens)"
-              )}
+                    {renderOption(
+                      "oxygen_atoms",
+                      "Require Sufficient Exocyclic Oxygen Atoms",
+                      "boolean",
+                      null,
+                      null,
+                      null,
+                      "Consider only circular sugars with enough exocyclic oxygen atoms"
+                    )}
 
-              {renderOption(
-                "spiro_sugars",
-                "Include Spiro Sugars",
-                "boolean",
-                null,
-                null,
-                null,
-                "Include rings that share one atom with another cycle (spiro rings)"
-              )}
+                    {renderOption(
+                      "oxygen_atoms_threshold",
+                      "Exocyclic Oxygen Atoms Ratio",
+                      "number",
+                      0.0,
+                      1.0,
+                      0.1,
+                      "Minimum ratio of exocyclic oxygen atoms to ring atoms (0.5 = 50%)"
+                    )}
 
-              {renderOption(
-                "keto_sugars",
-                "Detect Keto Sugars",
-                "boolean",
-                null,
-                null,
-                null,
-                "Detect circular sugars with keto groups"
-              )}
-            </>
-          )}
+                    {renderOption(
+                      "spiro_sugars",
+                      "Include Spiro Sugars",
+                      "boolean",
+                      null,
+                      null,
+                      null,
+                      "Include rings that share one atom with another cycle"
+                    )}
 
-          {/* Linear Sugar Options Section */}
-          {renderSection(
-            "linear",
-            "Linear Sugar Options",
-            <>
-              {renderOption(
-                "linear_sugars_in_rings",
-                "Detect Linear Sugars in Rings",
-                "boolean",
-                null,
-                null,
-                null,
-                "Consider linear sugar patterns that are part of ring structures"
-              )}
-
-              {renderOption(
-                "linear_sugars_min_size",
-                "Linear Sugars Minimum Size",
-                "number",
-                0,
-                20,
-                1,
-                "Minimum carbon chain length to be considered a linear sugar"
-              )}
-
-              {renderOption(
-                "linear_sugars_max_size",
-                "Linear Sugars Maximum Size",
-                "number",
-                1,
-                20,
-                1,
-                "Maximum carbon chain length to be considered a linear sugar"
-              )}
-
-              {renderOption(
-                "linear_acidic_sugars",
-                "Detect Linear Acidic Sugars",
-                "boolean",
-                null,
-                null,
-                null,
-                "Include linear sugar moieties with acidic functional groups"
-              )}
-            </>
-          )}
-
-          {/* Extract-specific options (only show when in extract mode) */}
-          {operationMode === "extract" &&
-            renderSection(
-              "extract",
-              "Advanced Extract Options",
-              <>
-                {renderOption(
-                  "post_process_sugars",
-                  "Post-process Extracted Sugars",
-                  "boolean",
-                  null,
-                  null,
-                  null,
-                  "Split extracted sugars by breaking glycosidic, ether, ester, and peroxide bonds"
+                    {renderOption(
+                      "keto_sugars",
+                      "Detect Keto Sugars",
+                      "boolean",
+                      null,
+                      null,
+                      null,
+                      "Detect circular sugars with keto groups"
+                    )}
+                  </>
                 )}
 
-                {renderOption(
-                  "limit_post_process_by_size",
-                  "Limit Post-processing by Size",
-                  "boolean",
-                  null,
-                  null,
-                  null,
-                  "Only post-process sugar structures larger than the preservation threshold"
+              {/* Linear Sugar Options Section - show when linear sugars are selected */}
+              {(operationMode === "remove" ? removeLinear : options.extract_linear_sugars) &&
+                renderSection(
+                  "linear",
+                  "Linear Sugar Detection Options",
+                  <>
+                    {renderOption(
+                      "linear_sugars_in_rings",
+                      "Detect Linear Sugars in Rings",
+                      "boolean",
+                      null,
+                      null,
+                      null,
+                      "Consider linear sugar patterns that are part of ring structures"
+                    )}
+
+                    {renderOption(
+                      "linear_sugars_min_size",
+                      "Minimum Chain Length",
+                      "number",
+                      0,
+                      20,
+                      1,
+                      "Minimum carbon chain length to be considered a linear sugar"
+                    )}
+
+                    {renderOption(
+                      "linear_sugars_max_size",
+                      "Maximum Chain Length",
+                      "number",
+                      1,
+                      20,
+                      1,
+                      "Maximum carbon chain length to be considered a linear sugar"
+                    )}
+
+                    {renderOption(
+                      "linear_acidic_sugars",
+                      "Detect Acidic Linear Sugars",
+                      "boolean",
+                      null,
+                      null,
+                      null,
+                      "Include linear sugar moieties with acidic functional groups"
+                    )}
+                  </>
                 )}
-              </>
-            )}
+
+              {/* Extract-specific options */}
+              {operationMode === "extract" &&
+                renderSection(
+                  "extract",
+                  "Advanced Extraction Options",
+                  <>
+                    {renderOption(
+                      "post_process_sugars",
+                      "Post-process Extracted Sugars",
+                      "boolean",
+                      null,
+                      null,
+                      null,
+                      "Apply additional processing to extracted sugar molecules"
+                    )}
+
+                    {renderOption(
+                      "limit_post_process_by_size",
+                      "Limit Post-processing by Size",
+                      "boolean",
+                      null,
+                      null,
+                      null,
+                      "Only post-process sugars below a certain size threshold"
+                    )}
+                  </>
+                )}
+            </>
+          )}
         </div>
       </div>
 
@@ -877,27 +960,23 @@ const SugarRemovalView = () => {
             !smiles.trim() || isLoading
               ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
               : operationMode === "detect"
-              ? "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
-              : operationMode === "remove"
-              ? "bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"
-              : "bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
+                ? "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+                : operationMode === "remove"
+                  ? "bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"
+                  : "bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
           }`}
         >
-          {operationMode === "detect" && (
-            <HiOutlineSearch className="h-6 w-6" />
-          )}
+          {operationMode === "detect" && <HiOutlineSearch className="h-6 w-6" />}
           {operationMode === "remove" && <HiOutlineTrash className="h-6 w-6" />}
-          {operationMode === "extract" && (
-            <HiOutlineBeaker className="h-6 w-6" />
-          )}
+          {operationMode === "extract" && <HiOutlineBeaker className="h-6 w-6" />}
           <span>
             {isLoading
               ? "Processing..."
               : operationMode === "detect"
-              ? "Detect Sugars"
-              : operationMode === "remove"
-              ? "Remove Sugars"
-              : "Extract Aglycone & Sugars"}
+                ? "Detect Sugars"
+                : operationMode === "remove"
+                  ? "Remove Sugars"
+                  : "Extract Aglycone & Sugars"}
           </span>
         </button>
       </div>
@@ -909,8 +988,8 @@ const SugarRemovalView = () => {
             operationMode === "detect"
               ? "Detecting"
               : operationMode === "remove"
-              ? "Removing"
-              : "Extracting"
+                ? "Removing"
+                : "Extracting"
           } sugar moieties...`}
         />
       )}
@@ -939,9 +1018,7 @@ const SugarRemovalView = () => {
                 <h3 className="text-lg font-medium text-blue-800 dark:text-blue-300 mb-2">
                   Detection Result
                 </h3>
-                <p className="text-gray-700 dark:text-gray-200 font-medium">
-                  {results.message}
-                </p>
+                <p className="text-gray-700 dark:text-gray-200 font-medium">{results.message}</p>
               </div>
 
               {/* Toggle for sugar highlighting - only show if both types are present */}
@@ -950,26 +1027,36 @@ const SugarRemovalView = () => {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                     Highlight Sugar Type
                   </label>
-                  <div className="flex gap-3">
+                  <div className="grid grid-cols-3 gap-3">
                     <button
                       onClick={() => setHighlightMode("circular")}
-                      className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
                         highlightMode === "circular"
                           ? "bg-blue-600 text-white shadow-md"
                           : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                       }`}
                     >
-                      Circular Sugars
+                      Circular Only
                     </button>
                     <button
                       onClick={() => setHighlightMode("linear")}
-                      className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
                         highlightMode === "linear"
                           ? "bg-blue-600 text-white shadow-md"
                           : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                       }`}
                     >
-                      Linear Sugars
+                      Linear Only
+                    </button>
+                    <button
+                      onClick={() => setHighlightMode("both")}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                        highlightMode === "both"
+                          ? "bg-blue-600 text-white shadow-md"
+                          : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                      }`}
+                    >
+                      Both
                     </button>
                   </div>
                 </div>
@@ -981,31 +1068,69 @@ const SugarRemovalView = () => {
                 </h4>
                 <SMILESDisplay smiles={results.originalSmiles} label="SMILES" />
                 <div className="mt-4">
-                  <MoleculeCard
-                    smiles={results.originalSmiles}
-                    title="Analyzed Molecule"
-                    description={
-                      results.hasCircular && results.hasLinear
-                        ? `Showing ${highlightMode} sugars highlighted`
-                        : results.hasCircular
-                        ? "Circular sugars highlighted"
-                        : results.hasLinear
-                        ? "Linear sugars highlighted"
-                        : results.message
-                    }
-                    showActions={true}
-                    substructures={
+                  {(() => {
+                    const substructuresToHighlight =
                       results.hasCircular && results.hasLinear
                         ? highlightMode === "circular"
                           ? results.circularSugars
-                          : results.linearSugars
+                          : highlightMode === "linear"
+                            ? results.linearSugars
+                            : [...results.circularSugars, ...results.linearSugars] // "both"
                         : results.hasCircular
-                        ? results.circularSugars
-                        : results.hasLinear
-                        ? results.linearSugars
-                        : []
-                    }
-                  />
+                          ? results.circularSugars
+                          : results.hasLinear
+                            ? results.linearSugars
+                            : [];
+
+                    // Generate depiction URL with highlighting
+                    const highlightSmiles =
+                      substructuresToHighlight.length > 0
+                        ? substructuresToHighlight.join(".") // Join multiple sugars with '.'
+                        : "";
+
+                    const depictionUrl = depictService.get2DDepictionUrl(results.originalSmiles, {
+                      toolkit: "cdk",
+                      width: 600,
+                      height: 400,
+                      highlight: highlightSmiles,
+                      CIP: false,
+                      unicolor: false,
+                    });
+
+                    const description =
+                      results.hasCircular && results.hasLinear
+                        ? highlightMode === "circular"
+                          ? "Circular sugars highlighted"
+                          : highlightMode === "linear"
+                            ? "Linear sugars highlighted"
+                            : "Both circular and linear sugars highlighted"
+                        : results.hasCircular
+                          ? "Circular sugars highlighted"
+                          : results.hasLinear
+                            ? "Linear sugars highlighted"
+                            : results.message;
+
+                    return (
+                      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+                        <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          {description}
+                        </h5>
+                        <div className="bg-white rounded-md p-2 flex items-center justify-center min-h-[400px]">
+                          <img
+                            src={depictionUrl}
+                            alt="Molecule with highlighted sugars"
+                            className="max-w-full max-h-full object-contain"
+                            onError={(e) => {
+                              console.error("Error loading depiction image");
+                              e.target.onerror = null;
+                              e.target.src =
+                                "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGV4dCB4PSI1MCIgeT0iNTAiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiM4ODg4ODgiPkVycm9yIGxvYWRpbmcgc3RydWN0dXJlPC90ZXh0Pjwvc3ZnPg==";
+                            }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
@@ -1019,8 +1144,8 @@ const SugarRemovalView = () => {
                 {results.removeCircular && results.removeLinear
                   ? "Circular & Linear Sugars"
                   : results.removeCircular
-                  ? "Circular Sugars Only"
-                  : "Linear Sugars Only"}
+                    ? "Circular Sugars Only"
+                    : "Linear Sugars Only"}
                 )
               </h3>
 
@@ -1029,10 +1154,7 @@ const SugarRemovalView = () => {
                   <h4 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-3">
                     Original Molecule
                   </h4>
-                  <SMILESDisplay
-                    smiles={results.originalSmiles}
-                    label="Original SMILES"
-                  />
+                  <SMILESDisplay smiles={results.originalSmiles} label="Original SMILES" />
                   <div className="mt-4">
                     <MoleculeCard
                       smiles={results.originalSmiles}
@@ -1047,10 +1169,7 @@ const SugarRemovalView = () => {
                   <h4 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-3">
                     Sugar-Free Molecule
                   </h4>
-                  <SMILESDisplay
-                    smiles={results.resultSmiles}
-                    label="Aglycone SMILES"
-                  />
+                  <SMILESDisplay smiles={results.resultSmiles} label="Aglycone SMILES" />
                   <div className="mt-4">
                     <MoleculeCard
                       smiles={results.resultSmiles}
@@ -1059,8 +1178,8 @@ const SugarRemovalView = () => {
                         results.removeCircular && results.removeLinear
                           ? "Circular & linear sugars"
                           : results.removeCircular
-                          ? "Circular sugars"
-                          : "Linear sugars"
+                            ? "Circular sugars"
+                            : "Linear sugars"
                       } removed`}
                       showActions={false}
                     />
@@ -1085,10 +1204,7 @@ const SugarRemovalView = () => {
                   </span>
                   Core Structure (Sugar-Free)
                 </h4>
-                <SMILESDisplay
-                  smiles={results.aglycone}
-                  label="Aglycone SMILES"
-                />
+                <SMILESDisplay smiles={results.aglycone} label="Aglycone SMILES" />
                 <div className="mt-4">
                   <MoleculeCard
                     smiles={results.aglycone}
@@ -1117,10 +1233,7 @@ const SugarRemovalView = () => {
                             SUGAR {index + 1}
                           </span>
                         </div>
-                        <SMILESDisplay
-                          smiles={sugarSmiles}
-                          label={`Sugar ${index + 1} SMILES`}
-                        />
+                        <SMILESDisplay smiles={sugarSmiles} label={`Sugar ${index + 1} SMILES`} />
                         <div className="mt-3">
                           <MoleculeCard
                             smiles={sugarSmiles}
@@ -1139,9 +1252,7 @@ const SugarRemovalView = () => {
               {(!results.sugars || results.sugars.length === 0) && (
                 <div className="p-4 rounded-md flex items-start shadow bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-20 text-yellow-700 dark:text-yellow-200 border border-yellow-300 dark:border-yellow-700">
                   <HiOutlineInformationCircle className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5" />
-                  <span>
-                    No sugar moieties were extracted from the molecule.
-                  </span>
+                  <span>No sugar moieties were extracted from the molecule.</span>
                 </div>
               )}
             </div>
@@ -1159,33 +1270,32 @@ const SugarRemovalView = () => {
             </h3>
             <div className="text-gray-700 dark:text-gray-300 space-y-2 text-sm">
               <p>
-                <strong>1. Enter a SMILES string</strong> representing the
-                molecule you want to analyze.
+                <strong>1. Enter a SMILES string</strong> representing the molecule you want to
+                analyze.
               </p>
               <p>
                 <strong>2. Select an operation mode:</strong>
               </p>
               <ul className="list-disc list-inside ml-4 space-y-1">
                 <li>
-                  <strong>Detect:</strong> Identify if the molecule contains
-                  linear and/or circular sugar moieties
+                  <strong>Detect:</strong> Identify if the molecule contains linear and/or circular
+                  sugar moieties
                 </li>
                 <li>
-                  <strong>Remove:</strong> Remove sugar moieties and obtain the
-                  aglycone (core structure)
+                  <strong>Remove:</strong> Remove sugar moieties and obtain the aglycone (core
+                  structure)
                 </li>
                 <li>
-                  <strong>Extract:</strong> Separate the aglycone and individual
-                  sugar moieties as distinct structures
+                  <strong>Extract:</strong> Separate the aglycone and individual sugar moieties as
+                  distinct structures
                 </li>
               </ul>
               <p>
-                <strong>3. Configure detection options</strong> in the
-                collapsible sections below (or use defaults).
+                <strong>3. Configure detection options</strong> in the collapsible sections below
+                (or use defaults).
               </p>
               <p>
-                <strong>4. Click the Execute button</strong> to process your
-                molecule.
+                <strong>4. Click the Execute button</strong> to process your molecule.
               </p>
             </div>
           </div>

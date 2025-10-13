@@ -50,8 +50,7 @@ const buttonVariant = {
   },
   hover: {
     scale: 1.05,
-    boxShadow:
-      "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+    boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
     transition: { duration: 0.3 },
   },
 };
@@ -101,21 +100,16 @@ const CitationCard = ({ title, citation }) => {
       className="bg-white/60 dark:bg-slate-800/60 p-6 rounded-xl shadow-md border border-slate-200/60 dark:border-slate-700/60"
       whileHover={{
         y: -5,
-        boxShadow:
-          "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+        boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
       }}
       transition={{ duration: 0.2 }}
     >
       <div className="flex justify-between items-center mb-3">
-        <h3 className="font-semibold text-slate-900 dark:text-white">
-          {title}
-        </h3>
+        <h3 className="font-semibold text-slate-900 dark:text-white">{title}</h3>
         <button
           onClick={handleCopy}
           className={`flex items-center justify-center p-2 rounded-lg text-white transition-all duration-300 ${
-            copySuccess
-              ? "bg-green-500 hover:bg-green-600"
-              : "bg-blue-500 hover:bg-blue-600"
+            copySuccess ? "bg-green-500 hover:bg-green-600" : "bg-blue-500 hover:bg-blue-600"
           }`}
           aria-label="Copy citation"
           title="Copy citation"
@@ -309,9 +303,8 @@ const AboutPage = () => {
               variants={headerItemVariants}
               className="text-lg sm:text-xl text-slate-700 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed"
             >
-              A modern microservice platform providing seamless access to
-              multiple open-source cheminformatics toolkits through a unified
-              REST API interface.
+              A modern microservice platform providing seamless access to multiple open-source
+              cheminformatics toolkits through a unified REST API interface.
             </motion.p>
           </motion.div>
 
@@ -330,21 +323,18 @@ const AboutPage = () => {
               <div className="p-8 md:p-10">
                 <div className="flex items-center mb-6">
                   <FaConnectdevelop className="text-3xl text-blue-500 dark:text-blue-400 mr-4" />
-                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                    Overview
-                  </h2>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Overview</h2>
                 </div>
                 <p className="text-slate-700 dark:text-slate-300 mb-4 leading-relaxed">
-                  The Cheminformatics Microservice offers a collection of
-                  versatile functions accessible via REST endpoints that can
-                  handle chemical data and perform various cheminformatics
-                  tasks. These tasks include (but are not limited to) generating
-                  chemical structure depictions, 3D conformers, descriptors,
-                  IUPAC names, and converting between machine-readable formats.
+                  The Cheminformatics Microservice offers a collection of versatile functions
+                  accessible via REST endpoints that can handle chemical data and perform various
+                  cheminformatics tasks. These tasks include (but are not limited to) generating
+                  chemical structure depictions, 3D conformers, descriptors, IUPAC names, and
+                  converting between machine-readable formats.
                 </p>
                 <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                  Researchers and developers can effectively access open-source
-                  cheminformatics toolkits such as{" "}
+                  Researchers and developers can effectively access open-source cheminformatics
+                  toolkits such as{" "}
                   <a
                     href="https://cdk.github.io/"
                     target="_blank"
@@ -371,8 +361,7 @@ const AboutPage = () => {
                   >
                     OpenBabel
                   </a>{" "}
-                  through this microservice and extend them easily to suit their
-                  specific needs.
+                  through this microservice and extend them easily to suit their specific needs.
                 </p>
               </div>
             </motion.div>
@@ -391,54 +380,33 @@ const AboutPage = () => {
                 </div>
                 <ul className="space-y-3 text-slate-700 dark:text-slate-300">
                   <li className="flex items-start">
-                    <span className="text-blue-600 dark:text-blue-400 mr-2 text-xl">
-                      •
-                    </span>
+                    <span className="text-blue-600 dark:text-blue-400 mr-2 text-xl">•</span>
                     <span>
-                      Unified access to multiple cheminformatics toolkits
-                      (RDKit, CDK, OpenBabel)
+                      Unified access to multiple cheminformatics toolkits (RDKit, CDK, OpenBabel)
                     </span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-blue-600 dark:text-blue-400 mr-2 text-xl">
-                      •
-                    </span>
+                    <span className="text-blue-600 dark:text-blue-400 mr-2 text-xl">•</span>
                     <span>High-quality 2D and 3D molecular visualizations</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-blue-600 dark:text-blue-400 mr-2 text-xl">
-                      •
-                    </span>
+                    <span className="text-blue-600 dark:text-blue-400 mr-2 text-xl">•</span>
                     <span>Comprehensive molecular descriptor calculations</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-blue-600 dark:text-blue-400 mr-2 text-xl">
-                      •
-                    </span>
-                    <span>
-                      Format conversions (SMILES, InChI, InChIKey, SELFIES,
-                      etc.)
-                    </span>
+                    <span className="text-blue-600 dark:text-blue-400 mr-2 text-xl">•</span>
+                    <span>Format conversions (SMILES, InChI, InChIKey, SELFIES, etc.)</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-blue-600 dark:text-blue-400 mr-2 text-xl">
-                      •
-                    </span>
+                    <span className="text-blue-600 dark:text-blue-400 mr-2 text-xl">•</span>
                     <span>Structure standardization and validation</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-blue-600 dark:text-blue-400 mr-2 text-xl">
-                      •
-                    </span>
-                    <span>
-                      Optical Chemical Structure Recognition (OCSR) using
-                      DECIMER
-                    </span>
+                    <span className="text-blue-600 dark:text-blue-400 mr-2 text-xl">•</span>
+                    <span>Optical Chemical Structure Recognition (OCSR) using DECIMER</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-blue-600 dark:text-blue-400 mr-2 text-xl">
-                      •
-                    </span>
+                    <span className="text-blue-600 dark:text-blue-400 mr-2 text-xl">•</span>
                     <span>Easy deployment via Docker containers</span>
                   </li>
                 </ul>
@@ -495,8 +463,7 @@ const AboutPage = () => {
                           </a>
                         </h4>
                         <p className="text-slate-700 dark:text-slate-300 text-sm">
-                          A collection of cheminformatics and machine learning
-                          tools
+                          A collection of cheminformatics and machine learning tools
                         </p>
                       </div>
                     </motion.div>
@@ -526,8 +493,7 @@ const AboutPage = () => {
                           </a>
                         </h4>
                         <p className="text-slate-700 dark:text-slate-300 text-sm">
-                          Chemistry Development Kit, a Java library for
-                          structural cheminformatics
+                          Chemistry Development Kit, a Java library for structural cheminformatics
                         </p>
                       </div>
                     </motion.div>
@@ -557,8 +523,7 @@ const AboutPage = () => {
                           </a>
                         </h4>
                         <p className="text-slate-700 dark:text-slate-300 text-sm">
-                          A chemical toolbox designed to search, convert,
-                          analyze, or store data
+                          A chemical toolbox designed to search, convert, analyze, or store data
                         </p>
                       </div>
                     </motion.div>
@@ -584,9 +549,7 @@ const AboutPage = () => {
                       </div>
                       <div>
                         <span className="font-semibold">DECIMER</span>
-                        <p className="text-sm">
-                          Deep learning for Chemical Image Recognition
-                        </p>
+                        <p className="text-sm">Deep learning for Chemical Image Recognition</p>
                       </div>
                     </motion.li>
                     <motion.li
@@ -603,9 +566,7 @@ const AboutPage = () => {
                       </div>
                       <div>
                         <span className="font-semibold">Ketcher</span>
-                        <p className="text-sm">
-                          Web-based chemical structure editor
-                        </p>
+                        <p className="text-sm">Web-based chemical structure editor</p>
                       </div>
                     </motion.li>
                     <motion.li
@@ -621,12 +582,8 @@ const AboutPage = () => {
                         />
                       </div>
                       <div>
-                        <span className="font-semibold">
-                          PubChem PUG REST API
-                        </span>
-                        <p className="text-sm">
-                          For compound search and retrieval
-                        </p>
+                        <span className="font-semibold">PubChem PUG REST API</span>
+                        <p className="text-sm">For compound search and retrieval</p>
                       </div>
                     </motion.li>
                     <motion.li
@@ -642,12 +599,8 @@ const AboutPage = () => {
                         />
                       </div>
                       <div>
-                        <span className="font-semibold">
-                          InChI Web Application
-                        </span>
-                        <p className="text-sm">
-                          InChI evaluation from chemical depictions
-                        </p>
+                        <span className="font-semibold">InChI Web Application</span>
+                        <p className="text-sm">InChI evaluation from chemical depictions</p>
                       </div>
                     </motion.li>
                   </ul>
@@ -700,8 +653,7 @@ const AboutPage = () => {
               </div>
               <div className="bg-blue-50/70 dark:bg-blue-900/20 rounded-xl p-6 border border-blue-200/70 dark:border-blue-800/50 mb-4">
                 <p className="text-slate-700 dark:text-slate-300 mb-6">
-                  A public instance of the Cheminformatics Microservice is
-                  hosted at{" "}
+                  A public instance of the Cheminformatics Microservice is hosted at{" "}
                   <a
                     href="https://www.uni-jena.de/en/"
                     target="_blank"
@@ -746,11 +698,10 @@ const AboutPage = () => {
                 </h2>
               </div>
               <p className="text-slate-700 dark:text-slate-300 mb-6 leading-relaxed">
-                It is strongly recommended that users cite both the software and
-                the corresponding paper when utilizing this work. By providing
-                appropriate citations for the Cheminformatics Microservice,
-                users gain a convenient means to precisely track the original
-                source of the utilized source code and data.
+                It is strongly recommended that users cite both the software and the corresponding
+                paper when utilizing this work. By providing appropriate citations for the
+                Cheminformatics Microservice, users gain a convenient means to precisely track the
+                original source of the utilized source code and data.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
@@ -813,9 +764,7 @@ const AboutPage = () => {
                       MIT license
                     </a>
                   </p>
-                  <p className="text-slate-700 dark:text-slate-300">
-                    Copyright © {currentYear}
-                  </p>
+                  <p className="text-slate-700 dark:text-slate-300">Copyright © {currentYear}</p>
                 </motion.div>
                 <motion.div
                   className="bg-white/60 dark:bg-slate-800/60 p-6 rounded-xl shadow-md border border-slate-200/60 dark:border-slate-700/60"
@@ -835,8 +784,7 @@ const AboutPage = () => {
                     Copyright © {currentYear} EPAM Systems, Inc.
                   </p>
                   <p className="text-slate-700 dark:text-slate-300">
-                    Other components are used according to their respective
-                    licenses.
+                    Other components are used according to their respective licenses.
                   </p>
                 </motion.div>
               </div>

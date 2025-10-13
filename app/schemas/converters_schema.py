@@ -279,6 +279,39 @@ class GenerateSMARTSResponse(BaseModel):
     }
 
 
+class MolToSMILESResponse(BaseModel):
+    """Represents a response containing a SMILES string generated from MOL/SDF.
+
+    Properties:
+    - smiles (str): The generated SMILES string.
+    """
+
+    smiles: str = Field(
+        ...,
+        title="SMILES",
+        description="The generated SMILES string corresponding to the input MOL/SDF block.",
+    )
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "input": """
+  CDK     09012308392D
+
+  2  1  0  0  0  0  0  0  0  0999 V2000
+    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    1.5000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+  1  2  1  0  0  0  0
+M  END""",
+                    "message": "Success",
+                    "output": "CC",
+                },
+            ],
+        }
+    }
+
+
 class GenerateFormatsResponse(BaseModel):
     """Represents a response containing multiple molecular formats.
 

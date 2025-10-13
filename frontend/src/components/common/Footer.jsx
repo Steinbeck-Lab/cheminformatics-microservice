@@ -200,34 +200,10 @@ const Footer = () => {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <circle
-            cx="100"
-            cy="100"
-            r="10"
-            fill="currentColor"
-            className="text-blue-600"
-          />
-          <circle
-            cx="150"
-            cy="70"
-            r="8"
-            fill="currentColor"
-            className="text-purple-600"
-          />
-          <circle
-            cx="60"
-            cy="130"
-            r="8"
-            fill="currentColor"
-            className="text-green-600"
-          />
-          <circle
-            cx="130"
-            cy="140"
-            r="8"
-            fill="currentColor"
-            className="text-amber-600"
-          />
+          <circle cx="100" cy="100" r="10" fill="currentColor" className="text-blue-600" />
+          <circle cx="150" cy="70" r="8" fill="currentColor" className="text-purple-600" />
+          <circle cx="60" cy="130" r="8" fill="currentColor" className="text-green-600" />
+          <circle cx="130" cy="140" r="8" fill="currentColor" className="text-amber-600" />
           <line
             x1="100"
             y1="100"
@@ -271,11 +247,7 @@ const Footer = () => {
             variants={itemVariant}
           >
             {/* Animated Logo - centered on mobile */}
-            <Link
-              to="/"
-              className="inline-flex items-center group"
-              aria-label="Homepage"
-            >
+            <Link to="/" className="inline-flex items-center group" aria-label="Homepage">
               <motion.div
                 className="relative overflow-hidden rounded-lg"
                 whileHover={{ scale: 1.05 }}
@@ -313,16 +285,11 @@ const Footer = () => {
                 <motion.span
                   className="font-bold text-lg block leading-tight bg-clip-text text-transparent"
                   style={{
-                    backgroundImage:
-                      "linear-gradient(90deg, #3b82f6, #8b5cf6, #3b82f6)",
+                    backgroundImage: "linear-gradient(90deg, #3b82f6, #8b5cf6, #3b82f6)",
                     backgroundSize: "200% auto",
                   }}
                   animate={{
-                    backgroundPosition: [
-                      "0% center",
-                      "200% center",
-                      "0% center",
-                    ],
+                    backgroundPosition: ["0% center", "200% center", "0% center"],
                   }}
                   transition={{
                     duration: 5,
@@ -343,8 +310,8 @@ const Footer = () => {
 
             {/* Brief description - better width control for mobile */}
             <p className="text-slate-700 dark:text-slate-300 text-xs leading-tight mt-2 max-w-xs mx-auto md:mx-0 md:ml-1">
-              Modern interface for chemical data analysis, conversion, and
-              visualization powered by the Cheminformatics Microservice API.
+              Modern interface for chemical data analysis, conversion, and visualization powered by
+              the Cheminformatics Microservice API.
             </p>
 
             {/* Enhanced but simplified legal links */}
@@ -394,9 +361,7 @@ const Footer = () => {
                 whileTap={{ scale: 0.98 }}
               >
                 {/* Gradient accent line */}
-                <div
-                  className={`h-1 w-8 mb-1 rounded-full bg-gradient-to-r ${link.color}`}
-                ></div>
+                <div className={`h-1 w-8 mb-1 rounded-full bg-gradient-to-r ${link.color}`}></div>
 
                 {/* Icon and title in horizontal layout */}
                 <div className="flex items-center gap-2 mb-0.5">
@@ -412,9 +377,7 @@ const Footer = () => {
                 </div>
 
                 {/* Description */}
-                <p className="text-xs text-slate-600 dark:text-slate-400">
-                  {link.desc}
-                </p>
+                <p className="text-xs text-slate-600 dark:text-slate-400">{link.desc}</p>
 
                 {/* Animated arrow that appears on hover */}
                 <motion.div
@@ -495,10 +458,7 @@ const Footer = () => {
         </motion.div>
 
         {/* Enhanced Copyright section - better font sizing for mobile */}
-        <motion.div
-          className="mt-2 text-center relative"
-          variants={itemVariant}
-        >
+        <motion.div className="mt-2 text-center relative" variants={itemVariant}>
           {/* Decorative gradient line */}
           <motion.div
             className="h-0.5 w-16 mx-auto mb-2 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500"

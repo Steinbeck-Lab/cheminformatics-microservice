@@ -1,27 +1,29 @@
 // Description: A component for 2D molecule depiction
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-  HiOutlineDownload,
-  HiOutlineRefresh
-} from 'react-icons/hi';
+import React, { useState, useEffect, useCallback } from "react";
+import { HiOutlineDownload, HiOutlineRefresh } from "react-icons/hi";
 
 // Assuming this service is configured correctly
-import depictService from '../../services/depictService';
+import depictService from "../../services/depictService";
 
-const MoleculeDepiction2D = ({ smiles, title, toolkit = 'rdkit', showCIP: initialShowCIP = false }) => {
+const MoleculeDepiction2D = ({
+  smiles,
+  title,
+  toolkit = "rdkit",
+  showCIP: initialShowCIP = false,
+}) => {
   const [error, setError] = useState(null);
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState("");
   const [rotation, setRotation] = useState(0);
   const [useUnicolor, setUseUnicolor] = useState(false);
   const [showCIP, setShowCIP] = useState(initialShowCIP);
-  
+
   // Fixed width and height - not using state to avoid ESLint warnings
   const imageWidth = 400;
   const imageHeight = 350;
 
   // Generate the depiction URL - using useCallback for proper memoization
   const generateDepiction = useCallback(() => {
-    if (!smiles || !depictService || typeof depictService.get2DDepictionUrl !== 'function') {
+    if (!smiles || !depictService || typeof depictService.get2DDepictionUrl !== "function") {
       setError("Cannot generate 2D depiction: missing SMILES or service unavailable");
       return;
     }
@@ -33,8 +35,8 @@ const MoleculeDepiction2D = ({ smiles, title, toolkit = 'rdkit', showCIP: initia
         width: imageWidth,
         height: imageHeight,
         rotate: rotation,
-        CIP: toolkit === 'cdk' ? showCIP : undefined,
-        unicolor: useUnicolor
+        CIP: toolkit === "cdk" ? showCIP : undefined,
+        unicolor: useUnicolor,
       };
 
       // Get the URL
@@ -71,15 +73,15 @@ const MoleculeDepiction2D = ({ smiles, title, toolkit = 'rdkit', showCIP: initia
   // Handle download
   const handleDownload = () => {
     if (!imageUrl) return;
-    
+
     // Determine file extension based on current URL
-    const extension = imageUrl.includes('format=png') ? 'png' : 'svg';
-    
+    const extension = imageUrl.includes("format=png") ? "png" : "svg";
+
     // Create filename from title or SMILES
-    const filenameSafe = (title || 'molecule').replace(/[^a-z0-9]/gi, '_').toLowerCase();
-    
+    const filenameSafe = (title || "molecule").replace(/[^a-z0-9]/gi, "_").toLowerCase();
+
     // Create the download link
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = imageUrl;
     a.download = `${filenameSafe}_2d.${extension}`;
     document.body.appendChild(a);
@@ -94,7 +96,7 @@ const MoleculeDepiction2D = ({ smiles, title, toolkit = 'rdkit', showCIP: initia
         <h3 className="font-medium text-gray-800 dark:text-white text-sm sm:text-base truncate">
           {title || "2D Structure"}
         </h3>
-        
+
         {/* Download Button */}
         <button
           onClick={handleDownload}
@@ -105,9 +107,12 @@ const MoleculeDepiction2D = ({ smiles, title, toolkit = 'rdkit', showCIP: initia
           <HiOutlineDownload className="h-5 w-5" />
         </button>
       </div>
-      
+
       {/* Image Display */}
-      <div className="p-4 bg-white flex-grow flex items-center justify-center" style={{ minHeight: "350px" }}>
+      <div
+        className="p-4 bg-white flex-grow flex items-center justify-center"
+        style={{ minHeight: "350px" }}
+      >
         {imageUrl ? (
           <img
             src={imageUrl}
@@ -121,13 +126,16 @@ const MoleculeDepiction2D = ({ smiles, title, toolkit = 'rdkit', showCIP: initia
           </div>
         )}
       </div>
-      
+
       {/* Controls */}
       <div className="px-4 py-3 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
         <div className="flex flex-wrap gap-4">
           {/* Rotation Slider */}
           <div className="flex-1 min-w-[120px]">
-            <label htmlFor="rotation-slider" className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+            <label
+              htmlFor="rotation-slider"
+              className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+            >
               Rotate: {rotation}°
             </label>
             <input
@@ -135,11 +143,13 @@ const MoleculeDepiction2D = ({ smiles, title, toolkit = 'rdkit', showCIP: initia
               type="range"
               value={rotation}
               onChange={handleRotationChange}
-              min="0" max="359" step="1"
+              min="0"
+              max="359"
+              step="1"
               className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500 dark:accent-blue-400"
             />
           </div>
-          
+
           {/* Unicolor Toggle */}
           <div className="flex items-center">
             <input
@@ -149,13 +159,16 @@ const MoleculeDepiction2D = ({ smiles, title, toolkit = 'rdkit', showCIP: initia
               onChange={(e) => setUseUnicolor(e.target.checked)}
               className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-sm focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
             />
-            <label htmlFor="unicolor-toggle" className="ml-2 text-xs text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor="unicolor-toggle"
+              className="ml-2 text-xs text-gray-700 dark:text-gray-300"
+            >
               Black & White
             </label>
           </div>
-          
+
           {/* CIP Stereo Toggle (CDK only) */}
-          {toolkit === 'cdk' && (
+          {toolkit === "cdk" && (
             <div className="flex items-center">
               <input
                 id="cip-toggle"
@@ -169,7 +182,7 @@ const MoleculeDepiction2D = ({ smiles, title, toolkit = 'rdkit', showCIP: initia
               </label>
             </div>
           )}
-          
+
           {/* Refresh Button */}
           <button
             onClick={handleRefresh}

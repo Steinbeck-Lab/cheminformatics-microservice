@@ -1,14 +1,14 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React from "react";
+import { NavLink } from "react-router-dom";
 import {
   HiOutlineHome,
   HiOutlineBeaker,
-  HiOutlineRefresh, 
+  HiOutlineRefresh,
   HiOutlinePresentationChartLine,
   HiOutlineAdjustments,
   HiOutlineCamera,
-  HiUserGroup
-} from 'react-icons/hi';
+  HiUserGroup,
+} from "react-icons/hi";
 
 // Add CSS for the strobing animation
 const StrobingIcon = ({ icon: Icon, className }) => {
@@ -22,57 +22,57 @@ const StrobingIcon = ({ icon: Icon, className }) => {
 // Navigation links configuration
 const navLinks = [
   {
-    to: '/home',
-    label: 'Home',
+    to: "/home",
+    label: "Home",
     icon: HiOutlineHome,
     exact: true,
   },
   {
-    to: '/chem',
-    label: 'Chemical Analysis',
+    to: "/chem",
+    label: "Chemical Analysis",
     icon: HiOutlineBeaker,
   },
   {
-    to: '/convert',
-    label: 'Format Conversion',
+    to: "/convert",
+    label: "Format Conversion",
     icon: HiOutlineRefresh,
   },
   {
-    to: '/depict',
-    label: 'Depiction',
+    to: "/depict",
+    label: "Depiction",
     icon: HiOutlinePresentationChartLine,
   },
   {
-    to: '/tools',
-    label: 'Tools',
+    to: "/tools",
+    label: "Tools",
     icon: HiOutlineAdjustments,
   },
   {
-    to: '/ocsr',
-    label: 'OCSR',
+    to: "/ocsr",
+    label: "OCSR",
     icon: HiOutlineCamera,
   },
   {
-    to: '/about',
-    label: 'About',
+    to: "/about",
+    label: "About",
     icon: HiUserGroup,
     animated: true, // Flag to identify this icon for animation
   },
 ];
 
-const Navigation = ({ isMobile = false, closeMenu = () => { } }) => {
+const Navigation = ({ isMobile = false, closeMenu = () => {} }) => {
   // CSS classes for different states of the navigation links
   const getLinkClasses = ({ isActive }) => {
     // Base classes for layout, padding, font, and transitions
     const baseClasses = `flex items-center rounded-md text-sm font-medium transition-all duration-200 ease-in-out group ${
-      isMobile ? 'py-2 px-3 text-base' : 'px-3 py-2' // Slightly larger text/padding for mobile clarity
+      isMobile ? "py-2 px-3 text-base" : "px-3 py-2" // Slightly larger text/padding for mobile clarity
     }`;
 
     // Classes for the ACTIVE link state (Light & Dark)
     const activeClasses = isActive
-      ? 'bg-sky-100 dark:bg-slate-700 text-sky-700 dark:text-white shadow-inner dark:shadow-none' // Example using theme colors
+      ? "bg-sky-100 dark:bg-slate-700 text-sky-700 dark:text-white shadow-inner dark:shadow-none" // Example using theme colors
       : // Classes for the INACTIVE link state (Light & Dark)
-      'text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 hover:text-slate-900 dark:hover:text-white';
+        "text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 hover:text-slate-900 dark:hover:text-white";
 
     return `${baseClasses} ${activeClasses}`;
   };
@@ -80,7 +80,7 @@ const Navigation = ({ isMobile = false, closeMenu = () => { } }) => {
   // Add the animation keyframes to the document
   React.useEffect(() => {
     // Create a style element for our custom animations
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.innerHTML = `
       @keyframes usergroup-strobe {
         0%, 100% { opacity: 1; }
@@ -100,7 +100,7 @@ const Navigation = ({ isMobile = false, closeMenu = () => { } }) => {
     `;
     // Append the style to the head
     document.head.appendChild(style);
-    
+
     // Clean up on unmount
     return () => {
       document.head.removeChild(style);
@@ -109,11 +109,13 @@ const Navigation = ({ isMobile = false, closeMenu = () => { } }) => {
 
   return (
     // Adjusted spacing for desktop
-    <nav className={`${isMobile ? 'flex flex-col space-y-1' : 'flex items-center space-x-1 lg:space-x-2'}`}>
+    <nav
+      className={`${isMobile ? "flex flex-col space-y-1" : "flex items-center space-x-1 lg:space-x-2"}`}
+    >
       {navLinks.map((link) => {
         const Icon = link.icon; // Get the icon component
-        const iconClassName = `flex-shrink-0 h-5 w-5 ${isMobile ? 'mr-3' : 'mr-1.5'}`;
-        
+        const iconClassName = `flex-shrink-0 h-5 w-5 ${isMobile ? "mr-3" : "mr-1.5"}`;
+
         return (
           <NavLink
             key={link.to}

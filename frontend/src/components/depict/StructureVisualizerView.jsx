@@ -34,48 +34,30 @@ const AnimatedAtom = () => {
         {/* First orbit */}
         <div className="absolute inset-0 w-full h-full animate-spin-slow">
           <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <FontAwesomeIcon
-              icon={faCircle}
-              className="text-blue-500 text-xs"
-            />
+            <FontAwesomeIcon icon={faCircle} className="text-blue-500 text-xs" />
           </div>
           <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
-            <FontAwesomeIcon
-              icon={faCircle}
-              className="text-blue-500 text-xs"
-            />
+            <FontAwesomeIcon icon={faCircle} className="text-blue-500 text-xs" />
           </div>
         </div>
 
         {/* Second orbit - rotated */}
         <div className="absolute inset-0 w-full h-full animate-spin-reverse">
           <div className="absolute top-1/2 left-0 transform -translate-y-1/2 -translate-x-1/2">
-            <FontAwesomeIcon
-              icon={faCircle}
-              className="text-green-500 text-xs"
-            />
+            <FontAwesomeIcon icon={faCircle} className="text-green-500 text-xs" />
           </div>
           <div className="absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-1/2">
-            <FontAwesomeIcon
-              icon={faCircle}
-              className="text-green-500 text-xs"
-            />
+            <FontAwesomeIcon icon={faCircle} className="text-green-500 text-xs" />
           </div>
         </div>
 
         {/* Third orbit - tilted */}
         <div className="absolute inset-0 w-full h-full rotate-45 animate-spin-medium">
           <div className="absolute top-0 right-0 transform -translate-y-1/2 translate-x-1/2">
-            <FontAwesomeIcon
-              icon={faCircle}
-              className="text-purple-500 text-xs"
-            />
+            <FontAwesomeIcon icon={faCircle} className="text-purple-500 text-xs" />
           </div>
           <div className="absolute bottom-0 left-0 transform translate-y-1/2 -translate-x-1/2">
-            <FontAwesomeIcon
-              icon={faCircle}
-              className="text-purple-500 text-xs"
-            />
+            <FontAwesomeIcon icon={faCircle} className="text-purple-500 text-xs" />
           </div>
         </div>
       </div>
@@ -307,14 +289,11 @@ const StructureVisualizerView = () => {
             </h4>
             <div className="space-y-3 text-gray-700 dark:text-gray-300">
               <p>
-                This visualizer helps you explore chemical structures using data
-                from PubChem, one of the world's largest collections of freely
-                accessible chemical information.
+                This visualizer helps you explore chemical structures using data from PubChem, one
+                of the world's largest collections of freely accessible chemical information.
               </p>
               <div>
-                <h5 className="font-medium mb-1 text-gray-800 dark:text-gray-200">
-                  Features:
-                </h5>
+                <h5 className="font-medium mb-1 text-gray-800 dark:text-gray-200">Features:</h5>
                 <ul className="list-disc list-inside space-y-1 pl-1 text-gray-600 dark:text-gray-400">
                   <li>Search by name, CAS number, formula, InChI, or SMILES</li>
                   <li>View precise 2D structural diagrams</li>
@@ -329,9 +308,7 @@ const StructureVisualizerView = () => {
         {/* Main content area - right side / bottom */}
         <div className="xl:col-span-8 space-y-6">
           {/* Loading State */}
-          {loading && (
-            <LoadingScreen text="Searching and preparing visualizations..." />
-          )}
+          {loading && <LoadingScreen text="Searching and preparing visualizations..." />}
 
           {/* Error Display */}
           {error && !loading && (
@@ -418,20 +395,8 @@ const StructureVisualizerView = () => {
                               strokeWidth="2"
                               strokeLinecap="round"
                             />
-                            <circle
-                              cx="17"
-                              cy="7"
-                              r="3"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            />
-                            <circle
-                              cx="17"
-                              cy="17"
-                              r="3"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            />
+                            <circle cx="17" cy="7" r="3" stroke="currentColor" strokeWidth="2" />
+                            <circle cx="17" cy="17" r="3" stroke="currentColor" strokeWidth="2" />
                             <path
                               d="M14 7H6.5C4.567 7 3 8.567 3 10.5V19"
                               stroke="currentColor"
@@ -502,8 +467,8 @@ const StructureVisualizerView = () => {
                 Begin Your Search
               </h3>
               <p className="text-gray-500 dark:text-gray-400 max-w-md mb-6">
-                Enter a chemical name, formula, CAS number, or SMILES to search
-                PubChem and visualize molecular structures
+                Enter a chemical name, formula, CAS number, or SMILES to search PubChem and
+                visualize molecular structures
               </p>
 
               <div className="flex flex-wrap gap-2 justify-center">

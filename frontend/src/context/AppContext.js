@@ -1,5 +1,5 @@
 // Description: This file contains the context provider for the application, managing global state such as theme, recent molecules, API settings, and loading/error states.
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 // Create the context
 const AppContext = createContext();
@@ -17,7 +17,7 @@ export const AppProvider = ({ children }) => {
 
   // API settings
   const [apiConfig, setApiConfig] = useState({
-    baseUrl: process.env.REACT_APP_API_URL || 'https://dev.api.naturalproducts.net/latest',
+    baseUrl: process.env.REACT_APP_API_URL || "https://dev.api.naturalproducts.net/latest",
     timeout: 30000,
   });
 
@@ -38,7 +38,7 @@ export const AppProvider = ({ children }) => {
 
     setRecentMolecules((prev) => {
       // Remove duplicate if exists
-      const filtered = prev.filter(m => m.smiles !== molecule.smiles);
+      const filtered = prev.filter((m) => m.smiles !== molecule.smiles);
 
       // Add to the beginning and limit to 10 items
       return [molecule, ...filtered].slice(0, 10);
@@ -57,37 +57,37 @@ export const AppProvider = ({ children }) => {
 
   // Initialize theme from localStorage on mount
   useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
+    const savedDarkMode = localStorage.getItem("darkMode");
     if (savedDarkMode !== null) {
-      setIsDarkMode(savedDarkMode === 'true');
+      setIsDarkMode(savedDarkMode === "true");
     }
 
     // Load recent molecules from localStorage
-    const savedMolecules = localStorage.getItem('recentMolecules');
+    const savedMolecules = localStorage.getItem("recentMolecules");
     if (savedMolecules) {
       try {
         setRecentMolecules(JSON.parse(savedMolecules));
       } catch (error) {
-        console.error('Failed to parse saved molecules', error);
+        console.error("Failed to parse saved molecules", error);
       }
     }
   }, []);
 
   // Save theme preference to localStorage when it changes
   useEffect(() => {
-    localStorage.setItem('darkMode', isDarkMode);
+    localStorage.setItem("darkMode", isDarkMode);
 
     // Update document class for global styling
     if (isDarkMode) {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add("dark");
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove("dark");
     }
   }, [isDarkMode]);
 
   // Save recent molecules to localStorage when they change
   useEffect(() => {
-    localStorage.setItem('recentMolecules', JSON.stringify(recentMolecules));
+    localStorage.setItem("recentMolecules", JSON.stringify(recentMolecules));
   }, [recentMolecules]);
 
   // Context value with all state and functions
@@ -105,11 +105,7 @@ export const AppProvider = ({ children }) => {
     setGlobalError,
   };
 
-  return (
-    <AppContext.Provider value={contextValue}>
-      {children}
-    </AppContext.Provider>
-  );
+  return <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>;
 };
 
 export default AppContext;
