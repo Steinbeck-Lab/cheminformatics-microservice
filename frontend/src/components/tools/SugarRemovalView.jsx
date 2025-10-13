@@ -1,4 +1,4 @@
-// Description: Production-grade Sugar Removal component with comprehensive detection, removal, and extraction capabilities
+// Description: Production-grade Sugar Detection component with comprehensive detection, removal, and extraction capabilities
 import React, { useState } from "react";
 import {
   HiOutlineSearch,
@@ -13,6 +13,7 @@ import {
   HiOutlineLightBulb,
 } from "react-icons/hi";
 import SMILESInput from "../common/SMILESInput";
+import MolFileUpload from "../common/MolFileUpload";
 import MoleculeCard from "../common/MoleculeCard";
 import LoadingScreen from "../common/LoadingScreen";
 import SMILESDisplay from "../common/SMILESDisplay";
@@ -58,6 +59,7 @@ const SugarRemovalView = () => {
   const [smiles, setSmiles] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [uploadedFileName, setUploadedFileName] = useState(null);
 
   // Operation mode: 'detect', 'remove', 'extract'
   const [operationMode, setOperationMode] = useState("detect");
@@ -110,6 +112,28 @@ const SugarRemovalView = () => {
       ...prev,
       [key]: value,
     }));
+  };
+
+  // Handle file upload conversion success
+  const handleFileConversionSuccess = (convertedSmiles, molblock, filename) => {
+    setSmiles(convertedSmiles);
+    setUploadedFileName(filename);
+    setError(null);
+  };
+
+  // Handle file upload conversion error
+  const handleFileConversionError = (errorMessage) => {
+    setError(errorMessage);
+    setUploadedFileName(null);
+  };
+
+  // Handle manual SMILES input change (clear file upload indicator)
+  const handleSmilesChange = (newSmiles) => {
+    setSmiles(newSmiles);
+    // Clear uploaded file indicator when user manually edits SMILES
+    if (uploadedFileName && newSmiles !== smiles) {
+      setUploadedFileName(null);
+    }
   };
 
   // Execute the selected operation
@@ -350,7 +374,7 @@ const SugarRemovalView = () => {
               {/* Logo with strong glow in dark mode */}
               <img
                 src="/SDS.png"
-                alt="Sugar Removal Logo"
+                alt="Sugar Detection Logo"
                 className="relative h-52 w-52 object-contain transform hover:scale-105 transition-transform duration-300"
                 style={{
                   filter:
@@ -471,11 +495,34 @@ const SugarRemovalView = () => {
 
         <SMILESInput
           value={smiles}
-          onChange={setSmiles}
+          onChange={handleSmilesChange}
           label="SMILES String"
           placeholder="Enter SMILES (e.g., C=CC1C(C[C@@H]2NCCC3=C2NC2=CC=CC=C32)C(C(=O)O)=CO[C@H]1O[C@@H]1O[C@H](CO)[C@@H](O)[C@H](O)[C@H]1O)"
           required
         />
+
+        {/* File Upload Alternative */}
+        <div className="mt-4">
+          <div className="flex items-center mb-3">
+            <div className="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
+            <span className="px-4 text-sm text-gray-500 dark:text-gray-400">or</span>
+            <div className="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
+          </div>
+
+          <MolFileUpload
+            onConversionSuccess={handleFileConversionSuccess}
+            onConversionError={handleFileConversionError}
+            toolkit="cdk"
+            allowMultipleMolecules={false}
+          />
+
+          {uploadedFileName && (
+            <div className="mt-2 flex items-center text-sm text-green-600 dark:text-green-400">
+              <HiOutlineInformationCircle className="h-4 w-4 mr-1" />
+              <span>Loaded from: {uploadedFileName}</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Operation Mode Selection */}
@@ -1127,6 +1174,14 @@ const SugarRemovalView = () => {
                                 "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGV4dCB4PSI1MCIgeT0iNTAiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiM4ODg4ODgiPkVycm9yIGxvYWRpbmcgc3RydWN0dXJlPC90ZXh0Pjwvc3ZnPg==";
                             }}
                           />
+                        </div>
+                        <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+                          <p className="text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
+                            <span className="font-semibold">Note:</span> Structure highlighting is
+                            based on an internal substructure search and may occasionally differ
+                            from the extracted sugar structures. In such cases, the extracted sugars
+                            are the ground truth.
+                          </p>
                         </div>
                       </div>
                     );

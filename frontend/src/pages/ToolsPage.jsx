@@ -1,5 +1,6 @@
 // Description: This page contains tools for structure generation and sugar removal.
 import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, LayoutGroup, useScroll, useTransform } from "framer-motion";
 import SugarRemovalView from "../components/tools/SugarRemovalView";
 import StructureGenView from "../components/tools/StructureGenView";
@@ -18,15 +19,15 @@ import {
 // Tab data with icons and descriptions
 const tabs = [
   {
-    id: "sugar-removal",
-    name: "Sugar Removal",
+    id: "sugardetection",
+    name: "Sugar Detection",
     component: SugarRemovalView,
     icon: HiCube,
     description:
-      "Remove sugar moieties from complex molecular structures to simplify analysis and focus on core scaffolds.",
+      "Detect and remove sugar moieties from complex molecular structures to simplify analysis and focus on core scaffolds.",
   },
   {
-    id: "structure-generation",
+    id: "structuregeneration",
     name: "Structure Generation",
     component: StructureGenView,
     icon: HiOutlinePuzzle,
@@ -34,7 +35,7 @@ const tabs = [
       "Generate chemical structures based on specified parameters and constraints for virtual screening.",
   },
   {
-    id: "inchi-converter",
+    id: "inchiconverter",
     name: "InChI Converter",
     component: InChIView,
     icon: HiOutlineDocumentText,
@@ -42,7 +43,7 @@ const tabs = [
       "Draw, edit, and convert chemical structures to InChI notation with full support for various InChI versions and options.",
   },
   {
-    id: "rinchi-converter",
+    id: "rinchiconverter",
     name: "RInChI Converter",
     component: RInChIView,
     icon: HiOutlineSwitchHorizontal,
@@ -100,9 +101,27 @@ const mobileMenuVariants = {
 };
 
 const ToolsPage = () => {
-  const [activeTabId, setActiveTabId] = useState(tabs[0].id);
+  const { toolId } = useParams();
+  const navigate = useNavigate();
+
+  const [activeTabId, setActiveTabId] = useState(toolId || tabs[0].id);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  // Redirect to first tab if no toolId is in URL, or update active tab when URL changes
+  useEffect(() => {
+    if (!toolId) {
+      navigate(`/tools/${tabs[0].id}`, { replace: true });
+    } else {
+      const tab = tabs.find((t) => t.id === toolId);
+      if (tab) {
+        setActiveTabId(toolId);
+      } else {
+        // Invalid toolId, redirect to first tab
+        navigate(`/tools/${tabs[0].id}`, { replace: true });
+      }
+    }
+  }, [toolId, navigate]);
 
   // Check if the window is mobile size
   useEffect(() => {
@@ -131,6 +150,8 @@ const ToolsPage = () => {
   const handleTabSelection = (tabId) => {
     setActiveTabId(tabId);
     setIsMobileMenuOpen(false);
+    // Update URL
+    navigate(`/tools/${tabId}`);
   };
 
   return (
@@ -299,7 +320,7 @@ const ToolsPage = () => {
                       return (
                         <motion.button
                           key={tab.id}
-                          onClick={() => setActiveTabId(tab.id)}
+                          onClick={() => handleTabSelection(tab.id)}
                           className={`tab-button relative flex items-center px-5 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-secondary)] focus-visible:ring-[var(--text-accent)] ${
                             isActive
                               ? "text-sky-700 dark:text-white"
