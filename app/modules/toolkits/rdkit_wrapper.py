@@ -845,12 +845,15 @@ def get_ertl_functional_groups_ifg(molecule: any) -> list:
     - molecule (any): A molecule represented as an RDKit Mol object.
 
     Returns:
-    - list: A list of identified functional groups in the molecule with structured data including atom IDs. 
-      "atoms" denote the functional group atoms that are marked according to the Ertl algorithm and "type" 
-      represents those marked atoms together with their unmarked, environmental carbon atoms. "atomIds" 
-      include only the IDs of the marked atoms.
+    - list: A list of dictionaries (one dict for each identified functional group in the molecule) with structured data about each detected functional group (FG).
+      For each dictionary, the "atomIds" key value contains the atom IDs of the FG atoms marked according to the Ertl algorithm.
+      "atoms" contains a SMILES representation of the FG (again, only the marked atoms) and "type"
+      contains a SMILES representation of the FG including also the unmarked, environmental carbon atoms connected to the marked atoms.
+      "description" contains the full string representation of the IFG object for display purposes.
+      Example: "[{'atomIds': [1, 3, 21], 'atoms': 'OCO', 'type': 'CC1(C)OCCO1', 'description': "IFG(atomIds=(1, 3, 21), atoms='OCO', type='CC1(C)OCCO1')"}, {...}]"
+      The IFG implementation does not provide a generalization of the FG environments.
       If no functional groups are found, the function returns a list with a single element:
-      [{'None': 'No fragments found'}]
+      "[{'None': 'No fragments found'}]"
 
     References:
     - Ertl, P. An algorithm to identify functional groups in organic molecules. J Cheminform 9, 36 (2017). https://doi.org/10.1186/s13321-017-0225-z
@@ -904,48 +907,53 @@ def get_ertl_functional_groups_efgs(molecule: any) -> list:
     - molecule (any): A molecule represented as an RDKit Mol object.
 
     Returns:
-    - list: A list of identified functional groups in the molecule with structured data including atom IDs. 
-      "atoms" denote the functional group atoms that are marked according to the Ertl algorithm and "type" 
-      represents those marked atoms together with their unmarked, environmental carbon atoms. "atomIds" 
-      include only the IDs of the marked atoms.
+    - list: A list of dictionaries (one dict for each identified functional group in the molecule) with structured data about each detected functional group (FG).
+      For each dictionary, the "fgs" key value contains the atom IDs of the FG atoms marked according to the Ertl algorithm.
+      "psmis" contains a (canonical) "pseudo" (see Ertl's paper) SMILES representation of the "generalized" (see Ertl's paper) FG and "fg_mols"
+      contains an RDKit Mol object of the generalized FG.
+      "description" contains the full string representation of the EFGs object for display purposes.
+      Example: "[{'fgs': [1, 3, 21], 'psmis': '[R][O]C[O][R]', 'fg_mols': <rdkit.Chem.rdchem.Mol object at 0x00000213936BA030>, 'description': "EFGS([[1, 3, 21], '[R][O]C[O][R]', <rdkit.Chem.rdchem.Mol object at 0x00000213936BA030>])"}, {...}]"
       If no functional groups are found, the function returns a list with a single element:
-      [{'None': 'No fragments found'}]
+      "[{'None': 'No fragments found'}]"
 
     References:
     - Ertl, P. An algorithm to identify functional groups in organic molecules. J Cheminform 9, 36 (2017). https://doi.org/10.1186/s13321-017-0225-z
-    - Colmenarejo, G. EFGs: A Complete and Accurate Implementation of Ertl’s Functional Group Detection Algorithm in RDKit. J Chem Inf Model 65, 3 (2025). https://doi.org/10.1021/acs.jcim.4c02268
+    - Colmenarejo, G. EFGs: A Complete and Accurate Implementation of Ertl's Functional Group Detection Algorithm in RDKit. J Chem Inf Model 65, 3 (2025). https://doi.org/10.1021/acs.jcim.4c02268
     """
     if molecule:
-        fragments = efgs.get_fgs(molecule)
-        if fragments:
+        # we ignore the img_text output here
+        img_text, fgs, psmis, fg_mols = efgs.get_dec_fgs(molecule)
+        if fgs:
             # Convert EFGS objects to structured dictionaries for better frontend handling
             structured_groups = []
-            for fragment in fragments:
+            for i in range(len(fgs)):
                 try:
                     # Extract information from EFGS object
                     group_data = {
-                        "atomIds": (
-                            list(fragment.atomIds)
-                            if hasattr(fragment, "atomIds")
+                        "fgs": (
+                            list(fgs[i])
+                            if fgs[i]
                             else []
                         ),
-                        "atoms": (
-                            str(fragment.atoms) if hasattr(fragment, "atoms") else ""
+                        "psmis": (
+                            str(psmis[i]) if psmis[i] else ""
                         ),
-                        "type": str(fragment.type) if hasattr(fragment, "type") else "",
-                        "description": str(
-                            fragment
-                        ),  # Full string representation for display
+                        "fg_mols": fg_mols[i] if fg_mols[i] else None,
+                        "description": "EFGS(" + str([
+                            list(fgs[i]) if fgs[i] else [],
+                            str(psmis[i]) if psmis[i] else "",
+                            fg_mols[i] if fg_mols[i] else None,
+                        ]) + ")",  # Full string representation for display
                     }
                     structured_groups.append(group_data)
-                except Exception:
+                except Exception as e:
                     # Fallback to string representation if structured extraction fails
                     structured_groups.append(
                         {
-                            "atomIds": [],
-                            "atoms": "",
-                            "type": "",
-                            "description": str(fragment),
+                            "fgs": [],
+                            "psmis": "",
+                            "fg_mols": None,
+                            "description": f"{str(e)}",
                         }
                     )
             return structured_groups
