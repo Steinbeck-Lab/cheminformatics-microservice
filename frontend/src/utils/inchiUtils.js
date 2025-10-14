@@ -15,16 +15,16 @@ export const INCHI_VERSIONS = {
     scriptSrc: `${INCHI_BASE_URL}/inchi/inchi-web106.js`,
     moduleName: "inchiModule106",
   },
-  "1.07.3": {
-    label: "InChI 1.07.3",
-    scriptSrc: `${INCHI_BASE_URL}/inchi/inchi-web107.js`,
-    moduleName: "inchiModule107",
+  "Latest": {
+    label: "InChI Latest",
+    scriptSrc: `${INCHI_BASE_URL}/inchi/inchi-web-latest.js`,
+    moduleName: "inchiModuleLatest",
     default: true,
   },
-  "1.07.3-orgmet": {
-    label: "InChI 1.07.3 with Molecular inorganics",
-    scriptSrc: `${INCHI_BASE_URL}/inchi/inchi-web107-orgmet.js`,
-    moduleName: "inchiModule107OrgMet",
+  "Latest-MoIn": {
+    label: "InChI latest with Molecular inorganics",
+    scriptSrc: `${INCHI_BASE_URL}/inchi/inchi-web-latest-moin.js`,
+    moduleName: "inchiModuleLatestMoIn",
   },
 };
 
@@ -34,7 +34,7 @@ const moduleLoadPromises = {};
 
 /**
  * Loads an InChI module from remote URL
- * @param {string} version - Version identifier ("1.06", "1.07.3", or "1.07.3-orgmet")
+ * @param {string} version - Version identifier ("1.06", "Latest", or "Latest-MoIn")
  * @returns {Promise<Object>} - Promise that resolves to the module instance
  */
 export const loadInchiModule = async (version) => {
