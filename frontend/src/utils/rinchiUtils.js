@@ -11,7 +11,7 @@ const RINCHI_BASE_URL = "https://iupac-inchi.github.io/InChI-Web-Demo";
 // Configuration for available RInChI modules with remote URLs
 export const RINCHI_VERSIONS = {
   1.1: {
-    label: "RInChI 1.1-dev with InChI 1.07.3",
+    label: "RInChI 1.1-dev with Latest InChI",
     scriptSrc: `${RINCHI_BASE_URL}/rinchi/librinchi-1.1.js`,
     moduleName: "rinchiModule11",
     default: true,
