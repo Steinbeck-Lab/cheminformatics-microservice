@@ -894,6 +894,8 @@ def get_ertl_functional_groups_ifg(molecule: any) -> list:
             return structured_groups
         else:
             return [{"None": "No fragments found"}]
+    else:
+        return [{"Error": "Check input SMILES"}]
 
 
 # TODO: finish this implementation and add it to the router as another option; add tests also!
@@ -960,6 +962,38 @@ def get_ertl_functional_groups_efgs(molecule: any) -> list:
             return structured_groups
         else:
             return [{"None": "No fragments found"}]
+    else:
+        return [{"Error": "Check input SMILES"}]
+
+
+def get_ertl_functional_groups_efgs_depiction(molecule: any) -> str:
+    """
+    This function takes an organic molecule as input and uses the algorithm
+    proposed by Peter Ertl to identify functional groups within the molecule.
+    The implementation by Gonzalo Colmenarejo (EFGs) is used here
+    (https://github.com/rdkit/rdkit/tree/master/Contrib/efgs).
+    This function returns a depiction of the molecule where the identified functional groups are highlighted.
+
+    Parameters:
+    - molecule (any): A molecule represented as an RDKit Mol object.
+
+    Returns:
+    - str: The PNG string of the molecule depiction with highlighted functional groups.
+    # TODO: check what happens if no FGs are found!
+
+    References:
+    - Ertl, P. An algorithm to identify functional groups in organic molecules. J Cheminform 9, 36 (2017). https://doi.org/10.1186/s13321-017-0225-z
+    - Colmenarejo, G. EFGs: A Complete and Accurate Implementation of Ertl's Functional Group Detection Algorithm in RDKit. J Chem Inf Model 65, 3 (2025). https://doi.org/10.1021/acs.jcim.4c02268
+    """
+    if molecule:
+        # we ignore all the other outputs here
+        img_text, fgs, psmis, fg_mols = efgs.get_dec_fgs(molecule)
+        if img_text:
+            return img_text
+        else:
+            return "None: No depiction generated"
+    else:
+        return "Error: Check input SMILES"
 
 
 def get_standardized_tautomer(
