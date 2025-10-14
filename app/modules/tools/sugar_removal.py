@@ -728,17 +728,25 @@ def get_aglycone_and_sugar_indices(
         post_process_sugars,
         limit_post_process_by_size,
         _input_atom_to_aglycone_atom_map,
-        cdk.JClass("java.util.HashMap")(int((molecule.getBondCount() / 0.75) + 2), 0.75),
+        cdk.JClass("java.util.HashMap")(
+            int((molecule.getBondCount() / 0.75) + 2), 0.75
+        ),
         _input_atom_to_sugar_atom_map,
-        cdk.JClass("java.util.HashMap")(int((molecule.getBondCount() / 0.75) + 2), 0.75),
+        cdk.JClass("java.util.HashMap")(
+            int((molecule.getBondCount() / 0.75) + 2), 0.75
+        ),
     )
     _result = []
-    _aglycone_atom_indices = _sugar_detection_utility.getAtomIndicesOfGroup(molecule, _aglycone_and_sugars.get(0), _input_atom_to_aglycone_atom_map)
+    _aglycone_atom_indices = _sugar_detection_utility.getAtomIndicesOfGroup(
+        molecule, _aglycone_and_sugars.get(0), _input_atom_to_aglycone_atom_map
+    )
     _result.append([int(x) for x in _aglycone_atom_indices])
     for i in range(1, _aglycone_and_sugars.size()):
         try:
-            _sugar_atom_indices = _sugar_detection_utility.getAtomIndicesOfGroup(molecule, _aglycone_and_sugars.get(i), _input_atom_to_sugar_atom_map)
+            _sugar_atom_indices = _sugar_detection_utility.getAtomIndicesOfGroup(
+                molecule, _aglycone_and_sugars.get(i), _input_atom_to_sugar_atom_map
+            )
             _result.append([int(x) for x in _sugar_atom_indices])
-        except:
+        except Exception:
             _result.append([])
     return _result

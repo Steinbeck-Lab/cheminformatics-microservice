@@ -6,7 +6,8 @@ from fastapi import Query
 from fastapi import status
 
 from app.modules.toolkits.helpers import parse_input
-from app.modules.tools.sugar_removal import extract_aglycone_and_sugars, get_aglycone_and_sugar_indices
+from app.modules.tools.sugar_removal import extract_aglycone_and_sugars
+from app.modules.tools.sugar_removal import get_aglycone_and_sugar_indices
 from app.modules.tools.sugar_removal import get_sugar_info
 from app.modules.tools.sugar_removal import preservation_modes_enum
 from app.modules.tools.sugar_removal import remove_circular_sugars
@@ -17,8 +18,9 @@ from app.schemas import HealthCheck
 from app.schemas.error import BadRequestModel
 from app.schemas.error import ErrorResponse
 from app.schemas.error import NotFoundModel
-from app.schemas.tools_schema import ExtractAglyconeAndSugarsResponse, GetAglyconeAndSugarIndicesResponse
+from app.schemas.tools_schema import ExtractAglyconeAndSugarsResponse
 from app.schemas.tools_schema import GenerateStructuresResponse
+from app.schemas.tools_schema import GetAglyconeAndSugarIndicesResponse
 from app.schemas.tools_schema import GetCircularandLinearSugarResponse
 from app.schemas.tools_schema import GetCircularSugarResponse
 from app.schemas.tools_schema import GetLinearSugarResponse
@@ -827,7 +829,7 @@ async def extract_aglycone_and_sugars_endpoint(
 
 @router.get(
     "/get-aglycone-and-sugar-indices",
-    summary='Get the atom indices of the aglycone and the sugar moieties from a given molecule.',
+    summary="Get the atom indices of the aglycone and the sugar moieties from a given molecule.",
     responses={
         200: {
             "description": "Successful response",
@@ -1003,4 +1005,3 @@ async def get_aglycone_and_sugar_indices_endpoint(
             )
     except Exception as e:
         raise HTTPException(status_code=422, detail=str(e))
-    
