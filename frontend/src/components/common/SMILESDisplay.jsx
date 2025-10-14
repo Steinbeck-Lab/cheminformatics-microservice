@@ -1,7 +1,7 @@
 // Description: A React component to display SMILES strings with options to copy to clipboard and download as a MOL file.
-import React, { useState } from 'react';
-import { HiOutlineClipboard, HiOutlineDownload, HiOutlineCheck } from 'react-icons/hi';
-import { generate2DCoordinates } from '../../services/convertService';
+import React, { useState } from "react";
+import { HiOutlineClipboard, HiOutlineDownload, HiOutlineCheck } from "react-icons/hi";
+import { generate2DCoordinates } from "../../services/convertService";
 
 const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
   const [copied, setCopied] = useState(false);
@@ -16,7 +16,7 @@ const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
     } catch (err) {
-      console.error('Failed to copy text:', err);
+      console.error("Failed to copy text:", err);
     }
   };
 
@@ -27,20 +27,20 @@ const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
     setDownloading(true);
     try {
       // Convert SMILES to MOL using the service
-      const molData = await generate2DCoordinates(smiles, 'rdkit');
+      const molData = await generate2DCoordinates(smiles, "rdkit");
 
       // Create and trigger download
-      const blob = new Blob([molData], { type: 'chemical/x-mdl-molfile' });
+      const blob = new Blob([molData], { type: "chemical/x-mdl-molfile" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = 'molecule.mol';
+      a.download = "molecule.mol";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (err) {
-      console.error('Failed to convert and download MOL:', err);
+      console.error("Failed to convert and download MOL:", err);
     } finally {
       setDownloading(false);
     }
@@ -56,8 +56,11 @@ const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
           <button
             onClick={handleCopy}
             disabled={!smiles}
-            className={`p-1.5 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 ${!smiles ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
-              }`}
+            className={`p-1.5 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 ${
+              !smiles
+                ? "text-gray-400 dark:text-gray-600 cursor-not-allowed"
+                : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+            }`}
             title="Copy SMILES to clipboard"
           >
             {copied ? (
@@ -70,8 +73,11 @@ const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
             <button
               onClick={handleDownload}
               disabled={downloading || !smiles}
-              className={`p-1.5 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 ${downloading || !smiles ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
+              className={`p-1.5 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 ${
+                downloading || !smiles
+                  ? "text-gray-400 dark:text-gray-600 cursor-not-allowed"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+              }`}
               title="Download as MOL file"
             >
               <HiOutlineDownload className="h-5 w-5" />

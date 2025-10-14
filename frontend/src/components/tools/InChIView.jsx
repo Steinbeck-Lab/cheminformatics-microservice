@@ -47,9 +47,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
   const [t15, setT15] = useState(false);
   const [polymers, setPolymers] = useState(false);
   const [NPZz, setNPZz] = useState(false);
-  const [molecularInorganics, setMolecularInorganics] = useState(
-    inchiVersion === "1.07.3-orgmet"
-  );
+  const [molecularInorganics, setMolecularInorganics] = useState(inchiVersion === "Latest-MoIn");
   const [showTautomerism, setShowTautomerism] = useState(true); // Add state for tautomerism visibility
 
   // Additional stereo options
@@ -113,9 +111,8 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
 
     if (NPZz) options.push("NPZz");
 
-    // molecularInorganics is only available in the 1.07.3-orgmet version
-    if (molecularInorganics && inchiVersion === "1.07.3-orgmet")
-      options.push("MolecularInorganics");
+    // molecularInorganics is only available in the Latest-MoIn version
+    if (molecularInorganics && inchiVersion === "Latest-MoIn") options.push("MolecularInorganics");
 
     // Format the options string as required by the API
     const optionsString = options.map((opt) => `-${opt}`).join(" ");
@@ -148,10 +145,10 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
 
   // Update MolecularInorganics option when InChI version changes
   useEffect(() => {
-    if (inchiVersion === "1.07.3-orgmet") {
-      setMolecularInorganics(true); // Enable MolecularInorganics when switching to 1.07.3-orgmet
+    if (inchiVersion === "Latest-MoIn") {
+      setMolecularInorganics(true); // Enable MolecularInorganics when switching to Latest-MoIn
     } else if (molecularInorganics) {
-      setMolecularInorganics(false); // Disable MolecularInorganics when switching away from 1.07.3-orgmet
+      setMolecularInorganics(false); // Disable MolecularInorganics when switching away from Latest-MoIn
     }
   }, [inchiVersion, molecularInorganics]);
 
@@ -174,7 +171,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
     setT15(false);
     setPolymers(false);
     setNPZz(false);
-    setMolecularInorganics(inchiVersion === "1.07.3-orgmet" ? true : false);
+    setMolecularInorganics(inchiVersion === "Latest-MoIn" ? true : false);
     setSUU(false);
     setSLUUD(false);
     setNEWPSOFF(false);
@@ -196,9 +193,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
           <div className="bg-purple-100 dark:bg-purple-900/50 p-2 rounded-lg mr-3">
             <HiOutlineCode className="h-5 w-5 text-purple-700 dark:text-purple-400" />
           </div>
-          <h2 className="text-lg font-bold text-gray-800 dark:text-white">
-            InChI Options
-          </h2>
+          <h2 className="text-lg font-bold text-gray-800 dark:text-white">InChI Options</h2>
         </div>
         <button
           onClick={resetOptions}
@@ -235,10 +230,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
             onChange={(e) => setMobileH(e.target.checked)}
             className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
           />
-          <label
-            htmlFor="mobileH"
-            className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-          >
+          <label htmlFor="mobileH" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
             Mobile H Perception
           </label>
           <OptionTooltip content="When checked, use mobile H perception. When unchecked, the FixedH option is used, which perceives fixed H positions." />
@@ -403,10 +395,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
             onChange={(e) => setRecMet(e.target.checked)}
             className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
           />
-          <label
-            htmlFor="recmet"
-            className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-          >
+          <label htmlFor="recmet" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
             Include Bonds to Metal
           </label>
           <OptionTooltip content="Include metal-bonds in the InChI string, which are otherwise disconnected" />
@@ -464,8 +453,8 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
               </div>
 
               {/* Additional tautomer options available in 1.07 */}
-              {(inchiVersion === "1.07.3" ||
-                inchiVersion === "1.07.3-orgmet") && (
+              {(inchiVersion === "Latest" ||
+                inchiVersion === "Latest-MoIn") && (
                 <>
                   <div className="flex items-center">
                     <input
@@ -657,16 +646,13 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
             onChange={(e) => setNPZz(e.target.checked)}
             className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
           />
-          <label
-            htmlFor="npzz"
-            className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-          >
+          <label htmlFor="npzz" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
             Allow non-polymer Zz pseudoatoms
           </label>
           <OptionTooltip content="Allow Zz or * (star) pseudoatoms outside the polymer context" />
         </div>
 
-        {inchiVersion === "1.07.3-orgmet" && (
+        {inchiVersion === "Latest-MoIn" && (
           <div className="flex items-center border-t border-gray-200 dark:border-gray-700 pt-3">
             <input
               id="molecularInorganics"
@@ -681,7 +667,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
             >
               Molecular inorganics
             </label>
-            <OptionTooltip content="Enable support for molecular inorganics (experimental feature in InChI 1.07.3-orgmet)" />
+            <OptionTooltip content="Enable support for molecular inorganics (experimental feature in InChI Latest-MoIn)" />
           </div>
         )}
       </div>
@@ -718,11 +704,7 @@ const ResultBlock = ({ title, value, onCopy, copyState, icon }) => {
         )}
       </div>
       <div className="font-mono text-sm overflow-x-auto bg-gray-50 dark:bg-gray-900 p-3 rounded border border-gray-200 dark:border-gray-700 break-all max-h-24 overflow-y-auto">
-        {value || (
-          <span className="text-gray-400 dark:text-gray-500">
-            No data generated yet
-          </span>
-        )}
+        {value || <span className="text-gray-400 dark:text-gray-500">No data generated yet</span>}
       </div>
     </div>
   );
@@ -740,7 +722,7 @@ const InChIView = () => {
   const [options, setOptions] = useState("");
   const [inchiVersion, setInchiVersion] = useState(
     Object.keys(INCHI_VERSIONS).find((key) => INCHI_VERSIONS[key].default) ||
-      "1.07.3"
+      "Latest"
   );
   const [activeInputType, setActiveInputType] = useState("structure"); // 'structure', 'smiles', 'molfile', 'inchi'
 
@@ -813,20 +795,14 @@ const InChIView = () => {
     async (command, args = []) => {
       // First try direct access method
       try {
-        if (
-          ketcherFrame.current &&
-          ketcherFrame.current.contentWindow.ketcher
-        ) {
+        if (ketcherFrame.current && ketcherFrame.current.contentWindow.ketcher) {
           const ketcher = ketcherFrame.current.contentWindow.ketcher;
           if (typeof ketcher[command] === "function") {
             return await ketcher[command](...args);
           }
         }
       } catch (directError) {
-        console.debug(
-          `Direct Ketcher access failed for ${command}`,
-          directError
-        );
+        console.debug(`Direct Ketcher access failed for ${command}`, directError);
         // Fall through to postMessage method
       }
 
@@ -855,10 +831,7 @@ const InChIView = () => {
       }
 
       try {
-        console.log(
-          "Generating InChIKey from InChI:",
-          inchiString.substring(0, 40) + "..."
-        );
+        console.log("Generating InChIKey from InChI:", inchiString.substring(0, 40) + "...");
 
         const result = await generateInchiKey(inchiString, inchiVersion);
 
@@ -881,9 +854,7 @@ const InChIView = () => {
 
         // If there's a message, add it to the log
         if (result.message) {
-          setLogMessage((prevLog) =>
-            prevLog ? `${prevLog}\n${result.message}` : result.message
-          );
+          setLogMessage((prevLog) => (prevLog ? `${prevLog}\n${result.message}` : result.message));
         }
 
         return result.inchikey;
@@ -905,24 +876,13 @@ const InChIView = () => {
         }
 
         if (!inchiModuleLoaded) {
-          throw new Error(
-            "InChI module not loaded. Please wait or refresh the page."
-          );
+          throw new Error("InChI module not loaded. Please wait or refresh the page.");
         }
 
-        console.log(
-          "Converting molfile to InChI with options:",
-          options,
-          "version:",
-          inchiVersion
-        );
+        console.log("Converting molfile to InChI with options:", options, "version:", inchiVersion);
 
         // Convert molfile to InChI
-        const result = await convertMolfileToInchi(
-          molfile,
-          options,
-          inchiVersion
-        );
+        const result = await convertMolfileToInchi(molfile, options, inchiVersion);
 
         if (!result) {
           throw new Error("No result returned from conversion function");
@@ -938,9 +898,7 @@ const InChIView = () => {
 
         // Append to log, not replace it
         setLogMessage(
-          `InChI generated with options: ${options || "none"}\n${
-            result.message || ""
-          }`
+          `InChI generated with options: ${options || "none"}\n${result.message || ""}`
         );
 
         // Generate InChIKey
@@ -1008,21 +966,13 @@ const InChIView = () => {
       setError(`Failed to generate InChI: ${err.message}`);
       setIsLoading(false);
     }
-  }, [
-    isEditorReady,
-    inchiModuleLoaded,
-    executeKetcherCommand,
-    generateInChIFromMolfile,
-  ]);
+  }, [isEditorReady, inchiModuleLoaded, executeKetcherCommand, generateInChIFromMolfile]);
 
   // Set up message communication with the Ketcher iframe
   useEffect(() => {
     const handleMessage = (event) => {
       // Only accept messages from our iframe
-      if (
-        ketcherFrame.current &&
-        event.source === ketcherFrame.current.contentWindow
-      ) {
+      if (ketcherFrame.current && event.source === ketcherFrame.current.contentWindow) {
         const { id, type, status, data, error } = event.data;
 
         // Handle response to our message
@@ -1213,9 +1163,7 @@ const InChIView = () => {
     }
 
     if (!textToCopy) {
-      setError(
-        `No ${type.toUpperCase()} to copy. Generate ${type.toUpperCase()} first.`
-      );
+      setError(`No ${type.toUpperCase()} to copy. Generate ${type.toUpperCase()} first.`);
       return;
     }
 
@@ -1314,9 +1262,7 @@ const InChIView = () => {
       const result = await convertInchiToMolfile(inputInchi, "", inchiVersion);
 
       if (result.return_code === -1) {
-        throw new Error(
-          result.message || "Failed to convert InChI to structure"
-        );
+        throw new Error(result.message || "Failed to convert InChI to structure");
       }
 
       if (result.molfile) {
@@ -1329,9 +1275,7 @@ const InChIView = () => {
 
         // Update state
         setInchi(inputInchi);
-        setLogMessage(
-          `Structure loaded from InChI successfully.\n${result.message || ""}`
-        );
+        setLogMessage(`Structure loaded from InChI successfully.\n${result.message || ""}`);
 
         // Generate InChIKey
         generateInChIKeyFromInChI(inputInchi);
@@ -1344,13 +1288,7 @@ const InChIView = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [
-    inputInchi,
-    isEditorReady,
-    inchiVersion,
-    executeKetcherCommand,
-    generateInChIKeyFromInChI,
-  ]);
+  }, [inputInchi, isEditorReady, inchiVersion, executeKetcherCommand, generateInChIKeyFromInChI]);
 
   // Load SMILES into Ketcher
   const loadSmiles = useCallback(async () => {
@@ -1384,9 +1322,7 @@ const InChIView = () => {
       // Store the molfile content
       setMolfileContent(molfile);
 
-      setLogMessage(
-        `SMILES loaded successfully. Use "Generate InChI" to create InChI.`
-      );
+      setLogMessage(`SMILES loaded successfully. Use "Generate InChI" to create InChI.`);
 
       // Auto-generate InChI if enabled
       if (autoGenerate && molfile) {
@@ -1398,13 +1334,7 @@ const InChIView = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [
-    inputSmiles,
-    isEditorReady,
-    executeKetcherCommand,
-    autoGenerate,
-    generateInChIFromMolfile,
-  ]);
+  }, [inputSmiles, isEditorReady, executeKetcherCommand, autoGenerate, generateInChIFromMolfile]);
 
   // Load molfile or AuxInfo into Ketcher
   const loadMolfile = useCallback(async () => {
@@ -1434,21 +1364,12 @@ const InChIView = () => {
         setLogMessage("Converting AuxInfo to structure...");
 
         try {
-          const result = await convertAuxinfoToMolfile(
-            molfileContent,
-            0,
-            0,
-            inchiVersion
-          );
+          const result = await convertAuxinfoToMolfile(molfileContent, 0, 0, inchiVersion);
 
           if (result.molfile) {
             await executeKetcherCommand("setMolecule", [result.molfile]);
             setMolfileContent(result.molfile);
-            setLogMessage(
-              `AuxInfo converted to structure successfully.\n${
-                result.message || ""
-              }`
-            );
+            setLogMessage(`AuxInfo converted to structure successfully.\n${result.message || ""}`);
 
             // Auto-generate InChI if enabled
             if (autoGenerate && result.molfile) {
@@ -1462,24 +1383,17 @@ const InChIView = () => {
         }
       }
       // Check if input is a molfile
-      else if (
-        molfileContent.includes("V2000") ||
-        molfileContent.includes("V3000")
-      ) {
+      else if (molfileContent.includes("V2000") || molfileContent.includes("V3000")) {
         // Handle molfile
         await executeKetcherCommand("setMolecule", [molfileContent]);
-        setLogMessage(
-          "Molfile loaded successfully. Use 'Generate InChI' to create InChI."
-        );
+        setLogMessage("Molfile loaded successfully. Use 'Generate InChI' to create InChI.");
 
         // Auto-generate InChI if enabled
         if (autoGenerate) {
           await generateInChIFromMolfile(molfileContent);
         }
       } else {
-        setError(
-          "Invalid format. Please enter a valid Molfile or AuxInfo string"
-        );
+        setError("Invalid format. Please enter a valid Molfile or AuxInfo string");
       }
     } catch (err) {
       console.error("Failed to load input:", err);
@@ -1564,15 +1478,13 @@ const InChIView = () => {
     },
     {
       name: "Aspirin",
-      inchi:
-        "InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)",
+      inchi: "InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)",
       smiles: "CC(=O)OC1=CC=CC=C1C(=O)O",
       description: "Pain reliever",
     },
     {
       name: "Caffeine",
-      inchi:
-        "InChI=1S/C8H10N4O2/c1-10-4-9-6-5(10)7(13)12(3)8(14)11(6)2/h4H,1-3H3",
+      inchi: "InChI=1S/C8H10N4O2/c1-10-4-9-6-5(10)7(13)12(3)8(14)11(6)2/h4H,1-3H3",
       smiles: "CN1C=NC2=C1C(=O)N(C)C(=O)N2C",
       description: "Stimulant",
     },
@@ -1592,9 +1504,7 @@ const InChIView = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fadeIn">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                Copy Text
-              </h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">Copy Text</h3>
               <button
                 onClick={() => setShowCopyModal(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
@@ -1603,8 +1513,7 @@ const InChIView = () => {
               </button>
             </div>
             <p className="mb-4 text-gray-700 dark:text-gray-300">
-              Automatic copying failed. Please select and copy this text
-              manually:
+              Automatic copying failed. Please select and copy this text manually:
             </p>
             <div className="mb-4">
               <input
@@ -1646,9 +1555,7 @@ const InChIView = () => {
                 <div className="bg-emerald-100 dark:bg-emerald-900/50 p-2 rounded-lg mr-3">
                   <HiOutlineAdjustments className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
                 </div>
-                <h2 className="text-lg font-bold text-gray-800 dark:text-white">
-                  Editor Controls
-                </h2>
+                <h2 className="text-lg font-bold text-gray-800 dark:text-white">Editor Controls</h2>
               </div>
 
               {/* Auto-generate toggle */}
@@ -1709,9 +1616,7 @@ const InChIView = () => {
               <div className="bg-indigo-100 dark:bg-indigo-900/50 p-2 rounded-lg mr-3">
                 <HiOutlinePencil className="h-5 w-5 text-indigo-700 dark:text-indigo-400" />
               </div>
-              <h2 className="text-lg font-bold text-gray-800 dark:text-white">
-                Structure Input
-              </h2>
+              <h2 className="text-lg font-bold text-gray-800 dark:text-white">Structure Input</h2>
             </div>
 
             {/* Input Type Tabs */}
@@ -1793,11 +1698,7 @@ const InChIView = () => {
                       : "bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800"
                   }`}
                 >
-                  {isLoading
-                    ? "Loading..."
-                    : !isEditorReady
-                    ? "Initializing..."
-                    : "Load Structure"}
+                  {isLoading ? "Loading..." : !isEditorReady ? "Initializing..." : "Load Structure"}
                 </button>
 
                 {/* Quick Examples */}
@@ -1862,9 +1763,7 @@ const InChIView = () => {
 
                   <button
                     onClick={loadMolfile}
-                    disabled={
-                      isLoading || !isEditorReady || !molfileContent.trim()
-                    }
+                    disabled={isLoading || !isEditorReady || !molfileContent.trim()}
                     className={`relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-green-500 ${
                       isLoading || !isEditorReady || !molfileContent.trim()
                         ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
@@ -1900,17 +1799,9 @@ const InChIView = () => {
 
                 <button
                   onClick={loadInChI}
-                  disabled={
-                    isLoading ||
-                    !isEditorReady ||
-                    !inputInchi.trim() ||
-                    !inchiModuleLoaded
-                  }
+                  disabled={isLoading || !isEditorReady || !inputInchi.trim() || !inchiModuleLoaded}
                   className={`w-full relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-green-500 ${
-                    isLoading ||
-                    !isEditorReady ||
-                    !inputInchi.trim() ||
-                    !inchiModuleLoaded
+                    isLoading || !isEditorReady || !inputInchi.trim() || !inchiModuleLoaded
                       ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
                       : "bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800"
                   }`}
@@ -1918,10 +1809,10 @@ const InChIView = () => {
                   {isLoading
                     ? "Loading..."
                     : !isEditorReady
-                    ? "Initializing..."
-                    : !inchiModuleLoaded
-                    ? "Loading InChI Module..."
-                    : "Convert to Structure"}
+                      ? "Initializing..."
+                      : !inchiModuleLoaded
+                        ? "Loading InChI Module..."
+                        : "Convert to Structure"}
                 </button>
 
                 {/* Quick Examples */}
@@ -1949,8 +1840,8 @@ const InChIView = () => {
             {activeInputType === "structure" && (
               <div className="text-sm text-gray-700 dark:text-gray-300">
                 <p>
-                  Use the Ketcher editor to draw your chemical structure, then
-                  click "Generate InChI" to convert it.
+                  Use the Ketcher editor to draw your chemical structure, then click "Generate
+                  InChI" to convert it.
                 </p>
                 <ul className="list-disc list-inside mt-2 space-y-1 text-gray-600 dark:text-gray-400">
                   <li>Click on atoms and bonds to create your structure</li>
@@ -1973,9 +1864,7 @@ const InChIView = () => {
               <div className="flex items-center">
                 <div
                   className={`h-3 w-3 rounded-full mr-3 ${
-                    isEditorReady
-                      ? "bg-green-500 animate-pulse"
-                      : "bg-yellow-500 animate-pulse"
+                    isEditorReady ? "bg-green-500 animate-pulse" : "bg-yellow-500 animate-pulse"
                   }`}
                 ></div>
                 <span
@@ -1992,9 +1881,7 @@ const InChIView = () => {
               <div className="flex items-center">
                 <div
                   className={`h-3 w-3 rounded-full mr-3 ${
-                    inchiModuleLoaded
-                      ? "bg-green-500 animate-pulse"
-                      : "bg-yellow-500 animate-pulse"
+                    inchiModuleLoaded ? "bg-green-500 animate-pulse" : "bg-yellow-500 animate-pulse"
                   }`}
                 ></div>
                 <span
@@ -2004,9 +1891,7 @@ const InChIView = () => {
                       : "text-yellow-800 dark:text-yellow-300"
                   }`}
                 >
-                  {inchiModuleLoaded
-                    ? "InChI Module Ready"
-                    : "Loading InChI Module..."}
+                  {inchiModuleLoaded ? "InChI Module Ready" : "Loading InChI Module..."}
                 </span>
               </div>
             </div>
@@ -2032,25 +1917,18 @@ const InChIView = () => {
             </h4>
             <div className="space-y-3 text-gray-700 dark:text-gray-300">
               <p>
-                The IUPAC International Chemical Identifier (InChI) is a textual
-                identifier for chemical substances, designed to provide a
-                standard way to encode molecular information.
+                The IUPAC International Chemical Identifier (InChI) is a textual identifier for
+                chemical substances, designed to provide a standard way to encode molecular
+                information.
               </p>
               <div>
-                <h5 className="font-medium mb-1 text-gray-800 dark:text-gray-200">
-                  Key Features:
-                </h5>
+                <h5 className="font-medium mb-1 text-gray-800 dark:text-gray-200">Key Features:</h5>
                 <ul className="list-disc list-inside space-y-1 pl-1 text-gray-600 dark:text-gray-400">
-                  <li>
-                    Canonical unique representation of chemical structures
-                  </li>
+                  <li>Canonical unique representation of chemical structures</li>
                   <li>Hierarchical, layered information system</li>
                   <li>Machine-readable and human-readable format</li>
                   <li>Open-source, non-proprietary standard</li>
-                  <li>
-                    Facilitates data exchange between chemical information
-                    systems
-                  </li>
+                  <li>Facilitates data exchange between chemical information systems</li>
                 </ul>
               </div>
             </div>
@@ -2104,9 +1982,7 @@ const InChIView = () => {
               value={inchi}
               onCopy={() => copyToClipboard(inchi, "inchi")}
               copyState={copySuccess}
-              icon={
-                <HiOutlineCode className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
-              }
+              icon={<HiOutlineCode className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />}
             />
 
             {/* InChIKey */}
@@ -2126,9 +2002,7 @@ const InChIView = () => {
               value={auxInfo}
               onCopy={() => copyToClipboard(auxInfo, "auxinfo")}
               copyState={copySuccess}
-              icon={
-                <HiOutlineDocumentText className="h-4 w-4 text-blue-600 dark:text-blue-500" />
-              }
+              icon={<HiOutlineDocumentText className="h-4 w-4 text-blue-600 dark:text-blue-500" />}
             />
 
             {/* Log messages */}

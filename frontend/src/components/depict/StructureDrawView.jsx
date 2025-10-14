@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
-  HiOutlineClipboardCopy, 
-  HiOutlineCheck, 
+  HiOutlineClipboardCopy,
+  HiOutlineCheck,
   HiOutlineExclamationCircle,
   HiOutlineInformationCircle,
   HiOutlineRefresh,
   HiOutlinePencil,
-  HiOutlineX
-} from 'react-icons/hi';
+  HiOutlineX,
+} from "react-icons/hi";
 
 // Add custom styles for animations
 const styles = `
@@ -21,19 +21,19 @@ const styles = `
 `;
 
 // Add the styles to the document
-if (typeof document !== 'undefined') {
-  const styleSheet = document.createElement('style');
-  styleSheet.type = 'text/css';
+if (typeof document !== "undefined") {
+  const styleSheet = document.createElement("style");
+  styleSheet.type = "text/css";
   styleSheet.innerText = styles;
   document.head.appendChild(styleSheet);
 }
 
 const StructureDrawView = () => {
-  const [smiles, setSmiles] = useState('');
-  const [inputSmiles, setInputSmiles] = useState('');
+  const [smiles, setSmiles] = useState("");
+  const [inputSmiles, setInputSmiles] = useState("");
   const [copySuccess, setCopySuccess] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
-  const [copyModalText, setCopyModalText] = useState('');
+  const [copyModalText, setCopyModalText] = useState("");
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isEditorReady, setIsEditorReady] = useState(false);
@@ -45,10 +45,22 @@ const StructureDrawView = () => {
 
   // Examples of common molecules
   const examples = [
-    { name: 'Ethanol', value: 'CCO', description: 'Alcohol' },
-    { name: 'Aspirin', value: 'CC(=O)OC1=CC=CC=C1C(=O)O', description: 'Pain reliever' },
-    { name: 'Caffeine', value: 'CN1C=NC2=C1C(=O)N(C)C(=O)N2C', description: 'Stimulant' },
-    { name: 'Ibuprofen', value: 'CC(C)CC1=CC=C(C=C1)C(C)C(=O)O', description: 'Anti-inflammatory' },
+    { name: "Ethanol", value: "CCO", description: "Alcohol" },
+    {
+      name: "Aspirin",
+      value: "CC(=O)OC1=CC=CC=C1C(=O)O",
+      description: "Pain reliever",
+    },
+    {
+      name: "Caffeine",
+      value: "CN1C=NC2=C1C(=O)N(C)C(=O)N2C",
+      description: "Stimulant",
+    },
+    {
+      name: "Ibuprofen",
+      value: "CC(C)CC1=CC=C(C=C1)C(C)C(=O)O",
+      description: "Anti-inflammatory",
+    },
   ];
 
   // Reset error state when input changes
@@ -70,68 +82,68 @@ const StructureDrawView = () => {
       // Only accept messages from our iframe
       if (ketcherFrame.current && event.source === ketcherFrame.current.contentWindow) {
         const { id, type, status, data, error } = event.data;
-        
+
         // Handle response to our message
         if (id && messageHandlers.current[id]) {
           const handler = messageHandlers.current[id];
-          
-          if (status === 'success') {
+
+          if (status === "success") {
             handler.resolve(data);
-          } else if (status === 'error') {
-            handler.reject(new Error(error || 'Unknown error'));
+          } else if (status === "error") {
+            handler.reject(new Error(error || "Unknown error"));
           }
-          
+
           // Remove the handler after it's been used
           delete messageHandlers.current[id];
         }
-        
+
         // Handle initialization message
-        if (type === 'ketcher-ready') {
-          console.log('Ketcher ready message received');
+        if (type === "ketcher-ready") {
+          console.log("Ketcher ready message received");
           setIsEditorReady(true);
         }
       }
     };
 
     // Add listener for messages
-    window.addEventListener('message', handleMessage);
+    window.addEventListener("message", handleMessage);
 
     // Clean up on unmount
     return () => {
-      window.removeEventListener('message', handleMessage);
+      window.removeEventListener("message", handleMessage);
       messageHandlers.current = {};
     };
   }, []);
-  
+
   // Function to send messages to the iframe and wait for response
   const sendMessage = (type, payload = {}) => {
     return new Promise((resolve, reject) => {
       if (!ketcherFrame.current || !ketcherFrame.current.contentWindow) {
-        reject(new Error('Ketcher frame not available'));
+        reject(new Error("Ketcher frame not available"));
         return;
       }
-      
+
       // Generate unique ID for this message
       const id = messageId.current++;
-      
+
       // Store promise handlers
       messageHandlers.current[id] = { resolve, reject };
-      
+
       // Send message to iframe
       const message = { id, type, payload };
-      
+
       try {
-        ketcherFrame.current.contentWindow.postMessage(message, '*');
+        ketcherFrame.current.contentWindow.postMessage(message, "*");
       } catch (err) {
         delete messageHandlers.current[id];
         reject(new Error(`Failed to send message: ${err.message}`));
       }
-      
+
       // Set timeout to reject if no response
       setTimeout(() => {
         if (messageHandlers.current[id]) {
           delete messageHandlers.current[id];
-          reject(new Error('Timeout waiting for response'));
+          reject(new Error("Timeout waiting for response"));
         }
       }, 10000); // 10 second timeout
     });
@@ -143,7 +155,7 @@ const StructureDrawView = () => {
     try {
       if (ketcherFrame.current && ketcherFrame.current.contentWindow.ketcher) {
         const ketcher = ketcherFrame.current.contentWindow.ketcher;
-        if (typeof ketcher[command] === 'function') {
+        if (typeof ketcher[command] === "function") {
           return await ketcher[command](...args);
         }
       }
@@ -151,10 +163,10 @@ const StructureDrawView = () => {
       console.debug(`Direct Ketcher access failed for ${command}`, directError);
       // Fall through to postMessage method
     }
-    
+
     // Fall back to message passing
     try {
-      return await sendMessage('ketcher-command', { command, args });
+      return await sendMessage("ketcher-command", { command, args });
     } catch (msgError) {
       console.error(`Message passing failed for ${command}`, msgError);
       throw new Error(`Failed to execute ${command}: ${msgError.message}`);
@@ -168,9 +180,9 @@ const StructureDrawView = () => {
       try {
         const iframeWindow = ketcherFrame.current.contentWindow;
         const iframeDocument = iframeWindow.document;
-        
+
         // Create a script element
-        const script = iframeDocument.createElement('script');
+        const script = iframeDocument.createElement("script");
         script.textContent = `
           // Set up message handler in the Ketcher iframe
           window.addEventListener('message', async function(event) {
@@ -215,20 +227,20 @@ const StructureDrawView = () => {
           // Start checking for ketcher
           checkKetcher();
         `;
-        
+
         // Add script to iframe
         iframeDocument.head.appendChild(script);
-        console.log('Communication script injected into iframe');
+        console.log("Communication script injected into iframe");
       } catch (error) {
-        console.error('Failed to inject communication script:', error);
+        console.error("Failed to inject communication script:", error);
       }
     };
-    
+
     // Wait for iframe to load, then inject script
     if (ketcherFrame.current) {
       // Clear any previous onload
       ketcherFrame.current.onload = () => {
-        console.log('Ketcher iframe loaded, injecting script');
+        console.log("Ketcher iframe loaded, injecting script");
         // Let the iframe load completely before injecting
         setTimeout(injectCommunicationScript, 500);
       };
@@ -243,12 +255,12 @@ const StructureDrawView = () => {
   // Enhanced copyToClipboard function with multiple fallback methods
   const copyToClipboard = async (text = null) => {
     const textToCopy = text || smiles;
-    
+
     if (!textToCopy) {
-      setError('No SMILES to copy. Generate SMILES first.');
+      setError("No SMILES to copy. Generate SMILES first.");
       return;
     }
-    
+
     // Try multiple clipboard copy methods in sequence
     try {
       // Method 1: Use the Clipboard API (modern browsers)
@@ -258,34 +270,34 @@ const StructureDrawView = () => {
         setTimeout(() => setCopySuccess(false), 2000);
         return;
       }
-      
+
       // Method 2: Use execCommand (older browsers)
-      const textArea = document.createElement('textarea');
+      const textArea = document.createElement("textarea");
       textArea.value = textToCopy;
-      
+
       // Make the textarea out of viewport
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-999999px';
-      textArea.style.top = '-999999px';
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
       document.body.appendChild(textArea);
-      
+
       // Select and copy
       textArea.focus();
       textArea.select();
-      
-      const successful = document.execCommand('copy');
+
+      const successful = document.execCommand("copy");
       document.body.removeChild(textArea);
-      
+
       if (successful) {
         setCopySuccess(true);
         setTimeout(() => setCopySuccess(false), 2000);
         return;
       } else {
-        throw new Error('execCommand copy failed');
+        throw new Error("execCommand copy failed");
       }
     } catch (err) {
-      console.error('Failed to copy text:', err);
-      
+      console.error("Failed to copy text:", err);
+
       // Method 3: Show a modal with text to copy manually
       setCopyModalText(textToCopy);
       setShowCopyModal(true);
@@ -295,26 +307,26 @@ const StructureDrawView = () => {
   // Load SMILES into Ketcher
   const loadSmiles = async () => {
     if (!inputSmiles.trim()) {
-      setError('Please enter a SMILES string');
+      setError("Please enter a SMILES string");
       return;
     }
-    
+
     if (!isEditorReady) {
-      setError('Editor not ready. Please try again in a moment.');
+      setError("Editor not ready. Please try again in a moment.");
       return;
     }
-    
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
       // Use the command execution function
-      await executeKetcherCommand('setMolecule', [inputSmiles]);
-      console.log('SMILES loaded successfully');
+      await executeKetcherCommand("setMolecule", [inputSmiles]);
+      console.log("SMILES loaded successfully");
       setSmiles(inputSmiles);
     } catch (err) {
-      console.error('Failed to load SMILES:', err);
-      setError('Invalid SMILES string or error loading structure. Please check your input.');
+      console.error("Failed to load SMILES:", err);
+      setError("Invalid SMILES string or error loading structure. Please check your input.");
     } finally {
       setIsLoading(false);
     }
@@ -323,50 +335,50 @@ const StructureDrawView = () => {
   // Get SMILES from Ketcher
   const getSmiles = async () => {
     if (!isEditorReady) {
-      setError('Editor not ready. Please try again in a moment.');
-      return '';
+      setError("Editor not ready. Please try again in a moment.");
+      return "";
     }
-    
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
       // Use the command execution function
-      const newSmiles = await executeKetcherCommand('getSmiles');
-      
-      if (!newSmiles || newSmiles === '') {
-        setError('No structure drawn. Please draw a molecule first.');
+      const newSmiles = await executeKetcherCommand("getSmiles");
+
+      if (!newSmiles || newSmiles === "") {
+        setError("No structure drawn. Please draw a molecule first.");
         setIsLoading(false);
-        return '';
+        return "";
       }
-      
+
       setSmiles(newSmiles);
-      console.log('Generated SMILES:', newSmiles);
+      console.log("Generated SMILES:", newSmiles);
       return newSmiles;
     } catch (err) {
-      console.error('Failed to generate SMILES:', err);
-      setError('Could not generate SMILES from the current structure');
+      console.error("Failed to generate SMILES:", err);
+      setError("Could not generate SMILES from the current structure");
     } finally {
       setIsLoading(false);
     }
-    return '';
+    return "";
   };
 
   // Clear the editor
   const clearEditor = async () => {
     if (!isEditorReady) {
-      console.warn('Editor not ready for clearing');
+      console.warn("Editor not ready for clearing");
       return;
     }
-    
+
     try {
       // Use the command execution function
-      await executeKetcherCommand('setMolecule', ['']);
-      setSmiles('');
-      console.log('Editor cleared successfully');
+      await executeKetcherCommand("setMolecule", [""]);
+      setSmiles("");
+      console.log("Editor cleared successfully");
     } catch (err) {
-      console.error('Failed to clear editor:', err);
-      setError('Failed to clear the editor');
+      console.error("Failed to clear editor:", err);
+      setError("Failed to clear the editor");
     }
   };
 
@@ -378,7 +390,7 @@ const StructureDrawView = () => {
   const handleRetryInit = () => {
     setIsEditorReady(false);
     setError(null);
-    setRetryAttempt(prev => prev + 1);
+    setRetryAttempt((prev) => prev + 1);
   };
 
   return (
@@ -391,8 +403,6 @@ const StructureDrawView = () => {
           <div className="absolute right-20 bottom-0 w-64 h-64 rounded-full bg-white transform translate-x-1/2 translate-y-1/2"></div>
           <div className="absolute left-1/3 top-1/2 w-32 h-32 rounded-full bg-white transform -translate-y-1/2"></div>
         </div>
-
-        
       </div>
 
       {/* Copy Modal - For fallback copying */}
@@ -401,7 +411,7 @@ const StructureDrawView = () => {
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">Copy SMILES</h3>
-              <button 
+              <button
                 onClick={() => setShowCopyModal(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
@@ -418,7 +428,7 @@ const StructureDrawView = () => {
                 value={copyModalText}
                 readOnly
                 className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded font-mono text-sm bg-gray-50 dark:bg-gray-900"
-                onClick={e => e.target.select()}
+                onClick={(e) => e.target.select()}
               />
             </div>
             <div className="flex justify-end gap-3">
@@ -443,14 +453,15 @@ const StructureDrawView = () => {
               <div className="bg-indigo-100 dark:bg-indigo-900/50 p-2 rounded-lg mr-3">
                 <HiOutlinePencil className="h-5 w-5 text-indigo-700 dark:text-indigo-400" />
               </div>
-              <h2 className="text-lg font-bold text-gray-800 dark:text-white">
-                SMILES Input
-              </h2>
+              <h2 className="text-lg font-bold text-gray-800 dark:text-white">SMILES Input</h2>
             </div>
-            
+
             <div className="space-y-4">
               <div>
-                <label htmlFor="smiles-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="smiles-input"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Enter SMILES to Edit
                 </label>
                 <input
@@ -462,20 +473,20 @@ const StructureDrawView = () => {
                   className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                 />
               </div>
-              
+
               <button
                 onClick={loadSmiles}
                 disabled={isLoading || !isEditorReady || !inputSmiles.trim()}
                 className={`w-full relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                   isLoading || !isEditorReady || !inputSmiles.trim()
-                    ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800'
+                    ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
+                    : "bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800"
                 }`}
               >
-                {isLoading ? 'Loading...' : !isEditorReady ? 'Initializing...' : 'Load Structure'}
+                {isLoading ? "Loading..." : !isEditorReady ? "Initializing..." : "Load Structure"}
               </button>
             </div>
-            
+
             {/* Quick Examples */}
             <div className="mt-6">
               <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -495,46 +506,50 @@ const StructureDrawView = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Generated SMILES Section */}
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 backdrop-blur-sm">
             <div className="flex items-center mb-4">
               <div className="bg-green-100 dark:bg-green-900/50 p-2 rounded-lg mr-3">
                 <HiOutlineClipboardCopy className="h-5 w-5 text-green-700 dark:text-green-400" />
               </div>
-              <h2 className="text-lg font-bold text-gray-800 dark:text-white">
-                Generated SMILES
-              </h2>
+              <h2 className="text-lg font-bold text-gray-800 dark:text-white">Generated SMILES</h2>
             </div>
-            
+
             <div className="space-y-4">
               <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Structure as SMILES:</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                  Structure as SMILES:
+                </p>
                 <div className="font-mono text-sm bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700 break-all max-h-32 overflow-y-auto">
-                  {smiles || <span className="text-gray-400 dark:text-gray-500">No structure generated yet</span>}
+                  {smiles || (
+                    <span className="text-gray-400 dark:text-gray-500">
+                      No structure generated yet
+                    </span>
+                  )}
                 </div>
               </div>
-              
+
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={getSmiles}
                   disabled={isLoading || !isEditorReady}
                   className={`flex-1 relative overflow-hidden px-4 py-2.5 rounded-lg font-medium flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
                     isLoading || !isEditorReady
-                      ? 'bg-gray-400 dark:bg-gray-600 text-white cursor-not-allowed'
-                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                      ? "bg-gray-400 dark:bg-gray-600 text-white cursor-not-allowed"
+                      : "bg-blue-600 text-white hover:bg-blue-700"
                   }`}
                 >
                   Generate SMILES
                 </button>
-                
+
                 <button
                   onClick={() => copyToClipboard()}
                   disabled={!smiles}
                   className={`flex-1 relative overflow-hidden px-4 py-2.5 rounded-lg font-medium flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
                     !smiles
-                      ? 'bg-gray-400 dark:bg-gray-600 text-white cursor-not-allowed'
-                      : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                      ? "bg-gray-400 dark:bg-gray-600 text-white cursor-not-allowed"
+                      : "bg-indigo-600 text-white hover:bg-indigo-700"
                   }`}
                 >
                   {copySuccess ? (
@@ -552,7 +567,7 @@ const StructureDrawView = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Information Box */}
           <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border border-blue-200 dark:border-blue-800/50 rounded-xl p-5 text-sm shadow-lg">
             <h4 className="font-bold text-blue-800 dark:text-blue-300 mb-3 flex items-center">
@@ -561,7 +576,8 @@ const StructureDrawView = () => {
             </h4>
             <div className="space-y-3 text-gray-700 dark:text-gray-300">
               <p>
-                This structure editor allows you to draw chemical structures and generate their SMILES notation.
+                This structure editor allows you to draw chemical structures and generate their
+                SMILES notation.
               </p>
               <div>
                 <h5 className="font-medium mb-1 text-gray-800 dark:text-gray-200">Features:</h5>
@@ -575,30 +591,34 @@ const StructureDrawView = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Main Editor Area */}
         <div className="lg:col-span-9 flex flex-col gap-4">
           {/* Editor Status */}
-          <div className={`px-6 py-3 rounded-xl flex items-center justify-between ${
-            isEditorReady 
-              ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/40' 
-              : 'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/40'
-          }`}>
+          <div
+            className={`px-6 py-3 rounded-xl flex items-center justify-between ${
+              isEditorReady
+                ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/40"
+                : "bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/40"
+            }`}
+          >
             <div className="flex items-center">
-              <div className={`h-3 w-3 rounded-full mr-3 ${
-                isEditorReady 
-                  ? 'bg-green-500 animate-pulse' 
-                  : 'bg-yellow-500 animate-pulse'
-              }`}></div>
-              <span className={`font-medium ${
-                isEditorReady 
-                  ? 'text-green-800 dark:text-green-300' 
-                  : 'text-yellow-800 dark:text-yellow-300'
-              }`}>
-                {isEditorReady ? 'Editor Ready' : 'Initializing Editor...'}
+              <div
+                className={`h-3 w-3 rounded-full mr-3 ${
+                  isEditorReady ? "bg-green-500 animate-pulse" : "bg-yellow-500 animate-pulse"
+                }`}
+              ></div>
+              <span
+                className={`font-medium ${
+                  isEditorReady
+                    ? "text-green-800 dark:text-green-300"
+                    : "text-yellow-800 dark:text-yellow-300"
+                }`}
+              >
+                {isEditorReady ? "Editor Ready" : "Initializing Editor..."}
               </span>
             </div>
-            
+
             <div className="flex gap-3">
               {!isEditorReady && (
                 <button
@@ -609,14 +629,14 @@ const StructureDrawView = () => {
                   Retry Init
                 </button>
               )}
-            
+
               <button
                 onClick={clearEditor}
                 disabled={isLoading || !isEditorReady}
                 className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                   isLoading || !isEditorReady
-                    ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
+                    ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
                 }`}
               >
                 <HiOutlineRefresh className="h-4 w-4 mr-1.5" />
@@ -624,17 +644,26 @@ const StructureDrawView = () => {
               </button>
             </div>
           </div>
-          
+
           {/* Error Display */}
           {error && (
-            <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700/50 flex items-start shadow-lg animate-fadeIn" role="alert">
-              <HiOutlineExclamationCircle className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400" aria-hidden="true" />
+            <div
+              className="p-4 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700/50 flex items-start shadow-lg animate-fadeIn"
+              role="alert"
+            >
+              <HiOutlineExclamationCircle
+                className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+                aria-hidden="true"
+              />
               <p>{error}</p>
             </div>
           )}
-          
+
           {/* Ketcher Editor Container */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-grow" style={{ minHeight: "600px" }}>
+          <div
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-grow"
+            style={{ minHeight: "600px" }}
+          >
             <iframe
               ref={ketcherFrame}
               src={`${process.env.PUBLIC_URL}/standalone/index.html`}
@@ -644,7 +673,7 @@ const StructureDrawView = () => {
               frameBorder="0"
             />
           </div>
-          
+
           {/* Instructions */}
           <div className="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg">
             <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-3 flex items-center">
@@ -655,7 +684,9 @@ const StructureDrawView = () => {
               <li>Draw a molecular structure using the editor tools</li>
               <li>Click "Generate SMILES" to convert your structure to SMILES notation</li>
               <li>Use "Copy" to save the SMILES to your clipboard</li>
-              <li>Alternatively, paste a SMILES string in the input field and click "Load Structure"</li>
+              <li>
+                Alternatively, paste a SMILES string in the input field and click "Load Structure"
+              </li>
             </ol>
           </div>
         </div>

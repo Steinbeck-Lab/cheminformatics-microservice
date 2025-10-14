@@ -1,22 +1,22 @@
 // Description: This component provides a user interface for validating and standardizing chemical structures using SMILES notation. It includes input handling, error checking, and displays results with appropriate messaging and styling for both light and dark themes.
-import React, { useState } from 'react';
+import React, { useState } from "react";
 // Ensure all used icons are imported
 import {
   HiOutlineCheck,
   HiOutlineShieldCheck,
   HiOutlinePencilAlt,
   HiOutlineExclamationCircle, // Added for error display
-  HiOutlineInformationCircle // Added for about section
-} from 'react-icons/hi';
+  HiOutlineInformationCircle, // Added for about section
+} from "react-icons/hi";
 // Assuming these components are correctly implemented and styled for dark/light mode
-import SMILESInput from '../common/SMILESInput';
-import MoleculeCard from '../common/MoleculeCard';
-import LoadingScreen from '../common/LoadingScreen';
+import SMILESInput from "../common/SMILESInput";
+import MoleculeCard from "../common/MoleculeCard";
+import LoadingScreen from "../common/LoadingScreen";
 // Assuming this service is configured correctly
-import { checkStructureErrors } from '../../services/chemService'; // Assuming this service exists
+import { checkStructureErrors } from "../../services/chemService"; // Assuming this service exists
 
 const StructureErrorView = () => {
-  const [smiles, setSmiles] = useState('');
+  const [smiles, setSmiles] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null); // Stores { original: { smi, messages }, standardized: { smi, messages } }
@@ -27,7 +27,7 @@ const StructureErrorView = () => {
     e.preventDefault();
     const trimmedSmiles = smiles.trim();
     if (!trimmedSmiles) {
-      setError('Please enter a SMILES string.');
+      setError("Please enter a SMILES string.");
       setResult(null); // Clear previous results
       return;
     }
@@ -45,10 +45,9 @@ const StructureErrorView = () => {
       // if (fix && validationResult?.standardized?.smi === validationResult?.original?.smi) {
       //    // Could set an info message here if desired
       // }
-
     } catch (err) {
       console.error("Structure check error:", err); // Log the error
-      setError(`Error checking structure: ${err.message || 'An unknown error occurred.'}`);
+      setError(`Error checking structure: ${err.message || "An unknown error occurred."}`);
       setResult(null); // Ensure result is null on error
     } finally {
       setLoading(false);
@@ -101,7 +100,9 @@ const StructureErrorView = () => {
     <div className="space-y-6 p-4 md:p-6">
       {/* Input Card */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-blue-400 mb-4">Structure Validation & Standardization</h2>
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-blue-400 mb-4">
+          Structure Validation & Standardization
+        </h2>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -110,7 +111,7 @@ const StructureErrorView = () => {
             value={smiles}
             onChange={setSmiles}
             required
-          // Pass theme props if needed
+            // Pass theme props if needed
           />
 
           {/* Fix Option Checkbox */}
@@ -123,7 +124,10 @@ const StructureErrorView = () => {
               // Checkbox styling for light/dark mode
               className="h-4 w-4 rounded bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-offset-gray-800 shadow-sm"
             />
-            <label htmlFor="fix-structure" className="ml-3 block text-sm text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor="fix-structure"
+              className="ml-3 block text-sm text-gray-700 dark:text-gray-300"
+            >
               Attempt to fix issues by standardizing (using ChEMBL pipeline)
             </label>
           </div>
@@ -133,13 +137,14 @@ const StructureErrorView = () => {
             <button
               type="submit"
               disabled={!smiles.trim() || loading}
-              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${!smiles.trim() || loading
-                  ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm'
-                }`}
+              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+                !smiles.trim() || loading
+                  ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm"
+              }`}
             >
               <HiOutlineShieldCheck className="mr-2 h-5 w-5" aria-hidden="true" />
-              {loading ? 'Checking...' : 'Check Structure'}
+              {loading ? "Checking..." : "Check Structure"}
             </button>
           </div>
         </form>
@@ -149,24 +154,38 @@ const StructureErrorView = () => {
       {loading && <LoadingScreen text="Checking chemical structure..." />}
 
       {/* Error Display */}
-      {error && !loading && ( // Show error only if not loading
-        <div className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow" role="alert">
-          <HiOutlineExclamationCircle className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400" aria-hidden="true" />
-          <span>{error}</span>
-        </div>
-      )}
+      {error &&
+        !loading && ( // Show error only if not loading
+          <div
+            className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow"
+            role="alert"
+          >
+            <HiOutlineExclamationCircle
+              className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+              aria-hidden="true"
+            />
+            <span>{error}</span>
+          </div>
+        )}
 
       {/* Results Display Section */}
       {/* Show only if result object exists and not loading */}
       {result && !loading && (
-        <div className="space-y-6"> {/* Increased spacing */}
+        <div className="space-y-6">
+          {" "}
+          {/* Increased spacing */}
           {/* Original Structure Section */}
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Original Structure</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Original Structure
+            </h3>
             <div className="space-y-4">
               {/* Original SMILES Display */}
               <div className="flex items-center space-x-3 text-gray-700 dark:text-gray-300">
-                <HiOutlinePencilAlt className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" aria-hidden="true" />
+                <HiOutlinePencilAlt
+                  className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0"
+                  aria-hidden="true"
+                />
                 <span className="font-mono text-sm bg-gray-100 dark:bg-gray-900 px-3 py-1 rounded border border-gray-200 dark:border-gray-700 break-all">
                   {result.original?.smi || smiles} {/* Show original SMILES from result or input */}
                 </span>
@@ -175,19 +194,26 @@ const StructureErrorView = () => {
               {renderMessages(result.original?.messages)}
             </div>
           </div>
-
           {/* Standardized Structure Section (if fix was true and data exists) */}
           {fix && result.standardized && (
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Standardized Structure</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Standardized Structure
+              </h3>
               <div className="space-y-4">
                 {/* Standardized SMILES Display */}
                 <div className="flex items-center space-x-3 text-gray-700 dark:text-gray-300">
                   {/* Use check icon if standardized messages indicate no errors */}
                   {result.standardized.messages?.includes("No Errors Found") ? (
-                    <HiOutlineCheck className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0" aria-hidden="true" />
+                    <HiOutlineCheck
+                      className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0"
+                      aria-hidden="true"
+                    />
                   ) : (
-                    <HiOutlinePencilAlt className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0" aria-hidden="true" />
+                    <HiOutlinePencilAlt
+                      className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0"
+                      aria-hidden="true"
+                    />
                   )}
                   <span className="font-mono text-sm bg-gray-100 dark:bg-gray-900 px-3 py-1 rounded border border-gray-200 dark:border-gray-700 break-all">
                     {result.standardized.smi}
@@ -219,15 +245,26 @@ const StructureErrorView = () => {
       {/* Initial State / About Box */}
       {/* Show only if no result, not loading, and no error */}
       {!result && !loading && !error && (
-        <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow" role="complementary">
-          <HiOutlineInformationCircle className="h-6 w-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" aria-hidden="true" />
+        <div
+          className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow"
+          role="complementary"
+        >
+          <HiOutlineInformationCircle
+            className="h-6 w-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5"
+            aria-hidden="true"
+          />
           <div>
-            <h3 className="text-lg font-medium text-blue-800 dark:text-blue-300 mb-2">About Structure Validation</h3>
+            <h3 className="text-lg font-medium text-blue-800 dark:text-blue-300 mb-2">
+              About Structure Validation
+            </h3>
             <p className="text-gray-700 dark:text-gray-300">
-              This tool checks chemical structures for potential issues (e.g., incorrect valences, invalid aromaticity) using the ChEMBL structure curation pipeline.
+              This tool checks chemical structures for potential issues (e.g., incorrect valences,
+              invalid aromaticity) using the ChEMBL structure curation pipeline.
             </p>
             <p className="mt-2 text-gray-700 dark:text-gray-300">
-              Enable the "Attempt to fix" option to apply standardization rules (normalization, aromaticity perception, etc.) to resolve common problems and generate a standardized representation.
+              Enable the "Attempt to fix" option to apply standardization rules (normalization,
+              aromaticity perception, etc.) to resolve common problems and generate a standardized
+              representation.
             </p>
           </div>
         </div>

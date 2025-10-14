@@ -356,7 +356,9 @@ async def remove_linear_sugars_endpoint(
             linear_acidic_sugars=linear_acidic_sugars,
             mark_attach_points=mark_attach_points,
         )
-        if _removed_smiles:
+        if _removed_smiles == "":
+            return "Empty Aglycone"
+        elif _removed_smiles:
             return _removed_smiles
         else:
             raise HTTPException(
@@ -475,7 +477,10 @@ async def remove_circular_sugars_endpoint(
             keto_sugars=keto_sugars,
             mark_attach_points=mark_attach_points,
         )
-        if removed_smiles:
+        print(removed_smiles)
+        if removed_smiles == "":
+            return "Empty Aglycone"
+        elif removed_smiles:
             return removed_smiles
         else:
             raise HTTPException(
@@ -629,6 +634,8 @@ async def remove_linear_and_circular_sugars_endpoint(
         )
         if _removed_smiles:
             return _removed_smiles
+        elif _removed_smiles == "":
+            return "Empty Aglycone"
         else:
             raise HTTPException(
                 status_code=422,

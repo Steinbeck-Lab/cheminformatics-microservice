@@ -6,8 +6,7 @@
     transform: translate(-50%, 0) rotate(0deg) translateY(-28px) rotate(0deg);
   }
   100% {
-    transform: translate(-50%, 0) rotate(360deg) translateY(-28px)
-      rotate(-360deg);
+    transform: translate(-50%, 0) rotate(360deg) translateY(-28px) rotate(-360deg);
   }
 }
 
@@ -25,8 +24,7 @@
     transform: translate(-50%, 0) rotate(0deg) translateY(28px) rotate(0deg);
   }
   100% {
-    transform: translate(-50%, 0) rotate(360deg) translateY(28px)
-      rotate(-360deg);
+    transform: translate(-50%, 0) rotate(360deg) translateY(28px) rotate(-360deg);
   }
 }
 

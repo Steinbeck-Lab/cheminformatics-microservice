@@ -1,81 +1,194 @@
 // Description: This component handles the format conversion between different chemical notations.
-import React, { useState } from 'react';
+import React, { useState, useRef } from "react";
 // Ensure all used icons are imported
 import {
   HiOutlineSwitchHorizontal,
   HiOutlineClipboard,
   HiOutlineCheck,
   HiOutlineExclamationCircle,
-  HiOutlineArrowRight
-} from 'react-icons/hi';
+  HiOutlineArrowRight,
+  HiOutlineUpload,
+  HiOutlineDocumentText,
+} from "react-icons/hi";
 // Assuming these components are correctly implemented and styled for dark/light mode
-import SMILESInput from '../common/SMILESInput';
-import LoadingScreen from '../common/LoadingScreen';
-import MoleculeDepiction2D from '../depict/MoleculeDepiction2D';
+import SMILESInput from "../common/SMILESInput";
+import LoadingScreen from "../common/LoadingScreen";
+import MoleculeDepiction2D from "../depict/MoleculeDepiction2D";
 // Assuming this service is configured correctly
-import convertService from '../../services/convertService';
+import convertService from "../../services/convertService";
 
 // Input format options configuration
 const INPUT_FORMAT_OPTIONS = [
-  { id: 'smiles', label: 'SMILES' },
-  { id: 'iupac', label: 'IUPAC Name' },
-  { id: 'selfies', label: 'SELFIES' }
+  { id: "smiles", label: "SMILES" },
+  { id: "iupac", label: "IUPAC Name" },
+  { id: "selfies", label: "SELFIES" },
+  { id: "molsdf", label: "MOL/SDF Block" },
 ];
 
 // Output format options configuration
 const OUTPUT_FORMAT_OPTIONS = [
-  { id: 'smiles', label: 'SMILES', method: null },
-  { id: 'canonicalsmiles', label: 'Canonical SMILES', method: 'generateCanonicalSMILES' },
-  { id: 'inchi', label: 'InChI', method: 'generateInChI' },
-  { id: 'inchikey', label: 'InChI Key', method: 'generateInChIKey' },
-  { id: 'cxsmiles', label: 'CXSMILES', method: 'generateCXSMILES' },
-  { id: 'selfies', label: 'SELFIES', method: 'generateSELFIES' },
-  { id: 'smarts', label: 'SMARTS', method: 'generateSMARTS' }
+  { id: "smiles", label: "SMILES", method: null },
+  {
+    id: "canonicalsmiles",
+    label: "Canonical SMILES",
+    method: "generateCanonicalSMILES",
+  },
+  { id: "inchi", label: "InChI", method: "generateInChI" },
+  { id: "inchikey", label: "InChI Key", method: "generateInChIKey" },
+  { id: "cxsmiles", label: "CXSMILES", method: "generateCXSMILES" },
+  { id: "selfies", label: "SELFIES", method: "generateSELFIES" },
+  { id: "smarts", label: "SMARTS", method: "generateSMARTS" },
 ];
 
 // Toolkit options configuration
 const TOOLKIT_OPTIONS = [
-  { id: 'cdk', label: 'CDK (Chemistry Development Kit)' },
-  { id: 'rdkit', label: 'RDKit' },
-  { id: 'openbabel', label: 'OpenBabel' }
+  { id: "cdk", label: "CDK (Chemistry Development Kit)" },
+  { id: "rdkit", label: "RDKit" },
+  { id: "openbabel", label: "OpenBabel" },
 ];
 
 // Converter options for IUPAC
-const IUPAC_CONVERTER_OPTIONS = [
-  { id: 'opsin', label: 'OPSIN' }
-];
+const IUPAC_CONVERTER_OPTIONS = [{ id: "opsin", label: "OPSIN" }];
 
 const FormatConversionView = () => {
-  const [input, setInput] = useState('');
-  const [inputFormat, setInputFormat] = useState('smiles');
-  const [outputFormat, setOutputFormat] = useState('canonicalsmiles');
-  const [toolkit, setToolkit] = useState('cdk');
-  const [iupacConverter, setIupacConverter] = useState('opsin');
-  const [result, setResult] = useState('');
+  const [input, setInput] = useState("");
+  const [inputFormat, setInputFormat] = useState("smiles");
+  const [outputFormat, setOutputFormat] = useState("canonicalsmiles");
+  const [toolkit, setToolkit] = useState("cdk");
+  const [iupacConverter, setIupacConverter] = useState("opsin");
+  const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
   // State for molecular structure display
-  const [smilesForStructure, setSmilesForStructure] = useState('');
+  const [smilesForStructure, setSmilesForStructure] = useState("");
   const [showStructure, setShowStructure] = useState(false);
+  // State for file upload
+  const [uploadedFilename, setUploadedFilename] = useState("");
+  const fileInputRef = useRef(null);
+
+  // Helper function to ensure molblock is in proper format for backend
+  const formatMolblockForBackend = (molblock) => {
+    // Normalize line endings first
+    let formatted = molblock.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+
+    // Clean up - remove trailing spaces from each line and trim
+    formatted = formatted
+      .split("\n")
+      .map((line) => line.trimEnd())
+      .join("\n")
+      .trim();
+
+    // Ensure proper molblock format - starts with newline (like the test fixture)
+    if (!formatted.startsWith("\n")) {
+      formatted = "\n" + formatted;
+    }
+
+    // Ensure it ends with M  END followed by a newline
+    if (!formatted.endsWith("M  END\n")) {
+      if (formatted.endsWith("M  END")) {
+        formatted += "\n";
+      }
+    }
+
+    return formatted;
+  };
+
+  // Handle file upload for MOL/SDF files
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Reset error and filename
+    setError(null);
+    setUploadedFilename("");
+
+    // Validate file extension
+    const fileName = file.name.toLowerCase();
+    if (!fileName.endsWith(".mol") && !fileName.endsWith(".sdf")) {
+      setError("Please upload a valid .mol or .sdf file.");
+      return;
+    }
+
+    setUploadedFilename(file.name);
+
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      try {
+        let fileContent = event.target.result;
+
+        // Normalize line endings and trim
+        fileContent = fileContent.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+
+        // Validate molblock format
+        if (!fileContent.includes("M  END")) {
+          setError(
+            'Invalid file format: The uploaded file does not appear to be a valid MOL/SDF file (missing "M  END").'
+          );
+          setInput("");
+          return;
+        }
+
+        // Check for multiple molecules
+        const molBlockCount = (fileContent.match(/M {2}END/g) || []).length;
+        if (molBlockCount > 1) {
+          setError(
+            "Multiple molecules detected in file. Please upload a file containing only one molecule."
+          );
+          setInput("");
+          return;
+        }
+
+        // Set the content to the input
+        setInput(fileContent);
+        setError(null);
+      } catch (err) {
+        console.error("File reading error:", err);
+        setError("Failed to process the uploaded file. Please ensure it's a valid MOL/SDF file.");
+        setInput("");
+      }
+    };
+
+    reader.onerror = () => {
+      setError("Failed to read the uploaded file. Please ensure it's a valid text file.");
+      setInput("");
+    };
+
+    reader.readAsText(file);
+  };
+
+  // Clear uploaded file
+  const handleClearFile = () => {
+    setUploadedFilename("");
+    setInput("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   // When input format changes, automatically update output format if needed
   const handleInputFormatChange = (format) => {
     setInputFormat(format);
 
-    // If switching to IUPAC or SELFIES, automatically set output to SMILES
-    if (format === 'iupac' || format === 'selfies') {
-      setOutputFormat('smiles');
+    // Clear uploaded file when switching away from molsdf
+    if (format !== "molsdf") {
+      handleClearFile();
+    }
+
+    // If switching to IUPAC, SELFIES, or MOL/SDF, automatically set output to SMILES
+    if (format === "iupac" || format === "selfies" || format === "molsdf") {
+      setOutputFormat("smiles");
     }
   };
 
   // When output format changes, we may need to adjust toolkit availability
   const handleOutputFormatChange = (format) => {
     setOutputFormat(format);
-    
+
     // SMARTS only supports RDKit
-    if (format === 'smarts') {
-      setToolkit('rdkit');
+    if (format === "smarts") {
+      setToolkit("rdkit");
     }
   };
 
@@ -84,67 +197,94 @@ const FormatConversionView = () => {
     e.preventDefault();
     const trimmedInput = input.trim();
     if (!trimmedInput) {
-      setError('Please enter input data.');
-      setResult('');
+      setError("Please enter input data.");
+      setResult("");
       return;
     }
 
     setLoading(true);
     setError(null);
-    setResult('');
-    setSmilesForStructure('');
+    setResult("");
+    setSmilesForStructure("");
     setShowStructure(false);
 
     try {
       let convertedResult;
-      let smilesForDisplay = '';
+      let smilesForDisplay = "";
 
       // Handle IUPAC to SMILES or SELFIES to SMILES conversion
-      if (inputFormat !== 'smiles') {
-        // First convert IUPAC or SELFIES to SMILES
-        const smiles = await convertService.generateSMILES(
-          trimmedInput,
-          inputFormat,
-          inputFormat === 'iupac' ? iupacConverter : undefined
-        );
+      if (inputFormat !== "smiles") {
+        // Handle MOL/SDF to SMILES conversion
+        if (inputFormat === "molsdf") {
+          // Format the MOL block properly before sending
+          const formattedMolblock = formatMolblockForBackend(trimmedInput);
+          const smiles = await convertService.molblockToSMILES(formattedMolblock, toolkit);
+          smilesForDisplay = smiles;
 
-        // Store SMILES for structure display
-        smilesForDisplay = smiles;
+          // If the output is SMILES, we're done
+          if (outputFormat === "smiles") {
+            convertedResult = smiles;
+          } else {
+            // Otherwise, convert SMILES to the target format
+            const formatOption = OUTPUT_FORMAT_OPTIONS.find((option) => option.id === outputFormat);
+            if (!formatOption || !formatOption.method) {
+              throw new Error(`Unsupported output format: ${outputFormat}`);
+            }
 
-        // If the output is SMILES, we're done
-        if (outputFormat === 'smiles') {
-          convertedResult = smiles;
+            const method = convertService[formatOption.method];
+            if (typeof method !== "function") {
+              throw new Error(`Conversion function not available for format: ${outputFormat}`);
+            }
+
+            // Convert the SMILES to the target format
+            convertedResult = await method(smiles, toolkit);
+          }
         } else {
-          // Otherwise, convert SMILES to the target format
-          const formatOption = OUTPUT_FORMAT_OPTIONS.find(option => option.id === outputFormat);
-          if (!formatOption || !formatOption.method) {
-            throw new Error(`Unsupported output format: ${outputFormat}`);
-          }
+          // First convert IUPAC or SELFIES to SMILES
+          const smiles = await convertService.generateSMILES(
+            trimmedInput,
+            inputFormat,
+            inputFormat === "iupac" ? iupacConverter : undefined
+          );
 
-          const method = convertService[formatOption.method];
-          if (typeof method !== 'function') {
-            throw new Error(`Conversion function not available for format: ${outputFormat}`);
-          }
+          // Store SMILES for structure display
+          smilesForDisplay = smiles;
 
-          // Convert the SMILES to the target format
-          convertedResult = await method(smiles, toolkit);
+          // If the output is SMILES, we're done
+          if (outputFormat === "smiles") {
+            convertedResult = smiles;
+          } else {
+            // Otherwise, convert SMILES to the target format
+            const formatOption = OUTPUT_FORMAT_OPTIONS.find((option) => option.id === outputFormat);
+            if (!formatOption || !formatOption.method) {
+              throw new Error(`Unsupported output format: ${outputFormat}`);
+            }
+
+            const method = convertService[formatOption.method];
+            if (typeof method !== "function") {
+              throw new Error(`Conversion function not available for format: ${outputFormat}`);
+            }
+
+            // Convert the SMILES to the target format
+            convertedResult = await method(smiles, toolkit);
+          }
         }
       } else {
         // Direct SMILES conversion to target format
         // Use the input SMILES for structure display
         smilesForDisplay = trimmedInput;
 
-        if (outputFormat === 'smiles') {
+        if (outputFormat === "smiles") {
           // Just return the input if output is also SMILES
           convertedResult = trimmedInput;
         } else {
-          const formatOption = OUTPUT_FORMAT_OPTIONS.find(option => option.id === outputFormat);
+          const formatOption = OUTPUT_FORMAT_OPTIONS.find((option) => option.id === outputFormat);
           if (!formatOption || !formatOption.method) {
             throw new Error(`Unsupported output format: ${outputFormat}`);
           }
 
           const method = convertService[formatOption.method];
-          if (typeof method !== 'function') {
+          if (typeof method !== "function") {
             throw new Error(`Conversion function not available for format: ${outputFormat}`);
           }
 
@@ -155,8 +295,8 @@ const FormatConversionView = () => {
       // Handle cases where conversion might return null/undefined/empty
       if (!convertedResult) {
         setError(`Conversion resulted in empty output.`);
-        setResult('');
-        setSmilesForStructure('');
+        setResult("");
+        setSmilesForStructure("");
         setShowStructure(false);
       } else {
         let finalResult = String(convertedResult);
@@ -167,7 +307,7 @@ const FormatConversionView = () => {
         }
 
         setResult(finalResult);
-        
+
         // Set SMILES for structure display if we have a valid SMILES
         if (smilesForDisplay && smilesForDisplay.trim()) {
           // Clean up SMILES string - remove quotes and trim
@@ -175,15 +315,15 @@ const FormatConversionView = () => {
           if (cleanedSmiles.startsWith('"') && cleanedSmiles.endsWith('"')) {
             cleanedSmiles = cleanedSmiles.substring(1, cleanedSmiles.length - 1);
           }
-          
+
           setSmilesForStructure(cleanedSmiles);
           setShowStructure(true);
         }
       }
     } catch (err) {
       console.error("Conversion failed:", err);
-      setError(`Conversion failed: ${err.message || 'An unknown error occurred.'}`);
-      setResult('');
+      setError(`Conversion failed: ${err.message || "An unknown error occurred."}`);
+      setResult("");
     } finally {
       setLoading(false);
     }
@@ -193,35 +333,42 @@ const FormatConversionView = () => {
   const handleCopyResult = () => {
     if (!result || !navigator.clipboard) return;
 
-    navigator.clipboard.writeText(result)
+    navigator.clipboard
+      .writeText(result)
       .then(() => {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       })
-      .catch(err => {
-        console.error('Failed to copy result:', err);
-        setError('Failed to copy result to clipboard.');
+      .catch((err) => {
+        console.error("Failed to copy result:", err);
+        setError("Failed to copy result to clipboard.");
       });
   };
 
   // Determine if toolkit selection should be shown based on input/output format
-  const showToolkitSelection = inputFormat === 'smiles' &&
-    outputFormat !== 'selfies' &&
-    outputFormat !== 'smarts'; // SMARTS only uses RDKit
+  const showToolkitSelection =
+    (inputFormat === "smiles" || inputFormat === "molsdf") &&
+    outputFormat !== "selfies" &&
+    outputFormat !== "smarts"; // SMARTS only uses RDKit
 
   // Determine if IUPAC converter selection should be shown
-  const showIupacConverterSelection = inputFormat === 'iupac';
+  const showIupacConverterSelection = inputFormat === "iupac";
 
   return (
     <div className="space-y-6 p-4 md:p-6">
       {/* Input and Options Card */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-blue-400 mb-4">Format Conversion</h2>
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-blue-400 mb-4">
+          Format Conversion
+        </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Input Format Selection */}
           <div>
-            <label htmlFor="input-format-select" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="input-format-select"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Input Format
             </label>
             <select
@@ -241,7 +388,10 @@ const FormatConversionView = () => {
           {/* IUPAC Converter Selection (conditionally shown) */}
           {showIupacConverterSelection && (
             <div>
-              <label htmlFor="iupac-converter-select" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="iupac-converter-select"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 IUPAC Converter
               </label>
               <select
@@ -262,28 +412,122 @@ const FormatConversionView = () => {
             </div>
           )}
 
-          {/* Input Field using SMILESInput component */}
+          {/* Input Field using SMILESInput component or textarea for MOL/SDF */}
           <div>
-            <SMILESInput
-              value={input}
-              onChange={setInput}
-              label={inputFormat === 'smiles' ? 'SMILES Input' :
-                inputFormat === 'iupac' ? 'IUPAC Name' : 'SELFIES Input'}
-              placeholder={inputFormat === 'smiles' ? 'Enter SMILES notation...' :
-                inputFormat === 'iupac' ? 'Enter IUPAC chemical name...' :
-                  'Enter SELFIES notation...'}
-              required
-            />
+            {inputFormat === "molsdf" ? (
+              <>
+                <label
+                  htmlFor="molsdf-input"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  MOL/SDF Block Input
+                </label>
 
-            {inputFormat === 'iupac' && (
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                Example: 1,3,7-trimethylpurine-2,6-dione (caffeine)
-              </p>
-            )}
-            {inputFormat === 'selfies' && (
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                Example: [C][N][C][=Branch1][C][=O][N][=Branch2][C][=Branch1][C][=O][N][Ring1][C]
-              </p>
+                {/* File Upload Button */}
+                <div className="mb-3">
+                  <label
+                    htmlFor="mol-file-upload"
+                    className="group relative flex items-center justify-center px-6 py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all duration-300 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 hover:shadow-md"
+                  >
+                    <input
+                      ref={fileInputRef}
+                      id="mol-file-upload"
+                      type="file"
+                      accept=".mol,.sdf"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg group-hover:bg-blue-200 dark:group-hover:bg-blue-800/40 transition-colors duration-300">
+                        <HiOutlineUpload className="h-6 w-6 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-300" />
+                      </div>
+                      <div className="text-left">
+                        <span className="block text-sm font-semibold text-gray-800 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
+                          {uploadedFilename || "Choose MOL/SDF File"}
+                        </span>
+                        <span className="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                          .mol or .sdf formats supported
+                        </span>
+                      </div>
+                    </div>
+                  </label>
+                  <p className="mt-2 text-xs text-center text-gray-500 dark:text-gray-400 font-medium">
+                    Or paste MOL/SDF content below
+                  </p>
+                </div>
+
+                {/* Display uploaded filename with clear option */}
+                {uploadedFilename && (
+                  <div className="mb-3 flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg shadow-sm animate-fadeIn">
+                    <div className="flex items-center space-x-2 flex-1 min-w-0">
+                      <div className="p-1.5 bg-blue-100 dark:bg-blue-800/40 rounded-md">
+                        <HiOutlineDocumentText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <span className="text-sm font-medium text-blue-900 dark:text-blue-100 truncate">
+                        {uploadedFilename}
+                      </span>
+                      <span className="text-xs text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-800/40 px-2 py-0.5 rounded-full">
+                        Loaded
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleClearFile}
+                      className="ml-3 px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-300 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 border border-blue-300 dark:border-blue-700 rounded-md transition-all duration-200 hover:shadow-md"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                )}
+
+                <textarea
+                  id="molsdf-input"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Paste MOL or SDF block here...&#10;&#10;Example:&#10;  CDK     09012308392D&#10;&#10;  2  1  0  0  0  0  0  0  0  0999 V2000&#10;    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0&#10;    1.5000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0&#10;  1  2  1  0  0  0  0&#10;M  END"
+                  rows={12}
+                  required
+                  className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm font-mono text-sm"
+                />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Upload a file or paste a MOL or SDF block. If SDF format is detected (contains
+                  $$$$), only the first molecule will be processed.
+                </p>
+              </>
+            ) : (
+              <>
+                <SMILESInput
+                  value={input}
+                  onChange={setInput}
+                  label={
+                    inputFormat === "smiles"
+                      ? "SMILES Input"
+                      : inputFormat === "iupac"
+                        ? "IUPAC Name"
+                        : "SELFIES Input"
+                  }
+                  placeholder={
+                    inputFormat === "smiles"
+                      ? "Enter SMILES notation..."
+                      : inputFormat === "iupac"
+                        ? "Enter IUPAC chemical name..."
+                        : "Enter SELFIES notation..."
+                  }
+                  required
+                />
+
+                {inputFormat === "iupac" && (
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    Example: 1,3,7-trimethylpurine-2,6-dione (caffeine)
+                  </p>
+                )}
+                {inputFormat === "selfies" && (
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    Example:
+                    [C][N][C][=Branch1][C][=O][N][=Branch2][C][=Branch1][C][=O][N][Ring1][C]
+                  </p>
+                )}
+              </>
             )}
           </div>
 
@@ -298,7 +542,10 @@ const FormatConversionView = () => {
 
           {/* Output Format Selection */}
           <div>
-            <label htmlFor="output-format-select" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="output-format-select"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Output Format
             </label>
             <select
@@ -306,7 +553,7 @@ const FormatConversionView = () => {
               value={outputFormat}
               onChange={(e) => handleOutputFormatChange(e.target.value)}
               className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
-              disabled={inputFormat !== 'smiles'} // Disable selection if input is IUPAC or SELFIES
+              disabled={inputFormat !== "smiles"} // Disable selection if input is IUPAC, SELFIES, or MOL/SDF
             >
               {OUTPUT_FORMAT_OPTIONS.map((option) => (
                 <option key={option.id} value={option.id}>
@@ -314,14 +561,21 @@ const FormatConversionView = () => {
                 </option>
               ))}
             </select>
-            {(inputFormat === 'iupac' || inputFormat === 'selfies') && (
+            {(inputFormat === "iupac" || inputFormat === "selfies" || inputFormat === "molsdf") && (
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                {inputFormat === 'iupac' ? 'IUPAC names' : 'SELFIES'} can only be converted to SMILES format
+                {inputFormat === "iupac"
+                  ? "IUPAC names"
+                  : inputFormat === "selfies"
+                    ? "SELFIES"
+                    : "MOL/SDF blocks"}{" "}
+                can only be converted to SMILES format
               </p>
             )}
-            {outputFormat === 'smarts' && (
+            {outputFormat === "smarts" && (
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                SMARTS (SMiles ARbitrary Target Specification) is an extension of SMILES for describing molecular patterns and properties. It's used for substructure searching and matching.
+                SMARTS (SMiles ARbitrary Target Specification) is an extension of SMILES for
+                describing molecular patterns and properties. It's used for substructure searching
+                and matching.
               </p>
             )}
           </div>
@@ -329,7 +583,10 @@ const FormatConversionView = () => {
           {/* Toolkit Selection (conditionally shown) */}
           {showToolkitSelection && (
             <div>
-              <label htmlFor="toolkit-select-convert" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="toolkit-select-convert"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 Toolkit
               </label>
               <select
@@ -338,20 +595,28 @@ const FormatConversionView = () => {
                 onChange={(e) => setToolkit(e.target.value)}
                 className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
               >
-                {TOOLKIT_OPTIONS.map((option) => (
+                {TOOLKIT_OPTIONS.filter((option) => {
+                  // MOL/SDF only supports CDK and RDKit
+                  if (inputFormat === "molsdf") {
+                    return option.id === "cdk" || option.id === "rdkit";
+                  }
+                  return true;
+                }).map((option) => (
                   <option key={option.id} value={option.id}>
                     {option.label}
                   </option>
                 ))}
               </select>
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                Note: Toolkit support may vary for different format conversions.
+                {inputFormat === "molsdf"
+                  ? "MOL/SDF conversion supports CDK and RDKit toolkits."
+                  : "Note: Toolkit support may vary for different format conversions."}
               </p>
             </div>
           )}
-          
+
           {/* Information about toolkit for SMARTS (when relevant) */}
-          {outputFormat === 'smarts' && (
+          {outputFormat === "smarts" && (
             <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 rounded text-xs text-blue-600 dark:text-blue-300">
               <p>SMARTS conversion is only available using RDKit.</p>
             </div>
@@ -362,13 +627,14 @@ const FormatConversionView = () => {
             <button
               type="submit"
               disabled={!input.trim() || loading}
-              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${!input.trim() || loading
-                  ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm'
-                }`}
+              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+                !input.trim() || loading
+                  ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm"
+              }`}
             >
               <HiOutlineSwitchHorizontal className="mr-2 h-5 w-5" aria-hidden="true" />
-              {loading ? 'Converting...' : 'Convert Format'}
+              {loading ? "Converting..." : "Convert Format"}
             </button>
           </div>
         </form>
@@ -379,8 +645,14 @@ const FormatConversionView = () => {
 
       {/* Error Display */}
       {error && !loading && (
-        <div className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow" role="alert">
-          <HiOutlineExclamationCircle className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400" aria-hidden="true" />
+        <div
+          className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow"
+          role="alert"
+        >
+          <HiOutlineExclamationCircle
+            className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+            aria-hidden="true"
+          />
           <span>{error}</span>
         </div>
       )}
@@ -394,10 +666,11 @@ const FormatConversionView = () => {
             {/* Copy Button */}
             <button
               onClick={handleCopyResult}
-              className={`p-1.5 rounded-md transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 ${copied
-                  ? 'text-green-500 dark:text-green-500'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
+              className={`p-1.5 rounded-md transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+                copied
+                  ? "text-green-500 dark:text-green-500"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+              }`}
               title={copied ? "Copied!" : "Copy result to clipboard"}
               aria-label={copied ? "Result Copied" : "Copy Result"}
             >
@@ -410,27 +683,40 @@ const FormatConversionView = () => {
           </div>
 
           {/* Results Grid Layout */}
-          <div className={`grid gap-6 ${showStructure ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+          <div className={`grid gap-6 ${showStructure ? "lg:grid-cols-2" : "grid-cols-1"}`}>
             {/* Conversion Result */}
             <div className="space-y-3">
-              <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">Conversion Result</h4>
+              <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
+                Conversion Result
+              </h4>
               {/* Result Display Box */}
               <div className="p-3 bg-gray-100 dark:bg-gray-900 rounded-md font-mono text-sm overflow-x-auto border border-gray-200 dark:border-gray-700 shadow-sm">
-                <pre className="whitespace-pre-wrap break-all text-gray-700 dark:text-gray-300">{result}</pre>
+                <pre className="whitespace-pre-wrap break-all text-gray-700 dark:text-gray-300">
+                  {result}
+                </pre>
               </div>
               {/* Conversion Info Text */}
               <div className="text-xs text-gray-500 dark:text-gray-400">
-                Converted from {INPUT_FORMAT_OPTIONS.find(o => o.id === inputFormat)?.label || inputFormat.toUpperCase()}
-                to {OUTPUT_FORMAT_OPTIONS.find(o => o.id === outputFormat)?.label || outputFormat.toUpperCase()}
-                {showToolkitSelection && ` using ${TOOLKIT_OPTIONS.find(o => o.id === toolkit)?.label || toolkit}`}
-                {showIupacConverterSelection && ` with ${IUPAC_CONVERTER_OPTIONS.find(o => o.id === iupacConverter)?.label || iupacConverter}`}.
+                Converted from{" "}
+                {INPUT_FORMAT_OPTIONS.find((o) => o.id === inputFormat)?.label ||
+                  inputFormat.toUpperCase()}
+                to{" "}
+                {OUTPUT_FORMAT_OPTIONS.find((o) => o.id === outputFormat)?.label ||
+                  outputFormat.toUpperCase()}
+                {showToolkitSelection &&
+                  ` using ${TOOLKIT_OPTIONS.find((o) => o.id === toolkit)?.label || toolkit}`}
+                {showIupacConverterSelection &&
+                  ` with ${IUPAC_CONVERTER_OPTIONS.find((o) => o.id === iupacConverter)?.label || iupacConverter}`}
+                .
               </div>
             </div>
 
             {/* Molecular Structure */}
             {showStructure && smilesForStructure && (
               <div className="space-y-3">
-                <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">Molecular Structure</h4>
+                <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
+                  Molecular Structure
+                </h4>
                 <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
                   <MoleculeDepiction2D
                     smiles={smilesForStructure}
@@ -440,7 +726,10 @@ const FormatConversionView = () => {
                   />
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
-                  Structure generated from SMILES: <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">{smilesForStructure}</code>
+                  Structure generated from SMILES:{" "}
+                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">
+                    {smilesForStructure}
+                  </code>
                 </div>
               </div>
             )}

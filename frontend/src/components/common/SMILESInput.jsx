@@ -1,23 +1,47 @@
 // Description: A React component for inputting SMILES notation with example and recent molecule dropdowns.
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 // Import necessary icons
 import {
   HiOutlineX,
   HiOutlineLightBulb,
   HiOutlineClipboard,
   HiOutlineClock,
-  HiOutlineExclamationCircle // Added for paste modal
-} from 'react-icons/hi';
-import { useAppContext } from '../../context/AppContext'; // Assuming context provides recentMolecules
+  HiOutlineExclamationCircle, // Added for paste modal
+} from "react-icons/hi";
+import { useAppContext } from "../../context/AppContext"; // Assuming context provides recentMolecules
 
 // Example molecules data (static, moved outside component)
 const EXAMPLE_MOLECULES = [
-  { name: 'Caffeine', smiles: 'CN1C=NC2=C1C(=O)N(C(=O)N2C)C', description: 'Stimulant found in coffee' },
-  { name: 'Aspirin', smiles: 'CC(=O)OC1=CC=CC=C1C(=O)O', description: 'Analgesic & anti-inflammatory' },
-  { name: 'Sucrose', smiles: 'C([C@@H]1[C@H]([C@@H]([C@H]([C@H](O1)O[C@]2([C@H]([C@@H]([C@H](O2)CO)O)O)CO)O)O)O)O', description: 'Common sugar' },
-  { name: 'Cholesterol', smiles: 'C[C@H](CCCC(C)C)[C@H]1CC[C@@H]2[C@@]1(CC[C@H]3[C@H]2CC=C4[C@@]3(CC[C@@H](C4)O)C)C', description: 'Steroid in cell membranes' },
-  { name: 'Paracetamol', smiles: 'CC(=O)NC1=CC=C(C=C1)O', description: 'Pain reliever & fever reducer' },
-  { name: 'Ibuprofen', smiles: 'CC(C)CC1=CC=C(C=C1)C(C)C(=O)O', description: 'Anti-inflammatory drug' },
+  {
+    name: "Caffeine",
+    smiles: "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+    description: "Stimulant found in coffee",
+  },
+  {
+    name: "Aspirin",
+    smiles: "CC(=O)OC1=CC=CC=C1C(=O)O",
+    description: "Analgesic & anti-inflammatory",
+  },
+  {
+    name: "Sucrose",
+    smiles: "C([C@@H]1[C@H]([C@@H]([C@H]([C@H](O1)O[C@]2([C@H]([C@@H]([C@H](O2)CO)O)O)CO)O)O)O)O",
+    description: "Common sugar",
+  },
+  {
+    name: "Cholesterol",
+    smiles: "C[C@H](CCCC(C)C)[C@H]1CC[C@@H]2[C@@]1(CC[C@H]3[C@H]2CC=C4[C@@]3(CC[C@@H](C4)O)C)C",
+    description: "Steroid in cell membranes",
+  },
+  {
+    name: "Paracetamol",
+    smiles: "CC(=O)NC1=CC=C(C=C1)O",
+    description: "Pain reliever & fever reducer",
+  },
+  {
+    name: "Ibuprofen",
+    smiles: "CC(C)CC1=CC=C(C=C1)C(C)C(=O)O",
+    description: "Anti-inflammatory drug",
+  },
 ];
 
 // Dropdown List Item Component (for cleaner code)
@@ -28,8 +52,11 @@ const DropdownItem = ({ molecule, onClick }) => (
     role="menuitem"
     tabIndex={-1} // Can be focused programmatically if needed
   >
-    <p className="font-medium text-sm text-gray-800 dark:text-gray-100 truncate" title={molecule.name || `SMILES: ${molecule.smiles}`}>
-      {molecule.name || 'Recent Molecule'}
+    <p
+      className="font-medium text-sm text-gray-800 dark:text-gray-100 truncate"
+      title={molecule.name || `SMILES: ${molecule.smiles}`}
+    >
+      {molecule.name || "Recent Molecule"}
     </p>
     <p className="text-xs text-gray-500 dark:text-gray-400 truncate" title={molecule.smiles}>
       {molecule.smiles}
@@ -42,7 +69,7 @@ const DropdownItem = ({ molecule, onClick }) => (
 
 // Paste Modal Component
 const PasteModal = ({ isOpen, onClose, onPaste }) => {
-  const [text, setText] = useState('');
+  const [text, setText] = useState("");
   const textareaRef = useRef(null);
 
   useEffect(() => {
@@ -61,7 +88,7 @@ const PasteModal = ({ isOpen, onClose, onPaste }) => {
             <HiOutlineClipboard className="h-5 w-5 mr-2 text-indigo-500 dark:text-indigo-400" />
             Paste SMILES
           </h3>
-          <button 
+          <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             aria-label="Close"
@@ -106,9 +133,9 @@ const PasteModal = ({ isOpen, onClose, onPaste }) => {
 };
 
 // Add custom styles for animations
-if (typeof document !== 'undefined') {
-  const styleSheet = document.createElement('style');
-  styleSheet.type = 'text/css';
+if (typeof document !== "undefined") {
+  const styleSheet = document.createElement("style");
+  styleSheet.type = "text/css";
   styleSheet.textContent = `
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -128,13 +155,13 @@ const SMILESInput = ({
   showExamples = true,
   showRecent = true,
   label = "SMILES",
-  required = false
+  required = false,
 }) => {
   const [showExampleList, setShowExampleList] = useState(false);
   const [showRecentList, setShowRecentList] = useState(false);
   const [showPasteModal, setShowPasteModal] = useState(false);
-  const [pasteError, setPasteError] = useState('');
-  
+  const [pasteError, setPasteError] = useState("");
+
   // Refs for detecting outside clicks
   const examplesRef = useRef(null);
   const recentRef = useRef(null);
@@ -152,33 +179,33 @@ const SMILESInput = ({
         setShowRecentList(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
   const handleClear = () => {
-    onChange('');
-    setPasteError('');
+    onChange("");
+    setPasteError("");
   };
 
   const handleExampleClick = (smiles) => {
     onChange(smiles);
     setShowExampleList(false); // Close dropdown after selection
-    setPasteError('');
+    setPasteError("");
   };
 
   const handleRecentClick = (smiles) => {
     onChange(smiles);
     setShowRecentList(false); // Close dropdown after selection
-    setPasteError('');
+    setPasteError("");
   };
 
   // Enhanced paste functionality with multiple approaches
   const handlePaste = async () => {
-    setPasteError('');
-    
+    setPasteError("");
+
     // Method 1: Try using navigator.clipboard API
     if (navigator.clipboard && navigator.clipboard.readText) {
       try {
@@ -188,37 +215,37 @@ const SMILESInput = ({
           return;
         }
       } catch (err) {
-        console.debug('Clipboard readText failed:', err);
+        console.debug("Clipboard readText failed:", err);
         // Fall through to alternatives
       }
     }
-    
+
     // Method 2: Try using document.execCommand
     try {
       // Create a hidden textarea
-      const textArea = document.createElement('textarea');
-      textArea.style.position = 'fixed';
-      textArea.style.top = '-999px';
-      textArea.style.left = '-999px';
+      const textArea = document.createElement("textarea");
+      textArea.style.position = "fixed";
+      textArea.style.top = "-999px";
+      textArea.style.left = "-999px";
       document.body.appendChild(textArea);
-      
+
       // Focus and select content (may trigger paste permission in some browsers)
       textArea.focus();
-      document.execCommand('paste');
-      
+      document.execCommand("paste");
+
       // Get pasted content
       const pastedText = textArea.value;
       document.body.removeChild(textArea);
-      
+
       if (pastedText) {
         onChange(pastedText);
         return;
       }
     } catch (err) {
-      console.debug('execCommand paste failed:', err);
+      console.debug("execCommand paste failed:", err);
       // Fall through to manual method
     }
-    
+
     // Method 3: Show modal for manual paste
     setShowPasteModal(true);
   };
@@ -234,7 +261,10 @@ const SMILESInput = ({
     <div className="space-y-2">
       {/* Label */}
       {label && (
-        <label htmlFor="smiles-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label
+          htmlFor="smiles-input"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           {label} {required && <span className="text-red-500 dark:text-red-400">*</span>}
         </label>
       )}
@@ -359,7 +389,11 @@ const SMILESInput = ({
               >
                 <ul className="py-1 max-h-64 overflow-y-auto" role="none">
                   {recentMolecules.map((molecule, index) => (
-                    <DropdownItem key={molecule.timestamp || index} molecule={molecule} onClick={handleRecentClick} />
+                    <DropdownItem
+                      key={molecule.timestamp || index}
+                      molecule={molecule}
+                      onClick={handleRecentClick}
+                    />
                   ))}
                 </ul>
               </div>
@@ -374,9 +408,9 @@ const SMILESInput = ({
       </div>
 
       {/* Manual Paste Modal */}
-      <PasteModal 
-        isOpen={showPasteModal} 
-        onClose={() => setShowPasteModal(false)} 
+      <PasteModal
+        isOpen={showPasteModal}
+        onClose={() => setShowPasteModal(false)}
         onPaste={handleModalPaste}
       />
     </div>
