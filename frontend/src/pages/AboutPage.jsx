@@ -699,20 +699,26 @@ const AboutPage = () => {
               </div>
               <p className="text-slate-700 dark:text-slate-300 mb-6 leading-relaxed">
                 It is strongly recommended that users cite both the software and the corresponding
-                paper when utilizing this work. By providing appropriate citations for the
+                papers when utilizing this work. By providing appropriate citations for the
                 Cheminformatics Microservice, users gain a convenient means to precisely track the
                 original source of the utilized source code and data.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
                 <CitationCard
-                  title="Citing the paper:"
-                  citation="Chandrasekhar, V., Sharma, N., Schaub, J. et al. Cheminformatics Microservice: unifying access to open cheminformatics toolkits. J Cheminform 15, 98 (2023). https://doi.org/10.1186/s13321-023-00762-4"
+                  title="Citing the paper (Application):"
+                  citation="Rajan, K., Chandrasekhar, V., Sharma, N. et al. Cheminformatics Microservice V3: a web portal for chemical structure manipulation and analysis. J Cheminform 17, 142 (2025). https://doi.org/10.1186/s13321-025-01094-1"
                 />
                 <CitationCard
-                  title="Citing the software:"
-                  citation="Venkata, C., Sharma, N., Schaub, J., Steinbeck, C., & Rajan, K. (2025). cheminformatics-microservice (Version v3.3.0) [Computer software]. https://doi.org/10.5281/zenodo.15575699"
+                  title="Citing the paper (Original - API):"
+                  citation="Chandrasekhar, V., Sharma, N., Schaub, J. et al. Cheminformatics Microservice: unifying access to open cheminformatics toolkits. J Cheminform 15, 98 (2023). https://doi.org/10.1186/s13321-023-00762-4"
                 />
+                <div className="md:col-span-2 md:max-w-xl md:mx-auto md:w-full">
+                  <CitationCard
+                    title="Citing the software:"
+                    citation="Venkata, C., Sharma, N., Schaub, J., Steinbeck, C., & Rajan, K. (2025). cheminformatics-microservice (Version v3.5.0) [Computer software]. https://doi.org/10.5281/zenodo.16890410"
+                  />
+                </div>
               </div>
             </div>
           </motion.div>
