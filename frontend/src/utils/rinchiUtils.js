@@ -49,25 +49,18 @@ export const loadRinchiModule = async (version) => {
       }
 
       // Check if the script is already loaded
-      const existingScript = document.getElementById(
-        `rinchi-script-${version}`
-      );
+      const existingScript = document.getElementById(`rinchi-script-${version}`);
       if (existingScript) {
         // Script exists, try to initialize the module
         if (typeof window[versionConfig.moduleName] === "function") {
           window[versionConfig.moduleName]()
             .then((module) => {
               moduleInstances[version] = module;
-              console.log(
-                `RInChI module ${version} initialized from existing script`
-              );
+              console.log(`RInChI module ${version} initialized from existing script`);
               resolve(module);
             })
             .catch((err) => {
-              console.error(
-                `Error initializing existing RInChI module ${version}:`,
-                err
-              );
+              console.error(`Error initializing existing RInChI module ${version}:`, err);
               reject(err);
             });
         } else {
@@ -100,10 +93,7 @@ export const loadRinchiModule = async (version) => {
               resolve(module);
             })
             .catch((err) => {
-              console.error(
-                `Error initializing RInChI module ${version}:`,
-                err
-              );
+              console.error(`Error initializing RInChI module ${version}:`, err);
               reject(err);
             });
         } else {
@@ -140,11 +130,7 @@ export const loadRinchiModule = async (version) => {
  * @param {string} version - RInChI version to use
  * @returns {Promise<Object>} - RInChI result
  */
-export const convertRxnfileToRinchi = async (
-  rxnfile,
-  forceEquilibrium,
-  version
-) => {
+export const convertRxnfileToRinchi = async (rxnfile, forceEquilibrium, version) => {
   if (!rxnfile || !rxnfile.trim()) {
     return Promise.reject(new Error("No RXN/RD file provided"));
   }
@@ -159,20 +145,10 @@ export const convertRxnfileToRinchi = async (
         "rinchilib_rinchi_from_file_text",
         "number",
         ["string", "string", "boolean", "number", "number"],
-        [
-          "AUTO",
-          rxnfile,
-          forceEquilibrium,
-          out_rinchi_stringPtr,
-          out_rinchi_auxinfoPtr,
-        ]
+        ["AUTO", rxnfile, forceEquilibrium, out_rinchi_stringPtr, out_rinchi_auxinfoPtr]
       );
-      const rinchi = module.UTF8ToString(
-        module.getValue(out_rinchi_stringPtr, "i32")
-      );
-      const rauxinfo = module.UTF8ToString(
-        module.getValue(out_rinchi_auxinfoPtr, "i32")
-      );
+      const rinchi = module.UTF8ToString(module.getValue(out_rinchi_stringPtr, "i32"));
+      const rauxinfo = module.UTF8ToString(module.getValue(out_rinchi_auxinfoPtr, "i32"));
 
       let error = "";
       if (res !== 0) {
@@ -223,9 +199,7 @@ export const generateRinchiKey = async (rinchi, keyType, version) => {
       ["string", "string", "number"],
       [rinchi, keyType, out_rinchi_keyPtr]
     );
-    const rinchikey = module.UTF8ToString(
-      module.getValue(out_rinchi_keyPtr, "i32")
-    );
+    const rinchikey = module.UTF8ToString(module.getValue(out_rinchi_keyPtr, "i32"));
     module._free(out_rinchi_keyPtr);
 
     let error = "";
@@ -252,12 +226,7 @@ export const generateRinchiKey = async (rinchi, keyType, version) => {
  * @param {string} version - RInChI version to use
  * @returns {Promise<Object>} - File result
  */
-export const convertRinchiToFileText = async (
-  rinchi,
-  rauxinfo,
-  format,
-  version
-) => {
+export const convertRinchiToFileText = async (rinchi, rauxinfo, format, version) => {
   if (!rinchi || !rinchi.trim() || !rinchi.startsWith("RInChI=")) {
     return Promise.reject(new Error("Invalid RInChI provided"));
   }
@@ -267,9 +236,7 @@ export const convertRinchiToFileText = async (
   }
 
   if (!format || !["RXN", "RD"].includes(format)) {
-    return Promise.reject(
-      new Error("Invalid format provided. Must be 'RXN' or 'RD'")
-    );
+    return Promise.reject(new Error("Invalid format provided. Must be 'RXN' or 'RD'"));
   }
 
   try {
@@ -282,9 +249,7 @@ export const convertRinchiToFileText = async (
       ["string", "string", "string", "number"],
       [rinchi, rauxinfo || "", format, out_file_textPtr]
     );
-    const fileText = module.UTF8ToString(
-      module.getValue(out_file_textPtr, "i32")
-    );
+    const fileText = module.UTF8ToString(module.getValue(out_file_textPtr, "i32"));
     module._free(out_file_textPtr);
 
     let error = "";
@@ -299,8 +264,6 @@ export const convertRinchiToFileText = async (
     };
   } catch (err) {
     console.error("Error converting RInChI to file text:", err);
-    throw new Error(
-      `Failed to convert RInChI to ${format} file: ${err.message}`
-    );
+    throw new Error(`Failed to convert RInChI to ${format} file: ${err.message}`);
   }
 };

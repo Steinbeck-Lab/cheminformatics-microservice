@@ -28,18 +28,19 @@ def setup_jvm():
 
     if not isJVMStarted():
         paths = {
-            "cdk-2.10": "https://github.com/cdk/cdk/releases/download/cdk-2.10/cdk-2.10.jar",
-            "SugarRemovalUtility-jar-with-dependencies": "https://github.com/JonasSchaub/SugarRemoval/releases/download/v1.3.2/SugarRemovalUtility-jar-with-dependencies.jar",
+            "cdk-2.11": "https://github.com/cdk/cdk/releases/download/cdk-2.11/cdk-2.11.jar",
+            "SugarRemovalUtility-jar-with-dependencies": "https://github.com/JonasSchaub/SugarRemoval/releases/download/v1.6/SugarRemovalUtility-jar-with-dependencies.jar",
             "centres": "https://github.com/SiMolecule/centres/releases/download/1.0/centres.jar",
             "opsin-cli-2.8.0-jar-with-dependencies": "https://github.com/dan2097/opsin/releases/download/2.8.0/opsin-cli-2.8.0-jar-with-dependencies.jar",
         }
 
         jar_paths = {
-            key: str(pystow.join("STOUT-V2")) + f"/{key}.jar" for key in paths.keys()
+            key: str(pystow.join("JAVA_Packages")) + f"/{key}.jar"
+            for key in paths.keys()
         }
         for key, url in paths.items():
             if not os.path.exists(jar_paths[key]):
-                pystow.ensure("STOUT-V2", url=url)
+                pystow.ensure("JAVA_Packages", url=url)
 
         startJVM("-ea", "-Xmx4096M", classpath=[jar_paths[key] for key in jar_paths])
 
@@ -65,6 +66,23 @@ def get_CDK_IAtomContainer(smiles: str):
         cdk_base + ".smiles.SmilesParser",
     )(SCOB.getInstance())
     molecule = SmilesParser.parseSmiles(smiles)
+    return molecule
+
+
+def get_CDK_IAtomContainer_from_molblock(molblock: str):
+    """This function takes a MOL block and creates a CDK IAtomContainer.
+
+    Args:
+        molblock (str): MOL block string as input.
+
+    Returns:
+        mol (object): IAtomContainer with CDK.
+    """
+    SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
+    StringReader = JClass("java.io.StringReader")(molblock)
+    MDLV2000Reader = JClass(cdk_base + ".io.MDLV2000Reader")(StringReader)
+    molecule = MDLV2000Reader.read(SCOB.getInstance().newAtomContainer())
+    MDLV2000Reader.close()
     return molecule
 
 

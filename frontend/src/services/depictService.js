@@ -1,7 +1,7 @@
 // This module provides functions to generate 2D and 3D depictions of molecules
-import api from './api';
+import api from "./api";
 
-const DEPICT_URL = '/depict';
+const DEPICT_URL = "/depict";
 
 /**
  * Generate a 2D depiction of a molecule
@@ -14,17 +14,19 @@ const DEPICT_URL = '/depict';
  * @param {boolean} options.CIP - Include Cahn-Ingold-Prelog stereochemistry
  * @param {boolean} options.unicolor - Use a single color for the molecule
  * @param {string} options.highlight - SMARTS pattern to highlight atoms/bonds
+ * @param {boolean} options.showAtomNumbers - Show atom numbers on the depiction
  * @returns {Promise<string>} - SVG depiction as text
  */
 export const generate2DDepiction = async (smiles, options = {}) => {
   const {
-    toolkit = 'rdkit',
+    toolkit = "rdkit",
     width = 512,
     height = 512,
     rotate = 0,
     CIP = false,
     unicolor = false,
-    highlight = 'COSN'
+    highlight = "COSN",
+    showAtomNumbers = false,
   } = options;
 
   try {
@@ -37,9 +39,10 @@ export const generate2DDepiction = async (smiles, options = {}) => {
         rotate,
         CIP,
         unicolor,
-        highlight
+        highlight,
+        showAtomNumbers,
       },
-      responseType: 'text'
+      responseType: "text",
     });
     return response.data;
   } catch (error) {
@@ -53,11 +56,11 @@ export const generate2DDepiction = async (smiles, options = {}) => {
  * @param {string} toolkit - Toolkit to use (rdkit, openbabel)
  * @returns {Promise<string>} - HTML with embedded 3D viewer
  */
-export const generate3DDepiction = async (smiles, toolkit = 'openbabel') => {
+export const generate3DDepiction = async (smiles, toolkit = "openbabel") => {
   try {
     const response = await api.get(`${DEPICT_URL}/3D`, {
       params: { smiles, toolkit },
-      responseType: 'text'
+      responseType: "text",
     });
     return response.data;
   } catch (error) {
@@ -75,34 +78,36 @@ export const get2DDepictionUrl = (smiles, options = {}) => {
   const {
     width = 512,
     height = 512,
-    toolkit = 'rdkit',
+    toolkit = "rdkit",
     rotate = 0,
     CIP = false,
     unicolor = false,
-    highlight = '',
-    format = 'svg'
+    highlight = "",
+    format = "svg",
+    showAtomNumbers = false,
   } = options;
 
-  const baseUrl = api.defaults.baseURL || '';
+  const baseUrl = api.defaults.baseURL || "";
   let url;
 
   // Support format parameter in the URL
-  if (format && format !== 'svg') {
+  if (format && format !== "svg") {
     url = new URL(`${baseUrl}${DEPICT_URL}/2D/${format}`);
   } else {
     url = new URL(`${baseUrl}${DEPICT_URL}/2D`);
   }
 
-  url.searchParams.append('smiles', smiles);
-  url.searchParams.append('width', width);
-  url.searchParams.append('height', height);
-  url.searchParams.append('toolkit', toolkit);
-  url.searchParams.append('rotate', rotate);
-  url.searchParams.append('CIP', CIP);
-  url.searchParams.append('unicolor', unicolor);
+  url.searchParams.append("smiles", smiles);
+  url.searchParams.append("width", width);
+  url.searchParams.append("height", height);
+  url.searchParams.append("toolkit", toolkit);
+  url.searchParams.append("rotate", rotate);
+  url.searchParams.append("CIP", CIP);
+  url.searchParams.append("unicolor", unicolor);
+  url.searchParams.append("showAtomNumbers", showAtomNumbers);
 
   if (highlight) {
-    url.searchParams.append('highlight', highlight);
+    url.searchParams.append("highlight", highlight);
   }
 
   return url.toString();
@@ -122,7 +127,7 @@ export const generateBatchDepictions = async (smilesList, options = {}) => {
       const svg = await generate2DDepiction(smiles, options);
       results.push({
         smiles,
-        svg
+        svg,
       });
     }
 
@@ -139,18 +144,18 @@ export const generateBatchDepictions = async (smilesList, options = {}) => {
  * @param {Object} options - Depiction options
  * @returns {Promise<Blob>} - ZIP file as a Blob
  */
-export const downloadDepictionsAsZip = async (depictions, format = 'svg', options = {}) => {
+export const downloadDepictionsAsZip = async (depictions, format = "svg", options = {}) => {
   // This function requires JSZip to be installed
   // npm install jszip
   try {
-    const JSZip = (await import('jszip')).default;
+    const JSZip = (await import("jszip")).default;
     const zip = new JSZip();
 
     for (const depiction of depictions) {
       const { smiles, title, svg } = depiction;
-      const filename = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.${format}`;
+      const filename = `${title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.${format}`;
 
-      if (format === 'svg') {
+      if (format === "svg") {
         zip.file(filename, svg);
       } else {
         // For other formats, we need to fetch from the API
@@ -161,7 +166,7 @@ export const downloadDepictionsAsZip = async (depictions, format = 'svg', option
       }
     }
 
-    return await zip.generateAsync({ type: 'blob' });
+    return await zip.generateAsync({ type: "blob" });
   } catch (error) {
     throw new Error(`Failed to create ZIP file: ${error.message}`);
   }
@@ -177,7 +182,7 @@ export const downloadDepictionsAsZip = async (depictions, format = 'svg', option
 export const highlightSubstructure = async (smiles, substructure, options = {}) => {
   const depictionOptions = {
     ...options,
-    highlight: substructure
+    highlight: substructure,
   };
 
   return generate2DDepiction(smiles, depictionOptions);
@@ -190,12 +195,12 @@ export const highlightSubstructure = async (smiles, substructure, options = {}) 
  * @param {Object} options - Additional depiction options
  * @returns {Promise<string>} - SVG depiction with color-coded atoms
  */
-export const generateColorCodedDepiction = async (smiles, colorBy = 'element', options = {}) => {
+export const generateColorCodedDepiction = async (smiles, colorBy = "element", options = {}) => {
   // This is a placeholder - the actual API might not support this directly
   // but we can implement it as a convenience method that uses other endpoints
   const depictionOptions = {
     ...options,
-    unicolor: colorBy === 'none'
+    unicolor: colorBy === "none",
   };
 
   return generate2DDepiction(smiles, depictionOptions);
@@ -209,9 +214,7 @@ export const generateColorCodedDepiction = async (smiles, colorBy = 'element', o
  */
 export const generateMultipleDepictions = async (smiles, optionsArray = [{}]) => {
   try {
-    const promises = optionsArray.map(options =>
-      generate2DDepiction(smiles, options)
-    );
+    const promises = optionsArray.map((options) => generate2DDepiction(smiles, options));
 
     return Promise.all(promises);
   } catch (error) {
@@ -226,11 +229,11 @@ export const generateMultipleDepictions = async (smiles, optionsArray = [{}]) =>
  */
 export const parseSmilesInput = (text) => {
   return text
-    .split('\n')
-    .map(line => {
+    .split("\n")
+    .map((line) => {
       line = line.trim();
       // Skip empty lines and comments
-      if (line.length === 0 || line.startsWith('#')) {
+      if (line.length === 0 || line.startsWith("#")) {
         return null;
       }
 
@@ -241,7 +244,7 @@ export const parseSmilesInput = (text) => {
 
       return { smiles, title };
     })
-    .filter(item => item !== null);
+    .filter((item) => item !== null);
 };
 
 // Assemble all functions into a service object
@@ -254,7 +257,7 @@ const depictService = {
   generateMultipleDepictions,
   generateBatchDepictions,
   downloadDepictionsAsZip,
-  parseSmilesInput
+  parseSmilesInput,
 };
 
 export default depictService;

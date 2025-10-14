@@ -33,22 +33,19 @@ const features = [
   },
   {
     title: "Visualization",
-    description:
-      "Generate customizable 2D and 3D visualizations of chemical structures.",
+    description: "Generate customizable 2D and 3D visualizations of chemical structures.",
     icon: HiOutlineEye,
     link: "/depict",
   },
   {
     title: "Structure Tools",
-    description:
-      "Specialized tools for structure generation, sugar removal, and more.",
+    description: "Specialized tools for structure generation, sugar removal, and more.",
     icon: HiOutlineWrenchScrewdriver,
     link: "/tools",
   },
   {
     title: "OCSR",
-    description:
-      "Optical Chemical Structure Recognition to extract structures from images.",
+    description: "Optical Chemical Structure Recognition to extract structures from images.",
     icon: HiOutlineCamera,
     link: "/ocsr",
   },
@@ -216,8 +213,8 @@ const HomePage = () => {
               custom={2}
               className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto mb-10 sm:mb-12"
             >
-              Visualize, analyze, and manipulate chemical structures seamlessly
-              using the powerful Cheminformatics Microservice API.
+              Visualize, analyze, and manipulate chemical structures seamlessly using the powerful
+              Cheminformatics Microservice API.
             </motion.p>
 
             {/* Button Container */}
@@ -246,8 +243,7 @@ const HomePage = () => {
               >
                 <span className="absolute inset-0 rounded-xl bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-50 dark:from-white/5 dark:group-hover:opacity-100 transition-opacity duration-300"></span>
                 <span className="relative z-10 flex items-center">
-                  <FaCode className="mr-2 h-5 w-5 text-green-600 dark:text-green-400" />{" "}
-                  Guides
+                  <FaCode className="mr-2 h-5 w-5 text-green-600 dark:text-green-400" /> Guides
                 </span>
               </a>
               <a
@@ -258,8 +254,7 @@ const HomePage = () => {
               >
                 <span className="absolute inset-0 rounded-xl bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-50 dark:from-white/5 dark:group-hover:opacity-100 transition-opacity duration-300"></span>
                 <span className="relative z-10 flex items-center">
-                  <FaBook className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />{" "}
-                  API Docs
+                  <FaBook className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" /> API Docs
                 </span>
               </a>
             </motion.div>
@@ -372,13 +367,14 @@ const HomePage = () => {
               </motion.div>
             </motion.section>
           )}
-        </div>{" "} {/* End Width Constraint Wrapper */}
+        </div>{" "}
+        {/* End Width Constraint Wrapper */}
         {/*
           The API Information Section, previously here (lines approx. 363-409),
           is moved out of this container to achieve full-width background.
         */}
-      </div>{" "} {/* End Outer Padding Container */}
-
+      </div>{" "}
+      {/* End Outer Padding Container */}
       {/* --- API Information Section (Ribbon Style - Full Width Background) --- */}
       {/* This section's background spans full width; content is centered by its own container. */}
       <motion.section
@@ -414,8 +410,7 @@ const HomePage = () => {
               Designed for Chemists. Fueled by Open-Source.
             </h3>
             <p className="text-base md:text-lg text-slate-700 dark:text-slate-300 leading-relaxed whitespace-nowrap">
-              Built upon the open-source Cheminformatics Microservice API
-              developed by the{" "}
+              Built upon the open-source Cheminformatics Microservice API developed by the{" "}
               <a
                 href="https://cheminf.uni-jena.de"
                 target="_blank"
@@ -438,7 +433,6 @@ const HomePage = () => {
           </motion.div>
         </div>
       </motion.section>
-
       {/* Global Styles */}
       <style jsx="true" global="true">{`
         /* Ensure required CSS variables and utilities are defined */

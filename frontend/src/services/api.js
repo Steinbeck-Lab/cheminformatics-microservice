@@ -2,8 +2,7 @@
 import axios from "axios";
 
 // Get the API URL from environment variables or use a default
-const API_URL =
-  process.env.REACT_APP_API_URL || "https://dev.api.naturalproducts.net/latest";
+const API_URL = process.env.REACT_APP_API_URL || "https://dev.api.naturalproducts.net/latest";
 
 // Create an Axios instance with default config
 const api = axios.create({

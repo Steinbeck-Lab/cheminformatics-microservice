@@ -7,65 +7,67 @@
 @layer base {
   :root {
     /* Light Mode Colors (Default) */
-    --bg-primary: theme('colors.slate.100');
-    --bg-secondary: theme('colors.white');
-    --text-primary: theme('colors.slate.900');
-    --text-secondary: theme('colors.slate.600');
-    --text-accent: theme('colors.sky.700');
-    --text-accent-hover: theme('colors.sky.800');
-    --border-primary: theme('colors.slate.300');
-    --border-secondary: theme('colors.slate.200');
-    --link-primary: theme('colors.sky.600');
-    --link-hover: theme('colors.sky.700');
-    --input-bg: theme('colors.white');
-    --input-border: theme('colors.slate.300');
-    --input-text: theme('colors.slate.900');
-    --input-focus-ring: theme('colors.sky.500');
-    --placeholder-color: theme('colors.slate.400');
+    --bg-primary: theme("colors.slate.100");
+    --bg-secondary: theme("colors.white");
+    --text-primary: theme("colors.slate.900");
+    --text-secondary: theme("colors.slate.600");
+    --text-accent: theme("colors.sky.700");
+    --text-accent-hover: theme("colors.sky.800");
+    --border-primary: theme("colors.slate.300");
+    --border-secondary: theme("colors.slate.200");
+    --link-primary: theme("colors.sky.600");
+    --link-hover: theme("colors.sky.700");
+    --input-bg: theme("colors.white");
+    --input-border: theme("colors.slate.300");
+    --input-text: theme("colors.slate.900");
+    --input-focus-ring: theme("colors.sky.500");
+    --placeholder-color: theme("colors.slate.400");
     --shadow-color-rgb: 0, 0, 0; /* For light mode shadows */
-    
+
     /* Pattern definitions for backgrounds */
     --dots-pattern: url("data:image/svg+xml,%3Csvg width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1' fill='%23000' opacity='0.07'/%3E%3C/svg%3E");
     --grid-pattern: url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0z' fill='none'/%3E%3Cpath d='M0 0h1v40H0zM39 0h1v40h-1zM0 0h40v1H0zM0 39h40v1H0z' fill='%23000' opacity='0.1'/%3E%3C/svg%3E");
-    --mesh-pattern: radial-gradient(at 40% 20%, rgba(0, 163, 255, 0.1) 0px, transparent 50%), 
-                    radial-gradient(at 80% 0%, rgba(59, 130, 246, 0.1) 0px, transparent 50%), 
-                    radial-gradient(at 0% 50%, rgba(59, 130, 246, 0.1) 0px, transparent 50%), 
-                    radial-gradient(at 80% 50%, rgba(0, 163, 255, 0.1) 0px, transparent 50%), 
-                    radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%), 
-                    radial-gradient(at 80% 100%, rgba(0, 163, 255, 0.1) 0px, transparent 50%), 
-                    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.1) 0px, transparent 50%);
+    --mesh-pattern:
+      radial-gradient(at 40% 20%, rgba(0, 163, 255, 0.1) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
+      radial-gradient(at 80% 50%, rgba(0, 163, 255, 0.1) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
+      radial-gradient(at 80% 100%, rgba(0, 163, 255, 0.1) 0px, transparent 50%),
+      radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.1) 0px, transparent 50%);
     --noise-pattern: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.1'/%3E%3C/svg%3E");
   }
 
   .dark {
     /* Dark Mode Colors */
-    --bg-primary: theme('colors.gray.950');
-    --bg-secondary: theme('colors.slate.800');
-    --text-primary: theme('colors.slate.100');
-    --text-secondary: theme('colors.slate.300');
-    --text-accent: theme('colors.sky.400');
-    --text-accent-hover: theme('colors.sky.300');
-    --border-primary: theme('colors.slate.700');
-    --border-secondary: theme('colors.slate.800'); /* Darker secondary border */
-    --link-primary: theme('colors.sky.400');
-    --link-hover: theme('colors.sky.300');
-    --input-bg: theme('colors.slate.800');
-    --input-border: theme('colors.slate.700');
-    --input-text: theme('colors.white');
-    --input-focus-ring: theme('colors.sky.400');
-    --placeholder-color: theme('colors.slate.500');
+    --bg-primary: theme("colors.gray.950");
+    --bg-secondary: theme("colors.slate.800");
+    --text-primary: theme("colors.slate.100");
+    --text-secondary: theme("colors.slate.300");
+    --text-accent: theme("colors.sky.400");
+    --text-accent-hover: theme("colors.sky.300");
+    --border-primary: theme("colors.slate.700");
+    --border-secondary: theme("colors.slate.800"); /* Darker secondary border */
+    --link-primary: theme("colors.sky.400");
+    --link-hover: theme("colors.sky.300");
+    --input-bg: theme("colors.slate.800");
+    --input-border: theme("colors.slate.700");
+    --input-text: theme("colors.white");
+    --input-focus-ring: theme("colors.sky.400");
+    --placeholder-color: theme("colors.slate.500");
     --shadow-color-rgb: 255, 255, 255; /* For dark mode subtle glows/shadows if needed */
-    
+
     /* Dark mode pattern definitions */
     --dots-pattern: url("data:image/svg+xml,%3Csvg width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1' fill='%23fff' opacity='0.07'/%3E%3C/svg%3E");
     --grid-pattern: url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0z' fill='none'/%3E%3Cpath d='M0 0h1v40H0zM39 0h1v40h-1zM0 0h40v1H0zM0 39h40v1H0z' fill='%23fff' opacity='0.1'/%3E%3C/svg%3E");
-    --mesh-pattern: radial-gradient(at 40% 20%, rgba(0, 163, 255, 0.2) 0px, transparent 50%), 
-                    radial-gradient(at 80% 0%, rgba(59, 130, 246, 0.2) 0px, transparent 50%), 
-                    radial-gradient(at 0% 50%, rgba(59, 130, 246, 0.2) 0px, transparent 50%), 
-                    radial-gradient(at 80% 50%, rgba(0, 163, 255, 0.2) 0px, transparent 50%), 
-                    radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%), 
-                    radial-gradient(at 80% 100%, rgba(0, 163, 255, 0.2) 0px, transparent 50%), 
-                    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.2) 0px, transparent 50%);
+    --mesh-pattern:
+      radial-gradient(at 40% 20%, rgba(0, 163, 255, 0.2) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, rgba(59, 130, 246, 0.2) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, rgba(59, 130, 246, 0.2) 0px, transparent 50%),
+      radial-gradient(at 80% 50%, rgba(0, 163, 255, 0.2) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
+      radial-gradient(at 80% 100%, rgba(0, 163, 255, 0.2) 0px, transparent 50%),
+      radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.2) 0px, transparent 50%);
     --noise-pattern: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.2'/%3E%3C/svg%3E");
   }
 
@@ -74,29 +76,44 @@
     @apply min-h-screen antialiased;
     background-color: var(--bg-primary);
     color: var(--text-primary);
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family:
+      "Inter",
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      sans-serif;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-semibold;
     color: var(--text-primary);
   }
 
   /* Form elements using CSS Variables */
-  input, select, textarea {
+  input,
+  select,
+  textarea {
     @apply rounded-md px-3 py-2 border transition-colors duration-200;
     background-color: var(--input-bg);
     border-color: var(--input-border);
     color: var(--input-text);
     @apply placeholder-[var(--placeholder-color)];
   }
-  input:focus, select:focus, textarea:focus {
-     @apply outline-none ring-2 border-transparent;
-     border-color: var(--input-focus-ring);
-     --tw-ring-color: var(--input-focus-ring);
-     --tw-ring-opacity: 0.5;
+  input:focus,
+  select:focus,
+  textarea:focus {
+    @apply outline-none ring-2 border-transparent;
+    border-color: var(--input-focus-ring);
+    --tw-ring-color: var(--input-focus-ring);
+    --tw-ring-opacity: 0.5;
   }
-
 
   /* Links using CSS Variables */
   a {
@@ -213,18 +230,23 @@
 
   /* Subtle pulse animation for theme toggle button */
   @keyframes subtle-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(var(--tw-ring-color), 0.3); }
-    50% { box-shadow: 0 0 0 5px rgba(var(--tw-ring-color), 0); }
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(var(--tw-ring-color), 0.3);
+    }
+    50% {
+      box-shadow: 0 0 0 5px rgba(var(--tw-ring-color), 0);
+    }
   }
 
   /* Apply pulse on hover to the theme toggle */
   .theme-toggle-button:hover {
-     /* Define --tw-ring-color based on theme */
-     --tw-ring-color: theme('colors.sky.500'); /* Light mode */
-     animation: subtle-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    /* Define --tw-ring-color based on theme */
+    --tw-ring-color: theme("colors.sky.500"); /* Light mode */
+    animation: subtle-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
   .dark .theme-toggle-button:hover {
-     --tw-ring-color: theme('colors.sky.400'); /* Dark mode */
+    --tw-ring-color: theme("colors.sky.400"); /* Dark mode */
   }
 
   /* Animation for mesh gradients */

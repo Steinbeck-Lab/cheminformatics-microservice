@@ -66,16 +66,11 @@ export const loadInchiModule = async (version) => {
           window[versionConfig.moduleName]()
             .then((module) => {
               moduleInstances[version] = module;
-              console.log(
-                `InChI module ${version} initialized from existing script`
-              );
+              console.log(`InChI module ${version} initialized from existing script`);
               resolve(module);
             })
             .catch((err) => {
-              console.error(
-                `Error initializing existing InChI module ${version}:`,
-                err
-              );
+              console.error(`Error initializing existing InChI module ${version}:`, err);
               reject(err);
             });
         } else {
@@ -184,12 +179,7 @@ export const generateInchiKey = async (inchi, version) => {
   try {
     const module = await loadInchiModule(version);
 
-    const ptr = module.ccall(
-      "inchikey_from_inchi",
-      "number",
-      ["string"],
-      [inchi]
-    );
+    const ptr = module.ccall("inchikey_from_inchi", "number", ["string"], [inchi]);
 
     const resultStr = module.UTF8ToString(ptr);
     module._free(ptr);
@@ -279,7 +269,5 @@ export const convertAuxinfoToMolfile = async (
 export const convertSmilesToMolfile = async (smiles) => {
   // This would require integration with a SMILES parser or service
   // Not implemented in the original InChI WASM modules
-  throw new Error(
-    "SMILES to Molfile conversion not directly supported by InChI modules"
-  );
+  throw new Error("SMILES to Molfile conversion not directly supported by InChI modules");
 };

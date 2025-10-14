@@ -52,9 +52,7 @@ const RInChIOptions = ({
         <div className="bg-indigo-100 dark:bg-indigo-900/50 p-2 rounded-lg mr-3">
           <HiOutlineCode className="h-5 w-5 text-indigo-700 dark:text-indigo-400" />
         </div>
-        <h2 className="text-lg font-bold text-gray-800 dark:text-white">
-          RInChI Options
-        </h2>
+        <h2 className="text-lg font-bold text-gray-800 dark:text-white">RInChI Options</h2>
       </div>
 
       <div className="mb-4">
@@ -108,9 +106,7 @@ const RInChIOptions = ({
                 onChange={() => setOutputFormat("RXN")}
                 className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
               />
-              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                RXN File Format
-              </span>
+              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">RXN File Format</span>
               <OptionTooltip content="Standard MDL RXN file format for chemical reactions" />
             </label>
 
@@ -123,9 +119,7 @@ const RInChIOptions = ({
                 onChange={() => setOutputFormat("RD")}
                 className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
               />
-              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                RD File Format
-              </span>
+              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">RD File Format</span>
               <OptionTooltip content="MDL RD file format for reaction data with properties" />
             </label>
           </div>
@@ -136,14 +130,7 @@ const RInChIOptions = ({
 };
 
 // Result block component for displaying RInChI, RInChIKeys, and RAuxInfo
-const ResultBlock = ({
-  title,
-  value,
-  onCopy,
-  copyState,
-  icon,
-  collapsible = false,
-}) => {
+const ResultBlock = ({ title, value, onCopy, copyState, icon, collapsible = false }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
@@ -151,9 +138,7 @@ const ResultBlock = ({
       <div className="flex justify-between items-center mb-2">
         <h3
           className={`text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center ${
-            collapsible
-              ? "cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400"
-              : ""
+            collapsible ? "cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400" : ""
           }`}
           onClick={collapsible ? () => setIsCollapsed(!isCollapsed) : undefined}
         >
@@ -187,11 +172,7 @@ const ResultBlock = ({
       </div>
       {(!isCollapsed || !collapsible) && (
         <div className="font-mono text-sm overflow-x-auto bg-gray-50 dark:bg-gray-900 p-3 rounded border border-gray-200 dark:border-gray-700 break-all max-h-24 overflow-y-auto">
-          {value || (
-            <span className="text-gray-400 dark:text-gray-500">
-              No data generated yet
-            </span>
-          )}
+          {value || <span className="text-gray-400 dark:text-gray-500">No data generated yet</span>}
         </div>
       )}
     </div>
@@ -213,8 +194,7 @@ const RInChIView = () => {
   const [forceEquilibrium, setForceEquilibrium] = useState(false);
   const [outputFormat, setOutputFormat] = useState("RXN");
   const [rinchiVersion, setRinchiVersion] = useState(
-    Object.keys(RINCHI_VERSIONS).find((key) => RINCHI_VERSIONS[key].default) ||
-      "1.1"
+    Object.keys(RINCHI_VERSIONS).find((key) => RINCHI_VERSIONS[key].default) || "1.1"
   );
   const [activeInputType, setActiveInputType] = useState("reaction"); // 'reaction', 'rxnfile', 'rinchi', 'rinchi-to-file'
 
@@ -250,10 +230,7 @@ const RInChIView = () => {
   useEffect(() => {
     const handleMessage = (event) => {
       // Only accept messages from our iframe
-      if (
-        ketcherFrame.current &&
-        event.source === ketcherFrame.current.contentWindow
-      ) {
+      if (ketcherFrame.current && event.source === ketcherFrame.current.contentWindow) {
         const { id, type, status, data, error } = event.data;
 
         // Handle response to our message
@@ -454,9 +431,7 @@ const RInChIView = () => {
 
     if (!textToCopy) {
       setError(
-        `No ${type
-          .replace("key", " RInChIKey")
-          .toUpperCase()} to copy. Generate data first.`
+        `No ${type.replace("key", " RInChIKey").toUpperCase()} to copy. Generate data first.`
       );
       return;
     }
@@ -517,10 +492,7 @@ const RInChIView = () => {
             console.log(`RInChI module ${rinchiVersion} loaded successfully`);
           })
           .catch((err) => {
-            console.error(
-              `Failed to load RInChI module ${rinchiVersion}:`,
-              err
-            );
+            console.error(`Failed to load RInChI module ${rinchiVersion}:`, err);
             setError(
               `Failed to load RInChI module ${rinchiVersion}. Please check your network connection.`
             );
@@ -548,9 +520,7 @@ const RInChIView = () => {
 
       // Alternative: try to get the RXN file and check if it has reaction components
       const rxnFile = await executeKetcherCommand("getRxn");
-      return (
-        rxnFile && (rxnFile.includes("$RXN") || rxnFile.includes("$RDFILE"))
-      );
+      return rxnFile && (rxnFile.includes("$RXN") || rxnFile.includes("$RDFILE"));
     } catch (err) {
       console.error("Error checking for reaction:", err);
       return false;
@@ -580,8 +550,7 @@ const RInChIView = () => {
     }
 
     if (!rinchiModuleLoaded) {
-      const errorMsg =
-        "RInChI module not loaded. Please wait or refresh the page.";
+      const errorMsg = "RInChI module not loaded. Please wait or refresh the page.";
       setError(errorMsg);
       setLogMessage(errorMsg);
       return;
@@ -600,8 +569,7 @@ const RInChIView = () => {
       // Check if there's a reaction
       const hasReaction = await checkForReaction();
       if (!hasReaction) {
-        const errorMsg =
-          "No reaction found. Please draw a reaction with reactants and products.";
+        const errorMsg = "No reaction found. Please draw a reaction with reactants and products.";
         setError(errorMsg);
         setLogMessage(errorMsg);
         setIsLoading(false);
@@ -640,27 +608,18 @@ const RInChIView = () => {
   };
 
   // Convert reaction in Ketcher to RInChI
-  const convertReactionToRinchiAndWriteResults = async (
-    rxnFile,
-    isEquilibrium = false
-  ) => {
+  const convertReactionToRinchiAndWriteResults = async (rxnFile, isEquilibrium = false) => {
     try {
       if (!rxnFile || rxnFile.trim() === "") {
         throw new Error("No reaction data provided");
       }
 
       if (!rinchiModuleLoaded) {
-        throw new Error(
-          "RInChI module not loaded. Please wait or refresh the page."
-        );
+        throw new Error("RInChI module not loaded. Please wait or refresh the page.");
       }
 
       // Convert RXN to RInChI
-      const result = await convertRxnfileToRinchi(
-        rxnFile,
-        isEquilibrium,
-        rinchiVersion
-      );
+      const result = await convertRxnfileToRinchi(rxnFile, isEquilibrium, rinchiVersion);
 
       if (!result) {
         throw new Error("No result returned from conversion function");
@@ -724,8 +683,7 @@ const RInChIView = () => {
     }
 
     if (!rinchiModuleLoaded) {
-      const errorMsg =
-        "RInChI module not loaded. Please wait or refresh the page.";
+      const errorMsg = "RInChI module not loaded. Please wait or refresh the page.";
       setError(errorMsg);
       setLogMessage(errorMsg);
       return;
@@ -742,10 +700,7 @@ const RInChIView = () => {
 
     try {
       // Validate the file format
-      if (
-        !rxnfileContent.includes("$RXN") &&
-        !rxnfileContent.includes("$RDFILE")
-      ) {
+      if (!rxnfileContent.includes("$RXN") && !rxnfileContent.includes("$RDFILE")) {
         const errorMsg = "Invalid RXN/RD file format. Please check your input.";
         setError(errorMsg);
         setLogMessage(errorMsg);
@@ -754,10 +709,7 @@ const RInChIView = () => {
       }
 
       // Convert to RInChI
-      await convertReactionToRinchiAndWriteResults(
-        rxnfileContent,
-        forceEquilibrium
-      );
+      await convertReactionToRinchiAndWriteResults(rxnfileContent, forceEquilibrium);
 
       // If editor is ready, also load the reaction in Ketcher
       if (isEditorReady) {
@@ -786,24 +738,15 @@ const RInChIView = () => {
     }
 
     if (!rinchiString.startsWith("RInChI=")) {
-      console.warn(
-        `Invalid RInChI format for ${keyType}-RInChIKey generation:`,
-        rinchiString
-      );
+      console.warn(`Invalid RInChI format for ${keyType}-RInChIKey generation:`, rinchiString);
       return;
     }
 
     try {
-      const result = await generateRinchiKey(
-        rinchiString,
-        keyType,
-        rinchiVersion
-      );
+      const result = await generateRinchiKey(rinchiString, keyType, rinchiVersion);
 
       if (!result) {
-        console.error(
-          `No result returned from ${keyType}-RInChIKey generation`
-        );
+        console.error(`No result returned from ${keyType}-RInChIKey generation`);
         return;
       }
 
@@ -885,9 +828,7 @@ const RInChIView = () => {
       setRauxInfo(inputRauxInfo || "");
       setRxnfileContent(result.fileText);
       setLogMessage(
-        `Reaction loaded from RInChI successfully${
-          result.error ? `\n${result.error}` : ""
-        }`
+        `Reaction loaded from RInChI successfully${result.error ? `\n${result.error}` : ""}`
       );
 
       // Generate RInChIKeys
@@ -939,9 +880,7 @@ const RInChIView = () => {
       );
 
       if (result.return_code !== 0) {
-        throw new Error(
-          result.error || `Failed to convert RInChI to ${outputFormat} file`
-        );
+        throw new Error(result.error || `Failed to convert RInChI to ${outputFormat} file`);
       }
 
       if (!result.fileText) {
@@ -951,18 +890,12 @@ const RInChIView = () => {
       // Update state
       setOutputRxnFile(result.fileText);
       setLogMessage(
-        `${outputFormat} file generated successfully${
-          result.error ? `\n${result.error}` : ""
-        }`
+        `${outputFormat} file generated successfully${result.error ? `\n${result.error}` : ""}`
       );
     } catch (err) {
       console.error("Failed to convert RInChI to file:", err);
-      setLogMessage(
-        `Failed to convert RInChI to ${outputFormat} file: ${err.message}`
-      );
-      setError(
-        `Failed to convert RInChI to ${outputFormat} file: ${err.message}`
-      );
+      setLogMessage(`Failed to convert RInChI to ${outputFormat} file: ${err.message}`);
+      setError(`Failed to convert RInChI to ${outputFormat} file: ${err.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -1027,9 +960,7 @@ const RInChIView = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fadeIn">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                Copy Text
-              </h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">Copy Text</h3>
               <button
                 onClick={() => setShowCopyModal(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
@@ -1038,8 +969,7 @@ const RInChIView = () => {
               </button>
             </div>
             <p className="mb-4 text-gray-700 dark:text-gray-300">
-              Automatic copying failed. Please select and copy this text
-              manually:
+              Automatic copying failed. Please select and copy this text manually:
             </p>
             <div className="mb-4">
               <input
@@ -1084,9 +1014,7 @@ const RInChIView = () => {
               <div className="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-lg mr-3">
                 <HiOutlineArrowsExpand className="h-5 w-5 text-blue-700 dark:text-blue-400" />
               </div>
-              <h2 className="text-lg font-bold text-gray-800 dark:text-white">
-                Editor Controls
-              </h2>
+              <h2 className="text-lg font-bold text-gray-800 dark:text-white">Editor Controls</h2>
             </div>
 
             <div className="space-y-4">
@@ -1124,9 +1052,7 @@ const RInChIView = () => {
               <div className="bg-indigo-100 dark:bg-indigo-900/50 p-2 rounded-lg mr-3">
                 <HiOutlinePencil className="h-5 w-5 text-indigo-700 dark:text-indigo-400" />
               </div>
-              <h2 className="text-lg font-bold text-gray-800 dark:text-white">
-                Reaction Input
-              </h2>
+              <h2 className="text-lg font-bold text-gray-800 dark:text-white">Reaction Input</h2>
             </div>
 
             {/* Input Type Tabs */}
@@ -1216,9 +1142,7 @@ const RInChIView = () => {
 
                   <button
                     onClick={processRxnFile}
-                    disabled={
-                      isLoading || !rxnfileContent.trim() || !rinchiModuleLoaded
-                    }
+                    disabled={isLoading || !rxnfileContent.trim() || !rinchiModuleLoaded}
                     className={`relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 ${
                       isLoading || !rxnfileContent.trim() || !rinchiModuleLoaded
                         ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
@@ -1272,16 +1196,10 @@ const RInChIView = () => {
                 <button
                   onClick={loadRInChI}
                   disabled={
-                    isLoading ||
-                    !isEditorReady ||
-                    !inputRinchi.trim() ||
-                    !rinchiModuleLoaded
+                    isLoading || !isEditorReady || !inputRinchi.trim() || !rinchiModuleLoaded
                   }
                   className={`w-full relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 ${
-                    isLoading ||
-                    !isEditorReady ||
-                    !inputRinchi.trim() ||
-                    !rinchiModuleLoaded
+                    isLoading || !isEditorReady || !inputRinchi.trim() || !rinchiModuleLoaded
                       ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
                       : "bg-gradient-to-r from-indigo-600 to-blue-700 hover:from-indigo-700 hover:to-blue-800"
                   }`}
@@ -1289,10 +1207,10 @@ const RInChIView = () => {
                   {isLoading
                     ? "Converting..."
                     : !isEditorReady
-                    ? "Initializing..."
-                    : !rinchiModuleLoaded
-                    ? "Loading RInChI Module..."
-                    : "Convert to Reaction"}
+                      ? "Initializing..."
+                      : !rinchiModuleLoaded
+                        ? "Loading RInChI Module..."
+                        : "Convert to Reaction"}
                 </button>
 
                 {/* Quick Examples */}
@@ -1355,9 +1273,7 @@ const RInChIView = () => {
 
                 <button
                   onClick={convertRInChIToFile}
-                  disabled={
-                    isLoading || !inputRinchi.trim() || !rinchiModuleLoaded
-                  }
+                  disabled={isLoading || !inputRinchi.trim() || !rinchiModuleLoaded}
                   className={`w-full relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 ${
                     isLoading || !inputRinchi.trim() || !rinchiModuleLoaded
                       ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
@@ -1368,8 +1284,8 @@ const RInChIView = () => {
                   {isLoading
                     ? "Converting..."
                     : !rinchiModuleLoaded
-                    ? "Loading RInChI Module..."
-                    : `Convert to ${outputFormat} File`}
+                      ? "Loading RInChI Module..."
+                      : `Convert to ${outputFormat} File`}
                 </button>
 
                 {/* Quick Examples */}
@@ -1397,8 +1313,8 @@ const RInChIView = () => {
             {activeInputType === "reaction" && (
               <div className="text-sm text-gray-700 dark:text-gray-300">
                 <p>
-                  Use the Ketcher editor to draw your chemical reaction, then
-                  click "Generate RInChI" to convert it.
+                  Use the Ketcher editor to draw your chemical reaction, then click "Generate
+                  RInChI" to convert it.
                 </p>
                 <ul className="list-disc list-inside mt-2 space-y-1 text-gray-600 dark:text-gray-400">
                   <li>Draw reactants on the left side</li>
@@ -1422,9 +1338,7 @@ const RInChIView = () => {
               <div className="flex items-center">
                 <div
                   className={`h-3 w-3 rounded-full mr-3 ${
-                    isEditorReady
-                      ? "bg-green-500 animate-pulse"
-                      : "bg-yellow-500 animate-pulse"
+                    isEditorReady ? "bg-green-500 animate-pulse" : "bg-yellow-500 animate-pulse"
                   }`}
                 ></div>
                 <span
@@ -1453,9 +1367,7 @@ const RInChIView = () => {
                       : "text-yellow-800 dark:text-yellow-300"
                   }`}
                 >
-                  {rinchiModuleLoaded
-                    ? "RInChI Module Ready"
-                    : "Loading RInChI Module..."}
+                  {rinchiModuleLoaded ? "RInChI Module Ready" : "Loading RInChI Module..."}
                 </span>
               </div>
             </div>
@@ -1481,24 +1393,16 @@ const RInChIView = () => {
             </h4>
             <div className="space-y-3 text-gray-700 dark:text-gray-300">
               <p>
-                The IUPAC RInChI (Reaction InChI) is a textual identifier for
-                chemical reactions, extending the InChI concept to represent
-                chemical transformations.
+                The IUPAC RInChI (Reaction InChI) is a textual identifier for chemical reactions,
+                extending the InChI concept to represent chemical transformations.
               </p>
               <div>
-                <h5 className="font-medium mb-1 text-gray-800 dark:text-gray-200">
-                  Key Features:
-                </h5>
+                <h5 className="font-medium mb-1 text-gray-800 dark:text-gray-200">Key Features:</h5>
                 <ul className="list-disc list-inside space-y-1 pl-1 text-gray-600 dark:text-gray-400">
-                  <li>
-                    Represents chemical reactions and their directionality
-                  </li>
+                  <li>Represents chemical reactions and their directionality</li>
                   <li>Combines InChI strings of reactants and products</li>
                   <li>Supports multiple reactants, agents, and products</li>
-                  <li>
-                    Includes directionality indicators (forward, reverse,
-                    equilibrium)
-                  </li>
+                  <li>Includes directionality indicators (forward, reverse, equilibrium)</li>
                   <li>RInChIKeys allow for easy reaction searching</li>
                 </ul>
               </div>
@@ -1555,9 +1459,7 @@ const RInChIView = () => {
               value={rinchi}
               onCopy={() => copyToClipboard(rinchi, "rinchi")}
               copyState={copySuccess}
-              icon={
-                <HiOutlineCode className="h-4 w-4 text-indigo-600 dark:text-indigo-500" />
-              }
+              icon={<HiOutlineCode className="h-4 w-4 text-indigo-600 dark:text-indigo-500" />}
             />
 
             {/* RAuxInfo */}
@@ -1566,9 +1468,7 @@ const RInChIView = () => {
               value={rauxInfo}
               onCopy={() => copyToClipboard(rauxInfo, "rauxinfo")}
               copyState={copySuccess}
-              icon={
-                <HiOutlineDocumentText className="h-4 w-4 text-blue-600 dark:text-blue-500" />
-              }
+              icon={<HiOutlineDocumentText className="h-4 w-4 text-blue-600 dark:text-blue-500" />}
             />
 
             {/* RInChIKeys */}
