@@ -47,7 +47,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
   const [t15, setT15] = useState(false);
   const [polymers, setPolymers] = useState(false);
   const [NPZz, setNPZz] = useState(false);
-  const [molecularInorganics, setMolecularInorganics] = useState(inchiVersion === "1.07.3-orgmet");
+  const [molecularInorganics, setMolecularInorganics] = useState(inchiVersion === "Latest-MoIn");
   const [showTautomerism, setShowTautomerism] = useState(true); // Add state for tautomerism visibility
 
   // Additional stereo options
@@ -111,8 +111,8 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
 
     if (NPZz) options.push("NPZz");
 
-    // molecularInorganics is only available in the 1.07.3-orgmet version
-    if (molecularInorganics && inchiVersion === "1.07.3-orgmet") options.push("MolecularInorganics");
+    // molecularInorganics is only available in the Latest-MoIn version
+    if (molecularInorganics && inchiVersion === "Latest-MoIn") options.push("MolecularInorganics");
 
     // Format the options string as required by the API
     const optionsString = options.map((opt) => `-${opt}`).join(" ");
@@ -145,10 +145,10 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
 
   // Update MolecularInorganics option when InChI version changes
   useEffect(() => {
-    if (inchiVersion === "1.07.3-orgmet") {
-      setMolecularInorganics(true); // Enable MolecularInorganics when switching to 1.07.3-orgmet
+    if (inchiVersion === "Latest-MoIn") {
+      setMolecularInorganics(true); // Enable MolecularInorganics when switching to Latest-MoIn
     } else if (molecularInorganics) {
-      setMolecularInorganics(false); // Disable MolecularInorganics when switching away from 1.07.3-orgmet
+      setMolecularInorganics(false); // Disable MolecularInorganics when switching away from Latest-MoIn
     }
   }, [inchiVersion, molecularInorganics]);
 
@@ -171,7 +171,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
     setT15(false);
     setPolymers(false);
     setNPZz(false);
-    setMolecularInorganics(inchiVersion === "1.07.3-orgmet" ? true : false);
+    setMolecularInorganics(inchiVersion === "Latest-MoIn" ? true : false);
     setSUU(false);
     setSLUUD(false);
     setNEWPSOFF(false);
@@ -461,8 +461,8 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
               </div>
 
               {/* Additional tautomer options available in 1.07 */}
-              {(inchiVersion === "1.07.3" ||
-                inchiVersion === "1.07.3-orgmet") && (
+              {(inchiVersion === "Latest" ||
+                inchiVersion === "Latest-MoIn") && (
                 <>
                   <div className="flex items-center">
                     <input
@@ -663,7 +663,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
           <OptionTooltip content="Allow Zz or * (star) pseudoatoms outside the polymer context" />
         </div>
 
-        {inchiVersion === "1.07.3-orgmet" && (
+        {inchiVersion === "Latest-MoIn" && (
           <div className="flex items-center border-t border-gray-200 dark:border-gray-700 pt-3">
             <input
               id="molecularInorganics"
@@ -678,7 +678,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
             >
               Molecular inorganics
             </label>
-            <OptionTooltip content="Enable support for molecular inorganics (experimental feature in InChI 1.07.3-orgmet)" />
+            <OptionTooltip content="Enable support for molecular inorganics (experimental feature in InChI Latest-MoIn)" />
           </div>
         )}
       </div>
@@ -737,7 +737,7 @@ const InChIView = () => {
   const [options, setOptions] = useState("");
   const [inchiVersion, setInchiVersion] = useState(
     Object.keys(INCHI_VERSIONS).find((key) => INCHI_VERSIONS[key].default) ||
-      "1.07.3"
+      "Latest"
   );
   const [activeInputType, setActiveInputType] = useState("structure"); // 'structure', 'smiles', 'molfile', 'inchi'
 
