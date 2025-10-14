@@ -197,3 +197,33 @@ class ExtractAglyconeAndSugarsResponse(BaseModel):
                 },
             ],
         }
+
+
+class GetAglyconeAndSugarIndicesResponse(BaseModel):
+    """
+    A Pydantic model representing a successful response.
+
+    Attributes:
+        message (str): A message indicating the success status (default: "Success").
+        output (str): The atom indices of the aglycone and sugars in the given molecule as a printed list of indices lists. The first set of indices is always the aglycone. The list has a variable length dependening on how many sugar moieties were found.
+    """
+
+    message: str = "Success"
+    output: List[List[int]]
+
+    class Config:
+        """Pydantic model configuration.
+
+        JSON Schema Extra:
+        - Includes examples of the response structure.
+        """
+
+        json_schema_extra = {
+            "examples": [
+                {
+                    "input": "CCCCC/C=C/C=C/[C@@H](O)C/C=C/C=C/C(=O)OC1C(O)[C@H](C2=C(O)C=C(O)C=C2CO)O[C@H](CO)[C@H]1O[C@@H]1OC(CO)[C@H](O)[C@H](O)C1O[C@@H]1OC(CO)[C@H](O)[C@H](O)C1O",
+                    "message": "Success",
+                    "output": "[[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38], [38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60]]",
+                },
+            ],
+        }

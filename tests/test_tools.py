@@ -182,3 +182,22 @@ def test_extract_aglycone_and_sugars(input, response_text, response_code):
     assert response.headers["content-type"] == "application/json"
     if input != "INVALID_INPUT":
         assert response.text == response_text
+
+
+@pytest.mark.parametrize(
+    "input, response_text, response_code",
+    [
+        (
+            "CCCCC/C=C/C=C/[C@@H](O)C/C=C/C=C/C(=O)OC1C(O)[C@H](C2=C(O)C=C(O)C=C2CO)O[C@H](CO)[C@H]1O[C@@H]1OC(CO)[C@H](O)[C@H](O)C1O[C@@H]1OC(CO)[C@H](O)[C@H](O)C1O",
+            '[[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38],[38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60]]',
+            200,
+        ),
+        ("INVALID_INPUT", "", 422),
+    ],
+)
+def test_get_aglycone_and_sugar_indices(input, response_text, response_code):
+    response = client.get(f"/latest/tools/get-aglycone-and-sugar-indices?smiles={input}")
+    assert response.status_code == response_code
+    assert response.headers["content-type"] == "application/json"
+    if input != "INVALID_INPUT":
+        assert response.text == response_text
