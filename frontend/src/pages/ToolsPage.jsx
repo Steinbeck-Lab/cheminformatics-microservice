@@ -23,8 +23,7 @@ const tabs = [
     name: "Sugar Detection",
     component: SugarRemovalView,
     icon: HiCube,
-    description:
-      "Detect and remove sugar moieties from complex molecular structures to simplify analysis and focus on core scaffolds.",
+    description: "Detect and remove sugar moieties from complex molecular structures.",
   },
   {
     id: "structuregeneration",

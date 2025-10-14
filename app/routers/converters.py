@@ -780,7 +780,6 @@ async def molblock_to_smiles(
         description="Cheminformatics toolkit used in the backend",
     ),
 ):
-
     """Convert a MOL or SDF block to SMILES.
 
     This endpoint accepts a single molecule in MOL or SDF format and converts it to SMILES.
