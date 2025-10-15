@@ -1,19 +1,19 @@
 // OCSR Service using DECIMER
-import api from './api';
+import api from "./api";
 
-const OCSR_URL = '/ocsr';
+const OCSR_URL = "/ocsr";
 
 export const processImage = async (image, reference = null) => {
   const formData = new FormData();
-  formData.append('file', image);
+  formData.append("file", image);
   if (reference) {
-    formData.append('reference', reference);
+    formData.append("reference", reference);
   }
 
   try {
     const response = await api.post(`${OCSR_URL}/process-upload`, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
     });
     return response.data;

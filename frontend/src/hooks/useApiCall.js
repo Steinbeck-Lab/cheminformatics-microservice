@@ -1,5 +1,5 @@
 // Description: Custom hook for handling API calls with loading and error states
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
 /**
  * Custom hook for handling API calls with loading and error states
@@ -12,12 +12,7 @@ import { useState, useCallback } from 'react';
  * @returns {Object} - API call state and functions
  */
 const useApiCall = (apiFunction, options = {}) => {
-  const {
-    immediate = false,
-    initialArgs = [],
-    onSuccess = null,
-    onError = null
-  } = options;
+  const { immediate = false, initialArgs = [], onSuccess = null, onError = null } = options;
 
   const [isLoading, setIsLoading] = useState(immediate);
   const [error, setError] = useState(null);
@@ -29,33 +24,36 @@ const useApiCall = (apiFunction, options = {}) => {
    * @param {...any} args - Arguments to pass to the API function
    * @returns {Promise<any>} - Promise resolving to the API result
    */
-  const call = useCallback(async (...args) => {
-    setIsLoading(true);
-    setError(null);
-    setLastCallTime(new Date());
+  const call = useCallback(
+    async (...args) => {
+      setIsLoading(true);
+      setError(null);
+      setLastCallTime(new Date());
 
-    try {
-      const result = await apiFunction(...args);
-      setData(result);
+      try {
+        const result = await apiFunction(...args);
+        setData(result);
 
-      if (onSuccess) {
-        onSuccess(result);
+        if (onSuccess) {
+          onSuccess(result);
+        }
+
+        return result;
+      } catch (err) {
+        const errorMessage = err.message || "An error occurred during the API call";
+        setError(errorMessage);
+
+        if (onError) {
+          onError(err);
+        }
+
+        throw err;
+      } finally {
+        setIsLoading(false);
       }
-
-      return result;
-    } catch (err) {
-      const errorMessage = err.message || 'An error occurred during the API call';
-      setError(errorMessage);
-
-      if (onError) {
-        onError(err);
-      }
-
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [apiFunction, onSuccess, onError]);
+    },
+    [apiFunction, onSuccess, onError]
+  );
 
   /**
    * Reset all state
@@ -82,7 +80,7 @@ const useApiCall = (apiFunction, options = {}) => {
     isLoading,
     error,
     lastCallTime,
-    reset
+    reset,
   };
 };
 
@@ -104,7 +102,7 @@ export const createApiCall = (apiFunction) => {
       setData(result);
       return result;
     } catch (err) {
-      const errorMessage = err.message || 'An error occurred during the API call';
+      const errorMessage = err.message || "An error occurred during the API call";
       setError(errorMessage);
       throw err;
     } finally {

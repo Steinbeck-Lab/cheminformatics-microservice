@@ -862,12 +862,14 @@ def get_ertl_functional_groups(molecule: any) -> list:
                 try:
                     # Extract information from IFG object
                     group_data = {
-                        "atomIds": list(fragment.atomIds)
-                        if hasattr(fragment, "atomIds")
-                        else [],
-                        "atoms": str(fragment.atoms)
-                        if hasattr(fragment, "atoms")
-                        else "",
+                        "atomIds": (
+                            list(fragment.atomIds)
+                            if hasattr(fragment, "atomIds")
+                            else []
+                        ),
+                        "atoms": (
+                            str(fragment.atoms) if hasattr(fragment, "atoms") else ""
+                        ),
                         "type": str(fragment.type) if hasattr(fragment, "type") else "",
                         "description": str(
                             fragment
@@ -896,7 +898,7 @@ def get_standardized_tautomer(
     """Generate the standardized tautomer SMILES for a given molecule.
 
     Args:
-        molecule (any): RDKit molecule object.
+        molecule (Chem.Mol): An RDKit molecule object representing the molecular structure.
         isomeric (bool, optional): Flag to generate isomeric SMILES. Defaults to True.
 
     Returns:
@@ -920,3 +922,36 @@ def get_standardized_tautomer(
             return new_smiles
     else:
         return "Error Check input SMILES"
+
+
+def has_cis_trans_stereochemistry(molecule: any) -> bool:
+    """
+    Detect whether a molecule has cis/trans (E/Z) stereochemistry assigned.
+
+    Parameters:
+    -----------
+    molecule (Chem.Mol): An RDKit molecule object representing the molecular structure.
+
+    Returns:
+    --------
+    bool
+        True if cis/trans stereochemistry is assigned, False otherwise
+    """
+    if molecule is None:
+        return False
+
+    # Check each bond for stereochemistry
+    for bond in molecule.GetBonds():
+        # Check if bond is a double bond
+        if bond.GetBondType() == Chem.BondType.DOUBLE:
+            # Check if stereochemistry is assigned
+            stereo = bond.GetStereo()
+            if stereo in [
+                Chem.BondStereo.STEREOE,
+                Chem.BondStereo.STEREOZ,
+                Chem.BondStereo.STEREOTRANS,
+                Chem.BondStereo.STEREOCIS,
+            ]:
+                return True
+
+    return False

@@ -15,16 +15,16 @@ export const INCHI_VERSIONS = {
     scriptSrc: `${INCHI_BASE_URL}/inchi/inchi-web106.js`,
     moduleName: "inchiModule106",
   },
-  "1.07.3": {
-    label: "InChI 1.07.3",
-    scriptSrc: `${INCHI_BASE_URL}/inchi/inchi-web107.js`,
-    moduleName: "inchiModule107",
+  Latest: {
+    label: "InChI Latest",
+    scriptSrc: `${INCHI_BASE_URL}/inchi/inchi-web-latest.js`,
+    moduleName: "inchiModuleLatest",
     default: true,
   },
-  "1.07.3-orgmet": {
-    label: "InChI 1.07.3 with Molecular inorganics",
-    scriptSrc: `${INCHI_BASE_URL}/inchi/inchi-web107-orgmet.js`,
-    moduleName: "inchiModule107OrgMet",
+  "Latest-MoIn": {
+    label: "InChI latest with Molecular inorganics",
+    scriptSrc: `${INCHI_BASE_URL}/inchi/inchi-web-latest-moin.js`,
+    moduleName: "inchiModuleLatestMoIn",
   },
 };
 
@@ -34,7 +34,7 @@ const moduleLoadPromises = {};
 
 /**
  * Loads an InChI module from remote URL
- * @param {string} version - Version identifier ("1.06", "1.07.3", or "1.07.3-orgmet")
+ * @param {string} version - Version identifier ("1.06", "Latest", or "Latest-MoIn")
  * @returns {Promise<Object>} - Promise that resolves to the module instance
  */
 export const loadInchiModule = async (version) => {
@@ -66,16 +66,11 @@ export const loadInchiModule = async (version) => {
           window[versionConfig.moduleName]()
             .then((module) => {
               moduleInstances[version] = module;
-              console.log(
-                `InChI module ${version} initialized from existing script`
-              );
+              console.log(`InChI module ${version} initialized from existing script`);
               resolve(module);
             })
             .catch((err) => {
-              console.error(
-                `Error initializing existing InChI module ${version}:`,
-                err
-              );
+              console.error(`Error initializing existing InChI module ${version}:`, err);
               reject(err);
             });
         } else {
@@ -184,12 +179,7 @@ export const generateInchiKey = async (inchi, version) => {
   try {
     const module = await loadInchiModule(version);
 
-    const ptr = module.ccall(
-      "inchikey_from_inchi",
-      "number",
-      ["string"],
-      [inchi]
-    );
+    const ptr = module.ccall("inchikey_from_inchi", "number", ["string"], [inchi]);
 
     const resultStr = module.UTF8ToString(ptr);
     module._free(ptr);
@@ -279,7 +269,5 @@ export const convertAuxinfoToMolfile = async (
 export const convertSmilesToMolfile = async (smiles) => {
   // This would require integration with a SMILES parser or service
   // Not implemented in the original InChI WASM modules
-  throw new Error(
-    "SMILES to Molfile conversion not directly supported by InChI modules"
-  );
+  throw new Error("SMILES to Molfile conversion not directly supported by InChI modules");
 };
