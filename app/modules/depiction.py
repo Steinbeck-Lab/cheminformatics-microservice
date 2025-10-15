@@ -40,8 +40,6 @@ def get_cdk_depiction(
     Returns:
         image (SVG): CDK Structure Depiction as an SVG image.
     """
-    print(unicolor)
-
     cdk_base = "org.openscience.cdk"
     StandardGenerator = JClass(
         cdk_base + ".renderer.generators.standard.StandardGenerator",
@@ -101,20 +99,59 @@ def get_cdk_depiction(
 
         # Handle highlighting: prioritize atom indices over SMARTS patterns
         if highlight_atoms and len(highlight_atoms) > 0:
-            # For CDK, we need to create substructures from atom indices
-            # This is more complex and would require additional CDK classes
-            # For now, fall back to SMARTS pattern if available
-            if highlight and highlight.strip():
-                tmpPattern = SmartsPattern.create(highlight, SCOB.getInstance())
-                SmartsPattern.prepare(SDGMol)
-                tmpMappings = tmpPattern.matchAll(SDGMol)
-                tmpSubstructures = tmpMappings.toSubstructures()
-                lightBlue = Color(173, 216, 230)
-                DepictionGenerator = DepictionGenerator.withHighlight(
-                    tmpSubstructures, lightBlue
-                ).withOuterGlowHighlight()
-            # Note: Direct atom index highlighting in CDK requires more complex implementation
-            # This would need creating IAtomContainerSet from specific atoms
+            # Create atom sets from indices for highlighting
+            AtomContainer = JClass(cdk_base + ".AtomContainer")
+            AtomContainerSet = JClass(cdk_base + ".AtomContainerSet")
+
+            # Create a set of substructures from atom indices
+            tmpSubstructures = AtomContainerSet()
+
+            # If highlight_atoms is a list of lists, each list is a separate substructure
+            if isinstance(highlight_atoms[0], list):
+                # Multiple substructures (e.g., multiple sugars)
+                for atom_indices in highlight_atoms:
+                    if len(atom_indices) > 0:
+                        subset = AtomContainer()
+                        for idx in atom_indices:
+                            if idx < SDGMol.getAtomCount():
+                                subset.addAtom(SDGMol.getAtom(idx))
+                        # Add bonds between highlighted atoms
+                        for i, idx1 in enumerate(atom_indices):
+                            for idx2 in atom_indices[i + 1 :]:
+                                if (
+                                    idx1 < SDGMol.getAtomCount()
+                                    and idx2 < SDGMol.getAtomCount()
+                                ):
+                                    bond = SDGMol.getBond(
+                                        SDGMol.getAtom(idx1), SDGMol.getAtom(idx2)
+                                    )
+                                    if bond is not None:
+                                        subset.addBond(bond)
+                        tmpSubstructures.addAtomContainer(subset)
+            else:
+                # Single substructure
+                subset = AtomContainer()
+                for idx in highlight_atoms:
+                    if idx < SDGMol.getAtomCount():
+                        subset.addAtom(SDGMol.getAtom(idx))
+                # Add bonds between highlighted atoms
+                for i, idx1 in enumerate(highlight_atoms):
+                    for idx2 in highlight_atoms[i + 1 :]:
+                        if (
+                            idx1 < SDGMol.getAtomCount()
+                            and idx2 < SDGMol.getAtomCount()
+                        ):
+                            bond = SDGMol.getBond(
+                                SDGMol.getAtom(idx1), SDGMol.getAtom(idx2)
+                            )
+                            if bond is not None:
+                                subset.addBond(bond)
+                tmpSubstructures.addAtomContainer(subset)
+
+            lightBlue = Color(173, 216, 230)
+            DepictionGenerator = DepictionGenerator.withHighlight(
+                tmpSubstructures, lightBlue
+            ).withOuterGlowHighlight()
         elif highlight and highlight.strip():
             tmpPattern = SmartsPattern.create(highlight, SCOB.getInstance())
             SmartsPattern.prepare(SDGMol)
@@ -244,12 +281,11 @@ def get_rdkit_depiction(
         hit_ats = tuple(highlight_atoms)
         # Find ALL bonds that connect atoms within the functional group
         hit_bonds = []
-        for i, atom1_idx in enumerate(hit_ats):
-            for j, atom2_idx in enumerate(hit_ats):
-                if i < j:  # Avoid duplicate bonds
-                    bond = mc.GetBondBetweenAtoms(atom1_idx, atom2_idx)
-                    if bond:
-                        hit_bonds.append(bond.GetIdx())
+        for i in range(len(hit_ats)):
+            for j in range(i + 1, len(hit_ats)):
+                bond = mc.GetBondBetweenAtoms(hit_ats[i], hit_ats[j])
+                if bond:
+                    hit_bonds.append(bond.GetIdx())
 
         rdMolDraw2D.PrepareAndDrawMolecule(
             drawer, mc, highlightAtoms=hit_ats, highlightBonds=hit_bonds

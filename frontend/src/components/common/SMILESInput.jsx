@@ -403,7 +403,16 @@ const SMILESInput = ({
 
         {/* Hint text */}
         <p className="text-xs text-gray-500 dark:text-gray-400 pl-1">
-          Enter a valid SMILES string.
+          Enter a valid SMILES string. If you don't have a SMILES string, use the{" "}
+          <a
+            href="/depict/structureexplorer"
+            className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Structure Explorer
+          </a>{" "}
+          to fetch one.
         </p>
       </div>
 
