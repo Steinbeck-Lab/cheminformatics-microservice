@@ -1,20 +1,20 @@
 // Description: This component provides an interface to lookup chemical structures by name, formula, or identifiers using the PubChem database
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   HiOutlineSearch,
   HiOutlineExclamationCircle,
   HiOutlineInformationCircle,
-} from 'react-icons/hi';
-import LoadingScreen from '../common/LoadingScreen';
-import MoleculeCard from '../common/MoleculeCard';
-import SMILESDisplay from '../common/SMILESDisplay';
-import { useAppContext } from '../../context/AppContext'; // For adding to recent molecules
+} from "react-icons/hi";
+import LoadingScreen from "../common/LoadingScreen";
+import MoleculeCard from "../common/MoleculeCard";
+import SMILESDisplay from "../common/SMILESDisplay";
+import { useAppContext } from "../../context/AppContext"; // For adding to recent molecules
 
 // Import the service function from chemService
-import { lookupPubChem } from '../../services/chemService';
+import { lookupPubChem } from "../../services/chemService";
 
 const PubChemLookupView = () => {
-  const [identifier, setIdentifier] = useState('');
+  const [identifier, setIdentifier] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
@@ -22,22 +22,42 @@ const PubChemLookupView = () => {
 
   // Examples for each identifier type
   const examples = [
-    { name: 'Chemical Name', value: 'aspirin', description: 'Common or IUPAC name' },
-    { name: 'CID', value: '2244', description: 'PubChem Compound ID' },
-    { name: 'InChI', value: 'InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)', description: 'International Chemical Identifier' },
-    { name: 'InChIKey', value: 'BSYNRYMUTXBXSQ-UHFFFAOYSA-N', description: 'Hashed InChI' },
-    { name: 'CAS', value: '50-78-2', description: 'Chemical Abstracts Service registry number' },
-    { name: 'Formula', value: 'C9H8O4', description: 'Molecular formula' },
-    { name: 'SMILES', value: 'CC(=O)OC1=CC=CC=C1C(=O)O', description: 'Simplified molecular-input line-entry system' },
+    {
+      name: "Chemical Name",
+      value: "aspirin",
+      description: "Common or IUPAC name",
+    },
+    { name: "CID", value: "2244", description: "PubChem Compound ID" },
+    {
+      name: "InChI",
+      value: "InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)",
+      description: "International Chemical Identifier",
+    },
+    {
+      name: "InChIKey",
+      value: "BSYNRYMUTXBXSQ-UHFFFAOYSA-N",
+      description: "Hashed InChI",
+    },
+    {
+      name: "CAS",
+      value: "50-78-2",
+      description: "Chemical Abstracts Service registry number",
+    },
+    { name: "Formula", value: "C9H8O4", description: "Molecular formula" },
+    {
+      name: "SMILES",
+      value: "CC(=O)OC1=CC=CC=C1C(=O)O",
+      description: "Simplified molecular-input line-entry system",
+    },
   ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Trim the identifier and check if it's empty
     const trimmedIdentifier = identifier.trim();
     if (!trimmedIdentifier) {
-      setError('Please enter a chemical identifier');
+      setError("Please enter a chemical identifier");
       return;
     }
 
@@ -48,13 +68,13 @@ const PubChemLookupView = () => {
     try {
       const data = await lookupPubChem(trimmedIdentifier);
       setResult(data);
-      
+
       // Add to recent molecules if lookup was successful
       if (data.success && data.canonical_smiles) {
         addRecentMolecule({
           smiles: data.canonical_smiles,
           name: trimmedIdentifier,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
     } catch (err) {
@@ -73,12 +93,17 @@ const PubChemLookupView = () => {
     <div className="space-y-6">
       {/* Input Card */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-blue-400 mb-4">Chemical Structure Finder</h2>
-        
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-blue-400 mb-4">
+          Chemical Structure Finder
+        </h2>
+
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="identifier-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="identifier-input"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Chemical Identifier
             </label>
             <div className="relative">
@@ -99,9 +124,7 @@ const PubChemLookupView = () => {
 
           {/* Examples */}
           <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-              Examples:
-            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Examples:</p>
             <div className="flex flex-wrap gap-2">
               {examples.map((example, index) => (
                 <button
@@ -124,12 +147,12 @@ const PubChemLookupView = () => {
               disabled={!identifier.trim() || loading}
               className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                 !identifier.trim() || loading
-                  ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm'
+                  ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm"
               }`}
             >
               <HiOutlineSearch className="mr-2 h-5 w-5" />
-              {loading ? 'Searching...' : 'Find Structure'}
+              {loading ? "Searching..." : "Find Structure"}
             </button>
           </div>
         </form>
@@ -140,8 +163,14 @@ const PubChemLookupView = () => {
 
       {/* Error Display */}
       {error && !loading && (
-        <div className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm" role="alert">
-          <HiOutlineExclamationCircle className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400" aria-hidden="true" />
+        <div
+          className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
+          role="alert"
+        >
+          <HiOutlineExclamationCircle
+            className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+            aria-hidden="true"
+          />
           <span>{error}</span>
         </div>
       )}
@@ -154,49 +183,64 @@ const PubChemLookupView = () => {
           </h3>
 
           {/* Success or Failure Message */}
-          <div className={`p-4 mb-6 rounded-md flex items-start ${
-            result.success 
-              ? 'bg-green-50 dark:bg-green-900 dark:bg-opacity-20 text-green-700 dark:text-green-200 border border-green-200 dark:border-green-800'
-              : 'bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-20 text-yellow-700 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-800'
-          }`}>
-            <HiOutlineInformationCircle 
+          <div
+            className={`p-4 mb-6 rounded-md flex items-start ${
+              result.success
+                ? "bg-green-50 dark:bg-green-900 dark:bg-opacity-20 text-green-700 dark:text-green-200 border border-green-200 dark:border-green-800"
+                : "bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-20 text-yellow-700 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-800"
+            }`}
+          >
+            <HiOutlineInformationCircle
               className={`h-5 w-5 mr-3 flex-shrink-0 mt-0.5 ${
-                result.success 
-                  ? 'text-green-500 dark:text-green-400' 
-                  : 'text-yellow-500 dark:text-yellow-400'
-              }`} 
-              aria-hidden="true" 
+                result.success
+                  ? "text-green-500 dark:text-green-400"
+                  : "text-yellow-500 dark:text-yellow-400"
+              }`}
+              aria-hidden="true"
             />
             <div className="flex-1">
               <p className="text-sm font-medium">
-                {result.success 
-                  ? 'Successfully retrieved structure from PubChem' 
-                  : 'No structure found in PubChem for this identifier'}
+                {result.success
+                  ? "Successfully retrieved structure from PubChem"
+                  : "No structure found in PubChem for this identifier"}
               </p>
               <p className="text-sm mt-1">
-                Input identifier: <span className="font-mono">{result.input}</span> (detected as {result.input_type})
+                Input identifier: <span className="font-mono">{result.input}</span> (detected as{" "}
+                {result.input_type})
               </p>
               {result.success && result.cids && (
                 <div className="mt-3 space-y-2">
                   <p className="text-sm font-medium">
-                    PubChem CID{result.cids.length > 1 ? 's' : ''}: {result.cids.slice(0, 5).join(', ')}
+                    PubChem CID{result.cids.length > 1 ? "s" : ""}:{" "}
+                    {result.cids.slice(0, 5).join(", ")}
                     {result.cids.length > 5 && ` and ${result.cids.length - 5} more`}
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {result.pubchem_links && result.pubchem_links.slice(0, 3).map((link, index) => (
-                      <a
-                        key={index}
-                        href={link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors duration-200"
-                      >
-                        View CID {result.cids[index]} in PubChem
-                        <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                      </a>
-                    ))}
+                    {result.pubchem_links &&
+                      result.pubchem_links.slice(0, 3).map((link, index) => (
+                        <a
+                          key={index}
+                          href={link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors duration-200"
+                        >
+                          View CID {result.cids[index]} in PubChem
+                          <svg
+                            className="w-3 h-3 ml-1"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                            />
+                          </svg>
+                        </a>
+                      ))}
                     {result.pubchem_links && result.pubchem_links.length > 3 && (
                       <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
                         +{result.pubchem_links.length - 3} more compounds
@@ -217,11 +261,7 @@ const PubChemLookupView = () => {
                     Canonical SMILES
                   </h4>
                 </div>
-                <SMILESDisplay 
-                  smiles={result.canonical_smiles} 
-                  label="" 
-                  showDownload={true}
-                />
+                <SMILESDisplay smiles={result.canonical_smiles} label="" showDownload={true} />
               </div>
 
               {/* Molecule Visualization */}
@@ -230,11 +270,7 @@ const PubChemLookupView = () => {
                   Structure Visualization
                 </h4>
                 <div className="flex justify-center">
-                  <MoleculeCard 
-                    smiles={result.canonical_smiles}
-                    title={result.input}
-                    size="lg"
-                  />
+                  <MoleculeCard smiles={result.canonical_smiles} title={result.input} size="lg" />
                 </div>
               </div>
             </>
@@ -244,12 +280,13 @@ const PubChemLookupView = () => {
 
       {/* Information Box */}
       <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm shadow">
-                  <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2 flex items-center">
+        <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2 flex items-center">
           <HiOutlineInformationCircle className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
           About Chemical Structure Finder
         </h4>
         <p className="text-gray-700 dark:text-gray-300 mb-2">
-          This tool helps you find chemical structures using a variety of inputs. Just enter what you know about the compound:
+          This tool helps you find chemical structures using a variety of inputs. Just enter what
+          you know about the compound:
         </p>
         <ul className="list-disc list-inside space-y-1 text-gray-600 dark:text-gray-400 ml-2">
           <li>Chemical names (common names, trade names, or IUPAC)</li>
@@ -260,7 +297,8 @@ const PubChemLookupView = () => {
           <li>SMILES notations</li>
         </ul>
         <p className="text-gray-700 dark:text-gray-300 mt-2">
-          The service automatically detects what you've entered and searches the PubChem database, which contains over 100 million chemical compounds.
+          The service automatically detects what you've entered and searches the PubChem database,
+          which contains over 100 million chemical compounds.
         </p>
       </div>
     </div>

@@ -80,10 +80,7 @@ const Depict3DView = ({ isActive = true }) => {
   const generateStructure = useCallback(
     async (smilesStr) => {
       if (!smilesStr) return;
-      if (
-        !convertService ||
-        typeof convertService.generate3DCoordinates !== "function"
-      ) {
+      if (!convertService || typeof convertService.generate3DCoordinates !== "function") {
         console.error("convertService.generate3DCoordinates is not available.");
         setError("3D Conversion service is not configured correctly.");
         return;
@@ -92,23 +89,15 @@ const Depict3DView = ({ isActive = true }) => {
       setError(null);
       setMolData(null);
       try {
-        const molblockResult = await convertService.generate3DCoordinates(
-          smilesStr,
-          toolkit
-        );
-        if (
-          typeof molblockResult === "string" &&
-          molblockResult.trim() !== ""
-        ) {
+        const molblockResult = await convertService.generate3DCoordinates(smilesStr, toolkit);
+        if (typeof molblockResult === "string" && molblockResult.trim() !== "") {
           setMolData(molblockResult);
         } else {
           throw new Error("Invalid or empty molecule data received from API.");
         }
       } catch (err) {
         console.error("Error generating 3D structure:", err);
-        setError(
-          `Error generating 3D structure: ${err.message || "Unknown error"}`
-        );
+        setError(`Error generating 3D structure: ${err.message || "Unknown error"}`);
         setMolData(null);
       } finally {
         setLoading(false);
@@ -153,8 +142,7 @@ const Depict3DView = ({ isActive = true }) => {
     if (containerWidth <= 0 || containerHeight <= 0) return null;
     try {
       const bgColorHex =
-        BACKGROUND_COLORS.find((c) => c.id === backgroundColor)?.value ||
-        "#000000";
+        BACKGROUND_COLORS.find((c) => c.id === backgroundColor)?.value || "#000000";
       destroyViewer();
       const viewer = window.$3Dmol.createViewer(containerRef.current, {
         backgroundColor: bgColorHex,
@@ -163,8 +151,7 @@ const Depict3DView = ({ isActive = true }) => {
         antialias: true,
         defaultcolors: window.$3Dmol.elementColors.rasmol,
       });
-      if (!viewer)
-        throw new Error("$3Dmol.createViewer returned null or undefined.");
+      if (!viewer) throw new Error("$3Dmol.createViewer returned null or undefined.");
       viewer.resize();
       return viewer;
     } catch (err) {
@@ -187,8 +174,7 @@ const Depict3DView = ({ isActive = true }) => {
 
       // Determine the color scheme for the molecule visualization
       // Use undefined for the default element-based coloring in $3Dmol
-      const styleColorScheme =
-        colorScheme === "default" ? undefined : colorScheme;
+      const styleColorScheme = colorScheme === "default" ? undefined : colorScheme;
       // Base configuration for styles, including the selected color scheme
       const styleConfig = { colorscheme: styleColorScheme };
 
@@ -218,8 +204,7 @@ const Depict3DView = ({ isActive = true }) => {
           // Detect if dark mode is active to choose the appropriate label color
           // This assumes a standard 'dark' class on the <html> element
           const isDarkMode =
-            typeof window !== "undefined" &&
-            document.documentElement.classList.contains("dark");
+            typeof window !== "undefined" && document.documentElement.classList.contains("dark");
 
           // Set label font color: white for dark mode, a very dark gray for light mode for better contrast
           // Determine label font color based on background color for optimal contrast
@@ -312,9 +297,7 @@ const Depict3DView = ({ isActive = true }) => {
       }
     } catch (e) {
       console.error("Error rendering molecule:", e);
-      setError(
-        `Failed to render molecule: ${e.message}. Try reinitializing or refreshing.`
-      );
+      setError(`Failed to render molecule: ${e.message}. Try reinitializing or refreshing.`);
       destroyViewer();
     }
   }, [molData, applyStyle, destroyViewer]);
@@ -359,8 +342,7 @@ const Depict3DView = ({ isActive = true }) => {
 
   // Effect to apply style changes
   useEffect(() => {
-    if (viewerInitialized && viewerRef.current && modelRef.current)
-      applyStyle();
+    if (viewerInitialized && viewerRef.current && modelRef.current) applyStyle();
   }, [style, colorScheme, showLabels, spin, viewerInitialized, applyStyle]);
 
   // Effect for background color changes
@@ -368,8 +350,7 @@ const Depict3DView = ({ isActive = true }) => {
     if (viewerRef.current && viewerInitialized) {
       try {
         const bgColorHex =
-          BACKGROUND_COLORS.find((c) => c.id === backgroundColor)?.value ||
-          "#000000";
+          BACKGROUND_COLORS.find((c) => c.id === backgroundColor)?.value || "#000000";
         viewerRef.current.setBackgroundColor(bgColorHex);
         viewerRef.current.render();
       } catch (e) {
@@ -436,22 +417,24 @@ const Depict3DView = ({ isActive = true }) => {
       if (spin) {
         viewerRef.current.spin(false);
       }
-      
+
       // Make sure we have a valid model before resetting
       if (viewerRef.current.getModel() && modelRef.current) {
         // Reset the view more safely
-        viewerRef.current.setView(new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]), 
-                                  100); // Use identity matrix
+        viewerRef.current.setView(
+          new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]),
+          100
+        ); // Use identity matrix
       }
-      
+
       // Center the molecule
       viewerRef.current.zoomTo();
-      
+
       // Re-apply spin if needed
       if (spin) {
         viewerRef.current.spin(spin);
       }
-      
+
       // Render the updated view
       viewerRef.current.render();
     } catch (e) {
@@ -522,12 +505,7 @@ const Depict3DView = ({ isActive = true }) => {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* SMILES Input */}
-          <SMILESInput
-            value={smiles}
-            onChange={setSmiles}
-            label="Input SMILES"
-            required
-          />
+          <SMILESInput value={smiles} onChange={setSmiles} label="Input SMILES" required />
 
           {/* Options Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
@@ -742,9 +720,7 @@ const Depict3DView = ({ isActive = true }) => {
       {loading && (
         <div className="flex justify-center items-center p-4 bg-blue-50 dark:bg-gray-700 rounded-lg border border-blue-200 dark:border-gray-600 shadow-sm">
           <div className="animate-spin h-5 w-5 border-2 border-blue-500 dark:border-blue-400 border-t-transparent rounded-full mr-3"></div>
-          <span className="text-blue-700 dark:text-blue-300">
-            Generating 3D structure...
-          </span>
+          <span className="text-blue-700 dark:text-blue-300">Generating 3D structure...</span>
         </div>
       )}
 
@@ -755,8 +731,7 @@ const Depict3DView = ({ isActive = true }) => {
           className="relative rounded-lg shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700"
           style={{
             backgroundColor:
-              BACKGROUND_COLORS.find((c) => c.id === backgroundColor)?.value ||
-              "#000000",
+              BACKGROUND_COLORS.find((c) => c.id === backgroundColor)?.value || "#000000",
           }}
         >
           {/* Container for $3Dmol.js - reduced height */}
@@ -821,9 +796,7 @@ const Depict3DView = ({ isActive = true }) => {
               </div>
             </div>
             <div className="mt-2 p-3 bg-gray-100 dark:bg-gray-900 rounded-lg font-mono text-xs overflow-auto max-h-[500px] border border-gray-200 dark:border-gray-700 shadow-sm">
-              <pre className="whitespace-pre text-gray-700 dark:text-gray-300">
-                {molData}
-              </pre>
+              <pre className="whitespace-pre text-gray-700 dark:text-gray-300">{molData}</pre>
             </div>
           </div>
         ) : (
@@ -845,13 +818,10 @@ const Depict3DView = ({ isActive = true }) => {
               </h4>
               <p className="mt-1 text-gray-700 dark:text-gray-300">
                 This 3D structure is computationally generated using{" "}
-                {toolkit === "rdkit"
-                  ? "RDKit (ETKDG/MMFF94)"
-                  : "OpenBabel (MMFF94)"}
-                and may not represent the actual molecular conformation found in
-                nature or experimental conditions. For accurate structural
-                information, refer to experimental data from X-ray
-                crystallography, NMR studies, or high-level quantum-chemical
+                {toolkit === "rdkit" ? "RDKit (ETKDG/MMFF94)" : "OpenBabel (MMFF94)"}
+                and may not represent the actual molecular conformation found in nature or
+                experimental conditions. For accurate structural information, refer to experimental
+                data from X-ray crystallography, NMR studies, or high-level quantum-chemical
                 calculations.
               </p>
             </div>

@@ -1,40 +1,40 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   HiOutlineCamera,
   HiOutlineRefresh, // Changed from HiOutlineColorSwatch to appropriate reset icon
   HiOutlineDownload,
-  HiOutlineExclamationCircle
-} from 'react-icons/hi';
+  HiOutlineExclamationCircle,
+} from "react-icons/hi";
 
 // Assuming this service is configured correctly
-import convertService from '../../services/convertService';
+import convertService from "../../services/convertService";
 
 // Visualization styles and configurations
 const VISUALIZATION_STYLES = [
-  { id: 'stick', label: 'Stick' },
-  { id: 'line', label: 'Line' },
-  { id: 'sphere', label: 'Sphere' }
+  { id: "stick", label: "Stick" },
+  { id: "line", label: "Line" },
+  { id: "sphere", label: "Sphere" },
 ];
 
 const BACKGROUND_COLORS = [
-  { id: 'white', label: 'White', value: '#ffffff' },
-  { id: 'black', label: 'Black', value: '#000000' },
-  { id: 'gray', label: 'Dark Gray', value: '#2d3748' }
+  { id: "white", label: "White", value: "#ffffff" },
+  { id: "black", label: "Black", value: "#000000" },
+  { id: "gray", label: "Dark Gray", value: "#2d3748" },
 ];
 
 const COLOR_SCHEMES = [
-  { id: 'default', label: 'Element (Default)' },
-  { id: 'cyanCarbon', label: 'Cyan Carbon' },
-  { id: 'greenCarbon', label: 'Green Carbon' }
+  { id: "default", label: "Element (Default)" },
+  { id: "cyanCarbon", label: "Cyan Carbon" },
+  { id: "greenCarbon", label: "Green Carbon" },
 ];
 
-const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
+const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
   // State for 3D viewer
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [style, setStyle] = useState('stick');
-  const [backgroundColor, setBackgroundColor] = useState('white');
-  const [colorScheme, setColorScheme] = useState('default');
+  const [style, setStyle] = useState("stick");
+  const [backgroundColor, setBackgroundColor] = useState("white");
+  const [colorScheme, setColorScheme] = useState("default");
   const [showLabels, setShowLabels] = useState(false);
   const [spin, setSpin] = useState(false);
   const [molData, setMolData] = useState(null);
@@ -49,33 +49,36 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
   const initialViewStateRef = useRef(null); // New ref to store initial view state
 
   // Generate 3D structure from SMILES
-  const generateStructure = useCallback(async (smilesStr) => {
-    if (!smilesStr) return;
-    if (!convertService || typeof convertService.generate3DCoordinates !== 'function') {
-      console.error("convertService.generate3DCoordinates is not available.");
-      setError("3D Conversion service is not configured correctly.");
-      return;
-    }
-    
-    setLoading(true);
-    setError(null);
-    setMolData(null);
-    
-    try {
-      const molblockResult = await convertService.generate3DCoordinates(smilesStr, toolkit);
-      if (typeof molblockResult === 'string' && molblockResult.trim() !== '') {
-        setMolData(molblockResult);
-      } else {
-        throw new Error('Invalid or empty molecule data received from API.');
+  const generateStructure = useCallback(
+    async (smilesStr) => {
+      if (!smilesStr) return;
+      if (!convertService || typeof convertService.generate3DCoordinates !== "function") {
+        console.error("convertService.generate3DCoordinates is not available.");
+        setError("3D Conversion service is not configured correctly.");
+        return;
       }
-    } catch (err) {
-      console.error("Error generating 3D structure:", err);
-      setError(`Error generating 3D structure: ${err.message || 'Unknown error'}`);
+
+      setLoading(true);
+      setError(null);
       setMolData(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [toolkit]);
+
+      try {
+        const molblockResult = await convertService.generate3DCoordinates(smilesStr, toolkit);
+        if (typeof molblockResult === "string" && molblockResult.trim() !== "") {
+          setMolData(molblockResult);
+        } else {
+          throw new Error("Invalid or empty molecule data received from API.");
+        }
+      } catch (err) {
+        console.error("Error generating 3D structure:", err);
+        setError(`Error generating 3D structure: ${err.message || "Unknown error"}`);
+        setMolData(null);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [toolkit]
+  );
 
   // Destroy and cleanup viewer
   const destroyViewer = useCallback(() => {
@@ -84,10 +87,10 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
         viewerRef.current.removeAllModels();
         viewerRef.current.removeAllLabels();
         viewerRef.current.clear();
-      } catch (e) { 
-        console.warn("Error cleaning up viewer:", e); 
+      } catch (e) {
+        console.warn("Error cleaning up viewer:", e);
       } finally {
-        viewerRef.current = null; 
+        viewerRef.current = null;
         modelRef.current = null;
         initialViewStateRef.current = null; // Clear the initial view state
         setViewerInitialized(false);
@@ -98,27 +101,25 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
   // Create new viewer instance
   const createViewer = useCallback(() => {
     if (!containerRef.current || !window.$3Dmol) return null;
-    
+
     const containerWidth = containerRef.current.clientWidth;
     const containerHeight = containerRef.current.clientHeight;
-    
+
     if (containerWidth <= 0 || containerHeight <= 0) return null;
-    
+
     try {
-      const bgColorHex = BACKGROUND_COLORS.find(c => c.id === backgroundColor)?.value || '#ffffff';
+      const bgColorHex =
+        BACKGROUND_COLORS.find((c) => c.id === backgroundColor)?.value || "#ffffff";
       destroyViewer();
-      
-      const viewer = window.$3Dmol.createViewer(
-        containerRef.current,
-        { 
-          backgroundColor: bgColorHex, 
-          width: '100%', 
-          height: '100%', 
-          antialias: true, 
-          defaultcolors: window.$3Dmol.elementColors.rasmol 
-        }
-      );
-      
+
+      const viewer = window.$3Dmol.createViewer(containerRef.current, {
+        backgroundColor: bgColorHex,
+        width: "100%",
+        height: "100%",
+        antialias: true,
+        defaultcolors: window.$3Dmol.elementColors.rasmol,
+      });
+
       if (!viewer) throw new Error("$3Dmol.createViewer returned null or undefined.");
       viewer.resize();
       return viewer;
@@ -133,67 +134,76 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
   const applyStyle = useCallback(() => {
     if (!viewerRef.current || !modelRef.current) return false;
     const viewer = viewerRef.current;
-    
+
     try {
       // Reset styles and labels
       viewer.setStyle({}, {});
       viewer.removeAllLabels();
-      
+
       // Apply color scheme
-      const styleColorScheme = colorScheme === 'default' ? undefined : colorScheme;
+      const styleColorScheme = colorScheme === "default" ? undefined : colorScheme;
       const styleConfig = { colorscheme: styleColorScheme };
-      
+
       // Apply visualization style
       switch (style) {
-        case 'stick':
+        case "stick":
           viewer.setStyle({}, { stick: { radius: 0.15, ...styleConfig } });
           break;
-        case 'line':
+        case "line":
           viewer.setStyle({}, { line: { linewidth: 2, ...styleConfig } });
           break;
-        case 'sphere':
+        case "sphere":
           viewer.setStyle({}, { sphere: { scale: 0.3, ...styleConfig } });
           break;
         default:
           viewer.setStyle({}, { stick: { ...styleConfig } });
       }
-      
+
       // Add atom labels if enabled
       if (showLabels && modelRef.current) {
         try {
           const model = modelRef.current;
           const atoms = model.atoms || [];
-          
+
           // Determine label font color based on background
           let labelFontColor;
           switch (backgroundColor) {
-            case 'white': labelFontColor = 'black'; break;
-            case 'black':
-            case 'gray': labelFontColor = 'white'; break;
-            default: labelFontColor = 'black';
+            case "white":
+              labelFontColor = "black";
+              break;
+            case "black":
+            case "gray":
+              labelFontColor = "white";
+              break;
+            default:
+              labelFontColor = "black";
           }
-          
+
           // Label offset
           const labelOffset = { x: 0.1, y: 0.1, z: 0 };
-          
+
           // Add labels to non-hydrogen atoms
           for (let i = 0; i < atoms.length; i++) {
             const atom = atoms[i];
-            if (atom && atom.elem && atom.elem !== 'H' && 
-                typeof atom.x === 'number' && 
-                typeof atom.y === 'number' && 
-                typeof atom.z === 'number') {
+            if (
+              atom &&
+              atom.elem &&
+              atom.elem !== "H" &&
+              typeof atom.x === "number" &&
+              typeof atom.y === "number" &&
+              typeof atom.z === "number"
+            ) {
               viewer.addLabel(atom.elem, {
                 position: {
                   x: atom.x + labelOffset.x,
                   y: atom.y + labelOffset.y,
-                  z: atom.z + labelOffset.z
+                  z: atom.z + labelOffset.z,
                 },
                 useScreen: false,
                 fontColor: labelFontColor,
                 fontSize: 14,
                 showBackground: false,
-                alignment: 'center'
+                alignment: "center",
               });
             }
           }
@@ -201,7 +211,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
           console.warn("Could not add atom labels:", labelError);
         }
       }
-      
+
       // Apply spin animation
       viewer.spin(spin);
       viewer.render();
@@ -217,25 +227,25 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
   const renderMolecule = useCallback(() => {
     if (!viewerRef.current || !molData) return;
     const viewer = viewerRef.current;
-    
+
     try {
-      viewer.removeAllModels(); 
+      viewer.removeAllModels();
       modelRef.current = null;
-      
-      if (typeof molData !== 'string' || !molData.includes('M  END')) {
-        throw new Error('Invalid Molblock data format.');
+
+      if (typeof molData !== "string" || !molData.includes("M  END")) {
+        throw new Error("Invalid Molblock data format.");
       }
-      
+
       const model = viewer.addModel(molData, "mol");
-      if (!model) throw new Error('$3Dmol.addModel failed to return a model.');
-      
+      if (!model) throw new Error("$3Dmol.addModel failed to return a model.");
+
       modelRef.current = model;
       const styleApplied = applyStyle();
-      
+
       if (styleApplied) {
         viewer.zoomTo();
         viewer.render();
-        
+
         // Store the initial view state after first render
         if (!initialViewStateRef.current && viewer.getView) {
           try {
@@ -257,7 +267,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
   // Initialize viewer
   const initializeViewer = useCallback(() => {
     if (viewerInitialized || !containerRef.current) return false;
-    
+
     const viewer = createViewer();
     if (viewer) {
       viewerRef.current = viewer;
@@ -278,7 +288,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
         initializeViewer();
       }, 150);
     }
-    
+
     return () => {
       if (mountTimerRef.current) clearTimeout(mountTimerRef.current);
     };
@@ -310,7 +320,8 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
   useEffect(() => {
     if (viewerRef.current && viewerInitialized) {
       try {
-        const bgColorHex = BACKGROUND_COLORS.find(c => c.id === backgroundColor)?.value || '#ffffff';
+        const bgColorHex =
+          BACKGROUND_COLORS.find((c) => c.id === backgroundColor)?.value || "#ffffff";
         viewerRef.current.setBackgroundColor(bgColorHex);
         viewerRef.current.render();
       } catch (e) {
@@ -321,7 +332,9 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
 
   // Effect: Clean up on unmount
   useEffect(() => {
-    return () => { destroyViewer(); };
+    return () => {
+      destroyViewer();
+    };
   }, [destroyViewer]);
 
   // Effect: Handle window resize
@@ -336,9 +349,9 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
         }
       }
     };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [viewerInitialized]);
 
   // Reset view handler - IMPROVED VERSION
@@ -355,35 +368,35 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
           console.warn("Could not restore initial view state, falling back to zoomTo:", viewErr);
         }
       }
-      
+
       // Second approach: Use zoomTo with default parameters to reset
       viewerRef.current.zoomTo();
-      
+
       // Third approach: If zoom doesn't work well, completely reset the view and rotation
-      if (typeof viewerRef.current.resetView === 'function') {
+      if (typeof viewerRef.current.resetView === "function") {
         viewerRef.current.resetView();
       } else {
         // Manual reset if resetView is not available
-        viewerRef.current.setRotationCenter({x: 0, y: 0, z: 0});
-        viewerRef.current.setCenter({x: 0, y: 0, z: 0});
+        viewerRef.current.setRotationCenter({ x: 0, y: 0, z: 0 });
+        viewerRef.current.setCenter({ x: 0, y: 0, z: 0 });
       }
-      
+
       // Stop any spin animation temporarily and restart if needed
       const wasSpin = spin;
       if (wasSpin) {
         viewerRef.current.spin(false);
       }
-      
+
       // Force a reapply of the current style
       applyStyle();
-      
+
       // Restart spin if it was on
       if (wasSpin) {
         setTimeout(() => {
           if (viewerRef.current) viewerRef.current.spin(true);
         }, 100);
       }
-      
+
       viewerRef.current.render();
     } catch (e) {
       console.warn("Error resetting view:", e);
@@ -397,14 +410,14 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
       setError("Viewer not ready.");
       return;
     }
-    
+
     try {
       const pngDataUri = viewerRef.current.pngURI();
       if (!pngDataUri) throw new Error("Failed to generate PNG data URI.");
-      
-      const a = document.createElement('a');
+
+      const a = document.createElement("a");
       a.href = pngDataUri;
-      a.download = 'molecule-3d-screenshot.png';
+      a.download = "molecule-3d-screenshot.png";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -417,16 +430,18 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
   // Download molblock
   const downloadMolblock = () => {
     if (!molData) return;
-    
+
     try {
-      const blob = new Blob([molData], { type: 'chemical/x-mdl-molfile;charset=utf-8' });
+      const blob = new Blob([molData], {
+        type: "chemical/x-mdl-molfile;charset=utf-8",
+      });
       const url = URL.createObjectURL(blob);
-      
-      const a = document.createElement('a');
+
+      const a = document.createElement("a");
       a.href = url;
-      const filenameBase = title ? title.replace(/[^a-z0-9]/gi, '_').substring(0, 30) : 'molecule';
+      const filenameBase = title ? title.replace(/[^a-z0-9]/gi, "_").substring(0, 30) : "molecule";
       a.download = `${filenameBase}_3d.mol`;
-      
+
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -444,7 +459,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
         <h3 className="font-medium text-gray-800 dark:text-white text-sm sm:text-base truncate">
           {title || "3D Structure"}
         </h3>
-        
+
         {/* Action buttons */}
         <div className="flex items-center space-x-1">
           <button
@@ -455,7 +470,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
           >
             <HiOutlineCamera className="h-5 w-5" />
           </button>
-          
+
           <button
             onClick={handleResetView}
             disabled={!viewerInitialized || !molData}
@@ -466,13 +481,14 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
           </button>
         </div>
       </div>
-      
+
       {/* Viewer container */}
       <div
         className="relative flex-grow"
-        style={{ 
-          backgroundColor: BACKGROUND_COLORS.find(c => c.id === backgroundColor)?.value || '#ffffff',
-          minHeight: "350px"
+        style={{
+          backgroundColor:
+            BACKGROUND_COLORS.find((c) => c.id === backgroundColor)?.value || "#ffffff",
+          minHeight: "350px",
         }}
       >
         <div
@@ -495,7 +511,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
             </div>
           </div>
         )}
-        
+
         {/* Loading indicator during generation */}
         {loading && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-200/80 dark:bg-black/80 backdrop-blur-sm z-10">
@@ -508,13 +524,16 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
           </div>
         )}
       </div>
-      
+
       {/* Controls */}
       <div className="px-4 py-3 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
         <div className="flex flex-wrap gap-4 mb-2">
           {/* Style Select */}
           <div className="flex-1 min-w-[120px]">
-            <label htmlFor="style-select" className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+            <label
+              htmlFor="style-select"
+              className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+            >
               Style
             </label>
             <select
@@ -530,10 +549,13 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
               ))}
             </select>
           </div>
-          
+
           {/* Color Scheme Select */}
           <div className="flex-1 min-w-[120px]">
-            <label htmlFor="color-scheme-select" className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+            <label
+              htmlFor="color-scheme-select"
+              className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+            >
               Color
             </label>
             <select
@@ -549,10 +571,13 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
               ))}
             </select>
           </div>
-          
+
           {/* Background Color Select */}
           <div className="flex-1 min-w-[120px]">
-            <label htmlFor="bg-color-select" className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+            <label
+              htmlFor="bg-color-select"
+              className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+            >
               Background
             </label>
             <select
@@ -569,7 +594,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
             </select>
           </div>
         </div>
-        
+
         {/* Checkboxes */}
         <div className="flex flex-wrap gap-x-4 gap-y-2">
           {/* Show Labels Checkbox */}
@@ -581,11 +606,14 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
               onChange={(e) => setShowLabels(e.target.checked)}
               className="h-3 w-3 rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-sm focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
             />
-            <label htmlFor="show-labels" className="ml-1.5 text-xs text-gray-600 dark:text-gray-400">
+            <label
+              htmlFor="show-labels"
+              className="ml-1.5 text-xs text-gray-600 dark:text-gray-400"
+            >
               Labels
             </label>
           </div>
-          
+
           {/* Spin Checkbox */}
           <div className="flex items-center">
             <input
@@ -595,11 +623,14 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
               onChange={(e) => setSpin(e.target.checked)}
               className="h-3 w-3 rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-sm focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
             />
-            <label htmlFor="spin-toggle" className="ml-1.5 text-xs text-gray-600 dark:text-gray-400">
+            <label
+              htmlFor="spin-toggle"
+              className="ml-1.5 text-xs text-gray-600 dark:text-gray-400"
+            >
               Spin
             </label>
           </div>
-          
+
           {/* Download Button */}
           <div className="ml-auto flex space-x-1">
             <button
@@ -616,17 +647,20 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = 'openbabel' }) => {
           </div>
         </div>
       </div>
-      
+
       {/* Error Display */}
       {error && !loading && (
         <div className="p-3 bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border-t border-red-300 dark:border-red-700 text-xs">
           <div className="flex items-start">
-            <HiOutlineExclamationCircle className="h-4 w-4 mr-2 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400" aria-hidden="true" />
+            <HiOutlineExclamationCircle
+              className="h-4 w-4 mr-2 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+              aria-hidden="true"
+            />
             <span>{error}</span>
           </div>
         </div>
       )}
-      
+
       {/* Instructions */}
       <div className="px-4 py-2 bg-gray-100 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 text-xs text-gray-500 dark:text-gray-400">
         <div className="flex items-center">

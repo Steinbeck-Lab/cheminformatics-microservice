@@ -1,18 +1,53 @@
 // Description: A loading screen component that displays a molecule animation with a loading message.
-import React from 'react';
-import { motion } from 'framer-motion';
+import React from "react";
+import { motion } from "framer-motion";
 
 // --- Configuration (Moved outside component for clarity) ---
 
 // Particle positions and properties for molecule animation
 const particles = [
   // Center atom (larger, different color)
-  { id: 'c', x: 0, y: 0, size: 16, colorLight: '#4A90E2', colorDark: '#8ACDEA' }, // Blue tones
+  {
+    id: "c",
+    x: 0,
+    y: 0,
+    size: 16,
+    colorLight: "#4A90E2",
+    colorDark: "#8ACDEA",
+  }, // Blue tones
   // Surrounding atoms
-  { id: 'h1', x: -40, y: 0, size: 10, colorLight: '#F5A623', colorDark: '#FFD580' }, // Orange/Yellow tones
-  { id: 'h2', x: 40, y: 0, size: 10, colorLight: '#F5A623', colorDark: '#FFD580' }, // Orange/Yellow tones
-  { id: 'h3', x: 0, y: -40, size: 10, colorLight: '#7ED321', colorDark: '#B8E986' }, // Green tones
-  { id: 'h4', x: 0, y: 40, size: 10, colorLight: '#7ED321', colorDark: '#B8E986' }, // Green tones
+  {
+    id: "h1",
+    x: -40,
+    y: 0,
+    size: 10,
+    colorLight: "#F5A623",
+    colorDark: "#FFD580",
+  }, // Orange/Yellow tones
+  {
+    id: "h2",
+    x: 40,
+    y: 0,
+    size: 10,
+    colorLight: "#F5A623",
+    colorDark: "#FFD580",
+  }, // Orange/Yellow tones
+  {
+    id: "h3",
+    x: 0,
+    y: -40,
+    size: 10,
+    colorLight: "#7ED321",
+    colorDark: "#B8E986",
+  }, // Green tones
+  {
+    id: "h4",
+    x: 0,
+    y: 40,
+    size: 10,
+    colorLight: "#7ED321",
+    colorDark: "#B8E986",
+  }, // Green tones
 ];
 
 // Bond connections (center to others)
@@ -25,13 +60,14 @@ const bonds = [
 
 // --- Component ---
 
-const LoadingScreen = ({ text = 'Loading...' }) => {
+const LoadingScreen = ({ text = "Loading..." }) => {
   // Use a simple state or prop to determine if dark mode is active
   // For this example, we'll rely on Tailwind's 'dark:' prefix triggered by a parent class.
   // If you manage theme differently (e.g., context), adjust color selection accordingly.
   // NOTE: The document.documentElement check might not be reliable during server-side rendering or initial hydration.
   // A context-based or prop-based theme check is generally more robust in React.
-  const isDarkMode = typeof window !== 'undefined' && document.documentElement.classList.contains('dark');
+  const isDarkMode =
+    typeof window !== "undefined" && document.documentElement.classList.contains("dark");
 
   return (
     // Use AnimatePresence if this component might be conditionally rendered
@@ -51,20 +87,18 @@ const LoadingScreen = ({ text = 'Loading...' }) => {
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.1 }}
+        transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.1 }}
         className="bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 p-8 rounded-2xl shadow-xl dark:shadow-2xl border border-gray-200 dark:border-gray-700/50 flex flex-col items-center w-64"
       >
         {/* Animation Container */}
         <motion.div
           className="w-32 h-32 mb-6 relative"
           animate={{ rotate: 360 }} // Rotate the whole molecule slowly
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
         >
           {/* Bonds (SVG) */}
           <svg className="absolute inset-0 w-full h-full overflow-visible">
-            <defs>
-              {/* Define gradients for bonds if desired */}
-            </defs>
+            <defs>{/* Define gradients for bonds if desired */}</defs>
             {bonds.map((bond, i) => {
               const p1 = particles[bond.from];
               const p2 = particles[bond.to];
@@ -85,8 +119,12 @@ const LoadingScreen = ({ text = 'Loading...' }) => {
                   initial={{ pathLength: 0, opacity: 0 }}
                   animate={{ pathLength: 1, opacity: 0.7 }}
                   transition={{
-                    pathLength: { duration: 1, delay: 0.2 + i * 0.1, ease: 'easeInOut' },
-                    opacity: { duration: 0.5, delay: 0.2 + i * 0.1 }
+                    pathLength: {
+                      duration: 1,
+                      delay: 0.2 + i * 0.1,
+                      ease: "easeInOut",
+                    },
+                    opacity: { duration: 0.5, delay: 0.2 + i * 0.1 },
                   }}
                 />
               );
@@ -109,7 +147,7 @@ const LoadingScreen = ({ text = 'Loading...' }) => {
                   left: `calc(50% + ${particle.x}px - ${particle.size / 2}px)`,
                   top: `calc(50% + ${particle.y}px - ${particle.size / 2}px)`,
                   // Add a subtle border that matches background for depth
-                  border: `1px solid ${atomColor}50` // Semi-transparent border
+                  border: `1px solid ${atomColor}50`, // Semi-transparent border
                 }}
                 // Individual atom animation (pulse/scale)
                 animate={{
@@ -119,7 +157,7 @@ const LoadingScreen = ({ text = 'Loading...' }) => {
                   duration: 1.8,
                   repeat: Infinity,
                   delay: i * 0.15, // Stagger animation slightly
-                  ease: "easeInOut"
+                  ease: "easeInOut",
                 }}
               />
             );
@@ -138,7 +176,7 @@ const LoadingScreen = ({ text = 'Loading...' }) => {
           transition={{
             duration: 1.8,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: "easeInOut",
           }}
         >
           {text} {/* Display the passed text prop */}

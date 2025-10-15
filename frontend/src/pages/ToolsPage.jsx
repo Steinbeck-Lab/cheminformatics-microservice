@@ -1,12 +1,7 @@
 // Description: This page contains tools for structure generation and sugar removal.
 import React, { useState, useEffect } from "react";
-import {
-  motion,
-  AnimatePresence,
-  LayoutGroup,
-  useScroll,
-  useTransform,
-} from "framer-motion";
+import { useParams, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence, LayoutGroup, useScroll, useTransform } from "framer-motion";
 import SugarRemovalView from "../components/tools/SugarRemovalView";
 import StructureGenView from "../components/tools/StructureGenView";
 import InChIView from "../components/tools/InChIView";
@@ -24,15 +19,14 @@ import {
 // Tab data with icons and descriptions
 const tabs = [
   {
-    id: "sugar-removal",
-    name: "Sugar Removal",
+    id: "sugardetection",
+    name: "Sugar Detection",
     component: SugarRemovalView,
     icon: HiCube,
-    description:
-      "Remove sugar moieties from complex molecular structures to simplify analysis and focus on core scaffolds.",
+    description: "Detect and remove sugar moieties from complex molecular structures.",
   },
   {
-    id: "structure-generation",
+    id: "structuregeneration",
     name: "Structure Generation",
     component: StructureGenView,
     icon: HiOutlinePuzzle,
@@ -40,7 +34,7 @@ const tabs = [
       "Generate chemical structures based on specified parameters and constraints for virtual screening.",
   },
   {
-    id: "inchi-converter",
+    id: "inchiconverter",
     name: "InChI Converter",
     component: InChIView,
     icon: HiOutlineDocumentText,
@@ -48,7 +42,7 @@ const tabs = [
       "Draw, edit, and convert chemical structures to InChI notation with full support for various InChI versions and options.",
   },
   {
-    id: "rinchi-converter",
+    id: "rinchiconverter",
     name: "RInChI Converter",
     component: RInChIView,
     icon: HiOutlineSwitchHorizontal,
@@ -106,9 +100,27 @@ const mobileMenuVariants = {
 };
 
 const ToolsPage = () => {
-  const [activeTabId, setActiveTabId] = useState(tabs[0].id);
+  const { toolId } = useParams();
+  const navigate = useNavigate();
+
+  const [activeTabId, setActiveTabId] = useState(toolId || tabs[0].id);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  // Redirect to first tab if no toolId is in URL, or update active tab when URL changes
+  useEffect(() => {
+    if (!toolId) {
+      navigate(`/tools/${tabs[0].id}`, { replace: true });
+    } else {
+      const tab = tabs.find((t) => t.id === toolId);
+      if (tab) {
+        setActiveTabId(toolId);
+      } else {
+        // Invalid toolId, redirect to first tab
+        navigate(`/tools/${tabs[0].id}`, { replace: true });
+      }
+    }
+  }, [toolId, navigate]);
 
   // Check if the window is mobile size
   useEffect(() => {
@@ -137,6 +149,8 @@ const ToolsPage = () => {
   const handleTabSelection = (tabId) => {
     setActiveTabId(tabId);
     setIsMobileMenuOpen(false);
+    // Update URL
+    navigate(`/tools/${tabId}`);
   };
 
   return (
@@ -226,8 +240,8 @@ const ToolsPage = () => {
               variants={headerItemVariants}
               className="text-[var(--text-secondary)] text-sm md:text-lg max-w-3xl mx-auto"
             >
-              Specialized tools for structure generation, sugar moiety removal,
-              and format conversion.
+              Specialized tools for structure generation, sugar moiety removal, and format
+              conversion.
             </motion.p>
           </motion.div>
           {/* Tab Container - Enhanced visual design */}
@@ -305,7 +319,7 @@ const ToolsPage = () => {
                       return (
                         <motion.button
                           key={tab.id}
-                          onClick={() => setActiveTabId(tab.id)}
+                          onClick={() => handleTabSelection(tab.id)}
                           className={`tab-button relative flex items-center px-5 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-secondary)] focus-visible:ring-[var(--text-accent)] ${
                             isActive
                               ? "text-sky-700 dark:text-white"
@@ -409,9 +423,7 @@ const ToolsPage = () => {
                   <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-purple-100/30 dark:bg-purple-700/20 rounded-full filter blur-3xl"></div>
 
                   {/* ActiveComponent rendered here */}
-                  {ActiveComponent && (
-                    <ActiveComponent isActive={true} isMobile={isMobile} />
-                  )}
+                  {ActiveComponent && <ActiveComponent isActive={true} isMobile={isMobile} />}
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -461,21 +473,10 @@ const ToolsPage = () => {
         .animated-mesh-gradient {
           position: absolute;
           inset: -100%;
-          background-image: radial-gradient(
-              circle at 25% 25%,
-              rgba(60, 90, 180, 0.4) 0%,
-              transparent 50%
-            ),
-            radial-gradient(
-              circle at 75% 75%,
-              rgba(120, 50, 200, 0.4) 0%,
-              transparent 50%
-            ),
-            radial-gradient(
-              circle at 85% 15%,
-              rgba(90, 40, 180, 0.4) 0%,
-              transparent 50%
-            );
+          background-image:
+            radial-gradient(circle at 25% 25%, rgba(60, 90, 180, 0.4) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(120, 50, 200, 0.4) 0%, transparent 50%),
+            radial-gradient(circle at 85% 15%, rgba(90, 40, 180, 0.4) 0%, transparent 50%);
           filter: blur(60px);
           opacity: 0.5;
           transform-origin: center;
@@ -484,21 +485,10 @@ const ToolsPage = () => {
         }
 
         .dark .animated-mesh-gradient {
-          background-image: radial-gradient(
-              circle at 25% 25%,
-              rgba(75, 100, 255, 0.5) 0%,
-              transparent 50%
-            ),
-            radial-gradient(
-              circle at 75% 75%,
-              rgba(160, 70, 240, 0.5) 0%,
-              transparent 50%
-            ),
-            radial-gradient(
-              circle at 85% 15%,
-              rgba(100, 60, 200, 0.5) 0%,
-              transparent 50%
-            );
+          background-image:
+            radial-gradient(circle at 25% 25%, rgba(75, 100, 255, 0.5) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(160, 70, 240, 0.5) 0%, transparent 50%),
+            radial-gradient(circle at 85% 15%, rgba(100, 60, 200, 0.5) 0%, transparent 50%);
           filter: blur(50px);
           opacity: 0.6;
         }
