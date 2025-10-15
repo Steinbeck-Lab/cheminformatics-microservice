@@ -117,7 +117,7 @@ def get_cdk_depiction(
                                 subset.addAtom(SDGMol.getAtom(idx))
                         # Add bonds between highlighted atoms
                         for i, idx1 in enumerate(atom_indices):
-                            for idx2 in atom_indices[i + 1 :]:
+                            for idx2 in atom_indices[i + 1:]:
                                 if (
                                     idx1 < SDGMol.getAtomCount()
                                     and idx2 < SDGMol.getAtomCount()
@@ -136,7 +136,7 @@ def get_cdk_depiction(
                         subset.addAtom(SDGMol.getAtom(idx))
                 # Add bonds between highlighted atoms
                 for i, idx1 in enumerate(highlight_atoms):
-                    for idx2 in highlight_atoms[i + 1 :]:
+                    for idx2 in highlight_atoms[i + 1:]:
                         if (
                             idx1 < SDGMol.getAtomCount()
                             and idx2 < SDGMol.getAtomCount()
