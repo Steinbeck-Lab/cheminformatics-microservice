@@ -24,6 +24,7 @@ import {
   removeCircularSugars,
   removeAllSugars,
   extractAglyconeAndSugars,
+  getAglyconeAndSugarIndices,
 } from "../../services/toolsService";
 
 // Default options configuration
@@ -163,44 +164,49 @@ const SugarRemovalView = () => {
           const hasCircular = result.toLowerCase().includes("circular");
           const hasLinear = result.toLowerCase().includes("linear");
 
-          let circularSugars = [];
-          let linearSugars = [];
+          let circularIndices = [];
+          let linearIndices = [];
 
-          // Extract sugars for highlighting if any are present
+          // Get atom indices for highlighting if any sugars are present
           if (hasCircular || hasLinear) {
             try {
-              // Separate circular and linear sugars by extracting them individually
-              // Set only_terminal to false to extract all sugars for highlighting
+              // Get circular sugar indices
               if (hasCircular) {
                 const circularOptions = {
                   ...options,
                   extract_circular_sugars: true,
                   extract_linear_sugars: false,
-                  only_terminal: false,
+                  only_terminal: false, // Get all sugars for highlighting
                 };
-                const circularResult = await extractAglyconeAndSugars(
+                const circularIndicesResult = await getAglyconeAndSugarIndices(
                   trimmedSmiles,
                   circularOptions
                 );
-                if (Array.isArray(circularResult) && circularResult.length > 1) {
-                  circularSugars = circularResult.slice(1);
+                // Skip the first element (aglycone) and take the sugar indices
+                if (Array.isArray(circularIndicesResult) && circularIndicesResult.length > 1) {
+                  circularIndices = circularIndicesResult.slice(1);
                 }
               }
 
+              // Get linear sugar indices
               if (hasLinear) {
                 const linearOptions = {
                   ...options,
                   extract_circular_sugars: false,
                   extract_linear_sugars: true,
-                  only_terminal: false,
+                  only_terminal: false, // Get all sugars for highlighting
                 };
-                const linearResult = await extractAglyconeAndSugars(trimmedSmiles, linearOptions);
-                if (Array.isArray(linearResult) && linearResult.length > 1) {
-                  linearSugars = linearResult.slice(1);
+                const linearIndicesResult = await getAglyconeAndSugarIndices(
+                  trimmedSmiles,
+                  linearOptions
+                );
+                // Skip the first element (aglycone) and take the sugar indices
+                if (Array.isArray(linearIndicesResult) && linearIndicesResult.length > 1) {
+                  linearIndices = linearIndicesResult.slice(1);
                 }
               }
             } catch (extractError) {
-              console.error("Could not extract sugars for highlighting:", extractError);
+              console.error("Could not get sugar indices for highlighting:", extractError);
             }
           }
 
@@ -210,8 +216,8 @@ const SugarRemovalView = () => {
             originalSmiles: trimmedSmiles,
             hasCircular,
             hasLinear,
-            circularSugars,
-            linearSugars,
+            circularIndices,
+            linearIndices,
           });
           break;
 
@@ -1218,30 +1224,26 @@ const SugarRemovalView = () => {
                 <SMILESDisplay smiles={results.originalSmiles} label="SMILES" />
                 <div className="mt-4">
                   {(() => {
-                    const substructuresToHighlight =
+                    // Determine which atom indices to highlight based on the highlight mode
+                    const atomIndicesToHighlight =
                       results.hasCircular && results.hasLinear
                         ? highlightMode === "circular"
-                          ? results.circularSugars
+                          ? results.circularIndices
                           : highlightMode === "linear"
-                            ? results.linearSugars
-                            : [...results.circularSugars, ...results.linearSugars] // "both"
+                            ? results.linearIndices
+                            : [...results.circularIndices, ...results.linearIndices] // "both"
                         : results.hasCircular
-                          ? results.circularSugars
+                          ? results.circularIndices
                           : results.hasLinear
-                            ? results.linearSugars
+                            ? results.linearIndices
                             : [];
 
-                    // Generate depiction URL with highlighting
-                    const highlightSmiles =
-                      substructuresToHighlight.length > 0
-                        ? substructuresToHighlight.join(".") // Join multiple sugars with '.'
-                        : "";
-
+                    // Generate depiction URL with atom indices highlighting
                     const depictionUrl = depictService.get2DDepictionUrl(results.originalSmiles, {
                       toolkit: "cdk",
                       width: 600,
                       height: 400,
-                      highlight: highlightSmiles,
+                      atomIds: atomIndicesToHighlight,
                       CIP: false,
                       unicolor: false,
                     });
@@ -1279,10 +1281,9 @@ const SugarRemovalView = () => {
                         </div>
                         <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
                           <p className="text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
-                            <span className="font-semibold">Note:</span> Structure highlighting is
-                            based on an internal substructure search and may occasionally differ
-                            from the extracted sugar structures. In such cases, the extracted sugars
-                            are the ground truth.
+                            <span className="font-semibold">Note:</span> Sugar moieties are
+                            highlighted using precise atom indices from the Sugar Removal Utility
+                            analysis.
                           </p>
                         </div>
                       </div>

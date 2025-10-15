@@ -14,6 +14,7 @@ const DEPICT_URL = "/depict";
  * @param {boolean} options.CIP - Include Cahn-Ingold-Prelog stereochemistry
  * @param {boolean} options.unicolor - Use a single color for the molecule
  * @param {string} options.highlight - SMARTS pattern to highlight atoms/bonds
+ * @param {Array<number>|Array<Array<number>>} options.atomIds - Atom indices to highlight (single array or array of arrays for multiple substructures)
  * @param {boolean} options.showAtomNumbers - Show atom numbers on the depiction
  * @returns {Promise<string>} - SVG depiction as text
  */
@@ -26,22 +27,34 @@ export const generate2DDepiction = async (smiles, options = {}) => {
     CIP = false,
     unicolor = false,
     highlight = "COSN",
+    atomIds = null,
     showAtomNumbers = false,
   } = options;
 
   try {
+    const params = {
+      smiles,
+      toolkit,
+      width,
+      height,
+      rotate,
+      CIP,
+      unicolor,
+      highlight,
+      showAtomNumbers,
+    };
+
+    // Convert atomIds to comma-separated string if provided
+    if (atomIds) {
+      if (Array.isArray(atomIds)) {
+        // Flatten if it's an array of arrays
+        const flatIds = atomIds.flat();
+        params.atomIds = flatIds.join(",");
+      }
+    }
+
     const response = await api.get(`${DEPICT_URL}/2D`, {
-      params: {
-        smiles,
-        toolkit,
-        width,
-        height,
-        rotate,
-        CIP,
-        unicolor,
-        highlight,
-        showAtomNumbers,
-      },
+      params,
       responseType: "text",
     });
     return response.data;
@@ -72,6 +85,7 @@ export const generate3DDepiction = async (smiles, toolkit = "openbabel") => {
  * Get the URL for a 2D depiction image
  * @param {string} smiles - SMILES string
  * @param {Object} options - Depiction options
+ * @param {Array<number>|Array<Array<number>>} options.atomIds - Atom indices to highlight
  * @returns {string} - URL to the depiction image
  */
 export const get2DDepictionUrl = (smiles, options = {}) => {
@@ -83,6 +97,7 @@ export const get2DDepictionUrl = (smiles, options = {}) => {
     CIP = false,
     unicolor = false,
     highlight = "",
+    atomIds = null,
     format = "svg",
     showAtomNumbers = false,
   } = options;
@@ -108,6 +123,15 @@ export const get2DDepictionUrl = (smiles, options = {}) => {
 
   if (highlight) {
     url.searchParams.append("highlight", highlight);
+  }
+
+  // Add atomIds if provided
+  if (atomIds) {
+    if (Array.isArray(atomIds)) {
+      // Flatten if it's an array of arrays
+      const flatIds = atomIds.flat();
+      url.searchParams.append("atomIds", flatIds.join(","));
+    }
   }
 
   return url.toString();

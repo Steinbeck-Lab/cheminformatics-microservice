@@ -15,7 +15,7 @@ export const INCHI_VERSIONS = {
     scriptSrc: `${INCHI_BASE_URL}/inchi/inchi-web106.js`,
     moduleName: "inchiModule106",
   },
-  "Latest": {
+  Latest: {
     label: "InChI Latest",
     scriptSrc: `${INCHI_BASE_URL}/inchi/inchi-web-latest.js`,
     moduleName: "inchiModuleLatest",

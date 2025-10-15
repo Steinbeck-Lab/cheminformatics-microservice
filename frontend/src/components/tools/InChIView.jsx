@@ -453,8 +453,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
               </div>
 
               {/* Additional tautomer options available in 1.07 */}
-              {(inchiVersion === "Latest" ||
-                inchiVersion === "Latest-MoIn") && (
+              {(inchiVersion === "Latest" || inchiVersion === "Latest-MoIn") && (
                 <>
                   <div className="flex items-center">
                     <input
@@ -721,8 +720,7 @@ const InChIView = () => {
   const [logMessage, setLogMessage] = useState("");
   const [options, setOptions] = useState("");
   const [inchiVersion, setInchiVersion] = useState(
-    Object.keys(INCHI_VERSIONS).find((key) => INCHI_VERSIONS[key].default) ||
-      "Latest"
+    Object.keys(INCHI_VERSIONS).find((key) => INCHI_VERSIONS[key].default) || "Latest"
   );
   const [activeInputType, setActiveInputType] = useState("structure"); // 'structure', 'smiles', 'molfile', 'inchi'
 

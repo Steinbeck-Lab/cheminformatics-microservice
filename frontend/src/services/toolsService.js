@@ -203,6 +203,41 @@ export const removeSugars = async (smiles, type = "all", options = {}) => {
 };
 
 /**
+ * Get atom indices of aglycone and sugar moieties
+ * @param {string} smiles - SMILES string
+ * @param {Object} options - Extraction options
+ * @returns {Promise<Array<Array<number>>>} - Array of atom index arrays [aglycone_indices, sugar1_indices, sugar2_indices, ...]
+ */
+export const getAglyconeAndSugarIndices = async (smiles, options = {}) => {
+  try {
+    const params = {
+      smiles,
+      extract_circular_sugars: options.extract_circular_sugars ?? true,
+      extract_linear_sugars: options.extract_linear_sugars ?? false,
+      gly_bond: options.gly_bond ?? false,
+      only_terminal: options.only_terminal ?? false, // Set to false to get all sugars for highlighting
+      preservation_mode: options.preservation_mode ?? 2,
+      preservation_threshold: options.preservation_threshold ?? 5,
+      oxygen_atoms: options.oxygen_atoms ?? true,
+      oxygen_atoms_threshold: options.oxygen_atoms_threshold ?? 0.5,
+      linear_sugars_in_rings: options.linear_sugars_in_rings ?? false,
+      linear_sugars_min_size: options.linear_sugars_min_size ?? 4,
+      linear_sugars_max_size: options.linear_sugars_max_size ?? 7,
+      linear_acidic_sugars: options.linear_acidic_sugars ?? false,
+      spiro_sugars: options.spiro_sugars ?? false,
+      keto_sugars: options.keto_sugars ?? false,
+      mark_attach_points: options.mark_attach_points ?? false,
+      post_process_sugars: options.post_process_sugars ?? false,
+      limit_post_process_by_size: options.limit_post_process_by_size ?? false,
+    };
+    const response = await api.get(`${TOOLS_URL}/get-aglycone-and-sugar-indices`, { params });
+    return response.data;
+  } catch (error) {
+    throw new Error(`Failed to get aglycone and sugar indices: ${error.message}`);
+  }
+};
+
+/**
  * Apply multiple chemical filters to a list of molecules
  * @param {string} smilesList - Newline-separated list of SMILES strings
  * @param {Object} filterOptions - Filter options to apply
@@ -347,6 +382,7 @@ const toolsService = {
   removeAllSugars,
   removeSugars,
   extractAglyconeAndSugars,
+  getAglyconeAndSugarIndices,
   applyChemicalFilters,
   applyChemicalFiltersDetailed,
   standardizeMolecule,
