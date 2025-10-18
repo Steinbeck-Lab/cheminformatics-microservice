@@ -91,10 +91,10 @@ const OCSRPage = () => {
               variants={headerItemVariants}
               className="text-[var(--text-secondary)] text-base md:text-lg max-w-3xl mx-auto"
             >
-              Extract chemical structures from images using deep learning (DECIMER).
+              Extract chemical structures from images using deep learning (DECIMER & MARCUS).
             </motion.p>
           </motion.div>
-          {/* DECIMER Button Only */}
+          {/* DECIMER & MARCUS Buttons */}
           <motion.div
             className="flex flex-col md:flex-row gap-4 md:gap-6 justify-center items-center mb-8 md:mb-10"
             variants={headerContainerVariants}
@@ -112,11 +112,21 @@ const OCSRPage = () => {
               <span className="mr-2 text-lg">Visit DECIMER</span>
               <HiOutlineExternalLink className="h-5 w-5" />
             </motion.a>
-            {/* Marcus button removed */}
+            <motion.a
+              href="https://marcus.decimer.ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white font-semibold rounded-lg shadow-lg w-full md:w-auto"
+              variants={buttonVariant}
+              whileHover="hover"
+            >
+              <span className="mr-2 text-lg">Visit MARCUS</span>
+              <HiOutlineExternalLink className="h-5 w-5" />
+            </motion.a>
           </motion.div>
-          {/* DECIMER Info Card Only */}
+          {/* DECIMER & MARCUS Info Cards */}
           <motion.div
-            className="grid grid-cols-1 gap-4 md:gap-6 mb-8 md:mb-10"
+            className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8 md:mb-10"
             variants={headerContainerVariants}
             initial="hidden"
             animate="visible"
@@ -137,7 +147,25 @@ const OCSRPage = () => {
                 converting visual chemical structures into machine-readable formats like SMILES.
               </p>
             </motion.div>
-            {/* Marcus info card removed */}
+            <motion.div
+              className="bg-white dark:bg-slate-800/80 rounded-lg p-5 border border-slate-200 dark:border-slate-700/50 shadow-md"
+              variants={headerItemVariants}
+            >
+              <h3 className="text-lg font-semibold text-purple-600 dark:text-purple-400 mb-2">
+                What is MARCUS?
+              </h3>
+              <p className="text-[var(--text-secondary)] mb-3">
+                MARCUS (Molecular Annotation and Recognition for Curating Unravelled Structures) is
+                an integrated web-based platform designed for natural product literature curation.
+                It combines automated text annotation, multi-engine OCSR, and direct database
+                submission capabilities.
+              </p>
+              <p className="text-[var(--text-secondary)]">
+                MARCUS employs a Human-in-the-loop ensemble approach integrating DECIMER, MolNexTR,
+                and MolScribe for structure recognition, significantly streamlining the workflow
+                from PDF upload to database submission.
+              </p>
+            </motion.div>
           </motion.div>
           {/* Main Content Container - Animated */}
           <motion.div
@@ -193,11 +221,61 @@ const OCSRPage = () => {
                         enables the extraction of chemical structures from images such as scientific
                         publications, patents, and other documents.
                       </span>
-                      <span className="block">
+                      <span className="block mb-4">
                         For optimal results, provide clear images of chemical structures with good
                         contrast. The system works best with standard 2D chemical depictions.
                       </span>
                     </p>
+
+                    {/* References Section */}
+                    <div className="mt-4 pt-4 border-t border-slate-300 dark:border-slate-600">
+                      <h4 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
+                        References
+                      </h4>
+                      <div className="space-y-3 text-xs">
+                        <div className="border-l-2 border-blue-500 pl-3 py-1">
+                          <p className="text-[var(--text-secondary)] leading-relaxed">
+                            <span className="font-medium">[1]</span> Rajan, K., Brinkhaus, H.O.,
+                            Agea, I.A., Zielesny, A., Steinbeck, C. (2023). DECIMER.ai: an open
+                            platform for automated optical chemical structure identification,
+                            segmentation and recognition in scientific publications.
+                            <em className="text-blue-600 dark:text-blue-400">
+                              {" "}
+                              Nat Commun, 14, 5045
+                            </em>
+                            .
+                            <a
+                              href="https://doi.org/10.1038/s41467-023-40782-0"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 dark:text-blue-400 hover:underline ml-1 text-xs"
+                            >
+                              doi.org/10.1038/s41467-023-40782-0
+                            </a>
+                          </p>
+                        </div>
+                        <div className="border-l-2 border-purple-500 pl-3 py-1">
+                          <p className="text-[var(--text-secondary)] leading-relaxed">
+                            <span className="font-medium">[2]</span> Rajan K, Weissenborn VK,
+                            Lederer L, Zielesny A, Steinbeck C (2025). MARCUS: Molecular annotation
+                            and recognition for curating unravelled structures.
+                            <em className="text-purple-600 dark:text-purple-400">
+                              {" "}
+                              Digit Discovery
+                            </em>
+                            .
+                            <a
+                              href="https://doi.org/10.1039/d5dd00313j"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-purple-600 dark:text-purple-400 hover:underline ml-1 text-xs"
+                            >
+                              doi.org/10.1039/d5dd00313j
+                            </a>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               </div>

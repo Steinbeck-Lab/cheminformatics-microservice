@@ -1,31 +1,33 @@
-// Description: This component handles the Optical Chemical Structure Recognition (OCSR) functionality.
-import React, { useState, useCallback, useEffect } from "react"; // Added useEffect
+// Description: Enhanced OCRView component with production-ready UX/UI
+import React, { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-// Ensure all used icons are imported
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  HiOutlineUpload, // Added for dropzone hint
-  HiOutlineLink, // Added for URL input section
-  HiOutlineExclamationCircle, // Added for error display
+  HiOutlineUpload,
+  HiOutlineLink,
+  HiOutlineExclamationCircle,
+  HiOutlineCheckCircle,
+  HiOutlineXCircle,
+  HiOutlinePhotograph,
+  HiOutlineRefresh,
 } from "react-icons/hi";
-// Assuming these components are correctly implemented and styled for dark/light mode
 import MoleculeCard from "../common/MoleculeCard";
-// import LoadingScreen from '../common/LoadingScreen'; // Removed unused import
-// Assuming this service is configured correctly
-import ocsrService from "../../services/ocsrService"; // Assuming this service exists
+import ocsrService from "../../services/ocsrService";
 
 const OCRView = () => {
-  const [files, setFiles] = useState([]); // Stores the uploaded file object
-  const [imageUrl, setImageUrl] = useState(""); // Stores the image URL input
-  const [results, setResults] = useState([]); // Stores detected SMILES strings
+  // State management
+  const [files, setFiles] = useState([]);
+  const [imageUrl, setImageUrl] = useState("");
+  const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [reference, setReference] = useState(""); // Optional reference input
-  const [showUrlInput, setShowUrlInput] = useState(false); // Toggle between upload and URL input
+  const [reference, setReference] = useState("");
+  const [inputMethod, setInputMethod] = useState("upload"); // 'upload' | 'url'
+  const [handDrawn, setHandDrawn] = useState(false);
+  const [processingStage, setProcessingStage] = useState("");
 
-  // Callback for react-dropzone
+  // Dropzone callback
   const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
-    // Added rejectedFiles
-    // Clear previous state on new drop attempt
     setFiles([]);
     setImageUrl("");
     setError(null);
@@ -33,29 +35,28 @@ const OCRView = () => {
 
     if (acceptedFiles.length > 0) {
       setFiles(acceptedFiles);
-      console.log("Accepted file:", acceptedFiles[0].name);
     } else if (rejectedFiles.length > 0) {
-      // Handle rejected files (e.g., wrong type, too many files)
-      console.error("Rejected file:", rejectedFiles[0].errors);
       const errorMessages = rejectedFiles[0].errors.map((e) => e.message).join(", ");
-      setError(`File rejected: ${errorMessages}. Please upload a single image (PNG, JPG, GIF).`);
+      setError(
+        `File rejected: ${errorMessages}. Please upload a valid image file (PNG, JPG, or GIF).`
+      );
     }
   }, []);
 
-  // Setup react-dropzone
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  // Configure dropzone
+  const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
     onDrop,
     accept: {
-      // Define accepted MIME types and extensions
       "image/png": [".png"],
       "image/jpeg": [".jpeg", ".jpg"],
       "image/gif": [".gif"],
     },
-    maxFiles: 1, // Allow only one file
+    maxFiles: 1,
     multiple: false,
+    disabled: loading,
   });
 
-  // Handle image processing (either uploaded file or URL)
+  // Image processing handler
   const handleProcessImage = async () => {
     const hasFile = files.length > 0;
     const hasUrl = imageUrl.trim() !== "";
@@ -67,307 +68,442 @@ const OCRView = () => {
 
     setLoading(true);
     setError(null);
-    setResults([]); // Clear previous results
+    setResults([]);
+    setProcessingStage("Uploading image...");
 
     try {
       let response;
-      // Prioritize file upload if both are present
+
       if (hasFile) {
-        // Ensure service function exists
+        setProcessingStage("Analyzing structure...");
         if (!ocsrService || typeof ocsrService.processImage !== "function") {
-          throw new Error("Image processing service (file) is not available.");
+          throw new Error("Image processing service is not available.");
         }
-        response = await ocsrService.processImage(files[0], reference || undefined); // Pass undefined if empty
+        response = await ocsrService.processImage(files[0], reference || undefined, handDrawn);
       } else {
-        // Ensure service function exists
+        setProcessingStage("Fetching image...");
         if (!ocsrService || typeof ocsrService.processImageUrl !== "function") {
-          throw new Error("Image processing service (URL) is not available.");
+          throw new Error("URL processing service is not available.");
         }
-        response = await ocsrService.processImageUrl(imageUrl.trim(), reference || undefined); // Pass undefined if empty
+        response = await ocsrService.processImageUrl(
+          imageUrl.trim(),
+          reference || undefined,
+          handDrawn
+        );
       }
 
-      // Process the response
-      // Assuming response structure is { smiles: "...", ... } or { smiles: ["...", "..."], ... }
+      setProcessingStage("Extracting structures...");
+
       if (response && response.smiles) {
         const smilesArray = Array.isArray(response.smiles) ? response.smiles : [response.smiles];
-        // Filter out potentially empty strings if API returns them
         const validSmiles = smilesArray.filter((s) => typeof s === "string" && s.trim() !== "");
 
         if (validSmiles.length > 0) {
           setResults(validSmiles);
+          setProcessingStage("");
         } else {
           setError(
-            "OCSR process completed, but no chemical structures were detected in the image."
+            "No chemical structures were detected in the image. Please try a different image or adjust the settings."
           );
         }
       } else {
-        // Handle cases where response might be missing 'smiles' key
-        setError("OCSR process completed, but no chemical structures were detected.");
+        setError("Processing completed, but no chemical structures were detected.");
       }
     } catch (err) {
       console.error("Error processing image:", err);
-      setError(
-        `Error processing image: ${err.response?.data?.detail || err.message || "Unknown error"}`
-      );
-      setResults([]); // Ensure results are cleared on error
+      setError(`Error: ${err.response?.data?.detail || err.message || "Unable to process image"}`);
+      setResults([]);
     } finally {
       setLoading(false);
+      setProcessingStage("");
     }
   };
 
-  // Clear all inputs and results
+  // Clear all state
   const clearAll = () => {
     setFiles([]);
     setImageUrl("");
     setResults([]);
     setError(null);
     setReference("");
-    // Optionally reset showUrlInput state
-    // setShowUrlInput(false);
+    setProcessingStage("");
   };
 
   // Get preview URL for uploaded file
   const filePreviewUrl = files.length > 0 ? URL.createObjectURL(files[0]) : null;
+  const displayImageUrl = filePreviewUrl || (imageUrl.trim() ? imageUrl : null);
 
-  // --- Clean up object URL when component unmounts or file changes ---
+  // Cleanup object URL
   useEffect(() => {
-    // This is the cleanup function
     return () => {
       if (filePreviewUrl) {
-        console.log("Revoking Object URL:", filePreviewUrl); // Debug log
         URL.revokeObjectURL(filePreviewUrl);
       }
     };
-  }, [filePreviewUrl]); // Dependency: run cleanup when the URL changes
+  }, [filePreviewUrl]);
 
   return (
-    // Main container with theme-aware background
-    <div className="space-y-6 p-4 md:p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
-      {/* Input Card */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
-        {/* Title */}
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-blue-400 mb-4">
-          Optical Chemical Structure Recognition (OCSR)
-        </h2>
-
-        {/* Input Method Tabs */}
-        <div className="space-y-4">
-          <div className="flex border-b border-gray-200 dark:border-gray-700 mb-4">
-            {/* Upload Tab Button */}
+    <div className="space-y-6">
+      {/* Main Input Card */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+        {/* Input Method Selector */}
+        <div className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
+          <div className="flex">
             <button
-              onClick={() => setShowUrlInput(false)}
-              className={`px-4 py-2 text-sm font-medium focus:outline-none transition-colors duration-150 ${
-                !showUrlInput
-                  ? "border-b-2 border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400"
-                  : "border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600"
+              onClick={() => {
+                setInputMethod("upload");
+                setImageUrl("");
+                setError(null);
+              }}
+              disabled={loading}
+              className={`flex-1 px-6 py-4 text-sm font-medium transition-all duration-200 ${
+                inputMethod === "upload"
+                  ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50"
               }`}
-              aria-current={!showUrlInput ? "page" : undefined}
             >
-              Upload Image
+              <div className="flex items-center justify-center gap-2">
+                <HiOutlineUpload className="h-5 w-5" />
+                <span>Upload Image</span>
+              </div>
             </button>
-            {/* URL Tab Button */}
+
             <button
-              onClick={() => setShowUrlInput(true)}
-              className={`px-4 py-2 text-sm font-medium focus:outline-none transition-colors duration-150 ${
-                showUrlInput
-                  ? "border-b-2 border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400"
-                  : "border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600"
+              onClick={() => {
+                setInputMethod("url");
+                setFiles([]);
+                setError(null);
+              }}
+              disabled={loading}
+              className={`flex-1 px-6 py-4 text-sm font-medium transition-all duration-200 ${
+                inputMethod === "url"
+                  ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50"
               }`}
-              aria-current={showUrlInput ? "page" : undefined}
             >
-              Use Image URL
+              <div className="flex items-center justify-center gap-2">
+                <HiOutlineLink className="h-5 w-5" />
+                <span>Use URL</span>
+              </div>
             </button>
           </div>
+        </div>
 
-          {/* Conditional Input Area */}
-          {!showUrlInput ? (
-            // Dropzone Styling
+        {/* Input Area */}
+        <div className="p-6 space-y-6">
+          {/* Upload or URL Input */}
+          {inputMethod === "upload" ? (
             <div
               {...getRootProps()}
-              className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors duration-200 ease-in-out ${
-                isDragActive
-                  ? "border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20" // Active drag state
-                  : "border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50" // Default state
-              }`}
+              className={`relative border-2 border-dashed rounded-lg p-8 transition-all duration-200 cursor-pointer ${
+                isDragActive && !isDragReject
+                  ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                  : isDragReject
+                    ? "border-red-500 bg-red-50 dark:bg-red-900/20"
+                    : files.length > 0
+                      ? "border-green-500 bg-green-50 dark:bg-green-900/20"
+                      : "border-slate-300 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 bg-slate-50 dark:bg-slate-900/50"
+              } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <input {...getInputProps()} />
-              {filePreviewUrl ? (
-                // File Preview
-                <div className="flex flex-col items-center space-y-2">
-                  <img
-                    src={filePreviewUrl}
-                    alt="Preview"
-                    className="max-h-48 rounded-md border border-gray-200 dark:border-gray-700"
-                  />
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
-                    {files[0]?.name || "Uploaded Image"}
-                  </p>
-                </div>
-              ) : (
-                // Dropzone Hint Text
-                <div className="text-gray-500 dark:text-gray-400 flex flex-col items-center">
-                  <HiOutlineUpload
-                    className="h-10 w-10 mb-2 text-gray-400 dark:text-gray-500"
-                    aria-hidden="true"
-                  />
-                  <p className="text-base mb-1">
-                    {isDragActive
-                      ? "Drop the image here..."
-                      : "Drag & drop image, or click to select"}
-                  </p>
-                  <p className="text-xs">Supports PNG, JPG, GIF</p>
-                </div>
-              )}
+
+              <div className="flex flex-col items-center justify-center text-center space-y-3">
+                {files.length > 0 ? (
+                  <>
+                    <HiOutlineCheckCircle className="h-12 w-12 text-green-600 dark:text-green-400" />
+                    <div>
+                      <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                        File selected: {files[0].name}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        {(files[0].size / 1024).toFixed(2)} KB
+                      </p>
+                    </div>
+                  </>
+                ) : isDragActive ? (
+                  <>
+                    <HiOutlineUpload className="h-12 w-12 text-blue-600 dark:text-blue-400 animate-bounce" />
+                    <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                      Drop your image here
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <HiOutlinePhotograph className="h-12 w-12 text-slate-400 dark:text-slate-500" />
+                    <div>
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        Click to upload or drag and drop
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        PNG, JPG, or GIF (max 10MB)
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           ) : (
-            // URL Input Styling
             <div className="space-y-2">
               <label
-                htmlFor="imageUrl"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                htmlFor="image-url"
+                className="block text-sm font-medium text-slate-700 dark:text-slate-300"
               >
                 Image URL
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <HiOutlineLink
-                    className="h-5 w-5 text-gray-400 dark:text-gray-500"
-                    aria-hidden="true"
-                  />
-                </div>
+                <HiOutlineLink className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
                 <input
+                  id="image-url"
                   type="url"
-                  id="imageUrl"
                   value={imageUrl}
                   onChange={(e) => {
                     setImageUrl(e.target.value);
                     setFiles([]);
                     setError(null);
                     setResults([]);
-                  }} // Clear file/results on URL change
+                  }}
                   placeholder="https://example.com/structure.png"
-                  className="w-full pl-10 pr-4 py-2 rounded-md bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500 dark:focus:border-blue-500 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-blue-500 shadow-sm"
+                  disabled={loading}
+                  className="w-full pl-10 pr-4 py-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
           )}
 
-          {/* Optional Reference Input */}
-          <div className="space-y-2 pt-2">
+          {/* Image Preview */}
+          <AnimatePresence>
+            {displayImageUrl && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="relative rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                  <img
+                    src={displayImageUrl}
+                    alt="Structure preview"
+                    className="w-full h-auto max-h-96 object-contain"
+                    onError={() => setError("Failed to load image. Please check the URL.")}
+                  />
+                  <div className="absolute top-2 right-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        clearAll();
+                      }}
+                      className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-lg transition-colors"
+                      title="Remove image"
+                    >
+                      <HiOutlineXCircle className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Reference Input */}
+          <div className="space-y-2">
             <label
               htmlFor="reference"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300"
             >
-              Reference Name (Optional)
+              Reference Name{" "}
+              <span className="text-slate-500 dark:text-slate-400 font-normal">(Optional)</span>
             </label>
             <input
-              type="text"
               id="reference"
+              type="text"
               value={reference}
               onChange={(e) => setReference(e.target.value)}
               placeholder="e.g., Figure 1A, Compound X"
-              className="w-full px-4 py-2 rounded-md bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500 dark:focus:border-blue-500 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-blue-500 shadow-sm"
+              disabled={loading}
+              className="w-full px-4 py-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-            {/* Process Button */}
-            <button
-              type="button" // Changed from submit to prevent default form action
-              onClick={handleProcessImage}
-              disabled={loading || (!files.length && !imageUrl.trim())}
-              // Button Styling
-              className={`px-5 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
-                loading || (!files.length && !imageUrl.trim())
-                  ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed" // Disabled
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm" // Enabled
-              }`}
-            >
-              {loading ? (
-                <>
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Processing...
-                </>
-              ) : (
-                "Process Image"
-              )}
-            </button>
-
-            {/* Clear Button */}
-            {(files.length > 0 || imageUrl.trim() || results.length > 0 || error) && (
+          {/* Controls */}
+          <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+            {/* Hand-Drawn Toggle */}
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Hand-Drawn Model
+              </span>
               <button
                 type="button"
-                onClick={clearAll}
-                // Button Styling (Red color)
-                className="px-5 py-2 rounded-lg font-medium bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-red-500"
+                onClick={() => setHandDrawn(!handDrawn)}
+                disabled={loading}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  handDrawn ? "bg-green-600 dark:bg-green-500" : "bg-slate-300 dark:bg-slate-600"
+                }`}
+                role="switch"
+                aria-checked={handDrawn}
+                aria-label="Toggle hand-drawn model"
               >
-                Clear
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform duration-200 ${
+                    handDrawn ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
               </button>
-            )}
+            </div>
+
+            <div className="flex-1" />
+
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              {(files.length > 0 || imageUrl.trim() || results.length > 0 || error) && (
+                <button
+                  type="button"
+                  onClick={clearAll}
+                  disabled={loading}
+                  className="px-5 py-2.5 rounded-lg font-medium bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="flex items-center gap-2">
+                    <HiOutlineRefresh className="h-4 w-4" />
+                    <span>Reset</span>
+                  </div>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={handleProcessImage}
+                disabled={loading || (!files.length && !imageUrl.trim())}
+                className={`px-6 py-2.5 rounded-lg font-medium text-white transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 ${
+                  loading || (!files.length && !imageUrl.trim())
+                    ? "bg-slate-400 dark:bg-slate-600 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-md hover:shadow-lg"
+                }`}
+              >
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                    <span>Processing...</span>
+                  </div>
+                ) : (
+                  "Extract Structures"
+                )}
+              </button>
+            </div>
           </div>
+
+          {/* Processing Stage Indicator */}
+          <AnimatePresence>
+            {loading && processingStage && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="flex items-center justify-center gap-2 text-sm text-blue-600 dark:text-blue-400"
+              >
+                <div className="flex gap-1">
+                  <span
+                    className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce"
+                    style={{ animationDelay: "0ms" }}
+                  />
+                  <span
+                    className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce"
+                    style={{ animationDelay: "150ms" }}
+                  />
+                  <span
+                    className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce"
+                    style={{ animationDelay: "300ms" }}
+                  />
+                </div>
+                <span>{processingStage}</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
-      {/* Loading State Full Screen (Optional, could use inline indicator instead) */}
-      {/* {loading && <LoadingScreen text="Processing chemical structure..." />} */}
-
       {/* Error Display */}
-      {error && !loading && (
-        // Error message styling
-        <div
-          className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow"
-          role="alert"
-        >
-          <HiOutlineExclamationCircle
-            className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
-            aria-hidden="true"
-          />
-          <span>{error}</span>
-        </div>
-      )}
+      <AnimatePresence>
+        {error && !loading && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4"
+            role="alert"
+          >
+            <div className="flex items-start gap-3">
+              <HiOutlineExclamationCircle className="h-6 w-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="text-sm font-medium text-red-800 dark:text-red-300 mb-1">
+                  Processing Error
+                </h3>
+                <p className="text-sm text-red-700 dark:text-red-200">{error}</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Results Display Section */}
-      {results.length > 0 && !loading && (
-        <div className="space-y-4">
-          {/* Results Header */}
-          <h3 className="text-xl font-semibold text-gray-800 dark:text-blue-300">
-            Detected Structures ({results.length})
-          </h3>
-          {/* Results Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {results.map((smilesResult, index) => (
-              // Assuming MoleculeCard is theme-aware
-              <MoleculeCard
-                key={index}
-                smiles={smilesResult}
-                title={`Detected Structure ${index + 1}`}
-                showActions={true} // Show copy/download actions on result cards
-                size="md" // Adjust size as needed
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Results Section */}
+      <AnimatePresence>
+        {results.length > 0 && !loading && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="space-y-4"
+          >
+            {/* Results Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <HiOutlineCheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-white">
+                  Detected Structures
+                </h3>
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
+                  {results.length} {results.length === 1 ? "structure" : "structures"}
+                </span>
+              </div>
+            </div>
+
+            {/* Results Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {results.map((smilesResult, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <MoleculeCard
+                    smiles={smilesResult}
+                    title={reference || `Structure ${index + 1}`}
+                    showActions={true}
+                    size="md"
+                  />
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

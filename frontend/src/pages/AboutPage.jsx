@@ -8,7 +8,7 @@ import {
 } from "react-icons/hi";
 import { FaFlask, FaConnectdevelop, FaAtom } from "react-icons/fa";
 
-// Animation Variants
+// Sophisticated Animation Variants
 const pageVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { duration: 0.7, ease: "easeOut" } },
@@ -55,13 +55,12 @@ const buttonVariant = {
   },
 };
 
-// CitationCard component with copy functionality
+// Enhanced CitationCard Component
 const CitationCard = ({ title, citation }) => {
   const [copySuccess, setCopySuccess] = useState(false);
 
   const handleCopy = async () => {
     try {
-      // Try to use the Clipboard API first (modern browsers)
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(citation);
         setCopySuccess(true);
@@ -69,17 +68,12 @@ const CitationCard = ({ title, citation }) => {
         return;
       }
 
-      // Fallback method for browsers that don't support clipboard API
-      // or when not in a secure context (HTTPS)
       const textArea = document.createElement("textarea");
       textArea.value = citation;
-
-      // Make the textarea out of viewport
       textArea.style.position = "fixed";
       textArea.style.left = "-999999px";
       textArea.style.top = "-999999px";
       document.body.appendChild(textArea);
-
       textArea.focus();
       textArea.select();
 
@@ -97,10 +91,9 @@ const CitationCard = ({ title, citation }) => {
 
   return (
     <motion.div
-      className="bg-white/60 dark:bg-slate-800/60 p-6 rounded-xl shadow-md border border-slate-200/60 dark:border-slate-700/60"
+      className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300"
       whileHover={{
-        y: -5,
-        boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+        y: -4,
       }}
       transition={{ duration: 0.2 }}
     >
@@ -146,7 +139,7 @@ const CitationCard = ({ title, citation }) => {
           )}
         </button>
       </div>
-      <div className="text-sm text-slate-700 dark:text-slate-300 bg-white/80 dark:bg-slate-900/80 p-4 rounded-lg border border-slate-300/80 dark:border-slate-700/80 font-mono whitespace-pre-wrap">
+      <div className="text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-300 dark:border-slate-700 font-mono whitespace-pre-wrap">
         {citation}
       </div>
     </motion.div>
@@ -162,7 +155,6 @@ const AboutPage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    // Add a slight delay to ensure smooth animations after component mounts
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, 100);
@@ -200,7 +192,7 @@ const AboutPage = () => {
         >
           <path
             fill="currentColor"
-            d="M39.5,-65.3C50.3,-56.7,57.6,-44.3,64.2,-31.1C70.8,-17.9,76.7,-3.8,74.6,9.4C72.6,22.5,62.6,34.8,51.5,43.9C40.5,53.1,28.3,59.1,14.9,63.5C1.5,68,-13.2,70.8,-24.5,65.8C-35.9,60.7,-43.9,47.7,-52.3,35.2C-60.6,22.7,-69.3,10.8,-70.8,-2.2C-72.3,-15.2,-66.5,-29.3,-57.1,-39.5C-47.7,-49.7,-34.5,-56,-21.5,-62.3C-8.6,-68.6,4.2,-74.9,17.4,-74.2C30.7,-73.5,44.5,-65.8,55.6,-55.2C66.7,-44.7,77.2,-31.3,77.1,-18.2C77.1,-5,66.7,7.9,59.1,19.5C51.6,31,47,41.1,38.7,47.8C30.5,54.5,18.6,57.7,6.5,59.1C-5.7,60.5,-18,60.1,-29.9,56.3C-41.8,52.5,-53.3,45.4,-59,35.1C-64.8,24.8,-64.8,11.3,-64.7,-2.2C-64.5,-15.7,-64.2,-29.4,-58.5,-40.1C-52.8,-50.9,-41.9,-58.8,-30,-64.3C-18.1,-69.9,-5.3,-73.1,7.7,-71.9C20.7,-70.8,34.6,-65.2,45.4,-56.4C56.1,-47.6,63.8,-35.5,67.4,-22.4C71,-9.3,70.5,4,64.9,14.2C59.3,24.5,48.5,31.9,39,40.3C29.4,48.8,21.1,58.4,10,63.9C-1.1,69.4,-15,71,-26.4,66.9C-37.9,62.9,-46.9,53.3,-54.6,42.8C-62.3,32.3,-68.7,20.8,-70.4,8.6C-72.1,-3.7,-69.2,-16.8,-63.9,-29C-58.6,-41.1,-51,-52.4,-40.7,-60.3C-30.4,-68.2,-17.5,-72.9,-3.5,-74.3C10.5,-75.7,22.6,-73.8,33.3,-68.9C44,-64,53.2,-56,58.5,-45.6C63.7,-35.2,65.1,-22.3,64.7,-9.9C64.3,2.4,62.1,14.3,57.1,24.7C52.1,35.1,44.4,44.2,34.9,50.6C25.4,57,14.1,60.7,2.4,62.9C-9.4,65.1,-21.5,65.7,-33.5,62.3C-45.5,58.9,-57.4,51.3,-63.3,40.5C-69.2,29.6,-69.2,15.6,-71.2,1.1C-73.3,-13.4,-77.6,-28.3,-73.1,-40.3C-68.6,-52.3,-55.4,-61.3,-41.6,-67.5C-27.9,-73.7,-13.5,-77.1,0.2,-77.2C13.9,-77.3,27.8,-74.2,39.5,-67.3C51.2,-60.4,60.7,-49.7,66.4,-37.5C72.1,-25.3,74,-11.6,72.5,-0.1C71,11.4,66.1,20.7,60.3,29.7C54.5,38.7,47.8,47.4,38.9,53C30,58.6,18.9,61.1,6.9,65.1C-5.1,69.2,-17.9,74.9,-29.3,73.5C-40.7,72.1,-50.6,63.5,-58.5,53.4C-66.3,43.3,-72,31.5,-74.8,18.9C-77.6,6.2,-77.4,-7.4,-73.7,-19.8C-70,-32.2,-62.9,-43.5,-52.9,-52.2C-42.9,-60.9,-30.1,-67,-17.5,-71.1C-4.9,-75.2,7.5,-77.3,19.7,-76.6C31.9,-75.9,43.9,-72.5,52.9,-65.3C61.9,-58.2,67.9,-47.3,72.2,-35.6C76.5,-23.9,79,-11.3,76.8,0.5C74.6,12.2,67.7,23.4,60.3,33.9C52.9,44.3,45,54,34.8,61.2C24.6,68.4,12.3,73.1,-0.6,74.6C-13.5,76.1,-27,74.4,-39.7,69.9C-52.4,65.4,-64.4,58,-68.6,46.9C-72.9,35.8,-69.5,20.9,-69.3,7.8C-69,-5.4,-71.8,-17.8,-68.4,-28.7C-65,-39.5,-55.3,-48.8,-44.4,-56.6C-33.4,-64.4,-21.2,-70.7,-8,-72.2C5.2,-73.7,19.4,-70.3,31.1,-64.2C42.8,-58,52,-49,57.9,-38.4C63.8,-27.8,66.4,-15.6,68.4,-2.9C70.4,9.8,71.9,23.1,66.7,33.1C61.5,43.1,49.7,49.9,38.3,56.3C26.9,62.8,15.8,68.9,3.4,71.8C-9,74.7,-22.7,74.2,-34.2,69.7C-45.7,65.1,-54.9,56.4,-61.9,45.9C-68.9,35.3,-73.6,22.9,-75.5,9.9C-77.4,-3.1,-76.5,-16.7,-71.6,-28.4C-66.7,-40.1,-57.9,-49.9,-46.9,-58.1C-35.9,-66.2,-22.8,-72.8,-8.8,-76.2C5.2,-79.6,20,-79.8,32.9,-74.8C45.7,-69.9,56.6,-59.7,65.2,-47.8C73.8,-35.9,80.1,-22.2,80,-8.8C79.8,4.7,73.2,18,66.5,29.9C59.8,41.7,53.1,52.2,43.2,59.4C33.3,66.6,20.3,70.6,6.5,73.7C-7.3,76.9,-21.8,79.2,-34.5,75.6C-47.1,72,-58,62.4,-66.2,50.8C-74.5,39.2,-80.2,25.4,-79.7,12.3C-79.2,-0.9,-72.6,-13.4,-66.3,-24.7C-59.9,-36,-53.8,-46.1,-44.5,-55.1C-35.2,-64.1,-22.8,-72.1,-8.8,-76.5C5.1,-80.9,20.6,-81.7,33.2,-76.3C45.8,-70.9,55.4,-59.2,64.3,-46.7C73.2,-34.2,81.3,-20.8,81.7,-7.1C82.1,6.6,74.9,20.7,67.2,33.2C59.5,45.7,51.3,56.7,40.6,64.2C29.8,71.8,16.5,75.9,2.9,77.9C-10.6,79.9,-24.5,79.7,-36.2,74.6C-47.9,69.5,-57.5,59.3,-65.6,47.8C-73.7,36.3,-80.4,23.3,-80.9,10.1C-81.5,-3.1,-75.9,-16.5,-69.5,-28.8C-63.1,-41.1,-55.9,-52.2,-45.4,-60.4C-34.9,-68.5,-21.2,-73.7,-6.7,-76.5C7.7,-79.3,23,-79.7,35.4,-74.3C47.8,-68.9,57.3,-57.7,65.9,-45.2C74.5,-32.8,82.3,-19.2,82.1,-5.9"
+            d="M39.5,-65.3C50.3,-56.7,57.6,-44.3,64.2,-31.1C70.8,-17.9,76.7,-3.8,74.6,9.4C72.6,22.5,62.6,34.8,51.5,43.9C40.5,53.1,28.3,59.1,14.9,63.5C1.5,68,-13.2,70.8,-24.5,65.8C-35.9,60.7,-43.9,47.7,-52.3,35.2C-60.6,22.7,-69.3,10.8,-70.8,-2.2C-72.3,-15.2,-66.5,-29.3,-57.1,-39.5C-47.7,-49.7,-34.5,-56,-21.5,-62.3C-8.6,-68.6,4.2,-74.9,17.4,-74.2C30.7,-73.5,44.5,-65.8,39.5,-65.3Z"
             transform="translate(100 100)"
           />
         </motion.svg>
@@ -212,13 +204,13 @@ const AboutPage = () => {
         >
           <path
             fill="currentColor"
-            d="M39.5,-65.3C50.3,-56.7,57.6,-44.3,64.2,-31.1C70.8,-17.9,76.7,-3.8,74.6,9.4C72.6,22.5,62.6,34.8,51.5,43.9C40.5,53.1,28.3,59.1,14.9,63.5C1.5,68,-13.2,70.8,-24.5,65.8C-35.9,60.7,-43.9,47.7,-52.3,35.2C-60.6,22.7,-69.3,10.8,-70.8,-2.2C-72.3,-15.2,-66.5,-29.3,-57.1,-39.5C-47.7,-49.7,-34.5,-56,-21.5,-62.3C-8.6,-68.6,4.2,-74.9,17.4,-74.2C30.7,-73.5,44.5,-65.8,55.6,-55.2C66.7,-44.7,77.2,-31.3,77.1,-18.2C77.1,-5,66.7,7.9,59.1,19.5C51.6,31,47,41.1,38.7,47.8C30.5,54.5,18.6,57.7,6.5,59.1C-5.7,60.5,-18,60.1,-29.9,56.3C-41.8,52.5,-53.3,45.4,-59,35.1C-64.8,24.8,-64.8,11.3,-64.7,-2.2C-64.5,-15.7,-64.2,-29.4,-58.5,-40.1C-52.8,-50.9,-41.9,-58.8,-30,-64.3C-18.1,-69.9,-5.3,-73.1,7.7,-71.9C20.7,-70.8,34.6,-65.2,45.4,-56.4C56.1,-47.6,63.8,-35.5,67.4,-22.4C71,-9.3,70.5,4,64.9,14.2C59.3,24.5,48.5,31.9,39,40.3C29.4,48.8,21.1,58.4,10,63.9C-1.1,69.4,-15,71,-26.4,66.9C-37.9,62.9,-46.9,53.3,-54.6,42.8C-62.3,32.3,-68.7,20.8,-70.4,8.6C-72.1,-3.7,-69.2,-16.8,-63.9,-29C-58.6,-41.1,-51,-52.4,-40.7,-60.3C-30.4,-68.2,-17.5,-72.9,-3.5,-74.3C10.5,-75.7,22.6,-73.8,33.3,-68.9C44,-64,53.2,-56,58.5,-45.6C63.7,-35.2,65.1,-22.3,64.7,-9.9C64.3,2.4,62.1,14.3,57.1,24.7C52.1,35.1,44.4,44.2,34.9,50.6C25.4,57,14.1,60.7,2.4,62.9C-9.4,65.1,-21.5,65.7,-33.5,62.3C-45.5,58.9,-57.4,51.3,-63.3,40.5C-69.2,29.6,-69.2,15.6,-71.2,1.1C-73.3,-13.4,-77.6,-28.3,-73.1,-40.3C-68.6,-52.3,-55.4,-61.3,-41.6,-67.5C-27.9,-73.7,-13.5,-77.1,0.2,-77.2C13.9,-77.3,27.8,-74.2,39.5,-67.3C51.2,-60.4,60.7,-49.7,66.4,-37.5C72.1,-25.3,74,-11.6,72.5,-0.1C71,11.4,66.1,20.7,60.3,29.7C54.5,38.7,47.8,47.4,38.9,53C30,58.6,18.9,61.1,6.9,65.1C-5.1,69.2,-17.9,74.9,-29.3,73.5C-40.7,72.1,-50.6,63.5,-58.5,53.4C-66.3,43.3,-72,31.5,-74.8,18.9C-77.6,6.2,-77.4,-7.4,-73.7,-19.8C-70,-32.2,-62.9,-43.5,-52.9,-52.2C-42.9,-60.9,-30.1,-67,-17.5,-71.1C-4.9,-75.2,7.5,-77.3,19.7,-76.6C31.9,-75.9,43.9,-72.5,52.9,-65.3C61.9,-58.2,67.9,-47.3,72.2,-35.6C76.5,-23.9,79,-11.3,76.8,0.5C74.6,12.2,67.7,23.4,60.3,33.9C52.9,44.3,45,54,34.8,61.2C24.6,68.4,12.3,73.1,-0.6,74.6C-13.5,76.1,-27,74.4,-39.7,69.9C-52.4,65.4,-64.4,58,-68.6,46.9C-72.9,35.8,-69.5,20.9,-69.3,7.8C-69,-5.4,-71.8,-17.8,-68.4,-28.7C-65,-39.5,-55.3,-48.8,-44.4,-56.6C-33.4,-64.4,-21.2,-70.7,-8,-72.2C5.2,-73.7,19.4,-70.3,31.1,-64.2C42.8,-58,52,-49,57.9,-38.4C63.8,-27.8,66.4,-15.6,68.4,-2.9C70.4,9.8,71.9,23.1,66.7,33.1C61.5,43.1,49.7,49.9,38.3,56.3C26.9,62.8,15.8,68.9,3.4,71.8C-9,74.7,-22.7,74.2,-34.2,69.7C-45.7,65.1,-54.9,56.4,-61.9,45.9C-68.9,35.3,-73.6,22.9,-75.5,9.9C-77.4,-3.1,-76.5,-16.7,-71.6,-28.4C-66.7,-40.1,-57.9,-49.9,-46.9,-58.1C-35.9,-66.2,-22.8,-72.8,-8.8,-76.2C5.2,-79.6,20,-79.8,32.9,-74.8C45.7,-69.9,56.6,-59.7,65.2,-47.8C73.8,-35.9,80.1,-22.2,80,-8.8C79.8,4.7,73.2,18,66.5,29.9C59.8,41.7,53.1,52.2,43.2,59.4C33.3,66.6,20.3,70.6,6.5,73.7C-7.3,76.9,-21.8,79.2,-34.5,75.6C-47.1,72,-58,62.4,-66.2,50.8C-74.5,39.2,-80.2,25.4,-79.7,12.3C-79.2,-0.9,-72.6,-13.4,-66.3,-24.7C-59.9,-36,-53.8,-46.1,-44.5,-55.1C-35.2,-64.1,-22.8,-72.1,-8.8,-76.5C5.1,-80.9,20.6,-81.7,33.2,-76.3C45.8,-70.9,55.4,-59.2,64.3,-46.7C73.2,-34.2,81.3,-20.8,81.7,-7.1C82.1,6.6,74.9,20.7,67.2,33.2C59.5,45.7,51.3,56.7,40.6,64.2C29.8,71.8,16.5,75.9,2.9,77.9C-10.6,79.9,-24.5,79.7,-36.2,74.6C-47.9,69.5,-57.5,59.3,-65.6,47.8C-73.7,36.3,-80.4,23.3,-80.9,10.1C-81.5,-3.1,-75.9,-16.5,-69.5,-28.8C-63.1,-41.1,-55.9,-52.2,-45.4,-60.4C-34.9,-68.5,-21.2,-73.7,-6.7,-76.5C7.7,-79.3,23,-79.7,35.4,-74.3C47.8,-68.9,57.3,-57.7,65.9,-45.2C74.5,-32.8,82.3,-19.2,82.1,-5.9"
+            d="M39.5,-65.3C50.3,-56.7,57.6,-44.3,64.2,-31.1C70.8,-17.9,76.7,-3.8,74.6,9.4C72.6,22.5,62.6,34.8,51.5,43.9C40.5,53.1,28.3,59.1,14.9,63.5C1.5,68,-13.2,70.8,-24.5,65.8C-35.9,60.7,-43.9,47.7,-52.3,35.2C-60.6,22.7,-69.3,10.8,-70.8,-2.2C-72.3,-15.2,-66.5,-29.3,-57.1,-39.5C-47.7,-49.7,-34.5,-56,-21.5,-62.3C-8.6,-68.6,4.2,-74.9,17.4,-74.2C30.7,-73.5,44.5,-65.8,39.5,-65.3Z"
             transform="translate(100 100)"
           />
         </motion.svg>
       </div>
 
-      {/* Enhanced Floating Particles Effect - Limited height to prevent scrolling issues */}
+      {/* Enhanced Floating Particles Effect */}
       <div
         className="particle-container absolute inset-0 -z-10 overflow-hidden pointer-events-none opacity-40 dark:opacity-30"
         style={{ maxHeight: "100vh" }}
@@ -230,21 +222,27 @@ const AboutPage = () => {
               key={i}
               className="particle absolute rounded-full bg-gradient-to-br from-blue-400 to-indigo-400 dark:from-blue-500 dark:to-indigo-500"
               initial={{
-                x: Math.random() * window.innerWidth,
-                y: Math.random() * window.innerHeight,
+                x: typeof window !== "undefined" ? Math.random() * window.innerWidth : 0,
+                y: typeof window !== "undefined" ? Math.random() * window.innerHeight : 0,
                 scale: Math.random() * 0.5 + 0.5,
               }}
               animate={{
-                x: [
-                  Math.random() * window.innerWidth,
-                  Math.random() * window.innerWidth,
-                  Math.random() * window.innerWidth,
-                ],
-                y: [
-                  Math.random() * window.innerHeight,
-                  Math.random() * window.innerHeight,
-                  Math.random() * window.innerHeight,
-                ],
+                x:
+                  typeof window !== "undefined"
+                    ? [
+                        Math.random() * window.innerWidth,
+                        Math.random() * window.innerWidth,
+                        Math.random() * window.innerWidth,
+                      ]
+                    : [0, 0, 0],
+                y:
+                  typeof window !== "undefined"
+                    ? [
+                        Math.random() * window.innerHeight,
+                        Math.random() * window.innerHeight,
+                        Math.random() * window.innerHeight,
+                      ]
+                    : [0, 0, 0],
                 scale: [
                   Math.random() * 0.5 + 0.5,
                   Math.random() * 1 + 0.8,
@@ -266,11 +264,10 @@ const AboutPage = () => {
           ))}
       </div>
 
-      {/* Content Area - Outer padding container - reduced bottom padding */}
+      {/* Content Area */}
       <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 pb-0 z-10 flex-grow">
-        {/* Inner wrapper for width constraint */}
         <div className="w-full max-w-6xl mx-auto">
-          {/* Page Header - Animated */}
+          {/* Page Header */}
           <motion.div
             className="mb-10 md:mb-16 max-w-5xl mx-auto text-center"
             variants={headerContainerVariants}
@@ -281,7 +278,6 @@ const AboutPage = () => {
               variants={headerItemVariants}
               className="mx-auto w-64 sm:w-96 mb-8 relative group"
             >
-              {/* Logo with dynamic color based on dark/light mode */}
               <img
                 src="https://raw.githubusercontent.com/Steinbeck-Lab/cheminformatics-microservice/refs/heads/main/public/img/logo.svg"
                 alt="Cheminformatics Microservice Logo"
@@ -294,9 +290,7 @@ const AboutPage = () => {
               variants={headerItemVariants}
               className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6"
             >
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
-                Unifying Access to Open Cheminformatics Toolkits
-              </span>
+              <span className="text-gradient">Cheminformatics Microservice</span>
             </motion.h1>
 
             <motion.p
@@ -308,7 +302,7 @@ const AboutPage = () => {
             </motion.p>
           </motion.div>
 
-          {/* Main Overview - Enhanced with better spacing and shadows */}
+          {/* Main Overview */}
           <motion.div
             className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16"
             variants={contentContainerVariant}
@@ -414,7 +408,7 @@ const AboutPage = () => {
             </motion.div>
           </motion.div>
 
-          {/* Integrated Tools Section - With logo integration */}
+          {/* Integrated Tools Section */}
           <motion.div
             className="glass rounded-xl shadow-xl border border-slate-200/50 dark:border-slate-700/30 overflow-hidden mb-16 transition-all duration-500 hover:shadow-2xl hover:border-blue-200/50 dark:hover:border-blue-700/30"
             variants={contentContainerVariant}
@@ -907,7 +901,7 @@ const AboutPage = () => {
                       href={funder.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block bg-white dark:bg-slate-800/60 p-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 w-auto h-16 flex items-center justify-center" // Fixed height
+                      className="block bg-white dark:bg-slate-800/60 p-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 w-auto h-16 flex items-center justify-center"
                       whileHover={{ y: -5, scale: 1.05 }}
                       transition={{ duration: 0.2 }}
                     >
@@ -915,8 +909,7 @@ const AboutPage = () => {
                         src={funder.logo}
                         alt={`${funder.name} Logo`}
                         className="max-h-12 object-contain"
-                      />{" "}
-                      {/* Max height */}
+                      />
                     </motion.a>
                   ))}
                 </div>
@@ -937,6 +930,10 @@ const AboutPage = () => {
 
         .text-gradient {
           @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400;
+        }
+
+        .link-style {
+          @apply text-blue-600 dark:text-blue-400 hover:underline;
         }
 
         /* Animation for shimmer effect */
