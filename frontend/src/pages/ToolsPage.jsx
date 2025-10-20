@@ -1,7 +1,7 @@
 // Description: This page contains tools for structure generation and sugar removal.
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence, LayoutGroup, useScroll, useTransform } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import SugarRemovalView from "../components/tools/SugarRemovalView";
 import StructureGenView from "../components/tools/StructureGenView";
 import InChIView from "../components/tools/InChIView";
@@ -141,10 +141,6 @@ const ToolsPage = () => {
   const activeTab = tabs.find((tab) => tab.id === activeTabId);
   const ActiveComponent = activeTab ? activeTab.component : null;
 
-  const { scrollYProgress } = useScroll();
-  const meshY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
-  const noiseY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-
   // Function to handle tab selection and close the mobile menu
   const handleTabSelection = (tabId) => {
     setActiveTabId(tabId);
@@ -159,71 +155,32 @@ const ToolsPage = () => {
       variants={pageVariants}
       initial="hidden"
       animate="visible"
-      style={{ willChange: "opacity" }}
     >
-      {/* --- Enhanced Background Effects --- */}
+      {/* --- Enhanced Background Effects (Static on Mobile) --- */}
       <div className="absolute inset-0 -z-20 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-slate-900 to-indigo-950 dark:opacity-100 opacity-0 transition-opacity duration-700"></div>
         <div className="absolute inset-0 bg-gradient-to-br from-sky-50 via-white to-indigo-100 dark:opacity-0 opacity-100 transition-opacity duration-700"></div>
-        {!isMobile && (
-          <motion.div
-            className="animated-mesh-gradient"
-            style={{ y: meshY, willChange: "transform" }}
-            animate={{
-              filter: ["blur(40px)", "blur(60px)", "blur(40px)"],
-              opacity: [0.4, 0.5, 0.4],
-            }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              repeatType: "reverse",
-              ease: "easeInOut",
-            }}
-          />
+        {/* Static mesh gradient on mobile, animated on desktop */}
+        {isMobile ? (
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-blue-500/20 dark:from-indigo-600/30 dark:via-purple-600/30 dark:to-blue-600/30 blur-3xl opacity-30"></div>
+        ) : (
+          <div className="animated-mesh-gradient"></div>
         )}
       </div>
+      {/* Static noise texture on mobile */}
       {!isMobile && (
-        <motion.div
+        <div
           className="absolute inset-0 -z-10 opacity-[0.03] dark:opacity-[0.04] pointer-events-none"
-          style={{ y: noiseY, backgroundImage: "url(/noise.svg)", willChange: "transform" }}
-          animate={{
-            backgroundPosition: ["0% 0%", "100% 100%"],
-          }}
-          transition={{
-            duration: 120,
-            repeat: Infinity,
-            repeatType: "reverse",
-            ease: "linear",
-          }}
-        ></motion.div>
+          style={{ backgroundImage: "url(/noise.svg)", backgroundSize: "200px 200px" }}
+        ></div>
       )}
       {/* Floating particles in dark mode - disabled on mobile */}
       {!isMobile && (
         <div className="absolute inset-0 -z-10 dark:opacity-40 opacity-0 transition-opacity duration-700 overflow-hidden pointer-events-none">
           <div className="absolute w-2 h-2 bg-blue-400 rounded-full top-1/4 left-1/4"></div>
-          <motion.div
-            className="absolute w-3 h-3 bg-purple-500 rounded-full top-1/3 right-1/4"
-            animate={{ y: [0, -30, 0], opacity: [0.4, 0.8, 0.4] }}
-            transition={{ duration: 6, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
-            style={{ willChange: "transform, opacity" }}
-          ></motion.div>
-          <motion.div
-            className="absolute w-2 h-2 bg-indigo-400 rounded-full bottom-1/4 left-1/3"
-            animate={{ y: [0, 20, 0], opacity: [0.3, 0.7, 0.3] }}
-            transition={{ duration: 8, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
-            style={{ willChange: "transform, opacity" }}
-          ></motion.div>
-          <motion.div
-            className="absolute w-4 h-4 bg-sky-400 rounded-full bottom-1/3 right-1/3 opacity-20"
-            animate={{ y: [0, -40, 0], opacity: [0.2, 0.5, 0.2] }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              repeatType: "reverse",
-              ease: "easeInOut",
-            }}
-            style={{ willChange: "transform, opacity" }}
-          ></motion.div>
+          <div className="absolute w-3 h-3 bg-purple-500 rounded-full top-1/3 right-1/4 opacity-60"></div>
+          <div className="absolute w-2 h-2 bg-indigo-400 rounded-full bottom-1/4 left-1/3 opacity-50"></div>
+          <div className="absolute w-4 h-4 bg-sky-400 rounded-full bottom-1/3 right-1/3 opacity-20"></div>
         </div>
       )}
       {/* Content Area - Outer padding container */}
