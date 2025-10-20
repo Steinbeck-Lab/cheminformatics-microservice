@@ -1,5 +1,49 @@
 # Changelog
 
+## [3.6.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.5.0...v3.6.0) (2025-10-15)
+
+
+### Features
+
+* adds method for sugar extraction, some linting, and now checks correctly whether aglycone is empty and not the entire list of aglycone and sugars ([40983ed](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/40983ed70d6d0b49deefc3df9ce728955dae7496))
+* adds method, endpoint, and test for getting aglycone and sugar atom indices ([c181b99](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/c181b998efb676d3c1b23bb63bb31fbfb9ffa18c))
+* adds more parameters to the remove-circular-sugars router ([302886e](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/302886e77f42b3982c89453868c90ba7e71e5b87))
+* adds more parameters to the remove-linear-sugars router ([abcdb6f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/abcdb6f002ad866f5af51be54a11050b0c4b1f69))
+* adds more parameters to the remove-sugars router ([a01f968](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/a01f968d67536da18181aaf75f873ceee0fa3bcd))
+* adds new extract-aglycone-and-sugars router ([281428c](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/281428c7a84f4abdba2edb7dd1219cc5fd04a3d5))
+* adds parameters to the sugars-info router ([870471b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/870471b39bce0f961f853223a2472de03d3e81f6))
+* adds SRU settings to get_sugar_info() ([e3f5f03](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/e3f5f03561a2e1689da8cf40110b1cb190fdb6df))
+* adds SRU/SDU settings to all the sugar removal methods ([d8d2604](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d8d26046bdc1ec3b790784728dde48182f7d977e))
+* adds test for new endpoint and some refactoring ([c25bed7](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/c25bed721a5a51863274eefb907331f74a23f4a1))
+* atom indices based highlighting for sugar removal ([0b8c480](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/0b8c4801eb7c1c7a2ee52baeab3a5543200a210a))
+* check cis/trans flag ([00c2fa0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/00c2fa0746c3013e8b4100c4c6e7d00ebf7c9c8c))
+* include atom numbering for depictions ([9e6ca8e](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/9e6ca8efcb46d2636cb06875ed1c5407238225bc))
+* SDF/Mol to SMILES convertor and other fixes ([348002c](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/348002cdb84ea3cf63ee15fcf141260615ff2441))
+* substrcture highlighting for sugar removal patch 1/ ([5bd749a](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/5bd749a2ef4e639aefdd39bf4dc8f3957d378819))
+* Sugar detection utility frontend ([50bd72a](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/50bd72adca5f4c52359d63c717908a43672764fa))
+* switches existing functions to SugarDetectionUtilty internally and some refactoring ([d42dbd1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d42dbd19df8b06fd36a951ced002133d1e37b11c))
+* Upload SDF/Mol component and other fixes ([8039717](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/8039717c322c436cca4006a1d451e86a3dd660db))
+
+
+### Bug Fixes
+
+* Citation information ([5e8d60f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/5e8d60fdddbce96881e98c8ac8c797f8509fc6cb))
+* display steregenic elements ([e3c5af2](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/e3c5af212b9c894a49c0337d7de82ba3f48e6d47))
+* rdkit function labeling issue ([5a4c264](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/5a4c264915fe8dc7c13eda30b0e2919b047a48dc))
+* rdkit test bugs ([a30325e](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/a30325ea040fbfa41160995309d413f763fb607b))
+* Revise README with project updates and citations ([a371418](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/a371418b5d1529bb311102bdd5358d1ceac37ec0))
+* SMILES input information ([d72072f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d72072f5f2d6fb6ea0c2e68cfcb9177b0c98c79b))
+* substructure highlight ([d9279db](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d9279db84131296d53784c6f0ffb75a1968f2ae7))
+* Sugar removal frontend improvements ([388856b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/388856b175c42d66995410cc58e3d8ad8b8a4635))
+* test converters ([378d799](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/378d7998feda9f92345db10e57aa346b89afd436))
+* Update depiction & depict ([abc8d9b](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/abc8d9b3438b44ef29cd3614069756c4ea5a3821))
+* VdW Volume ([bc88592](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/bc88592070541beef39d90ef667ae27e39ed79c9))
+
+
+### Documentation
+
+* improves documentation and gives better examples for the sugar-related endpoints ([1856230](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/1856230e4ed3c2bbd87e47b35654d491a45a56b4))
+
 ## [3.5.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.4.0...v3.5.0) (2025-08-17)
 
 
