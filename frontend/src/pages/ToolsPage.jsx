@@ -1,7 +1,7 @@
 // Description: This page contains tools for structure generation and sugar removal.
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence, LayoutGroup, useScroll, useTransform } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import SugarRemovalView from "../components/tools/SugarRemovalView";
 import StructureGenView from "../components/tools/StructureGenView";
 import InChIView from "../components/tools/InChIView";
@@ -141,10 +141,6 @@ const ToolsPage = () => {
   const activeTab = tabs.find((tab) => tab.id === activeTabId);
   const ActiveComponent = activeTab ? activeTab.component : null;
 
-  const { scrollYProgress } = useScroll();
-  const meshY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
-  const noiseY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-
   // Function to handle tab selection and close the mobile menu
   const handleTabSelection = (tabId) => {
     setActiveTabId(tabId);
@@ -155,70 +151,38 @@ const ToolsPage = () => {
 
   return (
     <motion.div
-      className="relative min-h-screen w-full bg-gradient-to-b from-slate-100 to-slate-200 dark:from-gray-950 dark:to-indigo-950/60 text-slate-900 dark:text-slate-100 font-sans overflow-x-hidden isolate"
+      className="relative min-h-screen w-full bg-gradient-to-b from-slate-100 to-slate-200 dark:from-gray-950 dark:to-indigo-950/60 text-slate-900 dark:text-slate-100 font-sans overflow-hidden isolate"
       variants={pageVariants}
       initial="hidden"
       animate="visible"
     >
-      {/* --- Enhanced Background Effects --- */}
-      <div className="absolute inset-0 -z-20 overflow-hidden dark:opacity-100 opacity-0 transition-opacity duration-500">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-slate-900 to-indigo-950"></div>
-        <motion.div
-          className="animated-mesh-gradient"
-          style={{ y: meshY }}
-          animate={{
-            filter: ["blur(40px)", "blur(60px)", "blur(40px)"],
-            opacity: [0.4, 0.5, 0.4],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            repeatType: "reverse",
-          }}
-        />
+      {/* --- Enhanced Background Effects (Static on Mobile) --- */}
+      <div className="absolute inset-0 -z-20 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-slate-900 to-indigo-950 dark:opacity-100 opacity-0 transition-opacity duration-700"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-sky-50 via-white to-indigo-100 dark:opacity-0 opacity-100 transition-opacity duration-700"></div>
+        {/* Static mesh gradient on mobile, animated on desktop */}
+        {isMobile ? (
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-blue-500/20 dark:from-indigo-600/30 dark:via-purple-600/30 dark:to-blue-600/30 blur-3xl opacity-30"></div>
+        ) : (
+          <div className="animated-mesh-gradient"></div>
+        )}
       </div>
-      <div className="absolute inset-0 -z-20 overflow-hidden dark:opacity-0 opacity-100 transition-opacity duration-500">
-        <div className="absolute inset-0 bg-gradient-to-br from-sky-50 via-white to-indigo-100"></div>
-        <motion.div
-          className="absolute inset-0 opacity-[0.05]"
-          style={{
-            y: noiseY,
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='70' height='70' viewBox='0 0 70 70' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23AAB' fill-opacity='.25'%3E%3Cpath d='M35 0v70M0 35h70' stroke-width='1.5'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}
-        />
-      </div>
-      <motion.div
-        className="absolute inset-0 -z-10 opacity-[0.03] dark:opacity-[0.04]"
-        style={{ y: noiseY, backgroundImage: "url(/noise.svg)" }}
-        animate={{
-          backgroundPosition: ["0% 0%", "100% 100%"],
-        }}
-        transition={{
-          duration: 120,
-          repeat: Infinity,
-          repeatType: "reverse",
-          ease: "linear",
-        }}
-      ></motion.div>
-      {/* Floating particles in dark mode */}
-      <div className="absolute inset-0 -z-10 dark:opacity-40 opacity-0 transition-opacity duration-500 overflow-hidden">
-        <div className="absolute w-2 h-2 bg-blue-400 rounded-full top-1/4 left-1/4"></div>
-        <motion.div
-          className="absolute w-3 h-3 bg-purple-500 rounded-full top-1/3 right-1/4"
-          animate={{ y: [0, -30, 0], opacity: [0.4, 0.8, 0.4] }}
-          transition={{ duration: 6, repeat: Infinity, repeatType: "reverse" }}
-        ></motion.div>
-        <motion.div
-          className="absolute w-2 h-2 bg-indigo-400 rounded-full bottom-1/4 left-1/3"
-          animate={{ y: [0, 20, 0], opacity: [0.3, 0.7, 0.3] }}
-          transition={{ duration: 8, repeat: Infinity, repeatType: "reverse" }}
-        ></motion.div>
-        <motion.div
-          className="absolute w-4 h-4 bg-sky-400 rounded-full bottom-1/3 right-1/3 opacity-20"
-          animate={{ y: [0, -40, 0], opacity: [0.2, 0.5, 0.2] }}
-          transition={{ duration: 10, repeat: Infinity, repeatType: "reverse" }}
-        ></motion.div>
-      </div>
+      {/* Static noise texture on mobile */}
+      {!isMobile && (
+        <div
+          className="absolute inset-0 -z-10 opacity-[0.03] dark:opacity-[0.04] pointer-events-none"
+          style={{ backgroundImage: "url(/noise.svg)", backgroundSize: "200px 200px" }}
+        ></div>
+      )}
+      {/* Floating particles in dark mode - disabled on mobile */}
+      {!isMobile && (
+        <div className="absolute inset-0 -z-10 dark:opacity-40 opacity-0 transition-opacity duration-700 overflow-hidden pointer-events-none">
+          <div className="absolute w-2 h-2 bg-blue-400 rounded-full top-1/4 left-1/4"></div>
+          <div className="absolute w-3 h-3 bg-purple-500 rounded-full top-1/3 right-1/4 opacity-60"></div>
+          <div className="absolute w-2 h-2 bg-indigo-400 rounded-full bottom-1/4 left-1/3 opacity-50"></div>
+          <div className="absolute w-4 h-4 bg-sky-400 rounded-full bottom-1/3 right-1/3 opacity-20"></div>
+        </div>
+      )}
       {/* Content Area - Outer padding container */}
       <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 z-10">
         {/* Wrapper div for width constraint */}
@@ -250,8 +214,9 @@ const ToolsPage = () => {
             variants={tabContainerVariant}
             initial="hidden"
             animate="visible"
-            whileHover={{ boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
+            whileHover={isMobile ? {} : { boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
             transition={{ duration: 0.5 }}
+            style={{ willChange: "transform, opacity" }}
           >
             {/* Tab Navigation - Mobile Optimized */}
             <div className="relative border-b border-slate-200/80 dark:border-slate-700/50 bg-gradient-to-r from-slate-100/80 to-slate-200/80 dark:from-slate-800/60 dark:to-slate-900/60">
@@ -327,13 +292,15 @@ const ToolsPage = () => {
                           }`}
                           aria-selected={isActive}
                           role="tab"
-                          whileHover={{ scale: 1.04 }}
+                          whileHover={isMobile ? {} : { scale: 1.04 }}
                           whileTap={{ scale: 0.96 }}
                           transition={{
                             type: "spring",
                             stiffness: 400,
-                            damping: 15,
+                            damping: 20,
+                            mass: 0.5,
                           }}
+                          style={{ willChange: "transform" }}
                         >
                           {isActive && (
                             <motion.div
@@ -342,16 +309,17 @@ const ToolsPage = () => {
                               transition={{
                                 type: "spring",
                                 stiffness: 380,
-                                damping: 35,
-                                mass: 0.8,
+                                damping: 30,
+                                mass: 0.6,
                               }}
-                              style={{ zIndex: 0 }}
+                              style={{ zIndex: 0, willChange: "transform" }}
                             />
                           )}
                           <motion.span
                             className="relative z-10 flex items-center"
                             animate={{ opacity: 1, scale: 1 }}
-                            whileHover={{ scale: isActive ? 1 : 1.02 }}
+                            whileHover={isMobile ? {} : { scale: isActive ? 1 : 1.02 }}
+                            style={{ willChange: "transform" }}
                           >
                             <tab.icon
                               className={`h-5 w-5 mr-2 flex-shrink-0 transition-colors duration-200 ${
@@ -417,10 +385,15 @@ const ToolsPage = () => {
                   exit="exit"
                   variants={contentVariants}
                   className="p-3 sm:p-5 md:p-6"
+                  style={{ willChange: "transform, opacity" }}
                 >
-                  {/* Decorative elements with theme-adaptive colors */}
-                  <div className="absolute -top-20 -right-20 w-40 h-40 bg-blue-100/30 dark:bg-blue-700/20 rounded-full filter blur-3xl"></div>
-                  <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-purple-100/30 dark:bg-purple-700/20 rounded-full filter blur-3xl"></div>
+                  {/* Decorative elements with theme-adaptive colors - disabled on mobile */}
+                  {!isMobile && (
+                    <>
+                      <div className="absolute -top-20 -right-20 w-40 h-40 bg-blue-100/30 dark:bg-blue-700/20 rounded-full filter blur-3xl pointer-events-none"></div>
+                      <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-purple-100/30 dark:bg-purple-700/20 rounded-full filter blur-3xl pointer-events-none"></div>
+                    </>
+                  )}
 
                   {/* ActiveComponent rendered here */}
                   {ActiveComponent && <ActiveComponent isActive={true} isMobile={isMobile} />}
@@ -457,6 +430,25 @@ const ToolsPage = () => {
           -webkit-backdrop-filter: blur(16px);
         }
 
+        /* Mobile optimizations - reduce backdrop blur */
+        @media (max-width: 767px) {
+          .glass {
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+          }
+        }
+
+        /* Hardware acceleration for smooth animations */
+        .animated-mesh-gradient,
+        motion-div[style*="willChange"] {
+          transform: translateZ(0);
+          -webkit-transform: translateZ(0);
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+          perspective: 1000px;
+          -webkit-perspective: 1000px;
+        }
+
         /* Animated Mesh Gradient */
         @keyframes mesh-gradient-move {
           0% {
@@ -472,16 +464,17 @@ const ToolsPage = () => {
 
         .animated-mesh-gradient {
           position: absolute;
-          inset: -100%;
+          inset: 0;
           background-image:
             radial-gradient(circle at 25% 25%, rgba(60, 90, 180, 0.4) 0%, transparent 50%),
             radial-gradient(circle at 75% 75%, rgba(120, 50, 200, 0.4) 0%, transparent 50%),
             radial-gradient(circle at 85% 15%, rgba(90, 40, 180, 0.4) 0%, transparent 50%);
+          background-size: 200% 200%;
           filter: blur(60px);
           opacity: 0.5;
           transform-origin: center;
           animation: mesh-gradient-move 30s ease infinite;
-          overflow: hidden;
+          will-change: background-position, opacity;
         }
 
         .dark .animated-mesh-gradient {
@@ -489,8 +482,21 @@ const ToolsPage = () => {
             radial-gradient(circle at 25% 25%, rgba(75, 100, 255, 0.5) 0%, transparent 50%),
             radial-gradient(circle at 75% 75%, rgba(160, 70, 240, 0.5) 0%, transparent 50%),
             radial-gradient(circle at 85% 15%, rgba(100, 60, 200, 0.5) 0%, transparent 50%);
+          background-size: 200% 200%;
           filter: blur(50px);
           opacity: 0.6;
+        }
+
+        /* Reduce motion for users who prefer it */
+        @media (prefers-reduced-motion: reduce) {
+          .animated-mesh-gradient {
+            animation: none;
+            opacity: 0.3;
+          }
+          motion-div {
+            animation: none !important;
+            transition: none !important;
+          }
         }
 
         /* Tab button styling */
