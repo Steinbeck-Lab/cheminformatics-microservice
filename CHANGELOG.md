@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.7.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.6.0...v3.7.0) (2025-10-21)
+
+
+### Features
+
+* Marcus link and OCSR improvements ([e9c70c0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/e9c70c00e8a6aa420904622f5342f52c547a0cd9))
+
+
+### Bug Fixes
+
+* Ketcher update and Flickering fixes ([e1f3077](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/e1f30772d24d0f9f73d7b1f67d65ab0885f06d46))
+
 ## [3.6.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.5.0...v3.6.0) (2025-10-15)
 
 
