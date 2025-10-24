@@ -16,6 +16,7 @@ const MoleculeDepiction2D = ({
   const [rotation, setRotation] = useState(0);
   const [useUnicolor, setUseUnicolor] = useState(false);
   const [showCIP, setShowCIP] = useState(initialShowCIP);
+  const [hydrogenDisplay, setHydrogenDisplay] = useState("Smart");
 
   // Fixed width and height - not using state to avoid ESLint warnings
   const imageWidth = 400;
@@ -35,8 +36,9 @@ const MoleculeDepiction2D = ({
         width: imageWidth,
         height: imageHeight,
         rotate: rotation,
-        CIP: toolkit === "cdk" ? showCIP : undefined,
+        CIP: showCIP,
         unicolor: useUnicolor,
+        hydrogen_display: toolkit === "cdk" ? hydrogenDisplay : undefined,
       };
 
       // Get the URL
@@ -47,7 +49,7 @@ const MoleculeDepiction2D = ({
       console.error("Error generating 2D depiction:", err);
       setError(`Failed to generate 2D depiction: ${err.message}`);
     }
-  }, [smiles, toolkit, rotation, useUnicolor, showCIP]);
+  }, [smiles, toolkit, rotation, useUnicolor, showCIP, hydrogenDisplay]);
 
   // Generate depiction when props or settings change
   useEffect(() => {
@@ -67,6 +69,7 @@ const MoleculeDepiction2D = ({
     setRotation(0);
     setUseUnicolor(false);
     setShowCIP(false);
+    setHydrogenDisplay("Smart");
     // The image will update due to dependency changes
   };
 
@@ -167,19 +170,41 @@ const MoleculeDepiction2D = ({
             </label>
           </div>
 
-          {/* CIP Stereo Toggle (CDK only) */}
+          {/* CIP Stereo Toggle */}
+          <div className="flex items-center">
+            <input
+              id="cip-toggle"
+              type="checkbox"
+              checked={showCIP}
+              onChange={(e) => setShowCIP(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-sm focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
+            />
+            <label htmlFor="cip-toggle" className="ml-2 text-xs text-gray-700 dark:text-gray-300">
+              Show R/S, E/Z
+            </label>
+          </div>
+
+          {/* Hydrogen Display Dropdown (CDK only) */}
           {toolkit === "cdk" && (
             <div className="flex items-center">
-              <input
-                id="cip-toggle"
-                type="checkbox"
-                checked={showCIP}
-                onChange={(e) => setShowCIP(e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-sm focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
-              />
-              <label htmlFor="cip-toggle" className="ml-2 text-xs text-gray-700 dark:text-gray-300">
-                Show R/S
+              <label
+                htmlFor="hydrogen-display"
+                className="mr-2 text-xs text-gray-700 dark:text-gray-300"
+              >
+                H Display:
               </label>
+              <select
+                id="hydrogen-display"
+                value={hydrogenDisplay}
+                onChange={(e) => setHydrogenDisplay(e.target.value)}
+                className="text-xs px-2 py-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value="Smart">Smart</option>
+                <option value="Provided">Provided</option>
+                <option value="Minimal">Minimal</option>
+                <option value="Explicit">Explicit</option>
+                <option value="Stereo">Stereo</option>
+              </select>
             </div>
           )}
 
