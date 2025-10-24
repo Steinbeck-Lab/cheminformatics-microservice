@@ -6,6 +6,7 @@ from jpype import JClass
 from rdkit import Chem
 from rdkit.Chem import rdDepictor
 from rdkit.Chem.Draw import rdMolDraw2D
+from app.modules.cdk_hydrogen_display import set_hydrogen_display
 
 from app.modules.toolkits.cdk_wrapper import get_CDK_SDG
 from app.modules.toolkits.cdk_wrapper import get_cip_annotation
@@ -21,6 +22,7 @@ def get_cdk_depiction(
     highlight="",
     highlight_atoms=None,
     showAtomNumbers=False,
+    hydrogen_display="Smart",
 ):
     """This function takes the user input SMILES and Depicts it.
 
@@ -36,9 +38,12 @@ def get_cdk_depiction(
         highlight (str, optional): SMARTS pattern to highlight. Defaults to empty.
         highlight_atoms (list, optional): List of atom indices to highlight. Defaults to None.
         showAtomNumbers (bool, optional): Whether to display atom numbers. Defaults to False.
+        hydrogen_display (str, optional): Hydrogen display mode: "Provided", "Minimal",
+                                         "Explicit", "Stereo", "Smart". Defaults to "Smart".
 
     Returns:
-        image (SVG): CDK Structure Depiction as an SVG image.
+        tuple: (encoded_image (str), mol_imageSVG (bytes)) - CDK Structure Depiction as SVG.
+               Returns (error_message (str), None) on error.
     """
     cdk_base = "org.openscience.cdk"
     StandardGenerator = JClass(
@@ -48,9 +53,9 @@ def get_cdk_depiction(
     UniColor = JClass(cdk_base + ".renderer.color.UniColor")
     CDK2DAtomColors = JClass(cdk_base + ".renderer.color.CDK2DAtomColors")()
     Kekulization = JClass(cdk_base + ".aromaticity.Kekulization")
-    SmartsPattern = JClass(cdk_base + ".smarts.SmartsPattern")
     SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
 
+    # Configure depiction generator based on color scheme
     if unicolor:
         DepictionGenerator = (
             JClass(cdk_base + ".depict.DepictionGenerator")()
@@ -71,112 +76,136 @@ def get_cdk_depiction(
             .withBackgroundColor(Color.WHITE)
         )
 
+    # This ensures the hydrogen settings are preserved in the coordinate generation
+    try:
+        set_hydrogen_display(molecule, hydrogen_display)
+    except ValueError as e:
+        return f"Invalid hydrogen display mode: {e}", None
+
+    # Generate 2D coordinates with CIP annotation if requested
     if CIP:
         SDGMol = get_cip_annotation(molecule)
     else:
         SDGMol = get_CDK_SDG(molecule)
 
-    if SDGMol:
-        # Rotate molecule
-        if kekulize:
-            try:
-                Kekulization.kekulize(SDGMol)
-            except Exception as e:
-                print(str(e) + " Can't Kekulize molecule")
+    if not SDGMol:
+        return "Error reading SMILES string, check again.", None
 
-        point = JClass(
-            cdk_base + ".geometry.GeometryTools",
-        ).get2DCenter(SDGMol)
+    # Kekulize the molecule if requested
+    if kekulize:
+        try:
+            Kekulization.kekulize(SDGMol)
+        except Exception as e:
+            print(str(e) + " Can't Kekulize molecule")
+
+    # Rotate molecule if requested
+    if rotate != 0:
+        point = JClass(cdk_base + ".geometry.GeometryTools").get2DCenter(SDGMol)
         JClass(cdk_base + ".geometry.GeometryTools").rotate(
             SDGMol,
             point,
             (rotate * JClass("java.lang.Math").PI / 180.0),
         )
 
-        # Add atom numbers if requested
-        if showAtomNumbers:
-            DepictionGenerator = DepictionGenerator.withAtomNumbers()
+    # Add atom numbers if requested
+    if showAtomNumbers:
+        DepictionGenerator = DepictionGenerator.withAtomNumbers()
 
-        # Handle highlighting: prioritize atom indices over SMARTS patterns
-        if highlight_atoms and len(highlight_atoms) > 0:
-            # Create atom sets from indices for highlighting
-            AtomContainer = JClass(cdk_base + ".AtomContainer")
-            AtomContainerSet = JClass(cdk_base + ".AtomContainerSet")
+    # Handle highlighting
+    DepictionGenerator = _apply_highlighting(
+        DepictionGenerator, SDGMol, highlight, highlight_atoms, cdk_base, SCOB
+    )
 
-            # Create a set of substructures from atom indices
-            tmpSubstructures = AtomContainerSet()
-
-            # If highlight_atoms is a list of lists, each list is a separate substructure
-            if isinstance(highlight_atoms[0], list):
-                # Multiple substructures (e.g., multiple sugars)
-                for atom_indices in highlight_atoms:
-                    if len(atom_indices) > 0:
-                        subset = AtomContainer()
-                        for idx in atom_indices:
-                            if idx < SDGMol.getAtomCount():
-                                subset.addAtom(SDGMol.getAtom(idx))
-                        # Add bonds between highlighted atoms
-                        for i, idx1 in enumerate(atom_indices):
-                            for idx2 in atom_indices[i + 1:]:
-                                if (
-                                    idx1 < SDGMol.getAtomCount()
-                                    and idx2 < SDGMol.getAtomCount()
-                                ):
-                                    bond = SDGMol.getBond(
-                                        SDGMol.getAtom(idx1), SDGMol.getAtom(idx2)
-                                    )
-                                    if bond is not None:
-                                        subset.addBond(bond)
-                        tmpSubstructures.addAtomContainer(subset)
-            else:
-                # Single substructure
-                subset = AtomContainer()
-                for idx in highlight_atoms:
-                    if idx < SDGMol.getAtomCount():
-                        subset.addAtom(SDGMol.getAtom(idx))
-                # Add bonds between highlighted atoms
-                for i, idx1 in enumerate(highlight_atoms):
-                    for idx2 in highlight_atoms[i + 1:]:
-                        if (
-                            idx1 < SDGMol.getAtomCount()
-                            and idx2 < SDGMol.getAtomCount()
-                        ):
-                            bond = SDGMol.getBond(
-                                SDGMol.getAtom(idx1), SDGMol.getAtom(idx2)
-                            )
-                            if bond is not None:
-                                subset.addBond(bond)
-                tmpSubstructures.addAtomContainer(subset)
-
-            lightBlue = Color(173, 216, 230)
-            DepictionGenerator = DepictionGenerator.withHighlight(
-                tmpSubstructures, lightBlue
-            ).withOuterGlowHighlight()
-        elif highlight and highlight.strip():
-            tmpPattern = SmartsPattern.create(highlight, SCOB.getInstance())
-            SmartsPattern.prepare(SDGMol)
-            tmpMappings = tmpPattern.matchAll(SDGMol)
-            tmpSubstructures = tmpMappings.toSubstructures()
-            lightBlue = Color(173, 216, 230)
-            DepictionGenerator = DepictionGenerator.withHighlight(
-                tmpSubstructures, lightBlue
-            ).withOuterGlowHighlight()
-
-        mol_imageSVG = (
-            DepictionGenerator.depict(
-                SDGMol,
-            )
-            .toSvgStr("px")
-            .getBytes()
-        )
+    # Generate the depiction
+    try:
+        mol_imageSVG = DepictionGenerator.depict(SDGMol).toSvgStr("px").getBytes()
         encoded_image = ET.tostring(
             ET.fromstring(mol_imageSVG),
             encoding="unicode",
         )
-
         return encoded_image
-    else:
-        return "Error reading SMILES string, check again."
+    except Exception as e:
+        return f"Error generating depiction: {str(e)}", None
+
+
+def _apply_highlighting(
+    depiction_generator, molecule, highlight_pattern, highlight_atoms, cdk_base, scob
+):
+    """Apply highlighting to the depiction generator.
+
+    Helper function to handle atom/bond highlighting. Prioritizes explicit atom indices
+    over SMARTS pattern matching.
+
+    Args:
+        depiction_generator: CDK DepictionGenerator instance
+        molecule: CDK IAtomContainer with 2D coordinates
+        highlight_pattern (str): SMARTS pattern for highlighting
+        highlight_atoms (list): List of atom indices or list of lists for multiple substructures
+        cdk_base (str): Base CDK package path
+        scob: SilentChemObjectBuilder instance
+
+    Returns:
+        DepictionGenerator: Updated generator with highlighting configured
+    """
+    Color = JClass("java.awt.Color")
+    lightBlue = Color(173, 216, 230)
+
+    # Priority 1: Explicit atom indices
+    if highlight_atoms and len(highlight_atoms) > 0:
+        AtomContainer = JClass(cdk_base + ".AtomContainer")
+        AtomContainerSet = JClass(cdk_base + ".AtomContainerSet")
+        tmpSubstructures = AtomContainerSet()
+
+        # Check if we have multiple substructures (list of lists) or single substructure (flat list)
+        is_multiple = isinstance(highlight_atoms[0], (list, tuple))
+        atom_index_groups = highlight_atoms if is_multiple else [highlight_atoms]
+
+        for atom_indices in atom_index_groups:
+            if len(atom_indices) > 0:
+                subset = AtomContainer()
+
+                # Add atoms to subset
+                for idx in atom_indices:
+                    if idx < molecule.getAtomCount():
+                        subset.addAtom(molecule.getAtom(idx))
+
+                # Add bonds between highlighted atoms
+                for i, idx1 in enumerate(atom_indices):
+                    for idx2 in atom_indices[i + 1:]:
+                        if (
+                            idx1 < molecule.getAtomCount()
+                            and idx2 < molecule.getAtomCount()
+                        ):
+                            bond = molecule.getBond(
+                                molecule.getAtom(idx1), molecule.getAtom(idx2)
+                            )
+                            if bond is not None:
+                                subset.addBond(bond)
+
+                tmpSubstructures.addAtomContainer(subset)
+
+        return depiction_generator.withHighlight(
+            tmpSubstructures, lightBlue
+        ).withOuterGlowHighlight()
+
+    # Priority 2: SMARTS pattern matching
+    elif highlight_pattern and highlight_pattern.strip():
+        try:
+            SmartsPattern = JClass(cdk_base + ".smarts.SmartsPattern")
+            tmpPattern = SmartsPattern.create(highlight_pattern, scob.getInstance())
+            SmartsPattern.prepare(molecule)
+            tmpMappings = tmpPattern.matchAll(molecule)
+            tmpSubstructures = tmpMappings.toSubstructures()
+
+            return depiction_generator.withHighlight(
+                tmpSubstructures, lightBlue
+            ).withOuterGlowHighlight()
+        except Exception as e:
+            print(f"Warning: Invalid SMARTS pattern '{highlight_pattern}': {e}")
+            return depiction_generator
+
+    # No highlighting
+    return depiction_generator
 
 
 def get_rdkit_depiction(

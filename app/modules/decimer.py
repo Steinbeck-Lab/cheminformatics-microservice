@@ -76,7 +76,7 @@ def get_segments(path: str) -> tuple:
         return image_name, segments
 
 
-def get_predicted_segments(path: str) -> str:
+def get_predicted_segments(path: str, hand_drawn: bool = False) -> str:
     """Get predicted SMILES representations for segments within an image.
 
     This function takes an image path, extracts segments, predicts SMILES representations
@@ -84,6 +84,7 @@ def get_predicted_segments(path: str) -> str:
 
     Args:
         path (str): Path to the input image file.
+        hand_drawn (bool): Whether to use hand-drawn model for prediction. Defaults to False.
 
     Returns:
         str: Predicted SMILES representations joined by '.' if segments are detected,
@@ -93,20 +94,24 @@ def get_predicted_segments(path: str) -> str:
     image_name, segments = get_segments(path)
 
     if len(segments) == 0:
-        smiles = predict_SMILES(path)
+        smiles = predict_SMILES(path, confidence=False, hand_drawn=hand_drawn)
         return smiles
     else:
         for segment_index in range(len(segments)):
             segmentname = f"{image_name[:-5]}_{segment_index}.png"
             segment_path = os.path.join(segmentname)
             cv2.imwrite(segment_path, segments[segment_index])
-            smiles = predict_SMILES(segment_path)
+            smiles = predict_SMILES(
+                segment_path, confidence=False, hand_drawn=hand_drawn
+            )
             smiles_predicted.append(smiles)
             os.remove(segment_path)
         return ".".join(smiles_predicted)
 
 
-def get_predicted_segments_from_file(content: any, filename: str) -> str:
+def get_predicted_segments_from_file(
+    content: any, filename: str, hand_drawn: bool = False
+) -> str:
     """Takes an image file content and filename, saves it temporarily, and returns SMILES prediction.
 
     If the image dimensions are below 500 pixels, uses predict_SMILES directly.
@@ -115,6 +120,7 @@ def get_predicted_segments_from_file(content: any, filename: str) -> str:
     Args:
         content (any): The image file content.
         filename (str): The filename to save the content to.
+        hand_drawn (bool): Whether to use hand-drawn model for prediction. Defaults to False.
 
     Returns:
         str: Predicted SMILES string.
@@ -132,9 +138,9 @@ def get_predicted_segments_from_file(content: any, filename: str) -> str:
 
         # If image is small (below 500 pixels in either dimension), use direct prediction
         if width < 500 or height < 500:
-            smiles = predict_SMILES(filename)
+            smiles = predict_SMILES(filename, confidence=False, hand_drawn=hand_drawn)
         else:
-            smiles = get_predicted_segments(filename)
+            smiles = get_predicted_segments(filename, hand_drawn=hand_drawn)
 
         return smiles
     finally:

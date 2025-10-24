@@ -146,6 +146,18 @@ async def depict_2d_molecule(
         title="Show Atom Numbers",
         description="Whether to show atom numbers on the molecular depiction.",
     ),
+    hydrogen_display: Literal[
+        "Provided", "Minimal", "Explicit", "Stereo", "Smart"
+    ] = Query(
+        default="Smart",
+        title="Hydrogen Display",
+        description=(
+            "Control how hydrogen atoms are displayed in the molecular depiction. "
+            "Options: 'Provided' (as-is), 'Minimal' (suppress all H), "
+            "'Explicit' (show all H), 'Stereo' (show stereo-relevant H only), "
+            "'Smart' (intelligent H placement, recommended for chiral molecules)."
+        ),
+    ),
 ):
     """Generates a 2D depiction of a molecule using CDK or RDKit with the given.
 
@@ -158,25 +170,36 @@ async def depict_2d_molecule(
     - **width**: (int, optional): The width of the generated image in pixels. Defaults to 512.
     - **height**: (int, optional): The height of the generated image in pixels. Defaults to 512.
     - **rotate**: (int, optional): The rotation angle of the molecule in degrees. Defaults to 0.
-    - CIP (bool, optional): Whether to include Cahn-Ingold-Prelog (CIP) stereochemistry information. Defaults to False.
-    - unicolor (bool, optional): Whether to use a single colour for the molecule. Defaults to False.
-    - highlight (Optional[str], optional): SMARTS pattern to highlight atoms/bonds. Defaults to "COSN".
-    - showAtomNumbers (bool, optional): Whether to show atom numbers on the molecular depiction. Defaults to False.
+    - **CIP** (bool, optional): Whether to include Cahn-Ingold-Prelog (CIP) stereochemistry information. Defaults to False.
+    - **highlight** (Optional[str], optional): SMARTS pattern to highlight atoms/bonds. Defaults to None.
+    - **atomIds** (Optional[str], optional): Comma-separated atom indices to highlight. Defaults to None.
+    - **showAtomNumbers** (bool, optional): Whether to show atom numbers on the molecular depiction. Defaults to False.
+    - **hydrogen_display** (str, optional): Control hydrogen display mode. Defaults to "Smart".
+        - "Provided": Keep hydrogens as-is (no changes)
+        - "Minimal": Suppress all hydrogens (clean depiction)
+        - "Explicit": Show all hydrogens explicitly
+        - "Stereo": Show only stereo-relevant hydrogens (chiral centers, E/Z bonds)
+        - "Smart": Intelligent hydrogen placement (recommended for chiral molecules)
+
 
     Returns:
         Response: An HTTP response containing the generated image in SVG+xml format.
 
     Raises:
-    - ValueError: If the SMILES string is not provided or is invalid.
+    - HTTPException (422): If the SMILES string is invalid or parameters are incorrect.
 
     Note:
         - The `smiles` parameter is required and must be provided as a query parameter.
         - The `toolkit` parameter determines the backend library to use for molecule depiction.
-          Currently supported options are "cdksdg" (CDK with SDG) and RDKit (default).
+          Currently supported options are "cdk" and "rdkit" (default).
         - The `width` and `height` parameters control the dimensions of the generated image.
         - The `rotate` parameter specifies the rotation angle of the molecule in degrees.
-        - The `CIP` parameter controls whether Cahn-Ingold-Prelog (CIP) stereochemistry information should be included / not.
+        - The `CIP` parameter controls whether Cahn-Ingold-Prelog (CIP) stereochemistry information should be included.
         - The `unicolor` parameter determines whether a single colour is used for the molecule.
+        - The `hydrogen_display` parameter is crucial for molecules with stereochemistry:
+          * Use "Smart" or "Stereo" for chiral molecules to show relevant hydrogens
+          * Use "Minimal" for clean, publication-quality depictions
+          * Use "Explicit" for educational materials showing all atoms
         - The `showAtomNumbers` parameter controls whether atom numbers are displayed on the depiction.
     """
     try:
@@ -204,6 +227,7 @@ async def depict_2d_molecule(
                 highlight=highlight,
                 highlight_atoms=highlight_atoms,
                 showAtomNumbers=showAtomNumbers,
+                hydrogen_display=hydrogen_display,
             )
         elif toolkit == "rdkit":
             mol = parse_input(smiles, "rdkit", False)
@@ -211,6 +235,7 @@ async def depict_2d_molecule(
                 mol,
                 [width, height],
                 rotate,
+                CIP=CIP,
                 unicolor=unicolor,
                 highlight=highlight,
                 highlight_atoms=highlight_atoms,

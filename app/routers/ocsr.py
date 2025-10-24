@@ -96,6 +96,11 @@ async def Extract_ChemicalInfo_From_File(
         embed=True,
         description="Image: Bytes content of the chemical structure depiction image",
     ),
+    hand_drawn: bool = Body(
+        False,
+        embed=True,
+        description="Use hand-drawn model for prediction",
+    ),
 ):
     """Detect, segment and convert a chemical structure depiction into a SMILES.
 
@@ -105,6 +110,7 @@ async def Extract_ChemicalInfo_From_File(
     - **path**: optional if img is provided (str): Local or Remote path to the image file.
     - **reference**: optional (str): User-defined reference information for tracking.
     - **img**: optional if a valid path is provided (str): Image: Bytes content of the chemical structure depiction image.
+    - **hand_drawn**: optional (bool): Use hand-drawn model for prediction. Defaults to False.
 
     Returns:
     - JSONResponse: A JSON response containing the extracted SMILES and the reference (if provided).
@@ -121,6 +127,7 @@ async def Extract_ChemicalInfo_From_File(
             smiles = get_predicted_segments_from_file(
                 response.file.read(),
                 filename,
+                hand_drawn=hand_drawn,
             )
             return JSONResponse(
                 content={"reference": reference, "smiles": smiles.split(".")},
@@ -139,6 +146,7 @@ async def Extract_ChemicalInfo_From_File(
                 smiles = get_predicted_segments_from_file(
                     response.content,
                     filename,
+                    hand_drawn=hand_drawn,
                 )
             return JSONResponse(
                 content={"reference": reference, "smiles": smiles.split(".")},
@@ -165,6 +173,7 @@ async def Extract_ChemicalInfo_From_File(
 )
 async def extract_chemicalinfo_from_upload(
     file: Annotated[UploadFile, File(description="Chemical structure depiction image")],
+    hand_drawn: bool = Body(False, description="Use hand-drawn model for prediction"),
 ):
     """Detect, segment and convert a chemical structure depiction in the.
 
@@ -172,6 +181,7 @@ async def extract_chemicalinfo_from_upload(
 
     Parameters:
     - **file**: required (File): Chemical structure depiction image
+    - **hand_drawn**: optional (bool): Use hand-drawn model for prediction. Defaults to False.
 
     Returns:
     - JSONResponse: A JSON response containing the extracted SMILES and the reference (if provided).
@@ -186,7 +196,9 @@ async def extract_chemicalinfo_from_upload(
         try:
             contents = file.file.read()
             try:
-                smiles = get_predicted_segments_from_file(contents, filename)
+                smiles = get_predicted_segments_from_file(
+                    contents, filename, hand_drawn=hand_drawn
+                )
                 return JSONResponse(
                     content={"reference": None, "smiles": smiles.split(".")},
                 )
