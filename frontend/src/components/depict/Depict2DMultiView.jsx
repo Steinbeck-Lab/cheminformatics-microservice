@@ -47,6 +47,7 @@ const BatchDepictionView = () => {
   const [useUnicolor, setUseUnicolor] = useState(false);
   const [highlight, setHighlight] = useState("");
   const [showAtomNumbers, setShowAtomNumbers] = useState(false);
+  const [hydrogenDisplay, setHydrogenDisplay] = useState("Smart");
 
   // UI state
   const [copiedSmiles, setCopiedSmiles] = useState(false); // For "Copy All SMILES" button
@@ -85,10 +86,11 @@ const BatchDepictionView = () => {
           width,
           height,
           rotate: rotation,
-          CIP: currentToolkit === "cdk" ? showCIP : undefined, // Check updated toolkit
+          CIP: showCIP,
           unicolor: useUnicolor,
           highlight: highlight || undefined,
           showAtomNumbers,
+          hydrogen_display: currentToolkit === "cdk" ? hydrogenDisplay : undefined,
         };
         // DEBUG: Log options and URL generation
         // console.log(`Regen options for ${dep.smiles}:`, options);
@@ -102,10 +104,7 @@ const BatchDepictionView = () => {
   // Handle toolkit change, reset incompatible options, and regenerate
   const handleToolkitChange = (newToolkit) => {
     setToolkit(newToolkit);
-    // RDKit doesn't support CIP labels in this context
-    if (newToolkit === "rdkit") {
-      setShowCIP(false);
-    }
+    // No need to disable options anymore - both toolkits support CIP now
     // Regenerate depictions if results already exist
     if (depictions.length > 0) {
       regenerateDepictions(newToolkit);
@@ -152,10 +151,11 @@ const BatchDepictionView = () => {
             width,
             height,
             rotate: rotation,
-            CIP: toolkit === "cdk" ? showCIP : undefined,
+            CIP: showCIP,
             unicolor: useUnicolor,
             highlight: highlight || undefined,
             showAtomNumbers,
+            hydrogen_display: toolkit === "cdk" ? hydrogenDisplay : undefined,
           };
           const updatedImageUrl = depictService.get2DDepictionUrl(dep.smiles, options);
           return { ...dep, imageUrl: updatedImageUrl };
@@ -223,10 +223,11 @@ const BatchDepictionView = () => {
           width,
           height,
           rotate: 0, // Initial rotation
-          CIP: toolkit === "cdk" ? showCIP : undefined,
+          CIP: showCIP,
           unicolor: useUnicolor,
           highlight: highlight || undefined,
           showAtomNumbers,
+          hydrogen_display: toolkit === "cdk" ? hydrogenDisplay : undefined,
         };
 
         // Get the URL (assuming service returns URL directly)
@@ -282,11 +283,12 @@ const BatchDepictionView = () => {
           width,
           height,
           rotate: rotation,
-          CIP: toolkit === "cdk" ? showCIP : undefined,
+          CIP: showCIP,
           unicolor: useUnicolor,
           highlight: highlight || undefined,
           showAtomNumbers,
           format: downloadFormat, // Pass format to service if needed
+          hydrogen_display: toolkit === "cdk" ? hydrogenDisplay : undefined,
         };
 
         // Use a potentially different URL for download if format differs or specific endpoint exists
@@ -379,11 +381,12 @@ const BatchDepictionView = () => {
         width,
         height,
         rotate: rotation,
-        CIP: toolkit === "cdk" ? showCIP : undefined,
+        CIP: showCIP,
         unicolor: useUnicolor,
         highlight: highlight || undefined,
         showAtomNumbers,
         format: downloadFormat, // Use selected format for single download too
+        hydrogen_display: toolkit === "cdk" ? hydrogenDisplay : undefined,
       };
 
       // Get the URL for fetching the image
@@ -570,6 +573,30 @@ const BatchDepictionView = () => {
                       className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
                     />
                   </div>
+
+                  {/* Hydrogen Display Select (CDK only) */}
+                  {toolkit === "cdk" && (
+                    <div>
+                      <label
+                        htmlFor="hydrogen-display-select"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                      >
+                        Hydrogen Display
+                      </label>
+                      <select
+                        id="hydrogen-display-select"
+                        value={hydrogenDisplay}
+                        onChange={(e) => setHydrogenDisplay(e.target.value)}
+                        className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                      >
+                        <option value="Smart">Smart</option>
+                        <option value="Provided">Provided</option>
+                        <option value="Minimal">Minimal</option>
+                        <option value="Explicit">Explicit</option>
+                        <option value="Stereo">Stereo</option>
+                      </select>
+                    </div>
+                  )}
                 </div>
 
                 {/* Highlight Input */}
@@ -600,21 +627,11 @@ const BatchDepictionView = () => {
                       type="checkbox"
                       checked={showCIP}
                       onChange={(e) => setShowCIP(e.target.checked)}
-                      disabled={toolkit === "rdkit"}
-                      // Checkbox Styling (including disabled state)
-                      className={`h-4 w-4 rounded border-gray-300 dark:border-gray-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 ${
-                        toolkit === "rdkit"
-                          ? "bg-gray-100 dark:bg-gray-700 opacity-50 cursor-not-allowed"
-                          : "bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-500"
-                      }`}
+                      // Checkbox Styling
+                      className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-500"
                     />
-                    <label
-                      htmlFor="cip"
-                      // Label Styling (including disabled state)
-                      className={`ml-2 text-sm ${toolkit === "rdkit" ? "text-gray-400 dark:text-gray-500" : "text-gray-700 dark:text-gray-300"}`}
-                    >
+                    <label htmlFor="cip" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                       Show CIP (R/S, E/Z)
-                      {toolkit === "rdkit" && <span className="ml-2 text-xs">(CDK only)</span>}
                     </label>
                   </div>
                   {/* Unicolor Checkbox */}

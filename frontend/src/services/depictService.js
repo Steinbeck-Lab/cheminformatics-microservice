@@ -16,6 +16,7 @@ const DEPICT_URL = "/depict";
  * @param {string} options.highlight - SMARTS pattern to highlight atoms/bonds
  * @param {Array<number>|Array<Array<number>>} options.atomIds - Atom indices to highlight (single array or array of arrays for multiple substructures)
  * @param {boolean} options.showAtomNumbers - Show atom numbers on the depiction
+ * @param {string} options.hydrogen_display - Hydrogen display mode for CDK (Provided, Minimal, Explicit, Stereo, Smart)
  * @returns {Promise<string>} - SVG depiction as text
  */
 export const generate2DDepiction = async (smiles, options = {}) => {
@@ -29,6 +30,7 @@ export const generate2DDepiction = async (smiles, options = {}) => {
     highlight = "COSN",
     atomIds = null,
     showAtomNumbers = false,
+    hydrogen_display = "Smart",
   } = options;
 
   try {
@@ -43,6 +45,11 @@ export const generate2DDepiction = async (smiles, options = {}) => {
       highlight,
       showAtomNumbers,
     };
+
+    // Add hydrogen_display parameter for CDK toolkit
+    if (toolkit === "cdk" && hydrogen_display) {
+      params.hydrogen_display = hydrogen_display;
+    }
 
     // Convert atomIds to comma-separated string if provided
     if (atomIds) {
@@ -86,6 +93,7 @@ export const generate3DDepiction = async (smiles, toolkit = "openbabel") => {
  * @param {string} smiles - SMILES string
  * @param {Object} options - Depiction options
  * @param {Array<number>|Array<Array<number>>} options.atomIds - Atom indices to highlight
+ * @param {string} options.hydrogen_display - Hydrogen display mode for CDK (Provided, Minimal, Explicit, Stereo, Smart)
  * @returns {string} - URL to the depiction image
  */
 export const get2DDepictionUrl = (smiles, options = {}) => {
@@ -100,6 +108,7 @@ export const get2DDepictionUrl = (smiles, options = {}) => {
     atomIds = null,
     format = "svg",
     showAtomNumbers = false,
+    hydrogen_display = "Smart",
   } = options;
 
   const baseUrl = api.defaults.baseURL || "";
@@ -120,6 +129,11 @@ export const get2DDepictionUrl = (smiles, options = {}) => {
   url.searchParams.append("CIP", CIP);
   url.searchParams.append("unicolor", unicolor);
   url.searchParams.append("showAtomNumbers", showAtomNumbers);
+
+  // Add hydrogen_display parameter for CDK toolkit
+  if (toolkit === "cdk" && hydrogen_display) {
+    url.searchParams.append("hydrogen_display", hydrogen_display);
+  }
 
   if (highlight) {
     url.searchParams.append("highlight", highlight);
