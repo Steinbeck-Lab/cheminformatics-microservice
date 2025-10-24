@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.7.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.6.1...v3.7.0) (2025-10-24)
+
+
+### Features
+
+* Hydrogen display to 'smart' ([3bffc79](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/3bffc791b171063b60bc562f31848f4ad225e054))
+
 ## [3.7.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.6.0...v3.7.0) (2025-10-21)
 
 
