@@ -394,7 +394,7 @@ const DepictPage = () => {
                   {/* ActiveComponent rendered here */}
                   {ActiveComponent && (
                     <ActiveComponent
-                      isActive={activeTabId === "3d-depiction"}
+                      isActive={activeTabId === "3ddepiction"}
                       isMobile={isMobile}
                     />
                   )}
