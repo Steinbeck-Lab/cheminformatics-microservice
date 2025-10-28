@@ -2,7 +2,7 @@
 
 set -e
 
-COMPOSE_FILE="/mnt/data/cheminformatics-microservice/ops/docker-compose.lite.yml"
+COMPOSE_FILE="$(dirname "$0")/docker-compose.lite.yml"
 API_IMAGE="nfdi4chem/cheminformatics-microservice:latest-lite"
 NEW_CONTAINER_ID=""
 
