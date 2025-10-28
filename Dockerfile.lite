@@ -1,9 +1,9 @@
 FROM continuumio/miniconda3:24.1.2-0 AS cheminf-python-ms
 
 # ---------- build-time proxy args ----------
-ARG http_proxy
-ARG https_proxy
-ARG no_proxy
+# ARG http_proxy
+# ARG https_proxy
+# ARG no_proxy
 
 ENV PYTHON_VERSION=3.11 \
     INCLUDE_OCSR=false \
@@ -18,11 +18,9 @@ ENV PYTHON_VERSION=3.11 \
     HTTPS_PROXY=${https_proxy} \
     NO_PROXY=${no_proxy}
 
-# Configure APT to use proxy for package installation
-RUN if [ -n "$http_proxy" ]; then \
-        printf 'Acquire::http::Proxy "%s";\nAcquire::https::Proxy "%s";\n' "$http_proxy" "$https_proxy" \
-        > /etc/apt/apt.conf.d/80proxy; \
-    fi
+# Optional: help APT when /etc/apt/apt.conf.d is respected (env is usually enough)
+# RUN printf 'Acquire::http::Proxy "%s";\nAcquire::https::Proxy "%s";\n' "$http_proxy" "$https_proxy" \
+#     > /etc/apt/apt.conf.d/80proxy
 
 # Install runtime dependencies
 RUN apt-get update && \
