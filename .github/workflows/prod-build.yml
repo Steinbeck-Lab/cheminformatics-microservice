@@ -1,7 +1,9 @@
 # This workflow will perform the following actions when a release is published:
-# - Fetch Latest release.
-# - Build the latest docker image in production.
-# - Push the docker image to Docker Hub.
+# - Fetch latest release information
+# - Build and push full Docker image with release version tags
+# - Build and push lite Docker image with proxy settings and release version tags
+# - Build and push frontend Docker image (only if frontend files changed)
+# - Push all images to Docker Hub with proper tagging
 #
 # Maintainers:
 #   - name: Nisha Sharma
@@ -9,9 +11,13 @@
 
 name: Prod Build, Test and Publish
 
+# on:
+#   release:
+#     types: [published]
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - dev-nisha
 
 # Set global environment variables
 env:
@@ -47,19 +53,19 @@ jobs:
           password: ${{ env.DOCKER_HUB_PASSWORD }}
       
       # Build and push backend image
-      - name: Build and push full Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          build-args: |
-            RELEASE_VERSION=${{ steps.fetch-latest-release.outputs.tag_name }}
-          tags: |
-            ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:${{ steps.fetch-latest-release.outputs.tag_name }}
-            ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest
+      # - name: Build and push full Docker image
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: .
+      #     file: ./Dockerfile
+      #     push: true
+      #     build-args: |
+      #       RELEASE_VERSION=${{ steps.fetch-latest-release.outputs.tag_name }}
+      #     tags: |
+      #       ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:${{ steps.fetch-latest-release.outputs.tag_name }}
+      #       ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest
 
-      # Build and push lite version of backend image
+      # # Build and push lite version of backend image
       - name: Build and push lite Docker image
         uses: docker/build-push-action@v5
         with:
@@ -68,6 +74,9 @@ jobs:
           push: true
           build-args: |
             RELEASE_VERSION=${{ steps.fetch-latest-release.outputs.tag_name }}
+            http_proxy=http://internet4nzm.rz.uni-jena.de:3128
+            https_proxy=http://internet4nzm.rz.uni-jena.de:3128
+            no_proxy=localhost,127.0.0.1,::1,.uni-jena.de,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
           tags: |
             ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:${{ steps.fetch-latest-release.outputs.tag_name }}-lite
             ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest-lite
