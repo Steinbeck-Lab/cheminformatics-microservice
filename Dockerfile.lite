@@ -1,9 +1,6 @@
 FROM continuumio/miniconda3:24.1.2-0 AS cheminf-python-ms
 
 # ---------- build-time proxy args ----------
-# ARG http_proxy
-# ARG https_proxy
-# ARG no_proxy
 
 ENV PYTHON_VERSION=3.11 \
     INCLUDE_OCSR=false \

@@ -11,13 +11,9 @@
 
 name: Prod Build, Test and Publish
 
-# on:
-#   release:
-#     types: [published]
 on:
-  push:
-    branches:
-      - dev-nisha
+  release:
+    types: [published]
 
 # Set global environment variables
 env:
@@ -52,18 +48,18 @@ jobs:
           username: ${{ env.DOCKER_HUB_USERNAME }}
           password: ${{ env.DOCKER_HUB_PASSWORD }}
       
-      # Build and push backend image
-      # - name: Build and push full Docker image
-      #   uses: docker/build-push-action@v5
-      #   with:
-      #     context: .
-      #     file: ./Dockerfile
-      #     push: true
-      #     build-args: |
-      #       RELEASE_VERSION=${{ steps.fetch-latest-release.outputs.tag_name }}
-      #     tags: |
-      #       ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:${{ steps.fetch-latest-release.outputs.tag_name }}
-      #       ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest
+     # Build and push backend image
+      - name: Build and push full Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          build-args: |
+            RELEASE_VERSION=${{ steps.fetch-latest-release.outputs.tag_name }}
+          tags: |
+            ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:${{ steps.fetch-latest-release.outputs.tag_name }}
+            ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest
 
       # # Build and push lite version of backend image
       - name: Build and push lite Docker image

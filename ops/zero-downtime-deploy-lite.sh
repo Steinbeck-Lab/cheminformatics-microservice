@@ -3,7 +3,7 @@
 set -e
 
 COMPOSE_FILE="/mnt/data/cheminformatics-microservice/ops/docker-compose.lite.yml"
-API_IMAGE="nfdi4chem/cheminformatics-microservice:lite"
+API_IMAGE="nfdi4chem/cheminformatics-microservice:latest-lite"
 NEW_CONTAINER_ID=""
 
 # === Error Handling ===
