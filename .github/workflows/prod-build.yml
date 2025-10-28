@@ -74,9 +74,6 @@ jobs:
           push: true
           build-args: |
             RELEASE_VERSION=${{ steps.fetch-latest-release.outputs.tag_name }}
-            http_proxy=http://internet4nzm.rz.uni-jena.de:3128
-            https_proxy=http://internet4nzm.rz.uni-jena.de:3128
-            no_proxy=localhost,127.0.0.1,::1,.uni-jena.de,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
           tags: |
             ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:${{ steps.fetch-latest-release.outputs.tag_name }}-lite
             ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest-lite
