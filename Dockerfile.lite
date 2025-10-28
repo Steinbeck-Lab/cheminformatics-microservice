@@ -18,9 +18,11 @@ ENV PYTHON_VERSION=3.11 \
     HTTPS_PROXY=${https_proxy} \
     NO_PROXY=${no_proxy}
 
-# Optional: help APT when /etc/apt/apt.conf.d is respected (env is usually enough)
-# RUN printf 'Acquire::http::Proxy "%s";\nAcquire::https::Proxy "%s";\n' "$http_proxy" "$https_proxy" \
-#     > /etc/apt/apt.conf.d/80proxy
+# Configure APT to use proxy for package installation
+RUN if [ -n "$http_proxy" ]; then \
+        printf 'Acquire::http::Proxy "%s";\nAcquire::https::Proxy "%s";\n' "$http_proxy" "$https_proxy" \
+        > /etc/apt/apt.conf.d/80proxy; \
+    fi
 
 # Install runtime dependencies
 RUN apt-get update && \
