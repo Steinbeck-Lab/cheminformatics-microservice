@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.6.3](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.6.2...v3.6.3) (2025-10-27)
+
+
+### Bug Fixes
+
+* 3d depiction ([42d021f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/42d021faf615705878897507cf52ef38d691b9f9))
+
 ## [3.7.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.6.1...v3.7.0) (2025-10-24)
 
 
