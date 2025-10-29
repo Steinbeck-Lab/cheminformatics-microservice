@@ -1,0 +1,52 @@
+services:
+  traefik:
+    image: traefik:v3.1.5
+    container_name: traefik-prod
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+    networks:
+      - cm_fastapi_lite
+
+  api:
+    image: nfdi4chem/cheminformatics-microservice:latest-lite
+    environment:
+      HOMEPAGE_URL: "https://docs.api.naturalproducts.net"
+      WORKERS: "2"
+      INCLUDE_OCSR: "false"
+      HTTP_PROXY:  "http://internet4nzm.rz.uni-jena.de:3128"
+      HTTPS_PROXY: "http://internet4nzm.rz.uni-jena.de:3128"
+      NO_PROXY:    "localhost,127.0.0.1,::1,.uni-jena.de,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+      http_proxy:  "http://internet4nzm.rz.uni-jena.de:3128"
+      https_proxy: "http://internet4nzm.rz.uni-jena.de:3128"
+      no_proxy:    "localhost,127.0.0.1,::1,.uni-jena.de,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/latest/chem/health || exit 1"]
+      interval: 90s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`api.cheminf.studio`)"
+      - "traefik.http.routers.api.entrypoints=web"
+      - "traefik.http.services.api.loadbalancer.server.port=80"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - cm_fastapi_lite
+
+networks:
+  cm_fastapi_lite:
+    name: cm_fastapi_lite
+    driver: bridge
