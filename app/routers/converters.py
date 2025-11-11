@@ -10,6 +10,7 @@ from fastapi import status
 from fastapi import Request
 from fastapi import Body
 from fastapi.responses import Response
+
 # Use the shared limiter instance
 from app.limiter import limiter
 from rdkit import Chem
@@ -611,15 +612,9 @@ async def encode_selfies(
             "description": "Successful response",
             "model": GenerateFormatsResponse,
         },
-        400: {
-            "description": "Bad Request",
-            "model": BadRequestModel},
-        404: {
-            "description": "Not Found",
-            "model": NotFoundModel},
-        422: {
-            "description": "Unprocessable Entity",
-            "model": ErrorResponse},
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
 async def smiles_convert_to_formats(
@@ -815,8 +810,7 @@ async def batch_convert(
             input_format = input_item.get("input_format", "")
 
             if not value or not input_format:
-                raise ValueError(
-                    "Missing required fields: value or input_format")
+                raise ValueError("Missing required fields: value or input_format")
 
             # First convert input to SMILES if it's not already in SMILES
             # format
@@ -826,18 +820,17 @@ async def batch_convert(
                 smiles = get_smiles_opsin(value)
                 if not smiles:
                     raise ValueError(
-                        f"Failed to convert IUPAC name '{value}' to SMILES")
+                        f"Failed to convert IUPAC name '{value}' to SMILES"
+                    )
             elif input_format.lower() == "selfies":
                 smiles = sf.decoder(value)
                 if not smiles:
-                    raise ValueError(
-                        f"Failed to decode SELFIES '{value}' to SMILES")
+                    raise ValueError(f"Failed to decode SELFIES '{value}' to SMILES")
             elif input_format.lower() == "inchi":
                 # Use RDKit to convert InChI to SMILES
                 mol = Chem.inchi.MolFromInchi(value)
                 if not mol:
-                    raise ValueError(
-                        f"Failed to convert InChI '{value}' to molecule")
+                    raise ValueError(f"Failed to convert InChI '{value}' to molecule")
                 smiles = Chem.MolToSmiles(mol)
             elif input_format.lower() != "smiles":
                 raise ValueError(f"Unsupported input format: {input_format}")
@@ -854,9 +847,7 @@ async def batch_convert(
                     output_value = str(get_canonical_SMILES(mol))
                 elif toolkit == "rdkit":
                     mol = parse_input(smiles, "rdkit", False)
-                    output_value = str(
-                        Chem.MolToSmiles(
-                            mol, kekuleSmiles=True))
+                    output_value = str(Chem.MolToSmiles(mol, kekuleSmiles=True))
                 elif toolkit == "openbabel":
                     output_value = get_ob_canonical_SMILES(smiles)
 
@@ -892,7 +883,8 @@ async def batch_convert(
                     output_value = str(get_rdkit_CXSMILES(mol))
                 else:
                     raise ValueError(
-                        f"CXSMILES conversion not supported by toolkit: {toolkit}")
+                        f"CXSMILES conversion not supported by toolkit: {toolkit}"
+                    )
 
             elif output_format.lower() == "smarts":
                 if toolkit == "rdkit":
@@ -900,7 +892,8 @@ async def batch_convert(
                     output_value = str(Chem.MolToSmarts(mol))
                 else:
                     raise ValueError(
-                        f"SMARTS conversion not supported by toolkit: {toolkit}")
+                        f"SMARTS conversion not supported by toolkit: {toolkit}"
+                    )
 
             elif output_format.lower() == "mol2d":
                 if toolkit == "cdk":
@@ -920,44 +913,43 @@ async def batch_convert(
                     output_value = get_ob_mol(smiles, threeD=True)
                 else:
                     raise ValueError(
-                        f"3D coordinates generation not supported by toolkit: {toolkit}")
+                        f"3D coordinates generation not supported by toolkit: {toolkit}"
+                    )
 
             else:
                 raise ValueError(f"Unsupported output format: {output_format}")
 
             # Create a result dictionary
-            results.append({
-                "input": {
-                    "value": value,
-                    "input_format": input_format
-                },
-                "output": output_value,
-                "success": True,
-                "error": ""
-            })
+            results.append(
+                {
+                    "input": {"value": value, "input_format": input_format},
+                    "output": output_value,
+                    "success": True,
+                    "error": "",
+                }
+            )
             success_count += 1
 
         except Exception as e:
             # Create an error result dictionary
-            results.append({
-                "input": {
-                    "value": input_item.get("value", ""),
-                    "input_format": input_item.get("input_format", "")
-                },
-                "output": "",
-                "success": False,
-                "error": str(e)
-            })
+            results.append(
+                {
+                    "input": {
+                        "value": input_item.get("value", ""),
+                        "input_format": input_item.get("input_format", ""),
+                    },
+                    "output": "",
+                    "success": False,
+                    "error": str(e),
+                }
+            )
             failure_count += 1
 
     summary = {
         "total": len(inputs),
         "successful": success_count,
-        "failed": failure_count
+        "failed": failure_count,
     }
 
     # Return the response as a dictionary
-    return {
-        "results": results,
-        "summary": summary
-    }
+    return {"results": results, "summary": summary}
