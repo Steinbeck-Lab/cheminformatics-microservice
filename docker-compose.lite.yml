@@ -2,21 +2,19 @@ services:
   api:
     build:
       context: ./
-      dockerfile: Dockerfile
-    container_name: cheminformatics-microservice-api
+      dockerfile: Dockerfile.lite
+    container_name: cheminformatics-microservice-lite
     env_file:
       - .env
     environment:
       - HOMEPAGE_URL=https://docs.api.naturalproducts.net
       - RELEASE_VERSION=v2.6.0
-      - WORKERS=2
+      - WORKERS=2  # Make workers configurable
+      - INCLUDE_OCSR=false
     ports:
-      - "8000:80"
-    volumes:
-      - ./app:/code/app
-      - ./requirements.txt:/code/requirements.txt
+      - "80:80"
     healthcheck:
-      test: curl -f http://localhost:8000/latest/chem/health || exit 1
+      test: curl -f http://localhost:80/latest/chem/health || exit 1
       interval: 90s
       timeout: 10s
       retries: 20
@@ -25,31 +23,10 @@ services:
     security_opt:
       - no-new-privileges:true
     networks:
-      - cm_network
-
-  web:
-    build:
-      context: ./frontend
-      dockerfile: ./Dockerfile
-    container_name: cheminformatics-microservice-frontend
-    environment:
-      - REACT_APP_API_URL=http://localhost:8000/latest
-      - NODE_ENV=development
-    ports:
-      - "3000:80"
-    volumes:
-      - ./frontend/src:/app/src
-      - ./frontend/public:/app/public
-      - ./frontend/package.json:/app/package.json
-      - ./frontend/package-lock.json:/app/package-lock.json
-    depends_on:
-      - api
-    restart: unless-stopped
-    networks:
-      - cm_network
+      - cm_fastapi
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:latest  # Specify version for better stability
     container_name: prometheus
     ports:
       - "9090:9090"
@@ -63,32 +40,30 @@ services:
       - '--web.console.templates=/usr/share/prometheus/consoles'
     restart: unless-stopped
     networks:
-      - cm_network
+      - cm_fastapi
 
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
-    user: "472"
+    user: "472"  # Grafana's official user ID
     ports:
-      - "3001:3000"
+      - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}  # Configurable password
       - GF_USERS_ALLOW_SIGN_UP=false
     restart: unless-stopped
     depends_on:
       - prometheus
     networks:
-      - cm_network
+      - cm_fastapi
 
 volumes:
   prometheus_data:
-    driver: local
   grafana_data:
-    driver: local
 
 networks:
-  cm_network:
-    name: cm_network
+  cm_fastapi:
+    name: cm_fastapi
     driver: bridge
