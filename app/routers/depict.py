@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from typing import Literal
-from typing import Optional
+from typing import Literal, Optional
 
 from fastapi import APIRouter
 from fastapi import HTTPException
@@ -11,8 +10,9 @@ from fastapi import status
 from fastapi.responses import Response
 from fastapi.templating import Jinja2Templates
 
-from app.modules.depiction import get_cdk_depiction
-from app.modules.depiction import get_rdkit_depiction
+# Use the shared limiter instance
+from app.limiter import limiter
+from app.modules.depiction import get_cdk_depiction, get_rdkit_depiction
 from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.openbabel_wrapper import get_ob_mol
 from app.modules.toolkits.rdkit_wrapper import get_3d_conformers

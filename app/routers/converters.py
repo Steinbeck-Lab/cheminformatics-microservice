@@ -614,9 +614,15 @@ async def encode_selfies(
             "description": "Successful response",
             "model": GenerateFormatsResponse,
         },
-        400: {"description": "Bad Request", "model": BadRequestModel},
-        404: {"description": "Not Found", "model": NotFoundModel},
-        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+        400: {
+            "description": "Bad Request",
+            "model": BadRequestModel},
+        404: {
+            "description": "Not Found",
+            "model": NotFoundModel},
+        422: {
+            "description": "Unprocessable Entity",
+            "model": ErrorResponse},
     },
 )
 async def smiles_convert_to_formats(
@@ -930,9 +936,11 @@ async def batch_convert(
             input_format = input_item.get("input_format", "")
 
             if not value or not input_format:
-                raise ValueError("Missing required fields: value or input_format")
+                raise ValueError(
+                    "Missing required fields: value or input_format")
 
-            # First convert input to SMILES if it's not already in SMILES format
+            # First convert input to SMILES if it's not already in SMILES
+            # format
             smiles = value
 
             if input_format.lower() == "iupac":
@@ -944,12 +952,14 @@ async def batch_convert(
             elif input_format.lower() == "selfies":
                 smiles = sf.decoder(value)
                 if not smiles:
-                    raise ValueError(f"Failed to decode SELFIES '{value}' to SMILES")
+                    raise ValueError(
+                        f"Failed to decode SELFIES '{value}' to SMILES")
             elif input_format.lower() == "inchi":
                 # Use RDKit to convert InChI to SMILES
                 mol = Chem.inchi.MolFromInchi(value)
                 if not mol:
-                    raise ValueError(f"Failed to convert InChI '{value}' to molecule")
+                    raise ValueError(
+                        f"Failed to convert InChI '{value}' to molecule")
                 smiles = Chem.MolToSmiles(mol)
             elif input_format.lower() != "smiles":
                 raise ValueError(f"Unsupported input format: {input_format}")
@@ -966,7 +976,9 @@ async def batch_convert(
                     output_value = str(get_canonical_SMILES(mol))
                 elif toolkit == "rdkit":
                     mol = parse_input(smiles, "rdkit", False)
-                    output_value = str(Chem.MolToSmiles(mol, kekuleSmiles=True))
+                    output_value = str(
+                        Chem.MolToSmiles(
+                            mol, kekuleSmiles=True))
                 elif toolkit == "openbabel":
                     output_value = get_ob_canonical_SMILES(smiles)
 
