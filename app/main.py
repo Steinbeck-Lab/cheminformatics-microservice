@@ -18,8 +18,8 @@ from app.exception_handlers import InvalidInputException
 from app.schemas import HealthCheck
 
 # Import OCSR router if necessary
-# if os.getenv("INCLUDE_OCSR", "true").lower() == "true":
-#    from .routers import ocsr
+if os.getenv("INCLUDE_OCSR", "true").lower() == "true":
+    from .routers import ocsr
 
 
 def create_app_metadata() -> Dict:
@@ -63,8 +63,8 @@ app.include_router(depict.router)
 app.include_router(tools.router)
 
 # Import OCSR router if necessary
-# if os.getenv("INCLUDE_OCSR", "true").lower() == "true":
-#    app.include_router(ocsr.router)
+if os.getenv("INCLUDE_OCSR", "true").lower() == "true":
+    app.include_router(ocsr.router)
 
 app = VersionedFastAPI(
     app,
