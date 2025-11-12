@@ -17,11 +17,8 @@ from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.openbabel_wrapper import get_ob_mol
 from app.modules.toolkits.rdkit_wrapper import get_3d_conformers
 from app.schemas import HealthCheck
-from app.schemas.depict_schema import Depict2DResponse
-from app.schemas.depict_schema import Depict3DResponse
-from app.schemas.error import BadRequestModel
-from app.schemas.error import ErrorResponse
-from app.schemas.error import NotFoundModel
+from app.schemas.depict_schema import Depict2DResponse, Depict3DResponse
+from app.schemas.error import BadRequestModel, ErrorResponse, NotFoundModel
 
 # Use the shared limiter instance
 from app.limiter import limiter
