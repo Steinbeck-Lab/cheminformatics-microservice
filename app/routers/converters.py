@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Literal
 
 import selfies as sf
-from fastapi import FastAPI
 from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi import Query
@@ -11,6 +10,7 @@ from fastapi import status
 from fastapi import Request
 from fastapi import Body
 from fastapi.responses import Response
+
 # Use the shared limiter instance
 from app.limiter import limiter
 from rdkit import Chem
