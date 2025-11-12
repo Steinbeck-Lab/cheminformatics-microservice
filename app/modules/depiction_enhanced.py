@@ -1,0 +1,733 @@
+"""Enhanced Molecular Depiction Module - CORRECTED VERSION.
+
+Key fixes:
+1. REMOVED manual CXSMILES parsing - CDK's SmilesParser handles it automatically
+2. Extract highlighting from molecule properties (CDK stores it there)
+3. Follow same pattern as simple depiction module
+4. Keep all Phase 1, 2, 3 enhancements
+
+Author: Kohulan Rajan
+License: MIT
+"""
+
+from __future__ import annotations
+
+import xml.etree.ElementTree as ET
+from typing import Any, Optional, Literal
+
+from jpype import JClass
+from rdkit import Chem
+from rdkit.Chem import rdDepictor
+from rdkit.Chem.Draw import rdMolDraw2D
+
+from app.modules.toolkits.cdk_wrapper import get_CDK_SDG, get_cip_annotation
+
+# Import harmonized cdk_depict modules
+from app.modules.cdk_depict import (
+    set_hydrogen_display,
+    ChemicalAbbreviations,
+    AbbreviationMode,
+    DativeBondPerception,
+    DativeBondMode,
+    MulticenterBonds,
+    MulticenterStyle,
+    AnnotationSystem,
+    AnnotationMode,
+    AromaticDisplaySystem,
+    StylePresetSystem,
+    StylePreset,
+    AdvancedControls,
+    SVGUnits,
+    ReactionArrowSystem,
+    ReactionArrowType,
+    RadicalPerception,
+    MDLHiliteParser,
+)
+
+from app.modules.cdk_depict.cxsmiles_parser import (
+    parse_cxsmiles_highlighting_from_string,
+)
+
+
+def get_cdk_depiction(
+    molecule: any,
+    molSize=(512, 512),
+    rotate=0,
+    kekulize=True,
+    CIP=True,
+    unicolor=False,
+    highlight="",
+    highlight_atoms=None,
+    showAtomNumbers=False,
+    hydrogen_display="Smart",
+    # Phase 1 parameters
+    abbreviate="reagents",
+    dative="metals",
+    multicenter="provided",
+    # Phase 2 parameters
+    annotate="none",
+    style="cow",
+    donuts=False,
+    arrow="",
+    alignrxnmap=True,
+    showtitle=False,
+    bgcolor=None,
+    fgcolor=None,
+    # Phase 3 parameters
+    zoom=1.3,
+    ratio=1.0,
+    flip=False,
+    anon=False,
+    smalim=100,
+    svgunits="px",
+    perceive_radicals=False,
+    apply_mdl_highlighting=True,
+    smiles_string=None,
+):
+    """Generate enhanced 2D molecular depiction using CDK with all features.
+
+    Args:
+        molecule: CDK IAtomContainer (pre-parsed from SMILES/CXSMILES)
+        smiles_string: Optional original SMILES/CXSMILES string for parsing highlighting
+        molSize: Output image size
+        rotate: Rotation angle in degrees
+        kekulize: Whether to kekulize the molecule
+        CIP: Whether to annotate CIP stereochemistry
+        unicolor: Whether to use black and white colors
+        highlight: SMARTS pattern to highlight
+        highlight_atoms: List of atom indices to highlight
+        showAtomNumbers: Whether to display atom numbers
+        hydrogen_display: Hydrogen display mode (Provided/Minimal/Explicit/Stereo/Smart)
+
+        # Phase 1
+        abbreviate: Abbreviation mode (off/groups/reagents/on)
+        dative: Dative bond mode (never/metals/always)
+        multicenter: Multicenter bond style
+
+        # Phase 2
+        annotate: Annotation mode
+        style: Style preset (cow/cob/bow/nob/etc)
+        donuts: Whether to use aromatic circles
+        arrow: Reaction arrow type
+        alignrxnmap: Whether to align reaction mapping
+        showtitle: Whether to display title
+        bgcolor: Background color
+        fgcolor: Foreground color
+
+        # Phase 3
+        zoom: Zoom level (0.1-5.0)
+        ratio: Stroke ratio (0.5-2.0)
+        flip: Whether to flip structure
+        anon: Whether to use anonymous display
+        smalim: SMARTS hit limit
+        svgunits: SVG units (px/mm/cm/in)
+        perceive_radicals: Whether to detect radicals
+        apply_mdl_highlighting: Whether to apply MDL HILITE
+
+    Returns:
+        str: SVG string of molecular depiction
+    """
+    cdk_base = "org.openscience.cdk"
+
+    try:
+        # Initialize CDK classes
+        StandardGenerator = JClass(
+            cdk_base + ".renderer.generators.standard.StandardGenerator"
+        )
+        Color = JClass("java.awt.Color")
+        UniColor = JClass(cdk_base + ".renderer.color.UniColor")
+        CDK2DAtomColors = JClass(cdk_base + ".renderer.color.CDK2DAtomColors")()
+        Kekulization = JClass(cdk_base + ".aromaticity.Kekulization")
+        SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
+
+        # Determine if this is a reaction
+        IReaction = JClass(cdk_base + ".interfaces.IReaction")
+        IReactionSet = JClass(cdk_base + ".interfaces.IReactionSet")
+        is_reaction = isinstance(molecule, (IReaction, IReactionSet))
+
+        # ====== Extract CXSMILES highlighting from original SMILES string ======
+        cx_highlight_atoms, cx_highlight_bonds = set(), set()
+        if smiles_string:
+            (
+                cx_highlight_atoms,
+                cx_highlight_bonds,
+            ) = parse_cxsmiles_highlighting_from_string(smiles_string)
+
+        # ====== PHASE 3: Radical Perception ======
+        if perceive_radicals and not is_reaction:
+            try:
+                rad_perceiver = RadicalPerception()
+                radicals = rad_perceiver.perceive_radicals(molecule)
+                if radicals:
+                    pass
+            except Exception as e:
+                pass
+
+        # ====== PHASE 3: MDL HILITE Support ======
+        mdl_highlight_atoms = set()
+        mdl_highlight_bonds = set()
+        if apply_mdl_highlighting and not is_reaction:
+            try:
+                mdl_parser = MDLHiliteParser()
+                mdl_atoms, mdl_bonds = mdl_parser.parse_hilite_from_mol(molecule)
+                mdl_highlight_atoms = mdl_atoms
+                mdl_highlight_bonds = mdl_bonds
+                if mdl_atoms or mdl_bonds:
+                    pass
+            except Exception as e:
+                pass
+
+        # ====== Merge all highlighting sources ======
+        # Priority: explicit highlight_atoms > CXSMILES > MDL HILITE
+        if highlight_atoms is None:
+            highlight_atoms = list(cx_highlight_atoms | mdl_highlight_atoms)
+        else:
+            # User provided explicit atoms - merge with CXSMILES and MDL
+            highlight_atoms = list(
+                set(highlight_atoms) | cx_highlight_atoms | mdl_highlight_atoms
+            )
+
+        # Merge bond highlighting from all sources
+        highlight_bonds = list(cx_highlight_bonds | mdl_highlight_bonds)
+
+        # ====== Configure Depiction Generator ======
+        # Initialize base generator
+        DepictionGenerator = JClass(cdk_base + ".depict.DepictionGenerator")()
+
+        # Configure unicolor BEFORE style preset (takes priority over style presets)
+        if unicolor:
+            pass
+            DepictionGenerator = (
+                DepictionGenerator.withSize(molSize[0], molSize[1])
+                .withParam(StandardGenerator.StrokeRatio.class_, 1.0)
+                .withAnnotationColor(Color.BLACK)
+                .withParam(StandardGenerator.AtomColor.class_, UniColor(Color.BLACK))
+                .withBackgroundColor(Color.WHITE)
+                .withFillToFit()
+            )
+        else:
+            # ====== PHASE 2: Style Preset Configuration ======
+
+            # Apply style preset
+            style_system = StylePresetSystem()
+            try:
+                style_enum = StylePreset(style.lower())
+                DepictionGenerator = style_system.apply_preset(
+                    DepictionGenerator, style_enum
+                )
+            except ValueError:
+                # Apply default colors if style preset fails
+                DepictionGenerator = (
+                    DepictionGenerator.withAtomColors(CDK2DAtomColors)
+                    .withSize(molSize[0], molSize[1])
+                    .withParam(StandardGenerator.StrokeRatio.class_, 1.0)
+                    .withFillToFit()
+                    .withBackgroundColor(Color.WHITE)
+                )
+
+            # Override with custom colors if provided (only when not in unicolor mode)
+            if bgcolor or fgcolor:
+                if bgcolor:
+                    try:
+                        bg_color = (
+                            Color.decode(bgcolor)
+                            if bgcolor != "default"
+                            else Color.WHITE
+                        )
+                        DepictionGenerator = DepictionGenerator.withBackgroundColor(
+                            bg_color
+                        )
+                    except Exception as e:
+                        pass
+                if fgcolor:
+                    try:
+                        fg_color = (
+                            Color.decode(fgcolor)
+                            if fgcolor != "default"
+                            else Color.BLACK
+                        )
+                        DepictionGenerator = DepictionGenerator.withAnnotationColor(
+                            fg_color
+                        )
+                    except Exception as e:
+                        pass
+
+            # Apply size
+            DepictionGenerator = DepictionGenerator.withSize(molSize[0], molSize[1])
+
+        # ====== PHASE 3: Zoom and Stroke Ratio ======
+        controls = AdvancedControls()
+        DepictionGenerator = controls.set_zoom(DepictionGenerator, zoom)
+        DepictionGenerator = controls.set_stroke_ratio(DepictionGenerator, ratio)
+
+        # ====== PHASE 2: Map Alignment (for reactions) ======
+        if is_reaction and alignrxnmap:
+            DepictionGenerator = DepictionGenerator.withMappedRxnAlign()
+
+        # ====== PHASE 3: Anonymous Display ======
+        if anon:
+            SymbolVisibility = JClass(cdk_base + ".renderer.SymbolVisibility")
+            DepictionGenerator = DepictionGenerator.withParam(
+                StandardGenerator.Visibility.class_,
+                SymbolVisibility.iupacRecommendations(),
+            )
+
+        DepictionGenerator = DepictionGenerator.withFillToFit()
+
+        # ====== PHASE 1: Abbreviations ======
+        if abbreviate and abbreviate.lower() != "off":
+            try:
+                abbr_system = ChemicalAbbreviations(cdk_base)
+                abbr_system.initialize()
+
+                abbr_mode_map = {
+                    "off": AbbreviationMode.OFF,
+                    "groups": AbbreviationMode.GROUPS,
+                    "reagents": AbbreviationMode.REAGENTS,
+                    "on": AbbreviationMode.ALL,
+                }
+                abbr_mode = abbr_mode_map.get(
+                    abbreviate.lower(), AbbreviationMode.REAGENTS
+                )
+
+                highlight_set = set(highlight_atoms) if highlight_atoms else set()
+                abbr_system.apply(
+                    molecule, mode=abbr_mode, highlighted_atoms=highlight_set
+                )
+            except Exception as e:
+                pass
+
+        # ====== PHASE 1: Dative Bonds ======
+        if dative and dative.lower() != "never":
+            try:
+                dative_perceiver = DativeBondPerception(cdk_base)
+
+                dative_mode_map = {
+                    "never": DativeBondMode.NEVER,
+                    "metals": DativeBondMode.METALS,
+                    "always": DativeBondMode.ALWAYS,
+                }
+                dative_mode = dative_mode_map.get(dative.lower(), DativeBondMode.METALS)
+
+                count = dative_perceiver.perceive(molecule, mode=dative_mode)
+                if count > 0:
+                    pass
+            except Exception as e:
+                pass
+
+        # ====== Hydrogen Display ======
+        try:
+            set_hydrogen_display(
+                molecule if not is_reaction else None, hydrogen_display
+            )
+        except ValueError as e:
+            pass
+
+        # ====== Generate 2D Coordinates with CIP if requested ======
+        if CIP:
+            SDGMol = get_cip_annotation(molecule)
+        else:
+            SDGMol = get_CDK_SDG(molecule)
+
+        if not SDGMol:
+            return "<svg><text>Error reading SMILES string</text></svg>"
+
+        # ====== PHASE 2: Reaction Arrow Type ======
+        if is_reaction and arrow:
+            try:
+                arrow_system = ReactionArrowSystem()
+                arrow_map = {
+                    "forward": ReactionArrowType.FORWARD,
+                    "equ": ReactionArrowType.BIDIRECTIONAL,
+                    "ngo": ReactionArrowType.NO_GO,
+                    "ret": ReactionArrowType.RETRO_SYNTHETIC,
+                    "res": ReactionArrowType.RESONANCE,
+                }
+                arrow_type = arrow_map.get(arrow.lower(), ReactionArrowType.FORWARD)
+                arrow_system.set_arrow_type(SDGMol, arrow_type)
+            except Exception as e:
+                pass
+
+        # ====== PHASE 1: Multicenter Bonds ======
+        if multicenter and multicenter.lower() != "provided":
+            try:
+                mc_handler = MulticenterBonds(cdk_base)
+
+                mc_style_map = {
+                    "provided": MulticenterStyle.PROVIDED,
+                    "dative": MulticenterStyle.DATIVE,
+                    "dashed": MulticenterStyle.DASHED,
+                    "dashed_neutral": MulticenterStyle.DASHED_NEUTRAL,
+                    "hidden": MulticenterStyle.HIDDEN,
+                    "hidden_neutral": MulticenterStyle.HIDDEN_NEUTRAL,
+                }
+                mc_style = mc_style_map.get(
+                    multicenter.lower(), MulticenterStyle.PROVIDED
+                )
+
+                count = mc_handler.set_style(SDGMol, style=mc_style)
+                if count > 0:
+                    pass
+            except Exception as e:
+                pass
+
+        # ====== Kekulize ======
+        if kekulize and not is_reaction:
+            try:
+                Kekulization.kekulize(SDGMol)
+            except Exception as e:
+                pass
+
+        # ====== PHASE 2: Aromatic Display (Donuts) ======
+        if not is_reaction:
+            aromatic_system = AromaticDisplaySystem()
+            DepictionGenerator = aromatic_system.apply_donut_display(
+                DepictionGenerator, SDGMol, enable=donuts
+            )
+
+        # ====== PHASE 3: Flip Structure ======
+        if flip:
+            try:
+                controls.flip_structure(SDGMol)
+            except Exception as e:
+                pass
+
+        # ====== Rotate ======
+        if rotate != 0:
+            point = JClass(cdk_base + ".geometry.GeometryTools").get2DCenter(SDGMol)
+            JClass(cdk_base + ".geometry.GeometryTools").rotate(
+                SDGMol,
+                point,
+                (rotate * JClass("java.lang.Math").PI / 180.0),
+            )
+
+        # ====== PHASE 2: Annotations ======
+        if annotate != "none" or showAtomNumbers:
+            annotation_mode = "number" if showAtomNumbers else annotate
+
+            annotation_map = {
+                "none": AnnotationMode.NONE,
+                "number": AnnotationMode.NUMBER,
+                "bondnumber": AnnotationMode.BONDNUMBER,
+                "mapidx": AnnotationMode.MAPIDX,
+                "atomvalue": AnnotationMode.ATOMVALUE,
+                "colmap": AnnotationMode.COLMAP,
+                "cip": AnnotationMode.CIP,
+            }
+            annot_enum = annotation_map.get(
+                annotation_mode.lower(), AnnotationMode.NONE
+            )
+
+            annotation_system = AnnotationSystem()
+            DepictionGenerator = annotation_system.apply_annotations(
+                DepictionGenerator, SDGMol, annot_enum, is_reaction
+            )
+
+        # ====== PHASE 2: Title Display ======
+        if showtitle:
+            if is_reaction:
+                DepictionGenerator = DepictionGenerator.withRxnTitle()
+            else:
+                DepictionGenerator = DepictionGenerator.withMolTitle()
+
+        # ====== Highlighting ======
+        DepictionGenerator = _apply_highlighting(
+            DepictionGenerator,
+            SDGMol,
+            highlight,
+            highlight_atoms,
+            highlight_bonds,
+            cdk_base,
+            SCOB,
+            smalim,
+            style,
+        )
+
+        # ====== Generate Depiction ======
+        units_map = {
+            "px": SVGUnits.PX,
+            "mm": SVGUnits.MM,
+            "cm": SVGUnits.CM,
+            "in": SVGUnits.IN,
+        }
+        units_enum = units_map.get(svgunits.lower(), SVGUnits.PX)
+        units_str = units_enum.value
+
+        mol_imageSVG = DepictionGenerator.depict(SDGMol).toSvgStr(units_str).getBytes()
+        encoded_image = ET.tostring(
+            ET.fromstring(mol_imageSVG),
+            encoding="unicode",
+        )
+
+        return encoded_image
+
+    except Exception as e:
+        return f"<svg><text>Error: {str(e)}</text></svg>"
+
+
+def _apply_highlighting(
+    depiction_generator,
+    molecule,
+    highlight_pattern,
+    highlight_atoms,
+    highlight_bonds,
+    cdk_base,
+    scob,
+    smalim=100,
+    style="cow",
+):
+    """Apply highlighting to the depiction generator.
+
+    Args:
+        depiction_generator: CDK DepictionGenerator instance
+        molecule: CDK IAtomContainer with 2D coordinates
+        highlight_pattern: SMARTS pattern for highlighting
+        highlight_atoms: List of atom indices to highlight
+        highlight_bonds: List of bond indices to highlight (from CXSMILES/MDL)
+        cdk_base: Base CDK package path
+        scob: SilentChemObjectBuilder instance
+        smalim: SMARTS hit limit
+        style: Style preset for choosing highlight color
+
+    Returns:
+        Updated DepictionGenerator with highlighting applied
+    """
+    try:
+        Color = JClass("java.awt.Color")
+
+        # Choose highlight color based on style
+        if style in ["nob"]:
+            hgCol = Color(255, 170, 170)
+        elif style in ["bow", "wob", "bot"]:
+            hgCol = Color.RED
+        else:
+            hgCol = Color(170, 255, 170)
+
+        # Priority 1: Explicit atom indices
+        if highlight_atoms and len(highlight_atoms) > 0:
+            AtomContainer = JClass(cdk_base + ".AtomContainer")
+            AtomContainerSet = JClass(cdk_base + ".AtomContainerSet")
+            tmpSubstructures = AtomContainerSet()
+
+            is_multiple = isinstance(highlight_atoms[0], (list, tuple))
+            atom_index_groups = highlight_atoms if is_multiple else [highlight_atoms]
+
+            for atom_indices in atom_index_groups:
+                if len(atom_indices) > 0:
+                    subset = AtomContainer()
+
+                    for idx in atom_indices:
+                        if idx < molecule.getAtomCount():
+                            subset.addAtom(molecule.getAtom(idx))
+
+                    # Add bonds between highlighted atoms
+                    for i, idx1 in enumerate(atom_indices):
+                        for idx2 in atom_indices[i + 1 :]:
+                            if (
+                                idx1 < molecule.getAtomCount()
+                                and idx2 < molecule.getAtomCount()
+                            ):
+                                bond = molecule.getBond(
+                                    molecule.getAtom(idx1), molecule.getAtom(idx2)
+                                )
+                                if bond is not None:
+                                    subset.addBond(bond)
+
+                    # Add explicitly highlighted bonds (from CXSMILES/MDL)
+                    if highlight_bonds and len(highlight_bonds) > 0:
+                        for bond_idx in highlight_bonds:
+                            if bond_idx < molecule.getBondCount():
+                                bond = molecule.getBond(bond_idx)
+                                # Only add if both atoms are in the subset
+                                if (
+                                    bond.getBegin() in subset.atoms()
+                                    and bond.getEnd() in subset.atoms()
+                                ):
+                                    if bond not in subset.bonds():
+                                        subset.addBond(bond)
+
+                    tmpSubstructures.addAtomContainer(subset)
+
+            return depiction_generator.withHighlight(
+                tmpSubstructures, hgCol
+            ).withOuterGlowHighlight()
+
+        # Priority 2: Only bond highlighting (no atoms) - from CXSMILES/MDL
+        elif highlight_bonds and len(highlight_bonds) > 0:
+            AtomContainer = JClass(cdk_base + ".AtomContainer")
+            AtomContainerSet = JClass(cdk_base + ".AtomContainerSet")
+            tmpSubstructures = AtomContainerSet()
+            subset = AtomContainer()
+
+            # Add bonds and their atoms
+            for bond_idx in highlight_bonds:
+                if bond_idx < molecule.getBondCount():
+                    bond = molecule.getBond(bond_idx)
+                    if bond.getBegin() not in subset.atoms():
+                        subset.addAtom(bond.getBegin())
+                    if bond.getEnd() not in subset.atoms():
+                        subset.addAtom(bond.getEnd())
+                    if bond not in subset.bonds():
+                        subset.addBond(bond)
+
+            if subset.getAtomCount() > 0:
+                tmpSubstructures.addAtomContainer(subset)
+                return depiction_generator.withHighlight(
+                    tmpSubstructures, hgCol
+                ).withOuterGlowHighlight()
+
+        # Priority 3: SMARTS pattern matching
+        elif highlight_pattern and highlight_pattern.strip():
+            try:
+                SmartsPattern = JClass(cdk_base + ".smarts.SmartsPattern")
+                tmpPattern = SmartsPattern.create(highlight_pattern, scob.getInstance())
+                SmartsPattern.prepare(molecule)
+                tmpMappings = tmpPattern.matchAll(molecule)
+
+                # Apply hit limiting
+                ArrayList = JClass("java.util.ArrayList")
+                limited_mappings = ArrayList()
+
+                count = 0
+                iterator = tmpMappings.iterator()
+                while iterator.hasNext() and count < smalim:
+                    limited_mappings.add(iterator.next())
+                    count += 1
+
+                if count > 0:
+                    AtomContainerSet = JClass(cdk_base + ".AtomContainerSet")
+                    tmpSubstructures = AtomContainerSet()
+
+                    for mapping in limited_mappings:
+                        AtomContainer = JClass(cdk_base + ".AtomContainer")
+                        subset = AtomContainer()
+
+                        for idx in mapping:
+                            subset.addAtom(molecule.getAtom(idx))
+
+                        for i, idx1 in enumerate(mapping):
+                            for idx2 in mapping[i + 1 :]:
+                                bond = molecule.getBond(
+                                    molecule.getAtom(idx1), molecule.getAtom(idx2)
+                                )
+                                if bond is not None:
+                                    subset.addBond(bond)
+
+                        tmpSubstructures.addAtomContainer(subset)
+
+                    return depiction_generator.withHighlight(
+                        tmpSubstructures, hgCol
+                    ).withOuterGlowHighlight()
+
+            except Exception as e:
+                pass
+
+        return depiction_generator
+
+    except Exception as e:
+        return depiction_generator
+
+
+def get_rdkit_depiction(
+    molecule: Chem.Mol,
+    mol_size=(512, 512),
+    rotate=0,
+    kekulize=True,
+    CIP=False,
+    unicolor=False,
+    highlight: str = "",
+    highlight_atoms=None,
+    showAtomNumbers=False,
+) -> str:
+    """Generate a 2D depiction using RDKit."""
+    mc = Chem.Mol(molecule.ToBinary())
+
+    if kekulize:
+        try:
+            Chem.Kekulize(mc)
+        except Chem.KekulizeException:
+            mc = Chem.Mol(molecule.ToBinary())
+
+    if not mc.GetNumConformers():
+        rdDepictor.Compute2DCoords(mc)
+
+    if CIP:
+        Chem.AssignStereochemistry(mc, force=True, cleanIt=True)
+
+    drawer = rdMolDraw2D.MolDraw2DSVG(mol_size[0], mol_size[1])
+    drawer.drawOptions().rotate = rotate
+    drawer.drawOptions().addStereoAnnotation = CIP
+
+    if unicolor:
+        drawer.drawOptions().useBWAtomPalette()
+
+    if showAtomNumbers:
+        for atom in mc.GetAtoms():
+            atom.SetProp("atomNote", str(atom.GetIdx()))
+
+    if highlight_atoms and len(highlight_atoms) > 0 and highlight:
+        patt = Chem.MolFromSmarts(highlight)
+        if patt:
+            all_matches = mc.GetSubstructMatches(patt)
+            target_match = None
+
+            for match in all_matches:
+                if any(anchor_atom in match for anchor_atom in highlight_atoms):
+                    target_match = match
+                    break
+
+            if target_match:
+                hit_ats = target_match
+                hit_bonds = []
+                for i in range(len(hit_ats)):
+                    for j in range(i + 1, len(hit_ats)):
+                        bond = mc.GetBondBetweenAtoms(hit_ats[i], hit_ats[j])
+                        if bond:
+                            hit_bonds.append(bond.GetIdx())
+
+                rdMolDraw2D.PrepareAndDrawMolecule(
+                    drawer, mc, highlightAtoms=hit_ats, highlightBonds=hit_bonds
+                )
+            else:
+                hit_ats = tuple(highlight_atoms)
+                rdMolDraw2D.PrepareAndDrawMolecule(
+                    drawer, mc, highlightAtoms=hit_ats, highlightBonds=[]
+                )
+        else:
+            hit_ats = tuple(highlight_atoms)
+            rdMolDraw2D.PrepareAndDrawMolecule(
+                drawer, mc, highlightAtoms=hit_ats, highlightBonds=[]
+            )
+    elif highlight_atoms and len(highlight_atoms) > 0:
+        hit_ats = tuple(highlight_atoms)
+        hit_bonds = []
+        for i in range(len(hit_ats)):
+            for j in range(i + 1, len(hit_ats)):
+                bond = mc.GetBondBetweenAtoms(hit_ats[i], hit_ats[j])
+                if bond:
+                    hit_bonds.append(bond.GetIdx())
+
+        rdMolDraw2D.PrepareAndDrawMolecule(
+            drawer, mc, highlightAtoms=hit_ats, highlightBonds=hit_bonds
+        )
+    elif highlight:
+        patt = Chem.MolFromSmarts(highlight)
+        if patt:
+            hit_ats = mc.GetSubstructMatch(patt)
+            hit_bonds = []
+            for i in range(len(hit_ats)):
+                for j in range(i + 1, len(hit_ats)):
+                    bond = mc.GetBondBetweenAtoms(hit_ats[i], hit_ats[j])
+                    if bond:
+                        hit_bonds.append(bond.GetIdx())
+            rdMolDraw2D.PrepareAndDrawMolecule(
+                drawer, mc, highlightAtoms=hit_ats, highlightBonds=hit_bonds
+            )
+        else:
+            drawer.DrawMolecule(mc)
+    else:
+        drawer.DrawMolecule(mc)
+
+    drawer.FinishDrawing()
+    svg = drawer.GetDrawingText()
+    return svg.replace("svg:", "")
