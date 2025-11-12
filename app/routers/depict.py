@@ -10,8 +10,6 @@ from fastapi import status
 from fastapi.responses import Response
 from fastapi.templating import Jinja2Templates
 
-# Use the shared limiter instance
-from app.limiter import limiter
 from app.modules.depiction import get_cdk_depiction, get_rdkit_depiction
 from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.openbabel_wrapper import get_ob_mol

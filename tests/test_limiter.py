@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import os
 import time
-from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -376,7 +374,6 @@ class TestRateLimitKeyFunction:
         """Test that custom key function returns unique keys for authenticated requests."""
         from app.limiter import custom_rate_limit_key_func
         from starlette.requests import Request
-        from starlette.datastructures import Headers
 
         # Mock request with valid auth token
         scope = {
