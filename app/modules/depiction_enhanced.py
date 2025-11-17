@@ -1,10 +1,18 @@
-"""Enhanced Molecular Depiction Module - CORRECTED VERSION.
+"""Enhanced Molecular Depiction Module using CDK.
 
-Key fixes:
-1. REMOVED manual CXSMILES parsing - CDK's SmilesParser handles it automatically
-2. Extract highlighting from molecule properties (CDK stores it there)
-3. Follow same pattern as simple depiction module
-4. Keep all Phase 1, 2, 3 enhancements
+This module provides advanced 2D molecular depiction functionality using the
+Chemistry Development Kit (CDK) exclusively. It supports:
+
+- CXSMILES highlighting (atoms and bonds)
+- Chemical abbreviations (functional groups and reagents)
+- Dative bond perception for coordination chemistry
+- Multicenter bond display for η-complexes
+- Multiple style presets and color schemes
+- Comprehensive annotation modes
+- Aromatic donut display
+- Radical perception
+- MDL HILITE support
+- Advanced rendering controls (zoom, ratio, flip, etc.)
 
 Author: Kohulan Rajan
 License: MIT
@@ -15,13 +23,9 @@ from __future__ import annotations
 import xml.etree.ElementTree as ET
 
 from jpype import JClass
-from rdkit import Chem
-from rdkit.Chem import rdDepictor
-from rdkit.Chem.Draw import rdMolDraw2D
 
 from app.modules.toolkits.cdk_wrapper import get_CDK_SDG, get_cip_annotation
 
-# Import harmonized cdk_depict modules
 from app.modules.cdk_depict import (
     set_hydrogen_display,
     ChemicalAbbreviations,
@@ -59,11 +63,11 @@ def get_cdk_depiction(
     highlight_atoms=None,
     showAtomNumbers=False,
     hydrogen_display="Smart",
-    # Phase 1 parameters
+    # Chemical structure enhancements
     abbreviate="reagents",
     dative="metals",
     multicenter="provided",
-    # Phase 2 parameters
+    # Visual style and annotations
     annotate="none",
     style="cow",
     donuts=False,
@@ -72,7 +76,7 @@ def get_cdk_depiction(
     showtitle=False,
     bgcolor=None,
     fgcolor=None,
-    # Phase 3 parameters
+    # Advanced rendering controls
     zoom=1.3,
     ratio=1.0,
     flip=False,
@@ -98,12 +102,12 @@ def get_cdk_depiction(
         showAtomNumbers: Whether to display atom numbers
         hydrogen_display: Hydrogen display mode (Provided/Minimal/Explicit/Stereo/Smart)
 
-        # Phase 1
+        # Chemical structure enhancements
         abbreviate: Abbreviation mode (off/groups/reagents/on)
         dative: Dative bond mode (never/metals/always)
         multicenter: Multicenter bond style
 
-        # Phase 2
+        # Visual style and annotations
         annotate: Annotation mode
         style: Style preset (cow/cob/bow/nob/etc)
         donuts: Whether to use aromatic circles
@@ -113,7 +117,7 @@ def get_cdk_depiction(
         bgcolor: Background color
         fgcolor: Foreground color
 
-        # Phase 3
+        # Advanced rendering controls
         zoom: Zoom level (0.1-5.0)
         ratio: Stroke ratio (0.5-2.0)
         flip: Whether to flip structure
@@ -152,7 +156,7 @@ def get_cdk_depiction(
                 cx_highlight_bonds,
             ) = parse_cxsmiles_highlighting_from_string(smiles_string)
 
-        # ====== PHASE 3: Radical Perception ======
+        # ====== Radical Perception ======
         if perceive_radicals and not is_reaction:
             try:
                 rad_perceiver = RadicalPerception()
@@ -162,7 +166,7 @@ def get_cdk_depiction(
             except Exception:
                 pass
 
-        # ====== PHASE 3: MDL HILITE Support ======
+        # ====== MDL HILITE Support ======
         mdl_highlight_atoms = set()
         mdl_highlight_bonds = set()
         if apply_mdl_highlighting and not is_reaction:
@@ -205,7 +209,7 @@ def get_cdk_depiction(
                 .withFillToFit()
             )
         else:
-            # ====== PHASE 2: Style Preset Configuration ======
+            # ====== Style Preset Configuration ======
 
             # Apply style preset
             style_system = StylePresetSystem()
@@ -254,16 +258,16 @@ def get_cdk_depiction(
             # Apply size
             DepictionGenerator = DepictionGenerator.withSize(molSize[0], molSize[1])
 
-        # ====== PHASE 3: Zoom and Stroke Ratio ======
+        # ====== Zoom and Stroke Ratio ======
         controls = AdvancedControls()
         DepictionGenerator = controls.set_zoom(DepictionGenerator, zoom)
         DepictionGenerator = controls.set_stroke_ratio(DepictionGenerator, ratio)
 
-        # ====== PHASE 2: Map Alignment (for reactions) ======
+        # ====== Map Alignment (for reactions) ======
         if is_reaction and alignrxnmap:
             DepictionGenerator = DepictionGenerator.withMappedRxnAlign()
 
-        # ====== PHASE 3: Anonymous Display ======
+        # ====== Anonymous Display ======
         if anon:
             SymbolVisibility = JClass(cdk_base + ".renderer.SymbolVisibility")
             DepictionGenerator = DepictionGenerator.withParam(
@@ -273,7 +277,7 @@ def get_cdk_depiction(
 
         DepictionGenerator = DepictionGenerator.withFillToFit()
 
-        # ====== PHASE 1: Abbreviations ======
+        # ====== Abbreviations ======
         if abbreviate and abbreviate.lower() != "off":
             try:
                 abbr_system = ChemicalAbbreviations(cdk_base)
@@ -296,7 +300,7 @@ def get_cdk_depiction(
             except Exception:
                 pass
 
-        # ====== PHASE 1: Dative Bonds ======
+        # ====== Dative Bonds ======
         if dative and dative.lower() != "never":
             try:
                 dative_perceiver = DativeBondPerception(cdk_base)
@@ -331,7 +335,7 @@ def get_cdk_depiction(
         if not SDGMol:
             return "<svg><text>Error reading SMILES string</text></svg>"
 
-        # ====== PHASE 2: Reaction Arrow Type ======
+        # ====== Reaction Arrow Type ======
         if is_reaction and arrow:
             try:
                 arrow_system = ReactionArrowSystem()
@@ -347,7 +351,7 @@ def get_cdk_depiction(
             except Exception:
                 pass
 
-        # ====== PHASE 1: Multicenter Bonds ======
+        # ====== Multicenter Bonds ======
         if multicenter and multicenter.lower() != "provided":
             try:
                 mc_handler = MulticenterBonds(cdk_base)
@@ -377,14 +381,14 @@ def get_cdk_depiction(
             except Exception:
                 pass
 
-        # ====== PHASE 2: Aromatic Display (Donuts) ======
+        # ====== Aromatic Display (Donuts) ======
         if not is_reaction:
             aromatic_system = AromaticDisplaySystem()
             DepictionGenerator = aromatic_system.apply_donut_display(
                 DepictionGenerator, SDGMol, enable=donuts
             )
 
-        # ====== PHASE 3: Flip Structure ======
+        # ====== Flip Structure ======
         if flip:
             try:
                 controls.flip_structure(SDGMol)
@@ -400,7 +404,7 @@ def get_cdk_depiction(
                 (rotate * JClass("java.lang.Math").PI / 180.0),
             )
 
-        # ====== PHASE 2: Annotations ======
+        # ====== Annotations ======
         if annotate != "none" or showAtomNumbers:
             annotation_mode = "number" if showAtomNumbers else annotate
 
@@ -422,7 +426,7 @@ def get_cdk_depiction(
                 DepictionGenerator, SDGMol, annot_enum, is_reaction
             )
 
-        # ====== PHASE 2: Title Display ======
+        # ====== Title Display ======
         if showtitle:
             if is_reaction:
                 DepictionGenerator = DepictionGenerator.withRxnTitle()
@@ -625,108 +629,3 @@ def _apply_highlighting(
 
     except Exception:
         return depiction_generator
-
-
-def get_rdkit_depiction(
-    molecule: Chem.Mol,
-    mol_size=(512, 512),
-    rotate=0,
-    kekulize=True,
-    CIP=False,
-    unicolor=False,
-    highlight: str = "",
-    highlight_atoms=None,
-    showAtomNumbers=False,
-) -> str:
-    """Generate a 2D depiction using RDKit."""
-    mc = Chem.Mol(molecule.ToBinary())
-
-    if kekulize:
-        try:
-            Chem.Kekulize(mc)
-        except Chem.KekulizeException:
-            mc = Chem.Mol(molecule.ToBinary())
-
-    if not mc.GetNumConformers():
-        rdDepictor.Compute2DCoords(mc)
-
-    if CIP:
-        Chem.AssignStereochemistry(mc, force=True, cleanIt=True)
-
-    drawer = rdMolDraw2D.MolDraw2DSVG(mol_size[0], mol_size[1])
-    drawer.drawOptions().rotate = rotate
-    drawer.drawOptions().addStereoAnnotation = CIP
-
-    if unicolor:
-        drawer.drawOptions().useBWAtomPalette()
-
-    if showAtomNumbers:
-        for atom in mc.GetAtoms():
-            atom.SetProp("atomNote", str(atom.GetIdx()))
-
-    if highlight_atoms and len(highlight_atoms) > 0 and highlight:
-        patt = Chem.MolFromSmarts(highlight)
-        if patt:
-            all_matches = mc.GetSubstructMatches(patt)
-            target_match = None
-
-            for match in all_matches:
-                if any(anchor_atom in match for anchor_atom in highlight_atoms):
-                    target_match = match
-                    break
-
-            if target_match:
-                hit_ats = target_match
-                hit_bonds = []
-                for i in range(len(hit_ats)):
-                    for j in range(i + 1, len(hit_ats)):
-                        bond = mc.GetBondBetweenAtoms(hit_ats[i], hit_ats[j])
-                        if bond:
-                            hit_bonds.append(bond.GetIdx())
-
-                rdMolDraw2D.PrepareAndDrawMolecule(
-                    drawer, mc, highlightAtoms=hit_ats, highlightBonds=hit_bonds
-                )
-            else:
-                hit_ats = tuple(highlight_atoms)
-                rdMolDraw2D.PrepareAndDrawMolecule(
-                    drawer, mc, highlightAtoms=hit_ats, highlightBonds=[]
-                )
-        else:
-            hit_ats = tuple(highlight_atoms)
-            rdMolDraw2D.PrepareAndDrawMolecule(
-                drawer, mc, highlightAtoms=hit_ats, highlightBonds=[]
-            )
-    elif highlight_atoms and len(highlight_atoms) > 0:
-        hit_ats = tuple(highlight_atoms)
-        hit_bonds = []
-        for i in range(len(hit_ats)):
-            for j in range(i + 1, len(hit_ats)):
-                bond = mc.GetBondBetweenAtoms(hit_ats[i], hit_ats[j])
-                if bond:
-                    hit_bonds.append(bond.GetIdx())
-
-        rdMolDraw2D.PrepareAndDrawMolecule(
-            drawer, mc, highlightAtoms=hit_ats, highlightBonds=hit_bonds
-        )
-    elif highlight:
-        patt = Chem.MolFromSmarts(highlight)
-        if patt:
-            hit_ats = mc.GetSubstructMatch(patt)
-            hit_bonds = []
-            for i in range(len(hit_ats)):
-                for j in range(i + 1, len(hit_ats)):
-                    bond = mc.GetBondBetweenAtoms(hit_ats[i], hit_ats[j])
-                    if bond:
-                        hit_bonds.append(bond.GetIdx())
-            rdMolDraw2D.PrepareAndDrawMolecule(
-                drawer, mc, highlightAtoms=hit_ats, highlightBonds=hit_bonds
-            )
-        else:
-            drawer.DrawMolecule(mc)
-    else:
-        drawer.DrawMolecule(mc)
-
-    drawer.FinishDrawing()
-    svg = drawer.GetDrawingText()
-    return svg.replace("svg:", "")
