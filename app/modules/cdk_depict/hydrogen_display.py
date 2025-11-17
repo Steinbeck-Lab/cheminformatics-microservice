@@ -1,5 +1,25 @@
+"""Hydrogen Display Control for CDK Molecular Depictions.
+
+This module provides comprehensive control over hydrogen atom display modes
+in molecular structures, including:
+- Minimal: Suppress all hydrogens (implicit only)
+- Explicit: Show all hydrogens as explicit atoms
+- Stereo: Show only stereo-relevant hydrogens (chiral centers, E/Z bonds)
+- Smart: Intelligent hydrogen display considering ring systems
+- Provided: Keep hydrogens as provided (no changes)
+
+Based on CDK hydrogen display functionality.
+
+"""
+
+from __future__ import annotations
+
+import logging
 from typing import Literal
+
 from jpype import JClass
+
+logger = logging.getLogger(__name__)
 
 
 HydrogenDisplayType = Literal["Minimal", "Explicit", "Stereo", "Smart", "Provided"]

@@ -6,7 +6,7 @@ from jpype import JClass
 from rdkit import Chem
 from rdkit.Chem import rdDepictor
 from rdkit.Chem.Draw import rdMolDraw2D
-from app.modules.cdk_hydrogen_display import set_hydrogen_display
+from app.modules.cdk_depict.hydrogen_display import set_hydrogen_display
 
 from app.modules.toolkits.cdk_wrapper import get_CDK_SDG
 from app.modules.toolkits.cdk_wrapper import get_cip_annotation
