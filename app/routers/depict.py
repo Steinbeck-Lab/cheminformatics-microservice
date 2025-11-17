@@ -323,7 +323,7 @@ async def depict_3d_molecule(
 
 @router.get(
     "/2D_enhanced",
-    summary="Generates a 2D depiction with Phase 1, 2, and 3 enhancements",
+    summary="Advanced 2D molecular depiction with comprehensive rendering options",
     responses={
         200: {
             "description": "Successful response - SVG image",
@@ -353,10 +353,6 @@ async def depict_2d_molecule_enhanced(
                 "value": "C[C@H](N)C(=O)O",
             },
         },
-    ),
-    toolkit: Literal["cdk", "rdkit"] = Query(
-        default="cdk",
-        description="Cheminformatics toolkit. CDK recommended for all Phase 1-3 features.",
     ),
     width: Optional[int] = Query(
         512,
@@ -408,7 +404,7 @@ async def depict_2d_molecule_enhanced(
             "'Smart' recommended for chiral molecules."
         ),
     ),
-    # ========== PHASE 1 PARAMETERS ==========
+    # ========== CHEMICAL STRUCTURE ENHANCEMENTS ==========
     abbreviate: Literal["off", "groups", "reagents", "on"] = Query(
         default="reagents",
         title="Abbreviations",
@@ -445,7 +441,7 @@ async def depict_2d_molecule_enhanced(
             "'hidden_neutral': Hide bonds (neutralize charges)."
         ),
     ),
-    # ========== PHASE 2 PARAMETERS ==========
+    # ========== VISUAL STYLE AND ANNOTATIONS ==========
     annotate: Literal[
         "none", "number", "bondnumber", "mapidx", "atomvalue", "colmap", "cip"
     ] = Query(
@@ -514,7 +510,7 @@ async def depict_2d_molecule_enhanced(
         title="Foreground Color",
         description="Custom foreground/annotation color as hex string (e.g., '#000000') or 'default'.",
     ),
-    # ========== PHASE 3 PARAMETERS ==========
+    # ========== ADVANCED RENDERING CONTROLS ==========
     zoom: float = Query(
         1.3,
         title="Zoom Level",
@@ -562,42 +558,105 @@ async def depict_2d_molecule_enhanced(
         description="Whether to apply MDL V3000 HILITE highlighting from molecule properties.",
     ),
 ):
-    """Generate 2D molecular depictions with comprehensive Phase 1, 2, and 3 enhancements.
+    """Generate advanced 2D molecular depictions with comprehensive customization options.
 
-    This endpoint provides the most advanced molecular depiction capabilities including:
+    This endpoint provides professional-grade molecular structure rendering with extensive
+    control over visualization, suitable for publications, presentations, and chemical databases.
 
-    **Phase 1 - Core Functionality:**
-    - **CXSMILES**: Extended SMILES with highlighting (|ha:0,1| for atoms, |hb:0,1| for bonds)
-    - **Abbreviations**: Automatic recognition of common groups (Ph, Me, Boc) and reagents (THF, DMF)
-    - **Dative Bonds**: Coordinate bond detection with arrow notation (N→B, N→Metal)
-    - **Multicenter Bonds**: η-complex handling for organometallic compounds (ferrocene, etc.)
+    ## Key Features
 
-    **Phase 2 - Advanced Features:**
-    - **Annotations**: 7 annotation modes including CIP stereochemistry labels
-    - **Style Presets**: 7 predefined color schemes for different contexts
-    - **Aromatic Display**: Circle-in-ring (donut) representation for aromatic systems
-    - **Reaction Arrows**: 5 different arrow types for chemical reactions
-    - **Custom Colors**: Override background and foreground colors
+    ### Extended SMILES Support (CXSMILES)
+    Supports CXSMILES extensions for precise control over highlighting and atom coordinates:
+    - Atom highlighting: `c1ccccc1 |ha:0,1,2|` highlights atoms 0, 1, and 2
+    - Bond highlighting: `CCO |hb:0,1|` highlights bonds 0 and 1
+    - 2D coordinates: `|c:x1,y1,x2,y2,...|`
+    - 3D coordinates: `|C:x1,y1,z1,x2,y2,z2,...|`
 
-    **Phase 3 - Professional Controls:**
-    - **Radical Perception**: Detect and mark unpaired electrons
-    - **MDL HILITE**: Support for MDL/SDF V3000 highlighting
-    - **Zoom & Stroke**: Fine control over image scale and line thickness
-    - **Structure Manipulation**: Flip structures horizontally
-    - **Anonymous Display**: IUPAC-recommended atom display
-    - **SMARTS Limiting**: Control number of pattern matches highlighted
-    - **SVG Units**: Export in various measurement units
+    ### Chemical Abbreviations
+    Automatic recognition and rendering of common chemical groups and reagents:
+    - **groups**: Functional groups like Ph (phenyl), Me (methyl), Et (ethyl), Boc, Fmoc, etc.
+    - **reagents**: Common reagents like THF, DMF, DCM, NaOH, LiAlH₄, etc.
+    - Total library: 198 reagents + 60 functional groups
+    - Example: `C1CCOC1` → "THF" when `abbreviate=reagents`
 
-    **Usage Examples:**
-    - Basic: `CN1C=NC2=C1C(=O)N(C(=O)N2C)C` (caffeine)
-    - CXSMILES: `c1ccccc1 |ha:0,1,2|` (highlighted benzene)
-    - Abbreviations: `C1CCOC1` with `abbreviate=reagents` → shows "THF"
-    - Coordination: `[Co][N+]([O-])(=O)` with `dative=metals` → shows arrows
-    - Styling: Use `style=cob` for color on black background
-    - Annotations: Use `annotate=cip` to show R/S, E/Z labels
-    - Donuts: Use `donuts=true` for aromatic circles
+    ### Coordination Chemistry
+    Advanced support for metal complexes and coordination compounds:
+    - **Dative bonds**: Coordinate bonds shown with arrow notation (Donor→Acceptor)
+      * Example: `[NH3]BF3` shows ammonia-borane with N→B arrow
+    - **Multicenter bonds**: η-complexes (ferrocene, chromium-benzene) with multiple display styles
+      * Dative arrows, dashed lines, or hidden bonds
+      * Charge neutralization options
 
-    **Returns**: SVG image of the molecular structure with all requested enhancements
+    ### Visual Styles and Annotations
+    Seven predefined color schemes for different contexts:
+    - **cow**: Color on White (default) - publications
+    - **cob**: Color on Black - presentations with dark backgrounds
+    - **bow**: Black on White - high contrast, printer-friendly
+    - **nob**: Neon on Black - eye-catching presentations
+    - Custom colors: Override with hex values via `bgcolor` and `fgcolor`
+
+    Seven annotation modes:
+    - **number**: Atom numbering (0-based indexing) for education
+    - **cip**: CIP stereochemistry labels (R/S, E/Z)
+    - **mapidx**: Reaction atom mapping
+    - **colmap**: Color-coded atom mapping
+    - **bondnumber**: Bond numbering
+    - **atomvalue**: Atom properties display
+
+    ### Aromatic Ring Display
+    Choose between Kekulé structures (alternating double bonds) or circle-in-ring
+    representation using the `donuts` parameter for cleaner aromatic visualization.
+
+    ### Reaction Depiction
+    Multiple arrow types for chemical reactions:
+    - **forward** (→): Standard reaction
+    - **equ** (⇌): Equilibrium/reversible
+    - **ret** (⇒): Retrosynthetic analysis
+    - **res** (↔): Resonance structures
+    - **ngo** (⇏): No-go/blocked reaction
+
+    ### Professional Controls
+    - **Radical perception**: Automatic detection of unpaired electrons
+    - **MDL HILITE**: Support for MDL/SDF V3000 highlighting from databases
+    - **Zoom/Ratio**: Fine control over molecule size and bond thickness
+    - **Flip**: Horizontal structure mirroring
+    - **SVG units**: Export in pixels, millimeters, centimeters, or inches
+
+    ## Usage Examples
+
+    ```
+    # Basic molecule
+    ?smiles=CN1C=NC2=C1C(=O)N(C(=O)N2C)C
+
+    # CXSMILES with highlighting
+    ?smiles=c1ccccc1 |ha:0,1,2|
+
+    # Abbreviated reagent
+    ?smiles=C1CCOC1&abbreviate=reagents  # Shows "THF"
+
+    # Coordination complex with dative bonds
+    ?smiles=[Co][N+]([O-])(=O)&dative=metals
+
+    # Publication-ready (black on white, no abbreviations)
+    ?smiles=c1ccccc1&style=bow&abbreviate=off&zoom=1.3&ratio=0.8
+
+    # Presentation style (color on black, larger, annotated)
+    ?smiles=C[C@H](N)C(=O)O&style=cob&annotate=cip&zoom=1.5&ratio=1.2
+
+    # Teaching (atom numbers, clear display)
+    ?smiles=c1ccccc1&annotate=number&zoom=1.5&showAtomNumbers=true
+    ```
+
+    ## Toolkit
+
+    This endpoint uses the **Chemistry Development Kit (CDK)** exclusively for rendering.
+    CDK provides full support for all advanced features including abbreviations, dative bonds,
+    multicenter bonds, CXSMILES extensions, annotations, style presets, and advanced rendering controls.
+
+    For basic 2D depiction with RDKit support, use the `/depict/2D` endpoint instead.
+
+    ## Returns
+    SVG image of the molecular structure with all requested enhancements and customizations.
     """
     try:
         # Parse atom indices for highlighting
@@ -613,330 +672,47 @@ async def depict_2d_molecule_enhanced(
                     detail="Invalid atomIds format. Please provide comma-separated integers.",
                 )
 
-        # Generate depiction based on toolkit
-        if toolkit == "cdk":
-            # CDK's SmilesParser automatically handles CXSMILES (e.g., "CCO |ha:0,1|")
-            # The highlighting is extracted internally via extract_cxsmiles_highlighting()
-            mol = parse_input(smiles, "cdk", False)
-            depiction = get_cdk_depiction(
-                mol,
-                molSize=(width, height),
-                rotate=rotate,
-                kekulize=not donuts,  # Don't kekulize if using donuts
-                CIP=CIP,
-                unicolor=unicolor,
-                highlight=highlight,
-                highlight_atoms=highlight_atoms,
-                showAtomNumbers=showAtomNumbers,
-                hydrogen_display=hydrogen_display,
-                # Phase 1
-                abbreviate=abbreviate,
-                dative=dative,
-                multicenter=multicenter,
-                # Phase 2
-                annotate=annotate,
-                style=style,
-                donuts=donuts,
-                arrow=arrow,
-                alignrxnmap=alignrxnmap,
-                showtitle=showtitle,
-                bgcolor=bgcolor,
-                fgcolor=fgcolor,
-                # Phase 3
-                zoom=zoom,
-                ratio=ratio,
-                flip=flip,
-                anon=anon,
-                smalim=smalim,
-                svgunits=svgunits,
-                perceive_radicals=perceive_radicals,
-                apply_mdl_highlighting=apply_mdl_highlighting,
-            )
-        elif toolkit == "rdkit":
-            # RDKit doesn't support Phase 1, 2, 3 features
-            logger.warning(
-                "RDKit toolkit only supports basic depiction. Use CDK for Phase 1-3 features."
-            )
-
-            if abbreviate != "off":
-                logger.warning("Abbreviations not supported with RDKit toolkit")
-            if dative != "never":
-                logger.warning("Dative bonds not supported with RDKit toolkit")
-            if multicenter != "provided":
-                logger.warning("Multicenter bonds not supported with RDKit toolkit")
-            if "|" in smiles:
-                logger.warning(
-                    "CXSMILES highlighting not fully supported with RDKit toolkit"
-                )
-            if annotate != "none":
-                logger.warning("Annotations not supported with RDKit toolkit")
-            if style != "cow":
-                logger.warning("Style presets not supported with RDKit toolkit")
-            if donuts:
-                logger.warning("Aromatic donuts not supported with RDKit toolkit")
-
-            mol = parse_input(smiles, "rdkit", False)
-            depiction = get_rdkit_depiction(
-                mol,
-                [width, height],
-                rotate,
-                CIP=CIP,
-                unicolor=unicolor,
-                highlight=highlight,
-                highlight_atoms=highlight_atoms,
-                showAtomNumbers=showAtomNumbers,
-            )
-        else:
-            raise HTTPException(
-                status_code=422,
-                detail="Invalid toolkit. Choose 'cdk' or 'rdkit'.",
-            )
+        # Generate depiction using CDK (only toolkit supported for enhanced features)
+        # CDK's SmilesParser automatically handles CXSMILES (e.g., "CCO |ha:0,1|")
+        # The highlighting is extracted internally via extract_cxsmiles_highlighting()
+        mol = parse_input(smiles, "cdk", False)
+        depiction = get_cdk_depiction(
+            mol,
+            molSize=(width, height),
+            rotate=rotate,
+            kekulize=not donuts,  # Don't kekulize if using donuts
+            CIP=CIP,
+            unicolor=unicolor,
+            highlight=highlight,
+            highlight_atoms=highlight_atoms,
+            showAtomNumbers=showAtomNumbers,
+            hydrogen_display=hydrogen_display,
+            # Chemical structure enhancements
+            abbreviate=abbreviate,
+            dative=dative,
+            multicenter=multicenter,
+            # Visual style and annotations
+            annotate=annotate,
+            style=style,
+            donuts=donuts,
+            arrow=arrow,
+            alignrxnmap=alignrxnmap,
+            showtitle=showtitle,
+            bgcolor=bgcolor,
+            fgcolor=fgcolor,
+            # Advanced rendering controls
+            zoom=zoom,
+            ratio=ratio,
+            flip=flip,
+            anon=anon,
+            smalim=smalim,
+            svgunits=svgunits,
+            perceive_radicals=perceive_radicals,
+            apply_mdl_highlighting=apply_mdl_highlighting,
+        )
 
         return Response(content=depiction, media_type="image/svg+xml")
 
     except Exception as e:
         logger.error(f"Error generating enhanced depiction: {e}")
         raise HTTPException(status_code=422, detail=str(e))
-
-
-@router.get(
-    "/2D/info",
-    summary="Get information about all Phase 1, 2, and 3 features",
-)
-async def get_features_info():
-    """Get comprehensive information about all Phase 1, 2, and 3 depiction features.
-
-    Returns detailed documentation about CXSMILES, abbreviations, dative bonds, multicenter bonds,
-    annotations, style presets, aromatic display, reaction arrows, and advanced controls.
-    """
-    return {
-        "version": "3.0.0",
-        "phases": "Phase 1, 2, and 3 - Complete Feature Set",
-        "features": {
-            # ========== PHASE 1 ==========
-            "phase1": {
-                "cxsmiles": {
-                    "description": "Extended SMILES with highlighting and coordinates",
-                    "syntax": {
-                        "highlighted_atoms": "|ha:0,1,2|",
-                        "highlighted_bonds": "|hb:0,1|",
-                        "coordinates_2d": "|c:x1,y1,x2,y2,...|",
-                        "coordinates_3d": "|C:x1,y1,z1,x2,y2,z2,...|",
-                    },
-                    "example": "c1ccccc1 |ha:0,1,2|",
-                },
-                "abbreviations": {
-                    "description": "Automatic chemical abbreviation system",
-                    "modes": {
-                        "off": "No abbreviations",
-                        "groups": "Only functional groups (Ph, Me, Et, Boc, Fmoc, etc.)",
-                        "reagents": "Common reagents (THF, DMF, DCM, NaOH, LiAlH4, etc.)",
-                        "on": "Both groups and reagents",
-                    },
-                    "examples": {
-                        "phenyl": "c1ccccc1 → Ph",
-                        "thf": "C1CCOC1 → THF",
-                        "sodium_hydroxide": "[Na+].[OH-] → NaOH",
-                    },
-                    "total_abbreviations": "198 reagents + 60 groups",
-                },
-                "dative_bonds": {
-                    "description": "Coordinate bond perception with arrow notation",
-                    "modes": {
-                        "never": "No dative bond perception",
-                        "metals": "Only metal-ligand bonds (default)",
-                        "always": "All dative bonds including B, O",
-                    },
-                    "examples": [
-                        "[NH3]BF3 (ammonia borane)",
-                        "[Co][N+]([O-])(=O) (nitro complex)",
-                        "O=[N+]([O-])O (nitrate)",
-                    ],
-                    "arrow_notation": "Donor→Acceptor",
-                },
-                "multicenter_bonds": {
-                    "description": "η-complex and π-bonding display",
-                    "styles": {
-                        "provided": "As-is from input",
-                        "dative": "Arrow notation from ring to metal",
-                        "dashed": "Dashed lines (preserve charges)",
-                        "dashed_neutral": "Dashed lines (neutralize charges)",
-                        "hidden": "Hide bonds (preserve charges)",
-                        "hidden_neutral": "Hide bonds (neutralize charges)",
-                    },
-                    "examples": [
-                        "η5-Cyclopentadienyl (ferrocene)",
-                        "η6-Benzene (chromium complex)",
-                        "η3-Allyl (palladium complex)",
-                    ],
-                },
-            },
-            # ========== PHASE 2 ==========
-            "phase2": {
-                "annotations": {
-                    "description": "Comprehensive annotation system for molecular structures",
-                    "modes": {
-                        "none": "No annotations",
-                        "number": "Show atom numbers (0-based indexing)",
-                        "bondnumber": "Show bond numbers",
-                        "mapidx": "Show atom mapping numbers (for reactions)",
-                        "atomvalue": "Show atom values/properties",
-                        "colmap": "Color-code atoms by mapping number",
-                        "cip": "Show CIP stereochemistry labels (R/S, E/Z)",
-                    },
-                    "use_cases": [
-                        "Education: Show atom numbers for teaching",
-                        "Reactions: Use mapidx for reaction mapping",
-                        "Stereochemistry: Use cip for R/S, E/Z labels",
-                    ],
-                },
-                "style_presets": {
-                    "description": "Predefined color schemes for different contexts",
-                    "presets": {
-                        "cow": "Color on White (default) - Standard publication style",
-                        "cob": "Color on Black - For dark backgrounds",
-                        "cot": "Color on Transparent - For overlays",
-                        "bow": "Black on White - High contrast, printer-friendly",
-                        "bot": "Black on Transparent - Simple overlays",
-                        "wob": "White on Black - Inverted high contrast",
-                        "nob": "Neon on Black - Eye-catching presentations",
-                    },
-                    "use_cases": [
-                        "Publications: cow or bow",
-                        "Presentations: cob or nob",
-                        "Web overlays: cot or bot",
-                    ],
-                },
-                "aromatic_display": {
-                    "description": "Circle-in-ring (donut) representation for aromatic systems",
-                    "modes": {
-                        "false": "Alternating double bonds (Kekulé structure)",
-                        "true": "Circle inside aromatic rings (donut representation)",
-                    },
-                    "examples": [
-                        "Benzene: 6-membered ring with inner circle",
-                        "Naphthalene: Fused rings with circles",
-                        "Pyridine: Nitrogen-containing aromatic",
-                    ],
-                },
-                "reaction_arrows": {
-                    "description": "Different arrow types for chemical reactions",
-                    "types": {
-                        "forward": "Standard forward arrow (→)",
-                        "equ": "Equilibrium/reversible arrow (⇌)",
-                        "ngo": "No-go/blocked arrow (⇏)",
-                        "ret": "Retrosynthetic arrow (⇒)",
-                        "res": "Resonance arrow (↔)",
-                    },
-                    "use_cases": [
-                        "Standard reactions: forward",
-                        "Equilibria: equ",
-                        "Retrosynthesis: ret",
-                        "Resonance structures: res",
-                    ],
-                },
-                "custom_colors": {
-                    "description": "Override default colors with custom hex values",
-                    "parameters": {
-                        "bgcolor": "Background color (e.g., '#FFFFFF')",
-                        "fgcolor": "Foreground/annotation color (e.g., '#000000')",
-                    },
-                },
-            },
-            # ========== PHASE 3 ==========
-            "phase3": {
-                "radical_perception": {
-                    "description": "Automatic detection and marking of unpaired electrons",
-                    "examples": [
-                        "Methyl radical: [CH3]",
-                        "Oxygen radical: [O]",
-                        "Nitric oxide: [N]=O",
-                    ],
-                    "display": "Dots or markers on atoms with unpaired electrons",
-                },
-                "mdl_hilite": {
-                    "description": "Support for MDL/SDF V3000 HILITE properties",
-                    "format": "M  V30 HIGHLIGHT ATOMS=(count index1 index2 ...)",
-                    "source": "Automatically parsed from molecule properties",
-                    "use_case": "Import highlighting from chemical databases",
-                },
-                "advanced_controls": {
-                    "zoom": {
-                        "description": "Zoom level for depiction",
-                        "range": "0.1 to 5.0",
-                        "default": 1.3,
-                        "use_case": "Adjust molecule size in image",
-                    },
-                    "ratio": {
-                        "description": "Bond thickness/stroke ratio",
-                        "range": "0.5 to 2.0",
-                        "default": 1.0,
-                        "use_case": "Thicker bonds for presentations, thinner for publications",
-                    },
-                    "flip": {
-                        "description": "Horizontally flip molecular structure",
-                        "use_case": "Mirror image of molecule",
-                    },
-                    "anon": {
-                        "description": "Anonymous atom display (IUPAC recommendations)",
-                        "use_case": "Hide atom labels for simplified view",
-                    },
-                    "smalim": {
-                        "description": "SMARTS hit limit",
-                        "range": "1 to 1000",
-                        "default": 100,
-                        "use_case": "Control maximum number of highlighted matches",
-                    },
-                    "svgunits": {
-                        "description": "SVG coordinate units",
-                        "options": ["px", "mm", "cm", "in"],
-                        "default": "px",
-                        "use_case": "Export for print (mm/cm/in) or web (px)",
-                    },
-                },
-            },
-        },
-        "usage_tips": [
-            "Use CXSMILES for precise highlighting: 'CC(O)C |ha:1|'",
-            "Combine abbreviations with highlighting for clean depictions",
-            "CDK toolkit required for all Phase 1-3 features",
-            "Use 'dative=metals' as default for coordination chemistry",
-            "Apply 'multicenter=dative' for clearer organometallic structures",
-            "Use 'style=cow' for publications, 'style=cob' for presentations",
-            "Enable 'donuts=true' for cleaner aromatic ring display",
-            "Use 'annotate=cip' to show stereochemistry labels",
-            "Adjust 'zoom' and 'ratio' for optimal depiction size and clarity",
-            "Use 'svgunits=mm' for print-ready output",
-        ],
-        "endpoint": "/depict/2D_enhanced",
-        "recommended_settings": {
-            "publication": {
-                "style": "cow",
-                "donuts": False,
-                "zoom": 1.3,
-                "ratio": 0.8,
-                "annotate": "none",
-            },
-            "presentation": {
-                "style": "cob",
-                "donuts": True,
-                "zoom": 1.5,
-                "ratio": 1.2,
-                "annotate": "cip",
-            },
-            "teaching": {
-                "style": "cow",
-                "donuts": False,
-                "zoom": 1.5,
-                "ratio": 1.0,
-                "annotate": "number",
-            },
-            "coordination_chemistry": {
-                "style": "cow",
-                "dative": "metals",
-                "multicenter": "dative",
-                "abbreviate": "off",
-                "zoom": 1.3,
-            },
-        },
-    }
