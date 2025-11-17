@@ -9,7 +9,7 @@ Based on CDK radical handling functionality.
 
 from __future__ import annotations
 
-from typing import Any, List, Dict, Tuple, Optional
+from typing import Any, List, Dict, Optional
 
 from jpype import JClass
 
@@ -34,7 +34,7 @@ class RadicalPerception:
             self.SPIN_MULTIPLICITY = self.CDKConstants.SPIN_MULTIPLICITY
             self.IAtom = JClass(self.cdk_base + ".interfaces.IAtom")
             self.Integer = JClass("java.lang.Integer")
-        except Exception as e:
+        except Exception:
             raise
 
     def perceive_radicals(self, molecule: Any) -> Dict[int, int]:
@@ -65,7 +65,7 @@ class RadicalPerception:
 
             return radicals
 
-        except Exception as e:
+        except Exception:
             return {}
 
     def _get_radical_count(self, atom: Any, molecule: Any) -> int:
@@ -123,7 +123,7 @@ class RadicalPerception:
 
             return max(0, radical_count)
 
-        except Exception as e:
+        except Exception:
             return 0
 
     def _get_expected_valence(self, element: str, formal_charge: int) -> Optional[int]:
@@ -189,7 +189,7 @@ class RadicalPerception:
                 spin_mult = radical_count + 1
                 atom.setProperty(self.SPIN_MULTIPLICITY, self.Integer(spin_mult))
 
-        except Exception as e:
+        except Exception:
             pass
 
     def count_radicals(self, molecule: Any) -> int:
@@ -205,7 +205,7 @@ class RadicalPerception:
             radicals = self.perceive_radicals(molecule)
             total = sum(radicals.values())
             return total
-        except Exception as e:
+        except Exception:
             return 0
 
     def get_radical_atoms(self, molecule: Any) -> List[int]:
@@ -220,7 +220,7 @@ class RadicalPerception:
         try:
             radicals = self.perceive_radicals(molecule)
             return list(radicals.keys())
-        except Exception as e:
+        except Exception:
             return []
 
 
@@ -240,7 +240,7 @@ def perceive_radicals(molecule: Any) -> Dict[int, int]:
     try:
         perceiver = RadicalPerception()
         return perceiver.perceive_radicals(molecule)
-    except Exception as e:
+    except Exception:
         return {}
 
 
@@ -258,7 +258,7 @@ def mark_radicals(molecule: Any) -> None:
     try:
         perceiver = RadicalPerception()
         perceiver.mark_radicals(molecule)
-    except Exception as e:
+    except Exception:
         pass
 
 

@@ -93,7 +93,7 @@ class ChemicalAbbreviations:
             # Try to load from CDK internal resources first
             try:
                 self.group_abbr.loadFromFile(self.DEFAULT_GROUP_ABBR_PATH)
-            except Exception as e:
+            except Exception:
                 if custom_group_file and Path(custom_group_file).exists():
                     self.group_abbr.loadFromFile(custom_group_file)
 
@@ -101,7 +101,7 @@ class ChemicalAbbreviations:
             if custom_group_file and Path(custom_group_file).exists():
                 try:
                     self.group_abbr.loadFromFile(custom_group_file)
-                except Exception as e:
+                except Exception:
                     pass
 
             self.group_abbr.without(Abbreviations.Option.ALLOW_SINGLETON).with_(
@@ -117,7 +117,7 @@ class ChemicalAbbreviations:
             # and NOT functional groups (Ph, Me, Et, etc.)
             try:
                 self.reagent_abbr.loadFromFile(self.DEFAULT_REAGENT_ABBR_PATH)
-            except Exception as e:
+            except Exception:
                 if custom_reagent_file and Path(custom_reagent_file).exists():
                     self.reagent_abbr.loadFromFile(custom_reagent_file)
 
@@ -125,7 +125,7 @@ class ChemicalAbbreviations:
             if custom_reagent_file and Path(custom_reagent_file).exists():
                 try:
                     self.reagent_abbr.loadFromFile(custom_reagent_file)
-                except Exception as e:
+                except Exception:
                     pass
 
             self.reagent_abbr.with_(Abbreviations.Option.ALLOW_SINGLETON).with_(
@@ -182,7 +182,7 @@ class ChemicalAbbreviations:
                 self._contract_hydrates(molecule)
                 self.reagent_abbr.apply(molecule, atom_set)
 
-        except Exception as e:
+        except Exception:
             pass
 
     def apply_to_reaction(
@@ -220,7 +220,7 @@ class ChemicalAbbreviations:
                 else:
                     self.apply(mol, mode, highlighted_atoms)
 
-        except Exception as e:
+        except Exception:
             pass
 
     def _contract_hydrates(self, molecule: any) -> None:
@@ -320,7 +320,7 @@ class ChemicalAbbreviations:
                 sgrp.setSubscript(str(hydrate.size() // 3))
                 sgroups.add(sgrp)
 
-        except Exception as e:
+        except Exception:
             pass
 
 

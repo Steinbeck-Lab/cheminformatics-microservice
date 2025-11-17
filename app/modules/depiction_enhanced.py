@@ -13,7 +13,6 @@ License: MIT
 from __future__ import annotations
 
 import xml.etree.ElementTree as ET
-from typing import Any, Optional, Literal
 
 from jpype import JClass
 from rdkit import Chem
@@ -160,7 +159,7 @@ def get_cdk_depiction(
                 radicals = rad_perceiver.perceive_radicals(molecule)
                 if radicals:
                     pass
-            except Exception as e:
+            except Exception:
                 pass
 
         # ====== PHASE 3: MDL HILITE Support ======
@@ -174,7 +173,7 @@ def get_cdk_depiction(
                 mdl_highlight_bonds = mdl_bonds
                 if mdl_atoms or mdl_bonds:
                     pass
-            except Exception as e:
+            except Exception:
                 pass
 
         # ====== Merge all highlighting sources ======
@@ -237,7 +236,7 @@ def get_cdk_depiction(
                         DepictionGenerator = DepictionGenerator.withBackgroundColor(
                             bg_color
                         )
-                    except Exception as e:
+                    except Exception:
                         pass
                 if fgcolor:
                     try:
@@ -249,7 +248,7 @@ def get_cdk_depiction(
                         DepictionGenerator = DepictionGenerator.withAnnotationColor(
                             fg_color
                         )
-                    except Exception as e:
+                    except Exception:
                         pass
 
             # Apply size
@@ -294,7 +293,7 @@ def get_cdk_depiction(
                 abbr_system.apply(
                     molecule, mode=abbr_mode, highlighted_atoms=highlight_set
                 )
-            except Exception as e:
+            except Exception:
                 pass
 
         # ====== PHASE 1: Dative Bonds ======
@@ -312,7 +311,7 @@ def get_cdk_depiction(
                 count = dative_perceiver.perceive(molecule, mode=dative_mode)
                 if count > 0:
                     pass
-            except Exception as e:
+            except Exception:
                 pass
 
         # ====== Hydrogen Display ======
@@ -320,7 +319,7 @@ def get_cdk_depiction(
             set_hydrogen_display(
                 molecule if not is_reaction else None, hydrogen_display
             )
-        except ValueError as e:
+        except ValueError:
             pass
 
         # ====== Generate 2D Coordinates with CIP if requested ======
@@ -345,7 +344,7 @@ def get_cdk_depiction(
                 }
                 arrow_type = arrow_map.get(arrow.lower(), ReactionArrowType.FORWARD)
                 arrow_system.set_arrow_type(SDGMol, arrow_type)
-            except Exception as e:
+            except Exception:
                 pass
 
         # ====== PHASE 1: Multicenter Bonds ======
@@ -368,14 +367,14 @@ def get_cdk_depiction(
                 count = mc_handler.set_style(SDGMol, style=mc_style)
                 if count > 0:
                     pass
-            except Exception as e:
+            except Exception:
                 pass
 
         # ====== Kekulize ======
         if kekulize and not is_reaction:
             try:
                 Kekulization.kekulize(SDGMol)
-            except Exception as e:
+            except Exception:
                 pass
 
         # ====== PHASE 2: Aromatic Display (Donuts) ======
@@ -389,7 +388,7 @@ def get_cdk_depiction(
         if flip:
             try:
                 controls.flip_structure(SDGMol)
-            except Exception as e:
+            except Exception:
                 pass
 
         # ====== Rotate ======
@@ -522,7 +521,7 @@ def _apply_highlighting(
 
                     # Add bonds between highlighted atoms
                     for i, idx1 in enumerate(atom_indices):
-                        for idx2 in atom_indices[i + 1 :]:
+                        for idx2 in atom_indices[i + 1:]:
                             if (
                                 idx1 < molecule.getAtomCount()
                                 and idx2 < molecule.getAtomCount()
@@ -606,7 +605,7 @@ def _apply_highlighting(
                             subset.addAtom(molecule.getAtom(idx))
 
                         for i, idx1 in enumerate(mapping):
-                            for idx2 in mapping[i + 1 :]:
+                            for idx2 in mapping[i + 1:]:
                                 bond = molecule.getBond(
                                     molecule.getAtom(idx1), molecule.getAtom(idx2)
                                 )
@@ -619,12 +618,12 @@ def _apply_highlighting(
                         tmpSubstructures, hgCol
                     ).withOuterGlowHighlight()
 
-            except Exception as e:
+            except Exception:
                 pass
 
         return depiction_generator
 
-    except Exception as e:
+    except Exception:
         return depiction_generator
 
 

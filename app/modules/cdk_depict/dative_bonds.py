@@ -132,7 +132,7 @@ class DativeBondPerception:
                         bond.setDisplay(IBond.Display.ArrowEnd)
                         count += 1
 
-        except Exception as e:
+        except Exception:
             pass
 
         return count

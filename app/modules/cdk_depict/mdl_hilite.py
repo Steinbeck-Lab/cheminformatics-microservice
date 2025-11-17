@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import Any, Set, Tuple, Optional, List
+from typing import Any, Set, Tuple, Optional
 
 from jpype import JClass
 
@@ -251,7 +251,7 @@ class MDLHiliteParser:
                 molecule.getProperty("HILITE_ATOMS") is not None
                 or molecule.getProperty("HILITE_BONDS") is not None
             )
-        except:
+        except Exception:
             return False
 
 

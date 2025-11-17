@@ -118,7 +118,7 @@ class AromaticDisplaySystem:
                     return False
 
             return True
-        except:
+        except Exception:
             return False
 
     def count_aromatic_atoms(self, molecule: Any) -> int:

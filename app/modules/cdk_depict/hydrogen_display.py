@@ -15,7 +15,7 @@ Based on CDK hydrogen display functionality.
 from __future__ import annotations
 
 import logging
-from typing import Literal, Any
+from typing import Literal
 
 from jpype import JClass
 

@@ -2,7 +2,7 @@
 
 CXSMILES extends SMILES with additional information like:
 - Highlighted atoms (ha:)
-- Highlighted bonds (hb:)  
+- Highlighted bonds (hb:)
 - 2D/3D coordinates
 - Atom labels, values, etc.
 
@@ -64,7 +64,7 @@ def parse_cxsmiles_highlighting_from_string(smiles_string: str) -> tuple[set, se
                 int(idx.strip()) for idx in bond_indices if idx.strip()
             }
 
-    except Exception as e:
+    except Exception:
         # If parsing fails, return empty sets
         pass
 
@@ -132,7 +132,7 @@ def apply_cxsmiles_highlighting_to_depiction(
                 highlight_set, highlight_color
             )
 
-    except Exception as e:
+    except Exception:
         pass
 
     return depiction_generator
@@ -158,7 +158,7 @@ def parse_cxsmiles(cxsmiles: str, cdk_base: str = "org.openscience.cdk") -> Any:
         molecule = SmilesParser.parseSmiles(cxsmiles)
         return molecule
 
-    except Exception as e:
+    except Exception:
         raise
 
 

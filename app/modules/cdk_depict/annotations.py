@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import logging
 from enum import Enum
-from typing import Optional, Set, Dict, Any
+from typing import Any
 from jpype import JClass
 from app.modules.toolkits.cdk_wrapper import get_cip_annotation
 
@@ -313,7 +313,7 @@ class AnnotationSystem:
             IReaction = JClass(self.cdk_base + ".interfaces.IReaction")
             IReactionSet = JClass(self.cdk_base + ".interfaces.IReactionSet")
             return isinstance(molecule, (IReaction, IReactionSet))
-        except:
+        except Exception:
             return False
 
 

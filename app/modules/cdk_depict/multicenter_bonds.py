@@ -18,14 +18,21 @@ Display styles:
 - Hidden: Hide bonds (preserving charges)
 - HiddenNeutral: Hide bonds (neutralize charges)
 
+Author: Kohulan Rajan
+License: MIT
 """
 
 from __future__ import annotations
 
+import logging
 from enum import Enum
 from typing import Set
 
 from jpype import JClass
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class MulticenterStyle(Enum):
@@ -131,8 +138,13 @@ class MulticenterBonds:
 
                     count += 1
 
+            if count > 0:
+                logger.debug(
+                    f"Applied {style.value} style to {count} multicenter bonds"
+                )
+
         except Exception as e:
-            pass
+            logger.error(f"Error setting multicenter bond style: {e}")
 
         return count
 
@@ -157,9 +169,9 @@ class MulticenterBonds:
             bond.setDisplay(IBond.Display.Dash)
 
         elif style == MulticenterStyle.DATIVE:
-            # Use arrow notation (direction based on which atom has fewer bonds)
+            # Use arrow notation (direction based on begin atom's bond count)
+            # Per CDK implementation: if begin has only 1 bond, arrow points to it
             begin = bond.getBegin()
-            end = bond.getEnd()
 
             if begin.getBondCount() == 1:
                 bond.setDisplay(IBond.Display.ArrowEnd)
@@ -203,8 +215,12 @@ class MulticenterBonds:
                 # Adjust metal charge
                 metal.setFormalCharge(metal_charge - (-charge_on_ring))
 
+                logger.debug(
+                    f"Neutralized {-charge_on_ring} charge units in ring system"
+                )
+
         except Exception as e:
-            pass
+            logger.warning(f"Error neutralizing charges: {e}")
 
     def detect_multicenter_bonds(self, molecule: any) -> int:
         """Detect potential multicenter bonding patterns.
@@ -238,11 +254,16 @@ class MulticenterBonds:
                         ring_atoms = self._get_aromatic_ring(molecule, neighbor)
 
                         if len(ring_atoms) >= 5:  # Likely η5 or η6
+                            logger.info(
+                                f"Detected potential η{len(ring_atoms)} bond "
+                                f"at metal atom {atom.getSymbol()}"
+                            )
                             count += 1
 
             return count
 
         except Exception as e:
+            logger.error(f"Error detecting multicenter bonds: {e}")
             return 0
 
     def _get_aromatic_ring(self, molecule: any, start_atom: any) -> Set[any]:
@@ -297,7 +318,6 @@ class MulticenterBonds:
             Sgroup = JClass(self.cdk_base + ".sgroup.Sgroup")
             SgroupType = JClass(self.cdk_base + ".sgroup.SgroupType")
             ArrayList = JClass("java.util.ArrayList")
-            HashSet = JClass("java.util.HashSet")
 
             # Get or create Sgroup list
             sgroups = molecule.getProperty(CDKConstants.CTAB_SGROUPS)
@@ -328,14 +348,17 @@ class MulticenterBonds:
                     break
 
             if not bond_found:
+                logger.warning("No bond found between metal and ring atoms")
                 return False
 
             # Add Sgroup to molecule
             sgroups.add(sgroup)
 
+            logger.info(f"Marked η{len(ring_atom_indices)} multicenter bond")
             return True
 
         except Exception as e:
+            logger.error(f"Error marking multicenter bond: {e}")
             return False
 
 
@@ -381,4 +404,32 @@ def get_multicenter_style(style_str: str) -> MulticenterStyle:
     elif style_str in ["hn", "hidden_neutral", "hideneutral"]:
         return MulticenterStyle.HIDDEN_NEUTRAL
     else:
+        logger.warning(f"Unknown multicenter style: {style_str}, using 'provided'")
         return MulticenterStyle.PROVIDED
+
+
+# Example usage
+if __name__ == "__main__":
+    from app.modules.toolkits.cdk_wrapper import get_CDK_IAtomContainer
+
+    # Test ferrocene fragment (simplified)
+    print("Testing multicenter bond handling...")
+
+    # This is a simplified representation
+    # In reality, ferrocene would be input with proper Sgroup notation
+    smiles = "[Fe]c1ccccc1"
+
+    try:
+        mol = get_CDK_IAtomContainer(smiles)
+        handler = MulticenterBonds()
+
+        # Detect potential multicenter bonds
+        count = handler.detect_multicenter_bonds(mol)
+        print(f"Detected {count} potential multicenter bonds")
+
+        # Try different styles
+        for style in MulticenterStyle:
+            print(f"  Testing style: {style.value}")
+
+    except Exception as e:
+        print(f"Error: {e}")

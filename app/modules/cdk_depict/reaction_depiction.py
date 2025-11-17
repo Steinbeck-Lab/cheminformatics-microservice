@@ -138,7 +138,7 @@ class ReactionArrowSystem:
         try:
             IReactionSet = JClass(self.cdk_base + ".interfaces.IReactionSet")
             return isinstance(obj, IReactionSet)
-        except:
+        except Exception:
             return False
 
     def get_arrow_type(self, reaction: Any) -> Optional[ReactionArrowType]:

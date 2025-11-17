@@ -171,7 +171,7 @@ def _apply_highlighting(
 
                 # Add bonds between highlighted atoms
                 for i, idx1 in enumerate(atom_indices):
-                    for idx2 in atom_indices[i + 1 :]:
+                    for idx2 in atom_indices[i + 1:]:
                         if (
                             idx1 < molecule.getAtomCount()
                             and idx2 < molecule.getAtomCount()

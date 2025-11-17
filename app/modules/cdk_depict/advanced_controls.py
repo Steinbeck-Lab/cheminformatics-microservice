@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import logging
 from enum import Enum
-from typing import Any, Optional, List
+from typing import Any, List
 
 from jpype import JClass
 
