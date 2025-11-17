@@ -42,12 +42,27 @@ class AbbreviationOptions:
 
 
 class ChemicalAbbreviations:
-    """Chemical abbreviation system for molecular depiction."""
+    """Chemical abbreviation system for molecular depiction.
 
+    This class manages two types of abbreviations:
+    1. Group abbreviations (Ph, Me, Et, Boc, Fmoc, etc.)
+    2. Reagent abbreviations (THF, DMF, DCM, NaOH, etc.)
+    Example:
+        >>> abbr = ChemicalAbbreviations()
+        >>> abbr.load_default_abbreviations()
+        >>> mol = get_CDK_IAtomContainer("c1ccccc1C")
+        >>> abbr.apply(mol, mode=AbbreviationMode.GROUPS)
+    """
+
+    # Default CDK internal resource paths
     DEFAULT_GROUP_ABBR_PATH = "app/modules/cdk_depict/data/group_abbr.smi"
     DEFAULT_REAGENT_ABBR_PATH = "app/modules/cdk_depict/data/reagent_abbr.smi"
 
     def __init__(self, cdk_base: str = "org.openscience.cdk"):
+        """Initialize abbreviation system.
+        Args:
+            cdk_base: Base package path for CDK classes
+        """
         self.cdk_base = cdk_base
         self.group_abbr = None
         self.reagent_abbr = None
@@ -81,7 +96,13 @@ class ChemicalAbbreviations:
                 Abbreviations.Option.AUTO_CONTRACT_TERMINAL
             ).without(Abbreviations.Option.AUTO_CONTRACT_HETERO)
 
+            # Initialize reagent abbreviations
             self.reagent_abbr = Abbreviations()
+
+            # Try to load from CDK internal resources
+            # NOTE: Only load reagent file here, NOT the group file
+            # This ensures "reagents" mode only abbreviates standalone reagents (THF, DMF, etc.)
+            # and NOT functional groups (Ph, Me, Et, etc.)
             try:
                 self.reagent_abbr.loadFromFile(self.DEFAULT_REAGENT_ABBR_PATH)
             except Exception:
@@ -114,6 +135,12 @@ class ChemicalAbbreviations:
         mode: AbbreviationMode = AbbreviationMode.REAGENTS,
         highlighted_atoms: Optional[Set[int]] = None,
     ) -> None:
+        """Apply abbreviations to a molecule.
+        Args:
+            molecule: CDK IAtomContainer
+            mode: Abbreviation mode (off, groups, reagents, all)
+            highlighted_atoms: Set of atom indices that should not be abbreviated
+        """
         if not self._initialized:
             self.initialize()
 
@@ -141,6 +168,12 @@ class ChemicalAbbreviations:
         mode: AbbreviationMode = AbbreviationMode.REAGENTS,
         highlighted_atoms: Optional[Set[int]] = None,
     ) -> None:
+        """Apply abbreviations to a reaction.
+        Args:
+            reaction: CDK IReaction
+            mode: Abbreviation mode
+            highlighted_atoms: Set of atom indices to preserve
+        """
         if not self._initialized:
             self.initialize()
 
@@ -190,6 +223,11 @@ class ChemicalAbbreviations:
             pass
 
     def _contract_hydrates(self, molecule: any) -> None:
+        """Contract water molecules into hydrate notation (·nH2O).
+        This finds isolated water molecules and groups them with Sgroups.
+        Args:
+            molecule: CDK IAtomContainer
+        """
         try:
             Sgroup = JClass(self.cdk_base + ".sgroup.Sgroup")
             SgroupKey = JClass(self.cdk_base + ".sgroup.SgroupKey")
@@ -254,6 +292,12 @@ class ChemicalAbbreviations:
 
 
 def parse_abbreviation_mode(mode_str: str) -> AbbreviationMode:
+    """Convert string to AbbreviationMode enum.
+    Args:
+        mode_str: Mode string ("off", "groups", "reagents", "on")
+    Returns:
+        AbbreviationMode enum value
+    """
     mode_str = mode_str.lower().strip()
 
     if mode_str in ["off", "false", "no"]:
