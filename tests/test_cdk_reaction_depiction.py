@@ -21,11 +21,8 @@ def simple_reaction():
     cdk_base = "org.openscience.cdk"
     SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
     SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
-    try:
-        reaction = SmilesParser.parseReactionSmiles("CCO>>CC=O")
-        return reaction
-    except Exception:
-        return None
+    reaction = SmilesParser.parseReactionSmiles("CCO>>CC=O")
+    return reaction
 
 
 class TestReactionArrowType:
@@ -117,32 +114,22 @@ class TestSetArrowType:
     """Test setting arrow type on reactions."""
 
     def test_set_forward_arrow(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
         arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.FORWARD)
         assert simple_reaction is not None
 
     def test_set_bidirectional_arrow(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
         arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.BIDIRECTIONAL)
         assert simple_reaction is not None
 
     def test_set_no_go_arrow(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
         arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.NO_GO)
         assert simple_reaction is not None
 
     def test_set_retro_synthetic_arrow(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
         arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.RETRO_SYNTHETIC)
         assert simple_reaction is not None
 
     def test_set_resonance_arrow(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
         arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.RESONANCE)
         assert simple_reaction is not None
 
@@ -152,48 +139,36 @@ class TestSetArrowTypeFromString:
 
     def test_set_arrow_from_forward_string(self, arrow_system, simple_reaction):
         """Test setting arrow from 'forward' string."""
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
         arrow_type = get_arrow_type("forward")
         arrow_system.set_arrow_type(simple_reaction, arrow_type)
         assert simple_reaction is not None
 
     def test_set_arrow_from_equ_string(self, arrow_system, simple_reaction):
         """Test setting arrow from 'equ' abbreviation."""
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
         arrow_type = get_arrow_type("equ")
         arrow_system.set_arrow_type(simple_reaction, arrow_type)
         assert simple_reaction is not None
 
     def test_set_arrow_from_ngo_string(self, arrow_system, simple_reaction):
         """Test setting arrow from 'ngo' abbreviation."""
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
         arrow_type = get_arrow_type("ngo")
         arrow_system.set_arrow_type(simple_reaction, arrow_type)
         assert simple_reaction is not None
 
     def test_set_arrow_from_ret_string(self, arrow_system, simple_reaction):
         """Test setting arrow from 'ret' abbreviation."""
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
         arrow_type = get_arrow_type("ret")
         arrow_system.set_arrow_type(simple_reaction, arrow_type)
         assert simple_reaction is not None
 
     def test_set_arrow_from_res_string(self, arrow_system, simple_reaction):
         """Test setting arrow from 'res' abbreviation."""
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
         arrow_type = get_arrow_type("res")
         arrow_system.set_arrow_type(simple_reaction, arrow_type)
         assert simple_reaction is not None
 
     def test_set_arrow_from_empty_string_defaults(self, arrow_system, simple_reaction):
         """Test that empty string defaults to FORWARD arrow."""
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
         arrow_type = get_arrow_type("")
         assert arrow_type == ReactionArrowType.FORWARD
         arrow_system.set_arrow_type(simple_reaction, arrow_type)
@@ -203,8 +178,6 @@ class TestSetArrowTypeFromString:
         self, arrow_system, simple_reaction
     ):
         """Test that unknown arrow type raises ValueError."""
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
         with pytest.raises(ValueError) as exc_info:
             get_arrow_type("unknown")
         assert "Invalid arrow type" in str(exc_info.value)
@@ -270,28 +243,21 @@ class TestMultipleReactions:
         cdk_base = "org.openscience.cdk"
         SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
         SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
-        try:
-            rxn_set = SmilesParser.parseReactionSetSmiles("CCO>>CC=O")
-            for rxn in rxn_set.reactions():
-                arrow_system.set_arrow_type(rxn, ReactionArrowType.BIDIRECTIONAL)
-            assert rxn_set is not None
-        except Exception:
-            pytest.skip("Reaction set parsing failed")
+        rxn_set = SmilesParser.parseReactionSetSmiles("CCO>>CC=O")
+        for rxn in rxn_set.reactions():
+            arrow_system.set_arrow_type(rxn, ReactionArrowType.BIDIRECTIONAL)
+        assert rxn_set is not None
 
 
 class TestArrowTypePreservation:
     """Test that arrow type settings are preserved."""
 
     def test_arrow_type_persists_after_setting(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
         arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.BIDIRECTIONAL)
         arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.FORWARD)
         assert simple_reaction is not None
 
     def test_multiple_arrow_type_changes(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
         arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.FORWARD)
         arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.BIDIRECTIONAL)
         arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.NO_GO)
@@ -302,15 +268,11 @@ class TestReactionIntegrity:
     """Test that arrow type operations preserve reaction integrity."""
 
     def test_preserves_reactant_count(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
         initial_count = simple_reaction.getReactantCount()
         arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.FORWARD)
         assert simple_reaction.getReactantCount() == initial_count
 
     def test_preserves_product_count(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
         initial_count = simple_reaction.getProductCount()
         arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.FORWARD)
         assert simple_reaction.getProductCount() == initial_count
@@ -321,29 +283,20 @@ class TestEdgeCases:
 
     def test_case_insensitive_arrow_string(self, arrow_system, simple_reaction):
         """Test that arrow type strings are case-insensitive."""
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
         arrow_type = get_arrow_type("FORWARD")
         arrow_system.set_arrow_type(simple_reaction, arrow_type)
         assert arrow_type == ReactionArrowType.FORWARD
 
     def test_whitespace_in_arrow_string(self, arrow_system, simple_reaction):
         """Test that whitespace is trimmed from arrow type strings."""
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
         arrow_type = get_arrow_type(" forward ")
         arrow_system.set_arrow_type(simple_reaction, arrow_type)
         assert arrow_type == ReactionArrowType.FORWARD
 
     def test_none_arrow_string(self, arrow_system, simple_reaction):
         """Test that None arrow string raises an error."""
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-        try:
+        with pytest.raises((AttributeError, TypeError)):
             get_arrow_type(None)
-            pytest.fail("Should have raised an exception for None")
-        except (AttributeError, TypeError):
-            assert True
 
 
 class TestArrowSymbols:
@@ -386,23 +339,17 @@ class TestComplexReactions:
         cdk_base = "org.openscience.cdk"
         SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
         SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
-        try:
-            reaction = SmilesParser.parseReactionSmiles("CC.O>>CCO")
-            arrow_system.set_arrow_type(reaction, ReactionArrowType.FORWARD)
-            assert reaction is not None
-        except Exception:
-            pytest.skip("Complex reaction parsing failed")
+        reaction = SmilesParser.parseReactionSmiles("CC.O>>CCO")
+        arrow_system.set_arrow_type(reaction, ReactionArrowType.FORWARD)
+        assert reaction is not None
 
     def test_catalyzed_reaction(self, arrow_system):
         cdk_base = "org.openscience.cdk"
         SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
         SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
-        try:
-            reaction = SmilesParser.parseReactionSmiles("CCO>O>CC=O")
-            arrow_system.set_arrow_type(reaction, ReactionArrowType.FORWARD)
-            assert reaction is not None
-        except Exception:
-            pytest.skip("Catalyzed reaction parsing failed")
+        reaction = SmilesParser.parseReactionSmiles("CCO>O>CC=O")
+        arrow_system.set_arrow_type(reaction, ReactionArrowType.FORWARD)
+        assert reaction is not None
 
 
 class TestArrowTypeStringVariants:
@@ -410,8 +357,6 @@ class TestArrowTypeStringVariants:
 
     def test_forward_variants(self, arrow_system, simple_reaction):
         """Test that different case variants of 'forward' work."""
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
         for variant in ["forward", "FORWARD", "Forward"]:
             arrow_type = get_arrow_type(variant)
             assert arrow_type == ReactionArrowType.FORWARD
@@ -420,8 +365,6 @@ class TestArrowTypeStringVariants:
 
     def test_equilibrium_variants(self, arrow_system, simple_reaction):
         """Test that different case variants of 'equ' work."""
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
         for variant in ["equ", "EQU", "Equ"]:
             arrow_type = get_arrow_type(variant)
             assert arrow_type == ReactionArrowType.BIDIRECTIONAL

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+from jpype import JClass
 
 from app.modules.depiction_enhanced import get_cdk_depiction
 from app.modules.toolkits.cdk_wrapper import get_CDK_IAtomContainer
@@ -625,6 +626,40 @@ class TestRadicalPerception:
     def test_perceive_radicals_disabled(self):
         mol = get_CDK_IAtomContainer("[CH3]")
         svg = get_cdk_depiction(mol, perceive_radicals=False)
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+    def test_reaction_radical_perception(self):
+        """Test radical perception in reactions."""
+        cdk_base = "org.openscience.cdk"
+        SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
+        SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
+        reaction = SmilesParser.parseReactionSmiles("[CH3].O>>[CH3]O")
+
+        svg = get_cdk_depiction(reaction, perceive_radicals=True)
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+    def test_reaction_set_radical_perception(self):
+        """Test radical perception in reaction sets."""
+        cdk_base = "org.openscience.cdk"
+        SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
+        SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
+        reaction_set = SmilesParser.parseReactionSetSmiles("[CH3].O>>[CH3]O")
+
+        svg = get_cdk_depiction(reaction_set, perceive_radicals=True)
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+    def test_reaction_with_agents_radical_perception(self):
+        """Test radical perception in reactions with agents."""
+        cdk_base = "org.openscience.cdk"
+        SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
+        SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
+        # Reaction with agent: [CH3] > [Cl] > [CH3]Cl
+        reaction = SmilesParser.parseReactionSmiles("[CH3]>[Cl]>[CH3]Cl")
+
+        svg = get_cdk_depiction(reaction, perceive_radicals=True)
         assert svg is not None
         assert "svg" in svg.lower()
 

@@ -37,46 +37,31 @@ def smiles_parser():
 @pytest.fixture
 def methyl_radical(smiles_parser):
     """Methyl radical: [CH3]"""
-    try:
-        return smiles_parser.parseSmiles("[CH3]")
-    except Exception:
-        return None
+    return smiles_parser.parseSmiles("[CH3]")
 
 
 @pytest.fixture
 def oxygen_radical(smiles_parser):
     """Oxygen radical: [O]"""
-    try:
-        return smiles_parser.parseSmiles("[O]")
-    except Exception:
-        return None
+    return smiles_parser.parseSmiles("[O]")
 
 
 @pytest.fixture
 def hydroxyl_radical(smiles_parser):
     """Hydroxyl radical: [OH]"""
-    try:
-        return smiles_parser.parseSmiles("[OH]")
-    except Exception:
-        return None
+    return smiles_parser.parseSmiles("[OH]")
 
 
 @pytest.fixture
 def carbene(smiles_parser):
     """Carbene (divalent carbon): [CH2]"""
-    try:
-        return smiles_parser.parseSmiles("[CH2]")
-    except Exception:
-        return None
+    return smiles_parser.parseSmiles("[CH2]")
 
 
 @pytest.fixture
 def simple_reaction(smiles_parser):
     """Simple reaction with radicals: CCO>>CC=O"""
-    try:
-        return smiles_parser.parseReactionSmiles("CCO>>CC=O")
-    except Exception:
-        return None
+    return smiles_parser.parseReactionSmiles("CCO>>CC=O")
 
 
 class TestRadicalPerceptionInitialization:
@@ -88,11 +73,8 @@ class TestRadicalPerceptionInitialization:
 
     def test_initialization_no_errors(self):
         """Ensure initialization doesn't raise exceptions."""
-        try:
-            RadicalPerception()
-            assert True
-        except Exception as e:
-            pytest.fail(f"Initialization failed: {e}")
+        RadicalPerception()
+        assert True
 
 
 class TestValenceCalculation:
@@ -100,19 +82,14 @@ class TestValenceCalculation:
 
     def test_calc_valence_methane(self, smiles_parser, radical_perceiver):
         """Test valence calculation for methane (CH4)."""
-        try:
-            mol = smiles_parser.parseSmiles("C")
-            atom = mol.getAtom(0)
-            valence = radical_perceiver._calc_valence(atom, mol)
-            # CH4: 4 implicit H = valence 4
-            assert valence == 4
-        except Exception:
-            pytest.skip("SMILES parsing failed")
+        mol = smiles_parser.parseSmiles("C")
+        atom = mol.getAtom(0)
+        valence = radical_perceiver._calc_valence(atom, mol)
+        # CH4: 4 implicit H = valence 4
+        assert valence == 4
 
     def test_calc_valence_methyl(self, methyl_radical, radical_perceiver):
         """Test valence calculation for methyl radical."""
-        if methyl_radical is None:
-            pytest.skip("Methyl radical parsing failed")
         atom = methyl_radical.getAtom(0)
         valence = radical_perceiver._calc_valence(atom, methyl_radical)
         # CH3: 3 bonds = valence 3
@@ -120,14 +97,11 @@ class TestValenceCalculation:
 
     def test_calc_valence_ethane(self, smiles_parser, radical_perceiver):
         """Test valence calculation for carbon in ethane."""
-        try:
-            mol = smiles_parser.parseSmiles("CC")
-            atom = mol.getAtom(0)
-            valence = radical_perceiver._calc_valence(atom, mol)
-            # C in CC: 1 bond to C + 3 implicit H = valence 4
-            assert valence == 4
-        except Exception:
-            pytest.skip("SMILES parsing failed")
+        mol = smiles_parser.parseSmiles("CC")
+        atom = mol.getAtom(0)
+        valence = radical_perceiver._calc_valence(atom, mol)
+        # C in CC: 1 bond to C + 3 implicit H = valence 4
+        assert valence == 4
 
 
 class TestCarbonRadicals:
@@ -135,9 +109,6 @@ class TestCarbonRadicals:
 
     def test_methyl_radical_detection(self, methyl_radical, radical_perceiver):
         """Test detection of methyl radical [CH3]."""
-        if methyl_radical is None:
-            pytest.skip("Methyl radical parsing failed")
-
         initial_count = methyl_radical.getSingleElectronCount()
         radical_perceiver.perceive_radicals(methyl_radical)
         final_count = methyl_radical.getSingleElectronCount()
@@ -147,9 +118,6 @@ class TestCarbonRadicals:
 
     def test_carbene_detection(self, carbene, radical_perceiver):
         """Test detection of carbene [CH2]."""
-        if carbene is None:
-            pytest.skip("Carbene parsing failed")
-
         initial_count = carbene.getSingleElectronCount()
         radical_perceiver.perceive_radicals(carbene)
         final_count = carbene.getSingleElectronCount()
@@ -159,16 +127,13 @@ class TestCarbonRadicals:
 
     def test_normal_carbon_no_radical(self, smiles_parser, radical_perceiver):
         """Test that normal saturated carbon has no radicals."""
-        try:
-            mol = smiles_parser.parseSmiles("C")  # Methane
-            initial_count = mol.getSingleElectronCount()
-            radical_perceiver.perceive_radicals(mol)
-            final_count = mol.getSingleElectronCount()
+        mol = smiles_parser.parseSmiles("C")  # Methane
+        initial_count = mol.getSingleElectronCount()
+        radical_perceiver.perceive_radicals(mol)
+        final_count = mol.getSingleElectronCount()
 
-            # Methane is saturated, should not add radicals
-            assert final_count == initial_count
-        except Exception:
-            pytest.skip("SMILES parsing failed")
+        # Methane is saturated, should not add radicals
+        assert final_count == initial_count
 
 
 class TestNitrogenRadicals:
@@ -176,29 +141,23 @@ class TestNitrogenRadicals:
 
     def test_nitrogen_radical_detection(self, smiles_parser, radical_perceiver):
         """Test detection of nitrogen radical [N]."""
-        try:
-            mol = smiles_parser.parseSmiles("[N]")
-            initial_count = mol.getSingleElectronCount()
-            radical_perceiver.perceive_radicals(mol)
-            final_count = mol.getSingleElectronCount()
+        mol = smiles_parser.parseSmiles("[N]")
+        initial_count = mol.getSingleElectronCount()
+        radical_perceiver.perceive_radicals(mol)
+        final_count = mol.getSingleElectronCount()
 
-            # Nitrogen radical should be detected
-            assert final_count > initial_count
-        except Exception:
-            pytest.skip("Nitrogen radical parsing failed")
+        # Nitrogen radical should be detected
+        assert final_count > initial_count
 
     def test_ammonia_no_radical(self, smiles_parser, radical_perceiver):
         """Test that ammonia has no radicals."""
-        try:
-            mol = smiles_parser.parseSmiles("N")  # Ammonia
-            initial_count = mol.getSingleElectronCount()
-            radical_perceiver.perceive_radicals(mol)
-            final_count = mol.getSingleElectronCount()
+        mol = smiles_parser.parseSmiles("N")  # Ammonia
+        initial_count = mol.getSingleElectronCount()
+        radical_perceiver.perceive_radicals(mol)
+        final_count = mol.getSingleElectronCount()
 
-            # Ammonia is saturated, should not add radicals
-            assert final_count == initial_count
-        except Exception:
-            pytest.skip("SMILES parsing failed")
+        # Ammonia is saturated, should not add radicals
+        assert final_count == initial_count
 
 
 class TestOxygenRadicals:
@@ -206,9 +165,6 @@ class TestOxygenRadicals:
 
     def test_oxygen_radical_detection(self, oxygen_radical, radical_perceiver):
         """Test detection of oxygen radical [O]."""
-        if oxygen_radical is None:
-            pytest.skip("Oxygen radical parsing failed")
-
         initial_count = oxygen_radical.getSingleElectronCount()
         radical_perceiver.perceive_radicals(oxygen_radical)
         final_count = oxygen_radical.getSingleElectronCount()
@@ -218,9 +174,6 @@ class TestOxygenRadicals:
 
     def test_hydroxyl_radical_detection(self, hydroxyl_radical, radical_perceiver):
         """Test detection of hydroxyl radical [OH]."""
-        if hydroxyl_radical is None:
-            pytest.skip("Hydroxyl radical parsing failed")
-
         initial_count = hydroxyl_radical.getSingleElectronCount()
         radical_perceiver.perceive_radicals(hydroxyl_radical)
         final_count = hydroxyl_radical.getSingleElectronCount()
@@ -230,16 +183,13 @@ class TestOxygenRadicals:
 
     def test_water_no_radical(self, smiles_parser, radical_perceiver):
         """Test that water has no radicals."""
-        try:
-            mol = smiles_parser.parseSmiles("O")  # Water
-            initial_count = mol.getSingleElectronCount()
-            radical_perceiver.perceive_radicals(mol)
-            final_count = mol.getSingleElectronCount()
+        mol = smiles_parser.parseSmiles("O")  # Water
+        initial_count = mol.getSingleElectronCount()
+        radical_perceiver.perceive_radicals(mol)
+        final_count = mol.getSingleElectronCount()
 
-            # Water is saturated, should not add radicals
-            assert final_count == initial_count
-        except Exception:
-            pytest.skip("SMILES parsing failed")
+        # Water is saturated, should not add radicals
+        assert final_count == initial_count
 
 
 class TestAromaticAtoms:
@@ -274,16 +224,13 @@ class TestFormalCharge:
 
     def test_charged_atoms_skipped(self, smiles_parser, radical_perceiver):
         """Test that charged atoms are skipped."""
-        try:
-            mol = smiles_parser.parseSmiles("[NH4+]")  # Ammonium
-            initial_count = mol.getSingleElectronCount()
-            radical_perceiver.perceive_radicals(mol)
-            final_count = mol.getSingleElectronCount()
+        mol = smiles_parser.parseSmiles("[NH4+]")  # Ammonium
+        initial_count = mol.getSingleElectronCount()
+        radical_perceiver.perceive_radicals(mol)
+        final_count = mol.getSingleElectronCount()
 
-            # Charged atoms should be skipped
-            assert final_count == initial_count
-        except Exception:
-            pytest.skip("Charged molecule parsing failed")
+        # Charged atoms should be skipped
+        assert final_count == initial_count
 
 
 class TestReactionRadicals:
@@ -291,25 +238,16 @@ class TestReactionRadicals:
 
     def test_reaction_radical_perception(self, simple_reaction, radical_perceiver):
         """Test that radicals are perceived in reaction components."""
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-
-        try:
-            radical_perceiver.perceive_radicals_reaction(simple_reaction)
-            # If we get here without exception, test passes
-            assert True
-        except Exception as e:
-            pytest.fail(f"Reaction radical perception failed: {e}")
+        radical_perceiver.perceive_radicals_reaction(simple_reaction)
+        # If we get here without exception, test passes
+        assert True
 
     def test_reaction_set_radical_perception(self, smiles_parser, radical_perceiver):
         """Test radical perception in reaction set."""
-        try:
-            rxn_set = smiles_parser.parseReactionSetSmiles("CCO>>CC=O")
-            radical_perceiver.perceive_radicals_reaction_set(rxn_set)
-            # If we get here without exception, test passes
-            assert True
-        except Exception:
-            pytest.skip("Reaction set parsing failed")
+        rxn_set = smiles_parser.parseReactionSetSmiles("CCO>>CC=O")
+        radical_perceiver.perceive_radicals_reaction_set(rxn_set)
+        # If we get here without exception, test passes
+        assert True
 
 
 class TestConvenienceFunction:
@@ -317,9 +255,6 @@ class TestConvenienceFunction:
 
     def test_perceive_radicals_molecule(self, methyl_radical):
         """Test convenience function with molecule."""
-        if methyl_radical is None:
-            pytest.skip("Methyl radical parsing failed")
-
         initial_count = methyl_radical.getSingleElectronCount()
         perceive_radicals(methyl_radical)
         final_count = methyl_radical.getSingleElectronCount()
@@ -328,15 +263,9 @@ class TestConvenienceFunction:
 
     def test_perceive_radicals_reaction(self, simple_reaction):
         """Test convenience function with reaction."""
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-
-        try:
-            perceive_radicals(simple_reaction)
-            # If we get here without exception, test passes
-            assert True
-        except Exception as e:
-            pytest.fail(f"Convenience function failed: {e}")
+        perceive_radicals(simple_reaction)
+        # If we get here without exception, test passes
+        assert True
 
 
 class TestEdgeCases:
@@ -344,26 +273,20 @@ class TestEdgeCases:
 
     def test_empty_molecule(self, radical_perceiver):
         """Test with empty molecule."""
-        try:
-            cdk_base = "org.openscience.cdk"
-            SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
-            empty_mol = SCOB.getInstance().newAtomContainer()
+        cdk_base = "org.openscience.cdk"
+        SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
+        empty_mol = SCOB.getInstance().newAtomContainer()
 
-            # Should not crash
-            radical_perceiver.perceive_radicals(empty_mol)
-            assert True
-        except Exception:
-            pytest.skip("Empty molecule test failed")
+        # Should not crash
+        radical_perceiver.perceive_radicals(empty_mol)
+        assert True
 
     def test_single_atom(self, smiles_parser, radical_perceiver):
         """Test with single atom molecule."""
-        try:
-            mol = smiles_parser.parseSmiles("[C]")
-            radical_perceiver.perceive_radicals(mol)
-            # Should not crash
-            assert True
-        except Exception:
-            pytest.skip("Single atom test failed")
+        mol = smiles_parser.parseSmiles("[C]")
+        radical_perceiver.perceive_radicals(mol)
+        # Should not crash
+        assert True
 
 
 class TestMultipleRadicals:
@@ -371,17 +294,14 @@ class TestMultipleRadicals:
 
     def test_diradical(self, smiles_parser, radical_perceiver):
         """Test molecule with two radical centers."""
-        try:
-            # This would need a specific SMILES for a diradical
-            mol = smiles_parser.parseSmiles("[CH2][CH2]")
-            initial_count = mol.getSingleElectronCount()
-            radical_perceiver.perceive_radicals(mol)
-            final_count = mol.getSingleElectronCount()
+        # This would need a specific SMILES for a diradical
+        mol = smiles_parser.parseSmiles("[CH2][CH2]")
+        initial_count = mol.getSingleElectronCount()
+        radical_perceiver.perceive_radicals(mol)
+        final_count = mol.getSingleElectronCount()
 
-            # Should detect radicals on both carbons
-            assert final_count > initial_count
-        except Exception:
-            pytest.skip("Diradical test failed")
+        # Should detect radicals on both carbons
+        assert final_count > initial_count
 
 
 class TestIntegration:
@@ -389,34 +309,26 @@ class TestIntegration:
 
     def test_full_workflow_molecule(self, smiles_parser):
         """Test complete workflow from SMILES to radical detection."""
-        try:
-            # Parse SMILES
-            mol = smiles_parser.parseSmiles("[CH3]")
+        # Parse SMILES
+        mol = smiles_parser.parseSmiles("[CH3]")
 
-            # Perceive radicals
-            perceiver = RadicalPerception()
-            initial_count = mol.getSingleElectronCount()
-            perceiver.perceive_radicals(mol)
-            final_count = mol.getSingleElectronCount()
+        # Perceive radicals
+        perceiver = RadicalPerception()
+        initial_count = mol.getSingleElectronCount()
+        perceiver.perceive_radicals(mol)
+        final_count = mol.getSingleElectronCount()
 
-            # Verify radicals were added
-            assert final_count > initial_count
-
-        except Exception:
-            pytest.skip("Integration test failed")
+        # Verify radicals were added
+        assert final_count > initial_count
 
     def test_full_workflow_reaction(self, smiles_parser):
         """Test complete workflow with reaction."""
-        try:
-            # Parse reaction SMILES
-            rxn = smiles_parser.parseReactionSmiles("[CH3].O>>[CH3]O")
+        # Parse reaction SMILES
+        rxn = smiles_parser.parseReactionSmiles("[CH3].O>>[CH3]O")
 
-            # Perceive radicals
-            perceiver = RadicalPerception()
-            perceiver.perceive_radicals_reaction(rxn)
+        # Perceive radicals
+        perceiver = RadicalPerception()
+        perceiver.perceive_radicals_reaction(rxn)
 
-            # Verify no exceptions
-            assert True
-
-        except Exception:
-            pytest.skip("Reaction integration test failed")
+        # Verify no exceptions
+        assert True
