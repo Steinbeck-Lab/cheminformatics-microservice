@@ -42,7 +42,12 @@ def setup_jvm():
             if not os.path.exists(jar_paths[key]):
                 pystow.ensure("JAVA_Packages", url=url)
 
-        startJVM("-ea", "-Xmx4096M", classpath=[jar_paths[key] for key in jar_paths])
+        startJVM(
+            "-ea",
+            "-Xmx4096M",
+            "-Djava.awt.headless=true",
+            classpath=[jar_paths[key] for key in jar_paths],
+        )
 
 
 setup_jvm()

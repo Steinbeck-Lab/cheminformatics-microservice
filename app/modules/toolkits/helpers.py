@@ -57,7 +57,6 @@ def parse_SMILES(smiles: str, framework: str = "rdkit", standardize: bool = Fals
                 mol = Chem.MolFromMolBlock(standardized_mol)
         elif framework == "cdk":
             mol = get_CDK_IAtomContainer(smiles)
-            print("I am here")
         elif framework == "openbabel":
             mol = get_ob_mol(smiles)
         else:
