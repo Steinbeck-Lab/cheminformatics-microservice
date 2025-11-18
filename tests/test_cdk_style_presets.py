@@ -56,29 +56,44 @@ class TestStylePresetEnum:
 class TestStyleConfiguration:
     """Test StyleConfiguration dataclass."""
 
-    def test_configuration_has_bgcolor(self):
+    def test_configuration_has_background_color(self):
+        """Test that configuration stores background_color."""
         config = StyleConfiguration(
-            bg_color=(255, 255, 255), fg_color=(0, 0, 0), use_color_atoms=True
+            use_atom_colors=True,
+            background_color=(255, 255, 255),
+            annotation_color=(0, 0, 0),
         )
-        assert config.bg_color == (255, 255, 255)
+        assert config.background_color == (255, 255, 255)
 
-    def test_configuration_has_fgcolor(self):
+    def test_configuration_has_annotation_color(self):
+        """Test that configuration stores annotation_color."""
         config = StyleConfiguration(
-            bg_color=(255, 255, 255), fg_color=(0, 0, 0), use_color_atoms=True
+            use_atom_colors=True,
+            background_color=(255, 255, 255),
+            annotation_color=(0, 0, 0),
         )
-        assert config.fg_color == (0, 0, 0)
+        assert config.annotation_color == (0, 0, 0)
 
-    def test_configuration_has_use_color_atoms(self):
+    def test_configuration_has_use_atom_colors(self):
+        """Test that configuration stores use_atom_colors flag."""
         config = StyleConfiguration(
-            bg_color=(255, 255, 255), fg_color=(0, 0, 0), use_color_atoms=True
+            use_atom_colors=True,
+            background_color=(255, 255, 255),
+            annotation_color=(0, 0, 0),
         )
-        assert config.use_color_atoms is True
+        assert config.use_atom_colors is True
 
-    def test_configuration_color_atoms_false(self):
+    def test_configuration_atom_colors_false(self):
+        """Test configuration with use_atom_colors disabled."""
         config = StyleConfiguration(
-            bg_color=(0, 0, 0), fg_color=(255, 255, 255), use_color_atoms=False
+            use_atom_colors=False,
+            atom_color=(255, 255, 255),
+            background_color=(0, 0, 0),
+            annotation_color=(255, 255, 255),
         )
-        assert config.use_color_atoms is False
+        assert config.use_atom_colors is False
+        assert config.atom_color == (255, 255, 255)
+        assert config.use_atom_colors is False
 
 
 class TestStyleConfigurationsDict:
@@ -117,15 +132,15 @@ class TestCOWStyle:
 
     def test_cow_has_white_background(self):
         config = STYLE_CONFIGURATIONS[StylePreset.COW]
-        assert config.bg_color == (255, 255, 255)
+        assert config.background_color == (255, 255, 255)
 
     def test_cow_uses_color_atoms(self):
         config = STYLE_CONFIGURATIONS[StylePreset.COW]
-        assert config.use_color_atoms is True
+        assert config.use_atom_colors is True
 
     def test_cow_apply_style(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.COW)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.COW)
         assert gen is not None
 
 
@@ -134,15 +149,15 @@ class TestCOBStyle:
 
     def test_cob_has_black_background(self):
         config = STYLE_CONFIGURATIONS[StylePreset.COB]
-        assert config.bg_color == (0, 0, 0)
+        assert config.background_color == (0, 0, 0)
 
     def test_cob_uses_color_atoms(self):
         config = STYLE_CONFIGURATIONS[StylePreset.COB]
-        assert config.use_color_atoms is True
+        assert config.use_atom_colors is True
 
     def test_cob_apply_style(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.COB)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.COB)
         assert gen is not None
 
 
@@ -151,19 +166,19 @@ class TestBOWStyle:
 
     def test_bow_has_white_background(self):
         config = STYLE_CONFIGURATIONS[StylePreset.BOW]
-        assert config.bg_color == (255, 255, 255)
+        assert config.background_color == (255, 255, 255)
 
     def test_bow_uses_black_atoms(self):
         config = STYLE_CONFIGURATIONS[StylePreset.BOW]
-        assert config.use_color_atoms is False
+        assert config.use_atom_colors is False
 
     def test_bow_has_black_foreground(self):
         config = STYLE_CONFIGURATIONS[StylePreset.BOW]
-        assert config.fg_color == (0, 0, 0)
+        assert config.atom_color == (0, 0, 0)
 
     def test_bow_apply_style(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.BOW)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.BOW)
         assert gen is not None
 
 
@@ -172,19 +187,19 @@ class TestWOBStyle:
 
     def test_wob_has_black_background(self):
         config = STYLE_CONFIGURATIONS[StylePreset.WOB]
-        assert config.bg_color == (0, 0, 0)
+        assert config.background_color == (0, 0, 0)
 
     def test_wob_uses_white_atoms(self):
         config = STYLE_CONFIGURATIONS[StylePreset.WOB]
-        assert config.use_color_atoms is False
+        assert config.use_atom_colors is False
 
     def test_wob_has_white_foreground(self):
         config = STYLE_CONFIGURATIONS[StylePreset.WOB]
-        assert config.fg_color == (255, 255, 255)
+        assert config.atom_color == (255, 255, 255)
 
     def test_wob_apply_style(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.WOB)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.WOB)
         assert gen is not None
 
 
@@ -193,15 +208,17 @@ class TestNOBStyle:
 
     def test_nob_has_black_background(self):
         config = STYLE_CONFIGURATIONS[StylePreset.NOB]
-        assert config.bg_color == (0, 0, 0)
+        assert config.background_color == (0, 0, 0)
 
-    def test_nob_uses_color_atoms(self):
+    def test_nob_uses_single_neon_color(self):
+        """Test that NOB uses a single neon cyan color, not CDK atom colors."""
         config = STYLE_CONFIGURATIONS[StylePreset.NOB]
-        assert config.use_color_atoms is True
+        assert config.use_atom_colors is False
+        assert config.atom_color == (0, 255, 255)  # Cyan neon
 
     def test_nob_apply_style(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.NOB)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.NOB)
         assert gen is not None
 
 
@@ -210,12 +227,12 @@ class TestCOTStyle:
 
     def test_cot_apply_style(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.COT)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.COT)
         assert gen is not None
 
     def test_cot_uses_color_atoms(self):
         config = STYLE_CONFIGURATIONS[StylePreset.COT]
-        assert config.use_color_atoms is True
+        assert config.use_atom_colors is True
 
 
 class TestBOTStyle:
@@ -223,24 +240,28 @@ class TestBOTStyle:
 
     def test_bot_apply_style(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.BOT)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.BOT)
         assert gen is not None
 
     def test_bot_uses_black_atoms(self):
         config = STYLE_CONFIGURATIONS[StylePreset.BOT]
-        assert config.use_color_atoms is False
+        assert config.use_atom_colors is False
 
 
 class TestStylePresetSystemInitialization:
     """Test StylePresetSystem initialization."""
 
     def test_default_initialization(self):
+        """Test that system initializes with correct cdk_base."""
         system = StylePresetSystem()
         assert system.cdk_base == "org.openscience.cdk"
 
-    def test_custom_cdk_base(self):
-        system = StylePresetSystem(cdk_base="org.openscience.cdk")
-        assert system.cdk_base == "org.openscience.cdk"
+    def test_initialization_loads_classes(self):
+        """Test that initialization loads all required Java classes."""
+        system = StylePresetSystem()
+        assert system.Color is not None
+        assert system.CDK2DAtomColors is not None
+        assert system.StandardGenerator is not None
 
 
 class TestApplyStyle:
@@ -248,37 +269,37 @@ class TestApplyStyle:
 
     def test_apply_cow_style(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.COW)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.COW)
         assert gen is not None
 
     def test_apply_cob_style(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.COB)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.COB)
         assert gen is not None
 
     def test_apply_bow_style(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.BOW)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.BOW)
         assert gen is not None
 
     def test_apply_wob_style(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.WOB)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.WOB)
         assert gen is not None
 
     def test_apply_nob_style(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.NOB)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.NOB)
         assert gen is not None
 
     def test_apply_cot_style(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.COT)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.COT)
         assert gen is not None
 
     def test_apply_bot_style(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.BOT)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.BOT)
         assert gen is not None
 
 
@@ -320,13 +341,13 @@ class TestStyleWithCustomColors:
 
     def test_cow_with_custom_bgcolor(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.COW)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.COW)
         gen = style_system.apply_custom_colors(gen, bg_color=(200, 200, 200))
         assert gen is not None
 
     def test_bow_with_custom_colors(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.BOW)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.BOW)
         gen = style_system.apply_custom_colors(
             gen, bg_color=(255, 255, 255), fg_color=(50, 50, 50)
         )
@@ -334,27 +355,41 @@ class TestStyleWithCustomColors:
 
 
 class TestColorConversion:
-    """Test color tuple to Java Color conversion."""
+    """Test color string parsing to Java Color conversion."""
 
-    def test_white_color_conversion(self, style_system):
+    def test_white_color_hex_conversion(self, style_system):
+        """Test parsing white color from hex string."""
         Color = JClass("java.awt.Color")
-        color = style_system._tuple_to_color((255, 255, 255))
+        color = style_system._parse_color("#FFFFFF")
+        assert color is not None
         assert isinstance(color, type(Color.WHITE))
 
-    def test_black_color_conversion(self, style_system):
+    def test_black_color_hex_conversion(self, style_system):
+        """Test parsing black color from hex string."""
         Color = JClass("java.awt.Color")
-        color = style_system._tuple_to_color((0, 0, 0))
+        color = style_system._parse_color("#000000")
+        assert color is not None
         assert isinstance(color, type(Color.BLACK))
 
-    def test_red_color_conversion(self, style_system):
-        Color = JClass("java.awt.Color")
-        color = style_system._tuple_to_color((255, 0, 0))
-        assert isinstance(color, type(Color.RED))
+    def test_red_color_hex_conversion(self, style_system):
+        """Test parsing red color from hex string."""
+        color = style_system._parse_color("#FF0000")
+        assert color is not None
 
-    def test_custom_color_conversion(self, style_system):
-        Color = JClass("java.awt.Color")
-        color = style_system._tuple_to_color((123, 45, 67))
-        assert isinstance(color, type(Color.WHITE))
+    def test_custom_color_hex_conversion(self, style_system):
+        """Test parsing custom color from hex string."""
+        color = style_system._parse_color("#7B2D43")
+        assert color is not None
+
+    def test_color_with_alpha_conversion(self, style_system):
+        """Test parsing color with alpha channel."""
+        color = style_system._parse_color("0xFF0000FF")
+        assert color is not None
+
+    def test_invalid_color_returns_none(self, style_system):
+        """Test that invalid color string returns None."""
+        color = style_system._parse_color("invalid")
+        assert color is None
 
 
 class TestStyleChaining:
@@ -362,20 +397,20 @@ class TestStyleChaining:
 
     def test_apply_style_then_custom_colors(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.COW)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.COW)
         gen = style_system.apply_custom_colors(gen, bg_color=(240, 240, 240))
         assert gen is not None
 
     def test_multiple_style_changes(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.COW)
-        gen = style_system.apply_style(gen, StylePreset.BOW)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.COW)
+        gen = style_system.apply_preset(gen, StylePreset.BOW)
         assert gen is not None
 
     def test_reapply_same_style(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.COW)
-        gen = style_system.apply_style(gen, StylePreset.COW)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.COW)
+        gen = style_system.apply_preset(gen, StylePreset.COW)
         assert gen is not None
 
 
@@ -384,12 +419,12 @@ class TestPublicationStyles:
 
     def test_bow_for_publication(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.BOW)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.BOW)
         assert gen is not None
 
     def test_cow_for_publication(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.COW)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.COW)
         assert gen is not None
 
 
@@ -398,12 +433,12 @@ class TestPresentationStyles:
 
     def test_cob_for_dark_slides(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.COB)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.COB)
         assert gen is not None
 
     def test_nob_for_dark_slides(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.NOB)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.NOB)
         assert gen is not None
 
 
@@ -412,12 +447,12 @@ class TestTransparentStyles:
 
     def test_cot_transparent_background(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.COT)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.COT)
         assert gen is not None
 
     def test_bot_transparent_background(self, style_system):
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = style_system.apply_style(DepictionGenerator, StylePreset.BOT)
+        gen = style_system.apply_preset(DepictionGenerator, StylePreset.BOT)
         assert gen is not None
 
 
@@ -426,7 +461,7 @@ class TestEdgeCases:
 
     def test_apply_style_with_none_generator(self, style_system):
         try:
-            gen = style_system.apply_style(None, StylePreset.COW)
+            gen = style_system.apply_preset(None, StylePreset.COW)
             assert gen is None or gen is not None
         except Exception:
             assert True
@@ -451,23 +486,25 @@ class TestColorAtomSettings:
 
     def test_cow_uses_colored_atoms(self):
         config = STYLE_CONFIGURATIONS[StylePreset.COW]
-        assert config.use_color_atoms is True
+        assert config.use_atom_colors is True
 
     def test_bow_uses_black_atoms(self):
         config = STYLE_CONFIGURATIONS[StylePreset.BOW]
-        assert config.use_color_atoms is False
+        assert config.use_atom_colors is False
 
     def test_cob_uses_colored_atoms(self):
         config = STYLE_CONFIGURATIONS[StylePreset.COB]
-        assert config.use_color_atoms is True
+        assert config.use_atom_colors is True
 
     def test_wob_uses_white_atoms(self):
         config = STYLE_CONFIGURATIONS[StylePreset.WOB]
-        assert config.use_color_atoms is False
+        assert config.use_atom_colors is False
 
-    def test_nob_uses_neon_atoms(self):
+    def test_nob_uses_single_neon_color(self):
+        """Test that NOB uses a single neon color (cyan), not CDK atom colors."""
         config = STYLE_CONFIGURATIONS[StylePreset.NOB]
-        assert config.use_color_atoms is True
+        assert config.use_atom_colors is False
+        assert config.atom_color == (0, 255, 255)  # Cyan neon
 
 
 class TestStylePresetStringParsing:

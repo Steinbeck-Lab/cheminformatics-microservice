@@ -157,14 +157,33 @@ def get_cdk_depiction(
             ) = parse_cxsmiles_highlighting_from_string(smiles_string)
 
         # ====== Radical Perception ======
-        if perceive_radicals and not is_reaction:
-            try:
-                rad_perceiver = RadicalPerception()
-                radicals = rad_perceiver.perceive_radicals(molecule)
-                if radicals:
-                    pass
-            except Exception:
-                pass
+        if perceive_radicals:
+            if is_reaction:
+                # For reactions, apply to all components (reactants, products, agents)
+                if isinstance(molecule, IReactionSet):
+                    for rxn in molecule.reactions():
+                        # Process reactants
+                        for mol in rxn.getReactants().atomContainers():
+                            RadicalPerception.perceive_radicals(mol)
+                        # Process products
+                        for mol in rxn.getProducts().atomContainers():
+                            RadicalPerception.perceive_radicals(mol)
+                        # Process agents
+                        for mol in rxn.getAgents().atomContainers():
+                            RadicalPerception.perceive_radicals(mol)
+                else:  # Single IReaction
+                    # Process reactants
+                    for mol in molecule.getReactants().atomContainers():
+                        RadicalPerception.perceive_radicals(mol)
+                    # Process products
+                    for mol in molecule.getProducts().atomContainers():
+                        RadicalPerception.perceive_radicals(mol)
+                    # Process agents
+                    for mol in molecule.getAgents().atomContainers():
+                        RadicalPerception.perceive_radicals(mol)
+            else:
+                # For molecules, apply directly
+                RadicalPerception.perceive_radicals(molecule)
 
         # ====== MDL HILITE Support ======
         mdl_highlight_atoms = set()

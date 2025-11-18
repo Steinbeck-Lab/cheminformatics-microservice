@@ -5,6 +5,7 @@ import pytest
 from app.modules.cdk_depict.advanced_controls import (
     AdvancedControls,
     SVGUnits,
+    get_svg_units,
 )
 from app.modules.toolkits.cdk_wrapper import get_CDK_IAtomContainer
 from jpype import JClass
@@ -39,16 +40,21 @@ class TestAdvancedControlsInitialization:
     """Test initialization of advanced controls system."""
 
     def test_default_initialization(self):
+        """Test that AdvancedControls initializes with correct cdk_base."""
         controls = AdvancedControls()
         assert controls.cdk_base == "org.openscience.cdk"
 
-    def test_custom_cdk_base(self):
-        controls = AdvancedControls(cdk_base="org.openscience.cdk")
-        assert controls.cdk_base == "org.openscience.cdk"
-
     def test_initialization_loads_classes(self, controls):
+        """Test that initialization loads all required CDK classes."""
         assert controls.GeometryTools is not None
         assert controls.Math is not None
+        assert controls.StandardGenerator is not None
+        assert controls.SymbolVisibility is not None
+
+    def test_cdk_base_is_string(self, controls):
+        """Test that cdk_base attribute is a string."""
+        assert isinstance(controls.cdk_base, str)
+        assert len(controls.cdk_base) > 0
 
 
 class TestSVGUnits:
@@ -135,37 +141,47 @@ class TestStrokeRatio:
 
 
 class TestSVGUnitsControl:
-    """Test SVG units control."""
+    """Test SVG units enum and helper functions."""
 
-    def test_set_units_px(self, controls):
-        DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = controls.set_svg_units(DepictionGenerator, units=SVGUnits.PX)
-        assert gen is not None
+    def test_svg_units_enum_values(self):
+        """Test that SVGUnits enum has all expected values."""
+        assert SVGUnits.PX.value == "px"
+        assert SVGUnits.MM.value == "mm"
+        assert SVGUnits.CM.value == "cm"
+        assert SVGUnits.IN.value == "in"
 
-    def test_set_units_mm(self, controls):
-        DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = controls.set_svg_units(DepictionGenerator, units=SVGUnits.MM)
-        assert gen is not None
+    def test_get_svg_units_px(self):
+        """Test converting 'px' string to SVGUnits enum."""
+        units = get_svg_units("px")
+        assert units == SVGUnits.PX
 
-    def test_set_units_cm(self, controls):
-        DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = controls.set_svg_units(DepictionGenerator, units=SVGUnits.CM)
-        assert gen is not None
+    def test_get_svg_units_mm(self):
+        """Test converting 'mm' string to SVGUnits enum."""
+        units = get_svg_units("mm")
+        assert units == SVGUnits.MM
 
-    def test_set_units_in(self, controls):
-        DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = controls.set_svg_units(DepictionGenerator, units=SVGUnits.IN)
-        assert gen is not None
+    def test_get_svg_units_cm(self):
+        """Test converting 'cm' string to SVGUnits enum."""
+        units = get_svg_units("cm")
+        assert units == SVGUnits.CM
 
-    def test_set_units_string_px(self, controls):
-        DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = controls.set_svg_units(DepictionGenerator, units="px")
-        assert gen is not None
+    def test_get_svg_units_in(self):
+        """Test converting 'in' string to SVGUnits enum."""
+        units = get_svg_units("in")
+        assert units == SVGUnits.IN
 
-    def test_set_units_string_mm(self, controls):
-        DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = controls.set_svg_units(DepictionGenerator, units="mm")
-        assert gen is not None
+    def test_get_svg_units_case_insensitive(self):
+        """Test that get_svg_units is case-insensitive."""
+        assert get_svg_units("PX") == SVGUnits.PX
+        assert get_svg_units("Mm") == SVGUnits.MM
+        assert get_svg_units("CM") == SVGUnits.CM
+        assert get_svg_units("IN") == SVGUnits.IN
+
+    def test_get_svg_units_invalid_raises_error(self):
+        """Test that invalid unit string raises ValueError."""
+        with pytest.raises(ValueError) as exc_info:
+            get_svg_units("invalid")
+        assert "Invalid SVG units" in str(exc_info.value)
 
 
 class TestFlipStructure:
@@ -335,10 +351,10 @@ class TestCombinedOperations:
         assert simple_molecule.getAtomCount() == initial_atoms
 
     def test_all_depiction_controls(self, controls):
+        """Test chaining multiple depiction controls together."""
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
         gen = controls.set_zoom(DepictionGenerator, zoom=1.5)
         gen = controls.set_stroke_ratio(gen, ratio=1.2)
-        gen = controls.set_svg_units(gen, units=SVGUnits.MM)
         gen = controls.set_title_display(gen, show_title=True, is_reaction=False)
         gen = controls.set_anonymous_display(gen, anonymous=False)
         assert gen is not None
@@ -424,17 +440,17 @@ class TestDepictionGeneratorChaining:
     """Test that depiction generator methods can be chained."""
 
     def test_chain_zoom_ratio_units(self, controls):
+        """Test chaining zoom and stroke ratio controls."""
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
         gen = controls.set_zoom(DepictionGenerator, zoom=1.5)
         gen = controls.set_stroke_ratio(gen, ratio=1.2)
-        gen = controls.set_svg_units(gen, units=SVGUnits.MM)
         assert gen is not None
 
     def test_chain_all_controls(self, controls):
+        """Test chaining all available depiction controls."""
         DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
         gen = controls.set_zoom(DepictionGenerator, zoom=1.3)
         gen = controls.set_stroke_ratio(gen, ratio=1.0)
-        gen = controls.set_svg_units(gen, units=SVGUnits.PX)
         gen = controls.set_title_display(gen, show_title=False, is_reaction=False)
         gen = controls.set_anonymous_display(gen, anonymous=False)
         assert gen is not None
@@ -447,29 +463,61 @@ class TestDepictionGeneratorChaining:
 
 
 class TestSVGUnitsStringConversion:
-    """Test string to SVGUnits conversion."""
+    """Test the get_svg_units helper function for string conversion."""
 
-    def test_px_string_conversion(self, controls):
-        DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = controls.set_svg_units(DepictionGenerator, units="px")
-        assert gen is not None
+    def test_px_string_conversion(self):
+        """Test converting 'px' string to SVGUnits.PX."""
+        result = get_svg_units("px")
+        assert result == SVGUnits.PX
+        assert isinstance(result, SVGUnits)
 
-    def test_mm_string_conversion(self, controls):
-        DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = controls.set_svg_units(DepictionGenerator, units="mm")
-        assert gen is not None
+    def test_mm_string_conversion(self):
+        """Test converting 'mm' string to SVGUnits.MM."""
+        result = get_svg_units("mm")
+        assert result == SVGUnits.MM
+        assert isinstance(result, SVGUnits)
 
-    def test_cm_string_conversion(self, controls):
-        DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = controls.set_svg_units(DepictionGenerator, units="cm")
-        assert gen is not None
+    def test_cm_string_conversion(self):
+        """Test converting 'cm' string to SVGUnits.CM."""
+        result = get_svg_units("cm")
+        assert result == SVGUnits.CM
+        assert isinstance(result, SVGUnits)
 
-    def test_in_string_conversion(self, controls):
-        DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = controls.set_svg_units(DepictionGenerator, units="in")
-        assert gen is not None
+    def test_in_string_conversion(self):
+        """Test converting 'in' string to SVGUnits.IN."""
+        result = get_svg_units("in")
+        assert result == SVGUnits.IN
+        assert isinstance(result, SVGUnits)
 
-    def test_case_insensitive_units(self, controls):
-        DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
-        gen = controls.set_svg_units(DepictionGenerator, units="PX")
-        assert gen is not None
+    def test_case_insensitive_units(self):
+        """Test that get_svg_units handles uppercase input correctly."""
+        assert get_svg_units("PX") == SVGUnits.PX
+        assert get_svg_units("MM") == SVGUnits.MM
+        assert get_svg_units("CM") == SVGUnits.CM
+        assert get_svg_units("IN") == SVGUnits.IN
+
+    def test_mixed_case_units(self):
+        """Test that get_svg_units handles mixed case input correctly."""
+        assert get_svg_units("Px") == SVGUnits.PX
+        assert get_svg_units("Mm") == SVGUnits.MM
+        assert get_svg_units("Cm") == SVGUnits.CM
+        assert get_svg_units("In") == SVGUnits.IN
+
+    def test_invalid_unit_raises_value_error(self):
+        """Test that invalid unit string raises ValueError with helpful message."""
+        with pytest.raises(ValueError) as exc_info:
+            get_svg_units("invalid_unit")
+        error_message = str(exc_info.value)
+        assert "Invalid SVG units" in error_message
+        assert "invalid_unit" in error_message
+        assert "px" in error_message  # Should list valid options
+
+    def test_empty_string_raises_value_error(self):
+        """Test that empty string raises ValueError."""
+        with pytest.raises(ValueError):
+            get_svg_units("")
+
+    def test_whitespace_string_raises_value_error(self):
+        """Test that whitespace-only string raises ValueError."""
+        with pytest.raises(ValueError):
+            get_svg_units("  ")

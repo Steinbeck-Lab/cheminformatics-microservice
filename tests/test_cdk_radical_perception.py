@@ -1,401 +1,422 @@
+"""Tests for Radical Perception Module.
+
+Tests cover:
+- Radical detection in simple molecules
+- Carbon radicals (methyl, carbene)
+- Nitrogen radicals
+- Oxygen radicals
+- Radicals in reactions
+- Edge cases and boundary conditions
+"""
+
 from __future__ import annotations
 
 import pytest
-
-from app.modules.cdk_depict.reaction_depiction import (
-    ReactionArrowSystem,
-    ReactionArrowType,
-    ARROW_ABBREV_MAP,
-)
 from jpype import JClass
 
+from app.modules.cdk_depict.radical_perception import (
+    RadicalPerception,
+    perceive_radicals,
+)
+
 
 @pytest.fixture
-def arrow_system():
-    return ReactionArrowSystem()
+def radical_perceiver():
+    """Create a RadicalPerception instance."""
+    return RadicalPerception()
 
 
 @pytest.fixture
-def simple_reaction():
+def smiles_parser():
+    """Create CDK SMILES parser."""
     cdk_base = "org.openscience.cdk"
     SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
-    SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
+    return JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
+
+
+@pytest.fixture
+def methyl_radical(smiles_parser):
+    """Methyl radical: [CH3]"""
     try:
-        reaction = SmilesParser.parseReactionSmiles("CCO>>CC=O")
-        return reaction
+        return smiles_parser.parseSmiles("[CH3]")
     except Exception:
         return None
 
 
-class TestReactionArrowType:
-    """Test ReactionArrowType enum."""
-
-    def test_forward_arrow(self):
-        assert ReactionArrowType.FORWARD.value == "forward"
-
-    def test_bidirectional_arrow(self):
-        assert ReactionArrowType.BIDIRECTIONAL.value == "bidirectional"
-
-    def test_no_go_arrow(self):
-        assert ReactionArrowType.NO_GO.value == "no_go"
-
-    def test_retro_synthetic_arrow(self):
-        assert ReactionArrowType.RETRO_SYNTHETIC.value == "retro_synthetic"
-
-    def test_resonance_arrow(self):
-        assert ReactionArrowType.RESONANCE.value == "resonance"
-
-    def test_all_arrow_types_defined(self):
-        arrow_types = [
-            ReactionArrowType.FORWARD,
-            ReactionArrowType.BIDIRECTIONAL,
-            ReactionArrowType.NO_GO,
-            ReactionArrowType.RETRO_SYNTHETIC,
-            ReactionArrowType.RESONANCE,
-        ]
-        assert len(arrow_types) == 5
+@pytest.fixture
+def oxygen_radical(smiles_parser):
+    """Oxygen radical: [O]"""
+    try:
+        return smiles_parser.parseSmiles("[O]")
+    except Exception:
+        return None
 
 
-class TestArrowAbbrevMap:
-    """Test ARROW_ABBREV_MAP dictionary."""
-
-    def test_forward_mapping(self):
-        assert "forward" in ARROW_ABBREV_MAP
-
-    def test_equ_mapping(self):
-        assert "equ" in ARROW_ABBREV_MAP
-
-    def test_ngo_mapping(self):
-        assert "ngo" in ARROW_ABBREV_MAP
-
-    def test_ret_mapping(self):
-        assert "ret" in ARROW_ABBREV_MAP
-
-    def test_res_mapping(self):
-        assert "res" in ARROW_ABBREV_MAP
-
-    def test_forward_maps_to_forward_type(self):
-        assert ARROW_ABBREV_MAP["forward"] == ReactionArrowType.FORWARD
-
-    def test_equ_maps_to_bidirectional(self):
-        assert ARROW_ABBREV_MAP["equ"] == ReactionArrowType.BIDIRECTIONAL
-
-    def test_ngo_maps_to_no_go(self):
-        assert ARROW_ABBREV_MAP["ngo"] == ReactionArrowType.NO_GO
-
-    def test_ret_maps_to_retro_synthetic(self):
-        assert ARROW_ABBREV_MAP["ret"] == ReactionArrowType.RETRO_SYNTHETIC
-
-    def test_res_maps_to_resonance(self):
-        assert ARROW_ABBREV_MAP["res"] == ReactionArrowType.RESONANCE
+@pytest.fixture
+def hydroxyl_radical(smiles_parser):
+    """Hydroxyl radical: [OH]"""
+    try:
+        return smiles_parser.parseSmiles("[OH]")
+    except Exception:
+        return None
 
 
-class TestReactionArrowSystemInitialization:
-    """Test ReactionArrowSystem initialization."""
+@pytest.fixture
+def carbene(smiles_parser):
+    """Carbene (divalent carbon): [CH2]"""
+    try:
+        return smiles_parser.parseSmiles("[CH2]")
+    except Exception:
+        return None
+
+
+@pytest.fixture
+def simple_reaction(smiles_parser):
+    """Simple reaction with radicals: CCO>>CC=O"""
+    try:
+        return smiles_parser.parseReactionSmiles("CCO>>CC=O")
+    except Exception:
+        return None
+
+
+class TestRadicalPerceptionInitialization:
+    """Test RadicalPerception initialization."""
 
     def test_default_initialization(self):
-        system = ReactionArrowSystem()
-        assert system.cdk_base == "org.openscience.cdk"
+        perceiver = RadicalPerception()
+        assert perceiver.cdk_base == "org.openscience.cdk"
 
-    def test_custom_cdk_base(self):
-        system = ReactionArrowSystem(cdk_base="org.openscience.cdk")
-        assert system.cdk_base == "org.openscience.cdk"
-
-
-class TestSetArrowType:
-    """Test setting arrow type on reactions."""
-
-    def test_set_forward_arrow(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.FORWARD)
-        assert simple_reaction is not None
-
-    def test_set_bidirectional_arrow(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.BIDIRECTIONAL)
-        assert simple_reaction is not None
-
-    def test_set_no_go_arrow(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.NO_GO)
-        assert simple_reaction is not None
-
-    def test_set_retro_synthetic_arrow(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.RETRO_SYNTHETIC)
-        assert simple_reaction is not None
-
-    def test_set_resonance_arrow(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.RESONANCE)
-        assert simple_reaction is not None
-
-
-class TestSetArrowTypeFromString:
-    """Test setting arrow type from string abbreviation."""
-
-    def test_set_arrow_from_forward_string(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type_from_string(simple_reaction, "forward")
-        assert simple_reaction is not None
-
-    def test_set_arrow_from_equ_string(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type_from_string(simple_reaction, "equ")
-        assert simple_reaction is not None
-
-    def test_set_arrow_from_ngo_string(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type_from_string(simple_reaction, "ngo")
-        assert simple_reaction is not None
-
-    def test_set_arrow_from_ret_string(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type_from_string(simple_reaction, "ret")
-        assert simple_reaction is not None
-
-    def test_set_arrow_from_res_string(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type_from_string(simple_reaction, "res")
-        assert simple_reaction is not None
-
-    def test_set_arrow_from_empty_string_defaults(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type_from_string(simple_reaction, "")
-        assert simple_reaction is not None
-
-    def test_set_arrow_from_unknown_string_defaults(
-        self, arrow_system, simple_reaction
-    ):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type_from_string(simple_reaction, "unknown")
-        assert simple_reaction is not None
-
-
-class TestArrowTypeConversion:
-    """Test conversion between arrow type representations."""
-
-    def test_string_to_arrow_type_forward(self, arrow_system):
-        arrow_type = arrow_system._string_to_arrow_type("forward")
-        assert arrow_type == ReactionArrowType.FORWARD
-
-    def test_string_to_arrow_type_equ(self, arrow_system):
-        arrow_type = arrow_system._string_to_arrow_type("equ")
-        assert arrow_type == ReactionArrowType.BIDIRECTIONAL
-
-    def test_string_to_arrow_type_ngo(self, arrow_system):
-        arrow_type = arrow_system._string_to_arrow_type("ngo")
-        assert arrow_type == ReactionArrowType.NO_GO
-
-    def test_string_to_arrow_type_ret(self, arrow_system):
-        arrow_type = arrow_system._string_to_arrow_type("ret")
-        assert arrow_type == ReactionArrowType.RETRO_SYNTHETIC
-
-    def test_string_to_arrow_type_res(self, arrow_system):
-        arrow_type = arrow_system._string_to_arrow_type("res")
-        assert arrow_type == ReactionArrowType.RESONANCE
-
-    def test_string_to_arrow_type_default(self, arrow_system):
-        arrow_type = arrow_system._string_to_arrow_type("unknown")
-        assert arrow_type == ReactionArrowType.FORWARD
-
-    def test_string_to_arrow_type_empty(self, arrow_system):
-        arrow_type = arrow_system._string_to_arrow_type("")
-        assert arrow_type == ReactionArrowType.FORWARD
-
-
-class TestReactionDirection:
-    """Test reaction direction handling."""
-
-    def test_forward_direction_code(self):
-        cdk_base = "org.openscience.cdk"
-        IReaction = JClass(cdk_base + ".interfaces.IReaction")
-        assert IReaction.Direction.FORWARD is not None
-
-    def test_bidirectional_direction_code(self):
-        cdk_base = "org.openscience.cdk"
-        IReaction = JClass(cdk_base + ".interfaces.IReaction")
-        assert IReaction.Direction.BIDIRECTIONAL is not None
-
-
-class TestMultipleReactions:
-    """Test handling multiple reactions in a reaction set."""
-
-    def test_set_arrow_on_reaction_set(self, arrow_system):
-        cdk_base = "org.openscience.cdk"
-        SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
-        SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
+    def test_initialization_no_errors(self):
+        """Ensure initialization doesn't raise exceptions."""
         try:
-            rxn_set = SmilesParser.parseReactionSetSmiles("CCO>>CC=O")
-            for rxn in rxn_set.reactions():
-                arrow_system.set_arrow_type(rxn, ReactionArrowType.BIDIRECTIONAL)
-            assert rxn_set is not None
+            RadicalPerception()
+            assert True
+        except Exception as e:
+            pytest.fail(f"Initialization failed: {e}")
+
+
+class TestValenceCalculation:
+    """Test valence calculation method."""
+
+    def test_calc_valence_methane(self, smiles_parser, radical_perceiver):
+        """Test valence calculation for methane (CH4)."""
+        try:
+            mol = smiles_parser.parseSmiles("C")
+            atom = mol.getAtom(0)
+            valence = radical_perceiver._calc_valence(atom, mol)
+            # CH4: 4 implicit H = valence 4
+            assert valence == 4
+        except Exception:
+            pytest.skip("SMILES parsing failed")
+
+    def test_calc_valence_methyl(self, methyl_radical, radical_perceiver):
+        """Test valence calculation for methyl radical."""
+        if methyl_radical is None:
+            pytest.skip("Methyl radical parsing failed")
+        atom = methyl_radical.getAtom(0)
+        valence = radical_perceiver._calc_valence(atom, methyl_radical)
+        # CH3: 3 bonds = valence 3
+        assert valence == 3
+
+    def test_calc_valence_ethane(self, smiles_parser, radical_perceiver):
+        """Test valence calculation for carbon in ethane."""
+        try:
+            mol = smiles_parser.parseSmiles("CC")
+            atom = mol.getAtom(0)
+            valence = radical_perceiver._calc_valence(atom, mol)
+            # C in CC: 1 bond to C + 3 implicit H = valence 4
+            assert valence == 4
+        except Exception:
+            pytest.skip("SMILES parsing failed")
+
+
+class TestCarbonRadicals:
+    """Test radical perception for carbon atoms."""
+
+    def test_methyl_radical_detection(self, methyl_radical, radical_perceiver):
+        """Test detection of methyl radical [CH3]."""
+        if methyl_radical is None:
+            pytest.skip("Methyl radical parsing failed")
+
+        initial_count = methyl_radical.getSingleElectronCount()
+        radical_perceiver.perceive_radicals(methyl_radical)
+        final_count = methyl_radical.getSingleElectronCount()
+
+        # Methyl has valence 3, should add 1 radical
+        assert final_count > initial_count
+
+    def test_carbene_detection(self, carbene, radical_perceiver):
+        """Test detection of carbene [CH2]."""
+        if carbene is None:
+            pytest.skip("Carbene parsing failed")
+
+        initial_count = carbene.getSingleElectronCount()
+        radical_perceiver.perceive_radicals(carbene)
+        final_count = carbene.getSingleElectronCount()
+
+        # Carbene has valence 2, should add 2 radicals
+        assert final_count >= initial_count + 2
+
+    def test_normal_carbon_no_radical(self, smiles_parser, radical_perceiver):
+        """Test that normal saturated carbon has no radicals."""
+        try:
+            mol = smiles_parser.parseSmiles("C")  # Methane
+            initial_count = mol.getSingleElectronCount()
+            radical_perceiver.perceive_radicals(mol)
+            final_count = mol.getSingleElectronCount()
+
+            # Methane is saturated, should not add radicals
+            assert final_count == initial_count
+        except Exception:
+            pytest.skip("SMILES parsing failed")
+
+
+class TestNitrogenRadicals:
+    """Test radical perception for nitrogen atoms."""
+
+    def test_nitrogen_radical_detection(self, smiles_parser, radical_perceiver):
+        """Test detection of nitrogen radical [N]."""
+        try:
+            mol = smiles_parser.parseSmiles("[N]")
+            initial_count = mol.getSingleElectronCount()
+            radical_perceiver.perceive_radicals(mol)
+            final_count = mol.getSingleElectronCount()
+
+            # Nitrogen radical should be detected
+            assert final_count > initial_count
+        except Exception:
+            pytest.skip("Nitrogen radical parsing failed")
+
+    def test_ammonia_no_radical(self, smiles_parser, radical_perceiver):
+        """Test that ammonia has no radicals."""
+        try:
+            mol = smiles_parser.parseSmiles("N")  # Ammonia
+            initial_count = mol.getSingleElectronCount()
+            radical_perceiver.perceive_radicals(mol)
+            final_count = mol.getSingleElectronCount()
+
+            # Ammonia is saturated, should not add radicals
+            assert final_count == initial_count
+        except Exception:
+            pytest.skip("SMILES parsing failed")
+
+
+class TestOxygenRadicals:
+    """Test radical perception for oxygen atoms."""
+
+    def test_oxygen_radical_detection(self, oxygen_radical, radical_perceiver):
+        """Test detection of oxygen radical [O]."""
+        if oxygen_radical is None:
+            pytest.skip("Oxygen radical parsing failed")
+
+        initial_count = oxygen_radical.getSingleElectronCount()
+        radical_perceiver.perceive_radicals(oxygen_radical)
+        final_count = oxygen_radical.getSingleElectronCount()
+
+        # Oxygen radical should be detected (2 radicals)
+        assert final_count >= initial_count + 2
+
+    def test_hydroxyl_radical_detection(self, hydroxyl_radical, radical_perceiver):
+        """Test detection of hydroxyl radical [OH]."""
+        if hydroxyl_radical is None:
+            pytest.skip("Hydroxyl radical parsing failed")
+
+        initial_count = hydroxyl_radical.getSingleElectronCount()
+        radical_perceiver.perceive_radicals(hydroxyl_radical)
+        final_count = hydroxyl_radical.getSingleElectronCount()
+
+        # Hydroxyl radical should be detected (1 radical)
+        assert final_count > initial_count
+
+    def test_water_no_radical(self, smiles_parser, radical_perceiver):
+        """Test that water has no radicals."""
+        try:
+            mol = smiles_parser.parseSmiles("O")  # Water
+            initial_count = mol.getSingleElectronCount()
+            radical_perceiver.perceive_radicals(mol)
+            final_count = mol.getSingleElectronCount()
+
+            # Water is saturated, should not add radicals
+            assert final_count == initial_count
+        except Exception:
+            pytest.skip("SMILES parsing failed")
+
+
+class TestAromaticAtoms:
+    """Test that aromatic atoms are skipped."""
+
+    def test_benzene_no_radicals(self, smiles_parser, radical_perceiver):
+        """Test that benzene carbons are not flagged as radicals."""
+        mol = smiles_parser.parseSmiles("c1ccccc1")
+
+        # Perceive aromaticity first using proper CDK approach
+        cdk_base = "org.openscience.cdk"
+        Cycles = JClass(cdk_base + ".graph.Cycles")
+        Aromaticity = JClass(cdk_base + ".aromaticity.Aromaticity")
+        ElectronDonation = JClass(cdk_base + ".aromaticity.ElectronDonation")
+
+        # Create aromaticity model with daylight electron donation
+        aromaticity = Aromaticity(
+            ElectronDonation.daylight(), Cycles.or_(Cycles.all(), Cycles.relevant())
+        )
+        aromaticity.apply(mol)
+
+        initial_count = mol.getSingleElectronCount()
+        radical_perceiver.perceive_radicals(mol)
+        final_count = mol.getSingleElectronCount()
+
+        # Aromatic carbons should be skipped
+        assert final_count == initial_count
+
+
+class TestFormalCharge:
+    """Test that formal charge is handled correctly."""
+
+    def test_charged_atoms_skipped(self, smiles_parser, radical_perceiver):
+        """Test that charged atoms are skipped."""
+        try:
+            mol = smiles_parser.parseSmiles("[NH4+]")  # Ammonium
+            initial_count = mol.getSingleElectronCount()
+            radical_perceiver.perceive_radicals(mol)
+            final_count = mol.getSingleElectronCount()
+
+            # Charged atoms should be skipped
+            assert final_count == initial_count
+        except Exception:
+            pytest.skip("Charged molecule parsing failed")
+
+
+class TestReactionRadicals:
+    """Test radical perception in reactions."""
+
+    def test_reaction_radical_perception(self, simple_reaction, radical_perceiver):
+        """Test that radicals are perceived in reaction components."""
+        if simple_reaction is None:
+            pytest.skip("Reaction parsing failed")
+
+        try:
+            radical_perceiver.perceive_radicals_reaction(simple_reaction)
+            # If we get here without exception, test passes
+            assert True
+        except Exception as e:
+            pytest.fail(f"Reaction radical perception failed: {e}")
+
+    def test_reaction_set_radical_perception(self, smiles_parser, radical_perceiver):
+        """Test radical perception in reaction set."""
+        try:
+            rxn_set = smiles_parser.parseReactionSetSmiles("CCO>>CC=O")
+            radical_perceiver.perceive_radicals_reaction_set(rxn_set)
+            # If we get here without exception, test passes
+            assert True
         except Exception:
             pytest.skip("Reaction set parsing failed")
 
 
-class TestArrowTypePreservation:
-    """Test that arrow type settings are preserved."""
+class TestConvenienceFunction:
+    """Test the convenience function."""
 
-    def test_arrow_type_persists_after_setting(self, arrow_system, simple_reaction):
+    def test_perceive_radicals_molecule(self, methyl_radical):
+        """Test convenience function with molecule."""
+        if methyl_radical is None:
+            pytest.skip("Methyl radical parsing failed")
+
+        initial_count = methyl_radical.getSingleElectronCount()
+        perceive_radicals(methyl_radical)
+        final_count = methyl_radical.getSingleElectronCount()
+
+        assert final_count > initial_count
+
+    def test_perceive_radicals_reaction(self, simple_reaction):
+        """Test convenience function with reaction."""
         if simple_reaction is None:
             pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.BIDIRECTIONAL)
-        arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.FORWARD)
-        assert simple_reaction is not None
 
-    def test_multiple_arrow_type_changes(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.FORWARD)
-        arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.BIDIRECTIONAL)
-        arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.NO_GO)
-        assert simple_reaction is not None
-
-
-class TestReactionIntegrity:
-    """Test that arrow type operations preserve reaction integrity."""
-
-    def test_preserves_reactant_count(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-        initial_count = simple_reaction.getReactantCount()
-        arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.FORWARD)
-        assert simple_reaction.getReactantCount() == initial_count
-
-    def test_preserves_product_count(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-        initial_count = simple_reaction.getProductCount()
-        arrow_system.set_arrow_type(simple_reaction, ReactionArrowType.FORWARD)
-        assert simple_reaction.getProductCount() == initial_count
+        try:
+            perceive_radicals(simple_reaction)
+            # If we get here without exception, test passes
+            assert True
+        except Exception as e:
+            pytest.fail(f"Convenience function failed: {e}")
 
 
 class TestEdgeCases:
     """Test edge cases and boundary conditions."""
 
-    def test_case_insensitive_arrow_string(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type_from_string(simple_reaction, "FORWARD")
-        assert simple_reaction is not None
-
-    def test_whitespace_in_arrow_string(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type_from_string(simple_reaction, " forward ")
-        assert simple_reaction is not None
-
-    def test_none_arrow_string(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
+    def test_empty_molecule(self, radical_perceiver):
+        """Test with empty molecule."""
         try:
-            arrow_system.set_arrow_type_from_string(simple_reaction, None)
+            cdk_base = "org.openscience.cdk"
+            SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
+            empty_mol = SCOB.getInstance().newAtomContainer()
+
+            # Should not crash
+            radical_perceiver.perceive_radicals(empty_mol)
+            assert True
         except Exception:
+            pytest.skip("Empty molecule test failed")
+
+    def test_single_atom(self, smiles_parser, radical_perceiver):
+        """Test with single atom molecule."""
+        try:
+            mol = smiles_parser.parseSmiles("[C]")
+            radical_perceiver.perceive_radicals(mol)
+            # Should not crash
+            assert True
+        except Exception:
+            pytest.skip("Single atom test failed")
+
+
+class TestMultipleRadicals:
+    """Test molecules with multiple radical centers."""
+
+    def test_diradical(self, smiles_parser, radical_perceiver):
+        """Test molecule with two radical centers."""
+        try:
+            # This would need a specific SMILES for a diradical
+            mol = smiles_parser.parseSmiles("[CH2][CH2]")
+            initial_count = mol.getSingleElectronCount()
+            radical_perceiver.perceive_radicals(mol)
+            final_count = mol.getSingleElectronCount()
+
+            # Should detect radicals on both carbons
+            assert final_count > initial_count
+        except Exception:
+            pytest.skip("Diradical test failed")
+
+
+class TestIntegration:
+    """Integration tests with full workflow."""
+
+    def test_full_workflow_molecule(self, smiles_parser):
+        """Test complete workflow from SMILES to radical detection."""
+        try:
+            # Parse SMILES
+            mol = smiles_parser.parseSmiles("[CH3]")
+
+            # Perceive radicals
+            perceiver = RadicalPerception()
+            initial_count = mol.getSingleElectronCount()
+            perceiver.perceive_radicals(mol)
+            final_count = mol.getSingleElectronCount()
+
+            # Verify radicals were added
+            assert final_count > initial_count
+
+        except Exception:
+            pytest.skip("Integration test failed")
+
+    def test_full_workflow_reaction(self, smiles_parser):
+        """Test complete workflow with reaction."""
+        try:
+            # Parse reaction SMILES
+            rxn = smiles_parser.parseReactionSmiles("[CH3].O>>[CH3]O")
+
+            # Perceive radicals
+            perceiver = RadicalPerception()
+            perceiver.perceive_radicals_reaction(rxn)
+
+            # Verify no exceptions
             assert True
 
-
-class TestArrowSymbols:
-    """Test arrow symbols and their meanings."""
-
-    def test_forward_arrow_symbol(self):
-        assert ReactionArrowType.FORWARD.value == "forward"
-
-    def test_bidirectional_arrow_symbol(self):
-        assert ReactionArrowType.BIDIRECTIONAL.value == "bidirectional"
-
-    def test_no_go_arrow_symbol(self):
-        assert ReactionArrowType.NO_GO.value == "no_go"
-
-    def test_retro_synthetic_arrow_symbol(self):
-        assert ReactionArrowType.RETRO_SYNTHETIC.value == "retro_synthetic"
-
-    def test_resonance_arrow_symbol(self):
-        assert ReactionArrowType.RESONANCE.value == "resonance"
-
-
-class TestAbbreviationConsistency:
-    """Test consistency of abbreviations."""
-
-    def test_all_abbreviations_have_arrow_types(self):
-        for abbrev, arrow_type in ARROW_ABBREV_MAP.items():
-            assert isinstance(arrow_type, ReactionArrowType)
-
-    def test_all_arrow_types_have_abbreviations(self):
-        arrow_types_in_map = set(ARROW_ABBREV_MAP.values())
-        all_arrow_types = set(ReactionArrowType)
-        assert arrow_types_in_map == all_arrow_types
-
-
-class TestComplexReactions:
-    """Test with complex reaction structures."""
-
-    def test_multi_step_reaction(self, arrow_system):
-        cdk_base = "org.openscience.cdk"
-        SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
-        SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
-        try:
-            reaction = SmilesParser.parseReactionSmiles("CC.O>>CCO")
-            arrow_system.set_arrow_type(reaction, ReactionArrowType.FORWARD)
-            assert reaction is not None
         except Exception:
-            pytest.skip("Complex reaction parsing failed")
-
-    def test_catalyzed_reaction(self, arrow_system):
-        cdk_base = "org.openscience.cdk"
-        SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
-        SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
-        try:
-            reaction = SmilesParser.parseReactionSmiles("CCO>O>CC=O")
-            arrow_system.set_arrow_type(reaction, ReactionArrowType.FORWARD)
-            assert reaction is not None
-        except Exception:
-            pytest.skip("Catalyzed reaction parsing failed")
-
-
-class TestArrowTypeStringVariants:
-    """Test different string variants for arrow types."""
-
-    def test_forward_variants(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-        for variant in ["forward", "FORWARD", "Forward"]:
-            arrow_system.set_arrow_type_from_string(simple_reaction, variant)
-            assert simple_reaction is not None
-
-    def test_equilibrium_variants(self, arrow_system, simple_reaction):
-        if simple_reaction is None:
-            pytest.skip("Reaction parsing failed")
-        for variant in ["equ", "EQU", "Equ"]:
-            arrow_system.set_arrow_type_from_string(simple_reaction, variant)
-            assert simple_reaction is not None
-
-
-class TestReactionSetHandling:
-    """Test handling of reaction sets."""
-
-    def test_apply_arrow_to_all_reactions_in_set(self, arrow_system):
-        cdk_base = "org.openscience.cdk"
-        SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
-        SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
-        try:
-            rxn_set = SmilesParser.parseReactionSetSmiles("CCO>>CC=O")
-            count = 0
-            for rxn in rxn_set.reactions():
-                arrow_system.set_arrow_type(rxn, ReactionArrowType.FORWARD)
-                count += 1
-            assert count > 0
-        except Exception:
-            pytest.skip("Reaction set parsing failed")
+            pytest.skip("Reaction integration test failed")

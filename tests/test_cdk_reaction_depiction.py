@@ -6,6 +6,7 @@ from app.modules.cdk_depict.reaction_depiction import (
     ReactionArrowSystem,
     ReactionArrowType,
     ARROW_ABBREV_MAP,
+    get_arrow_type,
 )
 from jpype import JClass
 
@@ -40,7 +41,8 @@ class TestReactionArrowType:
         assert ReactionArrowType.NO_GO.value == "no_go"
 
     def test_retro_synthetic_arrow(self):
-        assert ReactionArrowType.RETRO_SYNTHETIC.value == "retro_synthetic"
+        """Test that RETRO_SYNTHETIC enum has correct value."""
+        assert ReactionArrowType.RETRO_SYNTHETIC.value == "retrosynthetic"
 
     def test_resonance_arrow(self):
         assert ReactionArrowType.RESONANCE.value == "resonance"
@@ -94,12 +96,21 @@ class TestReactionArrowSystemInitialization:
     """Test ReactionArrowSystem initialization."""
 
     def test_default_initialization(self):
+        """Test that system initializes with correct cdk_base."""
         system = ReactionArrowSystem()
         assert system.cdk_base == "org.openscience.cdk"
 
-    def test_custom_cdk_base(self):
-        system = ReactionArrowSystem(cdk_base="org.openscience.cdk")
-        assert system.cdk_base == "org.openscience.cdk"
+    def test_initialization_loads_classes(self):
+        """Test that initialization loads all required Java classes."""
+        system = ReactionArrowSystem()
+        assert system.IReaction is not None
+        assert system.Direction is not None
+
+    def test_cdk_base_is_string(self):
+        """Test that cdk_base attribute is a string."""
+        system = ReactionArrowSystem()
+        assert isinstance(system.cdk_base, str)
+        assert len(system.cdk_base) > 0
 
 
 class TestSetArrowType:
@@ -137,82 +148,104 @@ class TestSetArrowType:
 
 
 class TestSetArrowTypeFromString:
-    """Test setting arrow type from string abbreviation."""
+    """Test setting arrow type using get_arrow_type() helper function."""
 
     def test_set_arrow_from_forward_string(self, arrow_system, simple_reaction):
+        """Test setting arrow from 'forward' string."""
         if simple_reaction is None:
             pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type_from_string(simple_reaction, "forward")
+        arrow_type = get_arrow_type("forward")
+        arrow_system.set_arrow_type(simple_reaction, arrow_type)
         assert simple_reaction is not None
 
     def test_set_arrow_from_equ_string(self, arrow_system, simple_reaction):
+        """Test setting arrow from 'equ' abbreviation."""
         if simple_reaction is None:
             pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type_from_string(simple_reaction, "equ")
+        arrow_type = get_arrow_type("equ")
+        arrow_system.set_arrow_type(simple_reaction, arrow_type)
         assert simple_reaction is not None
 
     def test_set_arrow_from_ngo_string(self, arrow_system, simple_reaction):
+        """Test setting arrow from 'ngo' abbreviation."""
         if simple_reaction is None:
             pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type_from_string(simple_reaction, "ngo")
+        arrow_type = get_arrow_type("ngo")
+        arrow_system.set_arrow_type(simple_reaction, arrow_type)
         assert simple_reaction is not None
 
     def test_set_arrow_from_ret_string(self, arrow_system, simple_reaction):
+        """Test setting arrow from 'ret' abbreviation."""
         if simple_reaction is None:
             pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type_from_string(simple_reaction, "ret")
+        arrow_type = get_arrow_type("ret")
+        arrow_system.set_arrow_type(simple_reaction, arrow_type)
         assert simple_reaction is not None
 
     def test_set_arrow_from_res_string(self, arrow_system, simple_reaction):
+        """Test setting arrow from 'res' abbreviation."""
         if simple_reaction is None:
             pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type_from_string(simple_reaction, "res")
+        arrow_type = get_arrow_type("res")
+        arrow_system.set_arrow_type(simple_reaction, arrow_type)
         assert simple_reaction is not None
 
     def test_set_arrow_from_empty_string_defaults(self, arrow_system, simple_reaction):
+        """Test that empty string defaults to FORWARD arrow."""
         if simple_reaction is None:
             pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type_from_string(simple_reaction, "")
+        arrow_type = get_arrow_type("")
+        assert arrow_type == ReactionArrowType.FORWARD
+        arrow_system.set_arrow_type(simple_reaction, arrow_type)
         assert simple_reaction is not None
 
-    def test_set_arrow_from_unknown_string_defaults(
+    def test_set_arrow_from_unknown_string_raises_error(
         self, arrow_system, simple_reaction
     ):
+        """Test that unknown arrow type raises ValueError."""
         if simple_reaction is None:
             pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type_from_string(simple_reaction, "unknown")
-        assert simple_reaction is not None
+        with pytest.raises(ValueError) as exc_info:
+            get_arrow_type("unknown")
+        assert "Invalid arrow type" in str(exc_info.value)
 
 
 class TestArrowTypeConversion:
-    """Test conversion between arrow type representations."""
+    """Test conversion between arrow type representations using get_arrow_type()."""
 
-    def test_string_to_arrow_type_forward(self, arrow_system):
-        arrow_type = arrow_system._string_to_arrow_type("forward")
+    def test_string_to_arrow_type_forward(self):
+        """Test converting 'forward' string to enum."""
+        arrow_type = get_arrow_type("forward")
         assert arrow_type == ReactionArrowType.FORWARD
 
-    def test_string_to_arrow_type_equ(self, arrow_system):
-        arrow_type = arrow_system._string_to_arrow_type("equ")
+    def test_string_to_arrow_type_equ(self):
+        """Test converting 'equ' abbreviation to enum."""
+        arrow_type = get_arrow_type("equ")
         assert arrow_type == ReactionArrowType.BIDIRECTIONAL
 
-    def test_string_to_arrow_type_ngo(self, arrow_system):
-        arrow_type = arrow_system._string_to_arrow_type("ngo")
+    def test_string_to_arrow_type_ngo(self):
+        """Test converting 'ngo' abbreviation to enum."""
+        arrow_type = get_arrow_type("ngo")
         assert arrow_type == ReactionArrowType.NO_GO
 
-    def test_string_to_arrow_type_ret(self, arrow_system):
-        arrow_type = arrow_system._string_to_arrow_type("ret")
+    def test_string_to_arrow_type_ret(self):
+        """Test converting 'ret' abbreviation to enum."""
+        arrow_type = get_arrow_type("ret")
         assert arrow_type == ReactionArrowType.RETRO_SYNTHETIC
 
-    def test_string_to_arrow_type_res(self, arrow_system):
-        arrow_type = arrow_system._string_to_arrow_type("res")
+    def test_string_to_arrow_type_res(self):
+        """Test converting 'res' abbreviation to enum."""
+        arrow_type = get_arrow_type("res")
         assert arrow_type == ReactionArrowType.RESONANCE
 
-    def test_string_to_arrow_type_default(self, arrow_system):
-        arrow_type = arrow_system._string_to_arrow_type("unknown")
-        assert arrow_type == ReactionArrowType.FORWARD
+    def test_string_to_arrow_type_default(self):
+        """Test that unknown string raises ValueError."""
+        with pytest.raises(ValueError):
+            get_arrow_type("unknown")
 
-    def test_string_to_arrow_type_empty(self, arrow_system):
-        arrow_type = arrow_system._string_to_arrow_type("")
+    def test_string_to_arrow_type_empty(self):
+        """Test that empty string defaults to FORWARD."""
+        arrow_type = get_arrow_type("")
         assert arrow_type == ReactionArrowType.FORWARD
 
 
@@ -287,23 +320,29 @@ class TestEdgeCases:
     """Test edge cases and boundary conditions."""
 
     def test_case_insensitive_arrow_string(self, arrow_system, simple_reaction):
+        """Test that arrow type strings are case-insensitive."""
         if simple_reaction is None:
             pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type_from_string(simple_reaction, "FORWARD")
-        assert simple_reaction is not None
+        arrow_type = get_arrow_type("FORWARD")
+        arrow_system.set_arrow_type(simple_reaction, arrow_type)
+        assert arrow_type == ReactionArrowType.FORWARD
 
     def test_whitespace_in_arrow_string(self, arrow_system, simple_reaction):
+        """Test that whitespace is trimmed from arrow type strings."""
         if simple_reaction is None:
             pytest.skip("Reaction parsing failed")
-        arrow_system.set_arrow_type_from_string(simple_reaction, " forward ")
-        assert simple_reaction is not None
+        arrow_type = get_arrow_type(" forward ")
+        arrow_system.set_arrow_type(simple_reaction, arrow_type)
+        assert arrow_type == ReactionArrowType.FORWARD
 
     def test_none_arrow_string(self, arrow_system, simple_reaction):
+        """Test that None arrow string raises an error."""
         if simple_reaction is None:
             pytest.skip("Reaction parsing failed")
         try:
-            arrow_system.set_arrow_type_from_string(simple_reaction, None)
-        except Exception:
+            get_arrow_type(None)
+            pytest.fail("Should have raised an exception for None")
+        except (AttributeError, TypeError):
             assert True
 
 
@@ -320,7 +359,8 @@ class TestArrowSymbols:
         assert ReactionArrowType.NO_GO.value == "no_go"
 
     def test_retro_synthetic_arrow_symbol(self):
-        assert ReactionArrowType.RETRO_SYNTHETIC.value == "retro_synthetic"
+        """Test that RETRO_SYNTHETIC enum has correct value."""
+        assert ReactionArrowType.RETRO_SYNTHETIC.value == "retrosynthetic"
 
     def test_resonance_arrow_symbol(self):
         assert ReactionArrowType.RESONANCE.value == "resonance"
@@ -369,17 +409,23 @@ class TestArrowTypeStringVariants:
     """Test different string variants for arrow types."""
 
     def test_forward_variants(self, arrow_system, simple_reaction):
+        """Test that different case variants of 'forward' work."""
         if simple_reaction is None:
             pytest.skip("Reaction parsing failed")
         for variant in ["forward", "FORWARD", "Forward"]:
-            arrow_system.set_arrow_type_from_string(simple_reaction, variant)
+            arrow_type = get_arrow_type(variant)
+            assert arrow_type == ReactionArrowType.FORWARD
+            arrow_system.set_arrow_type(simple_reaction, arrow_type)
             assert simple_reaction is not None
 
     def test_equilibrium_variants(self, arrow_system, simple_reaction):
+        """Test that different case variants of 'equ' work."""
         if simple_reaction is None:
             pytest.skip("Reaction parsing failed")
         for variant in ["equ", "EQU", "Equ"]:
-            arrow_system.set_arrow_type_from_string(simple_reaction, variant)
+            arrow_type = get_arrow_type(variant)
+            assert arrow_type == ReactionArrowType.BIDIRECTIONAL
+            arrow_system.set_arrow_type(simple_reaction, arrow_type)
             assert simple_reaction is not None
 
 
