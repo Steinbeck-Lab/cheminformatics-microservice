@@ -23,12 +23,6 @@ class GenerateStructuresResponse(BaseModel):
     output: Dict[str, Union[int, List[str], Dict[str, str], str, bool]]
 
     class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
         json_schema_extra = {
             "examples": [
                 {
@@ -65,12 +59,6 @@ class GetSugarInformationResponse(BaseModel):
     output: str
 
     class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
         json_schema_extra = {
             "examples": [
                 {
@@ -94,12 +82,6 @@ class GetLinearSugarResponse(BaseModel):
     output: str
 
     class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
         json_schema_extra = {
             "examples": [
                 {
@@ -123,12 +105,6 @@ class GetCircularSugarResponse(BaseModel):
     output: str
 
     class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
         json_schema_extra = {
             "examples": [
                 {
@@ -152,12 +128,6 @@ class GetCircularandLinearSugarResponse(BaseModel):
     output: str
 
     class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
         json_schema_extra = {
             "examples": [
                 {
@@ -182,12 +152,6 @@ class ExtractAglyconeAndSugarsResponse(BaseModel):
     output: List[str]
 
     class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
         json_schema_extra = {
             "examples": [
                 {
@@ -212,12 +176,6 @@ class GetAglyconeAndSugarIndicesResponse(BaseModel):
     output: List[List[int]]
 
     class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
         json_schema_extra = {
             "examples": [
                 {

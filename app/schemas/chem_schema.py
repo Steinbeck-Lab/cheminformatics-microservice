@@ -1,36 +1,25 @@
 from __future__ import annotations
 
 from typing import Any
-from typing import Dict
-from typing import List
 
-from pydantic import BaseModel
-from pydantic import Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class GenerateStereoisomersResponse(BaseModel):
-    """Represents a response containing enumerated stereo isomers for a.
-
-    molecule.
+    """Represents a response containing enumerated stereo isomers for a molecule.
 
     Properties:
-    - stereoisomers (List[str]): A list of stereoisomer SMILES strings.
+    - stereoisomers (list[str]): A list of stereoisomer SMILES strings.
     """
 
-    stereoisomers: list = Field(
+    stereoisomers: list[str] = Field(
         ...,
         title="Stereoisomers",
         description="A list of stereoisomer SMILES strings.",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "examples": [
                 {
                     "input": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
@@ -39,6 +28,7 @@ class GenerateStereoisomersResponse(BaseModel):
                 },
             ],
         }
+    )
 
 
 class GenerateDescriptorsResponse(BaseModel):
@@ -48,20 +38,14 @@ class GenerateDescriptorsResponse(BaseModel):
     - descriptors (dict): A dictionary of descriptors and their values.
     """
 
-    descriptors: dict = Field(
+    descriptors: dict[str, Any] = Field(
         ...,
         title="Descriptors",
         description="A dictionary of descriptors and their values.",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "examples": [
                 {
                     "input": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
@@ -70,31 +54,24 @@ class GenerateDescriptorsResponse(BaseModel):
                 },
             ],
         }
+    )
 
 
 class GenerateMultipleDescriptorsResponse(BaseModel):
-    """Represents a response containing multiple descriptors for a list of.
-
-    SMILES strings.
+    """Represents a response containing multiple descriptors for a list of SMILES strings.
 
     Properties:
     - descriptors (dict): A dictionary with each SMILES as the key and the corresponding descriptors as the value.
     """
 
-    descriptors: Dict[str, Any] = Field(
+    descriptors: dict[str, Any] = Field(
         ...,
         title="Descriptors",
         description="A dictionary with each SMILES as the key and the corresponding descriptors as the value.",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "examples": [
                 {
                     "input": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C, CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1",
@@ -103,29 +80,24 @@ class GenerateMultipleDescriptorsResponse(BaseModel):
                 },
             ],
         }
+    )
 
 
 class GenerateHOSECodeResponse(BaseModel):
     """Represents a response containing HOSE codes for a molecule.
 
     Properties:
-    - hose_codes (List[str]): A list of HOSE codes for each atom in the molecule.
+    - hose_codes (list[str]): A list of HOSE codes for each atom in the molecule.
     """
 
-    hose_codes: List[str] = Field(
+    hose_codes: list[str] = Field(
         ...,
         title="HOSE Codes",
         description="A list of HOSE codes for each atom in the molecule.",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "examples": [
                 {
                     "input": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
@@ -134,6 +106,7 @@ class GenerateHOSECodeResponse(BaseModel):
                 },
             ],
         }
+    )
 
 
 class GenerateStandardizeResponse(BaseModel):
@@ -167,14 +140,8 @@ class GenerateStandardizeResponse(BaseModel):
         description="The InChI-Key of the molecule.",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "examples": [
                 {
                     "input": """
@@ -188,6 +155,7 @@ class GenerateStandardizeResponse(BaseModel):
                 },
             ],
         }
+    )
 
 
 class NPlikelinessScoreResponse(BaseModel):
@@ -203,14 +171,8 @@ class NPlikelinessScoreResponse(BaseModel):
         description="The calculated natural product likeness score.",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "examples": [
                 {
                     "input": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
@@ -219,6 +181,7 @@ class NPlikelinessScoreResponse(BaseModel):
                 },
             ],
         }
+    )
 
 
 class TanimotoSimilarityResponse(BaseModel):
@@ -234,14 +197,8 @@ class TanimotoSimilarityResponse(BaseModel):
         description="The Tanimoto similarity index as a floating-point value.",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "examples": [
                 {
                     "input": "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1,CC",
@@ -250,31 +207,26 @@ class TanimotoSimilarityResponse(BaseModel):
                 },
             ],
         }
+    )
 
 
 class TanimotoMatrixResponse(BaseModel):
     """Response model for Tanimoto similarity matrix.
 
     Attributes:
-    - similarity_matrix (List[List[float]]): A 2D list representing the Tanimoto similarity matrix.
+    - similarity_matrix (list[list[float]]): A 2D list representing the Tanimoto similarity matrix.
       Each inner list corresponds to a row in the matrix, and each value inside the inner list
       represents the similarity score between two molecules.
     """
 
-    similarity_matrix: list = Field(
+    similarity_matrix: list[list[float]] = Field(
         ...,
         title="Tanimoto Similarities",
         description="The Tanimoto similarities as a 2D list representing the Tanimoto similarity matrix.",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "examples": [
                 {
                     "input": "CCC,CC,CCC",
@@ -283,6 +235,7 @@ class TanimotoMatrixResponse(BaseModel):
                 },
             ],
         }
+    )
 
 
 class FilteredMoleculesResponse(BaseModel):
@@ -304,14 +257,8 @@ class FilteredMoleculesResponse(BaseModel):
         description="Set of filtered values with True/False flag",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "examples": [
                 {
                     "input": """CCCCCCC""",
@@ -320,31 +267,24 @@ class FilteredMoleculesResponse(BaseModel):
                 },
             ],
         }
+    )
 
 
 class GenerateFunctionalGroupResponse(BaseModel):
-    """Represents a response containing a list of identified functional groups.
-
-    in the molecule.
+    """Represents a response containing a list of identified functional groups in the molecule.
 
     Properties:
-    - stereoisomers (List[str]): a list of identified functional groups in the molecule
+    - functional_groups (list[str]): a list of identified functional groups in the molecule
     """
 
-    stereoisomers: list = Field(
+    functional_groups: list[str] = Field(
         ...,
         title="FunctionalGroups",
         description="A list of identified functional groups.",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "examples": [
                 {
                     "input": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
@@ -358,31 +298,24 @@ class GenerateFunctionalGroupResponse(BaseModel):
                 },
             ],
         }
+    )
 
 
 class StandarizedTautomerResponse(BaseModel):
-    """Represents a response containing enumerated stereo isomers for a.
-
-    molecule.
+    """Represents a response containing standardized tautomer for a molecule.
 
     Properties:
-    - stereoisomers (str): Standarized Tautomer SMILES string
+    - tautomer (str): Standardized Tautomer SMILES string
     """
 
-    stereoisomers: str = Field(
+    tautomer: str = Field(
         ...,
-        title="Stereoisomers",
-        description="Standarized Tautomer SMILES string.",
+        title="Tautomer",
+        description="Standardized Tautomer SMILES string.",
     )
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "examples": [
                 {
                     "input": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
@@ -391,3 +324,4 @@ class StandarizedTautomerResponse(BaseModel):
                 },
             ],
         }
+    )

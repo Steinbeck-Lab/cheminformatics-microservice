@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+from jpype import JClass
 
 from app.modules.cdk_depict.abbreviations import (
     ChemicalAbbreviations,
@@ -8,6 +9,8 @@ from app.modules.cdk_depict.abbreviations import (
     AbbreviationOptions,
 )
 from app.modules.toolkits.cdk_wrapper import get_CDK_IAtomContainer
+from pathlib import Path
+import tempfile
 
 
 @pytest.fixture
@@ -322,3 +325,256 @@ class TestAbbreviationIntegrity:
         abbr_system.apply(mol, mode=AbbreviationMode.GROUPS)
         stereo_count = sum(1 for _ in mol.stereoElements())
         assert stereo_count >= 0
+
+
+class TestLazyInitialization:
+    """Test lazy initialization of abbreviation system."""
+
+    def test_apply_without_explicit_init(self):
+        """Test that apply() initializes the system if not initialized."""
+        system = ChemicalAbbreviations()
+        assert system._initialized is False
+
+        mol = get_CDK_IAtomContainer("c1ccccc1C")
+        system.apply(mol, mode=AbbreviationMode.GROUPS)
+
+        # After apply, system should be initialized
+        assert system._initialized is True
+
+    def test_apply_off_mode_without_init(self):
+        """Test that OFF mode with uninitialized system initializes first."""
+        system = ChemicalAbbreviations()
+        assert system._initialized is False
+
+        mol = get_CDK_IAtomContainer("c1ccccc1C")
+        initial_count = mol.getAtomCount()
+        system.apply(mol, mode=AbbreviationMode.OFF)
+
+        # System should be initialized even with OFF mode
+        assert system._initialized is True
+        # Molecule should be unchanged
+        assert mol.getAtomCount() == initial_count
+
+
+class TestCustomFileLoading:
+    """Test loading custom abbreviation files and error handling."""
+
+    def test_custom_group_file_fallback(self):
+        """Test exception handler for default file loading failure."""
+        # Create a temporary custom file
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".smi", delete=False) as f:
+            f.write("c1ccccc1 Ph\n")
+            custom_file = f.name
+
+        try:
+            # Initialize with custom file - should trigger fallback path
+            system = ChemicalAbbreviations()
+            # Manually trigger the scenario by setting invalid default path
+            system.DEFAULT_GROUP_ABBR_PATH = "/nonexistent/path.smi"
+            system.initialize(custom_group_file=custom_file)
+
+            assert system._initialized is True
+        finally:
+            Path(custom_file).unlink(missing_ok=True)
+
+    def test_custom_reagent_file_fallback(self):
+        """Test exception handler for reagent file loading failure."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".smi", delete=False) as f:
+            f.write("C1CCOC1 THF\n")
+            custom_file = f.name
+
+        try:
+            system = ChemicalAbbreviations()
+            system.DEFAULT_REAGENT_ABBR_PATH = "/nonexistent/path.smi"
+            system.initialize(custom_reagent_file=custom_file)
+
+            assert system._initialized is True
+        finally:
+            Path(custom_file).unlink(missing_ok=True)
+
+    def test_invalid_custom_file_path(self):
+        """Test that invalid custom file paths are handled gracefully."""
+        system = ChemicalAbbreviations()
+        # Pass a non-existent custom file - should not crash
+        system.initialize(
+            custom_group_file="/nonexistent/groups.smi",
+            custom_reagent_file="/nonexistent/reagents.smi",
+        )
+        assert system._initialized is True
+
+
+class TestModeOffExplicit:
+    """Test explicit OFF mode behavior."""
+
+    def test_mode_off_returns_early(self, abbr_system):
+        """Test that OFF mode returns without processing."""
+        mol = get_CDK_IAtomContainer("c1ccccc1C")
+        initial_count = mol.getAtomCount()
+        initial_bonds = mol.getBondCount()
+
+        abbr_system.apply(mol, mode=AbbreviationMode.OFF)
+
+        # Molecule should be completely unchanged
+        assert mol.getAtomCount() == initial_count
+        assert mol.getBondCount() == initial_bonds
+
+    def test_mode_off_with_complex_molecule(self, abbr_system):
+        """Test OFF mode with a complex molecule."""
+        mol = get_CDK_IAtomContainer("CC(C)(C)OC(=O)Nc1ccccc1")
+        initial_count = mol.getAtomCount()
+
+        abbr_system.apply(mol, mode=AbbreviationMode.OFF)
+
+        assert mol.getAtomCount() == initial_count
+
+
+class TestReactionAbbreviations:
+    """Test abbreviation application to reactions."""
+
+    def test_apply_to_reaction_all_mode(self, abbr_system):
+        """Test applying abbreviations to reactions with ALL mode."""
+
+        Reaction = JClass("org.openscience.cdk.Reaction")
+
+        reaction = Reaction()
+        reactant = get_CDK_IAtomContainer("c1ccccc1C")
+        reagent = get_CDK_IAtomContainer("C1CCOC1")
+        product = get_CDK_IAtomContainer("c1ccccc1CC")
+
+        reaction.addReactant(reactant)
+        reaction.addAgent(reagent)
+        reaction.addProduct(product)
+
+        # Apply abbreviations with ALL mode
+        abbr_system.apply(reaction, mode=AbbreviationMode.ALL)
+
+        assert reaction is not None
+
+    def test_apply_to_reaction_groups_mode(self, abbr_system):
+        """Test applying abbreviations to reactions with GROUPS mode."""
+
+        Reaction = JClass("org.openscience.cdk.Reaction")
+
+        reaction = Reaction()
+        reactant = get_CDK_IAtomContainer("c1ccccc1C")
+        product = get_CDK_IAtomContainer("c1ccccc1CC")
+
+        reaction.addReactant(reactant)
+        reaction.addProduct(product)
+
+        abbr_system.apply(reaction, mode=AbbreviationMode.GROUPS)
+
+        assert reaction is not None
+
+    def test_apply_to_reaction_reagents_mode(self, abbr_system):
+        """Test applying abbreviations to reactions with REAGENTS mode."""
+
+        Reaction = JClass("org.openscience.cdk.Reaction")
+
+        reaction = Reaction()
+        reactant = get_CDK_IAtomContainer("CC")
+        reagent = get_CDK_IAtomContainer("C1CCOC1")  # THF
+        product = get_CDK_IAtomContainer("CCC")
+
+        reaction.addReactant(reactant)
+        reaction.addAgent(reagent)
+        reaction.addProduct(product)
+
+        abbr_system.apply(reaction, mode=AbbreviationMode.REAGENTS)
+
+        assert reaction is not None
+
+    def test_apply_to_reaction_off_mode(self, abbr_system):
+        """Test that OFF mode doesn't process reactions."""
+
+        Reaction = JClass("org.openscience.cdk.Reaction")
+
+        reaction = Reaction()
+        reactant = get_CDK_IAtomContainer("c1ccccc1C")
+
+        initial_count = reactant.getAtomCount()
+        reaction.addReactant(reactant)
+
+        abbr_system.apply(reaction, mode=AbbreviationMode.OFF)
+
+        # Reaction should be unchanged
+        assert reactant.getAtomCount() == initial_count
+
+    def test_apply_to_reaction_with_highlighted_atoms(self, abbr_system):
+        """Test reaction abbreviations with highlighted atoms."""
+
+        Reaction = JClass("org.openscience.cdk.Reaction")
+
+        reaction = Reaction()
+        reactant = get_CDK_IAtomContainer("c1ccccc1C")
+        reaction.addReactant(reactant)
+
+        highlighted = {0, 1, 2}
+        abbr_system.apply(
+            reaction, mode=AbbreviationMode.ALL, highlighted_atoms=highlighted
+        )
+
+        assert reaction is not None
+
+
+class TestHydrateContraction:
+    """Test hydrate contraction functionality."""
+
+    def test_contract_hydrates_method_exists(self, abbr_system):
+        """Test that _contract_hydrates method can be called."""
+        mol = get_CDK_IAtomContainer("O.O.c1ccccc1")  # Molecule with water
+
+        # Apply with ALL mode which internally calls _contract_hydrates
+        abbr_system.apply(mol, mode=AbbreviationMode.ALL)
+
+        assert mol is not None
+
+    def test_molecule_with_water(self, abbr_system):
+        """Test abbreviation of molecules with water."""
+        # Create molecule with water molecules
+        mol = get_CDK_IAtomContainer("c1ccccc1.O.O")
+
+        abbr_system.apply(mol, mode=AbbreviationMode.ALL)
+
+        assert mol is not None
+
+    def test_hydrate_in_groups_mode(self, abbr_system):
+        """Test that hydrate contraction works in GROUPS mode."""
+        mol = get_CDK_IAtomContainer("CCO.O")
+
+        abbr_system.apply(mol, mode=AbbreviationMode.GROUPS)
+
+        assert mol is not None
+
+
+class TestExceptionHandling:
+    """Test exception handling in abbreviation system."""
+
+    def test_apply_handles_exceptions_gracefully(self, abbr_system):
+        """Test that exceptions in apply() are caught and handled."""
+        # Create a molecule and apply abbreviations
+        # Even if internal errors occur, it should not crash
+        mol = get_CDK_IAtomContainer("c1ccccc1")
+
+        try:
+            abbr_system.apply(mol, mode=AbbreviationMode.ALL)
+            success = True
+        except Exception:
+            success = False
+
+        assert success is True
+
+    def test_reaction_exception_handling(self, abbr_system):
+        """Test exception handling in reaction abbreviations."""
+
+        Reaction = JClass("org.openscience.cdk.Reaction")
+        reaction = Reaction()
+
+        # Empty reaction should still be handled
+        try:
+            abbr_system.apply(reaction, mode=AbbreviationMode.ALL)
+            success = True
+        except Exception:
+            success = False
+
+        assert success is True

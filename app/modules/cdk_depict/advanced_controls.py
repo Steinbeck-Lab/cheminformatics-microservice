@@ -304,9 +304,29 @@ class SmartsHitLimiter:
                 # Convert match to list of atom indices
                 atom_indices = []
                 for atom in match:
-                    idx = molecule.indexOf(atom)
-                    if idx >= 0:
-                        atom_indices.append(idx)
+                    # pattern.matchAll may return either IAtom objects or integer indices
+                    # depending on CDK version/JPype conversion. Handle both cases.
+                    try:
+                        idx = molecule.indexOf(atom)
+                    except Exception:
+                        # If indexOf raised (for example when atom is already a JInt),
+                        # try converting the atom value to an int and use it directly.
+                        try:
+                            idx = int(atom)
+                        except Exception:
+                            # skip unconvertible entries
+                            continue
+
+                    if idx is None:
+                        continue
+
+                    try:
+                        idx_int = int(idx)
+                    except Exception:
+                        continue
+
+                    if idx_int >= 0:
+                        atom_indices.append(idx_int)
 
                 matches.append(atom_indices)
                 count += 1

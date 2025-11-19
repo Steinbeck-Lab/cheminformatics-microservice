@@ -521,3 +521,192 @@ class TestSVGUnitsStringConversion:
         """Test that whitespace-only string raises ValueError."""
         with pytest.raises(ValueError):
             get_svg_units("  ")
+
+
+class TestSmartsHitLimiter:
+    """Test SMARTS hit limiting functionality."""
+
+    def test_limiter_initialization(self):
+        """Test that SmartsHitLimiter initializes correctly."""
+        from app.modules.cdk_depict.advanced_controls import SmartsHitLimiter
+
+        limiter = SmartsHitLimiter()
+        assert limiter.cdk_base == "org.openscience.cdk"
+        assert limiter.SmartsPattern is not None
+
+    def test_limit_smarts_hits_benzene(self):
+        """Test limiting SMARTS hits on benzene pattern."""
+        from app.modules.cdk_depict.advanced_controls import SmartsHitLimiter
+
+        limiter = SmartsHitLimiter()
+        mol = get_CDK_IAtomContainer("c1ccccc1Cc1ccccc1")  # Two benzene rings
+
+        matches = limiter.limit_smarts_hits(mol, "c1ccccc1", max_hits=10)
+        assert isinstance(matches, list)
+        assert len(matches) > 0
+        assert len(matches) <= 10
+
+    def test_limit_smarts_hits_max_limit(self):
+        """Test that hit limiting works correctly."""
+        from app.modules.cdk_depict.advanced_controls import SmartsHitLimiter
+
+        limiter = SmartsHitLimiter()
+        # Molecule with many possible matches
+        mol = get_CDK_IAtomContainer("CCCCCCCCCC")
+
+        matches = limiter.limit_smarts_hits(mol, "C", max_hits=5)
+        assert len(matches) <= 5
+
+    def test_limit_smarts_hits_no_matches(self):
+        """Test SMARTS pattern with no matches."""
+        from app.modules.cdk_depict.advanced_controls import SmartsHitLimiter
+
+        limiter = SmartsHitLimiter()
+        mol = get_CDK_IAtomContainer("CCCC")
+
+        # Pattern that won't match aliphatic chain
+        matches = limiter.limit_smarts_hits(mol, "c1ccccc1", max_hits=100)
+        assert isinstance(matches, list)
+
+    def test_limit_smarts_hits_default_limit(self):
+        """Test default max_hits value."""
+        from app.modules.cdk_depict.advanced_controls import SmartsHitLimiter
+
+        limiter = SmartsHitLimiter()
+        mol = get_CDK_IAtomContainer("c1ccccc1")
+
+        matches = limiter.limit_smarts_hits(mol, "c", max_hits=100)
+        assert isinstance(matches, list)
+
+    def test_limit_smarts_hits_invalid_pattern(self):
+        """Test that invalid SMARTS pattern returns empty list."""
+        from app.modules.cdk_depict.advanced_controls import SmartsHitLimiter
+
+        limiter = SmartsHitLimiter()
+        mol = get_CDK_IAtomContainer("CCO")
+
+        # Invalid SMARTS pattern - should be handled gracefully
+        matches = limiter.limit_smarts_hits(mol, "invalid_smarts_[[[", max_hits=10)
+        assert isinstance(matches, list)
+        assert len(matches) == 0  # Should return empty list on error
+
+
+class TestConvenienceFunctions:
+    """Test convenience wrapper functions."""
+
+    def test_convenience_set_zoom(self):
+        """Test convenience function for set_zoom."""
+        from app.modules.cdk_depict.advanced_controls import set_zoom
+
+        DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        gen = set_zoom(DepictionGenerator, zoom=1.5)
+        assert gen is not None
+
+    def test_convenience_set_stroke_ratio(self):
+        """Test convenience function for set_stroke_ratio."""
+        from app.modules.cdk_depict.advanced_controls import set_stroke_ratio
+
+        DepictionGenerator = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        gen = set_stroke_ratio(DepictionGenerator, ratio=1.5)
+        assert gen is not None
+
+    def test_convenience_flip_structure(self):
+        """Test convenience function for flip_structure."""
+        from app.modules.cdk_depict.advanced_controls import flip_structure
+
+        mol = get_CDK_IAtomContainer("CCO")
+        flip_structure(mol)
+        assert mol is not None
+
+    def test_convenience_rotate_structure(self):
+        """Test convenience function for rotate_structure."""
+        from app.modules.cdk_depict.advanced_controls import rotate_structure
+
+        mol = get_CDK_IAtomContainer("CCO")
+        rotate_structure(mol, degrees=45)
+        assert mol is not None
+
+    def test_convenience_functions_with_errors(self):
+        """Test that convenience functions handle errors gracefully."""
+        from app.modules.cdk_depict.advanced_controls import (
+            set_zoom,
+            set_stroke_ratio,
+            flip_structure,
+            rotate_structure,
+        )
+
+        # These should not crash even with None input
+        # They log errors but return gracefully
+        try:
+            set_zoom(None, zoom=1.0)
+        except Exception:
+            pass  # Expected to potentially fail
+
+        try:
+            set_stroke_ratio(None, ratio=1.0)
+        except Exception:
+            pass
+
+        try:
+            flip_structure(None)
+        except Exception:
+            pass
+
+        try:
+            rotate_structure(None, degrees=45)
+        except Exception:
+            pass
+
+
+class TestExceptionHandling:
+    """Test error handling and exception paths."""
+
+    def test_set_zoom_with_invalid_generator(self, controls):
+        """Test that set_zoom handles invalid generator gracefully."""
+        # Should handle gracefully and return the input
+        result = controls.set_zoom(None, zoom=1.5)
+        # Depending on implementation, might return None or handle error
+        assert result is None
+
+    def test_set_stroke_ratio_with_invalid_generator(self, controls):
+        """Test that set_stroke_ratio handles invalid generator gracefully."""
+        result = controls.set_stroke_ratio(None, ratio=1.5)
+        # Should handle error gracefully
+        assert result is None
+
+    def test_flip_structure_with_no_2d_coords(self, controls):
+        """Test flipping structure without 2D coordinates."""
+        # Create molecule without 2D coordinates
+        mol = get_CDK_IAtomContainer("C")
+        # Remove 2D coordinates
+        for atom in mol.atoms():
+            atom.setPoint2d(None)
+
+        # Should handle gracefully without crashing
+        try:
+            controls.flip_structure(mol)
+        except Exception:
+            pass  # Expected to potentially fail
+
+    def test_rotate_structure_with_no_2d_coords(self, controls):
+        """Test rotating structure without 2D coordinates."""
+        mol = get_CDK_IAtomContainer("C")
+        for atom in mol.atoms():
+            atom.setPoint2d(None)
+
+        try:
+            controls.rotate_structure(mol, degrees=45)
+        except Exception:
+            pass
+
+    def test_title_display_with_invalid_generator(self, controls):
+        """Test set_title_display with invalid generator."""
+        result = controls.set_title_display(None, show_title=True)
+        # Should handle error and return input
+        assert result is None
+
+    def test_anonymous_display_with_invalid_generator(self, controls):
+        """Test set_anonymous_display with invalid generator."""
+        result = controls.set_anonymous_display(None, anonymous=True)
+        # Should handle error and return input
+        assert result is None

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class Depict2DResponse(BaseModel):
@@ -14,18 +14,13 @@ class Depict2DResponse(BaseModel):
     message: str = "Success"
     output: str
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "examples": [
                 {"input": "CCCOC", "message": "Success", "output": "SVG string"},
             ],
         }
+    )
 
 
 class Depict3DResponse(BaseModel):
@@ -39,15 +34,10 @@ class Depict3DResponse(BaseModel):
     message: str = "Success"
     output: str
 
-    class Config:
-        """Pydantic model configuration.
-
-        JSON Schema Extra:
-        - Includes examples of the response structure.
-        """
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "examples": [
                 {"input": "CCCOC", "message": "Success", "output": "HTML string"},
             ],
         }
+    )
