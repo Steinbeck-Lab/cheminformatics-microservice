@@ -16,6 +16,7 @@ import ErtlFunctionalGroupView from "../components/chem/ErtlFunctionalGroupView"
 import StandardizedTautomerView from "../components/chem/StandardizedTautomerView";
 import AllFiltersView from "../components/chem/AllFiltersView";
 import PubChemLookupView from "../components/chem/PubChemLookupView";
+import FixRadicalsView from "../components/chem/FixRadicalsView";
 
 // Import icons
 import {
@@ -35,6 +36,7 @@ import {
   HiOutlineX,
   HiOutlineDocumentDuplicate,
   HiOutlineGlobeAlt,
+  HiOutlineLightningBolt,
 } from "react-icons/hi";
 
 // Define tab data with icons, categories, and components
@@ -79,6 +81,14 @@ const tabs = [
     icon: HiOutlineRefresh,
     category: "structure",
     component: StandardizedTautomerView,
+  },
+  {
+    id: "fixradicals",
+    name: "Fix Radicals",
+    description: "Fix radical electrons in molecules",
+    icon: HiOutlineLightningBolt,
+    category: "structure",
+    component: FixRadicalsView,
   },
   // Analysis
   {

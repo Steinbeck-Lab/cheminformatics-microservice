@@ -129,15 +129,35 @@ class ChemicalAbbreviations:
         except Exception as e:
             raise RuntimeError(f"Abbreviation initialization failed: {e}") from e
 
+    def _is_reaction(self, obj: any) -> bool:
+        """Check if object is an IReaction.
+
+        Args:
+            obj: Object to check
+
+        Returns:
+            True if obj is an IReaction or IReactionSet
+        """
+        try:
+            IReaction = JClass(self.cdk_base + ".interfaces.IReaction")
+            IReactionSet = JClass(self.cdk_base + ".interfaces.IReactionSet")
+            return isinstance(obj, (IReaction, IReactionSet))
+        except Exception:
+            return False
+
     def apply(
         self,
         molecule: any,
         mode: AbbreviationMode = AbbreviationMode.REAGENTS,
         highlighted_atoms: Optional[Set[int]] = None,
     ) -> None:
-        """Apply abbreviations to a molecule.
+        """Apply abbreviations to a molecule or reaction.
+
+        This method automatically detects if the input is a reaction or molecule
+        and routes to the appropriate handler.
+
         Args:
-            molecule: CDK IAtomContainer
+            molecule: CDK IAtomContainer or IReaction
             mode: Abbreviation mode (off, groups, reagents, all)
             highlighted_atoms: Set of atom indices that should not be abbreviated
         """
@@ -147,6 +167,12 @@ class ChemicalAbbreviations:
         if mode == AbbreviationMode.OFF:
             return
 
+        # Detect if this is a reaction and route accordingly
+        if self._is_reaction(molecule):
+            self.apply_to_reaction(molecule, mode, highlighted_atoms)
+            return
+
+        # Handle molecule
         HashMap = JClass("java.util.HashMap")
         atom_set = HashMap()
 
@@ -154,7 +180,7 @@ class ChemicalAbbreviations:
             for atom_idx in highlighted_atoms:
                 if atom_idx < molecule.getAtomCount():
                     atom = molecule.getAtom(atom_idx)
-                    atom_set.put(atom, 2)
+                    atom_set.put(atom, 1)
 
         try:
             self._contract_hydrates(molecule)
@@ -169,6 +195,12 @@ class ChemicalAbbreviations:
         highlighted_atoms: Optional[Set[int]] = None,
     ) -> None:
         """Apply abbreviations to a reaction.
+
+        Follows CDK Java implementation pattern:
+        - Collects all atoms from all containers in the reaction
+        - Maps highlighted atom indices to actual IAtom objects
+        - Applies same atomSet to all containers for consistency
+
         Args:
             reaction: CDK IReaction
             mode: Abbreviation mode
@@ -183,12 +215,25 @@ class ChemicalAbbreviations:
         HashMap = JClass("java.util.HashMap")
         atom_set = HashMap()
 
+        # Build highlighted atom set following Java pattern
         if highlighted_atoms:
+            # Use ReactionManipulator to get all atom containers
+            # Correct package path: org.openscience.cdk.tools.manipulator.ReactionManipulator
+            ReactionManipulator = JClass(
+                self.cdk_base + ".tools.manipulator.ReactionManipulator"
+            )
+            all_containers = ReactionManipulator.getAllAtomContainers(reaction)
+
+            # Collect all atoms across all containers in order
+            all_atoms = []
+            for container in all_containers:
+                for atom in container.atoms():
+                    all_atoms.append(atom)
+
+            # Map atom indices to actual IAtom objects
             for atom_idx in highlighted_atoms:
-                atom = reaction.getBuilder().newInstance(
-                    JClass(self.cdk_base + ".interfaces.IAtom").class_
-                )
-                atom_set.put(atom, 2)
+                if 0 <= atom_idx < len(all_atoms):
+                    atom_set.put(all_atoms[atom_idx], 1)
 
         try:
             reactants = reaction.getReactants()
