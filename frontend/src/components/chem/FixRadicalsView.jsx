@@ -29,6 +29,9 @@ const FixRadicalsView = () => {
       if (!result) return;
 
       setDepictionLoading(true);
+      setOriginalDepiction(null);
+      setFixedDepiction(null);
+      
       try {
         // Use enhanced depiction for original molecule with radicals (perceive_radicals enabled)
         const originalSvg = await generate2DDepictionEnhanced(smiles, {
@@ -38,7 +41,13 @@ const FixRadicalsView = () => {
           annotate: "none",
           style: "cow",
         });
-        setOriginalDepiction(originalSvg);
+        console.log("=== DEBUG: Original SVG (first 500 chars) ===");
+        console.log(originalSvg.substring(0, 500));
+        console.log("=== SVG length:", originalSvg.length);
+        
+        // Remove namespace prefix to fix rendering
+        const cleanedOriginalSvg = originalSvg.replace(/ns0:/g, '').replace('xmlns:ns0=', 'xmlns=');
+        setOriginalDepiction(cleanedOriginalSvg);
 
         // Use standard depiction for fixed molecule
         const fixedSvg = await generate2DDepiction(result.fixed_smiles, {
@@ -46,7 +55,13 @@ const FixRadicalsView = () => {
           height: 400,
           toolkit: "cdk",
         });
-        setFixedDepiction(fixedSvg);
+        console.log("=== DEBUG: Fixed SVG (first 500 chars) ===");
+        console.log(fixedSvg.substring(0, 500));
+        console.log("=== SVG length:", fixedSvg.length);
+        
+        // Remove namespace prefix to fix rendering
+        const cleanedFixedSvg = fixedSvg.replace(/ns0:/g, '').replace('xmlns:ns0=', 'xmlns=');
+        setFixedDepiction(cleanedFixedSvg);
       } catch (err) {
         console.error("Error generating depictions:", err);
         // Don't set error state, just log it - we can still show SMILES
@@ -326,7 +341,7 @@ const FixRadicalsView = () => {
                   <div className="bg-white dark:bg-gray-900 rounded-lg border-2 border-gray-200 dark:border-gray-700 p-4 mb-3">
                     {originalDepiction ? (
                       <div 
-                        className="w-full h-80 flex items-center justify-center"
+                        className="w-full h-80 flex items-center justify-center [&>svg]:max-w-full [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:h-auto"
                         dangerouslySetInnerHTML={{ __html: originalDepiction }}
                       />
                     ) : (
@@ -359,7 +374,7 @@ const FixRadicalsView = () => {
                   <div className="bg-white dark:bg-gray-900 rounded-lg border-2 border-green-200 dark:border-green-700 p-4 mb-3">
                     {fixedDepiction ? (
                       <div 
-                        className="w-full h-80 flex items-center justify-center"
+                        className="w-full h-80 flex items-center justify-center [&>svg]:max-w-full [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:h-auto"
                         dangerouslySetInnerHTML={{ __html: fixedDepiction }}
                       />
                     ) : (

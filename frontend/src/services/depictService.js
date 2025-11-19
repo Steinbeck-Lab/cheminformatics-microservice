@@ -368,6 +368,101 @@ export const get2DDepictionUrl = (smiles, options = {}) => {
 };
 
 /**
+ * Get the URL for an enhanced 2D depiction with advanced CDK features
+ * @param {string} smiles - SMILES or CXSMILES string
+ * @param {Object} options - Enhanced depiction options (same as generate2DDepictionEnhanced)
+ * @returns {string} - URL to the enhanced depiction image
+ */
+export const get2DDepictionEnhancedUrl = (smiles, options = {}) => {
+  const {
+    width = 512,
+    height = 512,
+    rotate = 0,
+    CIP = true,
+    unicolor = false,
+    highlight = "",
+    atomIds = null,
+    showAtomNumbers = false,
+    hydrogen_display = "Smart",
+    abbreviate = "off",
+    dative = "metals",
+    multicenter = "provided",
+    annotate = "none",
+    style = "cow",
+    donuts = false,
+    arrow = "",
+    alignrxnmap = true,
+    showtitle = false,
+    title = null,
+    bgcolor = null,
+    fgcolor = null,
+    zoom = 1.0,
+    ratio = 1.0,
+    flip = false,
+    anon = false,
+    smalim = 100,
+    svgunits = "px",
+    perceive_radicals = false,
+    apply_mdl_highlighting = true,
+  } = options;
+
+  const baseUrl = api.defaults.baseURL || "";
+  const url = new URL(`${baseUrl}${DEPICT_URL}/2D_enhanced`);
+
+  url.searchParams.append("smiles", smiles);
+  url.searchParams.append("width", width);
+  url.searchParams.append("height", height);
+  url.searchParams.append("rotate", rotate);
+  url.searchParams.append("CIP", CIP);
+  url.searchParams.append("unicolor", unicolor);
+  url.searchParams.append("showAtomNumbers", showAtomNumbers);
+  url.searchParams.append("hydrogen_display", hydrogen_display);
+  url.searchParams.append("abbreviate", abbreviate);
+  url.searchParams.append("dative", dative);
+  url.searchParams.append("multicenter", multicenter);
+  url.searchParams.append("annotate", annotate);
+  url.searchParams.append("style", style);
+  url.searchParams.append("donuts", donuts);
+  url.searchParams.append("arrow", arrow);
+  url.searchParams.append("alignrxnmap", alignrxnmap);
+  url.searchParams.append("showtitle", showtitle);
+  url.searchParams.append("zoom", zoom);
+  url.searchParams.append("ratio", ratio);
+  url.searchParams.append("flip", flip);
+  url.searchParams.append("anon", anon);
+  url.searchParams.append("smalim", smalim);
+  url.searchParams.append("svgunits", svgunits);
+  url.searchParams.append("perceive_radicals", perceive_radicals);
+  url.searchParams.append("apply_mdl_highlighting", apply_mdl_highlighting);
+
+  if (highlight) {
+    url.searchParams.append("highlight", highlight);
+  }
+
+  if (title) {
+    url.searchParams.append("title", title);
+  }
+
+  if (bgcolor) {
+    url.searchParams.append("bgcolor", bgcolor);
+  }
+
+  if (fgcolor) {
+    url.searchParams.append("fgcolor", fgcolor);
+  }
+
+  // Add atomIds if provided
+  if (atomIds) {
+    if (Array.isArray(atomIds)) {
+      const flatIds = atomIds.flat();
+      url.searchParams.append("atomIds", flatIds.join(","));
+    }
+  }
+
+  return url.toString();
+};
+
+/**
  * Generate batch 2D depictions for multiple SMILES strings
  * @param {Array<string>} smilesList - Array of SMILES strings
  * @param {Object} options - Depiction options
