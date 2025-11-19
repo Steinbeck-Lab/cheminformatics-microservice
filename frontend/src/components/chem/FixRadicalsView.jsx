@@ -41,9 +41,6 @@ const FixRadicalsView = () => {
           annotate: "none",
           style: "cow",
         });
-        console.log("=== DEBUG: Original SVG (first 500 chars) ===");
-        console.log(originalSvg.substring(0, 500));
-        console.log("=== SVG length:", originalSvg.length);
         
         // Remove namespace prefix to fix rendering
         const cleanedOriginalSvg = originalSvg.replace(/ns0:/g, '').replace('xmlns:ns0=', 'xmlns=');
@@ -55,9 +52,6 @@ const FixRadicalsView = () => {
           height: 400,
           toolkit: "cdk",
         });
-        console.log("=== DEBUG: Fixed SVG (first 500 chars) ===");
-        console.log(fixedSvg.substring(0, 500));
-        console.log("=== SVG length:", fixedSvg.length);
         
         // Remove namespace prefix to fix rendering
         const cleanedFixedSvg = fixedSvg.replace(/ns0:/g, '').replace('xmlns:ns0=', 'xmlns=');
