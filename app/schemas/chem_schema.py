@@ -325,3 +325,54 @@ class StandarizedTautomerResponse(BaseModel):
             ],
         }
     )
+
+
+class FixRadicalsResponse(BaseModel):
+    """Represents a response containing fixed radical molecule.
+
+    Properties:
+    - fixed_smiles (str): Canonical SMILES string with radicals fixed
+    - radicals_detected (int): Number of radicals detected in the molecule
+    - radicals_fixed (int): Number of radicals successfully fixed
+    """
+
+    fixed_smiles: str = Field(
+        ...,
+        title="Fixed SMILES",
+        description="Canonical SMILES string with radicals fixed.",
+    )
+    radicals_detected: int = Field(
+        ...,
+        title="Radicals Detected",
+        description="Number of single electron radicals detected in the molecule.",
+    )
+    radicals_fixed: int = Field(
+        ...,
+        title="Radicals Fixed",
+        description="Number of radicals successfully fixed (C, N, O only).",
+    )
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "input": "[CH3]",
+                    "message": "Success",
+                    "output": {
+                        "fixed_smiles": "C",
+                        "radicals_detected": 1,
+                        "radicals_fixed": 1,
+                    },
+                },
+                {
+                    "input": "CC[CH2]",
+                    "message": "Success",
+                    "output": {
+                        "fixed_smiles": "CCC",
+                        "radicals_detected": 1,
+                        "radicals_fixed": 1,
+                    },
+                },
+            ],
+        }
+    )

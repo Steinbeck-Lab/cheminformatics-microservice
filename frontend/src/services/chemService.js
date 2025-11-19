@@ -183,6 +183,22 @@ const generateStandardizedTautomer = async (smiles) => {
 };
 
 /**
+ * Fix radicals (single electrons) in molecules
+ * @param {string} smiles - SMILES string containing radicals
+ * @returns {Promise<Object>} - Object containing fixed_smiles, radicals_detected, and radicals_fixed
+ */
+const fixRadicals = async (smiles) => {
+  try {
+    const response = await api.get(`${CHEM_URL}/fixRadicals`, {
+      params: { smiles },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(`Failed to fix radicals: ${error.message}`);
+  }
+};
+
+/**
  * Standardize a molblock using the ChEMBL curation pipeline
  * @param {string} molblock - Molblock string to standardize
  * @returns {Promise<Object>} - Object containing standardized molecule data
@@ -231,6 +247,7 @@ export {
   coconutPreprocessing,
   generateFunctionalGroups,
   generateStandardizedTautomer,
+  fixRadicals,
   getDescriptors,
   lookupPubChem,
   standardizeMolblock,
@@ -249,6 +266,7 @@ const chemService = {
   coconutPreprocessing,
   generateFunctionalGroups,
   generateStandardizedTautomer,
+  fixRadicals,
   lookupPubChem,
   standardizeMolblock,
 };

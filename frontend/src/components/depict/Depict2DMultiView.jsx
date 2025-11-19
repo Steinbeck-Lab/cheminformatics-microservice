@@ -13,6 +13,7 @@ import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import LoadingScreen from "../common/LoadingScreen";
 // Assuming this service is configured correctly
 import depictService from "../../services/depictService"; // Assuming this service exists
+import api from "../../services/api";
 
 // Animation variants
 const resultsContainerVariants = {
@@ -133,6 +134,10 @@ const BatchDepictionView = () => {
   const [downloadFormat, setDownloadFormat] = useState("svg"); // svg or png
   const [showToolsSection, setShowToolsSection] = useState(false); // Toggle visibility of options
 
+  // Fixed radical results per depiction id -> { fixed_smiles, radicals_detected, radicals_fixed, fixedImageUrl }
+  const [fixedResults, setFixedResults] = useState({});
+  const [fetchingFixed, setFetchingFixed] = useState(false);
+
   // Per-molecule rotation state { [id]: rotationValue }
   const [rotations, setRotations] = useState({});
 
@@ -142,6 +147,54 @@ const BatchDepictionView = () => {
       .split(/[\n\r]+/) // Split by new lines
       .map((line) => line.trim()) // Trim whitespace
       .filter((line) => line.length > 0 && !line.startsWith("#")); // Remove empty lines and comments
+  };
+
+  // Fetch fixed SMILES for each depiction by calling backend /chem/fixRadicals
+  const fetchFixedForDepictions = async (depictionList) => {
+    if (!Array.isArray(depictionList) || depictionList.length === 0) return;
+    setFetchingFixed(true);
+    const mapping = {};
+
+    for (const dep of depictionList) {
+      try {
+        const resp = await api.get(`/chem/fixRadicals`, { params: { smiles: dep.smiles } });
+        const data = resp.data || {};
+
+        // Build a fixed image URL for the fixed smiles (use RDKit basic depiction)
+        let fixedImageUrl = null;
+        if (data.fixed_smiles) {
+          try {
+            fixedImageUrl = depictService.get2DDepictionUrl(data.fixed_smiles, {
+              toolkit: "rdkit",
+              width,
+              height,
+              rotate: 0,
+              showAtomNumbers,
+            });
+          } catch (err) {
+            console.warn("Failed to build fixed image url:", err);
+          }
+        }
+
+        mapping[dep.id] = {
+          fixed_smiles: data.fixed_smiles || null,
+          radicals_detected: data.radicals_detected || 0,
+          radicals_fixed: data.radicals_fixed || 0,
+          fixedImageUrl,
+        };
+      } catch (err) {
+        console.warn(`Error fetching fixed radicals for ${dep.smiles}:`, err.message || err);
+        mapping[dep.id] = {
+          fixed_smiles: null,
+          radicals_detected: 0,
+          radicals_fixed: 0,
+          fixedImageUrl: null,
+        };
+      }
+    }
+
+    setFixedResults(mapping);
+    setFetchingFixed(false);
   };
 
   // Regenerate depiction URLs when options change (or called manually)
@@ -407,6 +460,13 @@ const BatchDepictionView = () => {
 
       setRotations(initialRotations); // Set all initial rotations at once
       setDepictions(results); // Set all results at once
+
+      // Fetch fixed SMILES for depictions (if radicals present)
+      try {
+        await fetchFixedForDepictions(results);
+      } catch (e) {
+        console.warn("Failed to fetch fixed radicals:", e);
+      }
 
       if (results.length === 0 && !error) {
         setError("No valid SMILES found to process.");
