@@ -3,13 +3,12 @@
 This module provides functionality to detect and display radical electrons
 (unpaired electrons) on atoms in molecular structures.
 
-Based on CDK radical handling functionality.
-
+Direct port of CDK Java MolOp.perceiveRadicals() implementation.
 """
 
 from __future__ import annotations
 
-from typing import Any, List, Dict, Optional
+from typing import Any
 
 from jpype import JClass
 
@@ -17,247 +16,193 @@ from jpype import JClass
 class RadicalPerception:
     """Manages radical detection and display for molecular depictions.
 
-    This class provides methods to detect unpaired electrons on atoms and
-    configure their display in CDK depictions.
+    This is a direct port of the CDK Java MolOp.perceiveRadicals() method
+    which uses ISingleElectron objects for radical representation.
 
     Attributes:
-        SPIN_MULTIPLICITY: CDK constant for spin multiplicity property
-        IAtom: CDK IAtom interface
-        Integer: Java Integer class
+        cdk_base: Base package path for CDK classes
     """
 
     def __init__(self):
-        """Initialize the radical perception system with CDK classes."""
+        """Initialize the radical perception system."""
         self.cdk_base = "org.openscience.cdk"
-        try:
-            self.CDKConstants = JClass(self.cdk_base + ".CDKConstants")
-            self.SPIN_MULTIPLICITY = self.CDKConstants.SPIN_MULTIPLICITY
-            self.IAtom = JClass(self.cdk_base + ".interfaces.IAtom")
-            self.Integer = JClass("java.lang.Integer")
-        except Exception:
-            raise
 
-    def perceive_radicals(self, molecule: Any) -> Dict[int, int]:
-        """Detect radical electrons in molecule.
+    def _calc_valence(self, atom: Any, molecule: Any) -> int:
+        """Calculate valence from implicit hydrogens and bond orders.
 
-        Analyzes valence, formal charge, and connectivity to identify atoms
-        with unpaired electrons.
-
-        Args:
-            molecule: CDK IAtomContainer
-
-        Returns:
-            Dictionary mapping atom index to number of unpaired electrons
-
-        Example:
-            >>> perceiver = RadicalPerception()
-            >>> radicals = perceiver.perceive_radicals(mol)
-            >>> for atom_idx, radical_count in radicals.items():
-            ...     print(f"Atom {atom_idx} has {radical_count} radical(s)")
-        """
-        radicals = {}
-
-        try:
-            for i, atom in enumerate(molecule.atoms()):
-                radical_count = self._get_radical_count(atom, molecule)
-                if radical_count > 0:
-                    radicals[i] = radical_count
-
-            return radicals
-
-        except Exception:
-            return {}
-
-    def _get_radical_count(self, atom: Any, molecule: Any) -> int:
-        """Calculate number of unpaired electrons on an atom.
+        This replicates the Java calcValence() method exactly.
 
         Args:
             atom: CDK IAtom
-            molecule: CDK IAtomContainer (parent molecule)
-
-        Returns:
-            Number of unpaired electrons (0 if none)
-        """
-        try:
-            # Check if spin multiplicity is already set
-            spin_mult = atom.getProperty(self.SPIN_MULTIPLICITY)
-            if spin_mult is not None:
-                # Spin multiplicity = 2S + 1, where S is total spin
-                # For radicals: doublet (S=1/2, mult=2), triplet (S=1, mult=3), etc.
-                return max(0, spin_mult - 1)
-
-            # Calculate from valence
-            element = atom.getSymbol()
-            formal_charge = (
-                atom.getFormalCharge() if atom.getFormalCharge() is not None else 0
-            )
-
-            # Get number of bonds
-            bond_count = 0
-            bond_order_sum = 0.0
-            for bond in molecule.getConnectedBondsList(atom):
-                bond_count += 1
-                order = bond.getOrder()
-                if order is not None:
-                    # Convert CDK IBond.Order to numeric value
-                    if order.numeric() is not None:
-                        bond_order_sum += order.numeric()
-                    else:
-                        bond_order_sum += 1.0  # Assume single bond if unknown
-
-            # Get implicit hydrogen count
-            implicit_h = atom.getImplicitHydrogenCount()
-            if implicit_h is None:
-                implicit_h = 0
-
-            # Calculate expected valence for common elements
-            expected_valence = self._get_expected_valence(element, formal_charge)
-            if expected_valence is None:
-                return 0  # Unknown element
-
-            # Calculate actual valence
-            actual_valence = bond_order_sum + implicit_h
-
-            # Radical electrons = expected - actual
-            radical_count = int(expected_valence - actual_valence)
-
-            return max(0, radical_count)
-
-        except Exception:
-            return 0
-
-    def _get_expected_valence(self, element: str, formal_charge: int) -> Optional[int]:
-        """Get expected valence for an element considering formal charge.
-
-        Args:
-            element: Element symbol (e.g., "C", "N", "O")
-            formal_charge: Formal charge on atom
-
-        Returns:
-            Expected valence or None if unknown
-        """
-        # Common valences (neutral atoms)
-        base_valences = {
-            "H": 1,
-            "He": 0,
-            "B": 3,
-            "C": 4,
-            "N": 3,
-            "O": 2,
-            "F": 1,
-            "Ne": 0,
-            "Al": 3,
-            "Si": 4,
-            "P": 3,
-            "S": 2,
-            "Cl": 1,
-            "Ar": 0,
-            "Br": 1,
-            "I": 1,
-        }
-
-        if element not in base_valences:
-            return None
-
-        base_valence = base_valences[element]
-
-        # Adjust for formal charge
-        # Positive charge generally reduces available electrons
-        # Negative charge generally adds electrons
-        adjusted_valence = base_valence - formal_charge
-
-        return max(0, adjusted_valence)
-
-    def mark_radicals(self, molecule: Any) -> None:
-        """Mark radical atoms with spin multiplicity property.
-
-        Sets the SPIN_MULTIPLICITY property on atoms that have unpaired electrons.
-
-        Args:
             molecule: CDK IAtomContainer
+
+        Returns:
+            Total valence (implicit H + sum of bond orders)
+        """
+        v = atom.getImplicitHydrogenCount()
+        if v is None:
+            v = 0
+
+        for bond in molecule.getConnectedBondsList(atom):
+            order = bond.getOrder()
+            if order is not None:
+                numeric = order.numeric()
+                if numeric is not None:
+                    v += int(numeric)
+
+        return v
+
+    def perceive_radicals(self, molecule: Any) -> None:
+        """Detect and mark radical electrons using CDK's ISingleElectron.
+
+        This is a direct port of the Java MolOp.perceiveRadicals() method.
+        Radicals are represented by adding ISingleElectron objects to the molecule.
+
+        The logic handles:
+        - Carbon (atomic number 6): Can have 1-2 radicals depending on valence
+        - Nitrogen (atomic number 7): Can have 1 radical when under-coordinated
+        - Oxygen (atomic number 8): Can have 1-2 radicals depending on valence
+
+        Only processes neutral (formal charge = 0) and non-aromatic atoms.
+
+        Args:
+            molecule: CDK IAtomContainer to process
 
         Example:
             >>> perceiver = RadicalPerception()
-            >>> perceiver.mark_radicals(mol)
+            >>> perceiver.perceive_radicals(mol)
         """
         try:
-            radicals = self.perceive_radicals(molecule)
+            for atom in molecule.atoms():
+                q = atom.getFormalCharge()
+                if q is None:
+                    q = 0
 
-            for atom_idx, radical_count in radicals.items():
-                atom = molecule.getAtom(atom_idx)
-                # Spin multiplicity = 2S + 1
-                spin_mult = radical_count + 1
-                atom.setProperty(self.SPIN_MULTIPLICITY, self.Integer(spin_mult))
+                # Skip aromatic atoms
+                if atom.isAromatic():
+                    continue
+
+                atomic_num = atom.getAtomicNumber()
+
+                # Carbon (atomic number 6)
+                if atomic_num == 6 and q == 0:
+                    v = self._calc_valence(atom, molecule)
+                    # Note: These are separate if statements, both can execute
+                    if v == 2:
+                        molecule.addSingleElectron(molecule.indexOf(atom))
+                    if v < 4:
+                        molecule.addSingleElectron(molecule.indexOf(atom))
+
+                # Nitrogen (atomic number 7)
+                elif atomic_num == 7 and q == 0:
+                    v = self._calc_valence(atom, molecule)
+                    if v < 3:
+                        molecule.addSingleElectron(molecule.indexOf(atom))
+
+                # Oxygen (atomic number 8)
+                elif atomic_num == 8 and q == 0:
+                    v = self._calc_valence(atom, molecule)
+                    # Note: These are separate if statements, both can execute
+                    if v < 2:
+                        molecule.addSingleElectron(molecule.indexOf(atom))
+                    if v < 1:
+                        molecule.addSingleElectron(molecule.indexOf(atom))
+
+        except Exception:
+            # Silent fail like Java implementation
+            pass
+
+    def perceive_radicals_reaction(self, reaction: Any) -> None:
+        """Perceive radicals in all components of a reaction.
+
+        Applies radical perception to:
+        - All reactant molecules
+        - All product molecules
+        - All agent/catalyst molecules
+
+        Args:
+            reaction: CDK IReaction
+
+        Example:
+            >>> perceiver = RadicalPerception()
+            >>> perceiver.perceive_radicals_reaction(reaction)
+        """
+        try:
+            # Process reactants
+            reactants = reaction.getReactants()
+            for mol in reactants.atomContainers():
+                self.perceive_radicals(mol)
+
+            # Process products
+            products = reaction.getProducts()
+            for mol in products.atomContainers():
+                self.perceive_radicals(mol)
+
+            # Process agents/catalysts
+            agents = reaction.getAgents()
+            for mol in agents.atomContainers():
+                self.perceive_radicals(mol)
 
         except Exception:
             pass
 
-    def count_radicals(self, molecule: Any) -> int:
-        """Count total number of radical electrons in molecule.
+    def perceive_radicals_reaction_set(self, reaction_set: Any) -> None:
+        """Perceive radicals in all reactions in a reaction set.
 
         Args:
-            molecule: CDK IAtomContainer
+            reaction_set: CDK IReactionSet
 
-        Returns:
-            Total number of unpaired electrons
+        Example:
+            >>> perceiver = RadicalPerception()
+            >>> perceiver.perceive_radicals_reaction_set(rxn_set)
         """
         try:
-            radicals = self.perceive_radicals(molecule)
-            total = sum(radicals.values())
-            return total
+            for rxn in reaction_set.reactions():
+                self.perceive_radicals_reaction(rxn)
         except Exception:
-            return 0
-
-    def get_radical_atoms(self, molecule: Any) -> List[int]:
-        """Get list of atom indices that have radicals.
-
-        Args:
-            molecule: CDK IAtomContainer
-
-        Returns:
-            List of atom indices with unpaired electrons
-        """
-        try:
-            radicals = self.perceive_radicals(molecule)
-            return list(radicals.keys())
-        except Exception:
-            return []
+            pass
 
 
-def perceive_radicals(molecule: Any) -> Dict[int, int]:
-    """Convenience function to detect radicals in a molecule.
+def perceive_radicals(molecule_or_reaction: Any) -> None:
+    """Convenience function to detect and mark radicals.
+
+    Automatically detects whether input is a molecule, reaction, or reaction set
+    and applies appropriate radical perception.
 
     Args:
-        molecule: CDK IAtomContainer
-
-    Returns:
-        Dictionary mapping atom index to number of unpaired electrons
+        molecule_or_reaction: CDK IAtomContainer, IReaction, or IReactionSet
 
     Example:
-        >>> radicals = perceive_radicals(mol)
-        >>> print(f"Found {len(radicals)} atoms with radicals")
+        >>> from app.modules.cdk_depict.radical_perception import perceive_radicals
+        >>> perceive_radicals(mol)
+        >>> perceive_radicals(reaction)
+        >>> perceive_radicals(reaction_set)
     """
     try:
         perceiver = RadicalPerception()
-        return perceiver.perceive_radicals(molecule)
-    except Exception:
-        return {}
+        cdk_base = "org.openscience.cdk"
 
+        # Check if it's a reaction set
+        try:
+            IReactionSet = JClass(cdk_base + ".interfaces.IReactionSet")
+            if isinstance(molecule_or_reaction, IReactionSet):
+                perceiver.perceive_radicals_reaction_set(molecule_or_reaction)
+                return
+        except Exception:
+            pass
 
-def mark_radicals(molecule: Any) -> None:
-    """Convenience function to mark radical atoms.
+        # Check if it's a reaction
+        try:
+            IReaction = JClass(cdk_base + ".interfaces.IReaction")
+            if isinstance(molecule_or_reaction, IReaction):
+                perceiver.perceive_radicals_reaction(molecule_or_reaction)
+                return
+        except Exception:
+            pass
 
-    Sets spin multiplicity properties on atoms with unpaired electrons.
+        # Otherwise treat as molecule
+        perceiver.perceive_radicals(molecule_or_reaction)
 
-    Args:
-        molecule: CDK IAtomContainer
-
-    Example:
-        >>> mark_radicals(mol)
-    """
-    try:
-        perceiver = RadicalPerception()
-        perceiver.mark_radicals(molecule)
     except Exception:
         pass
 
@@ -266,5 +211,4 @@ def mark_radicals(molecule: Any) -> None:
 __all__ = [
     "RadicalPerception",
     "perceive_radicals",
-    "mark_radicals",
 ]

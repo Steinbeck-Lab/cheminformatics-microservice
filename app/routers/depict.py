@@ -370,7 +370,7 @@ async def depict_2d_molecule_enhanced(
         description="The rotation angle of the molecule in degrees.",
     ),
     CIP: bool = Query(
-        False,
+        True,
         title="CIP Stereochemistry",
         description="Whether to include Cahn-Ingold-Prelog (CIP) stereochemistry annotations (R/S, E/Z).",
     ),
@@ -406,7 +406,7 @@ async def depict_2d_molecule_enhanced(
     ),
     # ========== CHEMICAL STRUCTURE ENHANCEMENTS ==========
     abbreviate: Literal["off", "groups", "reagents", "on"] = Query(
-        default="reagents",
+        default="off",
         title="Abbreviations",
         description=(
             "Chemical abbreviation mode. "
@@ -500,6 +500,15 @@ async def depict_2d_molecule_enhanced(
         title="Show Title",
         description="Whether to display molecule/reaction title in depiction.",
     ),
+    title: Optional[str] = Query(
+        None,
+        title="Title",
+        description=(
+            "Optional title to display when showtitle=true. "
+            "If not provided, title will be extracted from SMILES string if present. "
+            "Example: ?smiles=CCO&title=Ethanol&showtitle=true"
+        ),
+    ),
     bgcolor: Optional[str] = Query(
         None,
         title="Background Color",
@@ -512,9 +521,9 @@ async def depict_2d_molecule_enhanced(
     ),
     # ========== ADVANCED RENDERING CONTROLS ==========
     zoom: float = Query(
-        1.3,
+        1.0,
         title="Zoom Level",
-        description="Zoom level for depiction (0.1 to 5.0). Default: 1.3.",
+        description="Zoom level for depiction (0.1 to 5.0). Default: 1.0.",
         ge=0.1,
         le=5.0,
     ),
@@ -676,6 +685,29 @@ async def depict_2d_molecule_enhanced(
         # CDK's SmilesParser automatically handles CXSMILES (e.g., "CCO |ha:0,1|")
         # The highlighting is extracted internally via extract_cxsmiles_highlighting()
         mol = parse_input(smiles, "cdk", False)
+        if title:
+            try:
+                from jpype import JClass
+
+                cdk_base = "org.openscience.cdk"
+                CDKConstants = JClass(cdk_base + ".CDKConstants")
+                IReaction = JClass(cdk_base + ".interfaces.IReaction")
+                IReactionSet = JClass(cdk_base + ".interfaces.IReactionSet")
+
+                # Handle different molecule types
+                if isinstance(mol, IReactionSet):
+                    # Set title on all reactions in set
+                    for rxn in mol.reactions():
+                        rxn.setProperty(CDKConstants.TITLE, title)
+                elif isinstance(mol, IReaction):
+                    # Set title on single reaction
+                    mol.setProperty(CDKConstants.TITLE, title)
+                else:
+                    # Set title on molecule
+                    mol.setProperty(CDKConstants.TITLE, title)
+            except Exception:
+                # Silently ignore title setting errors
+                pass
         depiction = get_cdk_depiction(
             mol,
             molSize=(width, height),

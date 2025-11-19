@@ -214,7 +214,6 @@ class StylePresetSystem:
                 RendererModel.SelectionColor.class_, select_color
             )
 
-            logger.info(f"Successfully applied style preset: {preset.value}")
             return depiction_generator
 
         except Exception as e:
