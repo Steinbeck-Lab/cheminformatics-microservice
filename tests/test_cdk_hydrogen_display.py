@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from app.modules.cdk_hydrogen_display import set_hydrogen_display
-from app.modules.cdk_hydrogen_display import setHydrogenDisplay
+from app.modules.cdk_depict.hydrogen_display import set_hydrogen_display
+from app.modules.cdk_depict.hydrogen_display import setHydrogenDisplay
 from app.modules.toolkits.cdk_wrapper import get_CDK_IAtomContainer
 
 

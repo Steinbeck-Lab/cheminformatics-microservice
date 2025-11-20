@@ -28,6 +28,7 @@ from app.modules.classyfire import classify
 from app.modules.classyfire import result
 from app.modules.coconut.descriptors import get_COCONUT_descriptors
 from app.modules.coconut.preprocess import get_COCONUT_preprocessing
+from app.modules.fix_radicals import fixradicals
 from app.modules.npscorer import get_np_score
 from app.modules.toolkits.cdk_wrapper import get_CDK_HOSE_codes
 from app.modules.toolkits.cdk_wrapper import get_tanimoto_similarity_CDK
@@ -54,6 +55,7 @@ from app.modules.toolkits.rdkit_wrapper import QED
 from app.modules.pubchem_retrieve import PubChemClient
 from app.schemas import HealthCheck
 from app.schemas.chem_schema import FilteredMoleculesResponse
+from app.schemas.chem_schema import FixRadicalsResponse
 from app.schemas.chem_schema import GenerateDescriptorsResponse
 from app.schemas.chem_schema import GenerateFunctionalGroupResponse
 from app.schemas.chem_schema import GenerateHOSECodeResponse
@@ -1390,6 +1392,116 @@ async def get_standardized_tautomer_smiles(
     if mol:
         standardized_smiles = get_standardized_tautomer(mol)
         return standardized_smiles
+
+
+@router.get(
+    "/fixRadicals",
+    summary="Fix radicals (single electrons) in molecules using CDK",
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": FixRadicalsResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
+)
+async def fix_radicals_endpoint(
+    smiles: str = Query(
+        title="SMILES",
+        description="SMILES string containing radicals to be fixed",
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Methyl radical",
+                "value": "[CH3]",
+            },
+            "example2": {
+                "summary": "Example: Nitrogen-centered radical",
+                "value": "C[NH]",
+            },
+            "example3": {
+                "summary": "Example: Complex molecule with radical",
+                "value": "CCCC[C](O)[C](O)[C](O)[C]1OC(=O)C=C[C]1O",
+            },
+        },
+    ),
+):
+    """Fix radicals (single electrons) in molecules using CDK.
+
+    This endpoint detects and fixes radical electrons on atoms in molecular structures.
+    It handles radicals on carbon (C), nitrogen (N), and oxygen (O) atoms by:
+
+    1. Perceiving radical electrons in the input molecule
+    2. Adding implicit hydrogens to saturate the radicals
+    3. Reconfiguring atom types and valences
+    4. Returning the fixed canonical SMILES
+
+    **Supported radicals:**
+    - Carbon radicals (e.g., [CH3], [CH2]R)
+    - Nitrogen radicals (e.g., [NH2], [NH]R)
+    - Oxygen radicals (e.g., [OH], [O]R)
+
+    **Note:** Radicals on other elements are detected but not currently fixed.
+
+    Parameters:
+    - **smiles**: required (query): SMILES string containing radicals (denoted with square brackets and explicit electron counts)
+
+    Returns:
+    - **FixRadicalsResponse**: A response containing:
+        - `fixed_smiles`: Canonical SMILES with radicals fixed
+        - `radicals_detected`: Total number of radicals detected
+        - `radicals_fixed`: Number of radicals successfully fixed (C, N, O only)
+
+    Raises:
+    - **ValueError**: If the SMILES string is invalid or cannot be parsed
+    - **HTTPException 422**: If molecule parsing fails
+
+    Example:
+    ```
+    Input:  [CH3]
+    Output: {
+        "fixed_smiles": "C",
+        "radicals_detected": 1,
+        "radicals_fixed": 1
+    }
+    ```
+    """
+    # Validate input
+    if not smiles or smiles.strip() == "":
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="SMILES string is required and cannot be empty",
+        )
+
+    try:
+        # Parse input using CDK (required for radical perception)
+        mol = parse_input(smiles, "cdk", False)
+        if mol is None:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=f"Invalid SMILES string: {smiles}",
+            )
+
+        # Fix radicals and get result
+        result = fixradicals(mol)
+
+        return FixRadicalsResponse(
+            fixed_smiles=result["fixed_smiles"],
+            radicals_detected=result["radicals_detected"],
+            radicals_fixed=result["radicals_fixed"],
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(e),
+        )
+    except Exception as e:
+        logger.error(f"Error fixing radicals for SMILES '{smiles}': {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Error processing molecule: {str(e)}",
+        )
 
 
 @router.get(

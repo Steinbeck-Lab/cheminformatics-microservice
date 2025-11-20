@@ -17,6 +17,8 @@ services:
 
   api:
     image: nfdi4chem/cheminformatics-microservice:latest-lite
+    env_file:
+      - ../.env
     environment:
       HOMEPAGE_URL: "https://docs.api.naturalproducts.net"
       WORKERS: "2"

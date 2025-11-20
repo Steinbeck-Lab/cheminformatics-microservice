@@ -8,7 +8,7 @@ import {
   HiOutlineSwitchHorizontal,
   HiOutlineExclamationCircle,
 } from "react-icons/hi";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import LoadingScreen from "../common/LoadingScreen";
 // Assuming this service is configured correctly
@@ -21,13 +21,76 @@ const resultsContainerVariants = {
 };
 
 const depictionCardVariant = {
-  hidden: { opacity: 0, y: 20, scale: 0.98 },
+  hidden: { opacity: 0, y: 20, scale: 0.95 },
   visible: {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { duration: 0.4, ease: "easeOut" },
+    transition: { 
+      duration: 0.5, 
+      ease: [0.25, 0.46, 0.45, 0.94],
+      scale: {
+        type: "spring",
+        stiffness: 300,
+        damping: 25
+      }
+    },
   },
+};
+
+const toggleSpring = {
+  type: "spring",
+  stiffness: 600,
+  damping: 30,
+};
+
+// Toggle Switch Component - Enhanced with stunning visuals
+const ToggleSwitch = ({ id, checked, onChange, label, disabled = false }) => {
+  return (
+    <div className="flex items-center space-x-3 py-1 px-0.5">
+      <div
+        className={`relative flex items-center w-12 h-6 rounded-full p-0.5 cursor-pointer transition-all duration-300 ease-in-out ${
+          checked
+            ? "bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-500 border-2 border-cyan-400 dark:border-cyan-300"
+            : "bg-gradient-to-r from-gray-300 via-gray-350 to-gray-400 dark:from-gray-600 dark:via-gray-650 dark:to-gray-700"
+        } ${disabled ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}`}
+        onClick={() => !disabled && onChange(!checked)}
+        role="switch"
+        aria-checked={checked}
+        aria-label={label}
+      >        
+        <LayoutGroup>
+          <motion.div
+            className={`relative h-5 w-5 rounded-full ${
+              checked
+                ? "bg-gradient-to-br from-white via-blue-50 to-indigo-50"
+                : "bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-200 dark:via-gray-300 dark:to-gray-400"
+            }`}
+            layout
+            transition={toggleSpring}
+            style={{
+              left: checked ? "auto" : "2px",
+              right: checked ? "2px" : "auto",
+              position: "absolute",
+            }}
+          />
+        </LayoutGroup>
+      </div>
+      <label
+        htmlFor={id}
+        className={`text-sm font-medium select-none transition-colors duration-200 ${
+          disabled 
+            ? "text-gray-400 dark:text-gray-500" 
+            : checked
+              ? "text-blue-700 dark:text-blue-400 cursor-pointer"
+              : "text-gray-700 dark:text-gray-300 cursor-pointer hover:text-gray-900 dark:hover:text-gray-100"
+        }`}
+        onClick={() => !disabled && onChange(!checked)}
+      >
+        {label}
+      </label>
+    </div>
+  );
 };
 
 const BatchDepictionView = () => {
@@ -39,8 +102,10 @@ const BatchDepictionView = () => {
   const [error, setError] = useState(null);
   const [depictions, setDepictions] = useState([]); // Array of { smiles, title, imageUrl, id }
 
-  // Depiction options
+  // Toolkit selection
   const [toolkit, setToolkit] = useState("rdkit");
+
+  // Depiction options - Basic (shared by both toolkits)
   const [width, setWidth] = useState(300);
   const [height, setHeight] = useState(200);
   const [showCIP, setShowCIP] = useState(false);
@@ -48,6 +113,19 @@ const BatchDepictionView = () => {
   const [highlight, setHighlight] = useState("");
   const [showAtomNumbers, setShowAtomNumbers] = useState(false);
   const [hydrogenDisplay, setHydrogenDisplay] = useState("Smart");
+
+  // Depiction options - Enhanced features (CDK only)
+  const [abbreviate, setAbbreviate] = useState("off");
+  const [dative, setDative] = useState("metals");
+  const [multicenter, setMulticenter] = useState("provided");
+  const [style, setStyle] = useState("cow");
+  const [annotate, setAnnotate] = useState("none");
+  const [donuts, setDonuts] = useState(false);
+  const [zoom, setZoom] = useState(1.0);
+  const [ratio, setRatio] = useState(1.0);
+  const [flip, setFlip] = useState(false);
+  const [showtitle, setShowtitle] = useState(false);
+  const [perceiveRadicals, setPerceiveRadicals] = useState(false);
 
   // UI state
   const [copiedSmiles, setCopiedSmiles] = useState(false); // For "Copy All SMILES" button
@@ -66,48 +144,80 @@ const BatchDepictionView = () => {
       .filter((line) => line.length > 0 && !line.startsWith("#")); // Remove empty lines and comments
   };
 
-  // Regenerate depiction URLs when toolkit changes (or called manually)
-  const regenerateDepictions = (currentToolkit = toolkit) => {
-    // Check if depictService and the method exist before proceeding
-    if (!depictService || typeof depictService.get2DDepictionUrl !== "function") {
-      console.error("depictService.get2DDepictionUrl is not available.");
-      setError("Depiction service is not configured correctly.");
-      return;
-    }
+  // Regenerate depiction URLs when options change (or called manually)
+  const regenerateDepictions = () => {
     if (depictions.length === 0) return;
 
-    console.log(`Regenerating depictions with toolkit: ${currentToolkit}`); // Debug log
+    console.log(`Regenerating depictions with toolkit: ${toolkit}`);
 
     setDepictions((currentDepictions) =>
       currentDepictions.map((dep) => {
         const rotation = rotations[dep.id] || 0;
-        const options = {
-          toolkit: currentToolkit, // Use potentially updated toolkit
-          width,
-          height,
-          rotate: rotation,
-          CIP: showCIP,
-          unicolor: useUnicolor,
-          highlight: highlight || undefined,
-          showAtomNumbers,
-          hydrogen_display: currentToolkit === "cdk" ? hydrogenDisplay : undefined,
-        };
-        // DEBUG: Log options and URL generation
-        // console.log(`Regen options for ${dep.smiles}:`, options);
-        const updatedImageUrl = depictService.get2DDepictionUrl(dep.smiles, options);
-        // console.log(`Regen URL for ${dep.smiles}:`, updatedImageUrl);
-        return { ...dep, imageUrl: updatedImageUrl };
+        
+        // Use appropriate endpoint based on toolkit
+        if (toolkit === "cdk") {
+          // CDK uses enhanced endpoint with all features
+          if (!depictService || typeof depictService.get2DDepictionUrlEnhanced !== "function") {
+            console.error("depictService.get2DDepictionUrlEnhanced is not available.");
+            return dep;
+          }
+          
+          const options = {
+            width,
+            height,
+            rotate: rotation,
+            CIP: showCIP,
+            unicolor: useUnicolor,
+            highlight: highlight || undefined,
+            showAtomNumbers,
+            hydrogen_display: hydrogenDisplay,
+            abbreviate,
+            dative,
+            multicenter,
+            style,
+            annotate,
+            donuts,
+            zoom,
+            ratio,
+            flip,
+            showtitle,
+            perceive_radicals: perceiveRadicals,
+          };
+          const updatedImageUrl = depictService.get2DDepictionUrlEnhanced(dep.smiles, options);
+          return { ...dep, imageUrl: updatedImageUrl };
+        } else {
+          // RDKit uses basic endpoint
+          if (!depictService || typeof depictService.get2DDepictionUrl !== "function") {
+            console.error("depictService.get2DDepictionUrl is not available.");
+            return dep;
+          }
+          
+          const options = {
+            toolkit: "rdkit",
+            width,
+            height,
+            rotate: rotation,
+            CIP: showCIP,
+            unicolor: useUnicolor,
+            highlight: highlight || undefined,
+            showAtomNumbers,
+          };
+          const updatedImageUrl = depictService.get2DDepictionUrl(dep.smiles, options);
+          return { ...dep, imageUrl: updatedImageUrl };
+        }
       })
     );
   };
 
-  // Handle toolkit change, reset incompatible options, and regenerate
+  // Handle toolkit change and regenerate
   const handleToolkitChange = (newToolkit) => {
     setToolkit(newToolkit);
-    // No need to disable options anymore - both toolkits support CIP now
     // Regenerate depictions if results already exist
     if (depictions.length > 0) {
-      regenerateDepictions(newToolkit);
+      // We'll regenerate after state updates
+      setTimeout(() => {
+        regenerateDepictions();
+      }, 0);
     }
   };
 
@@ -137,28 +247,58 @@ const BatchDepictionView = () => {
     setRotations((prev) => ({ ...prev, [id]: rotation }));
 
     // Update the image URL immediately for this molecule
-    // Check if depictService and the method exist before proceeding
-    if (!depictService || typeof depictService.get2DDepictionUrl !== "function") {
-      console.error("depictService.get2DDepictionUrl is not available for rotation.");
-      setError("Depiction service is not configured correctly.");
-      return;
-    }
     setDepictions((currentDepictions) =>
       currentDepictions.map((dep) => {
         if (dep.id === id) {
-          const options = {
-            toolkit,
-            width,
-            height,
-            rotate: rotation,
-            CIP: showCIP,
-            unicolor: useUnicolor,
-            highlight: highlight || undefined,
-            showAtomNumbers,
-            hydrogen_display: toolkit === "cdk" ? hydrogenDisplay : undefined,
-          };
-          const updatedImageUrl = depictService.get2DDepictionUrl(dep.smiles, options);
-          return { ...dep, imageUrl: updatedImageUrl };
+          // Use appropriate endpoint based on toolkit
+          if (toolkit === "cdk") {
+            if (!depictService || typeof depictService.get2DDepictionUrlEnhanced !== "function") {
+              console.error("depictService.get2DDepictionUrlEnhanced is not available.");
+              return dep;
+            }
+            
+            const options = {
+              width,
+              height,
+              rotate: rotation,
+              CIP: showCIP,
+              unicolor: useUnicolor,
+              highlight: highlight || undefined,
+              showAtomNumbers,
+              hydrogen_display: hydrogenDisplay,
+              abbreviate,
+              dative,
+              multicenter,
+              style,
+              annotate,
+              donuts,
+              zoom,
+              ratio,
+              flip,
+              showtitle,
+              perceive_radicals: perceiveRadicals,
+            };
+            const updatedImageUrl = depictService.get2DDepictionUrlEnhanced(dep.smiles, options);
+            return { ...dep, imageUrl: updatedImageUrl };
+          } else {
+            if (!depictService || typeof depictService.get2DDepictionUrl !== "function") {
+              console.error("depictService.get2DDepictionUrl is not available.");
+              return dep;
+            }
+            
+            const options = {
+              toolkit: "rdkit",
+              width,
+              height,
+              rotate: rotation,
+              CIP: showCIP,
+              unicolor: useUnicolor,
+              highlight: highlight || undefined,
+              showAtomNumbers,
+            };
+            const updatedImageUrl = depictService.get2DDepictionUrl(dep.smiles, options);
+            return { ...dep, imageUrl: updatedImageUrl };
+          }
         }
         return dep;
       })
@@ -168,13 +308,6 @@ const BatchDepictionView = () => {
   // Handle form submission to generate initial depictions
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Check if depictService and the method exist before proceeding
-    if (!depictService || typeof depictService.get2DDepictionUrl !== "function") {
-      console.error("depictService.get2DDepictionUrl is not available.");
-      setError("Depiction service is not configured correctly.");
-      return;
-    }
 
     const smilesList = parseSmiles(inputText);
     if (smilesList.length === 0) {
@@ -217,21 +350,57 @@ const BatchDepictionView = () => {
 
         initialRotations[id] = 0; // Set initial rotation
 
-        // Prepare options for initial depiction using CURRENT state values
-        const options = {
-          toolkit,
-          width,
-          height,
-          rotate: 0, // Initial rotation
-          CIP: showCIP,
-          unicolor: useUnicolor,
-          highlight: highlight || undefined,
-          showAtomNumbers,
-          hydrogen_display: toolkit === "cdk" ? hydrogenDisplay : undefined,
-        };
-
-        // Get the URL (assuming service returns URL directly)
-        const imageUrl = depictService.get2DDepictionUrl(smiles, options);
+        let imageUrl;
+        
+        // Use appropriate endpoint based on toolkit
+        if (toolkit === "cdk") {
+          if (!depictService || typeof depictService.get2DDepictionUrlEnhanced !== "function") {
+            console.error("depictService.get2DDepictionUrlEnhanced is not available.");
+            setError("Depiction service is not configured correctly.");
+            return;
+          }
+          
+          const options = {
+            width,
+            height,
+            rotate: 0,
+            CIP: showCIP,
+            unicolor: useUnicolor,
+            highlight: highlight || undefined,
+            showAtomNumbers,
+            hydrogen_display: hydrogenDisplay,
+            abbreviate,
+            dative,
+            multicenter,
+            style,
+            annotate,
+            donuts,
+            zoom,
+            ratio,
+            flip,
+            showtitle,
+            perceive_radicals: perceiveRadicals,
+          };
+          imageUrl = depictService.get2DDepictionUrlEnhanced(smiles, options);
+        } else {
+          if (!depictService || typeof depictService.get2DDepictionUrl !== "function") {
+            console.error("depictService.get2DDepictionUrl is not available.");
+            setError("Depiction service is not configured correctly.");
+            return;
+          }
+          
+          const options = {
+            toolkit: "rdkit",
+            width,
+            height,
+            rotate: 0,
+            CIP: showCIP,
+            unicolor: useUnicolor,
+            highlight: highlight || undefined,
+            showAtomNumbers,
+          };
+          imageUrl = depictService.get2DDepictionUrl(smiles, options);
+        }
 
         results.push({ smiles, title, imageUrl, id });
       }
@@ -265,11 +434,6 @@ const BatchDepictionView = () => {
       const JSZip = (await import("jszip")).default;
       const zip = new JSZip();
 
-      // Check if depictService and the method exist before proceeding
-      if (!depictService || typeof depictService.get2DDepictionUrl !== "function") {
-        throw new Error("Depiction service is not configured correctly for download.");
-      }
-
       // Fetch all depiction blobs concurrently
       const fetchPromises = depictions.map(async (depiction) => {
         const safeTitle =
@@ -277,22 +441,55 @@ const BatchDepictionView = () => {
         const filename = `${safeTitle}.${downloadFormat}`; // Use selected format
         const rotation = rotations[depiction.id] || 0; // Get current rotation
 
-        // Generate URL with current options and selected download format
-        const options = {
-          toolkit,
-          width,
-          height,
-          rotate: rotation,
-          CIP: showCIP,
-          unicolor: useUnicolor,
-          highlight: highlight || undefined,
-          showAtomNumbers,
-          format: downloadFormat, // Pass format to service if needed
-          hydrogen_display: toolkit === "cdk" ? hydrogenDisplay : undefined,
-        };
-
-        // Use a potentially different URL for download if format differs or specific endpoint exists
-        const downloadUrl = depictService.get2DDepictionUrl(depiction.smiles, options);
+        let downloadUrl;
+        
+        // Use appropriate endpoint based on toolkit
+        if (toolkit === "cdk") {
+          if (!depictService || typeof depictService.get2DDepictionUrlEnhanced !== "function") {
+            throw new Error("Depiction service (enhanced) is not configured correctly.");
+          }
+          
+          const options = {
+            width,
+            height,
+            rotate: rotation,
+            CIP: showCIP,
+            unicolor: useUnicolor,
+            highlight: highlight || undefined,
+            showAtomNumbers,
+            format: downloadFormat,
+            hydrogen_display: hydrogenDisplay,
+            abbreviate,
+            dative,
+            multicenter,
+            style,
+            annotate,
+            donuts,
+            zoom,
+            ratio,
+            flip,
+            showtitle,
+            perceive_radicals: perceiveRadicals,
+          };
+          downloadUrl = depictService.get2DDepictionUrlEnhanced(depiction.smiles, options);
+        } else {
+          if (!depictService || typeof depictService.get2DDepictionUrl !== "function") {
+            throw new Error("Depiction service is not configured correctly.");
+          }
+          
+          const options = {
+            toolkit: "rdkit",
+            width,
+            height,
+            rotate: rotation,
+            CIP: showCIP,
+            unicolor: useUnicolor,
+            highlight: highlight || undefined,
+            showAtomNumbers,
+            format: downloadFormat,
+          };
+          downloadUrl = depictService.get2DDepictionUrl(depiction.smiles, options);
+        }
 
         try {
           const response = await fetch(downloadUrl);
@@ -365,32 +562,62 @@ const BatchDepictionView = () => {
   // Download a single depiction image
   const downloadSingleDepiction = async (depiction) => {
     try {
-      // Check if depictService and the method exist before proceeding
-      if (!depictService || typeof depictService.get2DDepictionUrl !== "function") {
-        console.error("depictService.get2DDepictionUrl is not available for single download.");
-        setError("Depiction service is not configured correctly.");
-        return;
-      }
-
       setLoading(true); // Show loading indicator while downloading
       const rotation = rotations[depiction.id] || 0;
 
-      // Generate URL with current options and selected download format
-      const options = {
-        toolkit,
-        width,
-        height,
-        rotate: rotation,
-        CIP: showCIP,
-        unicolor: useUnicolor,
-        highlight: highlight || undefined,
-        showAtomNumbers,
-        format: downloadFormat, // Use selected format for single download too
-        hydrogen_display: toolkit === "cdk" ? hydrogenDisplay : undefined,
-      };
-
-      // Get the URL for fetching the image
-      const url = depictService.get2DDepictionUrl(depiction.smiles, options);
+      let url;
+      
+      // Use appropriate endpoint based on toolkit
+      if (toolkit === "cdk") {
+        if (!depictService || typeof depictService.get2DDepictionUrlEnhanced !== "function") {
+          console.error("depictService.get2DDepictionUrlEnhanced is not available.");
+          setError("Depiction service is not configured correctly.");
+          return;
+        }
+        
+        const options = {
+          width,
+          height,
+          rotate: rotation,
+          CIP: showCIP,
+          unicolor: useUnicolor,
+          highlight: highlight || undefined,
+          showAtomNumbers,
+          format: downloadFormat,
+          hydrogen_display: hydrogenDisplay,
+          abbreviate,
+          dative,
+          multicenter,
+          style,
+          annotate,
+          donuts,
+          zoom,
+          ratio,
+          flip,
+          showtitle,
+          perceive_radicals: perceiveRadicals,
+        };
+        url = depictService.get2DDepictionUrlEnhanced(depiction.smiles, options);
+      } else {
+        if (!depictService || typeof depictService.get2DDepictionUrl !== "function") {
+          console.error("depictService.get2DDepictionUrl is not available.");
+          setError("Depiction service is not configured correctly.");
+          return;
+        }
+        
+        const options = {
+          toolkit: "rdkit",
+          width,
+          height,
+          rotate: rotation,
+          CIP: showCIP,
+          unicolor: useUnicolor,
+          highlight: highlight || undefined,
+          showAtomNumbers,
+          format: downloadFormat,
+        };
+        url = depictService.get2DDepictionUrl(depiction.smiles, options);
+      }
 
       // Fetch the image data as a blob
       const response = await fetch(url);
@@ -442,10 +669,18 @@ const BatchDepictionView = () => {
     // Main container
     <div className="space-y-6 p-4 md:p-6">
       {/* Input Section Card */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl dark:shadow-2xl border border-gray-200 dark:border-gray-700"
+      >
         <h2 className="text-xl font-semibold text-gray-800 dark:text-blue-400 mb-4">
           Batch 2D Depiction
         </h2>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Generate 2D molecular depictions with RDKit or CDK. CDK offers enhanced features like abbreviations and advanced styling.
+        </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Input Text Area */}
@@ -486,17 +721,35 @@ const BatchDepictionView = () => {
             {showToolsSection && (
               <motion.div
                 key="tools-section"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
+                initial={{ opacity: 0, height: 0, scale: 0.98 }}
+                animate={{ 
+                  opacity: 1, 
+                  height: "auto", 
+                  scale: 1,
+                  transition: {
+                    duration: 0.4,
+                    ease: [0.25, 0.46, 0.45, 0.94],
+                    opacity: { duration: 0.3 },
+                    height: { duration: 0.4 },
+                    scale: { duration: 0.3, delay: 0.1 }
+                  }
+                }}
+                exit={{ 
+                  opacity: 0, 
+                  height: 0,
+                  scale: 0.98,
+                  transition: {
+                    duration: 0.3,
+                    ease: "easeIn"
+                  }
+                }}
                 className="space-y-4 overflow-hidden border-t border-gray-200 dark:border-gray-700 pt-4"
               >
                 <h3 className="text-md font-medium text-gray-700 dark:text-gray-300">
                   Depiction Options
                 </h3>
                 {/* Tools Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-0.5">
                   {/* Toolkit Select */}
                   <div>
                     <label
@@ -506,7 +759,6 @@ const BatchDepictionView = () => {
                       Toolkit
                     </label>
                     <div className="flex items-center">
-                      {/* Select Styling */}
                       <select
                         id="toolkit-select-batch"
                         value={toolkit}
@@ -514,9 +766,8 @@ const BatchDepictionView = () => {
                         className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
                       >
                         <option value="rdkit">RDKit</option>
-                        <option value="cdk">CDK</option>
+                        <option value="cdk">CDK (Enhanced)</option>
                       </select>
-                      {/* Switch Button Styling */}
                       <button
                         type="button"
                         onClick={handleSwitchToolkit}
@@ -536,19 +787,40 @@ const BatchDepictionView = () => {
                     >
                       Width (px)
                     </label>
-                    {/* Input Styling */}
-                    <input
-                      id="width-input"
-                      type="number"
-                      value={width}
-                      onChange={(e) =>
-                        setWidth(Math.max(50, Math.min(2000, Number(e.target.value))))
-                      }
-                      min="50"
-                      max="2000"
-                      step="10"
-                      className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
-                    />
+                    <div className="flex items-center space-x-2">
+                      <motion.button
+                        type="button"
+                        onClick={() => setWidth(Math.max(50, width - 10))}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="px-3 py-2 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-500 dark:hover:to-gray-600 text-gray-700 dark:text-gray-200 font-bold rounded-md border border-gray-400 dark:border-gray-500 shadow-md transition-all duration-200"
+                        aria-label="Decrease width"
+                      >
+                        −
+                      </motion.button>
+                      <input
+                        id="width-input"
+                        type="number"
+                        value={width}
+                        onChange={(e) =>
+                          setWidth(Math.max(50, Math.min(2000, Number(e.target.value))))
+                        }
+                        min="50"
+                        max="2000"
+                        step="10"
+                        className="flex-1 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      />
+                      <motion.button
+                        type="button"
+                        onClick={() => setWidth(Math.min(2000, width + 10))}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="px-3 py-2 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-500 dark:hover:to-gray-600 text-gray-700 dark:text-gray-200 font-bold rounded-md border border-gray-400 dark:border-gray-500 shadow-md transition-all duration-200"
+                        aria-label="Increase width"
+                      >
+                        +
+                      </motion.button>
+                    </div>
                   </div>
 
                   {/* Height Input */}
@@ -559,22 +831,43 @@ const BatchDepictionView = () => {
                     >
                       Height (px)
                     </label>
-                    {/* Input Styling */}
-                    <input
-                      id="height-input"
-                      type="number"
-                      value={height}
-                      onChange={(e) =>
-                        setHeight(Math.max(50, Math.min(2000, Number(e.target.value))))
-                      }
-                      min="50"
-                      max="2000"
-                      step="10"
-                      className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
-                    />
+                    <div className="flex items-center space-x-2">
+                      <motion.button
+                        type="button"
+                        onClick={() => setHeight(Math.max(50, height - 10))}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="px-3 py-2 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-500 dark:hover:to-gray-600 text-gray-700 dark:text-gray-200 font-bold rounded-md border border-gray-400 dark:border-gray-500 shadow-md transition-all duration-200"
+                        aria-label="Decrease height"
+                      >
+                        −
+                      </motion.button>
+                      <input
+                        id="height-input"
+                        type="number"
+                        value={height}
+                        onChange={(e) =>
+                          setHeight(Math.max(50, Math.min(2000, Number(e.target.value))))
+                        }
+                        min="50"
+                        max="2000"
+                        step="10"
+                        className="flex-1 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      />
+                      <motion.button
+                        type="button"
+                        onClick={() => setHeight(Math.min(2000, height + 10))}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="px-3 py-2 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-500 dark:hover:to-gray-600 text-gray-700 dark:text-gray-200 font-bold rounded-md border border-gray-400 dark:border-gray-500 shadow-md transition-all duration-200"
+                        aria-label="Increase height"
+                      >
+                        +
+                      </motion.button>
+                    </div>
                   </div>
 
-                  {/* Hydrogen Display Select (CDK only) */}
+                  {/* Hydrogen Display (CDK only) */}
                   {toolkit === "cdk" && (
                     <div>
                       <label
@@ -599,6 +892,222 @@ const BatchDepictionView = () => {
                   )}
                 </div>
 
+                {/* CDK Enhanced Options - Animated */}
+                <AnimatePresence>
+                  {toolkit === "cdk" && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0, y: -10 }}
+                      animate={{ 
+                        opacity: 1, 
+                        height: "auto", 
+                        y: 0,
+                        transition: {
+                          duration: 0.5,
+                          ease: [0.25, 0.46, 0.45, 0.94],
+                          opacity: { duration: 0.4, delay: 0.1 },
+                          height: { duration: 0.5 },
+                          y: { duration: 0.4, delay: 0.1 }
+                        }
+                      }}
+                      exit={{ 
+                        opacity: 0, 
+                        height: 0, 
+                        y: -10,
+                        transition: {
+                          duration: 0.3,
+                          ease: "easeIn"
+                        }
+                      }}
+                      className="space-y-4 overflow-hidden"
+                    >
+                      <div className="border-t border-blue-200 dark:border-blue-800 pt-4 mt-2">
+                        <h4 className="text-sm font-medium text-blue-700 dark:text-blue-400 mb-3 flex items-center">
+                          <span className="mr-2">✨</span>
+                          Enhanced CDK Features
+                        </h4>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-0.5">
+                          {/* Style Preset */}
+                          <div>
+                            <label
+                              htmlFor="style-select"
+                              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                            >
+                              Color Scheme
+                            </label>
+                            <select
+                              id="style-select"
+                              value={style}
+                              onChange={(e) => setStyle(e.target.value)}
+                              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                            >
+                              <option value="cow">Color on White</option>
+                              <option value="cob">Color on Black</option>
+                              <option value="cot">Color on Transparent</option>
+                              <option value="bow">Black on White</option>
+                              <option value="bot">Black on Transparent</option>
+                              <option value="wob">White on Black</option>
+                              <option value="nob">Neon on Black</option>
+                            </select>
+                          </div>
+
+                          {/* Abbreviations */}
+                          <div>
+                            <label
+                              htmlFor="abbreviate-select"
+                              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                            >
+                              Abbreviations
+                            </label>
+                            <select
+                              id="abbreviate-select"
+                              value={abbreviate}
+                              onChange={(e) => setAbbreviate(e.target.value)}
+                              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                            >
+                              <option value="off">None</option>
+                              <option value="groups">Functional Groups (Ph, Me, Et)</option>
+                              <option value="reagents">Reagents (THF, DMF)</option>
+                              <option value="on">Both Groups & Reagents</option>
+                            </select>
+                          </div>
+
+                          {/* Annotations */}
+                          <div>
+                            <label
+                              htmlFor="annotate-select"
+                              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                            >
+                              Annotations
+                            </label>
+                            <select
+                              id="annotate-select"
+                              value={annotate}
+                              onChange={(e) => setAnnotate(e.target.value)}
+                              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                            >
+                              <option value="none">None</option>
+                              <option value="number">Atom Numbers</option>
+                              <option value="cip">CIP Labels (R/S, E/Z)</option>
+                              <option value="mapidx">Atom Mapping</option>
+                              <option value="colmap">Color-Coded Mapping</option>
+                              <option value="bondnumber">Bond Numbers</option>
+                              <option value="atomvalue">Atom Values</option>
+                            </select>
+                          </div>
+
+                          {/* Dative Bonds */}
+                          <div>
+                            <label
+                              htmlFor="dative-select"
+                              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                            >
+                              Dative Bonds
+                            </label>
+                            <select
+                              id="dative-select"
+                              value={dative}
+                              onChange={(e) => setDative(e.target.value)}
+                              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                            >
+                              <option value="never">Never</option>
+                              <option value="metals">Metal Complexes</option>
+                              <option value="always">Always</option>
+                            </select>
+                          </div>
+
+                          {/* Multicenter Bonds */}
+                          <div>
+                            <label
+                              htmlFor="multicenter-select"
+                              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                            >
+                              Multicenter Bonds
+                            </label>
+                            <select
+                              id="multicenter-select"
+                              value={multicenter}
+                              onChange={(e) => setMulticenter(e.target.value)}
+                              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                            >
+                              <option value="provided">As Provided</option>
+                              <option value="dative">Dative Arrows</option>
+                              <option value="dashed">Dashed Lines</option>
+                              <option value="dashed_neutral">Dashed (Neutral)</option>
+                              <option value="hidden">Hidden</option>
+                              <option value="hidden_neutral">Hidden (Neutral)</option>
+                            </select>
+                          </div>
+
+                          {/* Zoom */}
+                          <div>
+                            <label
+                              htmlFor="zoom-input"
+                              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                            >
+                              Zoom: {zoom.toFixed(1)}x
+                            </label>
+                            <input
+                              id="zoom-input"
+                              type="range"
+                              value={zoom}
+                              onChange={(e) => setZoom(Number(e.target.value))}
+                              min="0.5"
+                              max="3.0"
+                              step="0.1"
+                              className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500 dark:accent-blue-400"
+                            />
+                          </div>
+
+                          {/* Ratio */}
+                          <div>
+                            <label
+                              htmlFor="ratio-input"
+                              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                            >
+                              Bond Thickness: {ratio.toFixed(1)}x
+                            </label>
+                            <input
+                              id="ratio-input"
+                              type="range"
+                              value={ratio}
+                              onChange={(e) => setRatio(Number(e.target.value))}
+                              min="0.5"
+                              max="2.0"
+                              step="0.1"
+                              className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500 dark:accent-blue-400"
+                            />
+                          </div>
+                        </div>
+
+                        {/* CDK Advanced Toggles */}
+                        <div className="flex flex-wrap gap-6 pt-4 border-t border-gray-200 dark:border-gray-700 mt-4">
+                          <ToggleSwitch
+                            id="flip"
+                            checked={flip}
+                            onChange={setFlip}
+                            label="Flip structure horizontally"
+                          />
+                          
+                          <ToggleSwitch
+                            id="showtitle"
+                            checked={showtitle}
+                            onChange={setShowtitle}
+                            label="Show titles in depiction"
+                          />
+                          
+                          <ToggleSwitch
+                            id="perceive-radicals"
+                            checked={perceiveRadicals}
+                            onChange={setPerceiveRadicals}
+                            label="Perceive radicals"
+                          />
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 {/* Highlight Input */}
                 <div>
                   <label
@@ -607,7 +1116,6 @@ const BatchDepictionView = () => {
                   >
                     Highlight Substructure (SMARTS - optional)
                   </label>
-                  {/* Input Styling */}
                   <input
                     id="highlight-input"
                     type="text"
@@ -619,55 +1127,41 @@ const BatchDepictionView = () => {
                 </div>
 
                 {/* Checkboxes */}
-                <div className="flex flex-wrap gap-x-6 gap-y-2 pt-2">
-                  {/* CIP Checkbox */}
-                  <div className="flex items-center">
-                    <input
-                      id="cip"
-                      type="checkbox"
-                      checked={showCIP}
-                      onChange={(e) => setShowCIP(e.target.checked)}
-                      // Checkbox Styling
-                      className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-500"
-                    />
-                    <label htmlFor="cip" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                      Show CIP (R/S, E/Z)
-                    </label>
-                  </div>
-                  {/* Unicolor Checkbox */}
-                  <div className="flex items-center">
-                    <input
-                      id="unicolor"
-                      type="checkbox"
-                      checked={useUnicolor}
-                      onChange={(e) => setUseUnicolor(e.target.checked)}
-                      // Checkbox Styling
-                      className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-sm focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
-                    />
-                    <label
-                      htmlFor="unicolor"
-                      className="ml-2 text-sm text-gray-700 dark:text-gray-300"
+                <div className="flex flex-wrap gap-6 pt-3">
+                  <ToggleSwitch
+                    id="cip"
+                    checked={showCIP}
+                    onChange={setShowCIP}
+                    label="Show CIP (R/S, E/Z)"
+                  />
+                  <ToggleSwitch
+                    id="unicolor"
+                    checked={useUnicolor}
+                    onChange={setUseUnicolor}
+                    label="Black & white"
+                  />
+                  <ToggleSwitch
+                    id="atomNumbers"
+                    checked={showAtomNumbers}
+                    onChange={setShowAtomNumbers}
+                    label="Show atom numbers"
+                  />
+                  {/* Aromatic Donuts Toggle (CDK only) */}
+                  {toolkit === "cdk" && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.2 }}
                     >
-                      Use black & white color scheme
-                    </label>
-                  </div>
-                  {/* Atom Numbers Checkbox */}
-                  <div className="flex items-center">
-                    <input
-                      id="atomNumbers"
-                      type="checkbox"
-                      checked={showAtomNumbers}
-                      onChange={(e) => setShowAtomNumbers(e.target.checked)}
-                      // Checkbox Styling
-                      className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-sm focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
-                    />
-                    <label
-                      htmlFor="atomNumbers"
-                      className="ml-2 text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      Show atom numbers
-                    </label>
-                  </div>
+                      <ToggleSwitch
+                        id="donuts"
+                        checked={donuts}
+                        onChange={setDonuts}
+                        label="Aromatic rings (circles)"
+                      />
+                    </motion.div>
+                  )}
                 </div>
               </motion.div>
             )}
@@ -676,84 +1170,101 @@ const BatchDepictionView = () => {
           {/* Action Buttons Row */}
           <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
             {/* Generate Button */}
-            <button
+            <motion.button
               type="submit"
               disabled={!inputText.trim() || loading}
-              // Button Styling
-              className={`px-5 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+              whileHover={!inputText.trim() || loading ? {} : { scale: 1.02, y: -1 }}
+              whileTap={!inputText.trim() || loading ? {} : { scale: 0.98 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              className={`px-5 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                 !inputText.trim() || loading
                   ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed" // Disabled
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm" // Enabled
+                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-lg hover:shadow-xl" // Enabled
               }`}
             >
               <HiOutlinePhotograph className="mr-2 h-5 w-5" />
               {loading ? "Generating..." : "Generate Depictions"}
-            </button>
+            </motion.button>
 
             {/* Regenerate Button - only shown when depictions exist and not loading */}
             {depictions.length > 0 && !loading && (
-              <button
+              <motion.button
                 onClick={() => regenerateDepictions()}
-                // Button Styling
-                className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-gray-500 shadow-sm"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                whileHover={{ scale: 1.02, y: -1 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 font-medium flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-gray-500 shadow-md hover:shadow-lg"
                 title="Apply current options to all depictions"
               >
-                <HiOutlineSwitchHorizontal className="mr-2 h-4 w-4" />
+                <HiOutlinePhotograph className="mr-2 h-4 w-4" />
                 Update All
-              </button>
+              </motion.button>
             )}
 
             {/* Download and Copy buttons - only shown when depictions exist */}
             {depictions.length > 0 && !loading && (
               <>
                 {/* Download Format Selector and Button */}
-                <div className="flex items-center shadow-sm rounded-md">
+                <div className="flex items-center shadow-md rounded-lg overflow-hidden px-0.5">
                   {/* Select Styling */}
                   <select
                     value={downloadFormat}
                     onChange={(e) => setDownloadFormat(e.target.value)}
-                    className="h-full px-3 py-2 bg-white dark:bg-gray-700 border border-r-0 border-gray-300 dark:border-gray-600 rounded-l-md text-gray-900 dark:text-white text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    className="h-full px-3 py-2 bg-white dark:bg-gray-700 border-r border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm focus:ring-green-500 focus:border-green-500 transition-all duration-200"
                     aria-label="Download format"
                   >
                     <option value="svg">SVG</option>
                     <option value="png">PNG</option>
                   </select>
-                  {/* Download Button Styling */}
-                  <button
+                  {/* Download Button with Animation */}
+                  <motion.button
                     type="button"
                     onClick={downloadAllDepictions}
-                    className="px-4 py-2 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-medium rounded-r-md flex items-center text-sm transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800 focus:ring-green-500"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-medium flex items-center text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800 focus:ring-green-500"
                     title="Download all depictions as a ZIP file"
                   >
                     <HiOutlineDownload className="mr-1.5 h-4 w-4" />
                     Download All (.zip)
-                  </button>
+                  </motion.button>
                 </div>
 
                 {/* Copy All SMILES Button */}
-                <button
+                <motion.button
                   type="button"
                   onClick={copyAllSmiles}
-                  // Button Styling with copied state
-                  className={`px-4 py-2 font-medium rounded-md flex items-center text-sm transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 ${
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  className={`px-4 py-2 font-medium rounded-lg flex items-center text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 shadow-md hover:shadow-lg ${
                     copiedSmiles
                       ? "bg-green-100 dark:bg-green-700 text-green-700 dark:text-green-200"
-                      : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 shadow-sm"
+                      : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600"
                   }`}
                   title="Copy all input SMILES to clipboard"
                 >
-                  {copiedSmiles ? (
-                    <HiOutlineCheck className="mr-1.5 h-5 w-5" />
-                  ) : (
-                    <HiOutlineClipboard className="mr-1.5 h-5 w-5" />
-                  )}
+                  <motion.div
+                    animate={{ rotate: copiedSmiles ? [0, -10, 10, -10, 0] : 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    {copiedSmiles ? (
+                      <HiOutlineCheck className="mr-1.5 h-5 w-5" />
+                    ) : (
+                      <HiOutlineClipboard className="mr-1.5 h-5 w-5" />
+                    )}
+                  </motion.div>
                   {copiedSmiles ? "Copied!" : "Copy All SMILES"}
-                </button>
+                </motion.button>
               </>
             )}
           </div>
         </form>
-      </div>
+      </motion.div>
 
       {/* Loading Screen */}
       {loading && <LoadingScreen text="Generating depictions..." />}
@@ -775,11 +1286,22 @@ const BatchDepictionView = () => {
 
       {/* Results Grid */}
       {depictions.length > 0 && !loading && (
-        <div className="space-y-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="space-y-4"
+        >
           {/* Results Header */}
-          <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200">
+          <motion.h3
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center"
+          >
+            <span className="mr-2">🧪</span>
             Generated Depictions ({depictions.length})
-          </h3>
+          </motion.h3>
 
           {/* Grid Container with Animation */}
           <motion.div
@@ -792,10 +1314,10 @@ const BatchDepictionView = () => {
               // Individual Card with Animation
               <motion.div
                 key={depiction.id}
-                // Card Styling
-                className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700 flex flex-col"
+                className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg dark:shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col hover:shadow-2xl dark:hover:shadow-3xl transition-shadow duration-300"
                 variants={depictionCardVariant}
-                layout // Animate layout changes smoothly
+                layout
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
               >
                 {/* Image container - Kept white background for consistency */}
                 <div className="p-2 flex-grow">
@@ -865,22 +1387,28 @@ const BatchDepictionView = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 flex justify-end space-x-1">
+                <div className="px-3 py-2 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border-t border-gray-200 dark:border-gray-600 flex justify-end space-x-2">
                   {/* Download Button */}
-                  <button
+                  <motion.button
                     onClick={() => downloadSingleDepiction(depiction)}
-                    className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    whileHover={{ scale: 1.1, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm hover:shadow-md"
                     title={`Download ${downloadFormat.toUpperCase()}`}
                     aria-label={`Download ${depiction.title} as ${downloadFormat.toUpperCase()}`}
                     disabled={loading}
                   >
                     <HiOutlineDownload className="h-5 w-5" />
-                  </button>
+                  </motion.button>
 
                   {/* Copy SMILES Button */}
-                  <button
+                  <motion.button
                     onClick={() => copySingleSmiles(depiction.smiles, depiction.id)}
-                    className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 relative transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    whileHover={{ scale: 1.1, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 relative transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 shadow-sm hover:shadow-md"
                     title="Copy SMILES"
                     aria-label={`Copy SMILES for ${depiction.title}`}
                   >
@@ -889,32 +1417,37 @@ const BatchDepictionView = () => {
                       {copiedSingle === depiction.id ? (
                         <motion.div
                           key="check"
-                          initial={{ scale: 0.5, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          exit={{ scale: 0.5, opacity: 0 }}
-                          transition={{ duration: 0.15 }}
-                          className="flex items-center justify-center" // Ensure icon is centered
+                          initial={{ scale: 0, rotate: -180 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          exit={{ scale: 0, rotate: 180 }}
+                          transition={{ 
+                            type: "spring", 
+                            stiffness: 500, 
+                            damping: 25,
+                            duration: 0.3
+                          }}
+                          className="flex items-center justify-center"
                         >
                           <HiOutlineCheck className="h-5 w-5 text-green-500 dark:text-green-400" />
                         </motion.div>
                       ) : (
                         <motion.div
                           key="clipboard"
-                          initial={{ scale: 1, opacity: 1 }}
-                          exit={{ scale: 0.5, opacity: 0 }}
-                          transition={{ duration: 0.1 }}
+                          initial={{ scale: 1, rotate: 0 }}
+                          exit={{ scale: 0, rotate: -180 }}
+                          transition={{ duration: 0.2 }}
                           className="flex items-center justify-center"
                         >
                           <HiOutlineClipboard className="h-5 w-5" />
                         </motion.div>
                       )}
                     </AnimatePresence>
-                  </button>
+                  </motion.button>
                 </div>
               </motion.div>
             ))}
           </motion.div>
-        </div>
+        </motion.div>
       )}
 
       {/* Initial Placeholder */}

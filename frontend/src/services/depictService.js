@@ -4,6 +4,126 @@ import api from "./api";
 const DEPICT_URL = "/depict";
 
 /**
+ * Generate an enhanced 2D depiction of a molecule with advanced features
+ * @param {string} smiles - SMILES or CXSMILES string
+ * @param {Object} options - Enhanced depiction options
+ * @param {number} options.width - Width of the generated image
+ * @param {number} options.height - Height of the generated image
+ * @param {number} options.rotate - Rotation angle in degrees
+ * @param {boolean} options.CIP - Include Cahn-Ingold-Prelog stereochemistry
+ * @param {boolean} options.unicolor - Use a single color for the molecule (deprecated, use style)
+ * @param {string} options.highlight - SMARTS pattern to highlight atoms/bonds
+ * @param {Array<number>|Array<Array<number>>} options.atomIds - Atom indices to highlight
+ * @param {boolean} options.showAtomNumbers - Show atom numbers on the depiction
+ * @param {string} options.hydrogen_display - Hydrogen display mode (Provided, Minimal, Explicit, Stereo, Smart)
+ * @param {string} options.abbreviate - Chemical abbreviation mode (off, groups, reagents, on)
+ * @param {string} options.dative - Dative bond perception (never, metals, always)
+ * @param {string} options.multicenter - Multicenter bond display style
+ * @param {string} options.annotate - Annotation mode (none, number, bondnumber, mapidx, atomvalue, colmap, cip)
+ * @param {string} options.style - Color scheme preset (cow, cob, cot, bow, bot, wob, nob)
+ * @param {boolean} options.donuts - Use circle-in-ring for aromatic rings
+ * @param {string} options.arrow - Reaction arrow type
+ * @param {boolean} options.alignrxnmap - Align reaction mapped atoms
+ * @param {boolean} options.showtitle - Display molecule/reaction title
+ * @param {string} options.title - Optional title to display
+ * @param {string} options.bgcolor - Custom background color (hex)
+ * @param {string} options.fgcolor - Custom foreground color (hex)
+ * @param {number} options.zoom - Zoom level (0.1 to 5.0)
+ * @param {number} options.ratio - Bond thickness ratio (0.5 to 2.0)
+ * @param {boolean} options.flip - Horizontally flip the structure
+ * @param {boolean} options.anon - Use anonymous atom display
+ * @param {number} options.smalim - SMARTS hit limit
+ * @param {string} options.svgunits - SVG coordinate units (px, mm, cm, in)
+ * @param {boolean} options.perceive_radicals - Detect and mark radicals
+ * @param {boolean} options.apply_mdl_highlighting - Apply MDL V3000 highlighting
+ * @returns {Promise<string>} - SVG depiction as text
+ */
+export const generate2DDepictionEnhanced = async (smiles, options = {}) => {
+  const {
+    width = 512,
+    height = 512,
+    rotate = 0,
+    CIP = true,
+    unicolor = false,
+    highlight = "",
+    atomIds = null,
+    showAtomNumbers = false,
+    hydrogen_display = "Smart",
+    abbreviate = "off",
+    dative = "metals",
+    multicenter = "provided",
+    annotate = "none",
+    style = "cow",
+    donuts = false,
+    arrow = "",
+    alignrxnmap = true,
+    showtitle = false,
+    title = null,
+    bgcolor = null,
+    fgcolor = null,
+    zoom = 1.0,
+    ratio = 1.0,
+    flip = false,
+    anon = false,
+    smalim = 100,
+    svgunits = "px",
+    perceive_radicals = false,
+    apply_mdl_highlighting = true,
+  } = options;
+
+  try {
+    const params = {
+      smiles,
+      width,
+      height,
+      rotate,
+      CIP,
+      unicolor,
+      showAtomNumbers,
+      hydrogen_display,
+      abbreviate,
+      dative,
+      multicenter,
+      annotate,
+      style,
+      donuts,
+      arrow,
+      alignrxnmap,
+      showtitle,
+      zoom,
+      ratio,
+      flip,
+      anon,
+      smalim,
+      svgunits,
+      perceive_radicals,
+      apply_mdl_highlighting,
+    };
+
+    if (highlight) params.highlight = highlight;
+    if (title) params.title = title;
+    if (bgcolor) params.bgcolor = bgcolor;
+    if (fgcolor) params.fgcolor = fgcolor;
+
+    // Convert atomIds to comma-separated string if provided
+    if (atomIds) {
+      if (Array.isArray(atomIds)) {
+        const flatIds = atomIds.flat();
+        params.atomIds = flatIds.join(",");
+      }
+    }
+
+    const response = await api.get(`${DEPICT_URL}/2D_enhanced`, {
+      params,
+      responseType: "text",
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(`Failed to generate enhanced 2D depiction: ${error.message}`);
+  }
+};
+
+/**
  * Generate a 2D depiction of a molecule
  * @param {string} smiles - SMILES string
  * @param {Object} options - Depiction options
@@ -89,6 +209,102 @@ export const generate3DDepiction = async (smiles, toolkit = "openbabel") => {
 };
 
 /**
+ * Get the URL for an enhanced 2D depiction image with advanced features
+ * @param {string} smiles - SMILES or CXSMILES string
+ * @param {Object} options - Enhanced depiction options
+ * @returns {string} - URL to the enhanced depiction image
+ */
+export const get2DDepictionUrlEnhanced = (smiles, options = {}) => {
+  const {
+    width = 512,
+    height = 512,
+    rotate = 0,
+    CIP = true,
+    unicolor = false,
+    highlight = "",
+    atomIds = null,
+    format = "svg",
+    showAtomNumbers = false,
+    hydrogen_display = "Smart",
+    abbreviate = "off",
+    dative = "metals",
+    multicenter = "provided",
+    annotate = "none",
+    style = "cow",
+    donuts = false,
+    arrow = "",
+    alignrxnmap = true,
+    showtitle = false,
+    title = null,
+    bgcolor = null,
+    fgcolor = null,
+    zoom = 1.0,
+    ratio = 1.0,
+    flip = false,
+    anon = false,
+    smalim = 100,
+    svgunits = "px",
+    perceive_radicals = false,
+    apply_mdl_highlighting = true,
+  } = options;
+
+  const baseUrl = api.defaults.baseURL || "";
+  const url = new URL(`${baseUrl}${DEPICT_URL}/2D_enhanced`);
+
+  url.searchParams.append("smiles", smiles);
+  url.searchParams.append("width", width);
+  url.searchParams.append("height", height);
+  url.searchParams.append("rotate", rotate);
+  url.searchParams.append("CIP", CIP);
+  url.searchParams.append("unicolor", unicolor);
+  url.searchParams.append("showAtomNumbers", showAtomNumbers);
+  url.searchParams.append("hydrogen_display", hydrogen_display);
+  url.searchParams.append("abbreviate", abbreviate);
+  url.searchParams.append("dative", dative);
+  url.searchParams.append("multicenter", multicenter);
+  url.searchParams.append("annotate", annotate);
+  url.searchParams.append("style", style);
+  url.searchParams.append("donuts", donuts);
+  url.searchParams.append("arrow", arrow);
+  url.searchParams.append("alignrxnmap", alignrxnmap);
+  url.searchParams.append("showtitle", showtitle);
+  url.searchParams.append("zoom", zoom);
+  url.searchParams.append("ratio", ratio);
+  url.searchParams.append("flip", flip);
+  url.searchParams.append("anon", anon);
+  url.searchParams.append("smalim", smalim);
+  url.searchParams.append("svgunits", svgunits);
+  url.searchParams.append("perceive_radicals", perceive_radicals);
+  url.searchParams.append("apply_mdl_highlighting", apply_mdl_highlighting);
+
+  if (highlight) {
+    url.searchParams.append("highlight", highlight);
+  }
+
+  if (title) {
+    url.searchParams.append("title", title);
+  }
+
+  if (bgcolor) {
+    url.searchParams.append("bgcolor", bgcolor);
+  }
+
+  if (fgcolor) {
+    url.searchParams.append("fgcolor", fgcolor);
+  }
+
+  // Add atomIds if provided
+  if (atomIds) {
+    if (Array.isArray(atomIds)) {
+      const flatIds = atomIds.flat();
+      url.searchParams.append("atomIds", flatIds.join(","));
+    }
+  }
+
+  return url.toString();
+};
+
+/**
  * Get the URL for a 2D depiction image
  * @param {string} smiles - SMILES string
  * @param {Object} options - Depiction options
@@ -143,6 +359,101 @@ export const get2DDepictionUrl = (smiles, options = {}) => {
   if (atomIds) {
     if (Array.isArray(atomIds)) {
       // Flatten if it's an array of arrays
+      const flatIds = atomIds.flat();
+      url.searchParams.append("atomIds", flatIds.join(","));
+    }
+  }
+
+  return url.toString();
+};
+
+/**
+ * Get the URL for an enhanced 2D depiction with advanced CDK features
+ * @param {string} smiles - SMILES or CXSMILES string
+ * @param {Object} options - Enhanced depiction options (same as generate2DDepictionEnhanced)
+ * @returns {string} - URL to the enhanced depiction image
+ */
+export const get2DDepictionEnhancedUrl = (smiles, options = {}) => {
+  const {
+    width = 512,
+    height = 512,
+    rotate = 0,
+    CIP = true,
+    unicolor = false,
+    highlight = "",
+    atomIds = null,
+    showAtomNumbers = false,
+    hydrogen_display = "Smart",
+    abbreviate = "off",
+    dative = "metals",
+    multicenter = "provided",
+    annotate = "none",
+    style = "cow",
+    donuts = false,
+    arrow = "",
+    alignrxnmap = true,
+    showtitle = false,
+    title = null,
+    bgcolor = null,
+    fgcolor = null,
+    zoom = 1.0,
+    ratio = 1.0,
+    flip = false,
+    anon = false,
+    smalim = 100,
+    svgunits = "px",
+    perceive_radicals = false,
+    apply_mdl_highlighting = true,
+  } = options;
+
+  const baseUrl = api.defaults.baseURL || "";
+  const url = new URL(`${baseUrl}${DEPICT_URL}/2D_enhanced`);
+
+  url.searchParams.append("smiles", smiles);
+  url.searchParams.append("width", width);
+  url.searchParams.append("height", height);
+  url.searchParams.append("rotate", rotate);
+  url.searchParams.append("CIP", CIP);
+  url.searchParams.append("unicolor", unicolor);
+  url.searchParams.append("showAtomNumbers", showAtomNumbers);
+  url.searchParams.append("hydrogen_display", hydrogen_display);
+  url.searchParams.append("abbreviate", abbreviate);
+  url.searchParams.append("dative", dative);
+  url.searchParams.append("multicenter", multicenter);
+  url.searchParams.append("annotate", annotate);
+  url.searchParams.append("style", style);
+  url.searchParams.append("donuts", donuts);
+  url.searchParams.append("arrow", arrow);
+  url.searchParams.append("alignrxnmap", alignrxnmap);
+  url.searchParams.append("showtitle", showtitle);
+  url.searchParams.append("zoom", zoom);
+  url.searchParams.append("ratio", ratio);
+  url.searchParams.append("flip", flip);
+  url.searchParams.append("anon", anon);
+  url.searchParams.append("smalim", smalim);
+  url.searchParams.append("svgunits", svgunits);
+  url.searchParams.append("perceive_radicals", perceive_radicals);
+  url.searchParams.append("apply_mdl_highlighting", apply_mdl_highlighting);
+
+  if (highlight) {
+    url.searchParams.append("highlight", highlight);
+  }
+
+  if (title) {
+    url.searchParams.append("title", title);
+  }
+
+  if (bgcolor) {
+    url.searchParams.append("bgcolor", bgcolor);
+  }
+
+  if (fgcolor) {
+    url.searchParams.append("fgcolor", fgcolor);
+  }
+
+  // Add atomIds if provided
+  if (atomIds) {
+    if (Array.isArray(atomIds)) {
       const flatIds = atomIds.flat();
       url.searchParams.append("atomIds", flatIds.join(","));
     }
@@ -288,8 +599,10 @@ export const parseSmilesInput = (text) => {
 // Assemble all functions into a service object
 const depictService = {
   generate2DDepiction,
+  generate2DDepictionEnhanced,
   generate3DDepiction,
   get2DDepictionUrl,
+  get2DDepictionUrlEnhanced,
   highlightSubstructure,
   generateColorCodedDepiction,
   generateMultipleDepictions,

@@ -115,6 +115,8 @@ def test_sugars_info(input, response_text, response_code):
     [
         ("OCC(O)C(O)C(O)C(O)C1OC(CO)C(O)C(O)C1O", '"C(C1C(C(C(CO1)O)O)O)O"', 200),
         ("INVALID_INPUT", "", 422),
+        # Pure linear sugar - should return "Empty Aglycone"
+        ("OC[C@H](O)[C@H](O)[C@@H](O)[C@@H](O)C=O", '"Empty Aglycone"', 200),
     ],
 )
 def test_remove_linear_sugars(input, response_text, response_code):
@@ -134,6 +136,8 @@ def test_remove_linear_sugars(input, response_text, response_code):
             200,
         ),
         ("INVALID_INPUT", "", 422),
+        # Pure circular sugar (glucose) - should return "Empty Aglycone"
+        ("OC[C@H]1O[C@H](O)[C@H](O)[C@@H](O)[C@@H]1O", '"Empty Aglycone"', 200),
     ],
 )
 def test_remove_circular_sugars(input, response_text, response_code):
@@ -155,6 +159,8 @@ def test_remove_circular_sugars(input, response_text, response_code):
             200,
         ),
         ("INVALID_INPUT", "", 422),
+        # Pure sugar - should return "Empty Aglycone"
+        ("C([C@@H]1[C@H]([C@@H]([C@H](C(O1)O)O)O)O)O", '"Empty Aglycone"', 200),
     ],
 )
 def test_remove_sugars(input, response_text, response_code):

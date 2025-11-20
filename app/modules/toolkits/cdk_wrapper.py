@@ -42,7 +42,12 @@ def setup_jvm():
             if not os.path.exists(jar_paths[key]):
                 pystow.ensure("JAVA_Packages", url=url)
 
-        startJVM("-ea", "-Xmx4096M", classpath=[jar_paths[key] for key in jar_paths])
+        startJVM(
+            "-ea",
+            "-Xmx4096M",
+            "-Djava.awt.headless=true",
+            classpath=[jar_paths[key] for key in jar_paths],
+        )
 
 
 setup_jvm()
@@ -61,11 +66,21 @@ def get_CDK_IAtomContainer(smiles: str):
     Returns:
         mol (object): IAtomContainer with CDK.
     """
+
+    # Handle URL-encoded SMILES where + is used instead of space
+    # Common issue: "SMILES+|CXSMILES|" should be "SMILES |CXSMILES|"
+    # Check if there's a + immediately before | which indicates URL encoding issue
+    if "+|" in smiles and " |" not in smiles:
+        smiles = smiles.replace("+|", " |")
+
     SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
     SmilesParser = JClass(
         cdk_base + ".smiles.SmilesParser",
     )(SCOB.getInstance())
-    molecule = SmilesParser.parseSmiles(smiles)
+    try:
+        molecule = SmilesParser.parseSmiles(smiles)
+    except Exception as e:
+        raise Exception(f"Failed to parse SMILES: {smiles}. Error: {str(e)}")
     return molecule
 
 
