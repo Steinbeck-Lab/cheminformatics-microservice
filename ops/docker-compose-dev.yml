@@ -19,10 +19,11 @@ services:
 
   api:
     image: nfdi4chem/cheminformatics-microservice:api-dev
+    env_file:
+      - ../.env
     environment:
       HOMEPAGE_URL: "/latest/docs"
       RELEASE_VERSION: dev-latest
-      CMS_INTERNAL_AUTH_TOKEN: ${CMS_INTERNAL_AUTH_TOKEN}
     pull_policy: always
     labels:
       - "traefik.enable=true"

@@ -4,11 +4,12 @@ services:
       context: ./
       dockerfile: Dockerfile
     container_name: cheminformatics-microservice-api
+    env_file:
+      - .env
     environment:
       - HOMEPAGE_URL=https://docs.api.naturalproducts.net
       - RELEASE_VERSION=v2.6.0
       - WORKERS=2
-      - CMS_INTERNAL_AUTH_TOKEN=${CMS_INTERNAL_AUTH_TOKEN}
     ports:
       - "8000:80"
     volumes:

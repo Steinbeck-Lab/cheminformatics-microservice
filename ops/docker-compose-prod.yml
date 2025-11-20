@@ -16,14 +16,15 @@ services:
       - cm_network_prod
 
   api: # Backend service
-    build:
-      context: ./../ # Assuming this is the root of your project
-      dockerfile: ./Dockerfile.lite # Or your main Dockerfile if lite isn't intended for this
-    # image: nfdi4chem/cheminformatics-microservice:latest
+    # build:
+      # context: ./../ # Assuming this is the root of your project
+      # dockerfile: ./Dockerfile.lite # Or your main Dockerfile if lite isn't intended for this
+    image: nfdi4chem/cheminformatics-microservice:latest
+    env_file:
+      - ../.env
     environment:
       HOMEPAGE_URL: "/latest/docs" # App serves docs at /latest/docs
       RELEASE_VERSION: v2.6.0 # Or dynamically set from release tag
-      CMS_INTERNAL_AUTH_TOKEN: ${CMS_INTERNAL_AUTH_TOKEN}
     # pull_policy: always # Use if pulling pre-built images
     labels:
       - "traefik.enable=true"
