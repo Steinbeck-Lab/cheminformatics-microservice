@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.7.1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.7.0...v3.7.1) (2025-11-21)
+
+
+### Bug Fixes
+
+* frontend title differenciations ([98bd818](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/98bd818fb6451f5a242c61c0b01d837bf0cdf579))
+
 ## [3.6.3](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.6.2...v3.6.3) (2025-10-27)
 
 
