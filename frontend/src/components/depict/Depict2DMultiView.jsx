@@ -333,9 +333,35 @@ const BatchDepictionView = () => {
       const initialRotations = {};
       for (let i = 0; i < processingList.length; i++) {
         const smilesLine = processingList[i];
-        // Extract SMILES (first part before space/tab)
-        const spaceIndex = smilesLine.search(/[\s\t]/);
-        const smiles = spaceIndex > 0 ? smilesLine.substring(0, spaceIndex) : smilesLine;
+        
+        // Extract SMILES and Title with CXSMILES support
+        let smiles;
+        let title;
+        
+        // Check if this is CXSMILES format (contains |...|)
+        const pipeIndex = smilesLine.indexOf('|');
+        if (pipeIndex > -1) {
+          // Find the closing pipe
+          const closingPipeIndex = smilesLine.indexOf('|', pipeIndex + 1);
+          if (closingPipeIndex > -1) {
+            // CXSMILES format: everything up to and including the closing | is the SMILES
+            smiles = smilesLine.substring(0, closingPipeIndex + 1).trim();
+            // Title is everything after the closing | (if any)
+            const remainingText = smilesLine.substring(closingPipeIndex + 1).trim();
+            title = remainingText.length > 0 ? remainingText : `Molecule ${i + 1}`;
+          } else {
+            // Malformed CXSMILES (opening | but no closing |), treat as error or use fallback
+            console.warn(`Malformed CXSMILES (missing closing |): ${smilesLine}`);
+            const spaceIndex = smilesLine.search(/[\s\t]/);
+            smiles = spaceIndex > 0 ? smilesLine.substring(0, spaceIndex) : smilesLine;
+            title = spaceIndex > 0 ? smilesLine.substring(spaceIndex + 1).trim() : `Molecule ${i + 1}`;
+          }
+        } else {
+          // Regular SMILES format: first space separates SMILES from title
+          const spaceIndex = smilesLine.search(/[\s\t]/);
+          smiles = spaceIndex > 0 ? smilesLine.substring(0, spaceIndex) : smilesLine;
+          title = spaceIndex > 0 ? smilesLine.substring(spaceIndex + 1).trim() : `Molecule ${i + 1}`;
+        }
 
         // Basic SMILES validation (can be improved)
         if (!smiles || smiles.length < 1) {
@@ -343,9 +369,6 @@ const BatchDepictionView = () => {
           continue;
         }
 
-        // Extract Title (rest of the line after SMILES)
-        const title =
-          spaceIndex > 0 ? smilesLine.substring(spaceIndex + 1).trim() : `Molecule ${i + 1}`;
         const id = `mol-${i}-${Date.now()}`; // Unique ID for key and state
 
         initialRotations[id] = 0; // Set initial rotation
@@ -650,9 +673,10 @@ const BatchDepictionView = () => {
       "CN1C=NC2=C1C(=O)N(C(=O)N2C)C Caffeine",
       "CC(=O)OC1=CC=CC=C1C(=O)O Aspirin",
       "CC(=O)NC1=CC=C(C=C1)O Paracetamol",
+      "Cl*.Cl*.c1ccccc1-c1ccccc1 |m:1:4.5.6.7.8.9,3:10.11.12.13.14.15| Dichlorobiphenyl",
       "CC(C)CC1=CC=C(C=C1)C(C)C(=O)O Ibuprofen",
       "COc1cc2c(cc1OC)NC(=O)C3=C2C=CN3C Emetine",
-      "CC(C)(C)NCC(O)c1ccc(O)c(O)c1 Salbutamol",
+      "Cl*.Cl*.c1ccccc1-c1ccccc1 |m:1:4.5.6.7.8.9,3:10.11.12.13.14.15|",
       "C1=CC=C(C=C1)C(=O)C(=O)O Phenylglyoxylic acid",
       "C1=CC=C(C=C1)C2=CC=C(C=C2)C(=O)O Biphenyl-4-carboxylic acid",
       "C1=CC=C2C(=C1)C=CC=C2 Naphthalene",
@@ -679,7 +703,7 @@ const BatchDepictionView = () => {
           Batch 2D Depiction
         </h2>
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          Generate 2D molecular depictions with RDKit or CDK. CDK offers enhanced features like abbreviations and advanced styling.
+          Generate 2D molecular depictions with RDKit or CDK. Supports SMILES and CXSMILES formats. CDK offers enhanced features like abbreviations and advanced styling.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -707,12 +731,12 @@ const BatchDepictionView = () => {
               value={inputText}
               onChange={(e) => handleInputChange(e.target.value)}
               className="w-full h-40 font-mono text-xs sm:text-sm px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:focus:border-blue-500 dark:focus:ring-blue-500 resize-y"
-              placeholder="CN1C=NC2=C1C(=O)N(C(=O)N2C)C Caffeine&#10;CCO Ethanol&#10;# Lines starting with # are ignored"
+              placeholder="CN1C=NC2=C1C(=O)N(C(=O)N2C)C Caffeine&#10;CCO Ethanol&#10;Cl*.Cl*.c1ccccc1-c1ccccc1 |m:1:4.5.6.7.8.9,3:10.11.12.13.14.15| Dichlorobiphenyl&#10;# Lines starting with # are ignored"
               required
               aria-required="true"
             />
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              Format: SMILES [space/tab] Title (optional). Max 50 molecules processed.
+              Format: SMILES/CXSMILES [space/tab] Title (optional). CXSMILES with |...| notation fully supported. Max 50 molecules processed.
             </p>
           </div>
 
@@ -1456,7 +1480,7 @@ const BatchDepictionView = () => {
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg flex flex-col items-center justify-center text-center min-h-[300px] border border-gray-200 dark:border-gray-700">
           <HiOutlinePhotograph className="h-16 w-16 text-gray-400 dark:text-gray-600 mb-4" />
           <p className="text-gray-500 dark:text-gray-400">
-            Enter SMILES strings (one per line, optionally with titles) and click "Generate
+            Enter SMILES or CXSMILES strings (one per line, optionally with titles) and click "Generate
             Depictions".
           </p>
           <button
