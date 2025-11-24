@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, AsyncMock
 from app.modules.classyfire import classify, result
 
 
@@ -14,10 +14,13 @@ def invalid_smiles():
 
 
 @pytest.mark.asyncio
-@patch("app.modules.classyfire.requests.post")
-@patch("app.modules.classyfire.requests.get")
-async def test_valid_classyfire(mock_get, mock_post, valid_smiles):
-    # Mock the initial classification request
+@patch("app.modules.classyfire.httpx.AsyncClient")
+async def test_valid_classyfire(mock_async_client, valid_smiles):
+    # Create mock client instance and context manager
+    mock_client_instance = MagicMock()
+    mock_async_client.return_value.__aenter__.return_value = mock_client_instance
+
+    # Mock the POST response for classify
     mock_post_response = MagicMock()
     mock_post_response.json.return_value = {
         "id": "12345",
@@ -25,9 +28,9 @@ async def test_valid_classyfire(mock_get, mock_post, valid_smiles):
         "query_input": valid_smiles,
     }
     mock_post_response.raise_for_status.return_value = None
-    mock_post.return_value = mock_post_response
+    mock_client_instance.post = AsyncMock(return_value=mock_post_response)
 
-    # Mock the result retrieval request
+    # Mock the GET response for result
     mock_get_response = MagicMock()
     mock_get_response.json.return_value = {
         "id": "12345",
@@ -35,7 +38,7 @@ async def test_valid_classyfire(mock_get, mock_post, valid_smiles):
         "entities": [{"class": {"name": "Imidazopyrimidines"}}],
     }
     mock_get_response.raise_for_status.return_value = None
-    mock_get.return_value = mock_get_response
+    mock_client_instance.get = AsyncMock(return_value=mock_get_response)
 
     result_ = await classify(valid_smiles)
     assert result_["query_type"] == "STRUCTURE"
@@ -47,10 +50,13 @@ async def test_valid_classyfire(mock_get, mock_post, valid_smiles):
 
 
 @pytest.mark.asyncio
-@patch("app.modules.classyfire.requests.post")
-@patch("app.modules.classyfire.requests.get")
-async def test_invalid_classyfire(mock_get, mock_post, invalid_smiles):
-    # Mock the initial classification request
+@patch("app.modules.classyfire.httpx.AsyncClient")
+async def test_invalid_classyfire(mock_async_client, invalid_smiles):
+    # Create mock client instance and context manager
+    mock_client_instance = MagicMock()
+    mock_async_client.return_value.__aenter__.return_value = mock_client_instance
+
+    # Mock the POST response for classify
     mock_post_response = MagicMock()
     mock_post_response.json.return_value = {
         "id": "12346",
@@ -58,9 +64,9 @@ async def test_invalid_classyfire(mock_get, mock_post, invalid_smiles):
         "query_input": invalid_smiles,
     }
     mock_post_response.raise_for_status.return_value = None
-    mock_post.return_value = mock_post_response
+    mock_client_instance.post = AsyncMock(return_value=mock_post_response)
 
-    # Mock the result retrieval request
+    # Mock the GET response for result
     mock_get_response = MagicMock()
     mock_get_response.json.return_value = {
         "id": "12346",
@@ -70,7 +76,7 @@ async def test_invalid_classyfire(mock_get, mock_post, invalid_smiles):
         ],
     }
     mock_get_response.raise_for_status.return_value = None
-    mock_get.return_value = mock_get_response
+    mock_client_instance.get = AsyncMock(return_value=mock_get_response)
 
     result_ = await classify(invalid_smiles)
     assert result_["query_input"] == "invalid_smiles"

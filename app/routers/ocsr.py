@@ -5,7 +5,7 @@ from typing import Annotated
 from urllib.parse import urlsplit
 from urllib.request import urlopen
 
-import requests
+import httpx
 from fastapi import APIRouter
 from fastapi import Body
 from fastapi import File
@@ -70,7 +70,7 @@ def get_health() -> HealthCheck:
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def Extract_ChemicalInfo_From_File(
+def Extract_ChemicalInfo_From_File(
     path: str = Body(
         None,
         embed=True,
@@ -141,7 +141,7 @@ async def Extract_ChemicalInfo_From_File(
         try:
             split = urlsplit(path)
             filename = "/tmp/" + split.path.split("/")[-1]
-            response = requests.get(path)
+            response = httpx.get(path)
             if response.status_code == 200:
                 smiles = get_predicted_segments_from_file(
                     response.content,
@@ -171,7 +171,7 @@ async def Extract_ChemicalInfo_From_File(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def extract_chemicalinfo_from_upload(
+def extract_chemicalinfo_from_upload(
     file: Annotated[UploadFile, File(description="Chemical structure depiction image")],
     hand_drawn: bool = Body(False, description="Use hand-drawn model for prediction"),
 ):

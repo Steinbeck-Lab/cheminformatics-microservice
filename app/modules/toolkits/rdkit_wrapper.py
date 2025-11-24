@@ -263,7 +263,7 @@ def get_tanimoto_similarity_rdkit(
         return "Check SMILES strings for Errors"
 
 
-async def get_rdkit_HOSE_codes(molecule: any, noOfSpheres: int) -> List[str]:
+def get_rdkit_HOSE_codes(molecule: any, noOfSpheres: int) -> List[str]:
     """Calculate and retrieve RDKit HOSE codes for a given SMILES string.
 
     This function takes a SMILES string as input and returns the calculated HOSE codes.
