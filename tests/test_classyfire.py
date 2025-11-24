@@ -98,12 +98,12 @@ async def test_classify_http_error(mock_async_client, valid_smiles):
     # Create mock client instance and context manager
     mock_client_instance = MagicMock()
     mock_async_client.return_value.__aenter__.return_value = mock_client_instance
-    
+
     # Mock the POST to raise an HTTPError
     mock_client_instance.post = AsyncMock(
         side_effect=httpx.HTTPError("Connection failed")
     )
-    
+
     # Should re-raise the HTTPError
     with pytest.raises(httpx.HTTPError):
         await classify(valid_smiles)
@@ -116,12 +116,12 @@ async def test_classify_timeout_error(mock_async_client, valid_smiles):
     # Create mock client instance and context manager
     mock_client_instance = MagicMock()
     mock_async_client.return_value.__aenter__.return_value = mock_client_instance
-    
+
     # Mock the POST to raise a timeout error
     mock_client_instance.post = AsyncMock(
         side_effect=httpx.TimeoutException("Request timed out")
     )
-    
+
     # Should re-raise the HTTPError (TimeoutException is a subclass of HTTPError)
     with pytest.raises(httpx.HTTPError):
         await classify(valid_smiles)
@@ -134,12 +134,12 @@ async def test_result_http_error(mock_async_client):
     # Create mock client instance and context manager
     mock_client_instance = MagicMock()
     mock_async_client.return_value.__aenter__.return_value = mock_client_instance
-    
+
     # Mock the GET to raise an HTTPError
     mock_client_instance.get = AsyncMock(
         side_effect=httpx.HTTPError("Connection failed")
     )
-    
+
     # Should re-raise the HTTPError
     with pytest.raises(httpx.HTTPError):
         await result("12345")
@@ -152,21 +152,18 @@ async def test_result_not_found_error(mock_async_client):
     # Create mock client instance and context manager
     mock_client_instance = MagicMock()
     mock_async_client.return_value.__aenter__.return_value = mock_client_instance
-    
+
     # Create a mock response for 404
     mock_response = MagicMock()
     mock_response.status_code = 404
-    
+
     # Mock the GET to raise an HTTPStatusError
     mock_client_instance.get = AsyncMock(
         side_effect=httpx.HTTPStatusError(
-            "Not Found",
-            request=MagicMock(),
-            response=mock_response
+            "Not Found", request=MagicMock(), response=mock_response
         )
     )
-    
+
     # Should re-raise the HTTPError
     with pytest.raises(httpx.HTTPError):
         await result("invalid_id")
-
