@@ -81,7 +81,7 @@ def get_health() -> HealthCheck:
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def depict_2d_molecule(
+def depict_2d_molecule(
     smiles: str = Query(
         title="SMILES",
         description="SMILES string to be converted",
@@ -263,7 +263,7 @@ async def depict_2d_molecule(
     },
 )
 @limiter.limit("25/minute")
-async def depict_3d_molecule(
+def depict_3d_molecule(
     request: Request,
     smiles: str = Query(
         title="SMILES",
@@ -331,7 +331,7 @@ async def depict_3d_molecule(
         },
     },
 )
-async def depict_2d_molecule_enhanced(
+def depict_2d_molecule_enhanced(
     smiles: str = Query(
         title="SMILES or CXSMILES",
         description="SMILES or CXSMILES string to be converted. Supports CXSMILES extensions for highlighting.",
