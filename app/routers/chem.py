@@ -131,7 +131,7 @@ def get_health() -> HealthCheck:
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def get_stereoisomers(
+def get_stereoisomers(
     smiles: str = Query(
         title="SMILES",
         description="SMILES string to be enumerated",
@@ -182,7 +182,7 @@ async def get_stereoisomers(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def get_descriptors(
+def get_descriptors(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
@@ -268,7 +268,7 @@ async def get_descriptors(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def get_multiple_descriptors(
+def get_multiple_descriptors(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecules",
@@ -339,7 +339,7 @@ async def get_multiple_descriptors(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def hose_codes(
+def hose_codes(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
@@ -391,10 +391,10 @@ async def hose_codes(
     """
     if toolkit == "cdk":
         mol = parse_input(smiles, "cdk", False)
-        hose_codes = await get_CDK_HOSE_codes(mol, spheres, ringsize)
+        hose_codes = get_CDK_HOSE_codes(mol, spheres, ringsize)
     elif toolkit == "rdkit":
         mol = parse_input(smiles, "rdkit", False)
-        hose_codes = await get_rdkit_HOSE_codes(mol, spheres)
+        hose_codes = get_rdkit_HOSE_codes(mol, spheres)
 
     if hose_codes:
         return hose_codes
@@ -418,7 +418,7 @@ async def hose_codes(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def standardize_mol(
+def standardize_mol(
     data: Annotated[
         str,
         Body(
@@ -500,7 +500,7 @@ M  END""",
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def check_errors(
+def check_errors(
     smiles: str = Query(
         title="SMILES",
         description="The SMILES string to check and standardize.",
@@ -592,7 +592,7 @@ async def check_errors(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def np_likeness_score(
+def np_likeness_score(
     smiles: str = Query(
         title="SMILES",
         description="The SMILES string to calculate the natural product likeness score",
@@ -643,7 +643,7 @@ async def np_likeness_score(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def tanimoto_similarity(
+def tanimoto_similarity(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecules",
@@ -764,7 +764,7 @@ async def tanimoto_similarity(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def coconut_preprocessing(
+def coconut_preprocessing(
     smiles: str = Query(
         ...,
         title="SMILES",
@@ -931,7 +931,7 @@ async def classyfire_result(jobid: str):
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def all_filter_molecules(
+def all_filter_molecules(
     smiles_list: str = Body(
         embed=False,
         media_type="text/plain",
@@ -1107,7 +1107,7 @@ async def all_filter_molecules(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def all_filter_molecules_detailed(
+def all_filter_molecules_detailed(
     smiles_list: str = Body(
         embed=False,
         media_type="text/plain",
@@ -1316,7 +1316,7 @@ async def all_filter_molecules_detailed(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def get_functional_groups(
+def get_functional_groups(
     smiles: str = Query(
         title="SMILES",
         description="SMILES string to be enumerated",
@@ -1372,7 +1372,7 @@ async def get_functional_groups(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def get_standardized_tautomer_smiles(
+def get_standardized_tautomer_smiles(
     smiles: str = Query(
         title="SMILES",
         description="SMILES string to be standardized",
@@ -1407,7 +1407,7 @@ async def get_standardized_tautomer_smiles(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def fix_radicals_endpoint(
+def fix_radicals_endpoint(
     smiles: str = Query(
         title="SMILES",
         description="SMILES string containing radicals to be fixed",
@@ -1514,7 +1514,7 @@ async def fix_radicals_endpoint(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def get_pubchem_smiles(
+def get_pubchem_smiles(
     identifier: str = Query(
         title="Chemical Identifier",
         description="Chemical identifier (name, CID, InChI, InChIKey, SMILES, formula, CAS number)",

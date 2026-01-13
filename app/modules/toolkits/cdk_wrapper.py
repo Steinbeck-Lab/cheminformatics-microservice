@@ -689,7 +689,7 @@ def get_smiles_opsin(input_text: str) -> str:
         )
 
 
-async def get_CDK_HOSE_codes(
+def get_CDK_HOSE_codes(
     molecule: any,
     noOfSpheres: int,
     ringsize: bool,
