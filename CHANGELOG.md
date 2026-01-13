@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.7.2](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.7.1...v3.7.2) (2026-01-13)
+
+
+### Bug Fixes
+
+* Classyfire Test coverage ([ed7d058](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/ed7d05854b0812d690823570cb35fd19e8877a7e))
+* Classyfire Test coverage ([ae7e26a](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/ae7e26a17327d5c6319ac5e94a82ad37e2a3372b))
+* Classyfire Test coverage ([7924a9f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/7924a9fd6889ea552d2569f992da58b42dbab0ed))
+* Let FastAPI handle asynchronous tasks ([d65c7b9](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d65c7b957b4835b0552d11b9e1343a3a7221ee5a))
+
 ## [3.7.1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.7.0...v3.7.1) (2025-11-21)
 
 
