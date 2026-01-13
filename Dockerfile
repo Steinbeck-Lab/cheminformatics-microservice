@@ -31,7 +31,7 @@ RUN conda install -c conda-forge python=${PYTHON_VERSION} sqlite --force-reinsta
     pip3 install --no-cache-dir -r requirements.txt && \
     # Install specific packages without dependencies
     pip3 install --no-cache-dir --no-deps \
-        git+https://github.com/Kohulan/DECIMER-Image-Segmentation.git@bbox \
+        git+https://github.com/Kohulan/DECIMER-Image-Segmentation.git \
         decimer==2.7.1 \
         chembl_structure_pipeline
 
