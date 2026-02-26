@@ -44,7 +44,7 @@ jobs:
         python -m pip install --upgrade pip
         pip3 install --upgrade setuptools pip
         pip3 install --no-cache-dir -r requirements.txt
-        pip install git+https://github.com/Kohulan/DECIMER-Image-Segmentation.git@bbox --no-deps
+        pip install git+https://github.com/Kohulan/DECIMER-Image-Segmentation.git --no-deps
         pip3 install --no-deps decimer
         pip install flake8 pytest
         pip install pytest-cov

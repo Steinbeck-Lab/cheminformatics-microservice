@@ -75,7 +75,7 @@ def get_health() -> HealthCheck:
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def generate_structures(
+def generate_structures(
     molecular_formula: str = Query(
         title="Molecular Formula",
         description="Molecular Formula for the chemical structure to be generated",
@@ -145,7 +145,7 @@ async def generate_structures(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def get_sugar_info_endpoint(
+def get_sugar_info_endpoint(
     smiles: str = Query(
         title="SMILES",
         description="SMILES: string representation of the molecule",
@@ -267,7 +267,7 @@ async def get_sugar_info_endpoint(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def remove_linear_sugars_endpoint(
+def remove_linear_sugars_endpoint(
     smiles: str = Query(
         title="SMILES",
         description="SMILES: string representation of the molecule",
@@ -381,7 +381,7 @@ async def remove_linear_sugars_endpoint(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def remove_circular_sugars_endpoint(
+def remove_circular_sugars_endpoint(
     smiles: str = Query(
         title="SMILES",
         description="SMILES: string representation of the molecule",
@@ -506,7 +506,7 @@ async def remove_circular_sugars_endpoint(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def remove_linear_and_circular_sugars_endpoint(
+def remove_linear_and_circular_sugars_endpoint(
     smiles: str = Query(
         title="SMILES",
         description="SMILES: string representation of the molecule",
@@ -660,7 +660,7 @@ async def remove_linear_and_circular_sugars_endpoint(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def extract_aglycone_and_sugars_endpoint(
+def extract_aglycone_and_sugars_endpoint(
     smiles: str = Query(
         title="SMILES",
         description="SMILES: string representation of the molecule",
@@ -840,7 +840,7 @@ async def extract_aglycone_and_sugars_endpoint(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def get_aglycone_and_sugar_indices_endpoint(
+def get_aglycone_and_sugar_indices_endpoint(
     smiles: str = Query(
         title="SMILES",
         description="SMILES: string representation of the molecule",

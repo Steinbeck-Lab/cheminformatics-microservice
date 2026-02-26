@@ -98,7 +98,7 @@ def get_health() -> HealthCheck:
     },
 )
 @limiter.limit("20/minute")
-async def create2d_coordinates(
+def create2d_coordinates(
     request: Request,
     smiles: str = Query(
         title="SMILES",
@@ -169,7 +169,7 @@ async def create2d_coordinates(
     },
 )
 @limiter.limit("20/minute")
-async def create3d_coordinates(
+def create3d_coordinates(
     request: Request,
     smiles: str = Query(
         title="SMILES",
@@ -235,7 +235,7 @@ async def create3d_coordinates(
     },
 )
 @limiter.limit("10/minute")
-async def iupac_name_or_selfies_to_smiles(
+def iupac_name_or_selfies_to_smiles(
     request: Request,
     input_text: str = Query(
         title="Input IUPAC name or SELFIES",
@@ -311,7 +311,7 @@ async def iupac_name_or_selfies_to_smiles(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def smiles_canonicalise(
+def smiles_canonicalise(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
@@ -369,7 +369,7 @@ async def smiles_canonicalise(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def smiles_to_cxsmiles(
+def smiles_to_cxsmiles(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
@@ -434,7 +434,7 @@ async def smiles_to_cxsmiles(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def smiles_to_inchi(
+def smiles_to_inchi(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
@@ -498,7 +498,7 @@ async def smiles_to_inchi(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def smiles_to_inchikey(
+def smiles_to_inchikey(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
@@ -563,7 +563,7 @@ async def smiles_to_inchikey(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def encode_selfies(
+def encode_selfies(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
@@ -619,7 +619,7 @@ async def encode_selfies(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def smiles_convert_to_formats(
+def smiles_convert_to_formats(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
@@ -714,7 +714,7 @@ async def smiles_convert_to_formats(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def smiles_to_smarts(
+def smiles_to_smarts(
     smiles: str = Query(
         title="SMILES",
         description="SMILES representation of the molecule",
@@ -757,7 +757,7 @@ async def smiles_to_smarts(
     },
 )
 @limiter.limit("20/minute")
-async def molblock_to_smiles(
+def molblock_to_smiles(
     request: Request,
     data: str = Body(
         ...,
@@ -872,7 +872,7 @@ async def molblock_to_smiles(
     },
 )
 @limiter.limit("10/minute")
-async def batch_convert(
+def batch_convert(
     request: Request,
     body: dict = Body(...),
     output_format: str = Query(
