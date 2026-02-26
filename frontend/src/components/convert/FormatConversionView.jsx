@@ -796,7 +796,7 @@ const FormatConversionView = () => {
               type="submit"
               disabled={(inputFormat === "cdx" ? !cdxFile : !input.trim()) || loading}
               className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
-                !input.trim() || loading
+                (inputFormat === "cdx" ? !cdxFile : !input.trim()) || loading
                   ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm"
               }`}
