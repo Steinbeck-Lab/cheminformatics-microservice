@@ -76,7 +76,6 @@ from app.schemas.error import BadRequestModel
 from app.schemas.error import ErrorResponse
 from app.schemas.error import NotFoundModel
 
-
 router = APIRouter(
     prefix="/chem",
     tags=["chem"],
