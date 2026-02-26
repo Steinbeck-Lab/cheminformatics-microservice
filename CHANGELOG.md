@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.7.3](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.7.2...v3.7.3) (2026-01-13)
+
+
+### Bug Fixes
+
+* segementation download issues ([92ec56f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/92ec56f26876f355f64edae9959f5525473f613a))
+* segementation requirements ([6e3cccb](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/6e3cccb94ac1668f33d8166cf963fce90a5f02dd))
+
 ## [3.7.2](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.7.1...v3.7.2) (2026-01-13)
 
 
