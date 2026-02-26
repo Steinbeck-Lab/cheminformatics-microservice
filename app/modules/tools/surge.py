@@ -64,7 +64,9 @@ def get_surge_count(molecular_formula: str) -> int:
             # Without -R: ">Z generated X -> Y -> Z in N.NN sec"
             # With -R:    ">Z generated X -> Y -> W -> Z in N.NN sec"
             # The last number is always the final molecule count.
-            pattern = r">Z (?:generated|wrote) \d+ -> \d+ -> (?:\d+ -> )?(\d+) in [\d\.]+ sec"
+            pattern = (
+                r">Z (?:generated|wrote) \d+ -> \d+ -> (?:\d+ -> )?(\d+) in [\d\.]+ sec"
+            )
             match = re.search(pattern, output)
 
             if match:
