@@ -228,6 +228,26 @@ export const generateMultipleFormats = async (smiles, toolkit = "cdk") => {
   }
 };
 
+/**
+ * Convert a CDX or CDXML file to a MOL block
+ * @param {File} file - A .cdx or .cdxml File object from an <input> or dropzone
+ * @returns {Promise<string>} - MOL block string
+ */
+export const convertCDXToMol = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await api.post(`${CONVERT_URL}/cdx-to-mol`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data.molblock;
+  } catch (error) {
+    const detail = error.response?.data?.detail;
+    throw new Error(detail || `Failed to convert CDX file: ${error.message}`);
+  }
+};
+
 // Assemble all functions into a service object
 const convertService = {
   generate2DCoordinates,
@@ -241,6 +261,7 @@ const convertService = {
   generateSMARTS,
   molblockToSMILES,
   generateMultipleFormats,
+  convertCDXToMol,
 };
 
 export default convertService;
