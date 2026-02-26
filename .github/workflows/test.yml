@@ -48,7 +48,8 @@ jobs:
         pip3 install --no-deps decimer
         pip install flake8 pytest
         pip install pytest-cov
-        wget -O surge "https://github.com/StructureGenerator/surge/releases/download/v1.0/surge-linux-v1.0"
+        wget "https://github.com/StructureGenerator/surge/releases/download/v2.0/surge-linux-x86_64.tar.gz"
+        tar xzf surge-linux-x86_64.tar.gz
         chmod +x surge
         sudo mv surge /usr/bin
 
