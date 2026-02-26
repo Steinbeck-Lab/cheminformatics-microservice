@@ -1,14 +1,17 @@
 from __future__ import annotations
 
-from typing import Literal
+from typing import Annotated, Literal
 
 import selfies as sf
+
 from fastapi import APIRouter
+from fastapi import File
 from fastapi import HTTPException
 from fastapi import Query
 from fastapi import status
 from fastapi import Request
 from fastapi import Body
+from fastapi import UploadFile
 from fastapi.responses import Response
 
 # Use the shared limiter instance
@@ -31,6 +34,7 @@ from app.schemas.converters_schema import ThreeDCoordinatesResponse
 from app.schemas.converters_schema import TwoDCoordinatesResponse
 from app.schemas.converters_schema import GenerateSMARTSResponse
 from app.schemas.converters_schema import MolToSMILESResponse
+from app.schemas.converters_schema import CDXToMolResponse
 
 # Module imports
 from app.modules.toolkits.cdk_wrapper import get_canonical_SMILES
@@ -43,10 +47,10 @@ from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.openbabel_wrapper import get_ob_canonical_SMILES
 from app.modules.toolkits.openbabel_wrapper import get_ob_InChI
 from app.modules.toolkits.openbabel_wrapper import get_ob_mol
+from app.modules.toolkits.rdkit_wrapper import convert_cdx_to_mol
 from app.modules.toolkits.rdkit_wrapper import get_2d_mol
 from app.modules.toolkits.rdkit_wrapper import get_3d_conformers
 from app.modules.toolkits.rdkit_wrapper import get_rdkit_CXSMILES
-
 
 router = APIRouter(
     prefix="/convert",
@@ -1072,3 +1076,62 @@ def batch_convert(
 
     # Return the response as a dictionary
     return {"results": results, "summary": summary}
+
+
+@router.post(
+    "/cdx-to-mol",
+    summary="Parse an uploaded .cdx file and return its MDL MOL content",
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": CDXToMolResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
+)
+def cdx_to_mol(
+    file: Annotated[
+        UploadFile,
+        File(description="ChemDraw binary (.cdx) file to convert to MOL format"),
+    ],
+) -> CDXToMolResponse:
+    """Parse an uploaded ChemDraw binary (.cdx) file and return the MDL MOL block.
+
+    The conversion is performed by the OpenBabel Python bindings (pybel).
+    2D coordinates are generated when not already present in the CDX file.
+
+    Parameters:
+    - **file**: required (.cdx file): ChemDraw binary file containing the molecule.
+
+    Returns:
+    - CDXToMolResponse: A JSON response containing the MDL MOL block string.
+
+    Raises:
+    - HTTPException 422: If the file cannot be parsed or contains no atoms.
+    """
+    if not file.filename or not file.filename.lower().endswith((".cdx", ".cdxml")):
+        raise HTTPException(
+            status_code=400,
+            detail="Only .cdx and .cdxml files are accepted.",
+        )
+
+    fmt = "cdxml" if file.filename.lower().endswith(".cdxml") else "cdx"
+
+    try:
+        cdx_bytes = file.file.read()
+    finally:
+        file.file.close()
+
+    try:
+        molblock = convert_cdx_to_mol(cdx_bytes, fmt=fmt)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=422,
+            detail="Error converting CDX file: " + str(exc),
+        ) from exc
+
+    return CDXToMolResponse(molblock=molblock)

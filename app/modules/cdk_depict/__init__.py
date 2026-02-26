@@ -95,7 +95,6 @@ from app.modules.cdk_depict.mdl_hilite import (
     MDLHiliteParser,
 )
 
-
 __all__ = [
     # Hydrogen Display
     "set_hydrogen_display",

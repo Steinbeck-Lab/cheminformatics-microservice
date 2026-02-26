@@ -12,7 +12,6 @@ from app.modules.decimer import get_predicted_segments
 from app.modules.decimer import get_predicted_segments_from_file
 from app.modules.decimer import get_segments
 
-
 # Define a directory for temporary test files
 TEST_FILES_DIR = "tests"
 

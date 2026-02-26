@@ -223,6 +223,7 @@ export const get2DDepictionUrlEnhanced = (smiles, options = {}) => {
     unicolor = false,
     highlight = "",
     atomIds = null,
+    // eslint-disable-next-line no-unused-vars
     format = "svg",
     showAtomNumbers = false,
     hydrogen_display = "Smart",
