@@ -50,6 +50,32 @@ const TOOLKIT_OPTIONS = [
 // Converter options for IUPAC
 const IUPAC_CONVERTER_OPTIONS = [{ id: "opsin", label: "OPSIN" }];
 
+// Detect whether input text is SMILES, SELFIES, or IUPAC name
+const detectInputFormat = (text) => {
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+
+  // SELFIES: entirely composed of [token] sequences
+  if (/^(\[[\w@=#+\-/\\%;.,^*]+\])+$/.test(trimmed)) return "selfies";
+
+  // IUPAC: word-like name — only lowercase letters, digits, spaces, hyphens, commas,
+  // parentheses; and no SMILES ring-closure patterns (letter immediately adjacent to digit)
+  if (
+    /^[a-z0-9][a-z0-9 ,\-().]*$/.test(trimmed) &&
+    !/[a-z]\d/.test(trimmed) &&
+    !/\d[a-z]/.test(trimmed)
+  ) {
+    return "iupac";
+  }
+
+  // SMILES: no whitespace, only valid SMILES characters
+  if (!/\s/.test(trimmed) && /^[A-Za-z0-9[\]()=#@+\-/.\\%:*]+$/.test(trimmed))
+    return "smiles";
+
+  // Otherwise assume IUPAC name
+  return "iupac";
+};
+
 const FormatConversionView = () => {
   const [input, setInput] = useState("");
   const [inputFormat, setInputFormat] = useState("smiles");
@@ -60,6 +86,7 @@ const FormatConversionView = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [autoDetected, setAutoDetected] = useState(false);
   // State for molecular structure display
   const [smilesForStructure, setSmilesForStructure] = useState("");
   const [showStructure, setShowStructure] = useState(false);
@@ -170,6 +197,7 @@ const FormatConversionView = () => {
   // When input format changes, automatically update output format if needed
   const handleInputFormatChange = (format) => {
     setInputFormat(format);
+    setAutoDetected(false); // User manually overrode auto-detection
 
     // Clear uploaded file when switching away from molsdf
     if (format !== "molsdf") {
@@ -179,6 +207,27 @@ const FormatConversionView = () => {
     // If switching to IUPAC, SELFIES, or MOL/SDF, automatically set output to SMILES
     if (format === "iupac" || format === "selfies" || format === "molsdf") {
       setOutputFormat("smiles");
+    }
+  };
+
+  // Handle text input changes with auto-format detection
+  const handleInputChange = (value) => {
+    setInput(value);
+    if (inputFormat === "molsdf") return;
+
+    const detected = detectInputFormat(value);
+    if (!value.trim()) {
+      setAutoDetected(false);
+      return;
+    }
+    if (detected && detected !== inputFormat) {
+      setInputFormat(detected);
+      setAutoDetected(true);
+      if (detected === "iupac" || detected === "selfies") {
+        setOutputFormat("smiles");
+      } else if (detected === "smiles") {
+        setOutputFormat("canonicalsmiles");
+      }
     }
   };
 
@@ -365,12 +414,19 @@ const FormatConversionView = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Input Format Selection */}
           <div>
-            <label
-              htmlFor="input-format-select"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >
-              Input Format
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label
+                htmlFor="input-format-select"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                Input Format
+              </label>
+              {autoDetected && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                  Auto-detected
+                </span>
+              )}
+            </div>
             <select
               id="input-format-select"
               value={inputFormat}
@@ -498,7 +554,7 @@ const FormatConversionView = () => {
               <>
                 <SMILESInput
                   value={input}
-                  onChange={setInput}
+                  onChange={handleInputChange}
                   label={
                     inputFormat === "smiles"
                       ? "SMILES Input"
@@ -700,7 +756,7 @@ const FormatConversionView = () => {
                 Converted from{" "}
                 {INPUT_FORMAT_OPTIONS.find((o) => o.id === inputFormat)?.label ||
                   inputFormat.toUpperCase()}
-                to{" "}
+                {" "}to{" "}
                 {OUTPUT_FORMAT_OPTIONS.find((o) => o.id === outputFormat)?.label ||
                   outputFormat.toUpperCase()}
                 {showToolkitSelection &&

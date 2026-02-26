@@ -257,6 +257,7 @@ export const get2DDepictionUrlEnhanced = (smiles, options = {}) => {
   url.searchParams.append("rotate", rotate);
   url.searchParams.append("CIP", CIP);
   url.searchParams.append("unicolor", unicolor);
+  url.searchParams.append("format", format);
   url.searchParams.append("showAtomNumbers", showAtomNumbers);
   url.searchParams.append("hydrogen_display", hydrogen_display);
   url.searchParams.append("abbreviate", abbreviate);
