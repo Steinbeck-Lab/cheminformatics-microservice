@@ -25,6 +25,7 @@ services:
     environment:
       HOMEPAGE_URL: "/latest/docs" # App serves docs at /latest/docs
       RELEASE_VERSION: v2.6.0 # Or dynamically set from release tag
+      CMS_INTERNAL_AUTH_TOKEN: ${CMS_INTERNAL_AUTH_TOKEN}
     # pull_policy: always # Use if pulling pre-built images
     labels:
       - "traefik.enable=true"
