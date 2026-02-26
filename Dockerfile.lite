@@ -30,8 +30,11 @@ RUN apt-get update && \
         wget && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
-    wget -O /usr/bin/surge "https://github.com/StructureGenerator/surge/releases/download/v1.0/surge-linux-v1.0" && \
-    chmod +x /usr/bin/surge
+    wget "https://github.com/StructureGenerator/surge/releases/download/v2.0/surge-linux-x86_64.tar.gz" && \
+    tar xzf surge-linux-x86_64.tar.gz && \
+    mv surge /usr/bin/surge && \
+    chmod +x /usr/bin/surge && \
+    rm surge-linux-x86_64.tar.gz
 
 WORKDIR /code
 COPY requirements_lite.txt .

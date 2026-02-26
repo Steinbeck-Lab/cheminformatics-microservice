@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+import tempfile
 from typing import List
 from typing import Tuple
 from typing import Union
@@ -955,3 +957,40 @@ def has_cis_trans_stereochemistry(molecule: any) -> bool:
                 return True
 
     return False
+
+
+def convert_cdx_to_mol(cdx_bytes: bytes, fmt: str = "cdx") -> str:
+    """Convert the raw bytes of a .cdx or .cdxml file to a MOL block.
+
+    Uses ``Chem.MolsFromCDXMLFile`` from RDKit 2024.09+, which automatically
+    handles both binary CDX (when ``Chem.HasChemDrawCDXSupport()`` is ``True``)
+    and CDXML text format by inspecting the file header.
+
+    The first successfully parsed molecule is returned as a V2000 MOL block.
+
+    Args:
+        cdx_bytes (bytes): Raw bytes of the uploaded .cdx or .cdxml file.
+        fmt (str): Format hint used only to choose the temp-file suffix
+            (``"cdx"`` or ``"cdxml"``).  Defaults to ``"cdx"``.
+
+    Returns:
+        str: V2000 MDL MOL block of the first molecule in the file.
+
+    Raises:
+        ValueError: If no valid molecules can be parsed from the file.
+    """
+    suffix = ".cdxml" if fmt == "cdxml" else ".cdx"
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+        tmp.write(cdx_bytes)
+        tmp_path = tmp.name
+
+    try:
+        mols = Chem.MolsFromCDXMLFile(tmp_path)
+    finally:
+        os.unlink(tmp_path)
+
+    valid = [m for m in (mols or []) if m is not None]
+    if not valid:
+        raise ValueError(f"No valid molecules found in the {suffix} file.")
+
+    return Chem.MolToMolBlock(valid[0]).rstrip()

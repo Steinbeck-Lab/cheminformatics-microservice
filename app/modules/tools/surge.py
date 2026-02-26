@@ -45,7 +45,7 @@ def get_surge_count(molecular_formula: str) -> int:
     if get_heavy_atom_count(molecular_formula) <= 10:
         try:
             process = Popen(
-                ["surge", "-u", molecular_formula], stdout=PIPE, stderr=PIPE
+                ["surge", "-u", "-R", molecular_formula], stdout=PIPE, stderr=PIPE
             )
             stdout, stderr = process.communicate()
 
@@ -61,8 +61,12 @@ def get_surge_count(molecular_formula: str) -> int:
                 )
 
             # Parse the output to find the line with structure count
-            # Pattern: ">Z generated X -> Y -> Z in N.NN sec"
-            pattern = r">Z generated \d+ -> \d+ -> (\d+) in [\d\.]+ sec"
+            # Without -R: ">Z generated X -> Y -> Z in N.NN sec"
+            # With -R:    ">Z generated X -> Y -> W -> Z in N.NN sec"
+            # The last number is always the final molecule count.
+            pattern = (
+                r">Z (?:generated|wrote) \d+ -> \d+ -> (?:\d+ -> )?(\d+) in [\d\.]+ sec"
+            )
             match = re.search(pattern, output)
 
             if match:
@@ -107,6 +111,7 @@ def generate_structures_SURGE(molecular_formula: str) -> Union[dict, str]:
     surge_args = [
         "-P",  # Require planarity
         "-T",  # Disallow triple bonds
+        "-R",  # Filter duplicate Kekule structures via aromaticity (Surge 2.0)
         "-B1,2,3,4,5,7,9",  # Avoid various substructures
         "-t0",  # Limit rings of length 3
         "-f0",  # Limit cycles of length 4
@@ -115,6 +120,7 @@ def generate_structures_SURGE(molecular_formula: str) -> Union[dict, str]:
     settings_description = {
         "-P": "Require planarity",
         "-T": "Disallow triple bonds",
+        "-R": "Filter duplicate Kekule structures via aromaticity detection",
         "-B1,2,3,4,5,7,9": "Avoid substructures: no triple bonds in small rings, Bredt's rule violations, cumulative double bonds, forbidden topologies",
         "-t0": "No rings of length 3 allowed",
         "-f0": "No cycles of length 4 allowed",

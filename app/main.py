@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 # Import limiter and related objects from the shared limiter module
 from app.limiter import limiter, rate_limit_exceeded_handler, RateLimitExceededExc
 

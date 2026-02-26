@@ -419,3 +419,31 @@ class BatchConversionResponse(BaseModel):
     summary: dict = Field(
         ..., description="Summary of conversion results (count of successes/failures)"
     )
+
+
+class CDXToMolResponse(BaseModel):
+    """Represents a response containing a MOL block parsed from a .cdx file.
+
+    Properties:
+    - molblock (str): The MDL MOL block content parsed from the uploaded CDX file.
+    """
+
+    molblock: str = Field(
+        ...,
+        title="Molecule Block",
+        description="The MDL MOL block parsed from the uploaded .cdx file.",
+    )
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "message": "Success",
+                    "output": "\n\n\n  2  1  0  0  0  0  0  0  0  0999 V2000\n"
+                    "    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n"
+                    "    1.2990    0.7500    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n"
+                    "  1  2  1  0\nM  END",
+                }
+            ]
+        }
+    }
