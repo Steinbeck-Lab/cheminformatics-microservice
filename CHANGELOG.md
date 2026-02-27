@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.8.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.7.3...v3.8.0) (2026-02-26)
+
+
+### Features
+
+* CDKtoMOl and tests ([c17e1ca](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/c17e1ca369f54afe6260a6446fd1af25fa2044fe))
+* Surge 2.0 implementation ([61a774c](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/61a774c9335df6b3df0c8bfb5f4bfd81a350a8dc))
+* Surge 2.0 implementation ([d40fba9](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d40fba9dfa5b005f996e8570ee62883109799310))
+
+
+### Bug Fixes
+
+* bump axios to 1.13.5 to fix CVE DoS vulnerability ([a0a8ccd](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/a0a8ccdcba6f530da4f08ab49939386aabc8f2c2))
+* button activation colour ([4c6e076](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/4c6e0762b787dfaf4bac6e2895aa20312ab8ae65))
+* E203 flake8 ([2bbec76](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/2bbec7608d19b8498432d22d539d7bb17ee80e15))
+* format conversions ([aaf0173](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/aaf01737fc68be3b5a514caa0f0ff30d4a979e2c))
+* package_lock ([bbfb016](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/bbfb01642efde4d7f6b97332484c1e9bc2a00121))
+
 ## [3.7.3](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.7.2...v3.7.3) (2026-01-13)
 
 
