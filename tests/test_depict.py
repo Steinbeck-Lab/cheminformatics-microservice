@@ -358,3 +358,20 @@ def test_depict3D_openbabel_default():
     """Test 3D depiction with OpenBabel as default."""
     response = client.get("/latest/depict/3D?smiles=CCO")
     assert response.status_code == 200
+
+
+# ---------------------------------------------------------------------------
+# Coverage tests for security hardening (error paths)
+# ---------------------------------------------------------------------------
+
+
+def test_depict2D_invalid_smiles_error_path():
+    """Invalid SMILES triggers error handler in 2D depiction."""
+    response = client.get("/latest/depict/2D?smiles=INVALID!!!&toolkit=rdkit")
+    assert response.status_code == 422
+
+
+def test_depict3D_invalid_smiles_error_path():
+    """Invalid SMILES triggers error handler in 3D depiction."""
+    response = client.get("/latest/depict/3D?smiles=INVALID!!!&toolkit=rdkit")
+    assert response.status_code == 422
