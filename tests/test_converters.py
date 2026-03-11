@@ -493,3 +493,51 @@ def test_molblock_to_smiles(molblock, toolkit, expected_contains, response_code)
         assert (
             expected_contains in smiles or "N" in smiles
         )  # Caffeine contains both C and N
+
+
+# ---------------------------------------------------------------------------
+# Coverage tests for security hardening (error paths & input validation)
+# ---------------------------------------------------------------------------
+
+
+def test_cdx_to_mol_oversized_file():
+    """CDX upload rejects files over 10MB."""
+    large_content = b"\x00" * (10 * 1024 * 1024 + 1)
+    response = client.post(
+        "/latest/convert/cdx-to-mol",
+        files={"file": ("huge.cdx", large_content, "chemical/x-cdx")},
+    )
+    assert response.status_code == 400
+    assert "too large" in response.json()["detail"].lower()
+
+
+def test_iupac_to_smiles_invalid():
+    """IUPAC conversion with garbage input returns error."""
+    response = client.get(
+        "/latest/convert/smiles?input_text=ZZZZNOTACHEMICAL&representation=iupac&converter=opsin"
+    )
+    assert response.status_code in [200, 422]
+
+
+def test_selfies_encode_invalid():
+    """SELFIES encoding of invalid SMILES returns error."""
+    response = client.get("/latest/convert/selfies?smiles=INVALID_SMILES&toolkit=rdkit")
+    assert response.status_code in [400, 422]
+
+
+def test_molblock_to_smiles_invalid():
+    """Invalid molblock conversion returns error."""
+    response = client.post(
+        "/latest/convert/molblock?toolkit=rdkit",
+        data="NOT_A_MOLBLOCK",
+        headers={"Content-Type": "text/plain"},
+    )
+    assert response.status_code in [422, 500]
+
+
+def test_smiles_to_formats_invalid():
+    """Invalid SMILES to formats conversion returns error."""
+    response = client.get(
+        "/latest/convert/mol2D?smiles=INVALID!!!&toolkit=rdkit"
+    )
+    assert response.status_code in [422, 500]
