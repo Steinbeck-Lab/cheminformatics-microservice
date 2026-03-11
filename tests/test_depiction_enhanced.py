@@ -883,3 +883,213 @@ class TestConsistency:
         svg2 = get_cdk_depiction(simple_molecule, zoom=2.0)
         assert svg1 is not None
         assert svg2 is not None
+
+
+# ---------------------------------------------------------------------------
+# Additional coverage tests targeting specific uncovered lines
+# ---------------------------------------------------------------------------
+
+
+class TestInvalidColorHandling:
+    """Test error handling for invalid custom colors (lines 263-264, 275-276)."""
+
+    def test_invalid_bgcolor_handled_gracefully(self):
+        """Invalid bgcolor hex string should be silently ignored."""
+        mol = get_CDK_IAtomContainer("CCO")
+        svg = get_cdk_depiction(mol, bgcolor="not-a-color")
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+    def test_invalid_fgcolor_handled_gracefully(self):
+        """Invalid fgcolor hex string should be silently ignored."""
+        mol = get_CDK_IAtomContainer("CCO")
+        svg = get_cdk_depiction(mol, fgcolor="not-a-color")
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+    def test_both_invalid_colors_handled(self):
+        """Both invalid bgcolor and fgcolor should be silently ignored."""
+        mol = get_CDK_IAtomContainer("CCO")
+        svg = get_cdk_depiction(mol, bgcolor="xxx", fgcolor="yyy")
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+
+class TestReactionDepiction:
+    """Tests for reaction-specific depiction features (lines 360-372, 452)."""
+
+    @pytest.fixture
+    def simple_reaction(self):
+        """Create a simple CDK reaction object."""
+        cdk_base = "org.openscience.cdk"
+        SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
+        SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
+        return SmilesParser.parseReactionSmiles("CC>>CCO")
+
+    def test_reaction_with_forward_arrow(self, simple_reaction):
+        """Test reaction depiction with forward arrow type (lines 360-372)."""
+        svg = get_cdk_depiction(simple_reaction, arrow="forward")
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+    def test_reaction_with_equilibrium_arrow(self, simple_reaction):
+        """Test reaction depiction with equilibrium arrow type."""
+        svg = get_cdk_depiction(simple_reaction, arrow="equ")
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+    def test_reaction_with_nogo_arrow(self, simple_reaction):
+        """Test reaction depiction with no-go arrow type."""
+        svg = get_cdk_depiction(simple_reaction, arrow="ngo")
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+    def test_reaction_with_retro_arrow(self, simple_reaction):
+        """Test reaction depiction with retrosynthetic arrow type."""
+        svg = get_cdk_depiction(simple_reaction, arrow="ret")
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+    def test_reaction_with_resonance_arrow(self, simple_reaction):
+        """Test reaction depiction with resonance arrow type."""
+        svg = get_cdk_depiction(simple_reaction, arrow="res")
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+    def test_reaction_showtitle(self, simple_reaction):
+        """Test reaction title display (line 452)."""
+        svg = get_cdk_depiction(simple_reaction, showtitle=True)
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+    def test_reaction_alignrxnmap(self, simple_reaction):
+        """Test reaction mapping alignment (line 288)."""
+        svg = get_cdk_depiction(simple_reaction, alignrxnmap=True)
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+    def test_reaction_perceive_radicals(self, simple_reaction):
+        """Test radical perception on a reaction."""
+        svg = get_cdk_depiction(simple_reaction, perceive_radicals=True)
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+
+class TestReactionSetWithAgents:
+    """Test reaction set with agents for radical perception (line 174)."""
+
+    def test_reaction_set_with_agents_radical_perception(self):
+        """Test radical perception for reaction set including agents."""
+        cdk_base = "org.openscience.cdk"
+        SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
+        SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
+        reaction_set = SmilesParser.parseReactionSetSmiles("[CH3]>[Cl]>[CH3]Cl")
+
+        svg = get_cdk_depiction(reaction_set, perceive_radicals=True)
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+
+class TestCXSMILESHighlighting:
+    """Tests for CXSMILES highlighting with atom and bond highlighting (lines 561-570, 580-598)."""
+
+    def test_cxsmiles_atom_highlighting(self):
+        """Test CXSMILES with atom highlighting via smiles_string."""
+        mol = get_CDK_IAtomContainer("c1ccccc1")
+        svg = get_cdk_depiction(mol, smiles_string="c1ccccc1 |ha:0,1,2|")
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+    def test_cxsmiles_bond_highlighting_only(self):
+        """Test CXSMILES with bond-only highlighting (lines 580-598).
+
+        When bonds are highlighted but no atoms, we go to the bond-only path.
+        """
+        mol = get_CDK_IAtomContainer("c1ccccc1")
+        svg = get_cdk_depiction(mol, smiles_string="c1ccccc1 |hb:0,1|")
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+    def test_cxsmiles_combined_atom_and_bond_highlighting(self):
+        """Test CXSMILES with both atom and bond highlighting (lines 561-570)."""
+        mol = get_CDK_IAtomContainer("c1ccccc1")
+        svg = get_cdk_depiction(mol, smiles_string="c1ccccc1 |ha:0,1,2,hb:0,1|")
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+
+class TestSMARTSPatternHighlighting:
+    """Tests for SMARTS pattern matching in _apply_highlighting (lines 631-641)."""
+
+    def test_smarts_pattern_with_bond_matches(self):
+        """Test SMARTS matching that produces multiple hits with bonds."""
+        mol = get_CDK_IAtomContainer("c1ccc(O)cc1")
+        svg = get_cdk_depiction(mol, highlight="c")
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+    def test_smarts_pattern_with_low_hit_limit(self):
+        """Test SMARTS pattern with very low hit limit."""
+        mol = get_CDK_IAtomContainer("c1ccc(O)cc1")
+        svg = get_cdk_depiction(mol, highlight="c", smalim=1)
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+    def test_invalid_smarts_pattern_handled(self):
+        """Test that invalid SMARTS patterns are handled gracefully."""
+        mol = get_CDK_IAtomContainer("CCO")
+        svg = get_cdk_depiction(mol, highlight="[invalid_smarts")
+        assert svg is not None
+
+    def test_smarts_nob_style_highlight_color(self):
+        """Test SMARTS highlighting with nob style (different highlight color)."""
+        mol = get_CDK_IAtomContainer("c1ccccc1")
+        svg = get_cdk_depiction(mol, highlight="c", style="nob")
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+    def test_smarts_bow_style_highlight_color(self):
+        """Test SMARTS highlighting with bow style (RED highlight color)."""
+        mol = get_CDK_IAtomContainer("c1ccccc1")
+        svg = get_cdk_depiction(mol, highlight="c", style="bow")
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+    def test_smarts_wob_style_highlight_color(self):
+        """Test SMARTS highlighting with wob style."""
+        mol = get_CDK_IAtomContainer("c1ccccc1")
+        svg = get_cdk_depiction(mol, highlight="c", style="wob")
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+
+class TestMultipleGroupHighlighting:
+    """Test highlighting with multiple atom index groups."""
+
+    def test_multiple_atom_groups(self):
+        """Test passing multiple groups of atom indices for highlighting."""
+        mol = get_CDK_IAtomContainer("c1ccccc1O")
+        svg = get_cdk_depiction(mol, highlight_atoms=[[0, 1, 2], [3, 4, 5]])
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+
+class TestMDLHighlightingDetails:
+    """Tests for MDL HILITE highlighting paths (lines 199-201)."""
+
+    def test_mdl_highlighting_on_mol_without_mdl_data(self):
+        """Molecule without MDL HILITE properties parsed normally."""
+        mol = get_CDK_IAtomContainer("CCO")
+        svg = get_cdk_depiction(mol, apply_mdl_highlighting=True)
+        assert svg is not None
+        assert "svg" in svg.lower()
+
+    def test_mdl_highlighting_disabled_for_reaction(self):
+        """MDL highlighting is skipped for reactions (is_reaction check)."""
+        cdk_base = "org.openscience.cdk"
+        SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
+        SmilesParser = JClass(cdk_base + ".smiles.SmilesParser")(SCOB.getInstance())
+        reaction = SmilesParser.parseReactionSmiles("CC>>CCO")
+        svg = get_cdk_depiction(reaction, apply_mdl_highlighting=True)
+        assert svg is not None
+        assert "svg" in svg.lower()

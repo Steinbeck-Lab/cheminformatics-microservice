@@ -90,6 +90,9 @@ const StandardizeView = () => {
         setError(null);
         // Convert SMILES to molblock first
         const rawMolblock = await generate2DCoordinates(trimmedSmiles, "rdkit");
+        if (!rawMolblock || !rawMolblock.includes("M  END")) {
+          throw new Error("Received invalid response from the server. Please try again later.");
+        }
         molblockToStandardize = formatMolblockForBackend(rawMolblock);
       } catch (conversionError) {
         console.error("SMILES to molblock conversion error:", conversionError);
