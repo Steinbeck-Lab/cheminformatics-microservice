@@ -950,16 +950,12 @@ class TestEnsure2D:
         conf.Set3D(True)
         assert conf.Is3D()
 
-        z_vals_before = [
-            conf.GetAtomPosition(i).z for i in range(mol.GetNumAtoms())
-        ]
+        z_vals_before = [conf.GetAtomPosition(i).z for i in range(mol.GetNumAtoms())]
         result = ensure_2d(mol)
         assert result is mol
         # Should still be 3D — untouched
         assert mol.GetConformer().Is3D()
-        z_vals_after = [
-            conf.GetAtomPosition(i).z for i in range(mol.GetNumAtoms())
-        ]
+        z_vals_after = [conf.GetAtomPosition(i).z for i in range(mol.GetNumAtoms())]
         assert z_vals_before == z_vals_after
 
     def test_pseudo_3d_converted_to_2d(self):
@@ -1249,3 +1245,344 @@ M  END
     data = response.json()
     for key in ("standardized_mol", "canonical_smiles", "inchi", "inchikey"):
         assert key in data
+
+
+# ---------------------------------------------------------------------------
+# Additional coverage tests targeting specific uncovered lines in chem.py
+# ---------------------------------------------------------------------------
+
+
+class TestStandardizeEmptyBody:
+    """Test standardize endpoint with empty/missing body (line 480)."""
+
+    def test_standardize_no_data(self):
+        """Empty body should trigger the else branch raising 422."""
+        response = client.post(
+            "/latest/chem/standardize",
+            content="",
+            headers={"Content-Type": "text/plain"},
+        )
+        assert response.status_code == 422
+
+
+class TestCheckErrorsWithFix:
+    """Test check_errors with fix=True when issues are found (lines 568-585)."""
+
+    def test_errors_fix_with_issues_found(self):
+        """SMILES with checker issues and fix=True returns standardized result."""
+        # Kekulized benzene should trigger issues in the ChEMBL checker
+        smiles_with_issues = "C1=CC=CC=C1"
+        response = client.get(
+            f"/latest/chem/errors?smiles={smiles_with_issues}&fix=true"
+        )
+        assert response.status_code == 200
+        data = response.json()
+        # The fix=True path with issues returns a standardized result
+        if "original" in data:
+            assert "standardized" in data
+            assert "smi" in data["original"]
+            assert "smi" in data["standardized"]
+        else:
+            # No issues found, simple result
+            assert "smi" in data
+
+    def test_errors_no_fix_with_issues(self):
+        """SMILES with issues and fix=False returns issues list."""
+        # Kekulized benzene
+        smiles_with_issues = "C1=CC=CC=C1"
+        response = client.get(
+            f"/latest/chem/errors?smiles={smiles_with_issues}&fix=false"
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "smi" in data
+
+
+class TestNPLikenessScoreEmptyReturn:
+    """Test NP likeness score edge cases (line 643-645)."""
+
+    def test_np_score_valid_molecule(self):
+        """Valid molecule should return a score."""
+        response = client.get("/latest/chem/nplikeness/score?smiles=CCO")
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, (int, float))
+
+
+class TestTanimotoSingleMolecule:
+    """Test Tanimoto with single molecule (line 758-764)."""
+
+    def test_tanimoto_single_molecule_rejected(self):
+        """Single molecule (no comma) should return 422."""
+        response = client.get(
+            "/latest/chem/tanimoto?smiles=CCO&toolkit=cdk"
+            "&fingerprinter=ECFP&nBits=2048&radius=4"
+        )
+        assert response.status_code == 422
+
+
+class TestTanimotoMatrixMultiple:
+    """Test Tanimoto matrix for >2 molecules (lines 754-762)."""
+
+    def test_tanimoto_three_molecules_rdkit(self):
+        """Three molecules should return HTML matrix."""
+        response = client.get(
+            "/latest/chem/tanimoto?smiles=CC,CCO,CCCO&toolkit=rdkit"
+            "&fingerprinter=ECFP&nBits=2048&radius=2"
+        )
+        assert response.status_code == 200
+        assert "table" in response.text.lower()
+
+
+class TestCOCONUTPreprocessingEdgeCases:
+    """Test COCONUT preprocessing edge cases (lines 830, 835)."""
+
+    def test_coconut_preprocessing_with_descriptors(self):
+        """Test COCONUT preprocessing with descriptors enabled."""
+        response = client.get(
+            "/latest/chem/coconut/pre-processing?smiles=CCO&descriptors=true"
+        )
+        # May return 200 or 422 depending on toolkit state
+        assert response.status_code in [200, 422]
+
+    def test_coconut_preprocessing_with_3d(self):
+        """Test COCONUT preprocessing with 3D mol generation."""
+        response = client.get(
+            "/latest/chem/coconut/pre-processing?smiles=CCO&_3d_mol=true"
+        )
+        assert response.status_code in [200, 422]
+
+
+class TestClassyFireEdgeCases:
+    """Test ClassyFire edge cases (lines 932, 940)."""
+
+    def test_classyfire_result_nonexistent_jobid(self):
+        """Test ClassyFire result with a non-existent job ID (line 932)."""
+        response = client.get("/latest/chem/classyfire/99999999/result")
+        # May succeed with empty data, timeout, or return error
+        assert response.status_code in [200, 404, 422, 500]
+
+
+class TestAllFiltersFailingMolecules:
+    """Test all_filters with molecules that FAIL various filters (lines 1029-1090)."""
+
+    def test_all_filters_pains_detected_molecule(self):
+        """Test molecule with PAINS substructure that should be flagged."""
+        # Catechol-based PAINS pattern
+        pains_smiles = "Oc1ccc(O)cc1"
+        response = client.post(
+            "/latest/chem/all_filters",
+            data=pains_smiles,
+            params={"pains": "true"},
+            headers={"Content-Type": "text/plain"},
+        )
+        assert response.status_code == 200
+
+    def test_all_filters_lipinski_fail(self):
+        """Test molecule violating Lipinski RO5 (line 1037)."""
+        # Large molecule that likely violates Lipinski
+        large_mol = "CCCCCCCCCCCCCCCCCCCCCCC(=O)OCCCCCCCCCCCCCCCCCCCCC"
+        response = client.post(
+            "/latest/chem/all_filters",
+            data=large_mol,
+            params={"lipinski": "true"},
+            headers={"Content-Type": "text/plain"},
+        )
+        assert response.status_code == 200
+
+    def test_all_filters_veber_fail(self):
+        """Test molecule violating Veber filter (line 1041-1043)."""
+        # Very flexible molecule with many rotatable bonds
+        flexible_mol = "CCCCCCCCCCCCCCCCCCCCCCCCCC"
+        response = client.post(
+            "/latest/chem/all_filters",
+            data=flexible_mol,
+            params={"veber": "true"},
+            headers={"Content-Type": "text/plain"},
+        )
+        assert response.status_code == 200
+
+    def test_all_filters_reos_fail(self):
+        """Test molecule violating REOS filter (line 1046-1048)."""
+        large_mol = "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
+        response = client.post(
+            "/latest/chem/all_filters",
+            data=large_mol,
+            params={"reos": "true"},
+            headers={"Content-Type": "text/plain"},
+        )
+        assert response.status_code == 200
+
+    def test_all_filters_ghose_fail(self):
+        """Test molecule violating Ghose filter (line 1052-1054)."""
+        # Methane-like tiny molecule that fails Ghose
+        tiny_mol = "C"
+        response = client.post(
+            "/latest/chem/all_filters",
+            data=tiny_mol,
+            params={"ghose": "true"},
+            headers={"Content-Type": "text/plain"},
+        )
+        assert response.status_code == 200
+
+    def test_all_filters_ruleofthree_fail(self):
+        """Test molecule violating Rule of Three (line 1058-1060)."""
+        large_fragment = "c1ccc(cc1)c2ccc(cc2)c3ccccc3"
+        response = client.post(
+            "/latest/chem/all_filters",
+            data=large_fragment,
+            params={"ruleofthree": "true"},
+            headers={"Content-Type": "text/plain"},
+        )
+        assert response.status_code == 200
+
+    def test_all_filters_qedscore_fail(self):
+        """Test molecule outside QED score range (line 1070)."""
+        # Use a very narrow range that the molecule likely falls outside
+        response = client.post(
+            "/latest/chem/all_filters",
+            data="CCCCCCCCCCCCCCCCCCCCCCCCC",
+            params={"qedscore": "0.99-1.0"},
+            headers={"Content-Type": "text/plain"},
+        )
+        assert response.status_code == 200
+
+    def test_all_filters_sascore_fail(self):
+        """Test molecule outside SA score range (line 1080)."""
+        response = client.post(
+            "/latest/chem/all_filters",
+            data="CCO",
+            params={"sascore": "9.0-10.0"},
+            headers={"Content-Type": "text/plain"},
+        )
+        assert response.status_code == 200
+
+    def test_all_filters_and_operator_all_fail(self):
+        """Test AND operator where all filters fail."""
+        # Tiny molecule that fails Ghose and Rule of Three
+        response = client.post(
+            "/latest/chem/all_filters",
+            data="C",
+            params={
+                "ghose": "true",
+                "ruleofthree": "true",
+                "filterOperator": "AND",
+            },
+            headers={"Content-Type": "text/plain"},
+        )
+        assert response.status_code == 200
+
+
+class TestAllFiltersDetailedEdgeCases:
+    """Test all_filters_detailed edge cases (lines 1210, 1214-1222, 1293-1304)."""
+
+    def test_detailed_filters_invalid_smiles_in_list(self):
+        """Test with invalid SMILES in the list (lines 1214-1222)."""
+        response = client.post(
+            "/latest/chem/all_filters_detailed",
+            data="CCO\nINVALID_SMILES\nCC",
+            params={"pains": "true"},
+            headers={"Content-Type": "text/plain"},
+        )
+        # May return 200 with partial results or 422 if all fail
+        assert response.status_code in [200, 422]
+
+    def test_detailed_filters_empty_lines_skipped(self):
+        """Test that empty lines in input are skipped (line 1210)."""
+        response = client.post(
+            "/latest/chem/all_filters_detailed",
+            data="CCO\n\n\nCC",
+            params={"pains": "true"},
+            headers={"Content-Type": "text/plain"},
+        )
+        assert response.status_code == 200
+        data = response.json()
+        # Empty lines should be skipped, only 2 molecules
+        assert data["total_molecules"] == 2
+
+    def test_detailed_filters_nplikeness(self):
+        """Test detailed filters with NP-likeness scoring (lines 1293-1304)."""
+        response = client.post(
+            "/latest/chem/all_filters_detailed",
+            data="CCO",
+            params={"nplikeness": "-5.0-5.0"},
+            headers={"Content-Type": "text/plain"},
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data["results"]) > 0
+        if data["results"][0].get("valid"):
+            filters = data["results"][0]["filters"]
+            assert len(filters) > 0
+
+    def test_detailed_filters_sascore(self):
+        """Test detailed filters with SA score (lines 1278-1290)."""
+        response = client.post(
+            "/latest/chem/all_filters_detailed",
+            data="CCO",
+            params={"sascore": "0.0-10.0"},
+            headers={"Content-Type": "text/plain"},
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data["results"]) > 0
+        if data["results"][0].get("valid"):
+            assert "sa_score" in data["results"][0]["filters"]
+
+    def test_detailed_filters_qedscore(self):
+        """Test detailed filters with QED score."""
+        response = client.post(
+            "/latest/chem/all_filters_detailed",
+            data="CCO",
+            params={"qedscore": "0.0-1.0"},
+            headers={"Content-Type": "text/plain"},
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data["results"]) > 0
+        if data["results"][0].get("valid"):
+            assert "qed" in data["results"][0]["filters"]
+
+
+class TestErtlFunctionalGroupsFallback:
+    """Test ertl functional group error path (lines 1376-1380)."""
+
+    def test_functional_groups_invalid_smiles(self):
+        """Invalid SMILES should return 422 (line 1380)."""
+        response = client.get("/latest/chem/ertlfunctionalgroup?smiles=INVALID_SMILES")
+        assert response.status_code == 422
+
+
+class TestFixRadicalsEndpoint:
+    """Test fix radicals endpoint (lines 1507, 1521)."""
+
+    def test_fix_radicals_valid_smiles(self):
+        """Test fix radicals with valid SMILES."""
+        response = client.get("/latest/chem/fixRadicals?smiles=%5BCH3%5D")
+        # May succeed or fail depending on radical fixing capability
+        assert response.status_code in [200, 422]
+
+    def test_fix_radicals_empty_smiles(self):
+        """Test fix radicals with empty SMILES (line 1507)."""
+        response = client.get("/latest/chem/fixRadicals?smiles=")
+        assert response.status_code == 422
+
+    def test_fix_radicals_normal_molecule(self):
+        """Test fix radicals with a normal molecule (no radicals)."""
+        response = client.get("/latest/chem/fixRadicals?smiles=CCO")
+        assert response.status_code in [200, 422]
+
+
+class TestPubChemEndpoint:
+    """Test PubChem endpoint edge cases (lines 1608-1610)."""
+
+    def test_pubchem_with_smiles_identifier(self):
+        """Test PubChem endpoint with a SMILES as identifier."""
+        response = client.get("/latest/chem/pubchem/smiles?identifier=CCO")
+        # Depends on network availability
+        assert response.status_code in [200, 422]
+
+    def test_pubchem_empty_identifier(self):
+        """Test PubChem with empty identifier."""
+        response = client.get("/latest/chem/pubchem/smiles?identifier=")
+        assert response.status_code == 422

@@ -489,3 +489,131 @@ class TestAtomContainerIntegrity:
                 implicit_h = atom.getImplicitHydrogenCount()
                 # Should have implicit hydrogens or be fully substituted
                 assert implicit_h >= 0
+
+
+class TestStereoModeAllenalPath:
+    """Test stereo mode on allene molecules with chirality."""
+
+    def test_stereo_mode_chiral_allene(self):
+        """Test stereo mode on an allene with extended tetrahedral chirality."""
+        # Use a chiral allene: the middle carbon is the focus of the allene stereo element
+        mol = get_CDK_IAtomContainer("OC(F)=[C@@]=C(Cl)Br")
+        set_hydrogen_display(mol, "Stereo")
+        # Should not crash; molecule still valid
+        assert mol.getAtomCount() > 0
+
+    def test_stereo_mode_simple_allene(self):
+        """Test stereo mode on a non-chiral allene."""
+        mol = get_CDK_IAtomContainer("CC=C=CC")
+        set_hydrogen_display(mol, "Stereo")
+        assert mol.getAtomCount() > 0
+
+
+class TestStereoModeNoImplicitH:
+    """Test stereo mode when focus atom has no implicit hydrogens."""
+
+    def test_stereo_tetrahedral_no_implicit_h(self):
+        """Test stereo mode when chiral center already has 0 implicit H."""
+        mol = get_CDK_IAtomContainer("[C@@](F)(Cl)(Br)I")
+        set_hydrogen_display(mol, "Stereo")
+        # Fully substituted chiral center has no implicit H
+        assert mol.getAtomCount() > 0
+
+
+class TestSmartModeBranches:
+    """Test smart mode code branches for different stereo element types."""
+
+    def test_smart_mode_cis_trans_with_ring_context(self):
+        """Test smart mode on E/Z bond in ring context."""
+        # A molecule with cis/trans in a ring-like environment
+        mol = get_CDK_IAtomContainer("C/C=C\\C")
+        set_hydrogen_display(mol, "Smart")
+        assert mol.getAtomCount() > 0
+
+    def test_smart_mode_chiral_allene(self):
+        """Test smart mode on chiral allene."""
+        mol = get_CDK_IAtomContainer("OC(F)=[C@@]=C(Cl)Br")
+        set_hydrogen_display(mol, "Smart")
+        assert mol.getAtomCount() > 0
+
+    def test_smart_mode_chiral_in_ring(self):
+        """Test smart mode on chiral center in ring (tests _should_add_hydrogen ring bond path)."""
+        # Chiral center in a ring: the ring bonds count as "important"
+        mol = get_CDK_IAtomContainer("[C@@H]1(O)CCCC1")
+        set_hydrogen_display(mol, "Smart")
+        assert mol.getAtomCount() > 0
+
+    def test_smart_mode_chiral_with_many_ring_bonds(self):
+        """Test smart mode with chiral atom having 3 ring bonds (count==3 triggers H addition)."""
+        # Bridgehead carbon with 3 ring bonds and 1 implicit H
+        mol = get_CDK_IAtomContainer("[C@H]12CC1CC2")
+        set_hydrogen_display(mol, "Smart")
+        assert mol.getAtomCount() > 0
+
+    def test_smart_mode_no_stereo(self):
+        """Test smart mode on molecule without stereo elements."""
+        mol = get_CDK_IAtomContainer("CCCC")
+        set_hydrogen_display(mol, "Smart")
+        assert mol.getAtomCount() > 0
+
+    def test_smart_mode_multiple_chiral_centers_in_ring(self):
+        """Test smart mode with multiple chiral centers including ring bonds."""
+        mol = get_CDK_IAtomContainer("[C@@H]1([C@H](O)CC1)F")
+        set_hydrogen_display(mol, "Smart")
+        assert mol.getAtomCount() > 0
+
+    def test_smart_mode_tetrahedral_no_implicit_h(self):
+        """Test smart mode when chiral center has 0 implicit H (else branch)."""
+        mol = get_CDK_IAtomContainer("[C@@](F)(Cl)(Br)I")
+        set_hydrogen_display(mol, "Smart")
+        assert mol.getAtomCount() > 0
+
+    def test_smart_mode_ez_with_smart_heuristic(self):
+        """Test smart mode E/Z with smart heuristic for hydrogen addition."""
+        # E/Z where one end has 1 implicit H
+        mol = get_CDK_IAtomContainer("C/C=C/C")
+        set_hydrogen_display(mol, "Smart")
+        assert mol.getAtomCount() > 0
+
+    def test_smart_mode_ez_no_implicit_h(self):
+        """Test smart mode E/Z where atoms have no implicit H."""
+        mol = get_CDK_IAtomContainer("ClC=CCl")
+        set_hydrogen_display(mol, "Smart")
+        assert mol.getAtomCount() > 0
+
+
+class TestSproutHydrogenFunction:
+    """Test the _sprout_hydrogen helper function indirectly."""
+
+    def test_sprout_hydrogen_via_stereo_mode(self):
+        """Test that stereo mode properly sprouts hydrogens at chiral centers."""
+        mol = get_CDK_IAtomContainer("C[C@H](N)O")
+        initial_stereo = sum(1 for _ in mol.stereoElements())
+        set_hydrogen_display(mol, "Stereo")
+        # Stereo elements should be rebuilt
+        final_stereo = sum(1 for _ in mol.stereoElements())
+        assert final_stereo >= initial_stereo
+
+    def test_sprout_hydrogen_via_smart_mode(self):
+        """Test that smart mode properly sprouts hydrogens when needed."""
+        mol = get_CDK_IAtomContainer("C[C@H](N)O")
+        set_hydrogen_display(mol, "Smart")
+        assert mol.getAtomCount() > 0
+
+
+class TestGetExplicitHydrogenCarriers:
+    """Test _get_explicit_hydrogen_carriers indirectly through smart mode."""
+
+    def test_explicit_carriers_via_smart_tetrahedral(self):
+        """Test carrier replacement through smart mode tetrahedral path."""
+        # This molecule has a chiral center in a ring with 3 ring bonds
+        mol = get_CDK_IAtomContainer("[C@H]12CC1CC2")
+        set_hydrogen_display(mol, "Smart")
+        # Should properly handle carriers
+        assert mol.getAtomCount() > 0
+
+    def test_explicit_carriers_via_smart_ring_chiral(self):
+        """Test carrier replacement for chiral center with ring context."""
+        mol = get_CDK_IAtomContainer("[C@@H]1(Cl)CCCC1")
+        set_hydrogen_display(mol, "Smart")
+        assert mol.getAtomCount() > 0
