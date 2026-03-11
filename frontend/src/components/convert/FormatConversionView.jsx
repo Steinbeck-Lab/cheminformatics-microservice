@@ -71,8 +71,7 @@ const detectInputFormat = (text) => {
   }
 
   // SMILES: no whitespace, only valid SMILES characters
-  if (!/\s/.test(trimmed) && /^[A-Za-z0-9[\]()=#@+\-/.\\%:*]+$/.test(trimmed))
-    return "smiles";
+  if (!/\s/.test(trimmed) && /^[A-Za-z0-9[\]()=#@+\-/.\\%:*]+$/.test(trimmed)) return "smiles";
 
   // Otherwise assume IUPAC name
   return "iupac";
@@ -112,8 +111,14 @@ const FormatConversionView = () => {
       .join("\n")
       .trim();
 
-    // Ensure proper molblock format - starts with newline (like the test fixture)
-    if (!formatted.startsWith("\n")) {
+    // V2000/V3000 molblocks have a 3-line header: name, program/timestamp, comment.
+    // CDK-style molblocks omit the name line (start with program line), so we
+    // prepend an empty name line.  Molblocks that already include a name line
+    // (e.g. Actelion MolfileCreator) must NOT get an extra blank line.
+    const lines = formatted.split("\n");
+    const countsIdx = lines.findIndex((l) => /V[23]000/.test(l));
+    if (countsIdx >= 0 && countsIdx <= 2) {
+      // Counts line found too early → name line is missing → add blank name
       formatted = "\n" + formatted;
     }
 
@@ -321,6 +326,9 @@ const FormatConversionView = () => {
           // If the output is SMILES, we're done
           if (outputFormat === "smiles") {
             convertedResult = smiles;
+          } else if (outputFormat === "mol") {
+            // MOL Block output: generate 2D coordinates from SMILES
+            convertedResult = await convertService.generate2DCoordinates(smiles, toolkit);
           } else {
             // Otherwise, convert SMILES to the target format
             const formatOption = OUTPUT_FORMAT_OPTIONS.find((option) => option.id === outputFormat);
@@ -350,6 +358,9 @@ const FormatConversionView = () => {
           // If the output is SMILES, we're done
           if (outputFormat === "smiles") {
             convertedResult = smiles;
+          } else if (outputFormat === "mol") {
+            // MOL Block output: generate 2D coordinates from SMILES
+            convertedResult = await convertService.generate2DCoordinates(smiles, toolkit);
           } else {
             // Otherwise, convert SMILES to the target format
             const formatOption = OUTPUT_FORMAT_OPTIONS.find((option) => option.id === outputFormat);
@@ -374,6 +385,9 @@ const FormatConversionView = () => {
         if (outputFormat === "smiles") {
           // Just return the input if output is also SMILES
           convertedResult = trimmedInput;
+        } else if (outputFormat === "mol") {
+          // MOL Block output: generate 2D coordinates from SMILES
+          convertedResult = await convertService.generate2DCoordinates(trimmedInput, toolkit);
         } else {
           const formatOption = OUTPUT_FORMAT_OPTIONS.find((option) => option.id === outputFormat);
           if (!formatOption || !formatOption.method) {
@@ -573,8 +587,8 @@ const FormatConversionView = () => {
                   </div>
                 )}
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Upload a ChemDraw binary (.cdx) or XML (.cdxml) file. The output will be a
-                  V2000 MOL block.
+                  Upload a ChemDraw binary (.cdx) or XML (.cdxml) file. The output will be a V2000
+                  MOL block.
                 </p>
               </>
             ) : inputFormat === "molsdf" ? (
@@ -867,8 +881,8 @@ const FormatConversionView = () => {
               <div className="text-xs text-gray-500 dark:text-gray-400">
                 Converted from{" "}
                 {INPUT_FORMAT_OPTIONS.find((o) => o.id === inputFormat)?.label ||
-                  inputFormat.toUpperCase()}
-                {" "}to{" "}
+                  inputFormat.toUpperCase()}{" "}
+                to{" "}
                 {OUTPUT_FORMAT_OPTIONS.find((o) => o.id === outputFormat)?.label ||
                   outputFormat.toUpperCase()}
                 {showToolkitSelection &&
