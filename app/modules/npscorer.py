@@ -12,7 +12,7 @@ from rdkit.Chem import rdMolDescriptors
 default_path = pystow.join("NP_model")
 
 # Model download location
-model_url = "https://github.com/rdkit/rdkit/blob/master/Contrib/NP_Score/publicnp.model.gz?raw=true"
+model_url = "https://raw.githubusercontent.com/rdkit/rdkit/master/Contrib/NP_Score/publicnp.model.gz"
 model_path = str(default_path) + "/publicnp.model.gz"
 
 # Download models to a default location if not already present

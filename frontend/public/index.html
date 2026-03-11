@@ -5,6 +5,10 @@
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#111827" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://matomo.nfdi4chem.de; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://dev.api.naturalproducts.net https://matomo.nfdi4chem.de; frame-src 'none';"
+    />
     <meta name="title" content="Cheminformatics Microservices UI" />
     <meta
       name="description"
@@ -56,7 +60,7 @@
       _paq.push(["trackPageView"]);
       _paq.push(["enableLinkTracking"]);
       (function () {
-        var u = "//matomo.nfdi4chem.de/";
+        var u = "https://matomo.nfdi4chem.de/";
         _paq.push(["setTrackerUrl", u + "matomo.php"]);
         _paq.push(["setSiteId", "6"]);
         var d = document,
@@ -70,7 +74,11 @@
     <!-- End Matomo Code -->
 
     <title>Cheminformatics Microservices UI</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.0.1/3Dmol-min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.0.1/3Dmol-min.js"
+      integrity="sha384-9ZbDaoDAmrONxturmGrXyh4eH6QL2cclJ5EpiG8Oif04a7zhy/wGaVa1M6A41JDN"
+      crossorigin="anonymous"
+    ></script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

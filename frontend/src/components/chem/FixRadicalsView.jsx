@@ -1,5 +1,6 @@
 // Description: This component allows users to input a SMILES string containing radicals and fix them using CDK. It displays the original structure, fixed structure, and statistics about the radicals.
 import React, { useState, useEffect } from "react";
+import DOMPurify from "dompurify";
 import {
   HiOutlineBeaker,
   HiOutlineInformationCircle,
@@ -334,9 +335,9 @@ const FixRadicalsView = () => {
                   {/* Depiction Container */}
                   <div className="bg-white dark:bg-gray-900 rounded-lg border-2 border-gray-200 dark:border-gray-700 p-4 mb-3">
                     {originalDepiction ? (
-                      <div 
+                      <div
                         className="w-full h-80 flex items-center justify-center [&>svg]:max-w-full [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:h-auto"
-                        dangerouslySetInnerHTML={{ __html: originalDepiction }}
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(originalDepiction, { USE_PROFILES: { svg: true, svgFilters: true } }) }}
                       />
                     ) : (
                       <div className="w-full h-80 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded">
@@ -367,9 +368,9 @@ const FixRadicalsView = () => {
                   {/* Depiction Container */}
                   <div className="bg-white dark:bg-gray-900 rounded-lg border-2 border-green-200 dark:border-green-700 p-4 mb-3">
                     {fixedDepiction ? (
-                      <div 
+                      <div
                         className="w-full h-80 flex items-center justify-center [&>svg]:max-w-full [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:h-auto"
-                        dangerouslySetInnerHTML={{ __html: fixedDepiction }}
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(fixedDepiction, { USE_PROFILES: { svg: true, svgFilters: true } }) }}
                       />
                     ) : (
                       <div className="w-full h-80 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded">

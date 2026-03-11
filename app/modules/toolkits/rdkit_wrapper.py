@@ -994,3 +994,37 @@ def convert_cdx_to_mol(cdx_bytes: bytes, fmt: str = "cdx") -> str:
         raise ValueError(f"No valid molecules found in the {suffix} file.")
 
     return Chem.MolToMolBlock(valid[0]).rstrip()
+
+
+def ensure_2d(mol: Chem.Mol) -> Chem.Mol:
+    """Coerce pseudo-3D conformers to 2D by zeroing spurious Z coordinates.
+
+    Some molfile writers (e.g. Actelion MolfileCreator) emit near-zero Z
+    values for 2D drawings, causing RDKit to flag the conformer as 3D.
+    This breaks chembl_structure_pipeline's cleanup_drawing_mol(), which
+    strictly requires 2D input.
+
+    If all Z coordinates are within ±0.5 Å, they are set to 0.0 and the
+    3D flag is cleared. Genuine 3D conformers are left untouched.
+
+    Args:
+        mol: RDKit Mol object. Modified in-place.
+
+    Returns:
+        The same Mol object (for chaining).
+    """
+    if mol.GetNumConformers() == 0:
+        return mol
+    conf = mol.GetConformer()
+    if not conf.Is3D():
+        return mol
+    all_z_near_zero = all(
+        abs(conf.GetAtomPosition(i).z) < 0.5
+        for i in range(mol.GetNumAtoms())
+    )
+    if all_z_near_zero:
+        for i in range(mol.GetNumAtoms()):
+            pos = conf.GetAtomPosition(i)
+            conf.SetAtomPosition(i, (pos.x, pos.y, 0.0))
+        conf.Set3D(False)
+    return mol

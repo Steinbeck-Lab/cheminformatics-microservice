@@ -51,6 +51,7 @@ from app.modules.toolkits.rdkit_wrapper import get_tanimoto_similarity_rdkit
 from app.modules.toolkits.rdkit_wrapper import get_VeberFilter
 from app.modules.toolkits.rdkit_wrapper import get_VeberFilter_detailed
 from app.modules.toolkits.rdkit_wrapper import get_standardized_tautomer
+from app.modules.toolkits.rdkit_wrapper import ensure_2d
 from app.modules.toolkits.rdkit_wrapper import QED
 from app.modules.pubchem_retrieve import PubChemClient
 from app.schemas import HealthCheck
@@ -133,6 +134,7 @@ def get_health() -> HealthCheck:
 def get_stereoisomers(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES string to be enumerated",
         openapi_examples={
             "example1": {
@@ -184,6 +186,7 @@ def get_stereoisomers(
 def get_descriptors(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -270,6 +273,7 @@ def get_descriptors(
 def get_multiple_descriptors(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecules",
         openapi_examples={
             "example1": {
@@ -341,6 +345,7 @@ def get_multiple_descriptors(
 def hose_codes(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -458,11 +463,18 @@ M  END""",
         if data:
             suppl = Chem.SDMolSupplier()
             suppl.SetData(data.encode("utf-8"))
-            if len(suppl) == 1 and suppl[0]:
-                mol_data = suppl[0]
+            if len(suppl) != 1 or suppl[0] is None:
+                raise ValueError("Expected exactly one valid molecule in the input SDF data.")
+            mol_data = suppl[0]
             mol = Chem.MolToMolBlock(mol_data)
-            standardized_mol = standardizer.standardize_molblock(mol)
-            rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
+            try:
+                standardized_mol = standardizer.standardize_molblock(mol)
+                rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
+            except Exception:
+                ensure_2d(mol_data)
+                mol = Chem.MolToMolBlock(mol_data)
+                standardized_mol = standardizer.standardize_molblock(mol)
+                rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
 
         else:
             raise HTTPException(
@@ -482,8 +494,9 @@ M  END""",
             response.update(original_properties)
             return response
 
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=str(e))
+    except Exception:
+        logger.exception("Error processing SMILES")
+        raise HTTPException(status_code=422, detail="Invalid input")
 
 
 @router.get(
@@ -502,6 +515,7 @@ M  END""",
 def check_errors(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="The SMILES string to check and standardize.",
         openapi_examples={
             "example1": {
@@ -594,6 +608,7 @@ def check_errors(
 def np_likeness_score(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="The SMILES string to calculate the natural product likeness score",
         openapi_examples={
             "example1": {
@@ -625,8 +640,9 @@ def np_likeness_score(
         np_score = get_np_score(mol)
         if np_score:
             return float(np_score)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logger.exception("Error computing NP score")
+        raise HTTPException(status_code=500, detail="Processing error")
 
 
 @router.get(
@@ -645,6 +661,7 @@ def np_likeness_score(
 def tanimoto_similarity(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecules",
         openapi_examples={
             "example1": {
@@ -767,6 +784,7 @@ def coconut_preprocessing(
     smiles: str = Query(
         ...,
         title="SMILES",
+        max_length=5000,
         description="SMILES string representing a chemical compound",
         openapi_examples={
             "example1": {
@@ -813,10 +831,13 @@ def coconut_preprocessing(
                 status_code=422,
                 detail="Error reading SMILES string, please check again.",
             )
-    except Exception as e:
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error processing COCONUT request")
         raise HTTPException(
             status_code=422,
-            detail="Error processing request: " + str(e),
+            detail="Processing error",
         )
 
 
@@ -836,6 +857,7 @@ def coconut_preprocessing(
 async def classyfire_classify(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the compound to be classified",
         openapi_examples={
             "example1": {
@@ -908,10 +930,11 @@ async def classyfire_result(jobid: str):
             # Replace with your function to retrieve the result
             data = await result(jobid)
             return data
-        except Exception as e:
+        except Exception:
+            logger.exception("Error processing ClassyFire request")
             raise HTTPException(
                 status_code=500,
-                detail="Error processing request: " + str(e),
+                detail="Processing error",
             )
     else:
         raise HTTPException(status_code=422, detail="Job ID is required.")
@@ -1318,6 +1341,7 @@ def all_filter_molecules_detailed(
 def get_functional_groups(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES string to be enumerated",
         openapi_examples={
             "example1": {
@@ -1349,8 +1373,9 @@ def get_functional_groups(
         try:
             f_groups = get_ertl_functional_groups(mol)
             return f_groups
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+        except Exception:
+            logger.exception("Error getting functional groups")
+            raise HTTPException(status_code=500, detail="Processing error")
     else:
         raise HTTPException(
             status_code=422,
@@ -1374,6 +1399,7 @@ def get_functional_groups(
 def get_standardized_tautomer_smiles(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES string to be standardized",
         openapi_examples={
             "example1": {
@@ -1409,6 +1435,7 @@ def get_standardized_tautomer_smiles(
 def fix_radicals_endpoint(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES string containing radicals to be fixed",
         openapi_examples={
             "example1": {
@@ -1490,16 +1517,16 @@ def fix_radicals_endpoint(
             radicals_detected=result["radicals_detected"],
             radicals_fixed=result["radicals_fixed"],
         )
-    except ValueError as e:
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=str(e),
+            detail="Invalid input",
         )
-    except Exception as e:
-        logger.error(f"Error fixing radicals for SMILES '{smiles}': {str(e)}")
+    except Exception:
+        logger.exception("Error fixing radicals")
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Error processing molecule: {str(e)}",
+            detail="Processing error",
         )
 
 
@@ -1578,9 +1605,9 @@ def get_pubchem_smiles(
             pubchem_links=result["pubchem_links"],
         )
 
-    except Exception as e:
-        logger.error(f"Error processing PubChem request for '{identifier}': {str(e)}")
+    except Exception:
+        logger.exception("Error processing PubChem request")
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Error processing request: {str(e)}",
+            detail="Processing error",
         )

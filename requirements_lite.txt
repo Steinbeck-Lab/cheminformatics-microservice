@@ -17,7 +17,7 @@ selfies>=2.1.1
 tensorflow==2.15.1
 Keras-Preprocessing==1.1.2
 unicodedata2==15.0.0
-websockets==10.4
+websockets>=14.0
 mapchiral
 slowapi
 imantics==0.1.12

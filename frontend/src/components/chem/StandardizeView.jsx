@@ -38,8 +38,14 @@ const StandardizeView = () => {
       .join("\n")
       .trim();
 
-    // Ensure proper molblock format - starts with newline (like the test fixture)
-    if (!formatted.startsWith("\n")) {
+    // V2000/V3000 molblocks have a 3-line header: name, program/timestamp, comment.
+    // CDK-style molblocks omit the name line (start with program line), so we
+    // prepend an empty name line.  Molblocks that already include a name line
+    // (e.g. Actelion MolfileCreator) must NOT get an extra blank line.
+    const lines = formatted.split("\n");
+    const countsIdx = lines.findIndex((l) => /V[23]000/.test(l));
+    if (countsIdx >= 0 && countsIdx <= 2) {
+      // Counts line found too early → name line is missing → add blank name
       formatted = "\n" + formatted;
     }
 

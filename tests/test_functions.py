@@ -396,7 +396,7 @@ def test_get_ertl_functional_groups_no_fragments():
     assert result[0] == {"None": "No fragments found"}
 
 
-def test_setup_jvm_exception(monkeypatch, capsys):
+def test_setup_jvm_exception(monkeypatch, caplog):
     def mock_get_default_jvm_path():
         raise JVMNotFoundException
 
@@ -404,14 +404,13 @@ def test_setup_jvm_exception(monkeypatch, capsys):
         "app.modules.toolkits.cdk_wrapper.getDefaultJVMPath", mock_get_default_jvm_path
     )
 
-    setup_jvm()
-    captured = capsys.readouterr()
-    assert "If you see this message" in captured.out
-    assert (
-        "This indicates that the environment variable JAVA_HOME is not set properly"
-        in captured.out
-    )
-    assert "You can set it or set it manually in the code" in captured.out
+    import logging
+
+    with caplog.at_level(logging.WARNING, logger="app.modules.toolkits.cdk_wrapper"):
+        setup_jvm()
+
+    assert "JPype cannot find jvm.dll" in caplog.text
+    assert "JAVA_HOME" in caplog.text
 
 
 # =============================================
