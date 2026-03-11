@@ -535,7 +535,6 @@ class TestReactionLayoutSystem:
 
         cdk_base = "org.openscience.cdk"
         DepictionGenerator = JClass(cdk_base + ".depict.DepictionGenerator")
-        SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
         gen = DepictionGenerator()
 
         system = ReactionLayoutSystem()
@@ -548,7 +547,6 @@ class TestReactionLayoutSystem:
 
         cdk_base = "org.openscience.cdk"
         DepictionGenerator = JClass(cdk_base + ".depict.DepictionGenerator")
-        SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
         gen = DepictionGenerator()
 
         system = ReactionLayoutSystem()
@@ -561,7 +559,6 @@ class TestReactionLayoutSystem:
 
         cdk_base = "org.openscience.cdk"
         DepictionGenerator = JClass(cdk_base + ".depict.DepictionGenerator")
-        SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
         gen = DepictionGenerator()
 
         system = ReactionLayoutSystem()
@@ -646,7 +643,6 @@ class TestSetMapAlignmentConvenience:
 
         cdk_base = "org.openscience.cdk"
         DepictionGenerator = JClass(cdk_base + ".depict.DepictionGenerator")
-        SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
         gen = DepictionGenerator()
 
         result = set_map_alignment(gen, align_rxnmap=True)
@@ -658,7 +654,6 @@ class TestSetMapAlignmentConvenience:
 
         cdk_base = "org.openscience.cdk"
         DepictionGenerator = JClass(cdk_base + ".depict.DepictionGenerator")
-        SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
         gen = DepictionGenerator()
 
         result = set_map_alignment(gen, align_rxnmap=False)
@@ -670,7 +665,6 @@ class TestSetMapAlignmentConvenience:
 
         cdk_base = "org.openscience.cdk"
         DepictionGenerator = JClass(cdk_base + ".depict.DepictionGenerator")
-        SCOB = JClass(cdk_base + ".silent.SilentChemObjectBuilder")
         gen = DepictionGenerator()
 
         result = set_map_alignment(gen)

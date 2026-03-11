@@ -497,13 +497,11 @@ class TestSetStyleMetalAtEnd:
         # Find a bond between Fe and a ring atom
         fe_atom = mol.getAtom(fe_idx)
         ring_bond = None
-        ring_atom_idx = None
         for bond in fe_atom.bonds():
             other = bond.getOther(fe_atom)
             other_idx = mol.indexOf(other)
             if other_idx != fe_idx:
                 ring_bond = bond
-                ring_atom_idx = other_idx
                 break
 
         assert ring_bond is not None
@@ -583,13 +581,6 @@ class TestNeutralizeChargesDirectly:
 
     def test_charged_ring_atoms_neutralized(self, mc_handler):
         """Create a molecule with charged atoms and verify neutralization."""
-        from jpype import JClass
-
-        CDKConstants = JClass("org.openscience.cdk.CDKConstants")
-        Sgroup = JClass("org.openscience.cdk.sgroup.Sgroup")
-        SgroupType = JClass("org.openscience.cdk.sgroup.SgroupType")
-        ArrayList = JClass("java.util.ArrayList")
-
         # Use cyclopentadienyl anion with Fe
         mol = get_CDK_IAtomContainer("[Fe+2]c1ccccc1")
 
@@ -606,10 +597,6 @@ class TestNeutralizeChargesDirectly:
 
     def test_charges_with_dative_style(self, mc_handler):
         """DATIVE style should also trigger charge neutralization."""
-        from jpype import JClass
-
-        CDKConstants = JClass("org.openscience.cdk.CDKConstants")
-
         mol = get_CDK_IAtomContainer("[Fe+2]c1ccccc1")
 
         fe_idx = None
