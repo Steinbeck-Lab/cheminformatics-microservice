@@ -47,6 +47,9 @@ RUN conda install -c conda-forge python=${PYTHON_VERSION} sqlite --force-reinsta
 
 COPY ./app /code/app
 
+RUN useradd -m -r appuser && chown -R appuser:appuser /code
+USER appuser
+
 # ---------- runtime: keep proxies available for the app too ----------
 # (pystow/urllib need them at runtime to fetch the JAR)
 ENV HTTP_PROXY=${HTTP_PROXY} \

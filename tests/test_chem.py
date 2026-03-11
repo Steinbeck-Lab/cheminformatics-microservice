@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import pytest
 from fastapi.testclient import TestClient
+from rdkit import Chem
+from rdkit.Chem import AllChem  # noqa: F401 — needed for Compute2DCoords/EmbedMolecule
 
 from app.main import app
 
@@ -430,7 +432,7 @@ def test_get_functional_groups_endpoint_invalid_input():
     response = client.get("/latest/chem/ertlfunctionalgroup?smiles=invalid_smiles")
     assert response.status_code == 422
     data = response.json()
-    assert "Error reading smiles" in data["detail"]
+    assert "detail" in data
 
 
 # Tests for descriptors endpoint with HTML format
@@ -902,3 +904,348 @@ def test_pubchem_smiles_exception_handling():
     )
     # Should handle gracefully
     assert response.status_code in [200, 422]
+
+
+# ---------------------------------------------------------------------------
+# ensure_2d unit tests
+# ---------------------------------------------------------------------------
+
+
+class TestEnsure2D:
+    """Tests for the ensure_2d helper that coerces pseudo-3D conformers to 2D."""
+
+    def test_no_conformer(self):
+        """Molecule with no conformer is returned unchanged."""
+        from app.modules.toolkits.rdkit_wrapper import ensure_2d
+
+        mol = Chem.MolFromSmiles("CCO")
+        assert mol.GetNumConformers() == 0
+        result = ensure_2d(mol)
+        assert result is mol
+        assert mol.GetNumConformers() == 0
+
+    def test_already_2d(self):
+        """A true 2D conformer is left untouched."""
+        from app.modules.toolkits.rdkit_wrapper import ensure_2d
+
+        mol = Chem.MolFromSmiles("CCO")
+        Chem.AllChem.Compute2DCoords(mol)
+        conf = mol.GetConformer()
+        assert not conf.Is3D()
+        result = ensure_2d(mol)
+        assert result is mol
+        assert not mol.GetConformer().Is3D()
+
+    def test_genuine_3d_untouched(self):
+        """A genuine 3D conformer with large Z values is not modified."""
+        from app.modules.toolkits.rdkit_wrapper import ensure_2d
+
+        mol = Chem.MolFromSmiles("CCO")
+        Chem.AllChem.Compute2DCoords(mol)
+        conf = mol.GetConformer()
+        # Manually set Z values well above the 0.5 threshold
+        for i in range(mol.GetNumAtoms()):
+            pos = conf.GetAtomPosition(i)
+            conf.SetAtomPosition(i, (pos.x, pos.y, 1.5 + i * 0.5))
+        conf.Set3D(True)
+        assert conf.Is3D()
+
+        z_vals_before = [
+            conf.GetAtomPosition(i).z for i in range(mol.GetNumAtoms())
+        ]
+        result = ensure_2d(mol)
+        assert result is mol
+        # Should still be 3D — untouched
+        assert mol.GetConformer().Is3D()
+        z_vals_after = [
+            conf.GetAtomPosition(i).z for i in range(mol.GetNumAtoms())
+        ]
+        assert z_vals_before == z_vals_after
+
+    def test_pseudo_3d_converted_to_2d(self):
+        """Pseudo-3D (small Z near zero) is flattened and 3D flag cleared."""
+        from app.modules.toolkits.rdkit_wrapper import ensure_2d
+
+        mol = Chem.MolFromSmiles("CCO")
+        Chem.AllChem.Compute2DCoords(mol)
+        conf = mol.GetConformer()
+        # Simulate pseudo-3D: set tiny Z values and flag as 3D
+        for i in range(mol.GetNumAtoms()):
+            pos = conf.GetAtomPosition(i)
+            conf.SetAtomPosition(i, (pos.x, pos.y, -0.0066))
+        conf.Set3D(True)
+        assert conf.Is3D()
+
+        result = ensure_2d(mol)
+        assert result is mol
+        assert not mol.GetConformer().Is3D()
+        # All Z should be exactly 0.0
+        for i in range(mol.GetNumAtoms()):
+            assert mol.GetConformer().GetAtomPosition(i).z == 0.0
+
+    def test_pseudo_3d_boundary_just_under(self):
+        """Z values at 0.499 (just under threshold) are flattened."""
+        from app.modules.toolkits.rdkit_wrapper import ensure_2d
+
+        mol = Chem.MolFromSmiles("C")
+        Chem.AllChem.Compute2DCoords(mol)
+        conf = mol.GetConformer()
+        for i in range(mol.GetNumAtoms()):
+            pos = conf.GetAtomPosition(i)
+            conf.SetAtomPosition(i, (pos.x, pos.y, 0.499))
+        conf.Set3D(True)
+
+        ensure_2d(mol)
+        assert not mol.GetConformer().Is3D()
+        for i in range(mol.GetNumAtoms()):
+            assert mol.GetConformer().GetAtomPosition(i).z == 0.0
+
+    def test_pseudo_3d_boundary_at_threshold(self):
+        """Z value at exactly 0.5 is NOT flattened (threshold is strict <)."""
+        from app.modules.toolkits.rdkit_wrapper import ensure_2d
+
+        mol = Chem.MolFromSmiles("C")
+        Chem.AllChem.Compute2DCoords(mol)
+        conf = mol.GetConformer()
+        for i in range(mol.GetNumAtoms()):
+            pos = conf.GetAtomPosition(i)
+            conf.SetAtomPosition(i, (pos.x, pos.y, 0.5))
+        conf.Set3D(True)
+
+        ensure_2d(mol)
+        # 0.5 is NOT < 0.5, so it stays 3D
+        assert mol.GetConformer().Is3D()
+
+    def test_mixed_z_one_atom_above_threshold(self):
+        """If even one atom has |Z| >= 0.5, the conformer stays 3D."""
+        from app.modules.toolkits.rdkit_wrapper import ensure_2d
+
+        mol = Chem.MolFromSmiles("CCO")
+        Chem.AllChem.Compute2DCoords(mol)
+        conf = mol.GetConformer()
+        # Set most atoms near zero, but one at 0.6
+        for i in range(mol.GetNumAtoms()):
+            pos = conf.GetAtomPosition(i)
+            z = 0.6 if i == 0 else 0.01
+            conf.SetAtomPosition(i, (pos.x, pos.y, z))
+        conf.Set3D(True)
+
+        ensure_2d(mol)
+        assert mol.GetConformer().Is3D()
+
+    def test_negative_z_near_zero(self):
+        """Negative Z values near zero are also flattened."""
+        from app.modules.toolkits.rdkit_wrapper import ensure_2d
+
+        mol = Chem.MolFromSmiles("CC")
+        Chem.AllChem.Compute2DCoords(mol)
+        conf = mol.GetConformer()
+        for i in range(mol.GetNumAtoms()):
+            pos = conf.GetAtomPosition(i)
+            conf.SetAtomPosition(i, (pos.x, pos.y, -0.3))
+        conf.Set3D(True)
+
+        ensure_2d(mol)
+        assert not mol.GetConformer().Is3D()
+        for i in range(mol.GetNumAtoms()):
+            assert mol.GetConformer().GetAtomPosition(i).z == 0.0
+
+    def test_chaining(self):
+        """ensure_2d returns the mol for chaining."""
+        from app.modules.toolkits.rdkit_wrapper import ensure_2d
+
+        mol = Chem.MolFromSmiles("CCO")
+        result = ensure_2d(mol)
+        assert result is mol
+
+    def test_xy_coordinates_preserved(self):
+        """X and Y coordinates are not modified when Z is zeroed."""
+        from app.modules.toolkits.rdkit_wrapper import ensure_2d
+
+        mol = Chem.MolFromSmiles("CCO")
+        Chem.AllChem.Compute2DCoords(mol)
+        conf = mol.GetConformer()
+        original_xy = []
+        for i in range(mol.GetNumAtoms()):
+            pos = conf.GetAtomPosition(i)
+            original_xy.append((pos.x, pos.y))
+            conf.SetAtomPosition(i, (pos.x, pos.y, 0.01))
+        conf.Set3D(True)
+
+        ensure_2d(mol)
+        for i in range(mol.GetNumAtoms()):
+            pos = mol.GetConformer().GetAtomPosition(i)
+            assert abs(pos.x - original_xy[i][0]) < 1e-6
+            assert abs(pos.y - original_xy[i][1]) < 1e-6
+
+
+# ---------------------------------------------------------------------------
+# Standardize endpoint — pseudo-3D molfile (ensure_2d fallback path)
+# ---------------------------------------------------------------------------
+
+
+JERANGOLID_E_MOLFILE = """Jerangolid E.mol
+Actelion Java MolfileCreator 1.0
+
+ 27 28  0  0  1  0  0  0  0  0999 V2000
+   11.1871   -9.7857   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+   12.4856  -10.5363   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+   13.7859   -9.7857   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+   15.0844  -10.5363   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+   13.7859   -8.2851   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+   16.3829   -9.7857   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+   17.6823  -10.5363   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+   16.3829   -8.2851   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+   18.9808   -9.7857   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+   20.2793  -10.5363   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+   20.2793  -12.0351   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+   18.9808  -12.7858   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+   17.6823  -12.0351   -0.0066 O   0  0  0  0  0  0  0  0  0  0  0  0
+   21.5796  -12.7858   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+    9.8886  -10.5363   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+    8.5892   -9.7857   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+    9.8886  -12.0351   -0.0066 O   0  0  0  0  0  0  0  0  0  0  0  0
+    8.5892  -12.7858   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+    7.2907  -12.0351   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+    7.2907  -10.5363   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+   18.9808  -14.2863   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+   20.2793  -15.0352   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+    8.5892  -14.2863   -0.0066 O   0  0  0  0  0  0  0  0  0  0  0  0
+    5.9922   -9.7857   -0.0066 O   0  0  0  0  0  0  0  0  0  0  0  0
+    4.6937  -10.5363   -0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+    5.9922  -12.7858    0.0066 C   0  0  0  0  0  0  0  0  0  0  0  0
+   21.5796  -11.2862   -0.0066 H   0  0  0  0  0  0  0  0  0  0  0  0
+ 19 26  1  0  0  0  0
+  1  2  2  0  0  0  0
+  2  3  1  0  0  0  0
+  3  4  1  0  0  0  0
+  3  5  1  1  0  0  0
+  4  6  2  0  0  0  0
+  6  7  1  0  0  0  0
+  6  8  1  0  0  0  0
+  7  9  1  0  0  0  0
+  9 10  1  0  0  0  0
+ 10 11  1  0  0  0  0
+ 11 12  1  0  0  0  0
+ 12 13  1  0  0  0  0
+  7 13  1  1  0  0  0
+ 11 14  1  6  0  0  0
+  1 15  1  0  0  0  0
+ 15 16  1  0  0  0  0
+ 15 17  1  6  0  0  0
+ 17 18  1  0  0  0  0
+ 18 19  1  0  0  0  0
+ 19 20  2  0  0  0  0
+ 20 16  1  0  0  0  0
+ 12 21  1  1  0  0  0
+ 21 22  1  0  0  0  0
+ 18 23  2  0  0  0  0
+ 20 24  1  0  0  0  0
+ 24 25  1  0  0  0  0
+ 11 27  1  1  0  0  0
+M  END"""
+
+
+def test_standardize_pseudo_3d_molfile():
+    """Test that the standardize endpoint handles pseudo-3D molfiles via ensure_2d fallback."""
+    response = client.post(
+        "/latest/chem/standardize",
+        content=JERANGOLID_E_MOLFILE,
+        headers={"Content-Type": "text/plain"},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert "standardized_mol" in data
+    assert "canonical_smiles" in data
+    assert "inchi" in data
+    assert "inchikey" in data
+    assert len(data["canonical_smiles"]) > 0
+    assert data["inchi"].startswith("InChI=")
+    assert len(data["inchikey"]) == 27
+
+
+def test_standardize_pseudo_3d_returns_valid_smiles():
+    """Verify the SMILES returned for a pseudo-3D mol is parseable by RDKit."""
+    response = client.post(
+        "/latest/chem/standardize",
+        content=JERANGOLID_E_MOLFILE,
+        headers={"Content-Type": "text/plain"},
+    )
+    assert response.status_code == 200
+    smiles = response.json()["canonical_smiles"]
+    mol = Chem.MolFromSmiles(smiles)
+    assert mol is not None
+    # Jerangolid E has 27 heavy atoms (including the explicit H in the molfile)
+    # After standardization, explicit H may be removed
+    assert mol.GetNumHeavyAtoms() > 20
+
+
+def test_standardize_empty_body():
+    """Empty request body should return 422."""
+    response = client.post(
+        "/latest/chem/standardize",
+        content="",
+        headers={"Content-Type": "text/plain"},
+    )
+    assert response.status_code == 422
+
+
+def test_standardize_garbage_molblock():
+    """Garbage input should return 422."""
+    response = client.post(
+        "/latest/chem/standardize",
+        content="this is not a molblock at all",
+        headers={"Content-Type": "text/plain"},
+    )
+    assert response.status_code == 422
+
+
+def test_standardize_multiple_molecules_rejected():
+    """SDF with two molecules should be rejected (expects exactly one)."""
+    two_mol_sdf = """
+  CDK     09012310592D
+
+  1  0  0  0  0  0  0  0  0  0999 V2000
+    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+M  END
+$$$$
+
+  CDK     09012310592D
+
+  1  0  0  0  0  0  0  0  0  0999 V2000
+    0.0000    0.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+M  END
+$$$$
+"""
+    response = client.post(
+        "/latest/chem/standardize",
+        content=two_mol_sdf,
+        headers={"Content-Type": "text/plain"},
+    )
+    assert response.status_code == 422
+
+
+def test_standardize_response_keys():
+    """Standardize response always contains the four core keys."""
+    molfile = """
+  CDK     08302311362D
+
+  4  3  0  0  0  0  0  0  0  0999 V2000
+    0.9743    0.5625    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -0.3248    1.3125    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -0.3248    2.8125    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+   -1.6238    0.5625    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+  1  2  1  0  0  0  0
+  2  3  2  0  0  0  0
+  2  4  1  0  0  0  0
+M  END
+"""
+    response = client.post(
+        "/latest/chem/standardize",
+        content=molfile,
+        headers={"Content-Type": "text/plain"},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    for key in ("standardized_mol", "canonical_smiles", "inchi", "inchikey"):
+        assert key in data

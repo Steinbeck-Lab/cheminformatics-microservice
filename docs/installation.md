@@ -106,7 +106,7 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD in .env}
       - GF_USERS_ALLOW_SIGN_UP=false
     restart: unless-stopped
     depends_on:
@@ -126,11 +126,16 @@ networks:
     driver: bridge
 
 ```
-2. Run the following command to start the project:
+2. Copy the environment template and set the required variables:
+   ```bash
+   cp .env.example .env
+   # Edit .env and set GRAFANA_ADMIN_PASSWORD (required)
+   ```
+3. Run the following command to start the project:
    ```bash
    docker-compose up
    ```
-3. Wait for Docker to finish setting up the containers.
+4. Wait for Docker to finish setting up the containers.
 
 ---
 
@@ -147,8 +152,7 @@ networks:
 1. Visit [http://localhost:3001](http://localhost:3001)
 2. Login with:
    - Username: `admin`
-   - Password: `admin`
-3. Change the password when prompted.
+   - Password: the value you set for `GRAFANA_ADMIN_PASSWORD` in your `.env` file
 4. Click **“Add your first data source”** and choose **Prometheus**.
 5. Set the URL as:
    ```
@@ -222,7 +226,7 @@ Once you have Grafana running go to: localhost:3000. You should see the followin
 
 Grafana login
 
-Enter the default username and password (admin/admin) and click "Log In". You should be prompted to change the password. Enter a new password and click "Save". You should see the following screen:
+Enter the username `admin` and the password you set for `GRAFANA_ADMIN_PASSWORD` in your `.env` file, then click "Log In". You should see the following screen:
 
 <p align="center">
   <img align="center" src="/docs/grafana_login.jpeg" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="auto">

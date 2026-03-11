@@ -174,7 +174,7 @@ export const generateSMARTS = async (smiles, toolkit = "rdkit") => {
 export const molblockToSMILES = async (molblock, toolkit = "cdk") => {
   try {
     // Get the base URL from the api instance or use default
-    const baseURL = api.defaults.baseURL || "https://dev.api.naturalproducts.net/latest";
+    const baseURL = api.defaults.baseURL;
 
     // Use fetch API instead of axios to ensure proper text/plain handling
     const response = await fetch(`${baseURL}${CONVERT_URL}/molblock?toolkit=${toolkit}`, {

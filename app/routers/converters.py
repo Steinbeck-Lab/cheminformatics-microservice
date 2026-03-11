@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import Annotated, Literal
+import logging
+from typing import Annotated
+from typing import Literal
 
 import selfies as sf
 
@@ -51,6 +53,8 @@ from app.modules.toolkits.rdkit_wrapper import convert_cdx_to_mol
 from app.modules.toolkits.rdkit_wrapper import get_2d_mol
 from app.modules.toolkits.rdkit_wrapper import get_3d_conformers
 from app.modules.toolkits.rdkit_wrapper import get_rdkit_CXSMILES
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/convert",
@@ -106,6 +110,7 @@ def create2d_coordinates(
     request: Request,
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -177,6 +182,7 @@ def create3d_coordinates(
     request: Request,
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -298,8 +304,11 @@ def iupac_name_or_selfies_to_smiles(
                 status_code=422,
                 detail="Error reading input text, please check again.",
             )
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error in conversion")
+        raise HTTPException(status_code=422, detail="Processing error")
 
 
 @router.get(
@@ -318,6 +327,7 @@ def iupac_name_or_selfies_to_smiles(
 def smiles_canonicalise(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -376,6 +386,7 @@ def smiles_canonicalise(
 def smiles_to_cxsmiles(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -441,6 +452,7 @@ def smiles_to_cxsmiles(
 def smiles_to_inchi(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -505,6 +517,7 @@ def smiles_to_inchi(
 def smiles_to_inchikey(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -570,6 +583,7 @@ def smiles_to_inchikey(
 def encode_selfies(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -606,8 +620,11 @@ def encode_selfies(
                 status_code=400,
                 detail="Error reading input text, please check again.",
             )
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error in conversion")
+        raise HTTPException(status_code=400, detail="Processing error")
 
 
 @router.get(
@@ -626,6 +643,7 @@ def encode_selfies(
 def smiles_convert_to_formats(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -698,10 +716,13 @@ def smiles_convert_to_formats(
                 status_code=422,
                 detail="Error reading SMILES string, please check again.",
             )
-    except Exception as e:
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error processing conversion request")
         raise HTTPException(
             status_code=422,
-            detail="Error processing request: " + str(e),
+            detail="Processing error",
         )
 
 
@@ -721,6 +742,7 @@ def smiles_convert_to_formats(
 def smiles_to_smarts(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -805,11 +827,11 @@ def molblock_to_smiles(
                 status_code=422,
                 detail="Invalid or missing molblock",
             )
-        print("Received MOL/SDF block for conversion.")
+        logger.debug("Received MOL/SDF block for conversion.")
         if "$$$$" in cleaned_molblock:
             # Extract only the first molecule (everything before $$$$)
             cleaned_molblock = cleaned_molblock.split("$$$$")[0].strip()
-            print("Detected SDF format, processing as MOL block.")
+            logger.debug("Detected SDF format, processing as MOL block.")
 
         if not cleaned_molblock:
             raise HTTPException(
@@ -858,10 +880,11 @@ def molblock_to_smiles(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
+        logger.exception("Error processing MOL block")
         raise HTTPException(
             status_code=422,
-            detail=f"Error processing MOL block: {str(e)}",
+            detail="Error processing MOL block",
         )
 
 
@@ -1124,14 +1147,23 @@ def cdx_to_mol(
     finally:
         file.file.close()
 
+    max_size = 10 * 1024 * 1024  # 10 MB
+    if len(cdx_bytes) > max_size:
+        raise HTTPException(
+            status_code=400,
+            detail="File too large. Maximum allowed size is 10 MB.",
+        )
+
     try:
         molblock = convert_cdx_to_mol(cdx_bytes, fmt=fmt)
     except ValueError as exc:
-        raise HTTPException(status_code=422, detail=str(exc)) from exc
+        logger.warning("Invalid CDX input: %s", exc)
+        raise HTTPException(status_code=422, detail="Invalid CDX file") from exc
     except Exception as exc:
+        logger.exception("Error converting CDX file")
         raise HTTPException(
             status_code=422,
-            detail="Error converting CDX file: " + str(exc),
+            detail="Error converting CDX file",
         ) from exc
 
     return CDXToMolResponse(molblock=molblock)
