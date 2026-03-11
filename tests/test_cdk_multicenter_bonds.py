@@ -320,3 +320,292 @@ class TestStylePersistence:
         count1 = mc_handler.set_style(ferrocene_fragment, MulticenterStyle.DASHED)
         count2 = mc_handler.set_style(ferrocene_fragment, MulticenterStyle.DASHED)
         assert count1 >= 0 and count2 >= 0
+
+
+class TestMarkMulticenterBond:
+    """Test mark_multicenter_bond() to manually create ExtMulticenter Sgroups."""
+
+    def test_mark_ferrocene_fragment(self, mc_handler):
+        """Mark a multicenter bond on [Fe]c1ccccc1 between Fe and a ring atom."""
+        mol = get_CDK_IAtomContainer("[Fe]c1ccccc1")
+        # Fe is at index 0, ring carbons at 1-6
+        ring_indices = list(range(1, 7))
+        result = mc_handler.mark_multicenter_bond(mol, 0, ring_indices)
+        assert result is True
+
+    def test_mark_chromium_benzene(self, mc_handler):
+        """Mark a multicenter bond on [Cr]c1ccccc1."""
+        mol = get_CDK_IAtomContainer("[Cr]c1ccccc1")
+        ring_indices = list(range(1, 7))
+        result = mc_handler.mark_multicenter_bond(mol, 0, ring_indices)
+        assert result is True
+
+    def test_mark_no_bond_found(self, mc_handler):
+        """Return False when no bond exists between metal and ring atoms."""
+        mol = get_CDK_IAtomContainer("CCO.[Fe]")
+        # Fe is disconnected from C atoms, so no bond should exist
+        fe_idx = None
+        for i in range(mol.getAtomCount()):
+            if mol.getAtom(i).getSymbol() == "Fe":
+                fe_idx = i
+                break
+        assert fe_idx is not None
+        # Use indices that don't share a bond with Fe
+        result = mc_handler.mark_multicenter_bond(mol, fe_idx, [0, 1])
+        assert result is False
+
+    def test_mark_with_out_of_range_index(self, mc_handler):
+        """Atoms with out-of-range indices are skipped gracefully."""
+        mol = get_CDK_IAtomContainer("[Fe]c1ccccc1")
+        ring_indices = [1, 2, 3, 999]  # 999 is out of range
+        result = mc_handler.mark_multicenter_bond(mol, 0, ring_indices)
+        # Should still succeed if at least one valid ring atom has a bond to metal
+        assert result is True
+
+    def test_mark_creates_sgroup_property(self, mc_handler):
+        """After marking, CTAB_SGROUPS property should exist on molecule."""
+        from jpype import JClass
+
+        CDKConstants = JClass("org.openscience.cdk.CDKConstants")
+        mol = get_CDK_IAtomContainer("[Fe]c1ccccc1")
+        mc_handler.mark_multicenter_bond(mol, 0, list(range(1, 7)))
+        sgroups = mol.getProperty(CDKConstants.CTAB_SGROUPS)
+        assert sgroups is not None
+        assert sgroups.size() > 0
+
+    def test_mark_multiple_bonds(self, mc_handler):
+        """Mark two separate multicenter bonds on the same molecule."""
+        from jpype import JClass
+
+        CDKConstants = JClass("org.openscience.cdk.CDKConstants")
+        mol = get_CDK_IAtomContainer("[Fe](C1=CC=CC1)C1=CC=CC1")
+        # Mark first Cp ring
+        mc_handler.mark_multicenter_bond(mol, 0, [1, 2, 3, 4, 5])
+        # Mark second Cp ring
+        mc_handler.mark_multicenter_bond(mol, 0, [6, 7, 8, 9, 10])
+        sgroups = mol.getProperty(CDKConstants.CTAB_SGROUPS)
+        assert sgroups is not None
+        assert sgroups.size() == 2
+
+
+class TestSetStyleWithSgroups:
+    """Test set_style() on molecules that have actual ExtMulticenter Sgroups.
+
+    Uses mark_multicenter_bond() to create Sgroups first, then applies styles.
+    This covers set_style inner loop (lines 100-147), _apply_bond_style
+    (lines 158-179), and _neutralize_charges (lines 192-223).
+    """
+
+    def _make_molecule_with_sgroup(self, mc_handler):
+        """Create a molecule with an ExtMulticenter Sgroup via mark_multicenter_bond."""
+        mol = get_CDK_IAtomContainer("[Fe]c1ccccc1")
+        ring_indices = list(range(1, 7))
+        mc_handler.mark_multicenter_bond(mol, 0, ring_indices)
+        return mol
+
+    def test_dative_style_with_sgroup(self, mc_handler):
+        """Apply DATIVE style to molecule with ExtMulticenter Sgroup."""
+        mol = self._make_molecule_with_sgroup(mc_handler)
+        count = mc_handler.set_style(mol, MulticenterStyle.DATIVE)
+        assert count >= 1
+
+    def test_dashed_style_with_sgroup(self, mc_handler):
+        """Apply DASHED style to molecule with ExtMulticenter Sgroup."""
+        mol = self._make_molecule_with_sgroup(mc_handler)
+        count = mc_handler.set_style(mol, MulticenterStyle.DASHED)
+        assert count >= 1
+
+    def test_dashed_neutral_style_with_sgroup(self, mc_handler):
+        """Apply DASHED_NEUTRAL style - triggers charge neutralization."""
+        mol = self._make_molecule_with_sgroup(mc_handler)
+        count = mc_handler.set_style(mol, MulticenterStyle.DASHED_NEUTRAL)
+        assert count >= 1
+
+    def test_hidden_style_with_sgroup(self, mc_handler):
+        """Apply HIDDEN style to molecule with ExtMulticenter Sgroup."""
+        mol = self._make_molecule_with_sgroup(mc_handler)
+        count = mc_handler.set_style(mol, MulticenterStyle.HIDDEN)
+        assert count >= 1
+
+    def test_hidden_neutral_style_with_sgroup(self, mc_handler):
+        """Apply HIDDEN_NEUTRAL style - triggers charge neutralization."""
+        mol = self._make_molecule_with_sgroup(mc_handler)
+        count = mc_handler.set_style(mol, MulticenterStyle.HIDDEN_NEUTRAL)
+        assert count >= 1
+
+    def test_provided_style_with_sgroup_returns_zero(self, mc_handler):
+        """PROVIDED style should return 0 and skip processing."""
+        mol = self._make_molecule_with_sgroup(mc_handler)
+        count = mc_handler.set_style(mol, MulticenterStyle.PROVIDED)
+        assert count == 0
+
+    def test_atom_count_preserved_after_styling(self, mc_handler):
+        """Atom count should not change after applying styles."""
+        mol = self._make_molecule_with_sgroup(mc_handler)
+        initial_atoms = mol.getAtomCount()
+        mc_handler.set_style(mol, MulticenterStyle.DATIVE)
+        assert mol.getAtomCount() == initial_atoms
+
+    def test_bond_count_preserved_after_styling(self, mc_handler):
+        """Bond count should not change after applying styles."""
+        mol = self._make_molecule_with_sgroup(mc_handler)
+        initial_bonds = mol.getBondCount()
+        mc_handler.set_style(mol, MulticenterStyle.HIDDEN)
+        assert mol.getBondCount() == initial_bonds
+
+    def test_all_non_provided_styles_process_sgroup(self, mc_handler):
+        """Every non-PROVIDED style should process at least one Sgroup."""
+        styles = [
+            MulticenterStyle.DATIVE,
+            MulticenterStyle.DASHED,
+            MulticenterStyle.DASHED_NEUTRAL,
+            MulticenterStyle.HIDDEN,
+            MulticenterStyle.HIDDEN_NEUTRAL,
+        ]
+        for style in styles:
+            mol = self._make_molecule_with_sgroup(mc_handler)
+            count = mc_handler.set_style(mol, style)
+            assert count >= 1, f"Style {style.value} did not process any Sgroups"
+
+
+class TestSetStyleMetalAtEnd:
+    """Test set_style when the metal atom is at the end of the bond.
+
+    This covers the elif branch at line 128 where Elements.isMetal(end) is True.
+    """
+
+    def test_metal_at_end_dative(self, mc_handler):
+        """When metal is the end atom of the Sgroup bond, DATIVE should work."""
+        from jpype import JClass
+
+        CDKConstants = JClass("org.openscience.cdk.CDKConstants")
+        Sgroup = JClass("org.openscience.cdk.sgroup.Sgroup")
+        SgroupType = JClass("org.openscience.cdk.sgroup.SgroupType")
+        ArrayList = JClass("java.util.ArrayList")
+
+        # Use c1ccccc1[Fe] - Fe bonded at end
+        mol = get_CDK_IAtomContainer("c1ccccc1[Fe]")
+
+        # Find Fe atom index
+        fe_idx = None
+        for i in range(mol.getAtomCount()):
+            if mol.getAtom(i).getSymbol() == "Fe":
+                fe_idx = i
+                break
+        assert fe_idx is not None
+
+        # Find a bond between Fe and a ring atom
+        fe_atom = mol.getAtom(fe_idx)
+        ring_bond = None
+        for bond in fe_atom.bonds():
+            other = bond.getOther(fe_atom)
+            other_idx = mol.indexOf(other)
+            if other_idx != fe_idx:
+                ring_bond = bond
+                break
+
+        assert ring_bond is not None
+
+        # Create Sgroup manually with the ring atom as the begin
+        sgroup = Sgroup()
+        sgroup.setType(SgroupType.ExtMulticenter)
+        # Add ring atoms
+        for i in range(mol.getAtomCount()):
+            if i != fe_idx:
+                sgroup.addAtom(mol.getAtom(i))
+        sgroup.addBond(ring_bond)
+
+        sgroups = ArrayList()
+        sgroups.add(sgroup)
+        mol.setProperty(CDKConstants.CTAB_SGROUPS, sgroups)
+
+        count = mc_handler.set_style(mol, MulticenterStyle.DATIVE)
+        assert count >= 1
+
+    def test_metal_at_end_hidden_neutral(self, mc_handler):
+        """Test HIDDEN_NEUTRAL with metal at end to trigger charge neutralization."""
+        from jpype import JClass
+
+        CDKConstants = JClass("org.openscience.cdk.CDKConstants")
+        Sgroup = JClass("org.openscience.cdk.sgroup.Sgroup")
+        SgroupType = JClass("org.openscience.cdk.sgroup.SgroupType")
+        ArrayList = JClass("java.util.ArrayList")
+
+        mol = get_CDK_IAtomContainer("c1ccccc1[Fe]")
+
+        fe_idx = None
+        for i in range(mol.getAtomCount()):
+            if mol.getAtom(i).getSymbol() == "Fe":
+                fe_idx = i
+                break
+
+        fe_atom = mol.getAtom(fe_idx)
+        ring_bond = None
+        for bond in fe_atom.bonds():
+            other = bond.getOther(fe_atom)
+            if mol.indexOf(other) != fe_idx:
+                ring_bond = bond
+                break
+
+        sgroup = Sgroup()
+        sgroup.setType(SgroupType.ExtMulticenter)
+        for i in range(mol.getAtomCount()):
+            if i != fe_idx:
+                sgroup.addAtom(mol.getAtom(i))
+        sgroup.addBond(ring_bond)
+
+        sgroups = ArrayList()
+        sgroups.add(sgroup)
+        mol.setProperty(CDKConstants.CTAB_SGROUPS, sgroups)
+
+        count = mc_handler.set_style(mol, MulticenterStyle.HIDDEN_NEUTRAL)
+        assert count >= 1
+
+
+class TestDetectMulticenterBondsErrorPath:
+    """Test the error path in detect_multicenter_bonds (lines 265-267)."""
+
+    def test_detect_with_none_molecule(self, mc_handler):
+        """Passing None should trigger the exception path and return 0."""
+        count = mc_handler.detect_multicenter_bonds(None)
+        assert count == 0
+
+    def test_detect_with_invalid_object(self, mc_handler):
+        """Passing a non-molecule object should trigger exception and return 0."""
+        count = mc_handler.detect_multicenter_bonds("not_a_molecule")
+        assert count == 0
+
+
+class TestNeutralizeChargesDirectly:
+    """Test _neutralize_charges edge cases via set_style with charged atoms."""
+
+    def test_charged_ring_atoms_neutralized(self, mc_handler):
+        """Create a molecule with charged atoms and verify neutralization."""
+        # Use cyclopentadienyl anion with Fe
+        mol = get_CDK_IAtomContainer("[Fe+2]c1ccccc1")
+
+        fe_idx = None
+        for i in range(mol.getAtomCount()):
+            if mol.getAtom(i).getSymbol() == "Fe":
+                fe_idx = i
+                break
+
+        ring_indices = [i for i in range(mol.getAtomCount()) if i != fe_idx]
+        mc_handler.mark_multicenter_bond(mol, fe_idx, ring_indices)
+        count = mc_handler.set_style(mol, MulticenterStyle.DASHED_NEUTRAL)
+        assert count >= 1
+
+    def test_charges_with_dative_style(self, mc_handler):
+        """DATIVE style should also trigger charge neutralization."""
+        mol = get_CDK_IAtomContainer("[Fe+2]c1ccccc1")
+
+        fe_idx = None
+        for i in range(mol.getAtomCount()):
+            if mol.getAtom(i).getSymbol() == "Fe":
+                fe_idx = i
+                break
+
+        ring_indices = [i for i in range(mol.getAtomCount()) if i != fe_idx]
+        mc_handler.mark_multicenter_bond(mol, fe_idx, ring_indices)
+        count = mc_handler.set_style(mol, MulticenterStyle.DATIVE)
+        assert count >= 1

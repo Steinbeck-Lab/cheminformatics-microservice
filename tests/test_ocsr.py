@@ -142,3 +142,128 @@ def test_process_rejects_localhost_url():
         headers={"Content-Type": "application/json"},
     )
     assert response.status_code == 422
+
+
+# ---------------------------------------------------------------------------
+# Additional coverage tests for ocsr.py uncovered lines
+# ---------------------------------------------------------------------------
+
+
+class TestOCSRProcessImgParameter:
+    """Test /process endpoint with img parameter (lines 154-170)."""
+
+    def test_process_with_img_invalid_url(self):
+        """Test img parameter with invalid/private URL (line 154-170)."""
+        payload = {
+            "img": "https://127.0.0.1/image.png",
+            "reference": "test",
+        }
+        response = client.post(
+            "/latest/ocsr/process",
+            json=payload,
+        )
+        assert response.status_code == 422
+
+    def test_process_with_img_nonexistent_url(self):
+        """Test img parameter with URL that doesn't exist (lines 168-173)."""
+        payload = {
+            "img": "https://example.com/nonexistent_image_xyz.png",
+            "reference": "test",
+        }
+        response = client.post(
+            "/latest/ocsr/process",
+            json=payload,
+        )
+        assert response.status_code == 422
+
+    def test_process_with_img_ftp_scheme(self):
+        """Test img parameter with disallowed scheme."""
+        payload = {
+            "img": "ftp://example.com/image.png",
+            "reference": "test",
+        }
+        response = client.post(
+            "/latest/ocsr/process",
+            json=payload,
+        )
+        assert response.status_code == 422
+
+
+class TestOCSRProcessPathErrors:
+    """Test /process endpoint path parameter error handling (lines 189, 196-198)."""
+
+    def test_process_with_path_nonexistent_url(self):
+        """Test path parameter with URL that returns non-200 (line 189)."""
+        payload = {
+            "path": "https://httpstat.us/404",
+            "reference": "test",
+        }
+        response = client.post(
+            "/latest/ocsr/process",
+            json=payload,
+        )
+        # Should fail with 422 since the URL returns 404
+        assert response.status_code == 422
+
+    def test_process_with_path_invalid_url_scheme(self):
+        """Test path parameter with disallowed URL scheme (line 196-198)."""
+        payload = {
+            "path": "ftp://example.com/file.png",
+            "reference": "test",
+        }
+        response = client.post(
+            "/latest/ocsr/process",
+            json=payload,
+        )
+        assert response.status_code == 422
+
+    def test_process_with_path_private_ip(self):
+        """Test path parameter with private IP address."""
+        payload = {
+            "path": "https://10.0.0.1/image.png",
+            "reference": "test",
+        }
+        response = client.post(
+            "/latest/ocsr/process",
+            json=payload,
+        )
+        assert response.status_code == 422
+
+    def test_process_with_no_path_no_img(self):
+        """Test /process with neither path nor img."""
+        payload = {
+            "reference": "test",
+        }
+        response = client.post(
+            "/latest/ocsr/process",
+            json=payload,
+        )
+        assert response.status_code == 422
+
+
+class TestOCSRProcessUploadErrors:
+    """Test /process-upload endpoint error handling (lines 248-258)."""
+
+    def test_process_upload_invalid_image_content(self):
+        """Test upload with invalid image content (line 248-253)."""
+        response = client.post(
+            "/latest/ocsr/process-upload",
+            files={"file": ("test.png", b"not-an-image", "image/png")},
+        )
+        assert response.status_code == 422
+
+    def test_process_upload_empty_file(self):
+        """Test upload with empty file content."""
+        response = client.post(
+            "/latest/ocsr/process-upload",
+            files={"file": ("test.png", b"", "image/png")},
+        )
+        assert response.status_code == 422
+
+    def test_process_upload_text_as_image(self):
+        """Test upload with text content instead of image."""
+        response = client.post(
+            "/latest/ocsr/process-upload",
+            files={"file": ("test.txt", b"This is not an image", "text/plain")},
+        )
+        assert response.status_code == 422

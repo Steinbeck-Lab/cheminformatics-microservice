@@ -355,3 +355,287 @@ class TestAnnotationPersistence:
             gen1, simple_molecule, AnnotationMode.NONE
         )
         assert gen2 is not None
+
+
+class TestGetAnnotationMode:
+    """Test the get_annotation_mode helper function."""
+
+    def test_valid_mode_number(self):
+        from app.modules.cdk_depict.annotations import get_annotation_mode
+
+        mode = get_annotation_mode("number")
+        assert mode == AnnotationMode.NUMBER
+
+    def test_valid_mode_bondnumber(self):
+        from app.modules.cdk_depict.annotations import get_annotation_mode
+
+        mode = get_annotation_mode("bondnumber")
+        assert mode == AnnotationMode.BONDNUMBER
+
+    def test_valid_mode_mapidx(self):
+        from app.modules.cdk_depict.annotations import get_annotation_mode
+
+        mode = get_annotation_mode("mapidx")
+        assert mode == AnnotationMode.MAPIDX
+
+    def test_valid_mode_atomvalue(self):
+        from app.modules.cdk_depict.annotations import get_annotation_mode
+
+        mode = get_annotation_mode("atomvalue")
+        assert mode == AnnotationMode.ATOMVALUE
+
+    def test_valid_mode_colmap(self):
+        from app.modules.cdk_depict.annotations import get_annotation_mode
+
+        mode = get_annotation_mode("colmap")
+        assert mode == AnnotationMode.COLMAP
+
+    def test_valid_mode_cip(self):
+        from app.modules.cdk_depict.annotations import get_annotation_mode
+
+        mode = get_annotation_mode("cip")
+        assert mode == AnnotationMode.CIP
+
+    def test_valid_mode_none(self):
+        from app.modules.cdk_depict.annotations import get_annotation_mode
+
+        mode = get_annotation_mode("none")
+        assert mode == AnnotationMode.NONE
+
+    def test_valid_mode_with_whitespace(self):
+        from app.modules.cdk_depict.annotations import get_annotation_mode
+
+        mode = get_annotation_mode("  number  ")
+        assert mode == AnnotationMode.NUMBER
+
+    def test_valid_mode_case_insensitive(self):
+        from app.modules.cdk_depict.annotations import get_annotation_mode
+
+        mode = get_annotation_mode("NUMBER")
+        assert mode == AnnotationMode.NUMBER
+
+    def test_invalid_mode_raises_valueerror(self):
+        from app.modules.cdk_depict.annotations import get_annotation_mode
+
+        with pytest.raises(ValueError) as exc_info:
+            get_annotation_mode("invalid_mode")
+        assert "Invalid annotation mode" in str(exc_info.value)
+        assert "valid_mode" not in str(exc_info.value).lower() or "Valid modes" in str(
+            exc_info.value
+        )
+
+    def test_invalid_mode_lists_valid_modes(self):
+        from app.modules.cdk_depict.annotations import get_annotation_mode
+
+        with pytest.raises(ValueError) as exc_info:
+            get_annotation_mode("xyz")
+        error_msg = str(exc_info.value)
+        assert "none" in error_msg
+        assert "number" in error_msg
+        assert "cip" in error_msg
+
+
+class TestApplyAnnotationsConvenience:
+    """Test the module-level apply_annotations convenience function."""
+
+    def test_apply_annotations_number_mode(self, simple_molecule):
+        from app.modules.cdk_depict.annotations import (
+            apply_annotations as apply_annotations_func,
+        )
+
+        gen = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        result = apply_annotations_func(gen, simple_molecule, mode="number")
+        assert result is not None
+
+    def test_apply_annotations_none_mode(self, simple_molecule):
+        from app.modules.cdk_depict.annotations import (
+            apply_annotations as apply_annotations_func,
+        )
+
+        gen = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        result = apply_annotations_func(gen, simple_molecule, mode="none")
+        assert result is not None
+
+    def test_apply_annotations_cip_mode(self, chiral_molecule):
+        from app.modules.cdk_depict.annotations import (
+            apply_annotations as apply_annotations_func,
+        )
+
+        gen = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        result = apply_annotations_func(gen, chiral_molecule, mode="cip")
+        assert result is not None
+
+    def test_apply_annotations_invalid_mode_returns_generator(self, simple_molecule):
+        from app.modules.cdk_depict.annotations import (
+            apply_annotations as apply_annotations_func,
+        )
+
+        gen = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        result = apply_annotations_func(gen, simple_molecule, mode="invalid_mode")
+        # Should return unmodified generator on error
+        assert result is not None
+
+    def test_apply_annotations_mapidx_mode(self, simple_molecule):
+        from app.modules.cdk_depict.annotations import (
+            apply_annotations as apply_annotations_func,
+        )
+
+        gen = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        result = apply_annotations_func(gen, simple_molecule, mode="mapidx")
+        assert result is not None
+
+    def test_apply_annotations_bondnumber_mode(self, simple_molecule):
+        from app.modules.cdk_depict.annotations import (
+            apply_annotations as apply_annotations_func,
+        )
+
+        gen = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        result = apply_annotations_func(gen, simple_molecule, mode="bondnumber")
+        assert result is not None
+
+    def test_apply_annotations_atomvalue_mode(self, simple_molecule):
+        from app.modules.cdk_depict.annotations import (
+            apply_annotations as apply_annotations_func,
+        )
+
+        gen = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        result = apply_annotations_func(gen, simple_molecule, mode="atomvalue")
+        assert result is not None
+
+    def test_apply_annotations_colmap_mode(self, simple_molecule):
+        from app.modules.cdk_depict.annotations import (
+            apply_annotations as apply_annotations_func,
+        )
+
+        gen = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        result = apply_annotations_func(gen, simple_molecule, mode="colmap")
+        assert result is not None
+
+
+class TestAtomValueAnnotationsWithValues:
+    """Test atom value annotations when atoms have actual values set."""
+
+    def test_atom_values_with_comment_property(self, annotation_system):
+        """Test annotating atoms that have COMMENT property set."""
+        mol = get_CDK_IAtomContainer("CCO")
+        CDKConstants = JClass("org.openscience.cdk.CDKConstants")
+        # Set COMMENT property on atoms
+        for i, atom in enumerate(mol.atoms()):
+            atom.setProperty(CDKConstants.COMMENT, f"val{i}")
+
+        gen = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        result = annotation_system.apply_annotations(gen, mol, AnnotationMode.ATOMVALUE)
+        assert result is not None
+
+    def test_atom_values_without_comment_property(self, annotation_system):
+        """Test annotating atoms that have no COMMENT property."""
+        mol = get_CDK_IAtomContainer("CCO")
+        gen = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        result = annotation_system.apply_annotations(gen, mol, AnnotationMode.ATOMVALUE)
+        assert result is not None
+
+
+class TestColorMappingWithMappedAtoms:
+    """Test color mapping when atoms actually have mapping numbers."""
+
+    def test_color_mapping_with_mapped_atoms(self, annotation_system):
+        """Test colmap mode with atoms that have atom-atom mapping."""
+        mol = get_CDK_IAtomContainer("[CH3:1][OH:2]")
+        gen = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        result = annotation_system.apply_annotations(gen, mol, AnnotationMode.COLMAP)
+        assert result is not None
+
+    def test_color_mapping_with_various_map_indices(self, annotation_system):
+        """Test colmap mode with various mapping indices within MAPPING_COLORS range."""
+        mol = get_CDK_IAtomContainer("[C:1]([H:2])([H:3])[O:4][H:5]")
+        gen = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        result = annotation_system.apply_annotations(gen, mol, AnnotationMode.COLMAP)
+        assert result is not None
+
+
+class TestAnnotationExceptionPaths:
+    """Test error handling paths in annotation system."""
+
+    def test_apply_annotations_with_error_returns_generator(self, annotation_system):
+        """Test that apply_annotations returns generator even on internal error."""
+        gen = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        # Pass None molecule - should trigger exception and return generator
+        result = annotation_system.apply_annotations(
+            gen, None, AnnotationMode.ATOMVALUE
+        )
+        assert result is not None
+
+    def test_annotate_atom_values_exception_path(self, annotation_system):
+        """Test _annotate_atom_values exception handling."""
+        gen = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        result = annotation_system.apply_annotations(
+            gen, None, AnnotationMode.ATOMVALUE
+        )
+        assert result is not None
+
+    def test_annotate_color_mapping_exception_path(self, annotation_system):
+        """Test _annotate_color_mapping exception handling."""
+        gen = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        result = annotation_system.apply_annotations(gen, None, AnnotationMode.COLMAP)
+        assert result is not None
+
+    def test_annotate_cip_exception_path(self, annotation_system):
+        """Test _annotate_cip exception handling."""
+        gen = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        result = annotation_system.apply_annotations(gen, None, AnnotationMode.CIP)
+        assert result is not None
+
+    def test_is_reaction_with_non_reaction_object(self, annotation_system):
+        """Test _is_reaction with a non-reaction object."""
+        mol = get_CDK_IAtomContainer("CCO")
+        assert annotation_system._is_reaction(mol) is False
+
+    def test_is_reaction_with_none(self, annotation_system):
+        """Test _is_reaction with None."""
+        assert annotation_system._is_reaction(None) is False
+
+
+class TestReactionAnnotations:
+    """Test annotation modes on reaction objects."""
+
+    def _create_reaction(self):
+        """Helper to create a simple CDK reaction."""
+        Reaction = JClass("org.openscience.cdk.Reaction")
+        reaction = Reaction()
+        reactant = get_CDK_IAtomContainer("CCO")
+        product = get_CDK_IAtomContainer("CC=O")
+        reaction.addReactant(reactant)
+        reaction.addProduct(product)
+        return reaction
+
+    def test_atomvalue_on_reaction(self, annotation_system):
+        """Test atom value annotation on reaction objects."""
+        reaction = self._create_reaction()
+        gen = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        result = annotation_system.apply_annotations(
+            gen, reaction, AnnotationMode.ATOMVALUE
+        )
+        assert result is not None
+
+    def test_colmap_on_reaction(self, annotation_system):
+        """Test color mapping annotation on reaction objects."""
+        reaction = self._create_reaction()
+        gen = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        result = annotation_system.apply_annotations(
+            gen, reaction, AnnotationMode.COLMAP, is_reaction=True
+        )
+        assert result is not None
+
+    def test_cip_on_reaction(self, annotation_system):
+        """Test CIP annotation on reaction objects."""
+        reaction = self._create_reaction()
+        gen = JClass("org.openscience.cdk.depict.DepictionGenerator")()
+        result = annotation_system.apply_annotations(
+            gen, reaction, AnnotationMode.CIP, is_reaction=True
+        )
+        assert result is not None
+
+    def test_is_reaction_with_actual_reaction(self, annotation_system):
+        """Test _is_reaction correctly identifies IReaction objects."""
+        reaction = self._create_reaction()
+        assert annotation_system._is_reaction(reaction) is True
