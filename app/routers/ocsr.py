@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import ipaddress
+import logging
 import uuid
 from typing import Annotated
 from urllib.parse import urlsplit
@@ -20,6 +22,34 @@ from app.schemas.error import BadRequestModel
 from app.schemas.error import ErrorResponse
 from app.schemas.error import NotFoundModel
 from app.schemas.ocsr_schema import ExtractChemicalInfoResponse
+
+logger = logging.getLogger(__name__)
+
+ALLOWED_SCHEMES = {"http", "https"}
+
+
+def _validate_url(url: str) -> None:
+    """Validate that a URL is safe to fetch (no SSRF to internal networks)."""
+    parsed = urlsplit(url)
+    if parsed.scheme not in ALLOWED_SCHEMES:
+        raise ValueError(f"URL scheme '{parsed.scheme}' is not allowed")
+    hostname = parsed.hostname
+    if not hostname:
+        raise ValueError("URL has no hostname")
+    try:
+        addr = ipaddress.ip_address(hostname)
+        if addr.is_private or addr.is_loopback or addr.is_link_local or addr.is_reserved:
+            raise ValueError("URLs pointing to internal/private networks are not allowed")
+    except ValueError as exc:
+        if "internal" in str(exc) or "not allowed" in str(exc):
+            raise
+        # hostname is a DNS name — block known internal names
+        lower = hostname.lower()
+        if lower in ("localhost",) or lower.endswith(".local"):
+            raise ValueError(
+                "URLs pointing to internal/private networks are not allowed"
+            )
+
 
 router = APIRouter(
     prefix="/ocsr",
@@ -122,6 +152,7 @@ def Extract_ChemicalInfo_From_File(
 
     if img:
         try:
+            _validate_url(img)
             filename = "/tmp/" + str(uuid.uuid4())
             response = urlopen(img)
             smiles = get_predicted_segments_from_file(
@@ -132,15 +163,18 @@ def Extract_ChemicalInfo_From_File(
             return JSONResponse(
                 content={"reference": reference, "smiles": smiles.split(".")},
             )
-        except Exception as e:
+        except HTTPException:
+            raise
+        except Exception:
+            logger.exception("Error processing image from img parameter")
             raise HTTPException(
                 status_code=422,
-                detail="Error processing the image: " + str(e),
+                detail="Error processing the image",
             )
     else:
         try:
-            split = urlsplit(path)
-            filename = "/tmp/" + split.path.split("/")[-1]
+            _validate_url(path)
+            filename = "/tmp/" + str(uuid.uuid4())
             response = httpx.get(path)
             if response.status_code == 200:
                 smiles = get_predicted_segments_from_file(
@@ -151,10 +185,19 @@ def Extract_ChemicalInfo_From_File(
             return JSONResponse(
                 content={"reference": reference, "smiles": smiles.split(".")},
             )
-        except Exception as e:
+        except HTTPException:
+            raise
+        except (httpx.HTTPError, ValueError, IOError):
+            logger.exception("Error processing image from URL path")
             raise HTTPException(
                 status_code=422,
-                detail="Error processing the image: " + str(e),
+                detail="Error processing the image",
+            )
+        except Exception:
+            logger.exception("Unexpected error processing image from URL path")
+            raise HTTPException(
+                status_code=422,
+                detail="Error processing the image",
             )
 
 
@@ -202,15 +245,19 @@ def extract_chemicalinfo_from_upload(
                 return JSONResponse(
                     content={"reference": None, "smiles": smiles.split(".")},
                 )
-            except Exception as e:
+            except Exception:
+                logger.exception("Error processing uploaded image")
                 raise HTTPException(
                     status_code=422,
-                    detail="Error processing the image: " + str(e),
+                    detail="Error processing the image",
                 )
-        except Exception as e:
+        except HTTPException:
+            raise
+        except Exception:
+            logger.exception("Error reading uploaded image file")
             raise HTTPException(
                 status_code=422,
-                detail="Error processing the image: " + str(e),
+                detail="Error processing the image",
             )
         finally:
             file.file.close()

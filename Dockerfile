@@ -41,4 +41,7 @@ RUN conda install -c conda-forge python=${PYTHON_VERSION} sqlite --force-reinsta
 
 COPY ./app ./app
 
+RUN useradd -m -r appuser && chown -R appuser:appuser /code
+USER appuser
+
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 80 --workers ${WORKERS}"]

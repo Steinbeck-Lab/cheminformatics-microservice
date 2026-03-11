@@ -40,8 +40,8 @@ export const AppProvider = ({ children }) => {
       // Remove duplicate if exists
       const filtered = prev.filter((m) => m.smiles !== molecule.smiles);
 
-      // Add to the beginning and limit to 10 items
-      return [molecule, ...filtered].slice(0, 10);
+      // Add timestamp and place at the beginning, limit to 10 items
+      return [{ ...molecule, _savedAt: Date.now() }, ...filtered].slice(0, 10);
     });
   };
 
@@ -62,11 +62,16 @@ export const AppProvider = ({ children }) => {
       setIsDarkMode(savedDarkMode === "true");
     }
 
-    // Load recent molecules from localStorage
+    // Load recent molecules from localStorage, filtering out entries older than 24h
     const savedMolecules = localStorage.getItem("recentMolecules");
     if (savedMolecules) {
       try {
-        setRecentMolecules(JSON.parse(savedMolecules));
+        const parsed = JSON.parse(savedMolecules);
+        const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+        const fresh = Array.isArray(parsed)
+          ? parsed.filter((m) => m._savedAt && m._savedAt > cutoff)
+          : [];
+        setRecentMolecules(fresh);
       } catch (error) {
         console.error("Failed to parse saved molecules", error);
       }

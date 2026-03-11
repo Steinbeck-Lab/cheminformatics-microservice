@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi import Query
@@ -25,6 +27,8 @@ from app.schemas.tools_schema import GetCircularandLinearSugarResponse
 from app.schemas.tools_schema import GetCircularSugarResponse
 from app.schemas.tools_schema import GetLinearSugarResponse
 from app.schemas.tools_schema import GetSugarInformationResponse
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/tools",
@@ -78,6 +82,7 @@ def get_health() -> HealthCheck:
 def generate_structures(
     molecular_formula: str = Query(
         title="Molecular Formula",
+        max_length=200,
         description="Molecular Formula for the chemical structure to be generated",
         openapi_examples={
             "example1": {
@@ -126,9 +131,10 @@ def generate_structures(
             # Success - return the structured response
             return GenerateStructuresResponse(message="Success", output=result)
     except HTTPException:
-        raise  # Re-raise HTTP exceptions
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise
+    except Exception:
+        logger.exception("Error generating structures")
+        raise HTTPException(status_code=500, detail="Processing error")
 
 
 @router.get(
@@ -148,6 +154,7 @@ def generate_structures(
 def get_sugar_info_endpoint(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES: string representation of the molecule",
         openapi_examples={
             "example1": {
@@ -253,8 +260,11 @@ def get_sugar_info_endpoint(
             return "The molecule contains only Circular sugar"
         else:
             return "The molecule contains no sugar"
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error processing request")
+        raise HTTPException(status_code=422, detail="Processing error")
 
 
 @router.get(
@@ -270,6 +280,7 @@ def get_sugar_info_endpoint(
 def remove_linear_sugars_endpoint(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES: string representation of the molecule",
         openapi_examples={
             "example1": {
@@ -367,8 +378,11 @@ def remove_linear_sugars_endpoint(
                 status_code=422,
                 detail="Error reading SMILES string, please check again.",
             )
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error processing request")
+        raise HTTPException(status_code=422, detail="Processing error")
 
 
 @router.get(
@@ -384,6 +398,7 @@ def remove_linear_sugars_endpoint(
 def remove_circular_sugars_endpoint(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES: string representation of the molecule",
         openapi_examples={
             "example1": {
@@ -479,7 +494,7 @@ def remove_circular_sugars_endpoint(
             keto_sugars=keto_sugars,
             mark_attach_points=mark_attach_points,
         )
-        print(removed_smiles)
+        logger.debug("Sugar removal result: %s", removed_smiles)
         if removed_smiles == "":
             return "Empty Aglycone"
         elif removed_smiles:
@@ -489,8 +504,11 @@ def remove_circular_sugars_endpoint(
                 status_code=422,
                 detail="Error processing SMILES string.",
             )
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error processing request")
+        raise HTTPException(status_code=422, detail="Processing error")
 
 
 @router.get(
@@ -509,6 +527,7 @@ def remove_circular_sugars_endpoint(
 def remove_linear_and_circular_sugars_endpoint(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES: string representation of the molecule",
         openapi_examples={
             "example1": {
@@ -643,8 +662,11 @@ def remove_linear_and_circular_sugars_endpoint(
                 status_code=422,
                 detail="Error processing SMILES string, please check again.",
             )
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error processing request")
+        raise HTTPException(status_code=422, detail="Processing error")
 
 
 @router.get(
@@ -663,6 +685,7 @@ def remove_linear_and_circular_sugars_endpoint(
 def extract_aglycone_and_sugars_endpoint(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES: string representation of the molecule",
         openapi_examples={
             "example1": {
@@ -823,8 +846,11 @@ def extract_aglycone_and_sugars_endpoint(
                 status_code=422,
                 detail="Error processing SMILES string, please check again.",
             )
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error processing request")
+        raise HTTPException(status_code=422, detail="Processing error")
 
 
 @router.get(
@@ -843,6 +869,7 @@ def extract_aglycone_and_sugars_endpoint(
 def get_aglycone_and_sugar_indices_endpoint(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES: string representation of the molecule",
         openapi_examples={
             "example1": {
@@ -1003,5 +1030,8 @@ def get_aglycone_and_sugar_indices_endpoint(
                 status_code=422,
                 detail="Error processing SMILES string, please check again.",
             )
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error processing request")
+        raise HTTPException(status_code=422, detail="Processing error")

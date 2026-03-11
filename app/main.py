@@ -1,17 +1,22 @@
 from __future__ import annotations
 
-# Import limiter and related objects from the shared limiter module
-from app.limiter import limiter, rate_limit_exceeded_handler, RateLimitExceededExc
-
 import os
+from typing import Dict
+
+from app.limiter import limiter
+from app.limiter import rate_limit_exceeded_handler
+from app.limiter import RateLimitExceededExc
+
 from fastapi import FastAPI
 from fastapi import status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi_versioning import VersionedFastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
-from typing import Dict
 from slowapi.middleware import SlowAPIMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
 
 from .routers import chem
 from .routers import converters
@@ -95,23 +100,26 @@ app.add_middleware(SlowAPIMiddleware)
 
 Instrumentator().instrument(app).expose(app)
 
-origins = ["*"]
+_raw_origins = os.getenv("ALLOWED_ORIGINS", "*")
+origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
 
 
-@app.middleware("http")
-async def add_cors_headers(request, call_next):
-    response = await call_next(request)
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Credentials"] = "true"
-    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
-    return response
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next) -> Response:
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        return response
 
+
+app.add_middleware(SecurityHeadersMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True,
+    allow_credentials=False if origins == ["*"] else True,
     allow_methods=["*"],
     allow_headers=["*"],
 )

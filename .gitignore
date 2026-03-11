@@ -2,6 +2,9 @@
 .vscode/
 .idea/
 
+# Claude Code
+CLAUDE.md
+
 # Vagrant
 .vagrant/
 
@@ -102,6 +105,8 @@ celerybeat-schedule
 
 # Environments
 .env
+.env.development
+.env.production
 .venv
 env/
 venv/

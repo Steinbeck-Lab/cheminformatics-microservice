@@ -30,21 +30,18 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    // Handle common error scenarios
-    if (error.response) {
-      // Server responded with a status other than 2xx
-      console.error("API Error Response:", error.response.data);
-
-      if (error.response.status === 429) {
-        // Rate limiting
-        console.warn("API rate limit reached");
+    if (process.env.NODE_ENV !== "production") {
+      if (error.response) {
+        console.error("API Error Response:", error.response.status);
+      } else if (error.request) {
+        console.error("API No Response");
+      } else {
+        console.error("API Request Error:", error.message);
       }
-    } else if (error.request) {
-      // Request was made but no response was received
-      console.error("API No Response:", error.request);
-    } else {
-      // Something else happened while setting up the request
-      console.error("API Request Error:", error.message);
+    }
+
+    if (error.response && error.response.status === 429) {
+      console.warn("API rate limit reached");
     }
 
     return Promise.reject(error);
