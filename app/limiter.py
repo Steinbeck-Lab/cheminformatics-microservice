@@ -21,16 +21,21 @@ elif len(INTERNAL_AUTH_TOKEN) < 32:
     )
 
 
-def custom_rate_limit_key_func(request: StarletteRequest):
-    """Custom key function for rate limiting.
-
-    Authenticated requests share a single bucket so the overall rate limit
-    still applies.  Unauthenticated requests are rate-limited per IP.
-    """
+def _is_authenticated(request: StarletteRequest) -> bool:
+    """Return True when the request carries a valid internal auth token."""
     token = request.headers.get("x-internal-auth")
+    return bool(token and INTERNAL_AUTH_TOKEN and token == INTERNAL_AUTH_TOKEN)
 
-    if token and INTERNAL_AUTH_TOKEN and token == INTERNAL_AUTH_TOKEN:
-        return "auth_bypass"
+
+def custom_rate_limit_key_func(request: StarletteRequest) -> str:
+    """Return a rate-limit key for the request.
+
+    Authenticated requests get a unique key per request, which effectively
+    exempts them from rate limiting.  Unauthenticated requests are keyed
+    by IP address.
+    """
+    if _is_authenticated(request):
+        return f"auth_exempt_{id(request)}"
     return get_remote_address(request)
 
 

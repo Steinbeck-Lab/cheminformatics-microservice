@@ -367,15 +367,14 @@ class TestAuthTokenBypass:
         assert 429 in status_codes, "Missing token should apply rate limit"
 
 
-class TestRateLimitKeyFunction:
-    """Test the custom rate limit key function logic."""
+class TestAuthFilter:
+    """Test the _is_authenticated helper and key function logic."""
 
-    def test_rate_limit_key_function_with_valid_token(self, set_auth_token):
-        """Test that custom key function returns unique keys for authenticated requests."""
-        from app.limiter import custom_rate_limit_key_func
+    def test_is_authenticated_true_for_valid_token(self, set_auth_token):
+        """Test that _is_authenticated returns True for valid auth token."""
+        from app.limiter import _is_authenticated
         from starlette.requests import Request
 
-        # Mock request with valid auth token
         scope = {
             "type": "http",
             "method": "GET",
@@ -383,19 +382,58 @@ class TestRateLimitKeyFunction:
         }
         request = Request(scope)
 
-        key1 = custom_rate_limit_key_func(request)
+        assert _is_authenticated(request) is True
 
-        # Key should start with "auth_bypass_"
-        assert key1.startswith(
-            "auth_bypass_"
-        ), f"Expected key to start with 'auth_bypass_', got {key1}"
+    def test_is_authenticated_false_without_token(self):
+        """Test that _is_authenticated returns False without auth token."""
+        from app.limiter import _is_authenticated
+        from starlette.requests import Request
 
-    def test_rate_limit_key_function_without_token(self):
-        """Test that custom key function returns IP address for unauthenticated requests."""
+        scope = {
+            "type": "http",
+            "method": "GET",
+            "headers": [],
+            "client": ("127.0.0.1", 12345),
+        }
+        request = Request(scope)
+
+        assert _is_authenticated(request) is False
+
+    def test_is_authenticated_false_for_invalid_token(self, set_auth_token):
+        """Test that _is_authenticated returns False for invalid token."""
+        from app.limiter import _is_authenticated
+        from starlette.requests import Request
+
+        scope = {
+            "type": "http",
+            "method": "GET",
+            "headers": [(b"x-internal-auth", b"wrong_token")],
+            "client": ("127.0.0.1", 12345),
+        }
+        request = Request(scope)
+
+        assert _is_authenticated(request) is False
+
+    def test_key_func_returns_exempt_key_for_auth(self, set_auth_token):
+        """Test that key function returns auth_exempt key for valid token."""
         from app.limiter import custom_rate_limit_key_func
         from starlette.requests import Request
 
-        # Mock request without auth token
+        scope = {
+            "type": "http",
+            "method": "GET",
+            "headers": [(b"x-internal-auth", set_auth_token.encode())],
+        }
+        request = Request(scope)
+
+        key = custom_rate_limit_key_func(request)
+        assert key.startswith("auth_exempt_")
+
+    def test_key_func_returns_ip_without_token(self):
+        """Test that key function returns IP address for unauthenticated requests."""
+        from app.limiter import custom_rate_limit_key_func
+        from starlette.requests import Request
+
         scope = {
             "type": "http",
             "method": "GET",
@@ -405,16 +443,13 @@ class TestRateLimitKeyFunction:
         request = Request(scope)
 
         key = custom_rate_limit_key_func(request)
+        assert key == "127.0.0.1"
 
-        # Key should be the IP address
-        assert key == "127.0.0.1", f"Expected IP address as key, got {key}"
-
-    def test_rate_limit_key_function_with_invalid_token(self, set_auth_token):
-        """Test that custom key function returns IP for invalid token."""
+    def test_key_func_returns_ip_for_invalid_token(self, set_auth_token):
+        """Test that key function returns IP for invalid token."""
         from app.limiter import custom_rate_limit_key_func
         from starlette.requests import Request
 
-        # Mock request with invalid auth token
         scope = {
             "type": "http",
             "method": "GET",
@@ -424,9 +459,7 @@ class TestRateLimitKeyFunction:
         request = Request(scope)
 
         key = custom_rate_limit_key_func(request)
-
-        # Key should be the IP address (not bypassed)
-        assert key == "127.0.0.1", f"Expected IP address for invalid token, got {key}"
+        assert key == "127.0.0.1"
 
 
 class TestRateLimitResponse:
