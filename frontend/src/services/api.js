@@ -2,7 +2,7 @@
 import axios from "axios";
 
 // Get the API URL from environment variables or use a default
-const API_URL = process.env.REACT_APP_API_URL || "https://dev.api.naturalproducts.net/latest";
+const API_URL = import.meta.env.VITE_API_URL || "https://dev.api.naturalproducts.net/latest";
 
 // Create an Axios instance with default config
 const api = axios.create({
@@ -30,7 +30,7 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (process.env.NODE_ENV !== "production") {
+    if (import.meta.env.DEV) {
       if (error.response) {
         console.error("API Error Response:", error.response.status);
       } else if (error.request) {

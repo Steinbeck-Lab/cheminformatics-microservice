@@ -15,7 +15,7 @@ import LoadingScreen from "../common/LoadingScreen";
 import MoleculeCard from "../common/MoleculeCard";
 import { generate2DCoordinates } from "../../services/convertService";
 // Assuming the API URL is configured correctly via environment variables or defaults
-const API_BASE_URL = process.env.REACT_APP_API_URL || "https://dev.api.naturalproducts.net/latest";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://dev.api.naturalproducts.net/latest";
 
 const StandardizeView = () => {
   const [inputMethod, setInputMethod] = useState("molblock"); // 'molblock' or 'smiles'

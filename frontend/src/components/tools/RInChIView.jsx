@@ -1434,7 +1434,7 @@ const RInChIView = () => {
             >
               <iframe
                 ref={ketcherFrame}
-                src={`${process.env.PUBLIC_URL}/standalone/index.html`}
+                src="/standalone/index.html"
                 title="Ketcher Editor"
                 className="w-full h-full"
                 frameBorder="0"

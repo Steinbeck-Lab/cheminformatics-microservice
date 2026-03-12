@@ -58,7 +58,7 @@ const MoleculeCard = ({
     xl: "h-80",
   };
 
-  const baseUrl = (process.env.REACT_APP_API_URL || "https://dev.api.naturalproducts.net/latest").replace(/\/latest$/, "");
+  const baseUrl = (import.meta.env.VITE_API_URL || "https://dev.api.naturalproducts.net/latest").replace(/\/latest$/, "");
   const imageUrl = smiles // Only generate URL if SMILES is valid
     ? `${baseUrl}/latest/depict/2D?smiles=${encodeURIComponent(smiles)}&width=512&height=512&toolkit=cdk` // Reverted to original structure
     : FALLBACK_SVG_BASE64; // Use fallback if no SMILES provided initially

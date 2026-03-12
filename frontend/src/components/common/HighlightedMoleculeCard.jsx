@@ -42,7 +42,7 @@ const HighlightedMoleculeCard = ({
   };
 
   const baseUrl = (
-    process.env.REACT_APP_API_URL || "https://dev.api.naturalproducts.net/latest"
+    import.meta.env.VITE_API_URL || "https://dev.api.naturalproducts.net/latest"
   ).replace(/\/latest$/, "");
 
   // Generate highlighting information from functional groups
