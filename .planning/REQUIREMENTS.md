@@ -26,7 +26,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Component System
 
-- [ ] **COMP-01**: shadcn/ui installed and configured for Vite + Tailwind v4
+- [x] **COMP-01**: shadcn/ui installed and configured for Vite + Tailwind v4
 - [ ] **COMP-02**: Core buttons replaced with shadcn/ui Button component
 - [ ] **COMP-03**: Cards and content containers replaced with shadcn/ui Card
 - [ ] **COMP-04**: Modals and dialogs replaced with shadcn/ui Dialog/Sheet
@@ -37,9 +37,9 @@ Requirements for this milestone. Each maps to roadmap phases.
 ### Theming & Dark Mode
 
 - [x] **THEME-01**: Dark mode toggle available in UI (header/nav)
-- [ ] **THEME-02**: System preference auto-detection (prefers-color-scheme)
-- [ ] **THEME-03**: Theme preference persisted in localStorage
-- [ ] **THEME-04**: CSS variable-based theming using shadcn/ui approach
+- [x] **THEME-02**: System preference auto-detection (prefers-color-scheme)
+- [x] **THEME-03**: Theme preference persisted in localStorage
+- [x] **THEME-04**: CSS variable-based theming using shadcn/ui approach
 - [ ] **THEME-05**: All pages and components render correctly in both light and dark modes
 
 ### Loading & Feedback
@@ -112,7 +112,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FRAME-03 | Phase 2 | Complete |
 | FRAME-04 | Phase 3 | Complete |
 | FRAME-05 | Phase 2 | Complete |
-| COMP-01 | Phase 4 | Pending |
+| COMP-01 | Phase 4 | Complete |
 | COMP-02 | Phase 4 | Pending |
 | COMP-03 | Phase 4 | Pending |
 | COMP-04 | Phase 4 | Pending |
@@ -120,9 +120,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | COMP-06 | Phase 4 | Complete |
 | COMP-07 | Phase 4 | Pending |
 | THEME-01 | Phase 4 | Complete |
-| THEME-02 | Phase 4 | Pending |
-| THEME-03 | Phase 4 | Pending |
-| THEME-04 | Phase 4 | Pending |
+| THEME-02 | Phase 4 | Complete |
+| THEME-03 | Phase 4 | Complete |
+| THEME-04 | Phase 4 | Complete |
 | THEME-05 | Phase 4 | Pending |
 | LOAD-01 | Phase 5 | Pending |
 | LOAD-02 | Phase 5 | Pending |
