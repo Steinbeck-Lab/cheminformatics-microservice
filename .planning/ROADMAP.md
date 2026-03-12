@@ -31,12 +31,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. `npm audit` reports zero vulnerabilities and package.json contains no `overrides` section
   4. Docker frontend build (Dockerfile.frontend) succeeds and serves the app correctly
   5. All environment variables use the VITE_* prefix and the app communicates with the backend API
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
-- [ ] 01-03: TBD
+- [ ] 01-01-PLAN.md -- Core Vite setup: uninstall CRA, install Vite stack, migrate env vars, update deps
+- [ ] 01-02-PLAN.md -- Developer tooling: ESLint v9 flat config, Vitest, husky, CI workflow
+- [ ] 01-03-PLAN.md -- Docker update and full migration verification (9-page visual check)
 
 ### Phase 2: React 19 + TypeScript 5
 **Goal**: The application runs on React 19 and TypeScript 5 with all existing functionality intact
@@ -125,7 +125,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Vite Migration | 0/3 | Not started | - |
+| 1. Vite Migration | 0/3 | Planned | - |
 | 2. React 19 + TypeScript 5 | 0/2 | Not started | - |
 | 3. Tailwind v4 Migration | 0/2 | Not started | - |
 | 4. Component System + Dark Mode | 0/4 | Not started | - |
