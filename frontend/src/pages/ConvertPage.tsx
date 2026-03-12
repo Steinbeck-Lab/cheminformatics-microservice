@@ -175,13 +175,13 @@ const ConvertPage = () => {
           >
             <motion.h1
               variants={headerItemVariants}
-              className="text-2xl md:text-4xl lg:text-5xl font-bold text-(--text-primary) mb-2 md:mb-3"
+              className="text-2xl md:text-4xl lg:text-5xl font-bold text-foreground mb-2 md:mb-3"
             >
               Format Conversion & Coordinate Generation
             </motion.h1>
             <motion.p
               variants={headerItemVariants}
-              className="text-(--text-secondary) text-sm md:text-lg max-w-3xl mx-auto"
+              className="text-muted-foreground text-sm md:text-lg max-w-3xl mx-auto"
             >
               Convert between chemical file formats, generate 2D and 3D coordinates.
             </motion.p>
@@ -263,7 +263,7 @@ const ConvertPage = () => {
                         <motion.button
                           key={tab.id}
                           onClick={() => handleTabSelection(tab.id)}
-                          className={`tab-button relative flex items-center px-5 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 whitespace-nowrap focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-(--bg-secondary) focus-visible:ring-(--text-accent) ${
+                          className={`tab-button relative flex items-center px-5 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 whitespace-nowrap focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:ring-primary ${
                             isActive
                               ? "text-sky-700 dark:text-white"
                               : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -386,22 +386,6 @@ const ConvertPage = () => {
       {/* End Content Area */}
       {/* Global Styles */}
       <style jsx global>{`
-        :root {
-          --text-primary: #1e293b;
-          --text-secondary: #64748b;
-          --text-accent: #0284c7;
-          --bg-primary: #ffffff;
-          --bg-secondary: #f1f5f9;
-        }
-
-        .dark {
-          --text-primary: #f1f5f9;
-          --text-secondary: #94a3b8;
-          --text-accent: #38bdf8;
-          --bg-primary: #0f172a;
-          --bg-secondary: #1e293b;
-        }
-
         /* Glass effect */
         .glass {
           backdrop-filter: blur(16px);

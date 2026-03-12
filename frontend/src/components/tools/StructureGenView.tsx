@@ -134,11 +134,11 @@ const StructureGenView = () => {
     >
       {/* Form Container - Apply glass, adaptive styles */}
       <motion.div
-        className="glass p-5 sm:p-6 rounded-xl shadow-lg border border-(--border-secondary) dark:border-(--border-primary)"
+        className="glass p-5 sm:p-6 rounded-xl shadow-lg border border-border dark:border-border"
         variants={contentSectionVariant} // Animate form section
       >
         {/* Use adaptive text color */}
-        <h2 className="text-xl font-semibold text-(--text-accent) mb-4">
+        <h2 className="text-xl font-semibold text-primary mb-4">
           Structure Generation (from Formula)
         </h2>
 
@@ -148,7 +148,7 @@ const StructureGenView = () => {
             {/* Use adaptive label color */}
             <label
               htmlFor="formula-input"
-              className="block text-sm font-medium text-(--text-secondary) mb-1"
+              className="block text-sm font-medium text-muted-foreground mb-1"
             >
               Molecular Formula
             </label>
@@ -175,7 +175,7 @@ const StructureGenView = () => {
             <button
               type="submit"
               disabled={!formula || isLoading}
-              className="btn btn-primary disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center"
+              className="px-4 py-2 rounded-md font-medium bg-sky-600 hover:bg-sky-700 text-white dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center"
             >
               <FlaskConical className="mr-2 h-5 w-5" />
               {isLoading ? "Generating..." : "Generate Structures"}
@@ -195,7 +195,7 @@ const StructureGenView = () => {
                     type="button"
                     onClick={downloadSelectedStructures}
                     disabled={selectedStructures.length === 0}
-                    className="btn btn-secondary btn-sm disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center" // Use btn-secondary
+                    className="px-3 py-1.5 text-sm rounded-md font-medium bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white dark:border-slate-600 focus:outline-hidden focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center" // Use btn-secondary
                   >
                     <Download className="mr-1.5 h-4 w-4" />
                     Download Selected ({selectedStructures.length})
@@ -203,7 +203,7 @@ const StructureGenView = () => {
                   <button
                     type="button"
                     onClick={() => setSelectedStructures([...structures])}
-                    className="btn btn-secondary btn-sm inline-flex items-center" // Use btn-secondary
+                    className="px-3 py-1.5 text-sm rounded-md font-medium bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white dark:border-slate-600 focus:outline-hidden focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 inline-flex items-center" // Use btn-secondary
                   >
                     <Copy className="mr-1.5 h-4 w-4" />
                     Select All
@@ -212,7 +212,7 @@ const StructureGenView = () => {
                     type="button"
                     onClick={() => setSelectedStructures([])}
                     disabled={selectedStructures.length === 0}
-                    className="btn btn-secondary btn-sm disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center" // Use btn-secondary
+                    className="px-3 py-1.5 text-sm rounded-md font-medium bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white dark:border-slate-600 focus:outline-hidden focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center" // Use btn-secondary
                   >
                     <XCircle className="mr-1.5 h-4 w-4" /> {/* Changed Icon */}
                     Deselect All
@@ -255,30 +255,28 @@ const StructureGenView = () => {
           {/* Generation Summary */}
           {generationResult && (
             <motion.div
-              className="glass p-4 rounded-lg border border-(--border-secondary) dark:border-(--border-primary)"
+              className="glass p-4 rounded-lg border border-border dark:border-border"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <h3 className="text-lg font-medium text-(--text-primary) mb-3">Generation Summary</h3>
+              <h3 className="text-lg font-medium text-foreground mb-3">Generation Summary</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-(--text-accent)">
+                  <div className="text-2xl font-bold text-primary">
                     {generationResult.total_count?.toLocaleString()}
                   </div>
-                  <div className="text-sm text-(--text-secondary)">Total Possible</div>
+                  <div className="text-sm text-muted-foreground">Total Possible</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-(--text-accent)">
+                  <div className="text-2xl font-bold text-primary">
                     {generationResult.generated_count?.toLocaleString()}
                   </div>
-                  <div className="text-sm text-(--text-secondary)">Generated</div>
+                  <div className="text-sm text-muted-foreground">Generated</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-(--text-accent)">
-                    {selectedStructures.length}
-                  </div>
-                  <div className="text-sm text-(--text-secondary)">Selected</div>
+                  <div className="text-2xl font-bold text-primary">{selectedStructures.length}</div>
+                  <div className="text-sm text-muted-foreground">Selected</div>
                 </div>
                 <div className="text-center">
                   <div
@@ -286,23 +284,21 @@ const StructureGenView = () => {
                   >
                     {generationResult.limit_applied ? "Limited" : "Complete"}
                   </div>
-                  <div className="text-sm text-(--text-secondary)">Results</div>
+                  <div className="text-sm text-muted-foreground">Results</div>
                 </div>
               </div>
 
               {/* Generation Settings */}
               {generationResult.settings && (
                 <div>
-                  <h4 className="text-sm font-medium text-(--text-primary) mb-2">
-                    Generation Settings
-                  </h4>
+                  <h4 className="text-sm font-medium text-foreground mb-2">Generation Settings</h4>
                   <div className="space-y-1">
                     {Object.entries(generationResult.settings).map(([flag, description]) => (
                       <div key={flag} className="text-xs flex">
-                        <code className="bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded-sm mr-2 font-mono text-(--text-accent)">
+                        <code className="bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded-sm mr-2 font-mono text-primary">
                           {flag}
                         </code>
-                        <span className="text-(--text-secondary)">{description}</span>
+                        <span className="text-muted-foreground">{description}</span>
                       </div>
                     ))}
                   </div>
@@ -323,11 +319,11 @@ const StructureGenView = () => {
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             {/* Use adaptive text color */}
-            <h3 className="text-lg font-medium text-(--text-primary)">
+            <h3 className="text-lg font-medium text-foreground">
               Generated Structures ({structures.length})
             </h3>
             {/* Use adaptive text color */}
-            <div className="text-(--text-secondary) flex items-center text-sm shrink-0">
+            <div className="text-muted-foreground flex items-center text-sm shrink-0">
               <Atom className="mr-1.5 h-4 w-4" />
               Formula:{" "}
               <code className="ml-1.5 text-xs bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded-sm">
@@ -352,7 +348,7 @@ const StructureGenView = () => {
                 // Apply adaptive border for selection state
                 className={`rounded-lg transition-all duration-200 cursor-pointer relative group ${
                   selectedStructures.includes(smiles)
-                    ? "ring-2 ring-offset-2 ring-offset-(--bg-primary) ring-(--text-accent)" // Use ring for selection
+                    ? "ring-2 ring-offset-2 ring-offset-background ring-primary" // Use ring for selection
                     : "ring-1 ring-transparent hover:ring-slate-300 dark:hover:ring-slate-600" // Subtle hover ring
                 }`}
                 onClick={() => toggleSelectStructure(smiles)}

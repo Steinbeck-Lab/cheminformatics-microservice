@@ -316,10 +316,10 @@ const ChemPage = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.1 }}
           >
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-(--text-primary) mb-3">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3">
               Chemical Analysis Tools
             </h1>
-            <p className="text-(--text-secondary) text-base md:text-lg max-w-3xl mx-auto">
+            <p className="text-muted-foreground text-base md:text-lg max-w-3xl mx-auto">
               Comprehensive toolkit for molecular analysis, classification, and validation.
             </p>
           </motion.div>
@@ -495,10 +495,10 @@ const ChemPage = () => {
                           className={`h-6 w-6 sm:h-7 sm:w-7 mr-3 sm:mr-4 shrink-0 mt-0.5 sm:mt-0 ${getCategoryColorClass(activeTab.category, "text")}`}
                         />
                         <div>
-                          <h1 className="text-xl sm:text-2xl font-bold text-(--text-primary)">
+                          <h1 className="text-xl sm:text-2xl font-bold text-foreground">
                             {activeTab.name}
                           </h1>
-                          <p className="text-sm text-(--text-secondary) mt-1">
+                          <p className="text-sm text-muted-foreground mt-1">
                             {activeTab.description}
                           </p>
                         </div>

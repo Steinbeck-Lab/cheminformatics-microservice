@@ -1,10 +1,121 @@
 /* src/styles/tailwind.css */
 @import "tailwindcss";
+@import "tw-animate-css";
 
-@plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* ===== shadcn/ui CSS Variables (OKLCH) ===== */
+:root {
+  --radius: 0.625rem;
+  /* Light mode: sky/slate palette */
+  --background: oklch(0.9688 0.0035 264.54); /* slate-100 */
+  --foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
+  --card: oklch(1 0 0); /* white */
+  --card-foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
+  --popover: oklch(1 0 0); /* white */
+  --popover-foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
+  --primary: oklch(0.5459 0.1522 241.22); /* sky-600 */
+  --primary-foreground: oklch(1 0 0); /* white */
+  --secondary: oklch(0.9282 0.0069 264.53); /* slate-200 */
+  --secondary-foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
+  --muted: oklch(0.9282 0.0069 264.53); /* slate-200 */
+  --muted-foreground: oklch(0.5542 0.0255 264.36); /* slate-500 */
+  --accent: oklch(0.9282 0.0069 264.53); /* slate-200 */
+  --accent-foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
+  --destructive: oklch(0.5774 0.2157 27.33); /* red-600 */
+  --border: oklch(0.8694 0.0106 264.53); /* slate-300 */
+  --input: oklch(0.8694 0.0106 264.53); /* slate-300 */
+  --ring: oklch(0.5459 0.1522 241.22); /* sky-600 */
+  --chart-1: oklch(0.6469 0.1651 231.11); /* sky-500 */
+  --chart-2: oklch(0.5826 0.1556 254.62); /* indigo-500 */
+  --chart-3: oklch(0.6275 0.1454 292.79); /* purple-500 */
+  --chart-4: oklch(0.6382 0.1773 25.72); /* orange-500 */
+  --chart-5: oklch(0.723 0.1907 149.58); /* green-500 */
+  --sidebar-background: oklch(0.9688 0.0035 264.54); /* slate-100 */
+  --sidebar-foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
+  --sidebar-primary: oklch(0.5459 0.1522 241.22); /* sky-600 */
+  --sidebar-primary-foreground: oklch(1 0 0); /* white */
+  --sidebar-accent: oklch(0.9282 0.0069 264.53); /* slate-200 */
+  --sidebar-accent-foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
+  --sidebar-border: oklch(0.8694 0.0106 264.53); /* slate-300 */
+  --sidebar-ring: oklch(0.5459 0.1522 241.22); /* sky-600 */
+}
+
+.dark {
+  /* Dark mode: sky/slate palette with custom gray-950 background */
+  --background: oklch(0.16 0.02 250); /* #0f1521 custom gray-950 */
+  --foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
+  --card: oklch(0.2955 0.0301 265.75); /* slate-800 */
+  --card-foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
+  --popover: oklch(0.2955 0.0301 265.75); /* slate-800 */
+  --popover-foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
+  --primary: oklch(0.7461 0.1248 241.02); /* sky-400 */
+  --primary-foreground: oklch(0.16 0.02 250); /* gray-950 */
+  --secondary: oklch(0.3937 0.0278 265.75); /* slate-700 */
+  --secondary-foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
+  --muted: oklch(0.3937 0.0278 265.75); /* slate-700 */
+  --muted-foreground: oklch(0.7041 0.0177 264.53); /* slate-400 */
+  --accent: oklch(0.3937 0.0278 265.75); /* slate-700 */
+  --accent-foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
+  --destructive: oklch(0.5774 0.2157 27.33); /* red-600 */
+  --border: oklch(0.3937 0.0278 265.75); /* slate-700 */
+  --input: oklch(0.3937 0.0278 265.75); /* slate-700 */
+  --ring: oklch(0.7461 0.1248 241.02); /* sky-400 */
+  --chart-1: oklch(0.7461 0.1248 241.02); /* sky-400 */
+  --chart-2: oklch(0.7187 0.1686 254.62); /* indigo-400 */
+  --chart-3: oklch(0.7141 0.1648 292.79); /* purple-400 */
+  --chart-4: oklch(0.7483 0.183 55.93); /* amber-400 */
+  --chart-5: oklch(0.7926 0.1947 149.58); /* green-400 */
+  --sidebar-background: oklch(0.16 0.02 250); /* custom gray-950 */
+  --sidebar-foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
+  --sidebar-primary: oklch(0.7461 0.1248 241.02); /* sky-400 */
+  --sidebar-primary-foreground: oklch(0.16 0.02 250); /* gray-950 */
+  --sidebar-accent: oklch(0.3937 0.0278 265.75); /* slate-700 */
+  --sidebar-accent-foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
+  --sidebar-border: oklch(0.3937 0.0278 265.75); /* slate-700 */
+  --sidebar-ring: oklch(0.7461 0.1248 241.02); /* sky-400 */
+}
+
+/* ===== Map CSS variables to Tailwind utilities via @theme ===== */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar-background: var(--sidebar-background);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
 
 @theme {
   /* Custom color shades (non-default) */
@@ -41,54 +152,12 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
-  }
-
-  :root {
-    /* Light Mode Colors (Default) */
-    --bg-primary: var(--color-slate-100);
-    --bg-secondary: var(--color-white);
-    --text-primary: var(--color-slate-900);
-    --text-secondary: var(--color-slate-600);
-    --text-accent: var(--color-sky-700);
-    --text-accent-hover: var(--color-sky-800);
-    --border-primary: var(--color-slate-300);
-    --border-secondary: var(--color-slate-200);
-    --link-primary: var(--color-sky-600);
-    --link-hover: var(--color-sky-700);
-    --input-bg: var(--color-white);
-    --input-border: var(--color-slate-300);
-    --input-text: var(--color-slate-900);
-    --input-focus-ring: var(--color-sky-500);
-    --placeholder-color: var(--color-slate-400);
-    --shadow-color-rgb: 0, 0, 0;
-  }
-
-  .dark {
-    /* Dark Mode Colors */
-    --bg-primary: var(--color-gray-950);
-    --bg-secondary: var(--color-slate-800);
-    --text-primary: var(--color-slate-100);
-    --text-secondary: var(--color-slate-300);
-    --text-accent: var(--color-sky-400);
-    --text-accent-hover: var(--color-sky-300);
-    --border-primary: var(--color-slate-700);
-    --border-secondary: var(--color-slate-800);
-    --link-primary: var(--color-sky-400);
-    --link-hover: var(--color-sky-300);
-    --input-bg: var(--color-slate-800);
-    --input-border: var(--color-slate-700);
-    --input-text: var(--color-white);
-    --input-focus-ring: var(--color-sky-400);
-    --placeholder-color: var(--color-slate-500);
-    --shadow-color-rgb: 255, 255, 255;
+    border-color: var(--border);
   }
 
   /* Base element styling */
   body {
-    @apply min-h-screen antialiased;
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
+    @apply bg-background text-foreground min-h-screen antialiased;
     font-family:
       "Inter",
       system-ui,
@@ -105,35 +174,12 @@
   h4,
   h5,
   h6 {
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-
-  /* Form elements */
-  input,
-  select,
-  textarea {
-    @apply rounded-md px-3 py-2 border transition-colors duration-200;
-    background-color: var(--input-bg);
-    border-color: var(--input-border);
-    color: var(--input-text);
-    @apply placeholder-(--placeholder-color);
-  }
-  input:focus,
-  select:focus,
-  textarea:focus {
-    @apply outline-hidden ring-2 border-transparent;
-    border-color: var(--input-focus-ring);
-    --tw-ring-color: color-mix(in oklch, var(--input-focus-ring) 50%, transparent);
+    @apply font-semibold text-foreground;
   }
 
   /* Links */
   a {
-    color: var(--link-primary);
-    @apply hover:underline decoration-transparent hover:decoration-current underline-offset-4 transition-all duration-200;
-  }
-  a:hover {
-    color: var(--link-hover);
+    @apply text-primary hover:underline decoration-transparent hover:decoration-current underline-offset-4 transition-all duration-200;
   }
 
   /* Scoped transition to interactive elements (was global * selector) */
@@ -148,61 +194,6 @@
     transition-duration: 200ms;
     transition-timing-function: ease-in-out;
   }
-}
-
-/* ===== Component Classes (via @utility for v4 compatibility) ===== */
-/* These are replaced by shadcn/ui in Phase 4 */
-@utility btn {
-  @apply px-4 py-2 rounded-md font-medium transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2;
-  @apply focus:ring-offset-(--bg-primary);
-}
-
-@utility btn-primary {
-  @apply btn bg-sky-600 hover:bg-sky-700 text-white focus:ring-sky-500;
-  @apply dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-500;
-}
-
-@utility btn-secondary {
-  @apply btn bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 focus:ring-slate-400;
-  @apply dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white dark:border-slate-600 dark:focus:ring-slate-500;
-}
-
-@utility btn-danger {
-  @apply btn bg-red-600 hover:bg-red-700 text-white focus:ring-red-500;
-}
-
-@utility card {
-  @apply bg-(--bg-secondary) border rounded-lg shadow-md dark:shadow-xl overflow-hidden;
-  @apply dark:bg-slate-800/80 dark:border-slate-700/80;
-  border-color: var(--border-primary);
-}
-
-@utility card-header {
-  @apply p-4 border-b font-semibold;
-  background-color: color-mix(in srgb, var(--bg-secondary) 95%, black 5%);
-  border-color: var(--border-primary);
-  @apply dark:bg-slate-900/50 dark:border-slate-700;
-}
-
-@utility card-body {
-  @apply p-4;
-}
-
-@utility card-footer {
-  @apply p-4 border-t text-sm;
-  background-color: color-mix(in srgb, var(--bg-secondary) 95%, black 5%);
-  border-color: var(--border-primary);
-  color: var(--text-secondary);
-  @apply dark:bg-slate-900/50 dark:border-slate-700 dark:text-slate-400;
-}
-
-@utility form-group {
-  @apply mb-4;
-}
-
-@utility form-label {
-  @apply block text-sm font-medium mb-1;
-  color: var(--text-secondary);
 }
 
 /* ===== Custom Utilities (survive past Phase 4) ===== */
