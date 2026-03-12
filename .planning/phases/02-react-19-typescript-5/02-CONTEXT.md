@@ -26,7 +26,7 @@ Upgrade React 18.2 to React 19.2.4, convert the entire JavaScript codebase to Ty
 ### React 19 Upgrade
 - Upgrade to React 19.2.4 (latest stable, includes CVE-2025-55182 patch)
 - Upgrade react-dom to 19.2.4 to match
-- Upgrade @headlessui/react from v1.7.17 to v2.x for React 19 compatibility
+- Remove @headlessui/react (dead dependency — not imported anywhere in source code)
 - Upgrade @testing-library/react and all test dependencies for React 19 compatibility
 - No forwardRef, defaultProps, or propTypes in codebase — clean migration path
 - ReactDOM.createRoot already in use — no changes needed for root rendering
