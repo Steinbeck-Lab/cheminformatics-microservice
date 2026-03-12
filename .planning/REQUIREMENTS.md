@@ -101,52 +101,52 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUILD-01 | — | Pending |
-| BUILD-02 | — | Pending |
-| BUILD-03 | — | Pending |
-| BUILD-04 | — | Pending |
-| BUILD-05 | — | Pending |
-| BUILD-06 | — | Pending |
-| FRAME-01 | — | Pending |
-| FRAME-02 | — | Pending |
-| FRAME-03 | — | Pending |
-| FRAME-04 | — | Pending |
-| FRAME-05 | — | Pending |
-| COMP-01 | — | Pending |
-| COMP-02 | — | Pending |
-| COMP-03 | — | Pending |
-| COMP-04 | — | Pending |
-| COMP-05 | — | Pending |
-| COMP-06 | — | Pending |
-| COMP-07 | — | Pending |
-| THEME-01 | — | Pending |
-| THEME-02 | — | Pending |
-| THEME-03 | — | Pending |
-| THEME-04 | — | Pending |
-| THEME-05 | — | Pending |
-| LOAD-01 | — | Pending |
-| LOAD-02 | — | Pending |
-| LOAD-03 | — | Pending |
-| LOAD-04 | — | Pending |
-| ANIM-01 | — | Pending |
-| ANIM-02 | — | Pending |
-| ANIM-03 | — | Pending |
-| ANIM-04 | — | Pending |
-| ANIM-05 | — | Pending |
-| ANIM-06 | — | Pending |
-| POWER-01 | — | Pending |
-| POWER-02 | — | Pending |
-| POWER-03 | — | Pending |
-| UX-01 | — | Pending |
-| UX-02 | — | Pending |
-| UX-03 | — | Pending |
-| UX-04 | — | Pending |
+| BUILD-01 | Phase 1 | Pending |
+| BUILD-02 | Phase 1 | Pending |
+| BUILD-03 | Phase 1 | Pending |
+| BUILD-04 | Phase 1 | Pending |
+| BUILD-05 | Phase 1 | Pending |
+| BUILD-06 | Phase 1 | Pending |
+| FRAME-01 | Phase 2 | Pending |
+| FRAME-02 | Phase 3 | Pending |
+| FRAME-03 | Phase 2 | Pending |
+| FRAME-04 | Phase 3 | Pending |
+| FRAME-05 | Phase 2 | Pending |
+| COMP-01 | Phase 4 | Pending |
+| COMP-02 | Phase 4 | Pending |
+| COMP-03 | Phase 4 | Pending |
+| COMP-04 | Phase 4 | Pending |
+| COMP-05 | Phase 4 | Pending |
+| COMP-06 | Phase 4 | Pending |
+| COMP-07 | Phase 4 | Pending |
+| THEME-01 | Phase 4 | Pending |
+| THEME-02 | Phase 4 | Pending |
+| THEME-03 | Phase 4 | Pending |
+| THEME-04 | Phase 4 | Pending |
+| THEME-05 | Phase 4 | Pending |
+| LOAD-01 | Phase 5 | Pending |
+| LOAD-02 | Phase 5 | Pending |
+| LOAD-03 | Phase 5 | Pending |
+| LOAD-04 | Phase 5 | Pending |
+| ANIM-01 | Phase 6 | Pending |
+| ANIM-02 | Phase 6 | Pending |
+| ANIM-03 | Phase 6 | Pending |
+| ANIM-04 | Phase 6 | Pending |
+| ANIM-05 | Phase 6 | Pending |
+| ANIM-06 | Phase 6 | Pending |
+| POWER-01 | Phase 6 | Pending |
+| POWER-02 | Phase 6 | Pending |
+| POWER-03 | Phase 6 | Pending |
+| UX-01 | Phase 5 | Pending |
+| UX-02 | Phase 5 | Pending |
+| UX-03 | Phase 5 | Pending |
+| UX-04 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 40 total
-- Mapped to phases: 0
-- Unmapped: 40
+- Mapped to phases: 40
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-12*
-*Last updated: 2026-03-12 after initial definition*
+*Last updated: 2026-03-12 after roadmap creation*
