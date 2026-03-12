@@ -103,10 +103,10 @@ celerybeat-schedule
 # SageMath parsed files
 *.sage.py
 
-# Environments
-.env
-.env.development
-.env.production
+# Environments (root-level only — frontend/.env.production is safe to track)
+/.env
+/.env.development
+/.env.production
 .venv
 env/
 venv/
