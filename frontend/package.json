@@ -4,8 +4,7 @@
   "private": true,
   "description": "A modern UI for the Cheminformatics Microservice API",
   "dependencies": {
-    "@fortawesome/free-solid-svg-icons": "^6.7.2",
-    "@fortawesome/react-fontawesome": "^0.2.6",
+    "@tailwindcss/forms": "^0.5.11",
     "axios": "^1.13.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -17,7 +16,6 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-dropzone": "^14.2.3",
-    "react-icons": "^4.12.0",
     "react-router-dom": "^6.30.3",
     "tailwind-merge": "^3.5.0",
     "tw-animate-css": "^1.4.0"
