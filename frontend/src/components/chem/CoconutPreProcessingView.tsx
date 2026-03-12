@@ -1,17 +1,12 @@
 // Description: This component handles the COCONUT pre-processing view, including SMILES input, processing options, and displaying results.
 import React, { useState } from "react"; // Removed useEffect, useCallback
 // Ensure all used icons are imported, including HiOutlineExclamationCircle for errors
-import {
-  HiOutlineDocumentReport,
-  HiOutlineBeaker,
-  HiOutlineInformationCircle,
-  HiOutlineExclamationCircle, // Added for error display
-} from "react-icons/hi";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
 import LoadingScreen from "../common/LoadingScreen";
 // Assuming this service is configured correctly
 import { coconutPreprocessing } from "../../services/chemService"; // Assuming this service exists
+import { AlertCircle, FileBarChart, FlaskConical, Info } from "lucide-react";
 
 const CoconutPreProcessingView = () => {
   const [smiles, setSmiles] = useState("");
@@ -349,7 +344,7 @@ const CoconutPreProcessingView = () => {
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
-              <HiOutlineBeaker className="mr-2 h-5 w-5" aria-hidden="true" />
+              <FlaskConical className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Processing..." : "Process for COCONUT"}
             </button>
           </div>
@@ -365,7 +360,7 @@ const CoconutPreProcessingView = () => {
           className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
           role="alert"
         >
-          <HiOutlineExclamationCircle
+          <AlertCircle
             className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
             aria-hidden="true"
           />
@@ -379,7 +374,7 @@ const CoconutPreProcessingView = () => {
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg">
           {/* Results Header */}
           <div className="flex items-center mb-4 border-b border-gray-200 dark:border-gray-700 pb-3">
-            <HiOutlineDocumentReport
+            <FileBarChart
               className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-3 shrink-0"
               aria-hidden="true"
             />
@@ -399,7 +394,7 @@ const CoconutPreProcessingView = () => {
           className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow-sm"
           role="complementary"
         >
-          <HiOutlineInformationCircle
+          <Info
             className="h-6 w-6 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"
             aria-hidden="true"
           />
@@ -429,5 +424,4 @@ const CoconutPreProcessingView = () => {
     </div>
   );
 };
-
 export default CoconutPreProcessingView;

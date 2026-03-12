@@ -1,13 +1,7 @@
 // Description: A reusable React component for uploading and converting MOL/SDF files to SMILES
 import React, { useState, useRef } from "react";
-import {
-  HiOutlineUpload,
-  HiOutlineDocumentText,
-  HiOutlineX,
-  HiOutlineCheckCircle,
-  HiOutlineExclamationCircle,
-} from "react-icons/hi";
 import convertService from "../../services/convertService";
+import { AlertCircle, CheckCircle, FileText, Upload, X } from "lucide-react";
 
 /**
  * MolFileUpload Component
@@ -182,7 +176,7 @@ const MolFileUpload = ({
             className="hidden"
             disabled={loading}
           />
-          <HiOutlineUpload className="h-5 w-5 text-gray-500 dark:text-gray-400 mr-2" />
+          <Upload className="h-5 w-5 text-gray-500 dark:text-gray-400 mr-2" />
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
             {filename || "Upload MOL/SDF File"}
           </span>
@@ -205,7 +199,7 @@ const MolFileUpload = ({
       {/* Error Display */}
       {error && !loading && (
         <div className="flex items-start p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <HiOutlineExclamationCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
+          <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
           <div className="ml-3 flex-1">
             <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
           </div>
@@ -213,7 +207,7 @@ const MolFileUpload = ({
             onClick={() => setError(null)}
             className="ml-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
           >
-            <HiOutlineX className="h-4 w-4" />
+            <X className="h-4 w-4" />
           </button>
         </div>
       )}
@@ -222,7 +216,7 @@ const MolFileUpload = ({
       {smiles && !loading && !error && (
         <div className="space-y-3">
           <div className="flex items-start p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-            <HiOutlineCheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
+            <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
             <div className="ml-3 flex-1">
               <p className="text-sm font-medium text-green-800 dark:text-green-200 mb-1">
                 Conversion Successful
@@ -239,7 +233,7 @@ const MolFileUpload = ({
               className="ml-2 text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
               title="Clear and upload new file"
             >
-              <HiOutlineX className="h-4 w-4" />
+              <X className="h-4 w-4" />
             </button>
           </div>
 
@@ -247,7 +241,7 @@ const MolFileUpload = ({
           {showMolblock && molblock && (
             <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
               <div className="flex items-center mb-2">
-                <HiOutlineDocumentText className="h-4 w-4 text-gray-500 dark:text-gray-400 mr-2" />
+                <FileText className="h-4 w-4 text-gray-500 dark:text-gray-400 mr-2" />
                 <p className="text-xs font-medium text-gray-600 dark:text-gray-400">
                   MOL Block Content
                 </p>
@@ -263,12 +257,11 @@ const MolFileUpload = ({
       {/* Filename Display */}
       {filename && !loading && (
         <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-          <HiOutlineDocumentText className="h-4 w-4 mr-2" />
+          <FileText className="h-4 w-4 mr-2" />
           <span className="truncate">{filename}</span>
         </div>
       )}
     </div>
   );
 };
-
 export default MolFileUpload;

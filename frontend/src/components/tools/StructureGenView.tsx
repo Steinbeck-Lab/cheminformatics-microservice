@@ -1,19 +1,19 @@
 // Description: StructureGenView component for generating chemical structures from molecular formulas.
 import React, { useState } from "react";
-import {
-  HiOutlineBeaker,
-  HiOutlineDocumentDuplicate,
-  HiOutlineDownload,
-  HiOutlineInformationCircle,
-  HiOutlineCheck,
-  HiOutlineXCircle,
-  HiOutlineExclamationCircle, // FIX: Added missing import
-} from "react-icons/hi";
-import { FaAtom } from "react-icons/fa";
 import { motion, AnimatePresence } from "motion/react";
 import LoadingScreen from "../common/LoadingScreen";
 import MoleculeCard from "../common/MoleculeCard";
 import toolsService from "../../services/toolsService";
+import {
+  AlertCircle,
+  Atom,
+  Check,
+  Copy,
+  Download,
+  FlaskConical,
+  Info,
+  XCircle,
+} from "lucide-react";
 
 // --- Animation Variants ---
 const containerVariant = {
@@ -177,7 +177,7 @@ const StructureGenView = () => {
               disabled={!formula || isLoading}
               className="btn btn-primary disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center"
             >
-              <HiOutlineBeaker className="mr-2 h-5 w-5" />
+              <FlaskConical className="mr-2 h-5 w-5" />
               {isLoading ? "Generating..." : "Generate Structures"}
             </button>
 
@@ -197,7 +197,7 @@ const StructureGenView = () => {
                     disabled={selectedStructures.length === 0}
                     className="btn btn-secondary btn-sm disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center" // Use btn-secondary
                   >
-                    <HiOutlineDownload className="mr-1.5 h-4 w-4" />
+                    <Download className="mr-1.5 h-4 w-4" />
                     Download Selected ({selectedStructures.length})
                   </button>
                   <button
@@ -205,7 +205,7 @@ const StructureGenView = () => {
                     onClick={() => setSelectedStructures([...structures])}
                     className="btn btn-secondary btn-sm inline-flex items-center" // Use btn-secondary
                   >
-                    <HiOutlineDocumentDuplicate className="mr-1.5 h-4 w-4" />
+                    <Copy className="mr-1.5 h-4 w-4" />
                     Select All
                   </button>
                   <button
@@ -214,7 +214,7 @@ const StructureGenView = () => {
                     disabled={selectedStructures.length === 0}
                     className="btn btn-secondary btn-sm disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center" // Use btn-secondary
                   >
-                    <HiOutlineXCircle className="mr-1.5 h-4 w-4" /> {/* Changed Icon */}
+                    <XCircle className="mr-1.5 h-4 w-4" /> {/* Changed Icon */}
                     Deselect All
                   </button>
                 </motion.div>
@@ -237,7 +237,7 @@ const StructureGenView = () => {
           animate={{ opacity: 1, y: 0 }}
         >
           {/* FIX: Use imported HiOutlineExclamationCircle */}
-          <HiOutlineExclamationCircle className="h-5 w-5 shrink-0 mt-0.5" />
+          <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
           <span>
             <span className="font-medium">Error:</span> {error}
           </span>
@@ -311,7 +311,7 @@ const StructureGenView = () => {
 
               {generationResult.limit_applied && (
                 <div className="mt-3 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800/50 rounded-sm text-sm">
-                  <HiOutlineInformationCircle className="inline h-4 w-4 mr-1.5 text-orange-600 dark:text-orange-400" />
+                  <Info className="inline h-4 w-4 mr-1.5 text-orange-600 dark:text-orange-400" />
                   <span className="text-orange-700 dark:text-orange-300">
                     Results limited to first {generationResult.generated_count} structures out of{" "}
                     {generationResult.total_count?.toLocaleString()} total possible isomers.
@@ -328,7 +328,7 @@ const StructureGenView = () => {
             </h3>
             {/* Use adaptive text color */}
             <div className="text-(--text-secondary) flex items-center text-sm shrink-0">
-              <FaAtom className="mr-1.5 h-4 w-4" />
+              <Atom className="mr-1.5 h-4 w-4" />
               Formula:{" "}
               <code className="ml-1.5 text-xs bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded-sm">
                 {formula}
@@ -373,7 +373,7 @@ const StructureGenView = () => {
                       exit={{ opacity: 0, scale: 0.5 }}
                       className="absolute top-2 right-2 z-10 p-1 bg-sky-600 dark:bg-blue-600 rounded-full shadow-md"
                     >
-                      <HiOutlineCheck className="h-4 w-4 text-white" />
+                      <Check className="h-4 w-4 text-white" />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -393,7 +393,7 @@ const StructureGenView = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }} // Simple fade-in
         >
-          <HiOutlineInformationCircle className="h-6 w-6 text-sky-700 dark:text-blue-400 shrink-0 mt-0.5" />
+          <Info className="h-6 w-6 text-sky-700 dark:text-blue-400 shrink-0 mt-0.5" />
           <div>
             <h3 className="text-base font-medium text-sky-800 dark:text-blue-300 mb-1.5">
               About Structure Generation
@@ -415,5 +415,4 @@ const StructureGenView = () => {
     </motion.div> // End main container div
   );
 };
-
 export default StructureGenView;

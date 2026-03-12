@@ -2,18 +2,19 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
-import {
-  HiOutlineArrowRight,
-  HiOutlineBeaker,
-  HiOutlineArrowsRightLeft,
-  HiOutlineEye,
-  HiOutlineWrenchScrewdriver,
-  HiOutlineCamera,
-  HiOutlineCubeTransparent,
-} from "react-icons/hi2";
-import { FaBook, FaCode } from "react-icons/fa";
 import { useAppContext } from "../context/AppContext";
 import MoleculeCard from "../components/common/MoleculeCard";
+import {
+  ArrowLeftRight,
+  ArrowRight,
+  BookOpen,
+  BoxSelect,
+  Camera,
+  Code,
+  Eye,
+  FlaskConical,
+  Wrench,
+} from "lucide-react";
 
 // --- Feature Configuration ---
 const features = [
@@ -21,32 +22,32 @@ const features = [
     title: "Chemical Analysis",
     description:
       "Analyze molecules with descriptors, stereoisomer generation, and similarity calculations.",
-    icon: HiOutlineBeaker,
+    icon: FlaskConical,
     link: "/chem",
   },
   {
     title: "Format Conversion",
     description:
       "Convert between different chemical file formats (SMILES, InChI, 2D/3D coordinates).",
-    icon: HiOutlineArrowsRightLeft,
+    icon: ArrowLeftRight,
     link: "/convert",
   },
   {
     title: "Visualization",
     description: "Generate customizable 2D and 3D visualizations of chemical structures.",
-    icon: HiOutlineEye,
+    icon: Eye,
     link: "/depict",
   },
   {
     title: "Structure Tools",
     description: "Specialized tools for structure generation, sugar removal, and more.",
-    icon: HiOutlineWrenchScrewdriver,
+    icon: Wrench,
     link: "/tools",
   },
   {
     title: "OCSR",
     description: "Optical Chemical Structure Recognition to extract structures from images.",
-    icon: HiOutlineCamera,
+    icon: Camera,
     link: "/ocsr",
   },
 ];
@@ -231,7 +232,7 @@ const HomePage = () => {
                 <span className="absolute inset-0 rounded-xl bg-linear-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 dark:from-white/5 transition-opacity duration-300 blur-xs"></span>
                 <span className="relative z-10 flex items-center">
                   Get Started{" "}
-                  <HiOutlineArrowRight className="ml-2.5 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1.5" />
+                  <ArrowRight className="ml-2.5 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1.5" />
                 </span>
               </Link>
               {/* Secondary Buttons */}
@@ -243,7 +244,7 @@ const HomePage = () => {
               >
                 <span className="absolute inset-0 rounded-xl bg-linear-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-50 dark:from-white/5 dark:group-hover:opacity-100 transition-opacity duration-300"></span>
                 <span className="relative z-10 flex items-center">
-                  <FaCode className="mr-2 h-5 w-5 text-green-600 dark:text-green-400" /> Guides
+                  <Code className="mr-2 h-5 w-5 text-green-600 dark:text-green-400" /> Guides
                 </span>
               </a>
               <a
@@ -254,7 +255,7 @@ const HomePage = () => {
               >
                 <span className="absolute inset-0 rounded-xl bg-linear-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-50 dark:from-white/5 dark:group-hover:opacity-100 transition-opacity duration-300"></span>
                 <span className="relative z-10 flex items-center">
-                  <FaBook className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" /> API Docs
+                  <BookOpen className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" /> API Docs
                 </span>
               </a>
             </motion.div>
@@ -310,7 +311,7 @@ const HomePage = () => {
                           style={{ transform: "translateZ(15px)" }}
                         >
                           <span>Explore Feature</span>
-                          <HiOutlineArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
+                          <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
                         </div>
                       </Link>
                     </TiltCard>
@@ -338,7 +339,7 @@ const HomePage = () => {
                   className="text-sky-700 dark:text-sky-400 hover:text-indigo-700 dark:hover:text-cyan-200 shrink-0 flex items-center font-medium transition-colors duration-300 group text-sm hover-underline-link"
                 >
                   <span>View all</span>
-                  <HiOutlineArrowRight className="ml-1.5 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  <ArrowRight className="ml-1.5 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
               </div>
               <motion.div
@@ -396,7 +397,7 @@ const HomePage = () => {
             animate={{ rotate: 360 }}
             transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
           >
-            <HiOutlineCubeTransparent className="h-28 w-28 sm:h-32 sm:w-32 md:h-40 md:w-40 mx-auto lg:mx-0 opacity-90 drop-shadow-lg" />
+            <BoxSelect className="h-28 w-28 sm:h-32 sm:w-32 md:h-40 md:w-40 mx-auto lg:mx-0 opacity-90 drop-shadow-lg" />
           </motion.div>
           <motion.div
             className="grow lg:max-w-3xl"
@@ -475,5 +476,4 @@ const HomePage = () => {
     </div>
   );
 };
-
 export default HomePage;

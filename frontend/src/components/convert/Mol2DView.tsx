@@ -1,18 +1,12 @@
 // Description: This component allows users to input a SMILES string and generate 2D coordinates in MOL format using different cheminformatics toolkits. It includes error handling, loading states, and options for copying and downloading the generated molblock.
 import React, { useState } from "react";
 // Ensure all used icons are imported
-import {
-  HiOutlineDocumentText,
-  HiOutlineClipboard,
-  HiOutlineDownload,
-  HiOutlineCheck, // Added for copy success state
-  HiOutlineExclamationCircle, // Added for error display
-} from "react-icons/hi";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
 import LoadingScreen from "../common/LoadingScreen";
 // Assuming this service is configured correctly
 import { generate2DCoordinates } from "../../services/convertService"; // Assuming this service exists
+import { AlertCircle, Check, Clipboard, Download, FileText } from "lucide-react";
 
 // Toolkit options configuration
 const TOOLKIT_OPTIONS = [
@@ -164,7 +158,7 @@ const Mol2DView = () => {
               }`}
               disabled={!smiles.trim() || isLoading}
             >
-              <HiOutlineDocumentText className="mr-2 h-5 w-5" aria-hidden="true" />
+              <FileText className="mr-2 h-5 w-5" aria-hidden="true" />
               {isLoading ? "Generating..." : "Generate 2D Coordinates"}
             </button>
           </div>
@@ -182,7 +176,7 @@ const Mol2DView = () => {
             className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
             role="alert"
           >
-            <HiOutlineExclamationCircle
+            <AlertCircle
               className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
               aria-hidden="true"
             />
@@ -214,9 +208,9 @@ const Mol2DView = () => {
                 aria-label={copied ? "Molblock Copied" : "Copy Molblock"}
               >
                 {copied ? (
-                  <HiOutlineCheck className="mr-1.5 h-4 w-4" />
+                  <Check className="mr-1.5 h-4 w-4" />
                 ) : (
-                  <HiOutlineClipboard className="mr-1.5 h-4 w-4" />
+                  <Clipboard className="mr-1.5 h-4 w-4" />
                 )}
                 {copied ? "Copied!" : "Copy"}
               </button>
@@ -227,7 +221,7 @@ const Mol2DView = () => {
                 title="Download as MOL file"
                 aria-label="Download Molblock as MOL file"
               >
-                <HiOutlineDownload className="mr-1.5 h-4 w-4" />
+                <Download className="mr-1.5 h-4 w-4" />
                 Download (.mol)
               </button>
             </div>
@@ -258,7 +252,7 @@ const Mol2DView = () => {
         // Initial state card styling
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
           <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-            <HiOutlineDocumentText className="h-12 w-12 mx-auto mb-3 text-gray-400 dark:text-gray-500" />
+            <FileText className="h-12 w-12 mx-auto mb-3 text-gray-400 dark:text-gray-500" />
             <p>
               Enter a SMILES string and select a toolkit to generate 2D coordinates in MOL format.
             </p>
@@ -268,5 +262,4 @@ const Mol2DView = () => {
     </div>
   );
 };
-
 export default Mol2DView;

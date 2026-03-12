@@ -1,16 +1,5 @@
 // Description: This component combines PubChem lookup with 2D and 3D visualization
 import React, { useState } from "react";
-import {
-  HiOutlineSearch,
-  HiOutlineExclamationCircle,
-  HiOutlineInformationCircle,
-  HiOutlineDocumentDuplicate,
-  HiOutlineCheck,
-  HiOutlineChartSquareBar,
-  HiOutlineCube,
-} from "react-icons/hi";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAtom, faCircle } from "@fortawesome/free-solid-svg-icons";
 import LoadingScreen from "../common/LoadingScreen";
 import SMILESDisplay from "../common/SMILESDisplay";
 import { useAppContext } from "../../context/AppContext"; // For adding to recent molecules
@@ -19,6 +8,7 @@ import { lookupPubChem } from "../../services/chemService";
 // Import visualization components
 import MoleculeDepiction2D from "./MoleculeDepiction2D";
 import MoleculeDepiction3D from "./MoleculeDepiction3D";
+import { AlertCircle, Atom, BarChart3, Box, Check, Circle, Copy, Info, Search } from "lucide-react";
 
 // Animated Atom Component
 const AnimatedAtom = () => {
@@ -26,7 +16,7 @@ const AnimatedAtom = () => {
     <div className="w-full h-full flex items-center justify-center relative">
       {/* Main nucleus */}
       <div className="text-indigo-500 dark:text-indigo-400 z-10">
-        <FontAwesomeIcon icon={faAtom} className="text-6xl animate-pulse" />
+        <Atom className="text-6xl animate-pulse" />
       </div>
 
       {/* Orbiting electrons */}
@@ -34,30 +24,30 @@ const AnimatedAtom = () => {
         {/* First orbit */}
         <div className="absolute inset-0 w-full h-full animate-spin-slow">
           <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <FontAwesomeIcon icon={faCircle} className="text-blue-500 text-xs" />
+            <Circle className="text-blue-500 text-xs" />
           </div>
           <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
-            <FontAwesomeIcon icon={faCircle} className="text-blue-500 text-xs" />
+            <Circle className="text-blue-500 text-xs" />
           </div>
         </div>
 
         {/* Second orbit - rotated */}
         <div className="absolute inset-0 w-full h-full animate-spin-reverse">
           <div className="absolute top-1/2 left-0 transform -translate-y-1/2 -translate-x-1/2">
-            <FontAwesomeIcon icon={faCircle} className="text-green-500 text-xs" />
+            <Circle className="text-green-500 text-xs" />
           </div>
           <div className="absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-1/2">
-            <FontAwesomeIcon icon={faCircle} className="text-green-500 text-xs" />
+            <Circle className="text-green-500 text-xs" />
           </div>
         </div>
 
         {/* Third orbit - tilted */}
         <div className="absolute inset-0 w-full h-full rotate-45 animate-spin-medium">
           <div className="absolute top-0 right-0 transform -translate-y-1/2 translate-x-1/2">
-            <FontAwesomeIcon icon={faCircle} className="text-purple-500 text-xs" />
+            <Circle className="text-purple-500 text-xs" />
           </div>
           <div className="absolute bottom-0 left-0 transform translate-y-1/2 -translate-x-1/2">
-            <FontAwesomeIcon icon={faCircle} className="text-purple-500 text-xs" />
+            <Circle className="text-purple-500 text-xs" />
           </div>
         </div>
       </div>
@@ -187,7 +177,7 @@ const StructureVisualizerView = () => {
                     required
                   />
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <HiOutlineSearch className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                    <Search className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                   </div>
                 </div>
               </div>
@@ -224,7 +214,7 @@ const StructureVisualizerView = () => {
                       : "bg-linear-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 transform hover:-translate-y-1"
                   }`}
                 >
-                  <HiOutlineSearch className="mr-2 h-5 w-5" />
+                  <Search className="mr-2 h-5 w-5" />
                   {loading ? "Searching..." : "Search & Visualize"}
                   {!loading && !identifier.trim() ? null : (
                     <span className="absolute inset-0 overflow-hidden rounded-lg">
@@ -237,7 +227,7 @@ const StructureVisualizerView = () => {
                 <div className="grid grid-cols-2 gap-4 mt-4">
                   <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
                     <div className="flex items-center mb-2">
-                      <HiOutlineChartSquareBar className="h-4 w-4 text-indigo-500 dark:text-indigo-400 mr-2" />
+                      <BarChart3 className="h-4 w-4 text-indigo-500 dark:text-indigo-400 mr-2" />
                       <label
                         htmlFor="depict-toolkit"
                         className="text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -258,7 +248,7 @@ const StructureVisualizerView = () => {
 
                   <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
                     <div className="flex items-center mb-2">
-                      <HiOutlineCube className="h-4 w-4 text-indigo-500 dark:text-indigo-400 mr-2" />
+                      <Box className="h-4 w-4 text-indigo-500 dark:text-indigo-400 mr-2" />
                       <label
                         htmlFor="vis3d-toolkit"
                         className="text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -284,7 +274,7 @@ const StructureVisualizerView = () => {
           {/* Information Box */}
           <div className="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border border-blue-200 dark:border-blue-800/50 rounded-xl p-5 text-sm shadow-lg">
             <h4 className="font-bold text-blue-800 dark:text-blue-300 mb-3 flex items-center">
-              <HiOutlineInformationCircle className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
+              <Info className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
               About This Tool
             </h4>
             <div className="space-y-3 text-gray-700 dark:text-gray-300">
@@ -316,7 +306,7 @@ const StructureVisualizerView = () => {
               className="p-5 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700/50 flex items-start shadow-lg"
               role="alert"
             >
-              <HiOutlineExclamationCircle
+              <AlertCircle
                 className="h-6 w-6 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
                 aria-hidden="true"
               />
@@ -343,7 +333,7 @@ const StructureVisualizerView = () => {
                     : "bg-linear-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 text-yellow-700 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-800/50"
                 }`}
               >
-                <HiOutlineInformationCircle
+                <Info
                   className={`h-6 w-6 mr-3 shrink-0 mt-0.5 ${
                     result.success
                       ? "text-green-500 dark:text-green-400"
@@ -413,12 +403,12 @@ const StructureVisualizerView = () => {
                       >
                         {copySuccess ? (
                           <>
-                            <HiOutlineCheck className="h-4 w-4 mr-1.5 text-green-500" />
+                            <Check className="h-4 w-4 mr-1.5 text-green-500" />
                             <span>Copied</span>
                           </>
                         ) : (
                           <>
-                            <HiOutlineDocumentDuplicate className="h-4 w-4 mr-1.5" />
+                            <Copy className="h-4 w-4 mr-1.5" />
                             <span>Copy SMILES</span>
                           </>
                         )}
@@ -533,5 +523,4 @@ if (typeof document !== "undefined") {
   styleSheet.innerText = styles;
   document.head.appendChild(styleSheet);
 }
-
 export default StructureVisualizerView;

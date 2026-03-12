@@ -1,14 +1,8 @@
 // Description: A React component for inputting SMILES notation with example and recent molecule dropdowns.
 import React, { useState, useRef, useEffect } from "react";
 // Import necessary icons
-import {
-  HiOutlineX,
-  HiOutlineLightBulb,
-  HiOutlineClipboard,
-  HiOutlineClock,
-  HiOutlineExclamationCircle, // Added for paste modal
-} from "react-icons/hi";
 import { useAppContext } from "../../context/AppContext"; // Assuming context provides recentMolecules
+import { AlertCircle, Clipboard, Clock, Lightbulb, X } from "lucide-react";
 
 // Example molecules data (static, moved outside component)
 const EXAMPLE_MOLECULES = [
@@ -85,7 +79,7 @@ const PasteModal = ({ isOpen, onClose, onPaste }) => {
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full animate-fadeIn">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center">
-            <HiOutlineClipboard className="h-5 w-5 mr-2 text-indigo-500 dark:text-indigo-400" />
+            <Clipboard className="h-5 w-5 mr-2 text-indigo-500 dark:text-indigo-400" />
             Paste SMILES
           </h3>
           <button
@@ -93,7 +87,7 @@ const PasteModal = ({ isOpen, onClose, onPaste }) => {
             className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             aria-label="Close"
           >
-            <HiOutlineX className="w-5 h-5" />
+            <X className="w-5 h-5" />
           </button>
         </div>
         <p className="mb-4 text-gray-700 dark:text-gray-300">
@@ -292,7 +286,7 @@ const SMILESInput = ({
             className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 rounded-r-md"
             aria-label="Clear input"
           >
-            <HiOutlineX className="h-5 w-5" />
+            <X className="h-5 w-5" />
           </button>
         )}
       </div>
@@ -300,7 +294,7 @@ const SMILESInput = ({
       {/* Paste Error Display */}
       {pasteError && (
         <div className="text-sm text-red-600 dark:text-red-400 flex items-start">
-          <HiOutlineExclamationCircle className="h-4 w-4 mt-0.5 mr-1" />
+          <AlertCircle className="h-4 w-4 mt-0.5 mr-1" />
           <span>{pasteError}</span>
         </div>
       )}
@@ -315,7 +309,7 @@ const SMILESInput = ({
           className="inline-flex items-center px-2.5 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 text-xs font-medium shadow-xs transition-colors duration-150 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
           title="Paste from clipboard"
         >
-          <HiOutlineClipboard className="mr-1 h-4 w-4" />
+          <Clipboard className="mr-1 h-4 w-4" />
           <span>Paste</span>
         </button>
 
@@ -334,7 +328,7 @@ const SMILESInput = ({
               // Button styling
               className="inline-flex items-center px-2.5 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 text-xs font-medium shadow-xs transition-colors duration-150 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
             >
-              <HiOutlineLightBulb className="mr-1 h-4 w-4" />
+              <Lightbulb className="mr-1 h-4 w-4" />
               <span>Examples</span>
             </button>
 
@@ -373,7 +367,7 @@ const SMILESInput = ({
               // Button styling
               className="inline-flex items-center px-2.5 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 text-xs font-medium shadow-xs transition-colors duration-150 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
             >
-              <HiOutlineClock className="mr-1 h-4 w-4" /> {/* Replaced SVG */}
+              <Clock className="mr-1 h-4 w-4" /> {/* Replaced SVG */}
               <span>Recent</span>
             </button>
 
@@ -425,5 +419,4 @@ const SMILESInput = ({
     </div>
   );
 };
-
 export default SMILESInput;

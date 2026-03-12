@@ -1,22 +1,21 @@
 // Description: This component provides a user interface for filtering chemical compounds based on various medicinal chemistry rules and properties. It allows users to input SMILES strings, apply filters, and view results in a table format. The component is designed to be responsive and theme-aware, adapting to light and dark modes.
 import React, { useState } from "react";
 // Import HiOutlineExclamationCircle along with other icons
-import {
-  HiOutlineFilter,
-  HiOutlineClipboard,
-  HiOutlineDocumentDownload,
-  HiOutlineInformationCircle,
-  HiCheck,
-  HiX,
-  HiOutlineExclamationCircle,
-  HiOutlineSwitchHorizontal,
-  HiOutlineBeaker,
-  HiX as HiXMark,
-} from "react-icons/hi";
 import LoadingScreen from "../common/LoadingScreen"; // Assuming this component is theme-aware
 import { useAppContext } from "../../context/AppContext"; // Assuming this provides theme-aware context if needed
 import api from "../../services/api"; // Assuming api service is configured
 import { applyChemicalFiltersDetailed } from "../../services/toolsService";
+import {
+  AlertCircle,
+  ArrowLeftRight,
+  Check,
+  Clipboard,
+  FileDown,
+  Filter,
+  FlaskConical,
+  Info,
+  X,
+} from "lucide-react";
 
 const AllFiltersView = () => {
   const [smilesInput, setSmilesInput] = useState("");
@@ -378,7 +377,7 @@ const AllFiltersView = () => {
             title="Information about filters"
             onClick={() => setShowInfoModal(true)}
           >
-            <HiOutlineInformationCircle className="h-5 w-5" aria-hidden="true" />
+            <Info className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -411,7 +410,7 @@ const AllFiltersView = () => {
                 onClick={loadExampleMolecules}
                 className="px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-sm hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors duration-150 flex items-center"
               >
-                <HiOutlineBeaker className="mr-1 h-3.5 w-3.5" />
+                <FlaskConical className="mr-1 h-3.5 w-3.5" />
                 Load Examples
               </button>
             </div>
@@ -524,7 +523,7 @@ const AllFiltersView = () => {
               {/* Filter Logic */}
               <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
                 <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
-                  <HiOutlineSwitchHorizontal className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  <ArrowLeftRight className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
                   Filter Match Logic:
                 </label>
                 <div className="flex p-1 space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
@@ -556,7 +555,7 @@ const AllFiltersView = () => {
               {/* Detailed View Toggle */}
               <div className="flex items-center space-x-3">
                 <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
-                  <HiOutlineInformationCircle className="mr-2 h-5 w-5 text-green-600 dark:text-green-400" />
+                  <Info className="mr-2 h-5 w-5 text-green-600 dark:text-green-400" />
                   Result Detail Level:
                 </label>
                 <label className="flex items-center cursor-pointer">
@@ -588,7 +587,7 @@ const AllFiltersView = () => {
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
-              <HiOutlineFilter className="mr-2 h-5 w-5" aria-hidden="true" />
+              <Filter className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Applying Filters..." : "Apply Filters"}
             </button>
           </div>
@@ -629,7 +628,7 @@ const AllFiltersView = () => {
                         onClick={() => setShowInfoModal(false)}
                       >
                         <span className="sr-only">Close</span>
-                        <HiXMark className="h-6 w-6" aria-hidden="true" />
+                        <X className="h-6 w-6" aria-hidden="true" />
                       </button>
                     </div>
                     <div className="mt-2">
@@ -666,7 +665,7 @@ const AllFiltersView = () => {
           className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
           role="alert"
         >
-          <HiOutlineExclamationCircle
+          <AlertCircle
             className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
             aria-hidden="true"
           />
@@ -683,7 +682,7 @@ const AllFiltersView = () => {
           className="p-4 rounded-md bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-200 border border-yellow-300 dark:border-yellow-700 flex items-start shadow-sm"
           role="alert"
         >
-          <HiOutlineExclamationCircle
+          <AlertCircle
             className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-yellow-500 dark:text-yellow-400"
             aria-hidden="true"
           />
@@ -720,10 +719,7 @@ const AllFiltersView = () => {
                 }`}
                 title="Copy results list to clipboard"
               >
-                <HiOutlineClipboard
-                  className={`mr-1.5 h-4 w-4 ${copied ? "" : ""}`}
-                  aria-hidden="true"
-                />
+                <Clipboard className={`mr-1.5 h-4 w-4 ${copied ? "" : ""}`} aria-hidden="true" />
                 {copied ? "Copied!" : "Copy"}
               </button>
               <button
@@ -731,7 +727,7 @@ const AllFiltersView = () => {
                 className="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500"
                 title="Download results as a text file"
               >
-                <HiOutlineDocumentDownload className="mr-1.5 h-4 w-4" aria-hidden="true" />
+                <FileDown className="mr-1.5 h-4 w-4" aria-hidden="true" />
                 Download
               </button>
             </div>
@@ -804,13 +800,13 @@ const AllFiltersView = () => {
                               </span>
                             ) : typeof value === "boolean" ? (
                               value ? (
-                                <HiCheck
+                                <Check
                                   className="h-5 w-5 text-green-500 dark:text-green-400 inline-block"
                                   title="Pass"
                                   aria-label="Pass"
                                 />
                               ) : (
-                                <HiX
+                                <X
                                   className="h-5 w-5 text-red-500 dark:text-red-400 inline-block"
                                   title="Fail"
                                   aria-label="Fail"
@@ -963,5 +959,4 @@ const AllFiltersView = () => {
     </div>
   );
 };
-
 export default AllFiltersView;

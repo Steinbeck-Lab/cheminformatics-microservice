@@ -1,7 +1,7 @@
 // Description: A React component to display SMILES strings with options to copy to clipboard and download as a MOL file.
 import React, { useState } from "react";
-import { HiOutlineClipboard, HiOutlineDownload, HiOutlineCheck } from "react-icons/hi";
 import { generate2DCoordinates } from "../../services/convertService";
+import { Check, Clipboard, Download } from "lucide-react";
 
 const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
   const [copied, setCopied] = useState(false);
@@ -64,9 +64,9 @@ const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
             title="Copy SMILES to clipboard"
           >
             {copied ? (
-              <HiOutlineCheck className="h-5 w-5 text-green-500 dark:text-green-400" />
+              <Check className="h-5 w-5 text-green-500 dark:text-green-400" />
             ) : (
-              <HiOutlineClipboard className="h-5 w-5" />
+              <Clipboard className="h-5 w-5" />
             )}
           </button>
           {showDownload && (
@@ -80,7 +80,7 @@ const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
               }`}
               title="Download as MOL file"
             >
-              <HiOutlineDownload className="h-5 w-5" />
+              <Download className="h-5 w-5" />
             </button>
           )}
         </div>
@@ -91,5 +91,4 @@ const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
     </div>
   );
 };
-
 export default SMILESDisplay;

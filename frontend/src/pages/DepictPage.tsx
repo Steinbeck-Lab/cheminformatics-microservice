@@ -6,15 +6,9 @@ import Depict3DView from "../components/depict/Depict3DView";
 import Depict2DMultiView from "../components/depict/Depict2DMultiView";
 import StructureVisualizerView from "../components/depict/StructureVisualizerView";
 import StructureDrawView from "../components/depict/StructureDrawView";
+import { Box, ChevronDown, LayoutGrid, Pencil, Search } from "lucide-react";
 
 // Import icons
-import {
-  HiOutlineViewGrid,
-  HiOutlineCube,
-  HiOutlineSearch,
-  HiOutlinePencil,
-  HiChevronDown,
-} from "react-icons/hi";
 
 // Tab data
 const tabs = [
@@ -22,28 +16,28 @@ const tabs = [
     id: "structureexplorer",
     name: "Structure Explorer",
     component: StructureVisualizerView,
-    icon: HiOutlineSearch,
+    icon: Search,
     description: "Find structures by name or identifier and visualize them in 2D and 3D",
   },
   {
     id: "2ddepiction",
     name: "2D Depiction",
     component: Depict2DMultiView,
-    icon: HiOutlineViewGrid,
+    icon: LayoutGrid,
     description: "Generate 2D depictions for multiple molecules at once.",
   },
   {
     id: "3ddepiction",
     name: "3D Depiction",
     component: Depict3DView,
-    icon: HiOutlineCube,
+    icon: Box,
     description: "Create interactive 3D visualizations",
   },
   {
     id: "structuredraw",
     name: "Draw a Structure",
     component: StructureDrawView,
-    icon: HiOutlinePencil,
+    icon: Pencil,
     description: "Draw and edit chemical structures using a user-friendly interface",
   },
 ];
@@ -233,7 +227,7 @@ const DepictPage = () => {
                     animate={{ rotate: isMobileMenuOpen ? 180 : 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <HiChevronDown className="h-5 w-5 text-slate-500 dark:text-slate-400" />
+                    <ChevronDown className="h-5 w-5 text-slate-500 dark:text-slate-400" />
                   </motion.span>
                 </button>
 
@@ -567,5 +561,4 @@ const DepictPage = () => {
     </motion.div> // End Main Container
   );
 };
-
 export default DepictPage;

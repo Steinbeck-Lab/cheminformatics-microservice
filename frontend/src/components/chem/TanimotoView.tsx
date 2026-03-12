@@ -1,17 +1,13 @@
 // Description: Tanimoto similarity calculator component
 import React, { useState } from "react";
 // Ensure all used icons are imported
-import {
-  HiOutlineCalculator,
-  HiOutlineInformationCircle,
-  HiOutlineExclamationCircle, // Added for error display
-} from "react-icons/hi";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
 import MoleculeCard from "../common/MoleculeCard";
 import LoadingScreen from "../common/LoadingScreen";
 import { useAppContext } from "../../context/AppContext"; // Assuming context provides addRecentMolecule
 import api from "../../services/api"; // Assuming api service is configured
+import { AlertCircle, Calculator, Info } from "lucide-react";
 
 const TanimotoView = () => {
   const [smiles1, setSmiles1] = useState("");
@@ -178,7 +174,7 @@ const TanimotoView = () => {
           aria-label="Toggle Information"
           aria-expanded={infoVisible}
         >
-          <HiOutlineInformationCircle className="h-6 w-6" />
+          <Info className="h-6 w-6" />
         </button>
       </div>
 
@@ -354,7 +350,7 @@ const TanimotoView = () => {
                 : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs" // Enabled state
             }`}
           >
-            <HiOutlineCalculator className="mr-2 h-5 w-5" />
+            <Calculator className="mr-2 h-5 w-5" />
             {loading ? "Calculating..." : "Calculate Similarity"}
           </button>
         </div>
@@ -370,7 +366,7 @@ const TanimotoView = () => {
           className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
           role="alert"
         >
-          <HiOutlineExclamationCircle
+          <AlertCircle
             className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
             aria-hidden="true"
           />
@@ -432,5 +428,4 @@ const TanimotoView = () => {
     </div>
   );
 };
-
 export default TanimotoView;

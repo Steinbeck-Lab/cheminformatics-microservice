@@ -2,17 +2,9 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { motion, AnimatePresence } from "motion/react";
-import {
-  HiOutlineUpload,
-  HiOutlineLink,
-  HiOutlineExclamationCircle,
-  HiOutlineCheckCircle,
-  HiOutlineXCircle,
-  HiOutlinePhotograph,
-  HiOutlineRefresh,
-} from "react-icons/hi";
 import MoleculeCard from "../common/MoleculeCard";
 import ocsrService from "../../services/ocsrService";
+import { AlertCircle, CheckCircle, Image, Link, RefreshCw, Upload, XCircle } from "lucide-react";
 
 const OCRView = () => {
   // State management
@@ -163,7 +155,7 @@ const OCRView = () => {
               }`}
             >
               <div className="flex items-center justify-center gap-2">
-                <HiOutlineUpload className="h-5 w-5" />
+                <Upload className="h-5 w-5" />
                 <span>Upload Image</span>
               </div>
             </button>
@@ -182,7 +174,7 @@ const OCRView = () => {
               }`}
             >
               <div className="flex items-center justify-center gap-2">
-                <HiOutlineLink className="h-5 w-5" />
+                <Link className="h-5 w-5" />
                 <span>Use URL</span>
               </div>
             </button>
@@ -210,7 +202,7 @@ const OCRView = () => {
               <div className="flex flex-col items-center justify-center text-center space-y-3">
                 {files.length > 0 ? (
                   <>
-                    <HiOutlineCheckCircle className="h-12 w-12 text-green-600 dark:text-green-400" />
+                    <CheckCircle className="h-12 w-12 text-green-600 dark:text-green-400" />
                     <div>
                       <p className="text-sm font-medium text-green-700 dark:text-green-300">
                         File selected: {files[0].name}
@@ -222,14 +214,14 @@ const OCRView = () => {
                   </>
                 ) : isDragActive ? (
                   <>
-                    <HiOutlineUpload className="h-12 w-12 text-blue-600 dark:text-blue-400 animate-bounce" />
+                    <Upload className="h-12 w-12 text-blue-600 dark:text-blue-400 animate-bounce" />
                     <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
                       Drop your image here
                     </p>
                   </>
                 ) : (
                   <>
-                    <HiOutlinePhotograph className="h-12 w-12 text-slate-400 dark:text-slate-500" />
+                    <Image className="h-12 w-12 text-slate-400 dark:text-slate-500" />
                     <div>
                       <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
                         Click to upload or drag and drop
@@ -251,7 +243,7 @@ const OCRView = () => {
                 Image URL
               </label>
               <div className="relative">
-                <HiOutlineLink className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <Link className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
                 <input
                   id="image-url"
                   type="url"
@@ -295,7 +287,7 @@ const OCRView = () => {
                       className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-lg transition-colors"
                       title="Remove image"
                     >
-                      <HiOutlineXCircle className="h-5 w-5" />
+                      <XCircle className="h-5 w-5" />
                     </button>
                   </div>
                 </div>
@@ -361,7 +353,7 @@ const OCRView = () => {
                   className="px-5 py-2.5 rounded-lg font-medium bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-colors focus:outline-hidden focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <div className="flex items-center gap-2">
-                    <HiOutlineRefresh className="h-4 w-4" />
+                    <RefreshCw className="h-4 w-4" />
                     <span>Reset</span>
                   </div>
                 </button>
@@ -449,7 +441,7 @@ const OCRView = () => {
             role="alert"
           >
             <div className="flex items-start gap-3">
-              <HiOutlineExclamationCircle className="h-6 w-6 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+              <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
               <div className="flex-1">
                 <h3 className="text-sm font-medium text-red-800 dark:text-red-300 mb-1">
                   Processing Error
@@ -473,7 +465,7 @@ const OCRView = () => {
             {/* Results Header */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <HiOutlineCheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
+                <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
                 <h3 className="text-xl font-semibold text-slate-900 dark:text-white">
                   Detected Structures
                 </h3>
@@ -507,5 +499,4 @@ const OCRView = () => {
     </div>
   );
 };
-
 export default OCRView;

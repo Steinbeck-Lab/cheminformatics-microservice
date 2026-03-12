@@ -1,17 +1,17 @@
 import React, { useEffect, useRef } from "react";
-import {
-  FaGithub,
-  FaBook,
-  FaFlask,
-  FaUniversity,
-  FaCoffee,
-  FaCode,
-  FaShieldAlt,
-  FaFileContract,
-} from "react-icons/fa";
 import { motion, useAnimation, useInView } from "motion/react";
 import { useAppContext } from "../../context/AppContext";
 import { Link } from "react-router-dom";
+import {
+  BookOpen,
+  Code,
+  Coffee,
+  FileCheck,
+  FlaskConical,
+  Github,
+  Landmark,
+  Shield,
+} from "lucide-react";
 
 // Enhanced animation variants
 const footerVariant = {
@@ -149,28 +149,28 @@ const Footer = () => {
   const resources = [
     {
       href: "https://api.naturalproducts.net/latest/docs",
-      icon: FaBook,
+      icon: BookOpen,
       title: "API Docs",
       desc: "Explore endpoints",
       color: "from-blue-500 to-indigo-500",
     },
     {
       href: "https://github.com/Steinbeck-Lab/cheminformatics-microservice",
-      icon: FaGithub,
+      icon: Github,
       title: "GitHub",
       desc: "View code",
       color: "from-purple-500 to-pink-500",
     },
     {
       href: "https://docs.api.naturalproducts.net",
-      icon: FaCode,
+      icon: Code,
       title: "Guides",
       desc: "Integration help",
       color: "from-green-500 to-teal-500",
     },
     {
       href: "https://cheminf.uni-jena.de",
-      icon: FaUniversity,
+      icon: Landmark,
       title: "Steinbeck Lab",
       desc: "Research group",
       color: "from-amber-500 to-orange-500",
@@ -326,7 +326,7 @@ const Footer = () => {
                 to="/terms"
                 className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-gray-800 rounded-md text-xs font-medium text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-300 transition-colors border border-slate-200 dark:border-slate-700"
               >
-                <FaFileContract className="h-3 w-3 text-slate-500 dark:text-slate-400" />
+                <FileCheck className="h-3 w-3 text-slate-500 dark:text-slate-400" />
                 <span>Terms of Service</span>
               </Link>
 
@@ -335,7 +335,7 @@ const Footer = () => {
                 to="/privacy"
                 className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-gray-800 rounded-md text-xs font-medium text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-300 transition-colors border border-slate-200 dark:border-slate-700"
               >
-                <FaShieldAlt className="h-3 w-3 text-slate-500 dark:text-slate-400" />
+                <Shield className="h-3 w-3 text-slate-500 dark:text-slate-400" />
                 <span>Privacy Policy</span>
               </Link>
             </motion.div>
@@ -449,7 +449,7 @@ const Footer = () => {
                   ease: "easeInOut",
                 }}
               >
-                <FaFlask className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <FlaskConical className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               </motion.div>
             </motion.div>
           </div>
@@ -497,7 +497,7 @@ const Footer = () => {
                 },
               }}
             >
-              <FaCoffee className="text-amber-600 dark:text-amber-400 h-3 w-3" />
+              <Coffee className="text-amber-600 dark:text-amber-400 h-3 w-3" />
             </motion.span>
             and the Cheminformatics Microservice API.
           </p>
@@ -533,5 +533,4 @@ const Footer = () => {
     </motion.footer>
   );
 };
-
 export default Footer;

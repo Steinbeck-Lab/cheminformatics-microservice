@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
-import {
-  HiOutlineExternalLink,
-  HiOutlineCode,
-  HiOutlineDocumentText,
-  HiOutlineDatabase,
-} from "react-icons/hi";
-import { FaFlask, FaConnectdevelop, FaAtom } from "react-icons/fa";
+import { Atom, Code, Database, ExternalLink, FileText, FlaskConical, Network } from "lucide-react";
 
 // Sophisticated Animation Variants
 const pageVariants = {
@@ -316,7 +310,7 @@ const AboutPage = () => {
             >
               <div className="p-8 md:p-10">
                 <div className="flex items-center mb-6">
-                  <FaConnectdevelop className="text-3xl text-blue-500 dark:text-blue-400 mr-4" />
+                  <Network className="text-3xl text-blue-500 dark:text-blue-400 mr-4" />
                   <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Overview</h2>
                 </div>
                 <p className="text-slate-700 dark:text-slate-300 mb-4 leading-relaxed">
@@ -367,7 +361,7 @@ const AboutPage = () => {
             >
               <div className="p-8 md:p-10">
                 <div className="flex items-center mb-6">
-                  <FaFlask className="text-3xl text-indigo-500 dark:text-indigo-400 mr-4" />
+                  <FlaskConical className="text-3xl text-indigo-500 dark:text-indigo-400 mr-4" />
                   <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
                     Key Features
                   </h2>
@@ -419,7 +413,7 @@ const AboutPage = () => {
           >
             <div className="p-8 md:p-10">
               <div className="flex items-center mb-8">
-                <HiOutlineCode className="text-3xl text-purple-500 dark:text-purple-400 mr-4" />
+                <Code className="text-3xl text-purple-500 dark:text-purple-400 mr-4" />
                 <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
                   Integrated Tools
                 </h2>
@@ -622,9 +616,9 @@ const AboutPage = () => {
                 variants={buttonVariant}
                 whileHover="hover"
               >
-                <FaAtom className="mr-3 h-5 w-5" />
+                <Atom className="mr-3 h-5 w-5" />
                 <span className="text-lg">Natural Products Online</span>
-                <HiOutlineExternalLink className="ml-3 h-5 w-5" />
+                <ExternalLink className="ml-3 h-5 w-5" />
               </motion.a>
             </div>
           </motion.div>
@@ -640,7 +634,7 @@ const AboutPage = () => {
           >
             <div className="p-8 md:p-10">
               <div className="flex items-center mb-6">
-                <HiOutlineDatabase className="text-3xl text-green-500 dark:text-green-400 mr-4" />
+                <Database className="text-3xl text-green-500 dark:text-green-400 mr-4" />
                 <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
                   Public Instance
                 </h2>
@@ -667,7 +661,7 @@ const AboutPage = () => {
                     whileHover={{ y: -5, scale: 1.03 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <HiOutlineExternalLink className="mr-2 h-5 w-5" />
+                    <ExternalLink className="mr-2 h-5 w-5" />
                     api.naturalproducts.net/latest/docs
                   </motion.a>
                 </div>
@@ -686,7 +680,7 @@ const AboutPage = () => {
           >
             <div className="p-8 md:p-10">
               <div className="flex items-center mb-6">
-                <HiOutlineDocumentText className="text-3xl text-cyan-500 dark:text-cyan-400 mr-4" />
+                <FileText className="text-3xl text-cyan-500 dark:text-cyan-400 mr-4" />
                 <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
                   Citation Guidelines
                 </h2>
@@ -998,5 +992,4 @@ const AboutPage = () => {
     </motion.div>
   );
 };
-
 export default AboutPage;

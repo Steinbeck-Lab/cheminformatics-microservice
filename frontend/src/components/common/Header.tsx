@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
 import Navigation from "./Navigation";
-import { HiOutlineMoon, HiOutlineSun, HiOutlineMenu, HiOutlineX } from "react-icons/hi";
 import { motion, AnimatePresence, LayoutGroup } from "motion/react";
+import { Menu, Moon, Sun, X } from "lucide-react";
 
 // --- Enhanced Animation Variants ---
 const headerVariants = {
@@ -238,12 +238,12 @@ const Header = () => {
               </LayoutGroup>
               <div className="relative z-0 flex justify-between w-full px-1">
                 <motion.div whileHover={{ rotate: 45 }} transition={{ duration: 0.3 }}>
-                  <HiOutlineSun
+                  <Sun
                     className={`h-4 w-4 transition-colors ${isDarkMode ? "text-slate-500" : "text-yellow-500"}`}
                   />
                 </motion.div>
                 <motion.div whileHover={{ rotate: -45 }} transition={{ duration: 0.3 }}>
-                  <HiOutlineMoon
+                  <Moon
                     className={`h-4 w-4 transition-colors ${isDarkMode ? "text-yellow-300" : "text-slate-400"}`}
                   />
                 </motion.div>
@@ -274,7 +274,7 @@ const Header = () => {
                     exit={{ rotate: 90, opacity: 0 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <HiOutlineX className="h-6 w-6" />
+                    <X className="h-6 w-6" />
                   </motion.div>
                 ) : (
                   <motion.div
@@ -284,7 +284,7 @@ const Header = () => {
                     exit={{ rotate: -90, opacity: 0 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <HiOutlineMenu className="h-6 w-6" />
+                    <Menu className="h-6 w-6" />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -348,10 +348,10 @@ const Header = () => {
                       />
                     </LayoutGroup>
                     <div className="relative z-0 flex justify-between w-full px-1">
-                      <HiOutlineSun
+                      <Sun
                         className={`h-4 w-4 transition-colors ${isDarkMode ? "text-slate-500" : "text-yellow-500"}`}
                       />
-                      <HiOutlineMoon
+                      <Moon
                         className={`h-4 w-4 transition-colors ${isDarkMode ? "text-yellow-300" : "text-slate-400"}`}
                       />
                     </div>
@@ -365,5 +365,4 @@ const Header = () => {
     </motion.header>
   );
 };
-
 export default Header;

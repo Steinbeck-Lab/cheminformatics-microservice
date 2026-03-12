@@ -2,21 +2,21 @@
 // This component allows users to input SMILES strings, generate 3D structures, and visualize them.
 import React, { useState, useRef, useEffect, useCallback } from "react";
 // Ensure all used icons are imported
-import {
-  HiOutlineCube,
-  HiOutlineCamera,
-  HiOutlineViewGrid,
-  HiOutlineRefresh,
-  HiOutlineColorSwatch,
-  HiOutlineClipboard,
-  HiOutlineDownload,
-  HiOutlineCheck,
-  HiOutlineExclamationCircle,
-} from "react-icons/hi";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
 // Assuming this service is configured correctly
 import convertService from "../../services/convertService"; // Assuming this service exists
+import {
+  AlertCircle,
+  Box,
+  Camera,
+  Check,
+  Clipboard,
+  Download,
+  LayoutGrid,
+  Palette,
+  RefreshCw,
+} from "lucide-react";
 
 // Visualization styles configuration
 const VISUALIZATION_STYLES = [
@@ -626,7 +626,7 @@ const Depict3DView = ({ isActive = true }) => {
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
-              <HiOutlineCube className="mr-2 h-5 w-5" />
+              <Box className="mr-2 h-5 w-5" />
               {loading ? "Generating..." : "Generate 3D View"}
             </button>
             {/* Screenshot Button */}
@@ -640,7 +640,7 @@ const Depict3DView = ({ isActive = true }) => {
                   : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 shadow-xs"
               }`}
             >
-              <HiOutlineCamera className="mr-2 h-5 w-5" />
+              <Camera className="mr-2 h-5 w-5" />
               Screenshot
             </button>
             {/* Spin Toggle Button */}
@@ -654,7 +654,7 @@ const Depict3DView = ({ isActive = true }) => {
                   : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 shadow-xs"
               }`}
             >
-              <HiOutlineRefresh className="mr-2 h-5 w-5" />
+              <RefreshCw className="mr-2 h-5 w-5" />
               {spin ? "Stop Rotation" : "Rotate"}
             </button>
             {/* Reset View Button */}
@@ -668,7 +668,7 @@ const Depict3DView = ({ isActive = true }) => {
                   : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 shadow-xs"
               }`}
             >
-              <HiOutlineColorSwatch className="mr-2 h-5 w-5" />{" "}
+              <Palette className="mr-2 h-5 w-5" />{" "}
               {/* Using ColorSwatch as placeholder for reset */}
               Reset View
             </button>
@@ -695,7 +695,7 @@ const Depict3DView = ({ isActive = true }) => {
               role="alert"
             >
               <div className="flex items-start">
-                <HiOutlineExclamationCircle
+                <AlertCircle
                   className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
                   aria-hidden="true"
                 />
@@ -779,11 +779,7 @@ const Depict3DView = ({ isActive = true }) => {
                   title={copied ? "Copied!" : "Copy Molblock"}
                   aria-label={copied ? "Molblock Copied" : "Copy Molblock"}
                 >
-                  {copied ? (
-                    <HiOutlineCheck className="h-5 w-5" />
-                  ) : (
-                    <HiOutlineClipboard className="h-5 w-5" />
-                  )}
+                  {copied ? <Check className="h-5 w-5" /> : <Clipboard className="h-5 w-5" />}
                 </button>
                 <button
                   onClick={downloadMolblock}
@@ -791,7 +787,7 @@ const Depict3DView = ({ isActive = true }) => {
                   title="Download Molblock (.mol)"
                   aria-label="Download Molblock"
                 >
-                  <HiOutlineDownload className="h-5 w-5" />
+                  <Download className="h-5 w-5" />
                 </button>
               </div>
             </div>
@@ -808,7 +804,7 @@ const Depict3DView = ({ isActive = true }) => {
       {molData && !loading && (
         <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 text-sm shadow-xs">
           <div className="flex items-start space-x-3">
-            <HiOutlineExclamationCircle
+            <AlertCircle
               className="h-5 w-5 text-yellow-600 dark:text-yellow-400 shrink-0 mt-0.5"
               aria-hidden="true"
             />
@@ -833,7 +829,7 @@ const Depict3DView = ({ isActive = true }) => {
       {/* Themed instructions box */}
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm shadow-sm">
         <div className="flex items-start space-x-3">
-          <HiOutlineViewGrid
+          <LayoutGrid
             className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"
             aria-hidden="true"
           />
@@ -861,5 +857,4 @@ const Depict3DView = ({ isActive = true }) => {
     </div>
   );
 };
-
 export default Depict3DView;

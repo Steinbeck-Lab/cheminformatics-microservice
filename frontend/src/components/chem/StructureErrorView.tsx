@@ -1,19 +1,13 @@
 // Description: This component provides a user interface for validating and standardizing chemical structures using SMILES notation. It includes input handling, error checking, and displays results with appropriate messaging and styling for both light and dark themes.
 import React, { useState } from "react";
 // Ensure all used icons are imported
-import {
-  HiOutlineCheck,
-  HiOutlineShieldCheck,
-  HiOutlinePencilAlt,
-  HiOutlineExclamationCircle, // Added for error display
-  HiOutlineInformationCircle, // Added for about section
-} from "react-icons/hi";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
 import MoleculeCard from "../common/MoleculeCard";
 import LoadingScreen from "../common/LoadingScreen";
 // Assuming this service is configured correctly
 import { checkStructureErrors } from "../../services/chemService"; // Assuming this service exists
+import { AlertCircle, Check, Info, PencilLine, ShieldCheck } from "lucide-react";
 
 const StructureErrorView = () => {
   const [smiles, setSmiles] = useState("");
@@ -61,7 +55,7 @@ const StructureErrorView = () => {
       // Optionally return a default "No messages" state or null
       return (
         <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xs">
-          <HiOutlineInformationCircle className="mr-2 h-5 w-5 shrink-0" />
+          <Info className="mr-2 h-5 w-5 shrink-0" />
           No validation messages reported.
         </div>
       );
@@ -72,7 +66,7 @@ const StructureErrorView = () => {
       return (
         // Success message styling
         <div className="flex items-center text-green-700 dark:text-green-400 font-medium p-3 bg-green-50 dark:bg-green-900/20 border border-green-300 dark:border-green-700 rounded-lg shadow-xs">
-          <HiOutlineCheck className="mr-2 h-5 w-5 shrink-0" aria-hidden="true" />
+          <Check className="mr-2 h-5 w-5 shrink-0" aria-hidden="true" />
           {messages[0]}
         </div>
       );
@@ -83,7 +77,7 @@ const StructureErrorView = () => {
       // Warning/Error message styling (using amber for visibility)
       <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-lg shadow-xs">
         <h4 className="font-medium text-amber-700 dark:text-amber-300 mb-2 flex items-center">
-          <HiOutlineExclamationCircle className="h-5 w-5 mr-2 shrink-0" aria-hidden="true" />
+          <AlertCircle className="h-5 w-5 mr-2 shrink-0" aria-hidden="true" />
           Structure Issues Found
         </h4>
         <ul className="list-disc list-inside space-y-1 text-sm text-amber-700 dark:text-amber-200 pl-5">
@@ -143,7 +137,7 @@ const StructureErrorView = () => {
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
-              <HiOutlineShieldCheck className="mr-2 h-5 w-5" aria-hidden="true" />
+              <ShieldCheck className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Checking..." : "Check Structure"}
             </button>
           </div>
@@ -160,7 +154,7 @@ const StructureErrorView = () => {
             className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
             role="alert"
           >
-            <HiOutlineExclamationCircle
+            <AlertCircle
               className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
               aria-hidden="true"
             />
@@ -182,7 +176,7 @@ const StructureErrorView = () => {
             <div className="space-y-4">
               {/* Original SMILES Display */}
               <div className="flex items-center space-x-3 text-gray-700 dark:text-gray-300">
-                <HiOutlinePencilAlt
+                <PencilLine
                   className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0"
                   aria-hidden="true"
                 />
@@ -205,12 +199,12 @@ const StructureErrorView = () => {
                 <div className="flex items-center space-x-3 text-gray-700 dark:text-gray-300">
                   {/* Use check icon if standardized messages indicate no errors */}
                   {result.standardized.messages?.includes("No Errors Found") ? (
-                    <HiOutlineCheck
+                    <Check
                       className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0"
                       aria-hidden="true"
                     />
                   ) : (
-                    <HiOutlinePencilAlt
+                    <PencilLine
                       className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0"
                       aria-hidden="true"
                     />
@@ -249,7 +243,7 @@ const StructureErrorView = () => {
           className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow-sm"
           role="complementary"
         >
-          <HiOutlineInformationCircle
+          <Info
             className="h-6 w-6 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"
             aria-hidden="true"
           />
@@ -272,5 +266,4 @@ const StructureErrorView = () => {
     </div>
   );
 };
-
 export default StructureErrorView;

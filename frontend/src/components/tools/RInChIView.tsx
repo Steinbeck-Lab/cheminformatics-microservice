@@ -1,21 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  HiOutlineClipboardCopy,
-  HiOutlineCheck,
-  HiOutlineExclamationCircle,
-  HiOutlineInformationCircle,
-  HiOutlineRefresh,
-  HiOutlinePencil,
-  HiOutlineX,
-  HiOutlineCode,
-  HiOutlineDocumentText,
-  HiOutlineUpload,
-  HiOutlineQuestionMarkCircle,
-  HiOutlineArrowsExpand,
-  HiOutlineChevronDown,
-  HiOutlineChevronRight,
-  HiOutlineSwitchHorizontal,
-} from "react-icons/hi";
 
 // Import utility functions
 import {
@@ -25,11 +8,28 @@ import {
   generateRinchiKey,
   convertRinchiToFileText,
 } from "../../utils/rinchiUtils.js";
+import {
+  AlertCircle,
+  ArrowLeftRight,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  ClipboardCopy,
+  Code,
+  FileText,
+  HelpCircle,
+  Info,
+  Maximize2,
+  Pencil,
+  RefreshCw,
+  Upload,
+  X,
+} from "lucide-react";
 
 // Tooltip component for RInChI options
 const OptionTooltip = ({ content }) => (
   <div className="group relative inline-block">
-    <HiOutlineQuestionMarkCircle className="h-4 w-4 ml-1 text-gray-500 dark:text-gray-400 inline-block align-text-bottom cursor-help" />
+    <HelpCircle className="h-4 w-4 ml-1 text-gray-500 dark:text-gray-400 inline-block align-text-bottom cursor-help" />
     <div className="absolute z-10 opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-opacity duration-300 w-64 bg-white dark:bg-gray-800 p-2 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-300 -mt-1 left-6">
       {content}
     </div>
@@ -50,7 +50,7 @@ const RInChIOptions = ({
     <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
       <div className="flex items-center mb-4">
         <div className="bg-indigo-100 dark:bg-indigo-900/50 p-2 rounded-lg mr-3">
-          <HiOutlineCode className="h-5 w-5 text-indigo-700 dark:text-indigo-400" />
+          <Code className="h-5 w-5 text-indigo-700 dark:text-indigo-400" />
         </div>
         <h2 className="text-lg font-bold text-gray-800 dark:text-white">RInChI Options</h2>
       </div>
@@ -144,9 +144,9 @@ const ResultBlock = ({ title, value, onCopy, copyState, icon, collapsible = fals
         >
           {collapsible &&
             (isCollapsed ? (
-              <HiOutlineChevronRight className="h-4 w-4 mr-1" />
+              <ChevronRight className="h-4 w-4 mr-1" />
             ) : (
-              <HiOutlineChevronDown className="h-4 w-4 mr-1" />
+              <ChevronDown className="h-4 w-4 mr-1" />
             ))}
           {icon && <span className="mr-2">{icon}</span>}
           {title}
@@ -158,12 +158,12 @@ const ResultBlock = ({ title, value, onCopy, copyState, icon, collapsible = fals
           >
             {copyState ? (
               <>
-                <HiOutlineCheck className="w-3.5 h-3.5 mr-1" />
+                <Check className="w-3.5 h-3.5 mr-1" />
                 Copied!
               </>
             ) : (
               <>
-                <HiOutlineClipboardCopy className="w-3.5 h-3.5 mr-1" />
+                <ClipboardCopy className="w-3.5 h-3.5 mr-1" />
                 Copy
               </>
             )}
@@ -965,7 +965,7 @@ const RInChIView = () => {
                 onClick={() => setShowCopyModal(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
-                <HiOutlineX className="w-5 h-5" />
+                <X className="w-5 h-5" />
               </button>
             </div>
             <p className="mb-4 text-gray-700 dark:text-gray-300">
@@ -1012,7 +1012,7 @@ const RInChIView = () => {
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
             <div className="flex items-center mb-4">
               <div className="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-lg mr-3">
-                <HiOutlineArrowsExpand className="h-5 w-5 text-blue-700 dark:text-blue-400" />
+                <Maximize2 className="h-5 w-5 text-blue-700 dark:text-blue-400" />
               </div>
               <h2 className="text-lg font-bold text-gray-800 dark:text-white">Editor Controls</h2>
             </div>
@@ -1027,7 +1027,7 @@ const RInChIView = () => {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
                 }`}
               >
-                <HiOutlineRefresh className="h-4 w-4 mr-2" />
+                <RefreshCw className="h-4 w-4 mr-2" />
                 Clear Editor
               </button>
 
@@ -1040,7 +1040,7 @@ const RInChIView = () => {
                     : "bg-linear-to-r from-indigo-600 to-blue-700 hover:from-indigo-700 hover:to-blue-800 text-white"
                 }`}
               >
-                <HiOutlineDocumentText className="h-4 w-4 mr-2" />
+                <FileText className="h-4 w-4 mr-2" />
                 {isLoading ? "Generating..." : "Generate RInChI"}
               </button>
             </div>
@@ -1050,7 +1050,7 @@ const RInChIView = () => {
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
             <div className="flex items-center mb-4">
               <div className="bg-indigo-100 dark:bg-indigo-900/50 p-2 rounded-lg mr-3">
-                <HiOutlinePencil className="h-5 w-5 text-indigo-700 dark:text-indigo-400" />
+                <Pencil className="h-5 w-5 text-indigo-700 dark:text-indigo-400" />
               </div>
               <h2 className="text-lg font-bold text-gray-800 dark:text-white">Reaction Input</h2>
             </div>
@@ -1135,7 +1135,7 @@ const RInChIView = () => {
                       htmlFor="rxnfile-upload"
                       className="cursor-pointer flex items-center justify-center w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-300"
                     >
-                      <HiOutlineUpload className="w-5 h-5 mr-2" />
+                      <Upload className="w-5 h-5 mr-2" />
                       Upload RXN/RD File
                     </label>
                   </div>
@@ -1149,7 +1149,7 @@ const RInChIView = () => {
                         : "bg-linear-to-r from-indigo-600 to-blue-700 hover:from-indigo-700 hover:to-blue-800"
                     }`}
                   >
-                    <HiOutlineDocumentText className="mr-2 h-5 w-5" />
+                    <FileText className="mr-2 h-5 w-5" />
                     {isLoading ? "Processing..." : "Process RXN/RD File"}
                   </button>
                 </div>
@@ -1280,7 +1280,7 @@ const RInChIView = () => {
                       : "bg-linear-to-r from-indigo-600 to-blue-700 hover:from-indigo-700 hover:to-blue-800"
                   }`}
                 >
-                  <HiOutlineSwitchHorizontal className="mr-2 h-5 w-5" />
+                  <ArrowLeftRight className="mr-2 h-5 w-5" />
                   {isLoading
                     ? "Converting..."
                     : !rinchiModuleLoaded
@@ -1378,7 +1378,7 @@ const RInChIView = () => {
                   onClick={handleRetryInit}
                   className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-200 dark:hover:bg-yellow-900/50 border border-yellow-300 dark:border-yellow-700/50"
                 >
-                  <HiOutlineRefresh className="h-4 w-4 mr-1.5" />
+                  <RefreshCw className="h-4 w-4 mr-1.5" />
                   Retry
                 </button>
               )}
@@ -1388,7 +1388,7 @@ const RInChIView = () => {
           {/* Information Box */}
           <div className="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border border-blue-200 dark:border-blue-800/50 rounded-xl p-5 text-sm shadow-lg">
             <h4 className="font-bold text-blue-800 dark:text-blue-300 mb-3 flex items-center">
-              <HiOutlineInformationCircle className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
+              <Info className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
               About RInChI
             </h4>
             <div className="space-y-3 text-gray-700 dark:text-gray-300">
@@ -1418,7 +1418,7 @@ const RInChIView = () => {
               className="p-4 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700/50 flex items-start shadow-lg animate-fadeIn"
               role="alert"
             >
-              <HiOutlineExclamationCircle
+              <AlertCircle
                 className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
                 aria-hidden="true"
               />
@@ -1449,7 +1449,7 @@ const RInChIView = () => {
           {/* Results */}
           <div className="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg">
             <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-3 flex items-center">
-              <HiOutlineDocumentText className="h-5 w-5 mr-2 text-indigo-500 dark:text-indigo-400" />
+              <FileText className="h-5 w-5 mr-2 text-indigo-500 dark:text-indigo-400" />
               Results
             </h3>
 
@@ -1459,7 +1459,7 @@ const RInChIView = () => {
               value={rinchi}
               onCopy={() => copyToClipboard(rinchi, "rinchi")}
               copyState={copySuccess}
-              icon={<HiOutlineCode className="h-4 w-4 text-indigo-600 dark:text-indigo-500" />}
+              icon={<Code className="h-4 w-4 text-indigo-600 dark:text-indigo-500" />}
             />
 
             {/* RAuxInfo */}
@@ -1468,13 +1468,13 @@ const RInChIView = () => {
               value={rauxInfo}
               onCopy={() => copyToClipboard(rauxInfo, "rauxinfo")}
               copyState={copySuccess}
-              icon={<HiOutlineDocumentText className="h-4 w-4 text-blue-600 dark:text-blue-500" />}
+              icon={<FileText className="h-4 w-4 text-blue-600 dark:text-blue-500" />}
             />
 
             {/* RInChIKeys */}
             <div className="mt-4">
               <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center">
-                <HiOutlineInformationCircle className="h-4 w-4 mr-2 text-indigo-600 dark:text-indigo-500" />
+                <Info className="h-4 w-4 mr-2 text-indigo-600 dark:text-indigo-500" />
                 RInChIKeys
               </h4>
 
@@ -1515,16 +1515,14 @@ const RInChIView = () => {
                 value={outputRxnFile}
                 onCopy={() => copyToClipboard(outputRxnFile, "rxnfile")}
                 copyState={copySuccess}
-                icon={
-                  <HiOutlineDocumentText className="h-4 w-4 text-blue-600 dark:text-blue-500" />
-                }
+                icon={<FileText className="h-4 w-4 text-blue-600 dark:text-blue-500" />}
               />
             )}
 
             {/* Log messages */}
             <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
               <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
-                <HiOutlineInformationCircle className="h-4 w-4 mr-1 text-gray-600 dark:text-gray-400" />
+                <Info className="h-4 w-4 mr-1 text-gray-600 dark:text-gray-400" />
                 Log
               </h4>
               <pre className="text-xs text-gray-600 dark:text-gray-400 font-mono whitespace-pre-wrap max-h-48 overflow-auto">
@@ -1537,5 +1535,4 @@ const RInChIView = () => {
     </div>
   );
 };
-
 export default RInChIView;

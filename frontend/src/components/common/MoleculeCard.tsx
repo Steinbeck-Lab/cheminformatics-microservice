@@ -1,13 +1,6 @@
 import React, { useState, useRef } from "react";
-import {
-  HiOutlineClipboard,
-  HiOutlineDownload,
-  HiOutlineInformationCircle,
-  HiOutlineCheckCircle, // Used for copy success indication
-  HiOutlineExclamationCircle, // Used for error display
-  HiOutlineX, // Used for closing modals
-} from "react-icons/hi";
 import { useAppContext } from "../../context/AppContext"; // Assuming context provides addRecentMolecule
+import { AlertCircle, CheckCircle, Clipboard, Download, Info, X } from "lucide-react";
 
 // Default fallback SVG with a neutral gray fill color (#888888)
 const FALLBACK_SVG_BASE64 =
@@ -502,11 +495,7 @@ const MoleculeCard = ({
               title={copied ? "Copied!" : "Copy SMILES to clipboard"}
               aria-label={copied ? "SMILES Copied" : "Copy SMILES"}
             >
-              {copied ? (
-                <HiOutlineCheckCircle className="h-5 w-5" />
-              ) : (
-                <HiOutlineClipboard className="h-5 w-5" />
-              )}
+              {copied ? <CheckCircle className="h-5 w-5" /> : <Clipboard className="h-5 w-5" />}
             </button>
 
             {/* Download Button */}
@@ -521,7 +510,7 @@ const MoleculeCard = ({
               title="Download structure as SVG"
               aria-label="Download structure as SVG"
             >
-              <HiOutlineDownload className="h-5 w-5" />
+              <Download className="h-5 w-5" />
             </button>
 
             {/* Info Button (Implemented) */}
@@ -536,7 +525,7 @@ const MoleculeCard = ({
               title="View molecule details"
               aria-label="View molecule details"
             >
-              <HiOutlineInformationCircle className="h-5 w-5" />
+              <Info className="h-5 w-5" />
             </button>
           </div>
         )}
@@ -552,7 +541,7 @@ const MoleculeCard = ({
                 onClick={() => setShowCopyModal(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
-                <HiOutlineX className="w-5 h-5" />
+                <X className="w-5 h-5" />
               </button>
             </div>
             <p className="mb-4 text-gray-700 dark:text-gray-300">
@@ -592,7 +581,7 @@ const MoleculeCard = ({
                 onClick={() => setShowDetailsModal(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
-                <HiOutlineX className="w-5 h-5" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
@@ -782,7 +771,7 @@ const MoleculeCard = ({
                 {moleculeDetails.error && (
                   <div className="bg-gray-50 dark:bg-gray-900 rounded-md p-3">
                     <div className="flex items-center mb-2">
-                      <HiOutlineExclamationCircle className="h-5 w-5 text-orange-500 dark:text-orange-400 mr-2" />
+                      <AlertCircle className="h-5 w-5 text-orange-500 dark:text-orange-400 mr-2" />
                       <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         Estimated Information
                       </h4>
@@ -854,5 +843,4 @@ const MoleculeCard = ({
     </>
   );
 };
-
 export default MoleculeCard;

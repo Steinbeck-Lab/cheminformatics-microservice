@@ -1,21 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import {
-  HiOutlineClipboardCopy,
-  HiOutlineCheck,
-  HiOutlineExclamationCircle,
-  HiOutlineInformationCircle,
-  HiOutlineRefresh,
-  HiOutlinePencil,
-  HiOutlineX,
-  HiOutlineCode,
-  HiOutlineDocumentText,
-  HiOutlineUpload,
-  HiOutlineQuestionMarkCircle,
-  HiOutlineAdjustments,
-  HiOutlineLightningBolt,
-  HiOutlineBeaker,
-  HiOutlineTemplate,
-} from "react-icons/hi";
 
 // Import utility functions
 import {
@@ -26,11 +9,28 @@ import {
   convertInchiToMolfile,
   convertAuxinfoToMolfile,
 } from "../../utils/inchiUtils.js";
+import {
+  AlertCircle,
+  Check,
+  ClipboardCopy,
+  Code,
+  FileText,
+  FlaskConical,
+  HelpCircle,
+  Info,
+  Layout,
+  Pencil,
+  RefreshCw,
+  SlidersHorizontal,
+  Upload,
+  X,
+  Zap,
+} from "lucide-react";
 
 // Tooltip component for InChI options
 const OptionTooltip = ({ content }) => (
   <div className="group relative inline-block">
-    <HiOutlineQuestionMarkCircle className="h-4 w-4 ml-1 text-gray-500 dark:text-gray-400 inline-block align-text-bottom cursor-help" />
+    <HelpCircle className="h-4 w-4 ml-1 text-gray-500 dark:text-gray-400 inline-block align-text-bottom cursor-help" />
     <div className="absolute z-10 opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-opacity duration-300 w-64 bg-white dark:bg-gray-800 p-2 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-300 -mt-1 left-6">
       {content}
     </div>
@@ -191,7 +191,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
           <div className="bg-purple-100 dark:bg-purple-900/50 p-2 rounded-lg mr-3">
-            <HiOutlineCode className="h-5 w-5 text-purple-700 dark:text-purple-400" />
+            <Code className="h-5 w-5 text-purple-700 dark:text-purple-400" />
           </div>
           <h2 className="text-lg font-bold text-gray-800 dark:text-white">InChI Options</h2>
         </div>
@@ -199,7 +199,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
           onClick={resetOptions}
           className="text-sm flex items-center text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
         >
-          <HiOutlineRefresh className="mr-1 h-4 w-4" />
+          <RefreshCw className="mr-1 h-4 w-4" />
           Reset
         </button>
       </div>
@@ -690,12 +690,12 @@ const ResultBlock = ({ title, value, onCopy, copyState, icon }) => {
           >
             {copyState ? (
               <>
-                <HiOutlineCheck className="w-3.5 h-3.5 mr-1" />
+                <Check className="w-3.5 h-3.5 mr-1" />
                 Copied!
               </>
             ) : (
               <>
-                <HiOutlineClipboardCopy className="w-3.5 h-3.5 mr-1" />
+                <ClipboardCopy className="w-3.5 h-3.5 mr-1" />
                 Copy
               </>
             )}
@@ -1507,7 +1507,7 @@ const InChIView = () => {
                 onClick={() => setShowCopyModal(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
-                <HiOutlineX className="w-5 h-5" />
+                <X className="w-5 h-5" />
               </button>
             </div>
             <p className="mb-4 text-gray-700 dark:text-gray-300">
@@ -1551,7 +1551,7 @@ const InChIView = () => {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">
                 <div className="bg-emerald-100 dark:bg-emerald-900/50 p-2 rounded-lg mr-3">
-                  <HiOutlineAdjustments className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                  <SlidersHorizontal className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
                 </div>
                 <h2 className="text-lg font-bold text-gray-800 dark:text-white">Editor Controls</h2>
               </div>
@@ -1567,7 +1567,7 @@ const InChIView = () => {
                   }`}
                   title="When enabled, InChI will be generated automatically when options change"
                 >
-                  <HiOutlineLightningBolt
+                  <Zap
                     className={`mr-1 h-4 w-4 ${
                       autoGenerate
                         ? "text-emerald-500 dark:text-emerald-400"
@@ -1589,7 +1589,7 @@ const InChIView = () => {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
                 }`}
               >
-                <HiOutlineRefresh className="h-4 w-4 mr-2" />
+                <RefreshCw className="h-4 w-4 mr-2" />
                 Clear Editor
               </button>
 
@@ -1602,7 +1602,7 @@ const InChIView = () => {
                     : "bg-linear-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white"
                 }`}
               >
-                <HiOutlineDocumentText className="h-4 w-4 mr-2" />
+                <FileText className="h-4 w-4 mr-2" />
                 {isLoading ? "Generating..." : "Generate InChI"}
               </button>
             </div>
@@ -1612,7 +1612,7 @@ const InChIView = () => {
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
             <div className="flex items-center mb-4">
               <div className="bg-indigo-100 dark:bg-indigo-900/50 p-2 rounded-lg mr-3">
-                <HiOutlinePencil className="h-5 w-5 text-indigo-700 dark:text-indigo-400" />
+                <Pencil className="h-5 w-5 text-indigo-700 dark:text-indigo-400" />
               </div>
               <h2 className="text-lg font-bold text-gray-800 dark:text-white">Structure Input</h2>
             </div>
@@ -1628,7 +1628,7 @@ const InChIView = () => {
                   }`}
                   onClick={() => setActiveInputType("structure")}
                 >
-                  <HiOutlineBeaker className="inline-block mr-1" />
+                  <FlaskConical className="inline-block mr-1" />
                   Draw
                 </button>
                 <button
@@ -1639,7 +1639,7 @@ const InChIView = () => {
                   }`}
                   onClick={() => setActiveInputType("smiles")}
                 >
-                  <HiOutlineTemplate className="inline-block mr-1" />
+                  <Layout className="inline-block mr-1" />
                   SMILES
                 </button>
                 <button
@@ -1650,7 +1650,7 @@ const InChIView = () => {
                   }`}
                   onClick={() => setActiveInputType("molfile")}
                 >
-                  <HiOutlineDocumentText className="inline-block mr-1" />
+                  <FileText className="inline-block mr-1" />
                   Mol/Aux
                 </button>
                 <button
@@ -1661,7 +1661,7 @@ const InChIView = () => {
                   }`}
                   onClick={() => setActiveInputType("inchi")}
                 >
-                  <HiOutlineCode className="inline-block mr-1" />
+                  <Code className="inline-block mr-1" />
                   InChI
                 </button>
               </div>
@@ -1754,7 +1754,7 @@ const InChIView = () => {
                       htmlFor="molfile-upload"
                       className="cursor-pointer flex items-center justify-center w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-300"
                     >
-                      <HiOutlineUpload className="w-5 h-5 mr-2" />
+                      <Upload className="w-5 h-5 mr-2" />
                       Upload File
                     </label>
                   </div>
@@ -1768,7 +1768,7 @@ const InChIView = () => {
                         : "bg-linear-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800"
                     }`}
                   >
-                    <HiOutlineDocumentText className="mr-2 h-5 w-5" />
+                    <FileText className="mr-2 h-5 w-5" />
                     {isLoading ? "Loading..." : "Load Structure"}
                   </button>
                 </div>
@@ -1900,7 +1900,7 @@ const InChIView = () => {
                   onClick={handleRetryInit}
                   className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-200 dark:hover:bg-yellow-900/50 border border-yellow-300 dark:border-yellow-700/50"
                 >
-                  <HiOutlineRefresh className="h-4 w-4 mr-1.5" />
+                  <RefreshCw className="h-4 w-4 mr-1.5" />
                   Retry
                 </button>
               )}
@@ -1910,7 +1910,7 @@ const InChIView = () => {
           {/* Information Box */}
           <div className="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border border-blue-200 dark:border-blue-800/50 rounded-xl p-5 text-sm shadow-lg">
             <h4 className="font-bold text-blue-800 dark:text-blue-300 mb-3 flex items-center">
-              <HiOutlineInformationCircle className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
+              <Info className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
               About InChI
             </h4>
             <div className="space-y-3 text-gray-700 dark:text-gray-300">
@@ -1941,7 +1941,7 @@ const InChIView = () => {
               className="p-4 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700/50 flex items-start shadow-lg animate-fadeIn"
               role="alert"
             >
-              <HiOutlineExclamationCircle
+              <AlertCircle
                 className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
                 aria-hidden="true"
               />
@@ -1970,7 +1970,7 @@ const InChIView = () => {
           {/* Results */}
           <div className="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg transition-all duration-300 hover:shadow-xl">
             <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-3 flex items-center">
-              <HiOutlineDocumentText className="h-5 w-5 mr-2 text-green-500 dark:text-green-400" />
+              <FileText className="h-5 w-5 mr-2 text-green-500 dark:text-green-400" />
               Results
             </h3>
 
@@ -1980,7 +1980,7 @@ const InChIView = () => {
               value={inchi}
               onCopy={() => copyToClipboard(inchi, "inchi")}
               copyState={copySuccess}
-              icon={<HiOutlineCode className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />}
+              icon={<Code className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />}
             />
 
             {/* InChIKey */}
@@ -1989,9 +1989,7 @@ const InChIView = () => {
               value={inchiKey}
               onCopy={() => copyToClipboard(inchiKey, "key")}
               copyState={copySuccess}
-              icon={
-                <HiOutlineInformationCircle className="h-4 w-4 text-purple-600 dark:text-purple-500" />
-              }
+              icon={<Info className="h-4 w-4 text-purple-600 dark:text-purple-500" />}
             />
 
             {/* AuxInfo */}
@@ -2000,13 +1998,13 @@ const InChIView = () => {
               value={auxInfo}
               onCopy={() => copyToClipboard(auxInfo, "auxinfo")}
               copyState={copySuccess}
-              icon={<HiOutlineDocumentText className="h-4 w-4 text-blue-600 dark:text-blue-500" />}
+              icon={<FileText className="h-4 w-4 text-blue-600 dark:text-blue-500" />}
             />
 
             {/* Log messages */}
             <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-700 transition-colors duration-300">
               <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
-                <HiOutlineInformationCircle className="h-4 w-4 mr-1 text-gray-600 dark:text-gray-400" />
+                <Info className="h-4 w-4 mr-1 text-gray-600 dark:text-gray-400" />
                 Log
               </h4>
               <pre className="text-xs text-gray-600 dark:text-gray-400 font-mono whitespace-pre-wrap max-h-48 overflow-auto">
@@ -2019,5 +2017,4 @@ const InChIView = () => {
     </div>
   );
 };
-
 export default InChIView;

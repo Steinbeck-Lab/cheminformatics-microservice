@@ -1,17 +1,5 @@
 // Description: Production-grade Sugar Detection component with comprehensive detection, removal, and extraction capabilities
 import React, { useState } from "react";
-import {
-  HiOutlineSearch,
-  HiOutlineTrash,
-  HiOutlineBeaker,
-  HiOutlineInformationCircle,
-  HiOutlineExclamationCircle,
-  HiChevronDown,
-  HiChevronUp,
-  HiOutlineRefresh,
-  HiOutlineBookOpen,
-  HiOutlineLightBulb,
-} from "react-icons/hi";
 import SMILESInput from "../common/SMILESInput";
 import MolFileUpload from "../common/MolFileUpload";
 import MoleculeCard from "../common/MoleculeCard";
@@ -26,6 +14,18 @@ import {
   extractAglyconeAndSugars,
   getAglyconeAndSugarIndices,
 } from "../../services/toolsService";
+import {
+  AlertCircle,
+  BookOpen,
+  ChevronDown,
+  ChevronUp,
+  FlaskConical,
+  Info,
+  Lightbulb,
+  RefreshCw,
+  Search,
+  Trash2,
+} from "lucide-react";
 
 // Default options configuration
 const DEFAULT_OPTIONS = {
@@ -301,7 +301,7 @@ const SugarRemovalView = () => {
             }`}
             title="Reset to default"
           >
-            <HiOutlineRefresh className="h-4 w-4" />
+            <RefreshCw className="h-4 w-4" />
           </button>
         </div>
 
@@ -420,9 +420,9 @@ const SugarRemovalView = () => {
         >
           <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{title}</span>
           {isExpanded ? (
-            <HiChevronUp className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+            <ChevronUp className="h-5 w-5 text-gray-500 dark:text-gray-400" />
           ) : (
-            <HiChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+            <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400" />
           )}
         </button>
 
@@ -465,7 +465,7 @@ const SugarRemovalView = () => {
                 <div className="shrink-0 w-1 h-16 bg-linear-to-b from-blue-500 to-purple-500 rounded-full"></div>
                 <div>
                   <h3 className="text-lg font-bold text-gray-800 dark:text-blue-300 mb-2">
-                    <HiOutlineBookOpen
+                    <BookOpen
                       className="inline text-2xl mr-2 text-blue-600 dark:text-blue-400"
                       aria-hidden="true"
                     />
@@ -516,11 +516,11 @@ const SugarRemovalView = () => {
           <div className="bg-linear-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/30 dark:via-indigo-900/30 dark:to-purple-900/30 border-l-4 border-blue-500 dark:border-blue-400 p-4 rounded-r-lg shadow-md backdrop-blur-sm">
             <div className="flex items-start">
               <div className="shrink-0 mr-3">
-                <HiOutlineInformationCircle className="h-6 w-6 text-blue-600 dark:text-blue-400 animate-pulse" />
+                <Info className="h-6 w-6 text-blue-600 dark:text-blue-400 animate-pulse" />
               </div>
               <div className="text-sm">
                 <p className="text-gray-800 dark:text-gray-200 font-medium mb-1">
-                  <HiOutlineLightBulb className="inline h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
+                  <Lightbulb className="inline h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
                   <span className="text-blue-600 dark:text-blue-400 font-bold">
                     Batch Processing
                   </span>
@@ -592,7 +592,7 @@ const SugarRemovalView = () => {
 
           {uploadedFileName && (
             <div className="mt-2 flex items-center text-sm text-green-600 dark:text-green-400">
-              <HiOutlineInformationCircle className="h-4 w-4 mr-1" />
+              <Info className="h-4 w-4 mr-1" />
               <span>Loaded from: {uploadedFileName}</span>
             </div>
           )}
@@ -623,7 +623,7 @@ const SugarRemovalView = () => {
                 className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
               />
               <div className="ml-3">
-                <HiOutlineSearch className="h-6 w-6 text-blue-600 dark:text-blue-400 mb-1" />
+                <Search className="h-6 w-6 text-blue-600 dark:text-blue-400 mb-1" />
                 <span className="block text-sm font-medium text-gray-900 dark:text-gray-100">
                   Detect
                 </span>
@@ -648,7 +648,7 @@ const SugarRemovalView = () => {
                 className="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500"
               />
               <div className="ml-3">
-                <HiOutlineTrash className="h-6 w-6 text-red-600 dark:text-red-400 mb-1" />
+                <Trash2 className="h-6 w-6 text-red-600 dark:text-red-400 mb-1" />
                 <span className="block text-sm font-medium text-gray-900 dark:text-gray-100">
                   Remove
                 </span>
@@ -673,7 +673,7 @@ const SugarRemovalView = () => {
                 className="h-4 w-4 text-green-600 border-gray-300 focus:ring-green-500"
               />
               <div className="ml-3">
-                <HiOutlineBeaker className="h-6 w-6 text-green-600 dark:text-green-400 mb-1" />
+                <FlaskConical className="h-6 w-6 text-green-600 dark:text-green-400 mb-1" />
                 <span className="block text-sm font-medium text-gray-900 dark:text-gray-100">
                   Extract
                 </span>
@@ -801,7 +801,7 @@ const SugarRemovalView = () => {
             onClick={resetAllOptions}
             className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
           >
-            <HiOutlineRefresh className="h-4 w-4" />
+            <RefreshCw className="h-4 w-4" />
             <span>Reset All to Default</span>
           </button>
         </div>
@@ -1121,9 +1121,9 @@ const SugarRemovalView = () => {
                   : "bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
           }`}
         >
-          {operationMode === "detect" && <HiOutlineSearch className="h-6 w-6" />}
-          {operationMode === "remove" && <HiOutlineTrash className="h-6 w-6" />}
-          {operationMode === "extract" && <HiOutlineBeaker className="h-6 w-6" />}
+          {operationMode === "detect" && <Search className="h-6 w-6" />}
+          {operationMode === "remove" && <Trash2 className="h-6 w-6" />}
+          {operationMode === "extract" && <FlaskConical className="h-6 w-6" />}
           <span>
             {isLoading
               ? "Processing..."
@@ -1155,7 +1155,7 @@ const SugarRemovalView = () => {
           className="p-4 rounded-md flex items-start shadow-sm bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700"
           role="alert"
         >
-          <HiOutlineExclamationCircle
+          <AlertCircle
             className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
             aria-hidden="true"
           />
@@ -1415,7 +1415,7 @@ const SugarRemovalView = () => {
 
               {(!results.sugars || results.sugars.length === 0) && (
                 <div className="p-4 rounded-md flex items-start shadow-sm bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-200 border border-yellow-300 dark:border-yellow-700">
-                  <HiOutlineInformationCircle className="h-5 w-5 mr-3 shrink-0 mt-0.5" />
+                  <Info className="h-5 w-5 mr-3 shrink-0 mt-0.5" />
                   <span>No sugar moieties were extracted from the molecule.</span>
                 </div>
               )}
@@ -1427,7 +1427,7 @@ const SugarRemovalView = () => {
       {/* Initial State / Help */}
       {!results && !isLoading && !error && (
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow-sm">
-          <HiOutlineInformationCircle className="h-6 w-6 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+          <Info className="h-6 w-6 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
           <div>
             <h3 className="text-lg font-medium text-blue-800 dark:text-blue-300 mb-2">
               Getting Started
@@ -1468,5 +1468,4 @@ const SugarRemovalView = () => {
     </div>
   );
 };
-
 export default SugarRemovalView;

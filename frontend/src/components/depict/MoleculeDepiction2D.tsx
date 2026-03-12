@@ -1,9 +1,9 @@
 // Description: A component for 2D molecule depiction
 import React, { useState, useEffect, useCallback } from "react";
-import { HiOutlineDownload, HiOutlineRefresh } from "react-icons/hi";
 
 // Assuming this service is configured correctly
 import depictService from "../../services/depictService";
+import { Download, RefreshCw } from "lucide-react";
 
 const MoleculeDepiction2D = ({
   smiles,
@@ -107,7 +107,7 @@ const MoleculeDepiction2D = ({
           className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500"
           title="Download 2D structure"
         >
-          <HiOutlineDownload className="h-5 w-5" />
+          <Download className="h-5 w-5" />
         </button>
       </div>
 
@@ -214,12 +214,11 @@ const MoleculeDepiction2D = ({
             className="ml-auto p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500"
             title="Reset to original view"
           >
-            <HiOutlineRefresh className="h-5 w-5" />
+            <RefreshCw className="h-5 w-5" />
           </button>
         </div>
       </div>
     </div>
   );
 };
-
 export default MoleculeDepiction2D;

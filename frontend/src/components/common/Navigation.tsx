@@ -1,14 +1,14 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import {
-  HiOutlineHome,
-  HiOutlineBeaker,
-  HiOutlineRefresh,
-  HiOutlinePresentationChartLine,
-  HiOutlineAdjustments,
-  HiOutlineCamera,
-  HiUserGroup,
-} from "react-icons/hi";
+  Camera,
+  FlaskConical,
+  House,
+  LineChart,
+  RefreshCw,
+  SlidersHorizontal,
+  Users,
+} from "lucide-react";
 
 // Add CSS for the strobing animation
 const StrobingIcon = ({ icon: Icon, className }) => {
@@ -24,38 +24,38 @@ const navLinks = [
   {
     to: "/home",
     label: "Home",
-    icon: HiOutlineHome,
+    icon: House,
     exact: true,
   },
   {
     to: "/chem",
     label: "Chemical Analysis",
-    icon: HiOutlineBeaker,
+    icon: FlaskConical,
   },
   {
     to: "/convert",
     label: "Format Conversion",
-    icon: HiOutlineRefresh,
+    icon: RefreshCw,
   },
   {
     to: "/depict",
     label: "Depiction",
-    icon: HiOutlinePresentationChartLine,
+    icon: LineChart,
   },
   {
     to: "/tools",
     label: "Tools",
-    icon: HiOutlineAdjustments,
+    icon: SlidersHorizontal,
   },
   {
     to: "/ocsr",
     label: "OCSR",
-    icon: HiOutlineCamera,
+    icon: Camera,
   },
   {
     to: "/about",
     label: "About",
-    icon: HiUserGroup,
+    icon: Users,
     animated: true, // Flag to identify this icon for animation
   },
 ];
@@ -137,5 +137,4 @@ const Navigation = ({ isMobile = false, closeMenu = () => {} }) => {
     </nav>
   );
 };
-
 export default Navigation;

@@ -1,17 +1,13 @@
 //Description: This component allows users to input a SMILES string and generates its stereoisomers using a service. It handles loading states, errors, and displays results in a user-friendly manner.
 import React, { useState } from "react";
 // Ensure all used icons are imported
-import {
-  HiOutlineCube,
-  HiOutlineExclamationCircle,
-  HiOutlineInformationCircle, // Added for consistency in info boxes
-} from "react-icons/hi";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
 import MoleculeCard from "../common/MoleculeCard";
 import LoadingScreen from "../common/LoadingScreen";
 // Assuming this service is configured correctly
 import { generateStereoisomers } from "../../services/chemService"; // Assuming this service exists
+import { AlertCircle, Box, Info } from "lucide-react";
 
 const StereoisomersView = () => {
   const [smiles, setSmiles] = useState("");
@@ -97,7 +93,7 @@ const StereoisomersView = () => {
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
-              <HiOutlineCube className="mr-2 h-5 w-5" aria-hidden="true" />
+              <Box className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Generating..." : "Generate Stereoisomers"}
             </button>
           </div>
@@ -119,12 +115,12 @@ const StereoisomersView = () => {
           role={noDistinctIsomersFound ? "status" : "alert"}
         >
           {noDistinctIsomersFound ? (
-            <HiOutlineInformationCircle
+            <Info
               className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-blue-500 dark:text-blue-400"
               aria-hidden="true"
             />
           ) : (
-            <HiOutlineExclamationCircle
+            <AlertCircle
               className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
               aria-hidden="true"
             />
@@ -197,5 +193,4 @@ const StereoisomersView = () => {
     </div>
   );
 };
-
 export default StereoisomersView;

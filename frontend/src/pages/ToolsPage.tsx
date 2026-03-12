@@ -6,15 +6,9 @@ import SugarRemovalView from "../components/tools/SugarRemovalView";
 import StructureGenView from "../components/tools/StructureGenView";
 import InChIView from "../components/tools/InChIView";
 import RInChIView from "../components/tools/RInChIView";
+import { ArrowLeftRight, Box, ChevronDown, FileText, Puzzle } from "lucide-react";
 
 // Import icons for the tabs and navigation
-import {
-  HiCube,
-  HiOutlinePuzzle,
-  HiOutlineDocumentText,
-  HiChevronDown,
-  HiOutlineSwitchHorizontal,
-} from "react-icons/hi";
 
 // Tab data with icons and descriptions
 const tabs = [
@@ -22,14 +16,14 @@ const tabs = [
     id: "sugardetection",
     name: "Sugar Detection",
     component: SugarRemovalView,
-    icon: HiCube,
+    icon: Box,
     description: "Detect and remove sugar moieties from complex molecular structures.",
   },
   {
     id: "structuregeneration",
     name: "Structure Generation",
     component: StructureGenView,
-    icon: HiOutlinePuzzle,
+    icon: Puzzle,
     description:
       "Generate chemical structures based on specified parameters and constraints for virtual screening.",
   },
@@ -37,7 +31,7 @@ const tabs = [
     id: "inchiconverter",
     name: "InChI Converter",
     component: InChIView,
-    icon: HiOutlineDocumentText,
+    icon: FileText,
     description:
       "Draw, edit, and convert chemical structures to InChI notation with full support for various InChI versions and options.",
   },
@@ -45,7 +39,7 @@ const tabs = [
     id: "rinchiconverter",
     name: "RInChI Converter",
     component: RInChIView,
-    icon: HiOutlineSwitchHorizontal,
+    icon: ArrowLeftRight,
     description:
       "Convert chemical reactions to RInChI notation, enabling standardized representation of chemical transformations.",
   },
@@ -237,7 +231,7 @@ const ToolsPage = () => {
                     animate={{ rotate: isMobileMenuOpen ? 180 : 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <HiChevronDown className="h-5 w-5 text-slate-500 dark:text-slate-400" />
+                    <ChevronDown className="h-5 w-5 text-slate-500 dark:text-slate-400" />
                   </motion.span>
                 </button>
 
@@ -569,5 +563,4 @@ const ToolsPage = () => {
     </motion.div> // End Main Container
   );
 };
-
 export default ToolsPage;

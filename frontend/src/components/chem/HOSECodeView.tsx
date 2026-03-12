@@ -1,16 +1,12 @@
 // Description: This component allows users to input a SMILES string and calculate molecular descriptors using different toolkits (RDKit, CDK).
 import React, { useState } from "react";
 // Ensure all used icons are imported
-import {
-  HiOutlineDocumentSearch,
-  HiOutlineClipboard,
-  HiOutlineExclamationCircle, // Added for error display
-} from "react-icons/hi";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
 import LoadingScreen from "../common/LoadingScreen";
 // Assuming this service is configured correctly
 import { generateHOSECodes } from "../../services/chemService"; // Assuming this service exists
+import { AlertCircle, Clipboard, FileSearch } from "lucide-react";
 
 const HOSECodeView = () => {
   const [smiles, setSmiles] = useState("");
@@ -163,7 +159,7 @@ const HOSECodeView = () => {
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
-              <HiOutlineDocumentSearch className="mr-2 h-5 w-5" aria-hidden="true" />
+              <FileSearch className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Generating..." : "Generate HOSE Codes"}
             </button>
           </div>
@@ -180,7 +176,7 @@ const HOSECodeView = () => {
             className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
             role="alert"
           >
-            <HiOutlineExclamationCircle
+            <AlertCircle
               className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
               aria-hidden="true"
             />
@@ -210,7 +206,7 @@ const HOSECodeView = () => {
               }`}
               title="Copy all HOSE codes to clipboard"
             >
-              <HiOutlineClipboard className="mr-1.5 h-4 w-4" aria-hidden="true" />
+              <Clipboard className="mr-1.5 h-4 w-4" aria-hidden="true" />
               {copied ? "Copied!" : "Copy All"}
             </button>
           </div>
@@ -290,5 +286,4 @@ const HOSECodeView = () => {
     </div>
   );
 };
-
 export default HOSECodeView;

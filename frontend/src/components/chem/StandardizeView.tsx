@@ -1,19 +1,12 @@
 // Description: StandardizeView component for molecule standardization
 import React, { useState } from "react";
 // Ensure all used icons are imported
-import {
-  HiOutlineDocumentReport,
-  HiOutlineClipboard,
-  HiOutlineUpload,
-  HiOutlineExclamationCircle, // Added for error display
-  HiOutlineBeaker,
-  HiOutlineDocumentText,
-} from "react-icons/hi";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
 import LoadingScreen from "../common/LoadingScreen";
 import MoleculeCard from "../common/MoleculeCard";
 import { generate2DCoordinates } from "../../services/convertService";
+import { AlertCircle, Clipboard, FileBarChart, FileText, FlaskConical, Upload } from "lucide-react";
 // Assuming the API URL is configured correctly via environment variables or defaults
 const API_BASE_URL = import.meta.env.VITE_API_URL || "https://dev.api.naturalproducts.net/latest";
 
@@ -289,7 +282,7 @@ const StandardizeView = () => {
                   : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               }`}
             >
-              <HiOutlineBeaker className="mr-2 h-4 w-4" />
+              <FlaskConical className="mr-2 h-4 w-4" />
               SMILES Input
             </button>
             <button
@@ -301,7 +294,7 @@ const StandardizeView = () => {
                   : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               }`}
             >
-              <HiOutlineDocumentText className="mr-2 h-4 w-4" />
+              <FileText className="mr-2 h-4 w-4" />
               Molblock Input
             </button>
           </div>
@@ -310,7 +303,7 @@ const StandardizeView = () => {
         {/* Important Notice */}
         <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
           <div className="flex">
-            <HiOutlineExclamationCircle className="h-5 w-5 text-yellow-400 mr-2 shrink-0 mt-0.5" />
+            <AlertCircle className="h-5 w-5 text-yellow-400 mr-2 shrink-0 mt-0.5" />
             <div className="text-sm text-yellow-800 dark:text-yellow-200">
               <strong>Important:</strong> This tool accepts only one molecule at a time. Multiple
               molecules (separated by dots in SMILES or multiple records in molblock) will cause
@@ -375,7 +368,7 @@ M  END`}
               <div className="mt-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 {/* File Upload Button */}
                 <label className="inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 text-sm font-medium rounded-md cursor-pointer border border-gray-300 dark:border-gray-600 shadow-xs transition-colors duration-150">
-                  <HiOutlineUpload className="mr-2 h-5 w-5" aria-hidden="true" />
+                  <Upload className="mr-2 h-5 w-5" aria-hidden="true" />
                   <span>Upload MOL/SDF File</span>
                   <input
                     type="file"
@@ -408,7 +401,7 @@ M  END`}
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
-              <HiOutlineDocumentReport className="mr-2 h-5 w-5" aria-hidden="true" />
+              <FileBarChart className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Standardizing..." : "Standardize Molecule"}
             </button>
           </div>
@@ -431,7 +424,7 @@ M  END`}
             className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
             role="alert"
           >
-            <HiOutlineExclamationCircle
+            <AlertCircle
               className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
               aria-hidden="true"
             />
@@ -479,7 +472,7 @@ M  END`}
                       className="ml-auto p-1 text-gray-400 hover:text-gray-700 dark:hover:text-white shrink-0"
                       title="Copy SMILES"
                     >
-                      <HiOutlineClipboard className="h-5 w-5" />
+                      <Clipboard className="h-5 w-5" />
                     </button>
                   </div>
                 </div>
@@ -497,7 +490,7 @@ M  END`}
                       className="ml-auto p-1 text-gray-400 hover:text-gray-700 dark:hover:text-white shrink-0"
                       title="Copy InChI"
                     >
-                      <HiOutlineClipboard className="h-5 w-5" />
+                      <Clipboard className="h-5 w-5" />
                     </button>
                   </div>
                 </div>
@@ -515,7 +508,7 @@ M  END`}
                       className="ml-auto p-1 text-gray-400 hover:text-gray-700 dark:hover:text-white shrink-0"
                       title="Copy InChI Key"
                     >
-                      <HiOutlineClipboard className="h-5 w-5" />
+                      <Clipboard className="h-5 w-5" />
                     </button>
                   </div>
                 </div>
@@ -542,7 +535,7 @@ M  END`}
                     : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600"
                 }`}
               >
-                <HiOutlineClipboard className="mr-1.5 h-4 w-4" aria-hidden="true" />
+                <Clipboard className="mr-1.5 h-4 w-4" aria-hidden="true" />
                 {copiedStates["molblock"] ? "Copied!" : "Copy Molblock"}
               </button>
             </div>
@@ -589,7 +582,7 @@ M  END`}
       {!standardizedData && !loading && !error && (
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center shadow-sm">
           <div className="space-y-3">
-            <HiOutlineBeaker className="h-12 w-12 mx-auto text-blue-500 dark:text-blue-400" />
+            <FlaskConical className="h-12 w-12 mx-auto text-blue-500 dark:text-blue-400" />
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">
               Molecule Standardization
             </h3>
@@ -609,5 +602,4 @@ M  END`}
     </div>
   );
 };
-
 export default StandardizeView;

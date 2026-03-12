@@ -17,27 +17,27 @@ import StandardizedTautomerView from "../components/chem/StandardizedTautomerVie
 import AllFiltersView from "../components/chem/AllFiltersView";
 import PubChemLookupView from "../components/chem/PubChemLookupView";
 import FixRadicalsView from "../components/chem/FixRadicalsView";
+import {
+  AlignLeft,
+  BarChart3,
+  CheckCircle,
+  Code,
+  Copy,
+  Database,
+  Filter,
+  Fingerprint,
+  FlaskConical,
+  Globe,
+  Layout,
+  LayoutList,
+  List,
+  RefreshCw,
+  Tag,
+  X,
+  Zap,
+} from "lucide-react";
 
 // Import icons
-import {
-  HiOutlineBeaker,
-  HiOutlineDatabase,
-  HiOutlineChartSquareBar,
-  HiOutlineFingerPrint,
-  HiOutlineTag,
-  HiOutlineRefresh,
-  HiOutlineFilter,
-  HiOutlineCollection,
-  HiOutlineCode,
-  HiOutlineCheckCircle,
-  HiOutlineViewList,
-  HiOutlineTemplate,
-  HiOutlineMenuAlt1,
-  HiOutlineX,
-  HiOutlineDocumentDuplicate,
-  HiOutlineGlobeAlt,
-  HiOutlineLightningBolt,
-} from "react-icons/hi";
 
 // Define tab data with icons, categories, and components
 const tabs = [
@@ -46,7 +46,7 @@ const tabs = [
     id: "stereoisomers",
     name: "Stereoisomers",
     description: "Generate all possible stereoisomers",
-    icon: HiOutlineDocumentDuplicate,
+    icon: Copy,
     category: "structure",
     component: StereoisomersView,
   },
@@ -54,7 +54,7 @@ const tabs = [
     id: "hosecodes",
     name: "HOSE Codes",
     description: "Generate HOSE codes",
-    icon: HiOutlineCode,
+    icon: Code,
     category: "structure",
     component: HOSECodeView,
   },
@@ -62,7 +62,7 @@ const tabs = [
     id: "standardize",
     name: "Standardize",
     description: "Standardize structures",
-    icon: HiOutlineRefresh,
+    icon: RefreshCw,
     category: "structure",
     component: StandardizeView,
   },
@@ -70,7 +70,7 @@ const tabs = [
     id: "functional-groups",
     name: "Functional Groups",
     description: "Identify functional groups",
-    icon: HiOutlineCollection,
+    icon: LayoutList,
     category: "structure",
     component: ErtlFunctionalGroupView,
   },
@@ -78,7 +78,7 @@ const tabs = [
     id: "tautomer",
     name: "Tautomers",
     description: "Generate standardized tautomers",
-    icon: HiOutlineRefresh,
+    icon: RefreshCw,
     category: "structure",
     component: StandardizedTautomerView,
   },
@@ -86,7 +86,7 @@ const tabs = [
     id: "fixradicals",
     name: "Fix Radicals",
     description: "Fix radical electrons in molecules",
-    icon: HiOutlineLightningBolt,
+    icon: Zap,
     category: "structure",
     component: FixRadicalsView,
   },
@@ -95,7 +95,7 @@ const tabs = [
     id: "descriptors",
     name: "Descriptors",
     description: "Calculate molecular descriptors",
-    icon: HiOutlineChartSquareBar,
+    icon: BarChart3,
     category: "analysis",
     component: DescriptorsView,
   },
@@ -103,7 +103,7 @@ const tabs = [
     id: "nplikeness",
     name: "NP-likeness",
     description: "Calculate NP-likeness score",
-    icon: HiOutlineBeaker,
+    icon: FlaskConical,
     category: "analysis",
     component: NPlikenessView,
   },
@@ -112,7 +112,7 @@ const tabs = [
     id: "similarity",
     name: "Similarity",
     description: "Compare structures (Tanimoto)",
-    icon: HiOutlineFingerPrint,
+    icon: Fingerprint,
     category: "comparison",
     component: TanimotoView,
   },
@@ -121,7 +121,7 @@ const tabs = [
     id: "structure-finder",
     name: "Structure Finder",
     description: "Find chemical structures by name or identifier",
-    icon: HiOutlineGlobeAlt,
+    icon: Globe,
     category: "search",
     component: PubChemLookupView,
   },
@@ -130,7 +130,7 @@ const tabs = [
     id: "structureerror",
     name: "Check Structure",
     description: "Validate chemical structures",
-    icon: HiOutlineCheckCircle,
+    icon: CheckCircle,
     category: "validation",
     component: StructureErrorView,
   },
@@ -138,7 +138,7 @@ const tabs = [
     id: "filters",
     name: "All Filters",
     description: "Apply multiple chemical filters",
-    icon: HiOutlineFilter,
+    icon: Filter,
     category: "validation",
     component: AllFiltersView,
   },
@@ -147,7 +147,7 @@ const tabs = [
     id: "coconut",
     name: "COCONUT Preprocessing",
     description: "Prepare data for COCONUT DB",
-    icon: HiOutlineDatabase,
+    icon: Database,
     category: "advanced",
     component: CoconutPreProcessingView,
   },
@@ -155,7 +155,7 @@ const tabs = [
     id: "classyfire",
     name: "ClassyFire",
     description: "Chemical classification",
-    icon: HiOutlineTag,
+    icon: Tag,
     category: "advanced",
     component: ClassyfireView,
   },
@@ -291,7 +291,7 @@ const ChemPage = () => {
               transition={{ duration: 0.2 }}
             >
               {" "}
-              <HiOutlineX className="h-6 w-6" />{" "}
+              <X className="h-6 w-6" />{" "}
             </motion.div>
           ) : (
             <motion.div
@@ -302,7 +302,7 @@ const ChemPage = () => {
               transition={{ duration: 0.2 }}
             >
               {" "}
-              <HiOutlineMenuAlt1 className="h-6 w-6" />{" "}
+              <AlignLeft className="h-6 w-6" />{" "}
             </motion.div>
           )}
         </AnimatePresence>
@@ -353,7 +353,7 @@ const ChemPage = () => {
                           />
                         )}
                         <span className="relative z-10 flex items-center justify-center gap-1">
-                          <HiOutlineTemplate className="h-4 w-4" /> Categories
+                          <Layout className="h-4 w-4" /> Categories
                         </span>
                       </motion.button>
                       <motion.button
@@ -372,7 +372,7 @@ const ChemPage = () => {
                           />
                         )}
                         <span className="relative z-10 flex items-center justify-center gap-1">
-                          <HiOutlineViewList className="h-4 w-4" /> All Tools
+                          <List className="h-4 w-4" /> All Tools
                         </span>
                       </motion.button>
                     </div>
@@ -538,5 +538,4 @@ const ChemPage = () => {
     </motion.div> // End Page Container
   );
 };
-
 export default ChemPage;

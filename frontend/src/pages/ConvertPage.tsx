@@ -5,14 +5,9 @@ import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 import FormatConversionView from "../components/convert/FormatConversionView";
 import Mol2DView from "../components/convert/Mol2DView";
 import Mol3DView from "../components/convert/Mol3DView";
+import { Box, ChevronDown, Copy, LayoutGrid } from "lucide-react";
 
 // Import icons for the tabs
-import {
-  HiOutlineDocumentDuplicate,
-  HiOutlineViewGrid,
-  HiOutlineCube,
-  HiChevronDown,
-} from "react-icons/hi";
 
 // Tab data with added icons and descriptions
 const tabs = [
@@ -20,21 +15,21 @@ const tabs = [
     id: "format-conversion",
     name: "Format Conversion",
     component: FormatConversionView,
-    icon: HiOutlineDocumentDuplicate,
+    icon: Copy,
     description: "Convert between different chemical file formats",
   },
   {
     id: "2d-coordinates",
     name: "2D Coordinates",
     component: Mol2DView,
-    icon: HiOutlineViewGrid,
+    icon: LayoutGrid,
     description: "Generate 2D coordinates for molecular structures",
   },
   {
     id: "3d-coordinates",
     name: "3D Coordinates",
     component: Mol3DView,
-    icon: HiOutlineCube,
+    icon: Box,
     description: "Generate 3D coordinates for molecular structures",
   },
 ];
@@ -220,7 +215,7 @@ const ConvertPage = () => {
                     animate={{ rotate: isMobileMenuOpen ? 180 : 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <HiChevronDown className="h-5 w-5 text-slate-500 dark:text-slate-400" />
+                    <ChevronDown className="h-5 w-5 text-slate-500 dark:text-slate-400" />
                   </motion.span>
                 </button>
 
@@ -552,5 +547,4 @@ const ConvertPage = () => {
     </motion.div> // End Main Container
   );
 };
-
 export default ConvertPage;

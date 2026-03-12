@@ -1,17 +1,13 @@
 // Description: This component allows users to input a SMILES string and calculate molecular descriptors using a selected toolkit (RDKit or CDK). It handles loading states, error messages, and displays results in a table format. The component is styled for both light and dark modes.
 import React, { useState } from "react";
 // Ensure all used icons are imported
-import {
-  HiOutlineRefresh,
-  HiOutlineInformationCircle,
-  HiOutlineExclamationCircle, // Added for error display
-} from "react-icons/hi";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
 import MoleculeCard from "../common/MoleculeCard";
 import LoadingScreen from "../common/LoadingScreen";
 // Assuming this service is configured correctly
 import { generateStandardizedTautomer } from "../../services/chemService"; // Assuming this service exists
+import { AlertCircle, Info, RefreshCw } from "lucide-react";
 
 const StandardizedTautomerView = () => {
   const [smiles, setSmiles] = useState("");
@@ -82,7 +78,7 @@ const StandardizedTautomerView = () => {
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
-              <HiOutlineRefresh className="mr-2 h-5 w-5" aria-hidden="true" />
+              <RefreshCw className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Standardizing..." : "Generate Standardized Tautomer"}
             </button>
           </div>
@@ -104,12 +100,12 @@ const StandardizedTautomerView = () => {
           role={error.startsWith("Input is already") ? "status" : "alert"}
         >
           {error.startsWith("Input is already") ? (
-            <HiOutlineInformationCircle
+            <Info
               className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-blue-500 dark:text-blue-400"
               aria-hidden="true"
             />
           ) : (
-            <HiOutlineExclamationCircle
+            <AlertCircle
               className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
               aria-hidden="true"
             />
@@ -197,7 +193,7 @@ const StandardizedTautomerView = () => {
           className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow-sm"
           role="complementary"
         >
-          <HiOutlineInformationCircle
+          <Info
             className="h-6 w-6 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"
             aria-hidden="true"
           />
@@ -235,5 +231,4 @@ const StandardizedTautomerView = () => {
     </div>
   );
 };
-
 export default StandardizedTautomerView;

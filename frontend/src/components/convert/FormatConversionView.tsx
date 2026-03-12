@@ -1,21 +1,21 @@
 // Description: This component handles the format conversion between different chemical notations.
 import React, { useState, useRef } from "react";
 // Ensure all used icons are imported
-import {
-  HiOutlineSwitchHorizontal,
-  HiOutlineClipboard,
-  HiOutlineCheck,
-  HiOutlineExclamationCircle,
-  HiOutlineArrowRight,
-  HiOutlineUpload,
-  HiOutlineDocumentText,
-} from "react-icons/hi";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
 import LoadingScreen from "../common/LoadingScreen";
 import MoleculeDepiction2D from "../depict/MoleculeDepiction2D";
 // Assuming this service is configured correctly
 import convertService from "../../services/convertService";
+import {
+  AlertCircle,
+  ArrowLeftRight,
+  ArrowRight,
+  Check,
+  Clipboard,
+  FileText,
+  Upload,
+} from "lucide-react";
 
 // Input format options configuration
 const INPUT_FORMAT_OPTIONS = [
@@ -552,7 +552,7 @@ const FormatConversionView = () => {
                   />
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg group-hover:bg-blue-200 dark:group-hover:bg-blue-800/40 transition-colors duration-300">
-                      <HiOutlineUpload className="h-6 w-6 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-300" />
+                      <Upload className="h-6 w-6 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-300" />
                     </div>
                     <div className="text-left">
                       <span className="block text-sm font-semibold text-gray-800 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
@@ -568,7 +568,7 @@ const FormatConversionView = () => {
                   <div className="mt-3 flex items-center justify-between p-3 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg shadow-xs">
                     <div className="flex items-center space-x-2 flex-1 min-w-0">
                       <div className="p-1.5 bg-blue-100 dark:bg-blue-800/40 rounded-md">
-                        <HiOutlineDocumentText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                       </div>
                       <span className="text-sm font-medium text-blue-900 dark:text-blue-100 truncate">
                         {cdxFilename}
@@ -616,7 +616,7 @@ const FormatConversionView = () => {
                     />
                     <div className="flex items-center space-x-3">
                       <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg group-hover:bg-blue-200 dark:group-hover:bg-blue-800/40 transition-colors duration-300">
-                        <HiOutlineUpload className="h-6 w-6 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-300" />
+                        <Upload className="h-6 w-6 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-300" />
                       </div>
                       <div className="text-left">
                         <span className="block text-sm font-semibold text-gray-800 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
@@ -638,7 +638,7 @@ const FormatConversionView = () => {
                   <div className="mb-3 flex items-center justify-between p-3 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg shadow-xs animate-fadeIn">
                     <div className="flex items-center space-x-2 flex-1 min-w-0">
                       <div className="p-1.5 bg-blue-100 dark:bg-blue-800/40 rounded-md">
-                        <HiOutlineDocumentText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                       </div>
                       <span className="text-sm font-medium text-blue-900 dark:text-blue-100 truncate">
                         {uploadedFilename}
@@ -712,7 +712,7 @@ const FormatConversionView = () => {
           <div className="flex items-center justify-center py-4">
             <div className="grow h-px bg-gray-200 dark:bg-gray-700"></div>
             <div className="mx-4 bg-gray-100 dark:bg-gray-700 p-2 rounded-full ring-1 ring-gray-300 dark:ring-gray-600">
-              <HiOutlineArrowRight className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              <ArrowRight className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="grow h-px bg-gray-200 dark:bg-gray-700"></div>
           </div>
@@ -815,7 +815,7 @@ const FormatConversionView = () => {
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
-              <HiOutlineSwitchHorizontal className="mr-2 h-5 w-5" aria-hidden="true" />
+              <ArrowLeftRight className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Converting..." : "Convert Format"}
             </button>
           </div>
@@ -831,7 +831,7 @@ const FormatConversionView = () => {
           className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
           role="alert"
         >
-          <HiOutlineExclamationCircle
+          <AlertCircle
             className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
             aria-hidden="true"
           />
@@ -856,11 +856,7 @@ const FormatConversionView = () => {
               title={copied ? "Copied!" : "Copy result to clipboard"}
               aria-label={copied ? "Result Copied" : "Copy Result"}
             >
-              {copied ? (
-                <HiOutlineCheck className="h-5 w-5" />
-              ) : (
-                <HiOutlineClipboard className="h-5 w-5" />
-              )}
+              {copied ? <Check className="h-5 w-5" /> : <Clipboard className="h-5 w-5" />}
             </button>
           </div>
 
@@ -930,5 +926,4 @@ const FormatConversionView = () => {
     </div>
   );
 };
-
 export default FormatConversionView;

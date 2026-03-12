@@ -1,16 +1,12 @@
 // Description: This component allows users to input a SMILES string and detects functional groups using the Ertl algorithm.
 import React, { useState } from "react";
-import {
-  HiOutlineSearch,
-  HiOutlineInformationCircle,
-  HiOutlineExclamationCircle,
-} from "react-icons/hi";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
 import LoadingScreen from "../common/LoadingScreen";
 import HighlightedMoleculeCard from "../common/HighlightedMoleculeCard";
 // Assuming this service is configured correctly
 import { generateFunctionalGroups } from "../../services/chemService";
+import { AlertCircle, Info, Search } from "lucide-react";
 
 const ErtlFunctionalGroupView = () => {
   const [smiles, setSmiles] = useState("");
@@ -119,7 +115,7 @@ const ErtlFunctionalGroupView = () => {
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
-              <HiOutlineSearch className="mr-2 h-5 w-5" aria-hidden="true" />
+              <Search className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Detecting..." : "Detect Functional Groups"}
             </button>
           </div>
@@ -136,7 +132,7 @@ const ErtlFunctionalGroupView = () => {
             className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
             role="alert"
           >
-            <HiOutlineExclamationCircle
+            <AlertCircle
               className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
               aria-hidden="true"
             />
@@ -275,7 +271,7 @@ const ErtlFunctionalGroupView = () => {
           className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow-sm"
           role="complementary"
         >
-          <HiOutlineInformationCircle
+          <Info
             className="h-6 w-6 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"
             aria-hidden="true"
           />
@@ -307,5 +303,4 @@ const ErtlFunctionalGroupView = () => {
     </div>
   );
 };
-
 export default ErtlFunctionalGroupView;

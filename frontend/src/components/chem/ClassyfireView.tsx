@@ -1,18 +1,12 @@
 // Description: ClassyFire classification view component
 import React, { useState, useEffect, useCallback } from "react";
 // Ensure all used icons are imported
-import {
-  HiOutlineSearch,
-  HiOutlineExclamationCircle,
-  HiOutlineCheck,
-  HiOutlineRefresh,
-  HiOutlineClipboard,
-} from "react-icons/hi";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
 import LoadingScreen from "../common/LoadingScreen";
 import MoleculeCard from "../common/MoleculeCard";
 import { useAppContext } from "../../context/AppContext"; // Assuming AppContext provides apiConfig and addRecentMolecule
+import { AlertCircle, Check, Clipboard, RefreshCw, Search } from "lucide-react";
 
 const POLLING_INTERVAL = 5000; // 5 seconds
 
@@ -275,7 +269,7 @@ const ClassyfireView = () => {
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
-              <HiOutlineSearch className="mr-2 h-5 w-5" aria-hidden="true" />
+              <Search className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Submitting..." : "Classify Molecule"}
             </button>
           </form>
@@ -314,7 +308,7 @@ const ClassyfireView = () => {
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
-              <HiOutlineSearch className="mr-2 h-5 w-5" aria-hidden="true" />
+              <Search className="mr-2 h-5 w-5" aria-hidden="true" />
               {/* Indicate if currently checking this specific ID */}
               {polling && jobId === manualJobId.trim()
                 ? "Checking..."
@@ -333,7 +327,7 @@ const ClassyfireView = () => {
           className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
           role="alert"
         >
-          <HiOutlineExclamationCircle
+          <AlertCircle
             className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
             aria-hidden="true"
           />
@@ -355,7 +349,7 @@ const ClassyfireView = () => {
               ></div>
             ) : (
               // Show refresh icon if polling stopped (e.g., error, or completed but results somehow cleared)
-              <HiOutlineRefresh
+              <RefreshCw
                 className="h-5 w-5 text-blue-600 dark:text-blue-400" // Non-interactive, just an indicator
                 aria-hidden="true"
               />
@@ -385,7 +379,7 @@ const ClassyfireView = () => {
                 onClick={() => handleCopy(jobId.toString())}
                 className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 focus:outline-hidden"
               >
-                <HiOutlineClipboard className="mr-1 h-4 w-4" aria-hidden="true" />
+                <Clipboard className="mr-1 h-4 w-4" aria-hidden="true" />
                 {copied ? "Copied!" : "Copy Job ID"}
               </button>
               {/* Show Refresh button only if not actively polling and status is not completed/error */}
@@ -394,7 +388,7 @@ const ClassyfireView = () => {
                   onClick={handleManualRefresh}
                   className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 focus:outline-hidden"
                 >
-                  <HiOutlineRefresh className="mr-1 h-4 w-4" aria-hidden="true" />
+                  <RefreshCw className="mr-1 h-4 w-4" aria-hidden="true" />
                   Refresh Status
                 </button>
               )}
@@ -415,7 +409,7 @@ const ClassyfireView = () => {
               </h3>
               {/* Status Badge */}
               <div className="flex items-center text-green-600 dark:text-green-400 text-sm font-medium">
-                <HiOutlineCheck className="mr-1 h-4 w-4" aria-hidden="true" />
+                <Check className="mr-1 h-4 w-4" aria-hidden="true" />
                 {classificationResults.classification_status || "Completed"}
               </div>
             </div>
@@ -610,5 +604,4 @@ const ClassyfireView = () => {
     </div>
   );
 };
-
 export default ClassyfireView;

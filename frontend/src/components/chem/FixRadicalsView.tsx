@@ -1,18 +1,11 @@
 // Description: This component allows users to input a SMILES string containing radicals and fix them using CDK. It displays the original structure, fixed structure, and statistics about the radicals.
 import React, { useState, useEffect } from "react";
 import DOMPurify from "dompurify";
-import {
-  HiOutlineBeaker,
-  HiOutlineInformationCircle,
-  HiOutlineExclamationCircle,
-  HiOutlineCheckCircle,
-  HiOutlineClipboard,
-  HiOutlineCheck,
-} from "react-icons/hi";
 import SMILESInput from "../common/SMILESInput";
 import LoadingScreen from "../common/LoadingScreen";
 import { fixRadicals } from "../../services/chemService";
 import { generate2DDepictionEnhanced, generate2DDepiction } from "../../services/depictService";
+import { AlertCircle, Check, CheckCircle, Clipboard, FlaskConical, Info } from "lucide-react";
 
 const FixRadicalsView = () => {
   const [smiles, setSmiles] = useState("");
@@ -142,7 +135,7 @@ const FixRadicalsView = () => {
         {/* Info Box */}
         <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-md border border-blue-200 dark:border-blue-700">
           <div className="flex items-start">
-            <HiOutlineInformationCircle className="h-5 w-5 text-blue-500 dark:text-blue-400 mr-3 mt-0.5 shrink-0" />
+            <Info className="h-5 w-5 text-blue-500 dark:text-blue-400 mr-3 mt-0.5 shrink-0" />
             <div className="text-sm text-blue-700 dark:text-blue-200">
               <p className="font-medium mb-1">About Radical Fixing</p>
               <p>
@@ -178,7 +171,7 @@ const FixRadicalsView = () => {
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
-              <HiOutlineBeaker className="mr-2 h-5 w-5" aria-hidden="true" />
+              <FlaskConical className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Fixing Radicals..." : "Fix Radicals"}
             </button>
           </div>
@@ -199,12 +192,12 @@ const FixRadicalsView = () => {
           role={error.startsWith("No radicals") ? "status" : "alert"}
         >
           {error.startsWith("No radicals") ? (
-            <HiOutlineInformationCircle
+            <Info
               className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-blue-500 dark:text-blue-400"
               aria-hidden="true"
             />
           ) : (
-            <HiOutlineExclamationCircle
+            <AlertCircle
               className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
               aria-hidden="true"
             />
@@ -234,7 +227,7 @@ const FixRadicalsView = () => {
                       {result.radicals_detected}
                     </p>
                   </div>
-                  <HiOutlineInformationCircle className="h-8 w-8 text-blue-400 dark:text-blue-500" />
+                  <Info className="h-8 w-8 text-blue-400 dark:text-blue-500" />
                 </div>
               </div>
 
@@ -249,7 +242,7 @@ const FixRadicalsView = () => {
                       {result.radicals_fixed}
                     </p>
                   </div>
-                  <HiOutlineCheckCircle className="h-8 w-8 text-green-400 dark:text-green-500" />
+                  <CheckCircle className="h-8 w-8 text-green-400 dark:text-green-500" />
                 </div>
               </div>
 
@@ -267,7 +260,7 @@ const FixRadicalsView = () => {
                       %
                     </p>
                   </div>
-                  <HiOutlineBeaker className="h-8 w-8 text-purple-400 dark:text-purple-500" />
+                  <FlaskConical className="h-8 w-8 text-purple-400 dark:text-purple-500" />
                 </div>
               </div>
             </div>
@@ -276,7 +269,7 @@ const FixRadicalsView = () => {
             {result.radicals_detected > result.radicals_fixed && (
               <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/30 rounded-md border border-yellow-200 dark:border-yellow-700">
                 <div className="flex items-start">
-                  <HiOutlineInformationCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mr-2 mt-0.5 shrink-0" />
+                  <Info className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mr-2 mt-0.5 shrink-0" />
                   <p className="text-sm text-yellow-700 dark:text-yellow-200">
                     Note: Some radicals were detected but not fixed. Currently, only radicals on
                     Carbon (C), Nitrogen (N), and Oxygen (O) atoms are supported.
@@ -306,12 +299,12 @@ const FixRadicalsView = () => {
               >
                 {copied ? (
                   <>
-                    <HiOutlineCheck className="h-4 w-4 mr-2" />
+                    <Check className="h-4 w-4 mr-2" />
                     Copied!
                   </>
                 ) : (
                   <>
-                    <HiOutlineClipboard className="h-4 w-4 mr-2" />
+                    <Clipboard className="h-4 w-4 mr-2" />
                     Copy Fixed SMILES
                   </>
                 )}
@@ -417,7 +410,7 @@ const FixRadicalsView = () => {
             {smiles !== result.fixed_smiles && result.radicals_fixed > 0 && (
               <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/30 rounded-md border border-green-200 dark:border-green-700">
                 <div className="flex items-start">
-                  <HiOutlineCheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mr-2 mt-0.5 shrink-0" />
+                  <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mr-2 mt-0.5 shrink-0" />
                   <p className="text-sm text-green-700 dark:text-green-200">
                     Successfully fixed {result.radicals_fixed} radical
                     {result.radicals_fixed !== 1 ? "s" : ""} by adding implicit hydrogens.
@@ -431,5 +424,4 @@ const FixRadicalsView = () => {
     </div>
   );
 };
-
 export default FixRadicalsView;

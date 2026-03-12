@@ -2,7 +2,7 @@
 import React from "react";
 import { motion } from "motion/react";
 import OCRView from "../components/ocsr/OCRView"; // Assuming path is correct
-import { HiOutlineDocumentSearch, HiOutlineExternalLink } from "react-icons/hi";
+import { ExternalLink, FileSearch } from "lucide-react";
 
 // --- Animation Variants (Consistent with other pages) ---
 const pageVariants = {
@@ -109,7 +109,7 @@ const OCSRPage = () => {
               whileHover="hover"
             >
               <span className="mr-2 text-lg">Visit DECIMER</span>
-              <HiOutlineExternalLink className="h-5 w-5" />
+              <ExternalLink className="h-5 w-5" />
             </motion.a>
             <motion.a
               href="https://marcus.decimer.ai"
@@ -120,7 +120,7 @@ const OCSRPage = () => {
               whileHover="hover"
             >
               <span className="mr-2 text-lg">Visit MARCUS</span>
-              <HiOutlineExternalLink className="h-5 w-5" />
+              <ExternalLink className="h-5 w-5" />
             </motion.a>
           </motion.div>
           {/* DECIMER & MARCUS Info Cards */}
@@ -176,7 +176,7 @@ const OCSRPage = () => {
             {/* Content Header */}
             <div className="p-5 sm:p-6 border-b border-slate-200/80 dark:border-slate-700/50 bg-white/30 dark:bg-slate-800/20">
               <div className="flex items-start sm:items-center">
-                <HiOutlineDocumentSearch className="h-7 w-7 sm:h-8 sm:w-8 text-(--text-accent) mr-3 sm:mr-4 shrink-0 mt-0.5 sm:mt-0" />
+                <FileSearch className="h-7 w-7 sm:h-8 sm:w-8 text-(--text-accent) mr-3 sm:mr-4 shrink-0 mt-0.5 sm:mt-0" />
                 <div>
                   <h2 className="text-xl sm:text-2xl font-bold text-(--text-primary)">OCSR Tool</h2>
                   <p className="text-sm text-(--text-secondary) mt-1">
@@ -302,5 +302,4 @@ const OCSRPage = () => {
     </motion.div> // End Page Container
   );
 };
-
 export default OCSRPage;

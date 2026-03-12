@@ -1,18 +1,11 @@
 // Description: This component allows users to generate 2D depictions of multiple molecules from SMILES strings.
 import React, { useState } from "react"; // Removed useEffect
-import {
-  HiOutlinePhotograph,
-  HiOutlineDownload,
-  HiOutlineClipboard,
-  HiOutlineCheck,
-  HiOutlineSwitchHorizontal,
-  HiOutlineExclamationCircle,
-} from "react-icons/hi";
 import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import LoadingScreen from "../common/LoadingScreen";
 // Assuming this service is configured correctly
 import depictService from "../../services/depictService"; // Assuming this service exists
+import { AlertCircle, ArrowLeftRight, Check, Clipboard, Download, Image } from "lucide-react";
 
 // Animation variants
 const resultsContainerVariants = {
@@ -802,7 +795,7 @@ const BatchDepictionView = () => {
                         className="ml-2 p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 shadow-xs"
                         title="Switch toolkit"
                       >
-                        <HiOutlineSwitchHorizontal className="h-5 w-5" />
+                        <ArrowLeftRight className="h-5 w-5" />
                       </button>
                     </div>
                   </div>
@@ -1210,7 +1203,7 @@ const BatchDepictionView = () => {
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-lg hover:shadow-xl" // Enabled
               }`}
             >
-              <HiOutlinePhotograph className="mr-2 h-5 w-5" />
+              <Image className="mr-2 h-5 w-5" />
               {loading ? "Generating..." : "Generate Depictions"}
             </motion.button>
 
@@ -1227,7 +1220,7 @@ const BatchDepictionView = () => {
                 className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 font-medium flex items-center justify-center transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-gray-500 shadow-md hover:shadow-lg"
                 title="Apply current options to all depictions"
               >
-                <HiOutlinePhotograph className="mr-2 h-4 w-4" />
+                <Image className="mr-2 h-4 w-4" />
                 Update All
               </motion.button>
             )}
@@ -1257,7 +1250,7 @@ const BatchDepictionView = () => {
                     className="px-4 py-2 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-medium flex items-center text-sm transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800 focus:ring-green-500"
                     title="Download all depictions as a ZIP file"
                   >
-                    <HiOutlineDownload className="mr-1.5 h-4 w-4" />
+                    <Download className="mr-1.5 h-4 w-4" />
                     Download All (.zip)
                   </motion.button>
                 </div>
@@ -1281,9 +1274,9 @@ const BatchDepictionView = () => {
                     transition={{ duration: 0.5 }}
                   >
                     {copiedSmiles ? (
-                      <HiOutlineCheck className="mr-1.5 h-5 w-5" />
+                      <Check className="mr-1.5 h-5 w-5" />
                     ) : (
-                      <HiOutlineClipboard className="mr-1.5 h-5 w-5" />
+                      <Clipboard className="mr-1.5 h-5 w-5" />
                     )}
                   </motion.div>
                   {copiedSmiles ? "Copied!" : "Copy All SMILES"}
@@ -1304,7 +1297,7 @@ const BatchDepictionView = () => {
           className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
           role="alert"
         >
-          <HiOutlineExclamationCircle
+          <AlertCircle
             className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
             aria-hidden="true"
           />
@@ -1427,7 +1420,7 @@ const BatchDepictionView = () => {
                     aria-label={`Download ${depiction.title} as ${downloadFormat.toUpperCase()}`}
                     disabled={loading}
                   >
-                    <HiOutlineDownload className="h-5 w-5" />
+                    <Download className="h-5 w-5" />
                   </motion.button>
 
                   {/* Copy SMILES Button */}
@@ -1456,7 +1449,7 @@ const BatchDepictionView = () => {
                           }}
                           className="flex items-center justify-center"
                         >
-                          <HiOutlineCheck className="h-5 w-5 text-green-500 dark:text-green-400" />
+                          <Check className="h-5 w-5 text-green-500 dark:text-green-400" />
                         </motion.div>
                       ) : (
                         <motion.div
@@ -1466,7 +1459,7 @@ const BatchDepictionView = () => {
                           transition={{ duration: 0.2 }}
                           className="flex items-center justify-center"
                         >
-                          <HiOutlineClipboard className="h-5 w-5" />
+                          <Clipboard className="h-5 w-5" />
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -1482,7 +1475,7 @@ const BatchDepictionView = () => {
       {!depictions.length && !loading && !error && (
         // Initial state card styling
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg flex flex-col items-center justify-center text-center min-h-[300px] border border-gray-200 dark:border-gray-700">
-          <HiOutlinePhotograph className="h-16 w-16 text-gray-400 dark:text-gray-600 mb-4" />
+          <Image className="h-16 w-16 text-gray-400 dark:text-gray-600 mb-4" />
           <p className="text-gray-500 dark:text-gray-400">
             Enter SMILES or CXSMILES strings (one per line, optionally with titles) and click
             "Generate Depictions".
@@ -1499,5 +1492,4 @@ const BatchDepictionView = () => {
     </div>
   );
 };
-
 export default BatchDepictionView;

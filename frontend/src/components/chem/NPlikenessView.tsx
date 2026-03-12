@@ -1,16 +1,12 @@
 // Description : This component allows users to calculate molecular descriptors from a SMILES string.
 import React, { useState } from "react";
 // Ensure all used icons are imported
-import {
-  HiOutlineCalculator,
-  HiOutlineInformationCircle,
-  HiOutlineExclamationCircle, // Added for error display
-} from "react-icons/hi";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
 import LoadingScreen from "../common/LoadingScreen";
 // Assuming this service is configured correctly
 import { calculateNPLikeness } from "../../services/chemService"; // Assuming this service exists
+import { AlertCircle, Calculator, Info } from "lucide-react";
 
 const NPlikenessView = () => {
   const [smiles, setSmiles] = useState("");
@@ -103,7 +99,7 @@ const NPlikenessView = () => {
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
-              <HiOutlineCalculator className="mr-2 h-5 w-5" aria-hidden="true" />
+              <Calculator className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Calculating..." : "Calculate NP Score"}
             </button>
           </div>
@@ -120,7 +116,7 @@ const NPlikenessView = () => {
             className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
             role="alert"
           >
-            <HiOutlineExclamationCircle
+            <AlertCircle
               className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
               aria-hidden="true"
             />
@@ -147,7 +143,7 @@ const NPlikenessView = () => {
                 )
               } // Simple alert for now
             >
-              <HiOutlineInformationCircle className="h-6 w-6" aria-hidden="true" />
+              <Info className="h-6 w-6" aria-hidden="true" />
             </button>
           </div>
 
@@ -234,5 +230,4 @@ const NPlikenessView = () => {
     </div>
   );
 };
-
 export default NPlikenessView;

@@ -1,13 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import {
-  HiOutlineCamera,
-  HiOutlineRefresh, // Changed from HiOutlineColorSwatch to appropriate reset icon
-  HiOutlineDownload,
-  HiOutlineExclamationCircle,
-} from "react-icons/hi";
 
 // Assuming this service is configured correctly
 import convertService from "../../services/convertService";
+import { AlertCircle, Camera, Download, RefreshCw } from "lucide-react";
 
 // Visualization styles and configurations
 const VISUALIZATION_STYLES = [
@@ -468,7 +463,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
             className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             title="Take screenshot"
           >
-            <HiOutlineCamera className="h-5 w-5" />
+            <Camera className="h-5 w-5" />
           </button>
 
           <button
@@ -477,7 +472,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
             className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             title="Reset view"
           >
-            <HiOutlineRefresh className="h-5 w-5" />
+            <RefreshCw className="h-5 w-5" />
           </button>
         </div>
       </div>
@@ -640,7 +635,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
               title="Download 3D molfile"
             >
               <span className="flex items-center">
-                <HiOutlineDownload className="h-3.5 w-3.5 mr-1" />
+                <Download className="h-3.5 w-3.5 mr-1" />
                 3D Mol
               </span>
             </button>
@@ -652,7 +647,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
       {error && !loading && (
         <div className="p-3 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border-t border-red-300 dark:border-red-700 text-xs">
           <div className="flex items-start">
-            <HiOutlineExclamationCircle
+            <AlertCircle
               className="h-4 w-4 mr-2 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
               aria-hidden="true"
             />
@@ -674,5 +669,4 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
     </div>
   );
 };
-
 export default MoleculeDepiction3D;

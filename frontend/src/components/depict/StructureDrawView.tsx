@@ -1,13 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  HiOutlineClipboardCopy,
-  HiOutlineCheck,
-  HiOutlineExclamationCircle,
-  HiOutlineInformationCircle,
-  HiOutlineRefresh,
-  HiOutlinePencil,
-  HiOutlineX,
-} from "react-icons/hi";
+import { AlertCircle, Check, ClipboardCopy, Info, Pencil, RefreshCw, X } from "lucide-react";
 
 // Add custom styles for animations
 const styles = `
@@ -415,7 +407,7 @@ const StructureDrawView = () => {
                 onClick={() => setShowCopyModal(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
-                <HiOutlineX className="w-5 h-5" />
+                <X className="w-5 h-5" />
               </button>
             </div>
             <p className="mb-4 text-gray-700 dark:text-gray-300">
@@ -451,7 +443,7 @@ const StructureDrawView = () => {
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 backdrop-blur-sm">
             <div className="flex items-center mb-4">
               <div className="bg-indigo-100 dark:bg-indigo-900/50 p-2 rounded-lg mr-3">
-                <HiOutlinePencil className="h-5 w-5 text-indigo-700 dark:text-indigo-400" />
+                <Pencil className="h-5 w-5 text-indigo-700 dark:text-indigo-400" />
               </div>
               <h2 className="text-lg font-bold text-gray-800 dark:text-white">SMILES Input</h2>
             </div>
@@ -511,7 +503,7 @@ const StructureDrawView = () => {
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 backdrop-blur-sm">
             <div className="flex items-center mb-4">
               <div className="bg-green-100 dark:bg-green-900/50 p-2 rounded-lg mr-3">
-                <HiOutlineClipboardCopy className="h-5 w-5 text-green-700 dark:text-green-400" />
+                <ClipboardCopy className="h-5 w-5 text-green-700 dark:text-green-400" />
               </div>
               <h2 className="text-lg font-bold text-gray-800 dark:text-white">Generated SMILES</h2>
             </div>
@@ -554,12 +546,12 @@ const StructureDrawView = () => {
                 >
                   {copySuccess ? (
                     <>
-                      <HiOutlineCheck className="w-5 h-5 mr-1" />
+                      <Check className="w-5 h-5 mr-1" />
                       Copied!
                     </>
                   ) : (
                     <>
-                      <HiOutlineClipboardCopy className="w-5 h-5 mr-1" />
+                      <ClipboardCopy className="w-5 h-5 mr-1" />
                       Copy
                     </>
                   )}
@@ -571,7 +563,7 @@ const StructureDrawView = () => {
           {/* Information Box */}
           <div className="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border border-blue-200 dark:border-blue-800/50 rounded-xl p-5 text-sm shadow-lg">
             <h4 className="font-bold text-blue-800 dark:text-blue-300 mb-3 flex items-center">
-              <HiOutlineInformationCircle className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
+              <Info className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
               About This Tool
             </h4>
             <div className="space-y-3 text-gray-700 dark:text-gray-300">
@@ -625,7 +617,7 @@ const StructureDrawView = () => {
                   onClick={handleRetryInit}
                   className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-200 dark:hover:bg-yellow-900/50 border border-yellow-300 dark:border-yellow-700/50"
                 >
-                  <HiOutlineRefresh className="h-4 w-4 mr-1.5" />
+                  <RefreshCw className="h-4 w-4 mr-1.5" />
                   Retry Init
                 </button>
               )}
@@ -639,7 +631,7 @@ const StructureDrawView = () => {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
                 }`}
               >
-                <HiOutlineRefresh className="h-4 w-4 mr-1.5" />
+                <RefreshCw className="h-4 w-4 mr-1.5" />
                 Clear Editor
               </button>
             </div>
@@ -651,7 +643,7 @@ const StructureDrawView = () => {
               className="p-4 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700/50 flex items-start shadow-lg animate-fadeIn"
               role="alert"
             >
-              <HiOutlineExclamationCircle
+              <AlertCircle
                 className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
                 aria-hidden="true"
               />
@@ -677,7 +669,7 @@ const StructureDrawView = () => {
           {/* Instructions */}
           <div className="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg">
             <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-3 flex items-center">
-              <HiOutlineInformationCircle className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
+              <Info className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
               How to Use
             </h3>
             <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
@@ -694,5 +686,4 @@ const StructureDrawView = () => {
     </div>
   );
 };
-
 export default StructureDrawView;

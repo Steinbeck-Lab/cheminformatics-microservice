@@ -1,10 +1,5 @@
 // Description: This component provides an interface to lookup chemical structures by name, formula, or identifiers using the PubChem database
 import React, { useState } from "react";
-import {
-  HiOutlineSearch,
-  HiOutlineExclamationCircle,
-  HiOutlineInformationCircle,
-} from "react-icons/hi";
 import LoadingScreen from "../common/LoadingScreen";
 import MoleculeCard from "../common/MoleculeCard";
 import SMILESDisplay from "../common/SMILESDisplay";
@@ -12,6 +7,7 @@ import { useAppContext } from "../../context/AppContext"; // For adding to recen
 
 // Import the service function from chemService
 import { lookupPubChem } from "../../services/chemService";
+import { AlertCircle, Info, Search } from "lucide-react";
 
 const PubChemLookupView = () => {
   const [identifier, setIdentifier] = useState("");
@@ -117,7 +113,7 @@ const PubChemLookupView = () => {
                 required
               />
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <HiOutlineSearch className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                <Search className="h-5 w-5 text-gray-400 dark:text-gray-500" />
               </div>
             </div>
           </div>
@@ -151,7 +147,7 @@ const PubChemLookupView = () => {
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
-              <HiOutlineSearch className="mr-2 h-5 w-5" />
+              <Search className="mr-2 h-5 w-5" />
               {loading ? "Searching..." : "Find Structure"}
             </button>
           </div>
@@ -167,7 +163,7 @@ const PubChemLookupView = () => {
           className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-xs"
           role="alert"
         >
-          <HiOutlineExclamationCircle
+          <AlertCircle
             className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
             aria-hidden="true"
           />
@@ -190,7 +186,7 @@ const PubChemLookupView = () => {
                 : "bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-800"
             }`}
           >
-            <HiOutlineInformationCircle
+            <Info
               className={`h-5 w-5 mr-3 shrink-0 mt-0.5 ${
                 result.success
                   ? "text-green-500 dark:text-green-400"
@@ -281,7 +277,7 @@ const PubChemLookupView = () => {
       {/* Information Box */}
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm shadow-sm">
         <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2 flex items-center">
-          <HiOutlineInformationCircle className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
+          <Info className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
           About Chemical Structure Finder
         </h4>
         <p className="text-gray-700 dark:text-gray-300 mb-2">
@@ -304,5 +300,4 @@ const PubChemLookupView = () => {
     </div>
   );
 };
-
 export default PubChemLookupView;
