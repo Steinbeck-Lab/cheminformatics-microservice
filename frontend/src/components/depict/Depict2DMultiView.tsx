@@ -6,6 +6,17 @@ import LoadingScreen from "../common/LoadingScreen";
 // Assuming this service is configured correctly
 import depictService from "../../services/depictService"; // Assuming this service exists
 import { AlertCircle, ArrowLeftRight, Check, Clipboard, Download, Image } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 // Animation variants
 const resultsContainerVariants = {
@@ -713,13 +724,13 @@ const BatchDepictionView = () => {
                 Enter SMILES (one per line, optional title after space/tab)
               </label>
               {/* Load Examples Button */}
-              <button
+              <Button
                 type="button"
                 onClick={generateExamples}
                 className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm"
               >
                 Load Examples
-              </button>
+              </Button>
             </div>
             {/* Textarea Styling */}
             <textarea
@@ -789,14 +800,14 @@ const BatchDepictionView = () => {
                         <option value="rdkit">RDKit</option>
                         <option value="cdk">CDK (Enhanced)</option>
                       </select>
-                      <button
+                      <Button
                         type="button"
                         onClick={handleSwitchToolkit}
                         className="ml-2 p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 shadow-xs"
                         title="Switch toolkit"
                       >
                         <ArrowLeftRight className="h-5 w-5" />
-                      </button>
+                      </Button>
                     </div>
                   </div>
 
@@ -1480,13 +1491,13 @@ const BatchDepictionView = () => {
             Enter SMILES or CXSMILES strings (one per line, optionally with titles) and click
             "Generate Depictions".
           </p>
-          <button
+          <Button
             type="button"
             onClick={generateExamples}
             className="mt-4 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm"
           >
             Or load example molecules
-          </button>
+          </Button>
         </div>
       )}
     </div>

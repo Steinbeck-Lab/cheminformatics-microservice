@@ -3,6 +3,10 @@ import React, { useState, useRef, useEffect } from "react";
 // Import necessary icons
 import { useAppContext } from "../../context/AppContext"; // Assuming context provides recentMolecules
 import { AlertCircle, Clipboard, Clock, Lightbulb, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 // Example molecules data (static, moved outside component)
 const EXAMPLE_MOLECULES = [
@@ -82,13 +86,13 @@ const PasteModal = ({ isOpen, onClose, onPaste }) => {
             <Clipboard className="h-5 w-5 mr-2 text-indigo-500 dark:text-indigo-400" />
             Paste SMILES
           </h3>
-          <button
+          <Button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
         <p className="mb-4 text-gray-700 dark:text-gray-300">
           Please paste your SMILES string in the area below:
@@ -104,13 +108,13 @@ const PasteModal = ({ isOpen, onClose, onPaste }) => {
           />
         </div>
         <div className="flex justify-end gap-3">
-          <button
+          <Button
             onClick={onClose}
             className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => {
               onPaste(text);
               onClose();
@@ -119,7 +123,7 @@ const PasteModal = ({ isOpen, onClose, onPaste }) => {
             disabled={!text.trim()}
           >
             Use SMILES
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -279,7 +283,7 @@ const SMILESInput = ({
 
         {/* Clear button */}
         {value && (
-          <button
+          <Button
             type="button" // Prevent form submission
             onClick={handleClear}
             // Button styling
@@ -287,7 +291,7 @@ const SMILESInput = ({
             aria-label="Clear input"
           >
             <X className="h-5 w-5" />
-          </button>
+          </Button>
         )}
       </div>
 
@@ -302,7 +306,7 @@ const SMILESInput = ({
       {/* Action Buttons and Dropdowns */}
       <div className="flex flex-wrap items-center gap-2 text-sm pt-1">
         {/* Paste from clipboard button */}
-        <button
+        <Button
           type="button"
           onClick={handlePaste}
           // Button styling
@@ -311,12 +315,12 @@ const SMILESInput = ({
         >
           <Clipboard className="mr-1 h-4 w-4" />
           <span>Paste</span>
-        </button>
+        </Button>
 
         {/* Examples button and dropdown */}
         {showExamples && (
           <div className="relative" ref={examplesRef}>
-            <button
+            <Button
               type="button"
               onClick={() => {
                 setShowExampleList(!showExampleList);
@@ -330,7 +334,7 @@ const SMILESInput = ({
             >
               <Lightbulb className="mr-1 h-4 w-4" />
               <span>Examples</span>
-            </button>
+            </Button>
 
             {/* Examples Dropdown */}
             {showExampleList && (
@@ -355,7 +359,7 @@ const SMILESInput = ({
         {/* Recent molecules button and dropdown */}
         {showRecent && recentMolecules.length > 0 && (
           <div className="relative" ref={recentRef}>
-            <button
+            <Button
               type="button"
               onClick={() => {
                 setShowRecentList(!showRecentList);
@@ -369,7 +373,7 @@ const SMILESInput = ({
             >
               <Clock className="mr-1 h-4 w-4" /> {/* Replaced SVG */}
               <span>Recent</span>
-            </button>
+            </Button>
 
             {/* Recent Dropdown */}
             {showRecentList && (

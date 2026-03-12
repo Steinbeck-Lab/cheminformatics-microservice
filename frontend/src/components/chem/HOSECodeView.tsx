@@ -7,6 +7,16 @@ import LoadingScreen from "../common/LoadingScreen";
 // Assuming this service is configured correctly
 import { generateHOSECodes } from "../../services/chemService"; // Assuming this service exists
 import { AlertCircle, Clipboard, FileSearch } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 const HOSECodeView = () => {
   const [smiles, setSmiles] = useState("");
@@ -150,7 +160,7 @@ const HOSECodeView = () => {
 
           {/* Submit Button */}
           <div className="pt-2">
-            <button
+            <Button
               type="submit"
               disabled={!smiles.trim() || loading}
               className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
@@ -161,7 +171,7 @@ const HOSECodeView = () => {
             >
               <FileSearch className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Generating..." : "Generate HOSE Codes"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
@@ -197,7 +207,7 @@ const HOSECodeView = () => {
               </span>
             </h3>
             {/* Copy Button */}
-            <button
+            <Button
               onClick={copyAllHoseCodes}
               className={`px-3 py-1.5 text-sm rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                 copied
@@ -208,7 +218,7 @@ const HOSECodeView = () => {
             >
               <Clipboard className="mr-1.5 h-4 w-4" aria-hidden="true" />
               {copied ? "Copied!" : "Copy All"}
-            </button>
+            </Button>
           </div>
 
           {/* Table Container */}

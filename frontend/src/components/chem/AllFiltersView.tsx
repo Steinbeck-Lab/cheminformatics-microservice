@@ -16,6 +16,17 @@ import {
   Info,
   X,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 const AllFiltersView = () => {
   const [smilesInput, setSmilesInput] = useState("");
@@ -372,13 +383,13 @@ const AllFiltersView = () => {
             Chemical Filters
           </h2>
           {/* Info button - now opens the modal */}
-          <button
+          <Button
             className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             title="Information about filters"
             onClick={() => setShowInfoModal(true)}
           >
             <Info className="h-5 w-5" aria-hidden="true" />
-          </button>
+          </Button>
         </div>
 
         {/* Form for input and filter options */}
@@ -405,14 +416,14 @@ const AllFiltersView = () => {
                 Enter one or more SMILES strings. Separate multiple entries with new lines, spaces,
                 commas, or semicolons.
               </p>
-              <button
+              <Button
                 type="button"
                 onClick={loadExampleMolecules}
                 className="px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-sm hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors duration-150 flex items-center"
               >
                 <FlaskConical className="mr-1 h-3.5 w-3.5" />
                 Load Examples
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -527,7 +538,7 @@ const AllFiltersView = () => {
                   Filter Match Logic:
                 </label>
                 <div className="flex p-1 space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                  <button
+                  <Button
                     type="button"
                     onClick={() => handleFilterOperatorChange("AND")}
                     className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 ${
@@ -537,8 +548,8 @@ const AllFiltersView = () => {
                     }`}
                   >
                     Match All Filters (AND)
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
                     onClick={() => handleFilterOperatorChange("OR")}
                     className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 ${
@@ -548,7 +559,7 @@ const AllFiltersView = () => {
                     }`}
                   >
                     Match Any Filter (OR)
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -578,7 +589,7 @@ const AllFiltersView = () => {
 
           {/* Submit Button */}
           <div className="pt-4">
-            <button
+            <Button
               type="submit"
               disabled={loading || !smilesInput.trim()}
               className={`w-full md:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
@@ -589,7 +600,7 @@ const AllFiltersView = () => {
             >
               <Filter className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Applying Filters..." : "Apply Filters"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
@@ -622,14 +633,14 @@ const AllFiltersView = () => {
                       >
                         About Chemical Filters
                       </h3>
-                      <button
+                      <Button
                         type="button"
                         className="bg-white dark:bg-gray-800 rounded-md text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         onClick={() => setShowInfoModal(false)}
                       >
                         <span className="sr-only">Close</span>
                         <X className="h-6 w-6" aria-hidden="true" />
-                      </button>
+                      </Button>
                     </div>
                     <div className="mt-2">
                       <p className="text-gray-700 dark:text-gray-300 mb-4">
@@ -643,13 +654,13 @@ const AllFiltersView = () => {
                 </div>
               </div>
               <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button
+                <Button
                   type="button"
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-xs px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
                   onClick={() => setShowInfoModal(false)}
                 >
                   Close
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -710,7 +721,7 @@ const AllFiltersView = () => {
             </h3>
             {/* Action Buttons */}
             <div className="flex space-x-2 shrink-0">
-              <button
+              <Button
                 onClick={copyToClipboard}
                 className={`px-3 py-1.5 text-sm rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                   copied
@@ -721,15 +732,15 @@ const AllFiltersView = () => {
               >
                 <Clipboard className={`mr-1.5 h-4 w-4 ${copied ? "" : ""}`} aria-hidden="true" />
                 {copied ? "Copied!" : "Copy"}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={downloadResults}
                 className="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500"
                 title="Download results as a text file"
               >
                 <FileDown className="mr-1.5 h-4 w-4" aria-hidden="true" />
                 Download
-              </button>
+              </Button>
             </div>
           </div>
 

@@ -7,6 +7,10 @@ import LoadingScreen from "../common/LoadingScreen";
 import MoleculeCard from "../common/MoleculeCard";
 import { generate2DCoordinates } from "../../services/convertService";
 import { AlertCircle, Clipboard, FileBarChart, FileText, FlaskConical, Upload } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 // Assuming the API URL is configured correctly via environment variables or defaults
 const API_BASE_URL = import.meta.env.VITE_API_URL || "https://dev.api.naturalproducts.net/latest";
 
@@ -273,7 +277,7 @@ const StandardizeView = () => {
         {/* Input Method Selection */}
         <div className="mb-4">
           <div className="flex rounded-lg bg-gray-100 dark:bg-gray-700 p-1">
-            <button
+            <Button
               type="button"
               onClick={() => setInputMethod("smiles")}
               className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 flex items-center justify-center ${
@@ -284,8 +288,8 @@ const StandardizeView = () => {
             >
               <FlaskConical className="mr-2 h-4 w-4" />
               SMILES Input
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={() => setInputMethod("molblock")}
               className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 flex items-center justify-center ${
@@ -296,7 +300,7 @@ const StandardizeView = () => {
             >
               <FileText className="mr-2 h-4 w-4" />
               Molblock Input
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -392,7 +396,7 @@ M  END`}
 
           {/* Submit Button */}
           <div className="pt-2">
-            <button
+            <Button
               type="submit"
               disabled={(inputMethod === "smiles" ? !smiles.trim() : !molblock.trim()) || loading}
               className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
@@ -403,7 +407,7 @@ M  END`}
             >
               <FileBarChart className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Standardizing..." : "Standardize Molecule"}
-            </button>
+            </Button>
           </div>
 
           {/* Additional Info */}
@@ -467,13 +471,13 @@ M  END`}
                     <div className="flex-1 font-mono text-xs sm:text-sm text-gray-800 dark:text-blue-300 break-all pr-2">
                       {standardizedData.canonical_smiles}
                     </div>
-                    <button
+                    <Button
                       onClick={() => handleCopy(standardizedData.canonical_smiles, "smiles")}
                       className="ml-auto p-1 text-gray-400 hover:text-gray-700 dark:hover:text-white shrink-0"
                       title="Copy SMILES"
                     >
                       <Clipboard className="h-5 w-5" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
                 {/* InChI */}
@@ -485,13 +489,13 @@ M  END`}
                     <div className="flex-1 font-mono text-xs sm:text-sm text-gray-800 dark:text-blue-300 break-all pr-2">
                       {standardizedData.inchi}
                     </div>
-                    <button
+                    <Button
                       onClick={() => handleCopy(standardizedData.inchi, "inchi")}
                       className="ml-auto p-1 text-gray-400 hover:text-gray-700 dark:hover:text-white shrink-0"
                       title="Copy InChI"
                     >
                       <Clipboard className="h-5 w-5" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
                 {/* InChI Key */}
@@ -503,13 +507,13 @@ M  END`}
                     <div className="flex-1 font-mono text-xs sm:text-sm text-gray-800 dark:text-blue-300 break-all pr-2">
                       {standardizedData.inchikey}
                     </div>
-                    <button
+                    <Button
                       onClick={() => handleCopy(standardizedData.inchikey, "inchikey")}
                       className="ml-auto p-1 text-gray-400 hover:text-gray-700 dark:hover:text-white shrink-0"
                       title="Copy InChI Key"
                     >
                       <Clipboard className="h-5 w-5" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -527,7 +531,7 @@ M  END`}
                 </pre>
               </div>
               {/* Copy Molblock Button */}
-              <button
+              <Button
                 onClick={() => handleCopy(standardizedData.standardized_mol, "molblock")}
                 className={`mt-3 px-3 py-1 text-sm rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                   copiedStates["molblock"]
@@ -537,7 +541,7 @@ M  END`}
               >
                 <Clipboard className="mr-1.5 h-4 w-4" aria-hidden="true" />
                 {copiedStates["molblock"] ? "Copied!" : "Copy Molblock"}
-              </button>
+              </Button>
             </div>
           </div>
 

@@ -7,6 +7,9 @@ import LoadingScreen from "../common/LoadingScreen";
 import MoleculeCard from "../common/MoleculeCard";
 import { useAppContext } from "../../context/AppContext"; // Assuming AppContext provides apiConfig and addRecentMolecule
 import { AlertCircle, Check, Clipboard, RefreshCw, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 
 const POLLING_INTERVAL = 5000; // 5 seconds
 
@@ -222,7 +225,7 @@ const ClassyfireView = () => {
         <div className="mb-6">
           <div className="flex border-b border-gray-200 dark:border-gray-700">
             {/* Classify Tab Button */}
-            <button
+            <Button
               className={`px-4 py-2 font-medium text-sm focus:outline-hidden transition-colors duration-150 ${
                 activeTab === "classify"
                   ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
@@ -232,9 +235,9 @@ const ClassyfireView = () => {
               aria-current={activeTab === "classify" ? "page" : undefined}
             >
               Classify Molecule
-            </button>
+            </Button>
             {/* Check Job ID Tab Button */}
-            <button
+            <Button
               className={`px-4 py-2 font-medium text-sm focus:outline-hidden transition-colors duration-150 ${
                 activeTab === "jobid"
                   ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
@@ -244,7 +247,7 @@ const ClassyfireView = () => {
               aria-current={activeTab === "jobid" ? "page" : undefined}
             >
               Check Job Status
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -260,7 +263,7 @@ const ClassyfireView = () => {
             />
 
             {/* Submit Button */}
-            <button
+            <Button
               type="submit"
               disabled={!smiles.trim() || loading} // Disable if input is empty/whitespace or loading
               className={`w-full px-4 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
@@ -271,7 +274,7 @@ const ClassyfireView = () => {
             >
               <Search className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Submitting..." : "Classify Molecule"}
-            </button>
+            </Button>
           </form>
         ) : (
           /* Tab Content: Check Job ID */
@@ -297,7 +300,7 @@ const ClassyfireView = () => {
             </div>
 
             {/* Submit Button */}
-            <button
+            <Button
               type="submit"
               // Disable if no manualJobId, or if currently loading a new classification,
               // or if currently polling *this specific* job ID.
@@ -313,7 +316,7 @@ const ClassyfireView = () => {
               {polling && jobId === manualJobId.trim()
                 ? "Checking..."
                 : "Get Classification Results"}
-            </button>
+            </Button>
           </form>
         )}
       </div>
@@ -375,22 +378,22 @@ const ClassyfireView = () => {
             </p>
             {/* Action buttons */}
             <div className="mt-3 flex items-center text-sm space-x-4">
-              <button
+              <Button
                 onClick={() => handleCopy(jobId.toString())}
                 className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 focus:outline-hidden"
               >
                 <Clipboard className="mr-1 h-4 w-4" aria-hidden="true" />
                 {copied ? "Copied!" : "Copy Job ID"}
-              </button>
+              </Button>
               {/* Show Refresh button only if not actively polling and status is not completed/error */}
               {!polling && jobStatus !== "completed" && jobStatus !== "error" && (
-                <button
+                <Button
                   onClick={handleManualRefresh}
                   className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 focus:outline-hidden"
                 >
                   <RefreshCw className="mr-1 h-4 w-4" aria-hidden="true" />
                   Refresh Status
-                </button>
+                </Button>
               )}
             </div>
           </div>

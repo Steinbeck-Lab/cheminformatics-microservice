@@ -8,6 +8,8 @@ import LoadingScreen from "../common/LoadingScreen";
 // Assuming this service is configured correctly
 import { generateStandardizedTautomer } from "../../services/chemService"; // Assuming this service exists
 import { AlertCircle, Info, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const StandardizedTautomerView = () => {
   const [smiles, setSmiles] = useState("");
@@ -69,7 +71,7 @@ const StandardizedTautomerView = () => {
 
           {/* Submit Button */}
           <div className="pt-2">
-            <button
+            <Button
               type="submit"
               disabled={!smiles.trim() || loading}
               className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
@@ -80,7 +82,7 @@ const StandardizedTautomerView = () => {
             >
               <RefreshCw className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Standardizing..." : "Generate Standardized Tautomer"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

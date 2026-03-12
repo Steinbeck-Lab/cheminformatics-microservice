@@ -9,6 +9,16 @@ import { lookupPubChem } from "../../services/chemService";
 import MoleculeDepiction2D from "./MoleculeDepiction2D";
 import MoleculeDepiction3D from "./MoleculeDepiction3D";
 import { AlertCircle, Atom, BarChart3, Box, Check, Circle, Copy, Info, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 // Animated Atom Component
 const AnimatedAtom = () => {
@@ -189,7 +199,7 @@ const StructureVisualizerView = () => {
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {examples.map((example, index) => (
-                    <button
+                    <Button
                       key={index}
                       type="button"
                       onClick={() => handleUseExample(example.value)}
@@ -197,7 +207,7 @@ const StructureVisualizerView = () => {
                       title={`${example.name}: ${example.description}`}
                     >
                       {example.name}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -205,7 +215,7 @@ const StructureVisualizerView = () => {
               {/* Action Buttons */}
               <div className="pt-4">
                 {/* Submit Button */}
-                <button
+                <Button
                   type="submit"
                   disabled={!identifier.trim() || loading}
                   className={`w-full relative overflow-hidden px-6 py-3 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 shadow-lg ${
@@ -221,7 +231,7 @@ const StructureVisualizerView = () => {
                       <span className="absolute inset-0 rounded-lg bg-linear-to-r from-blue-400 to-indigo-500 opacity-0 transition-opacity hover:opacity-20"></span>
                     </span>
                   )}
-                </button>
+                </Button>
 
                 {/* Toolkit Selectors */}
                 <div className="grid grid-cols-2 gap-4 mt-4">
@@ -397,7 +407,7 @@ const StructureVisualizerView = () => {
                         </span>
                         Canonical SMILES
                       </h3>
-                      <button
+                      <Button
                         onClick={() => copyToClipboard(result.canonical_smiles)}
                         className="flex items-center text-sm bg-white dark:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors shadow-xs"
                       >
@@ -412,7 +422,7 @@ const StructureVisualizerView = () => {
                             <span>Copy SMILES</span>
                           </>
                         )}
-                      </button>
+                      </Button>
                     </div>
                   </div>
 
@@ -462,18 +472,18 @@ const StructureVisualizerView = () => {
               </p>
 
               <div className="flex flex-wrap gap-2 justify-center">
-                <button
+                <Button
                   onClick={() => handleUseExample("caffeine")}
                   className="px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
                 >
                   Try Caffeine
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => handleUseExample("aspirin")}
                   className="px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
                 >
                   Try Aspirin
-                </button>
+                </Button>
               </div>
             </div>
           )}

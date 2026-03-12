@@ -8,6 +8,15 @@ import LoadingScreen from "../common/LoadingScreen";
 import { useAppContext } from "../../context/AppContext"; // Assuming context provides addRecentMolecule
 import api from "../../services/api"; // Assuming api service is configured
 import { AlertCircle, Calculator, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const TanimotoView = () => {
   const [smiles1, setSmiles1] = useState("");
@@ -168,14 +177,14 @@ const TanimotoView = () => {
         <h2 className="text-2xl font-bold text-gray-800 dark:text-blue-400">
           Tanimoto Similarity Calculator
         </h2>
-        <button
+        <Button
           onClick={() => setInfoVisible(!infoVisible)}
           className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full focus:outline-hidden focus:ring-2 focus:ring-blue-500"
           aria-label="Toggle Information"
           aria-expanded={infoVisible}
         >
           <Info className="h-6 w-6" />
-        </button>
+        </Button>
       </div>
 
       {/* Toggleable Info Box */}
@@ -341,7 +350,7 @@ const TanimotoView = () => {
         {/* Calculate Button Column */}
         <div className="lg:col-span-1">
           {/* Button styling */}
-          <button
+          <Button
             onClick={handleCalculate} // Use onClick for button
             disabled={loading || !smiles1.trim() || !smiles2.trim()}
             className={`w-full px-6 py-3 rounded-lg font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
@@ -352,7 +361,7 @@ const TanimotoView = () => {
           >
             <Calculator className="mr-2 h-5 w-5" />
             {loading ? "Calculating..." : "Calculate Similarity"}
-          </button>
+          </Button>
         </div>
       </div>
 

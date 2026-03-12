@@ -7,6 +7,9 @@ import LoadingScreen from "../common/LoadingScreen";
 // Assuming this service is configured correctly
 import { coconutPreprocessing } from "../../services/chemService"; // Assuming this service exists
 import { AlertCircle, FileBarChart, FlaskConical, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 
 const CoconutPreProcessingView = () => {
   const [smiles, setSmiles] = useState("");
@@ -256,7 +259,7 @@ const CoconutPreProcessingView = () => {
           <nav className="-mb-px flex space-x-6" aria-label="Tabs">
             {/* Map over available keys in preprocessData to create tabs */}
             {Object.keys(data).map((key) => (
-              <button
+              <Button
                 key={key}
                 onClick={() => setActiveTab(key)}
                 className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm focus:outline-hidden ${
@@ -267,7 +270,7 @@ const CoconutPreProcessingView = () => {
                 aria-current={activeTab === key ? "page" : undefined}
               >
                 {formatKey(key)} {/* Format tab titles */}
-              </button>
+              </Button>
             ))}
           </nav>
         </div>
@@ -335,7 +338,7 @@ const CoconutPreProcessingView = () => {
 
           {/* Submit Button */}
           <div className="pt-2">
-            <button
+            <Button
               type="submit"
               disabled={!smiles.trim() || loading}
               className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
@@ -346,7 +349,7 @@ const CoconutPreProcessingView = () => {
             >
               <FlaskConical className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Processing..." : "Process for COCONUT"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

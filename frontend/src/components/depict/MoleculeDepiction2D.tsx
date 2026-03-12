@@ -4,6 +4,16 @@ import React, { useState, useEffect, useCallback } from "react";
 // Assuming this service is configured correctly
 import depictService from "../../services/depictService";
 import { Download, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 const MoleculeDepiction2D = ({
   smiles,
@@ -101,14 +111,14 @@ const MoleculeDepiction2D = ({
         </h3>
 
         {/* Download Button */}
-        <button
+        <Button
           onClick={handleDownload}
           disabled={!imageUrl}
           className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500"
           title="Download 2D structure"
         >
           <Download className="h-5 w-5" />
-        </button>
+        </Button>
       </div>
 
       {/* Image Display */}
@@ -209,13 +219,13 @@ const MoleculeDepiction2D = ({
           )}
 
           {/* Refresh Button */}
-          <button
+          <Button
             onClick={handleRefresh}
             className="ml-auto p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500"
             title="Reset to original view"
           >
             <RefreshCw className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
       </div>
     </div>

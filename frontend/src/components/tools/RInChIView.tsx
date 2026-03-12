@@ -25,6 +25,17 @@ import {
   Upload,
   X,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 // Tooltip component for RInChI options
 const OptionTooltip = ({ content }) => (
@@ -152,7 +163,7 @@ const ResultBlock = ({ title, value, onCopy, copyState, icon, collapsible = fals
           {title}
         </h3>
         {value && (
-          <button
+          <Button
             onClick={onCopy}
             className="inline-flex items-center px-2 py-1 text-xs text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-900/30 rounded-sm hover:bg-indigo-200 dark:hover:bg-indigo-800/50"
           >
@@ -167,7 +178,7 @@ const ResultBlock = ({ title, value, onCopy, copyState, icon, collapsible = fals
                 Copy
               </>
             )}
-          </button>
+          </Button>
         )}
       </div>
       {(!isCollapsed || !collapsible) && (
@@ -961,12 +972,12 @@ const RInChIView = () => {
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">Copy Text</h3>
-              <button
+              <Button
                 onClick={() => setShowCopyModal(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
                 <X className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
             <p className="mb-4 text-gray-700 dark:text-gray-300">
               Automatic copying failed. Please select and copy this text manually:
@@ -982,12 +993,12 @@ const RInChIView = () => {
               />
             </div>
             <div className="flex justify-end gap-3">
-              <button
+              <Button
                 onClick={() => setShowCopyModal(false)}
                 className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
               >
                 Close
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -1018,7 +1029,7 @@ const RInChIView = () => {
             </div>
 
             <div className="space-y-4">
-              <button
+              <Button
                 onClick={clearEditor}
                 disabled={isLoading || !isEditorReady}
                 className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center ${
@@ -1029,9 +1040,9 @@ const RInChIView = () => {
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Clear Editor
-              </button>
+              </Button>
 
-              <button
+              <Button
                 onClick={generateRInChI}
                 disabled={isLoading || !isEditorReady || !rinchiModuleLoaded}
                 className={`w-full px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center ${
@@ -1042,7 +1053,7 @@ const RInChIView = () => {
               >
                 <FileText className="h-4 w-4 mr-2" />
                 {isLoading ? "Generating..." : "Generate RInChI"}
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -1058,7 +1069,7 @@ const RInChIView = () => {
             {/* Input Type Tabs */}
             <div className="mb-4">
               <div className="flex flex-wrap border-b border-gray-200 dark:border-gray-700">
-                <button
+                <Button
                   className={`px-4 py-2 text-sm font-medium ${
                     activeInputType === "reaction"
                       ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400"
@@ -1067,8 +1078,8 @@ const RInChIView = () => {
                   onClick={() => setActiveInputType("reaction")}
                 >
                   Draw
-                </button>
-                <button
+                </Button>
+                <Button
                   className={`px-4 py-2 text-sm font-medium ${
                     activeInputType === "rxnfile"
                       ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400"
@@ -1077,8 +1088,8 @@ const RInChIView = () => {
                   onClick={() => setActiveInputType("rxnfile")}
                 >
                   RXN/RD File
-                </button>
-                <button
+                </Button>
+                <Button
                   className={`px-4 py-2 text-sm font-medium ${
                     activeInputType === "rinchi"
                       ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400"
@@ -1087,8 +1098,8 @@ const RInChIView = () => {
                   onClick={() => setActiveInputType("rinchi")}
                 >
                   RInChI
-                </button>
-                <button
+                </Button>
+                <Button
                   className={`px-4 py-2 text-sm font-medium ${
                     activeInputType === "rinchi-to-file"
                       ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400"
@@ -1097,7 +1108,7 @@ const RInChIView = () => {
                   onClick={() => setActiveInputType("rinchi-to-file")}
                 >
                   RInChI → File
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -1140,7 +1151,7 @@ const RInChIView = () => {
                     </label>
                   </div>
 
-                  <button
+                  <Button
                     onClick={processRxnFile}
                     disabled={isLoading || !rxnfileContent.trim() || !rinchiModuleLoaded}
                     className={`relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 ${
@@ -1151,7 +1162,7 @@ const RInChIView = () => {
                   >
                     <FileText className="mr-2 h-5 w-5" />
                     {isLoading ? "Processing..." : "Process RXN/RD File"}
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
@@ -1193,7 +1204,7 @@ const RInChIView = () => {
                   />
                 </div>
 
-                <button
+                <Button
                   onClick={loadRInChI}
                   disabled={
                     isLoading || !isEditorReady || !inputRinchi.trim() || !rinchiModuleLoaded
@@ -1211,7 +1222,7 @@ const RInChIView = () => {
                       : !rinchiModuleLoaded
                         ? "Loading RInChI Module..."
                         : "Convert to Reaction"}
-                </button>
+                </Button>
 
                 {/* Quick Examples */}
                 <div className="mt-2">
@@ -1220,14 +1231,14 @@ const RInChIView = () => {
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {examples.map((example, index) => (
-                      <button
+                      <Button
                         key={index}
                         onClick={() => setInputRinchi(example.rinchi)}
                         className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-xs text-xs font-medium rounded-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition-all duration-200"
                         title={`${example.name}: ${example.description}`}
                       >
                         {example.name}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 </div>
@@ -1271,7 +1282,7 @@ const RInChIView = () => {
                   />
                 </div>
 
-                <button
+                <Button
                   onClick={convertRInChIToFile}
                   disabled={isLoading || !inputRinchi.trim() || !rinchiModuleLoaded}
                   className={`w-full relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 ${
@@ -1286,7 +1297,7 @@ const RInChIView = () => {
                     : !rinchiModuleLoaded
                       ? "Loading RInChI Module..."
                       : `Convert to ${outputFormat} File`}
-                </button>
+                </Button>
 
                 {/* Quick Examples */}
                 <div className="mt-2">
@@ -1295,14 +1306,14 @@ const RInChIView = () => {
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {examples.map((example, index) => (
-                      <button
+                      <Button
                         key={index}
                         onClick={() => setInputRinchi(example.rinchi)}
                         className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-xs text-xs font-medium rounded-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition-all duration-200"
                         title={`${example.name}: ${example.description}`}
                       >
                         {example.name}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 </div>
@@ -1374,13 +1385,13 @@ const RInChIView = () => {
 
             <div className="flex gap-3">
               {(!isEditorReady || !rinchiModuleLoaded) && (
-                <button
+                <Button
                   onClick={handleRetryInit}
                   className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-200 dark:hover:bg-yellow-900/50 border border-yellow-300 dark:border-yellow-700/50"
                 >
                   <RefreshCw className="h-4 w-4 mr-1.5" />
                   Retry
-                </button>
+                </Button>
               )}
             </div>
           </div>

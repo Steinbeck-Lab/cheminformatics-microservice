@@ -7,6 +7,8 @@ import LoadingScreen from "../common/LoadingScreen";
 // Assuming this service is configured correctly
 import { calculateNPLikeness } from "../../services/chemService"; // Assuming this service exists
 import { AlertCircle, Calculator, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const NPlikenessView = () => {
   const [smiles, setSmiles] = useState("");
@@ -90,7 +92,7 @@ const NPlikenessView = () => {
 
           {/* Submit Button */}
           <div className="pt-2">
-            <button
+            <Button
               type="submit"
               disabled={!smiles.trim() || loading}
               className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
@@ -101,7 +103,7 @@ const NPlikenessView = () => {
             >
               <Calculator className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Calculating..." : "Calculate NP Score"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
@@ -134,7 +136,7 @@ const NPlikenessView = () => {
               NP-likeness Results
             </h3>
             {/* Info Button (Consider adding tooltip/modal functionality) */}
-            <button
+            <Button
               className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               title="About NP-likeness scores (Not implemented)"
               onClick={() =>
@@ -144,7 +146,7 @@ const NPlikenessView = () => {
               } // Simple alert for now
             >
               <Info className="h-6 w-6" aria-hidden="true" />
-            </button>
+            </Button>
           </div>
 
           {/* Results Content */}

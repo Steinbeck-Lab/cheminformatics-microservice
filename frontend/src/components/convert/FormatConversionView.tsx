@@ -16,6 +16,17 @@ import {
   FileText,
   Upload,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 // Input format options configuration
 const INPUT_FORMAT_OPTIONS = [
@@ -577,13 +588,13 @@ const FormatConversionView = () => {
                         Ready
                       </span>
                     </div>
-                    <button
+                    <Button
                       type="button"
                       onClick={handleClearCdxFile}
                       className="ml-3 px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-300 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 border border-blue-300 dark:border-blue-700 rounded-md transition-all duration-200 hover:shadow-md"
                     >
                       Clear
-                    </button>
+                    </Button>
                   </div>
                 )}
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
@@ -647,13 +658,13 @@ const FormatConversionView = () => {
                         Loaded
                       </span>
                     </div>
-                    <button
+                    <Button
                       type="button"
                       onClick={handleClearFile}
                       className="ml-3 px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-300 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 border border-blue-300 dark:border-blue-700 rounded-md transition-all duration-200 hover:shadow-md"
                     >
                       Clear
-                    </button>
+                    </Button>
                   </div>
                 )}
 
@@ -806,7 +817,7 @@ const FormatConversionView = () => {
 
           {/* Submit Button */}
           <div className="pt-2">
-            <button
+            <Button
               type="submit"
               disabled={(inputFormat === "cdx" ? !cdxFile : !input.trim()) || loading}
               className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
@@ -817,7 +828,7 @@ const FormatConversionView = () => {
             >
               <ArrowLeftRight className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Converting..." : "Convert Format"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
@@ -846,7 +857,7 @@ const FormatConversionView = () => {
           <div className="flex justify-between items-center mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Results</h3>
             {/* Copy Button */}
-            <button
+            <Button
               onClick={handleCopyResult}
               className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
                 copied
@@ -857,7 +868,7 @@ const FormatConversionView = () => {
               aria-label={copied ? "Result Copied" : "Copy Result"}
             >
               {copied ? <Check className="h-5 w-5" /> : <Clipboard className="h-5 w-5" />}
-            </button>
+            </Button>
           </div>
 
           {/* Results Grid Layout */}

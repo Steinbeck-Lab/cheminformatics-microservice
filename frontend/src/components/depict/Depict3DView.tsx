@@ -17,6 +17,16 @@ import {
   Palette,
   RefreshCw,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 // Visualization styles configuration
 const VISUALIZATION_STYLES = [
@@ -617,7 +627,7 @@ const Depict3DView = ({ isActive = true }) => {
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
             {/* Generate Button */}
-            <button
+            <Button
               type="submit"
               disabled={!smiles.trim() || loading}
               className={`px-5 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
@@ -628,9 +638,9 @@ const Depict3DView = ({ isActive = true }) => {
             >
               <Box className="mr-2 h-5 w-5" />
               {loading ? "Generating..." : "Generate 3D View"}
-            </button>
+            </Button>
             {/* Screenshot Button */}
-            <button
+            <Button
               type="button"
               onClick={handleTakeScreenshot}
               disabled={loading || !molData || !viewerInitialized}
@@ -642,9 +652,9 @@ const Depict3DView = ({ isActive = true }) => {
             >
               <Camera className="mr-2 h-5 w-5" />
               Screenshot
-            </button>
+            </Button>
             {/* Spin Toggle Button */}
-            <button
+            <Button
               type="button"
               onClick={() => setSpin(!spin)}
               disabled={loading || !molData || !viewerInitialized}
@@ -656,9 +666,9 @@ const Depict3DView = ({ isActive = true }) => {
             >
               <RefreshCw className="mr-2 h-5 w-5" />
               {spin ? "Stop Rotation" : "Rotate"}
-            </button>
+            </Button>
             {/* Reset View Button */}
-            <button
+            <Button
               type="button"
               onClick={handleResetView}
               disabled={loading || !molData || !viewerInitialized}
@@ -671,20 +681,20 @@ const Depict3DView = ({ isActive = true }) => {
               <Palette className="mr-2 h-5 w-5" />{" "}
               {/* Using ColorSwatch as placeholder for reset */}
               Reset View
-            </button>
+            </Button>
           </div>
 
           {/* Use Example Button */}
           {!smiles &&
             !molData && ( // Show only if input is empty and no data loaded
               <div className="mt-3 text-center">
-                <button
+                <Button
                   type="button"
                   onClick={handleUseExampleMolecule}
                   className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm"
                 >
                   Use example molecule?
-                </button>
+                </Button>
               </div>
             )}
 
@@ -703,13 +713,13 @@ const Depict3DView = ({ isActive = true }) => {
               </div>
               {/* Show retry button only if viewer initialization failed */}
               {error.includes("initialize") && (
-                <button
+                <Button
                   type="button"
                   onClick={handleReinitialize}
                   className="ml-4 px-2 py-1 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 rounded-sm text-white text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-red-900 focus:ring-red-500"
                 >
                   Retry Init
-                </button>
+                </Button>
               )}
             </div>
           )}
@@ -769,7 +779,7 @@ const Depict3DView = ({ isActive = true }) => {
                 Generated 3D Molblock
               </h3>
               <div className="flex space-x-2">
-                <button
+                <Button
                   onClick={handleCopy}
                   className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
                     copied
@@ -780,15 +790,15 @@ const Depict3DView = ({ isActive = true }) => {
                   aria-label={copied ? "Molblock Copied" : "Copy Molblock"}
                 >
                   {copied ? <Check className="h-5 w-5" /> : <Clipboard className="h-5 w-5" />}
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={downloadMolblock}
                   className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500"
                   title="Download Molblock (.mol)"
                   aria-label="Download Molblock"
                 >
                   <Download className="h-5 w-5" />
-                </button>
+                </Button>
               </div>
             </div>
             <div className="mt-2 p-3 bg-gray-100 dark:bg-gray-900 rounded-lg font-mono text-xs overflow-auto max-h-[500px] border border-gray-200 dark:border-gray-700 shadow-xs">

@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import { generate2DCoordinates } from "../../services/convertService";
 import { Check, Clipboard, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
   const [copied, setCopied] = useState(false);
@@ -53,7 +55,7 @@ const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
           {label}
         </label>
         <div className="flex space-x-2">
-          <button
+          <Button
             onClick={handleCopy}
             disabled={!smiles}
             className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 ${
@@ -68,9 +70,9 @@ const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
             ) : (
               <Clipboard className="h-5 w-5" />
             )}
-          </button>
+          </Button>
           {showDownload && (
-            <button
+            <Button
               onClick={handleDownload}
               disabled={downloading || !smiles}
               className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 ${
@@ -81,7 +83,7 @@ const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
               title="Download as MOL file"
             >
               <Download className="h-5 w-5" />
-            </button>
+            </Button>
           )}
         </div>
       </div>

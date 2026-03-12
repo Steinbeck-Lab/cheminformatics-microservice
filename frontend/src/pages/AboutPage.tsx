@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { Atom, Code, Database, ExternalLink, FileText, FlaskConical, Network } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 // Sophisticated Animation Variants
 const pageVariants = {
@@ -93,7 +95,7 @@ const CitationCard = ({ title, citation }) => {
     >
       <div className="flex justify-between items-center mb-3">
         <h3 className="font-semibold text-slate-900 dark:text-white">{title}</h3>
-        <button
+        <Button
           onClick={handleCopy}
           className={`flex items-center justify-center p-2 rounded-lg text-white transition-all duration-300 ${
             copySuccess ? "bg-green-500 hover:bg-green-600" : "bg-blue-500 hover:bg-blue-600"
@@ -131,7 +133,7 @@ const CitationCard = ({ title, citation }) => {
               <span className="text-xs font-medium">Copy</span>
             </>
           )}
-        </button>
+        </Button>
       </div>
       <div className="text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-300 dark:border-slate-700 font-mono whitespace-pre-wrap">
         {citation}

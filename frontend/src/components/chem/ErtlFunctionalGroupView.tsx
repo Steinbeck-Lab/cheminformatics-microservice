@@ -7,6 +7,8 @@ import HighlightedMoleculeCard from "../common/HighlightedMoleculeCard";
 // Assuming this service is configured correctly
 import { generateFunctionalGroups } from "../../services/chemService";
 import { AlertCircle, Info, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const ErtlFunctionalGroupView = () => {
   const [smiles, setSmiles] = useState("");
@@ -106,7 +108,7 @@ const ErtlFunctionalGroupView = () => {
 
           {/* Submit Button */}
           <div className="pt-2">
-            <button
+            <Button
               type="submit"
               disabled={!smiles.trim() || loading}
               className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
@@ -117,7 +119,7 @@ const ErtlFunctionalGroupView = () => {
             >
               <Search className="mr-2 h-5 w-5" aria-hidden="true" />
               {loading ? "Detecting..." : "Detect Functional Groups"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
@@ -172,12 +174,12 @@ const ErtlFunctionalGroupView = () => {
                   functionalGroups[selectedGroupIndex] &&
                   !functionalGroups[selectedGroupIndex].None && (
                     <div className="text-center">
-                      <button
+                      <Button
                         onClick={() => setSelectedGroupIndex(null)}
                         className="px-3 py-1 text-xs bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                       >
                         Clear Highlighting
-                      </button>
+                      </Button>
                     </div>
                   )}
               </div>

@@ -26,6 +26,17 @@ import {
   X,
   Zap,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 // Tooltip component for InChI options
 const OptionTooltip = ({ content }) => (
@@ -195,13 +206,13 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
           </div>
           <h2 className="text-lg font-bold text-gray-800 dark:text-white">InChI Options</h2>
         </div>
-        <button
+        <Button
           onClick={resetOptions}
           className="text-sm flex items-center text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
         >
           <RefreshCw className="mr-1 h-4 w-4" />
           Reset
-        </button>
+        </Button>
       </div>
 
       <div className="mb-4">
@@ -408,12 +419,12 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
               Tautomerism Options
               <OptionTooltip content="Configure which types of tautomerism are considered when generating InChI" />
             </p>
-            <button
+            <Button
               onClick={() => setShowTautomerism(!showTautomerism)}
               className="text-sm text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
             >
               {showTautomerism ? "Hide" : "Show"}
-            </button>
+            </Button>
           </div>
 
           {showTautomerism && (
@@ -684,7 +695,7 @@ const ResultBlock = ({ title, value, onCopy, copyState, icon }) => {
           {title}
         </h3>
         {value && (
-          <button
+          <Button
             onClick={onCopy}
             className="inline-flex items-center px-2 py-1 text-xs text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 rounded-sm hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors duration-200"
           >
@@ -699,7 +710,7 @@ const ResultBlock = ({ title, value, onCopy, copyState, icon }) => {
                 Copy
               </>
             )}
-          </button>
+          </Button>
         )}
       </div>
       <div className="font-mono text-sm overflow-x-auto bg-gray-50 dark:bg-gray-900 p-3 rounded-sm border border-gray-200 dark:border-gray-700 break-all max-h-24 overflow-y-auto">
@@ -1503,12 +1514,12 @@ const InChIView = () => {
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">Copy Text</h3>
-              <button
+              <Button
                 onClick={() => setShowCopyModal(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
                 <X className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
             <p className="mb-4 text-gray-700 dark:text-gray-300">
               Automatic copying failed. Please select and copy this text manually:
@@ -1524,12 +1535,12 @@ const InChIView = () => {
               />
             </div>
             <div className="flex justify-end gap-3">
-              <button
+              <Button
                 onClick={() => setShowCopyModal(false)}
                 className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
               >
                 Close
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -1558,7 +1569,7 @@ const InChIView = () => {
 
               {/* Auto-generate toggle */}
               <div className="flex items-center">
-                <button
+                <Button
                   onClick={toggleAutoGenerate}
                   className={`flex items-center text-sm font-medium ${
                     autoGenerate
@@ -1575,12 +1586,12 @@ const InChIView = () => {
                     }`}
                   />
                   Auto
-                </button>
+                </Button>
               </div>
             </div>
 
             <div className="space-y-4">
-              <button
+              <Button
                 onClick={clearEditor}
                 disabled={isLoading || !isEditorReady}
                 className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center ${
@@ -1591,9 +1602,9 @@ const InChIView = () => {
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Clear Editor
-              </button>
+              </Button>
 
-              <button
+              <Button
                 onClick={generateInChI}
                 disabled={isLoading || !isEditorReady || !inchiModuleLoaded}
                 className={`w-full px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center ${
@@ -1604,7 +1615,7 @@ const InChIView = () => {
               >
                 <FileText className="h-4 w-4 mr-2" />
                 {isLoading ? "Generating..." : "Generate InChI"}
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -1620,7 +1631,7 @@ const InChIView = () => {
             {/* Input Type Tabs */}
             <div className="mb-4">
               <div className="flex flex-wrap border-b border-gray-200 dark:border-gray-700">
-                <button
+                <Button
                   className={`px-3 py-2 text-xs font-medium ${
                     activeInputType === "structure"
                       ? "text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400"
@@ -1630,8 +1641,8 @@ const InChIView = () => {
                 >
                   <FlaskConical className="inline-block mr-1" />
                   Draw
-                </button>
-                <button
+                </Button>
+                <Button
                   className={`px-3 py-2 text-xs font-medium ${
                     activeInputType === "smiles"
                       ? "text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400"
@@ -1641,8 +1652,8 @@ const InChIView = () => {
                 >
                   <Layout className="inline-block mr-1" />
                   SMILES
-                </button>
-                <button
+                </Button>
+                <Button
                   className={`px-3 py-2 text-xs font-medium ${
                     activeInputType === "molfile"
                       ? "text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400"
@@ -1652,8 +1663,8 @@ const InChIView = () => {
                 >
                   <FileText className="inline-block mr-1" />
                   Mol/Aux
-                </button>
-                <button
+                </Button>
+                <Button
                   className={`px-3 py-2 text-xs font-medium ${
                     activeInputType === "inchi"
                       ? "text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400"
@@ -1663,7 +1674,7 @@ const InChIView = () => {
                 >
                   <Code className="inline-block mr-1" />
                   InChI
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -1687,7 +1698,7 @@ const InChIView = () => {
                   />
                 </div>
 
-                <button
+                <Button
                   onClick={loadSmiles}
                   disabled={isLoading || !isEditorReady || !inputSmiles.trim()}
                   className={`w-full relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-green-500 ${
@@ -1697,7 +1708,7 @@ const InChIView = () => {
                   }`}
                 >
                   {isLoading ? "Loading..." : !isEditorReady ? "Initializing..." : "Load Structure"}
-                </button>
+                </Button>
 
                 {/* Quick Examples */}
                 <div className="mt-2">
@@ -1706,14 +1717,14 @@ const InChIView = () => {
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {examples.map((example, index) => (
-                      <button
+                      <Button
                         key={index}
                         onClick={() => setInputSmiles(example.smiles)}
                         className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-xs text-xs font-medium rounded-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 transition-all duration-200"
                         title={`${example.name}: ${example.description}`}
                       >
                         {example.name}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 </div>
@@ -1759,7 +1770,7 @@ const InChIView = () => {
                     </label>
                   </div>
 
-                  <button
+                  <Button
                     onClick={loadMolfile}
                     disabled={isLoading || !isEditorReady || !molfileContent.trim()}
                     className={`relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-green-500 ${
@@ -1770,7 +1781,7 @@ const InChIView = () => {
                   >
                     <FileText className="mr-2 h-5 w-5" />
                     {isLoading ? "Loading..." : "Load Structure"}
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
@@ -1795,7 +1806,7 @@ const InChIView = () => {
                   />
                 </div>
 
-                <button
+                <Button
                   onClick={loadInChI}
                   disabled={isLoading || !isEditorReady || !inputInchi.trim() || !inchiModuleLoaded}
                   className={`w-full relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-green-500 ${
@@ -1811,7 +1822,7 @@ const InChIView = () => {
                       : !inchiModuleLoaded
                         ? "Loading InChI Module..."
                         : "Convert to Structure"}
-                </button>
+                </Button>
 
                 {/* Quick Examples */}
                 <div className="mt-2">
@@ -1820,14 +1831,14 @@ const InChIView = () => {
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {examples.map((example, index) => (
-                      <button
+                      <Button
                         key={index}
                         onClick={() => setInputInchi(example.inchi)}
                         className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-xs text-xs font-medium rounded-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 transition-all duration-200"
                         title={`${example.name}: ${example.description}`}
                       >
                         {example.name}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 </div>
@@ -1896,13 +1907,13 @@ const InChIView = () => {
 
             <div className="flex gap-3">
               {(!isEditorReady || !inchiModuleLoaded) && (
-                <button
+                <Button
                   onClick={handleRetryInit}
                   className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-200 dark:hover:bg-yellow-900/50 border border-yellow-300 dark:border-yellow-700/50"
                 >
                   <RefreshCw className="h-4 w-4 mr-1.5" />
                   Retry
-                </button>
+                </Button>
               )}
             </div>
           </div>

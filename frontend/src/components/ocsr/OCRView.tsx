@@ -5,6 +5,9 @@ import { motion, AnimatePresence } from "motion/react";
 import MoleculeCard from "../common/MoleculeCard";
 import ocsrService from "../../services/ocsrService";
 import { AlertCircle, CheckCircle, Image, Link, RefreshCw, Upload, XCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 
 const OCRView = () => {
   // State management
@@ -141,7 +144,7 @@ const OCRView = () => {
         {/* Input Method Selector */}
         <div className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
           <div className="flex">
-            <button
+            <Button
               onClick={() => {
                 setInputMethod("upload");
                 setImageUrl("");
@@ -158,9 +161,9 @@ const OCRView = () => {
                 <Upload className="h-5 w-5" />
                 <span>Upload Image</span>
               </div>
-            </button>
+            </Button>
 
-            <button
+            <Button
               onClick={() => {
                 setInputMethod("url");
                 setFiles([]);
@@ -177,7 +180,7 @@ const OCRView = () => {
                 <Link className="h-5 w-5" />
                 <span>Use URL</span>
               </div>
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -279,7 +282,7 @@ const OCRView = () => {
                     onError={() => setError("Failed to load image. Please check the URL.")}
                   />
                   <div className="absolute top-2 right-2">
-                    <button
+                    <Button
                       onClick={(e) => {
                         e.stopPropagation();
                         clearAll();
@@ -288,7 +291,7 @@ const OCRView = () => {
                       title="Remove image"
                     >
                       <XCircle className="h-5 w-5" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </motion.div>
@@ -322,7 +325,7 @@ const OCRView = () => {
               <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                 Hand-Drawn Model
               </span>
-              <button
+              <Button
                 type="button"
                 onClick={() => setHandDrawn(!handDrawn)}
                 disabled={loading}
@@ -338,7 +341,7 @@ const OCRView = () => {
                     handDrawn ? "translate-x-6" : "translate-x-1"
                   }`}
                 />
-              </button>
+              </Button>
             </div>
 
             <div className="flex-1" />
@@ -346,7 +349,7 @@ const OCRView = () => {
             {/* Action Buttons */}
             <div className="flex gap-3">
               {(files.length > 0 || imageUrl.trim() || results.length > 0 || error) && (
-                <button
+                <Button
                   type="button"
                   onClick={clearAll}
                   disabled={loading}
@@ -356,10 +359,10 @@ const OCRView = () => {
                     <RefreshCw className="h-4 w-4" />
                     <span>Reset</span>
                   </div>
-                </button>
+                </Button>
               )}
 
-              <button
+              <Button
                 type="button"
                 onClick={handleProcessImage}
                 disabled={loading || (!files.length && !imageUrl.trim())}
@@ -396,7 +399,7 @@ const OCRView = () => {
                 ) : (
                   "Extract Structures"
                 )}
-              </button>
+              </Button>
             </div>
           </div>
 

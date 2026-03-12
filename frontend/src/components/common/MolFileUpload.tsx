@@ -2,6 +2,9 @@
 import React, { useState, useRef } from "react";
 import convertService from "../../services/convertService";
 import { AlertCircle, CheckCircle, FileText, Upload, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 
 /**
  * MolFileUpload Component
@@ -203,12 +206,12 @@ const MolFileUpload = ({
           <div className="ml-3 flex-1">
             <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
           </div>
-          <button
+          <Button
             onClick={() => setError(null)}
             className="ml-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
           >
             <X className="h-4 w-4" />
-          </button>
+          </Button>
         </div>
       )}
 
@@ -228,13 +231,13 @@ const MolFileUpload = ({
                 </p>
               </div>
             </div>
-            <button
+            <Button
               onClick={handleClear}
               className="ml-2 text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
               title="Clear and upload new file"
             >
               <X className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
 
           {/* Optional MOL Block Display */}

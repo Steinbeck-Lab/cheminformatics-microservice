@@ -26,6 +26,16 @@ import {
   Search,
   Trash2,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 // Default options configuration
 const DEFAULT_OPTIONS = {
@@ -290,7 +300,7 @@ const SugarRemovalView = () => {
               <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">(Modified)</span>
             )}
           </label>
-          <button
+          <Button
             type="button"
             onClick={() => resetOption(key)}
             disabled={!isModified}
@@ -302,7 +312,7 @@ const SugarRemovalView = () => {
             title="Reset to default"
           >
             <RefreshCw className="h-4 w-4" />
-          </button>
+          </Button>
         </div>
 
         {type === "boolean" ? (
@@ -343,7 +353,7 @@ const SugarRemovalView = () => {
 
               {/* Custom increment/decrement buttons */}
               <div className="absolute right-1 top-1/2 -translate-y-1/2 flex flex-col gap-0.5">
-                <button
+                <Button
                   type="button"
                   onClick={() => {
                     const newValue = Math.min(
@@ -363,8 +373,8 @@ const SugarRemovalView = () => {
                       d="M5 15l7-7 7 7"
                     />
                   </svg>
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
                   onClick={() => {
                     const newValue = Math.max(
@@ -384,7 +394,7 @@ const SugarRemovalView = () => {
                       d="M19 9l-7 7-7-7"
                     />
                   </svg>
-                </button>
+                </Button>
               </div>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">{description}</p>
@@ -413,7 +423,7 @@ const SugarRemovalView = () => {
 
     return (
       <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-        <button
+        <Button
           type="button"
           onClick={() => toggleSection(sectionKey)}
           className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 flex items-center justify-between transition-colors"
@@ -424,7 +434,7 @@ const SugarRemovalView = () => {
           ) : (
             <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400" />
           )}
-        </button>
+        </Button>
 
         {isExpanded && (
           <div className="px-4 py-4 space-y-4 bg-white dark:bg-gray-800">{children}</div>
@@ -796,14 +806,14 @@ const SugarRemovalView = () => {
                 ? "Sugar Removal Options"
                 : "Sugar Extraction Options"}
           </h3>
-          <button
+          <Button
             type="button"
             onClick={resetAllOptions}
             className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
           >
             <RefreshCw className="h-4 w-4" />
             <span>Reset All to Default</span>
-          </button>
+          </Button>
         </div>
 
         <div className="space-y-4">
@@ -1108,7 +1118,7 @@ const SugarRemovalView = () => {
 
       {/* Execute Button */}
       <div className="flex justify-center">
-        <button
+        <Button
           onClick={handleExecute}
           disabled={!smiles.trim() || isLoading}
           className={`px-8 py-3 rounded-lg text-white font-semibold text-lg flex items-center justify-center space-x-3 transition-all shadow-lg ${
@@ -1133,7 +1143,7 @@ const SugarRemovalView = () => {
                   ? "Remove Sugars"
                   : "Extract Aglycone & Sugars"}
           </span>
-        </button>
+        </Button>
       </div>
 
       {/* Loading State */}
@@ -1183,7 +1193,7 @@ const SugarRemovalView = () => {
                     Highlight Sugar Type
                   </label>
                   <div className="grid grid-cols-3 gap-3">
-                    <button
+                    <Button
                       onClick={() => setHighlightMode("circular")}
                       className={`px-4 py-2 rounded-lg font-medium transition-all ${
                         highlightMode === "circular"
@@ -1192,8 +1202,8 @@ const SugarRemovalView = () => {
                       }`}
                     >
                       Circular Only
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => setHighlightMode("linear")}
                       className={`px-4 py-2 rounded-lg font-medium transition-all ${
                         highlightMode === "linear"
@@ -1202,8 +1212,8 @@ const SugarRemovalView = () => {
                       }`}
                     >
                       Linear Only
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => setHighlightMode("both")}
                       className={`px-4 py-2 rounded-lg font-medium transition-all ${
                         highlightMode === "both"
@@ -1212,7 +1222,7 @@ const SugarRemovalView = () => {
                       }`}
                     >
                       Both
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}

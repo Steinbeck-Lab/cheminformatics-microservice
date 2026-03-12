@@ -7,6 +7,15 @@ import LoadingScreen from "../common/LoadingScreen";
 // Assuming this service is configured correctly
 import { generate3DCoordinates } from "../../services/convertService"; // Assuming this service exists
 import { AlertCircle, Box, Check, Clipboard, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Toolkit options configuration (adjust if different for 3D)
 const TOOLKIT_OPTIONS_3D = [
@@ -152,7 +161,7 @@ const Mol3DView = () => {
 
           {/* Submit Button */}
           <div className="pt-2">
-            <button
+            <Button
               type="submit"
               // Button styling
               className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
@@ -164,7 +173,7 @@ const Mol3DView = () => {
             >
               <Box className="mr-2 h-5 w-5" aria-hidden="true" />
               {isLoading ? "Generating..." : "Generate 3D Coordinates"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
@@ -201,7 +210,7 @@ const Mol3DView = () => {
             {/* Action Buttons */}
             <div className="flex space-x-2 shrink-0">
               {/* Copy Button */}
-              <button
+              <Button
                 onClick={handleCopy}
                 className={`px-3 py-1.5 text-sm rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                   copied
@@ -217,9 +226,9 @@ const Mol3DView = () => {
                   <Clipboard className="mr-1.5 h-4 w-4" />
                 )}
                 {copied ? "Copied!" : "Copy"}
-              </button>
+              </Button>
               {/* Download Button */}
-              <button
+              <Button
                 onClick={downloadMolblock}
                 className="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500"
                 title="Download as MOL file"
@@ -227,7 +236,7 @@ const Mol3DView = () => {
               >
                 <Download className="mr-1.5 h-4 w-4" />
                 Download (.mol)
-              </button>
+              </Button>
             </div>
           </div>
 

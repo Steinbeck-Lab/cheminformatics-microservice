@@ -14,6 +14,9 @@ import {
   Info,
   XCircle,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 
 // --- Animation Variants ---
 const containerVariant = {
@@ -172,14 +175,14 @@ const StructureGenView = () => {
           {/* Buttons */}
           <div className="flex flex-wrap gap-3 pt-2">
             {/* Use adaptive button classes */}
-            <button
+            <Button
               type="submit"
               disabled={!formula || isLoading}
               className="px-4 py-2 rounded-md font-medium bg-sky-600 hover:bg-sky-700 text-white dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center"
             >
               <FlaskConical className="mr-2 h-5 w-5" />
               {isLoading ? "Generating..." : "Generate Structures"}
-            </button>
+            </Button>
 
             {/* Show selection buttons only when structures are present */}
             <AnimatePresence>
@@ -191,7 +194,7 @@ const StructureGenView = () => {
                   exit={{ opacity: 0 }}
                   transition={{ delay: 0.1 }}
                 >
-                  <button
+                  <Button
                     type="button"
                     onClick={downloadSelectedStructures}
                     disabled={selectedStructures.length === 0}
@@ -199,16 +202,16 @@ const StructureGenView = () => {
                   >
                     <Download className="mr-1.5 h-4 w-4" />
                     Download Selected ({selectedStructures.length})
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
                     onClick={() => setSelectedStructures([...structures])}
                     className="px-3 py-1.5 text-sm rounded-md font-medium bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white dark:border-slate-600 focus:outline-hidden focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 inline-flex items-center" // Use btn-secondary
                   >
                     <Copy className="mr-1.5 h-4 w-4" />
                     Select All
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
                     onClick={() => setSelectedStructures([])}
                     disabled={selectedStructures.length === 0}
@@ -216,7 +219,7 @@ const StructureGenView = () => {
                   >
                     <XCircle className="mr-1.5 h-4 w-4" /> {/* Changed Icon */}
                     Deselect All
-                  </button>
+                  </Button>
                 </motion.div>
               )}
             </AnimatePresence>

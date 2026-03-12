@@ -3,6 +3,16 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 // Assuming this service is configured correctly
 import convertService from "../../services/convertService";
 import { AlertCircle, Camera, Download, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 // Visualization styles and configurations
 const VISUALIZATION_STYLES = [
@@ -457,23 +467,23 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
 
         {/* Action buttons */}
         <div className="flex items-center space-x-1">
-          <button
+          <Button
             onClick={handleTakeScreenshot}
             disabled={!viewerInitialized || !molData}
             className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             title="Take screenshot"
           >
             <Camera className="h-5 w-5" />
-          </button>
+          </Button>
 
-          <button
+          <Button
             onClick={handleResetView}
             disabled={!viewerInitialized || !molData}
             className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             title="Reset view"
           >
             <RefreshCw className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -628,7 +638,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
 
           {/* Download Button */}
           <div className="ml-auto flex space-x-1">
-            <button
+            <Button
               onClick={downloadMolblock}
               disabled={!molData}
               className="py-1 px-2 rounded-md text-xs bg-green-50 text-green-700 dark:bg-green-900 dark:text-green-200 hover:bg-green-100 dark:hover:bg-green-800 transition-colors focus:outline-hidden focus:ring-1 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed border border-green-200 dark:border-green-800"
@@ -638,7 +648,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
                 <Download className="h-3.5 w-3.5 mr-1" />
                 3D Mol
               </span>
-            </button>
+            </Button>
           </div>
         </div>
       </div>

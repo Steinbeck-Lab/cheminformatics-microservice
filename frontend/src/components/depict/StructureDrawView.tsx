@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { AlertCircle, Check, ClipboardCopy, Info, Pencil, RefreshCw, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 
 // Add custom styles for animations
 const styles = `
@@ -403,12 +406,12 @@ const StructureDrawView = () => {
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">Copy SMILES</h3>
-              <button
+              <Button
                 onClick={() => setShowCopyModal(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
                 <X className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
             <p className="mb-4 text-gray-700 dark:text-gray-300">
               Automatic copying failed. Please select and copy this text manually:
@@ -424,12 +427,12 @@ const StructureDrawView = () => {
               />
             </div>
             <div className="flex justify-end gap-3">
-              <button
+              <Button
                 onClick={() => setShowCopyModal(false)}
                 className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
               >
                 Close
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -466,7 +469,7 @@ const StructureDrawView = () => {
                 />
               </div>
 
-              <button
+              <Button
                 onClick={loadSmiles}
                 disabled={isLoading || !isEditorReady || !inputSmiles.trim()}
                 className={`w-full relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
@@ -476,7 +479,7 @@ const StructureDrawView = () => {
                 }`}
               >
                 {isLoading ? "Loading..." : !isEditorReady ? "Initializing..." : "Load Structure"}
-              </button>
+              </Button>
             </div>
 
             {/* Quick Examples */}
@@ -486,14 +489,14 @@ const StructureDrawView = () => {
               </p>
               <div className="flex flex-wrap gap-2">
                 {examples.map((example, index) => (
-                  <button
+                  <Button
                     key={index}
                     onClick={() => handleUseExample(example.value)}
                     className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-xs text-xs font-medium rounded-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition-all duration-200"
                     title={`${example.name}: ${example.description}`}
                   >
                     {example.name}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
@@ -523,7 +526,7 @@ const StructureDrawView = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3">
-                <button
+                <Button
                   onClick={getSmiles}
                   disabled={isLoading || !isEditorReady}
                   className={`flex-1 relative overflow-hidden px-4 py-2.5 rounded-lg font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
@@ -533,9 +536,9 @@ const StructureDrawView = () => {
                   }`}
                 >
                   Generate SMILES
-                </button>
+                </Button>
 
-                <button
+                <Button
                   onClick={() => copyToClipboard()}
                   disabled={!smiles}
                   className={`flex-1 relative overflow-hidden px-4 py-2.5 rounded-lg font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
@@ -555,7 +558,7 @@ const StructureDrawView = () => {
                       Copy
                     </>
                   )}
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -613,16 +616,16 @@ const StructureDrawView = () => {
 
             <div className="flex gap-3">
               {!isEditorReady && (
-                <button
+                <Button
                   onClick={handleRetryInit}
                   className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-200 dark:hover:bg-yellow-900/50 border border-yellow-300 dark:border-yellow-700/50"
                 >
                   <RefreshCw className="h-4 w-4 mr-1.5" />
                   Retry Init
-                </button>
+                </Button>
               )}
 
-              <button
+              <Button
                 onClick={clearEditor}
                 disabled={isLoading || !isEditorReady}
                 className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
@@ -633,7 +636,7 @@ const StructureDrawView = () => {
               >
                 <RefreshCw className="h-4 w-4 mr-1.5" />
                 Clear Editor
-              </button>
+              </Button>
             </div>
           </div>
 
