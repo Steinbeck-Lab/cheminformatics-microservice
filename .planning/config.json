@@ -1,0 +1,19 @@
+{
+  "mode": "interactive",
+  "granularity": "standard",
+  "parallelization": true,
+  "commit_docs": true,
+  "model_profile": "quality",
+  "workflow": {
+    "research": true,
+    "plan_check": true,
+    "verifier": true,
+    "nyquist_validation": true
+  },
+  "models": {
+    "researcher": "opus",
+    "roadmapper": "opus",
+    "synthesizer": "opus",
+    "executor": "sonnet"
+  }
+}
