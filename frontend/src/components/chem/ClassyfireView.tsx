@@ -330,7 +330,7 @@ const ClassyfireView = () => {
       {/* Error Message */}
       {error && (
         <div
-          className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
+          className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
           role="alert"
         >
           <HiOutlineExclamationCircle
@@ -344,7 +344,7 @@ const ClassyfireView = () => {
       {/* Job Status / Polling Indicator */}
       {/* Show this block if we have a job ID, are not in the initial loading state, and don't have final results yet */}
       {jobId && !loading && !classificationResults && (
-        <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-start shadow-sm">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-start shadow-sm">
           {/* Spinner/Icon */}
           <div className="mr-4 shrink-0 pt-1">
             {/* Show spinner if polling OR in the initial 'fetching' or 'submitted' state */}
@@ -521,7 +521,7 @@ const ClassyfireView = () => {
                                 // Substituent Tag
                                 <span
                                   key={idx}
-                                  className="inline-block bg-blue-100 dark:bg-blue-900 dark:bg-opacity-50 text-blue-800 dark:text-blue-300 px-2 py-1 rounded-full text-xs font-medium"
+                                  className="inline-block bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 px-2 py-1 rounded-full text-xs font-medium"
                                 >
                                   {substituent}
                                 </span>
@@ -579,7 +579,7 @@ const ClassyfireView = () => {
       {/* Using the detailed about section with light/dark mode styling */}
       {!classificationResults && !loading && !error && !jobId && (
         <div
-          className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 shadow-sm"
+          className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 shadow-sm"
           role="complementary"
         >
           <h3 className="text-lg font-medium text-blue-800 dark:text-blue-300 mb-3">

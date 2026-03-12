@@ -113,8 +113,8 @@ const StereoisomersView = () => {
         <div
           className={`p-4 rounded-md flex items-start shadow ${
             noDistinctIsomersFound // Check if it's the informational message
-              ? "bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 text-blue-700 dark:text-blue-200 border border-blue-300 dark:border-blue-700"
-              : "bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700"
+              ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200 border border-blue-300 dark:border-blue-700"
+              : "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700"
           }`}
           role={noDistinctIsomersFound ? "status" : "alert"}
         >
@@ -167,7 +167,7 @@ const StereoisomersView = () => {
           </div>
 
           {/* Informational Box about Stereoisomers */}
-          <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm shadow-sm">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm shadow-sm">
             <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-1">
               About Stereoisomers
             </h4>
@@ -188,7 +188,7 @@ const StereoisomersView = () => {
       {/* Initial State Message (Optional) */}
       {/* Show only if no results, not loading, and no error */}
       {!stereoisomers.length && !loading && !error && (
-        <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center shadow-sm">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center shadow-sm">
           <p className="text-gray-600 dark:text-gray-300">
             Enter a SMILES string to generate its possible stereoisomers.
           </p>

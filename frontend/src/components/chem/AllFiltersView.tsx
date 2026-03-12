@@ -606,7 +606,7 @@ const AllFiltersView = () => {
           <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             {/* Background overlay */}
             <div
-              className="fixed inset-0 bg-gray-500 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-75 transition-opacity"
+              className="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/75 transition-opacity"
               aria-hidden="true"
               onClick={() => setShowInfoModal(false)}
             ></div>
@@ -663,7 +663,7 @@ const AllFiltersView = () => {
       {/* Error Message */}
       {error && (
         <div
-          className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
+          className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
           role="alert"
         >
           <HiOutlineExclamationCircle
@@ -680,7 +680,7 @@ const AllFiltersView = () => {
       {/* No Results Message - Display when a filter operation was performed but returned no results */}
       {!loading && !error && smilesInput.trim() && results.length === 0 && (
         <div
-          className="p-4 rounded-md bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-30 text-yellow-700 dark:text-yellow-200 border border-yellow-300 dark:border-yellow-700 flex items-start shadow-sm"
+          className="p-4 rounded-md bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-200 border border-yellow-300 dark:border-yellow-700 flex items-start shadow-sm"
           role="alert"
         >
           <HiOutlineExclamationCircle
@@ -946,7 +946,7 @@ const AllFiltersView = () => {
       {/* About Chemical Filters Info Box - Always visible */}
       {!loading && !error && (
         <div
-          className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 shadow-sm"
+          className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 shadow-sm"
           role="complementary"
         >
           <h3 className="text-lg font-medium text-blue-800 dark:text-blue-300 mb-3">

@@ -71,7 +71,7 @@ const StructureErrorView = () => {
     if (messages.length === 1 && messages[0] === "No Errors Found") {
       return (
         // Success message styling
-        <div className="flex items-center text-green-700 dark:text-green-400 font-medium p-3 bg-green-50 dark:bg-green-900 dark:bg-opacity-20 border border-green-300 dark:border-green-700 rounded-lg shadow-xs">
+        <div className="flex items-center text-green-700 dark:text-green-400 font-medium p-3 bg-green-50 dark:bg-green-900/20 border border-green-300 dark:border-green-700 rounded-lg shadow-xs">
           <HiOutlineCheck className="mr-2 h-5 w-5 shrink-0" aria-hidden="true" />
           {messages[0]}
         </div>
@@ -81,7 +81,7 @@ const StructureErrorView = () => {
     // Handle actual error/warning messages
     return (
       // Warning/Error message styling (using amber for visibility)
-      <div className="p-3 bg-amber-50 dark:bg-amber-900 dark:bg-opacity-20 border border-amber-300 dark:border-amber-700 rounded-lg shadow-xs">
+      <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-lg shadow-xs">
         <h4 className="font-medium text-amber-700 dark:text-amber-300 mb-2 flex items-center">
           <HiOutlineExclamationCircle className="h-5 w-5 mr-2 shrink-0" aria-hidden="true" />
           Structure Issues Found
@@ -157,7 +157,7 @@ const StructureErrorView = () => {
       {error &&
         !loading && ( // Show error only if not loading
           <div
-            className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
+            className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
             role="alert"
           >
             <HiOutlineExclamationCircle
@@ -246,7 +246,7 @@ const StructureErrorView = () => {
       {/* Show only if no result, not loading, and no error */}
       {!result && !loading && !error && (
         <div
-          className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow-sm"
+          className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow-sm"
           role="complementary"
         >
           <HiOutlineInformationCircle

@@ -650,7 +650,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
 
       {/* Error Display */}
       {error && !loading && (
-        <div className="p-3 bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border-t border-red-300 dark:border-red-700 text-xs">
+        <div className="p-3 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border-t border-red-300 dark:border-red-700 text-xs">
           <div className="flex items-start">
             <HiOutlineExclamationCircle
               className="h-4 w-4 mr-2 shrink-0 mt-0.5 text-red-500 dark:text-red-400"

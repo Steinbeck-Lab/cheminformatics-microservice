@@ -98,8 +98,8 @@ const StandardizedTautomerView = () => {
         <div
           className={`p-4 rounded-md flex items-start shadow ${
             error.startsWith("Input is already") // Check if it's the informational message
-              ? "bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 text-blue-700 dark:text-blue-200 border border-blue-300 dark:border-blue-700"
-              : "bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700"
+              ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200 border border-blue-300 dark:border-blue-700"
+              : "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700"
           }`}
           role={error.startsWith("Input is already") ? "status" : "alert"}
         >
@@ -174,7 +174,7 @@ const StandardizedTautomerView = () => {
           </div>
 
           {/* Informational Box about Tautomers */}
-          <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 shadow-sm">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 shadow-sm">
             <h4 className="text-md font-medium text-blue-800 dark:text-blue-300 mb-2">
               About Tautomers
             </h4>
@@ -194,7 +194,7 @@ const StandardizedTautomerView = () => {
       {/* Show only if no results, not loading, and no error */}
       {!standardizedSmiles && !loading && !error && (
         <div
-          className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow-sm"
+          className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow-sm"
           role="complementary"
         >
           <HiOutlineInformationCircle

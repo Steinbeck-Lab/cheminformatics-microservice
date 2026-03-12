@@ -124,8 +124,7 @@
   textarea:focus {
     @apply outline-hidden ring-2 border-transparent;
     border-color: var(--input-focus-ring);
-    --tw-ring-color: var(--input-focus-ring);
-    --tw-ring-opacity: 0.5;
+    --tw-ring-color: color-mix(in oklch, var(--input-focus-ring) 50%, transparent);
   }
 
   /* Links */
@@ -240,11 +239,11 @@
 /* ===== Theme Toggle Button ===== */
 @layer components {
   .theme-toggle-button:hover {
-    --tw-ring-color: var(--color-sky-500);
+    --pulse-color: var(--color-sky-500);
     animation: subtle-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
   .dark .theme-toggle-button:hover {
-    --tw-ring-color: var(--color-sky-400);
+    --pulse-color: var(--color-sky-400);
   }
 }
 
@@ -252,10 +251,10 @@
 @keyframes subtle-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(var(--tw-ring-color), 0.3);
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--pulse-color) 30%, transparent);
   }
   50% {
-    box-shadow: 0 0 0 5px rgba(var(--tw-ring-color), 0);
+    box-shadow: 0 0 0 5px color-mix(in oklch, var(--pulse-color) 0%, transparent);
   }
 }
 

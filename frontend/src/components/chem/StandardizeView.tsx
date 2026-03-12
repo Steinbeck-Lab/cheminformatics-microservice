@@ -308,7 +308,7 @@ const StandardizeView = () => {
         </div>
 
         {/* Important Notice */}
-        <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-20 border border-yellow-200 dark:border-yellow-800 rounded-md">
+        <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
           <div className="flex">
             <HiOutlineExclamationCircle className="h-5 w-5 text-yellow-400 mr-2 shrink-0 mt-0.5" />
             <div className="text-sm text-yellow-800 dark:text-yellow-200">
@@ -428,7 +428,7 @@ M  END`}
       {error &&
         !loading && ( // Show error only if not loading
           <div
-            className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
+            className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
             role="alert"
           >
             <HiOutlineExclamationCircle
@@ -587,7 +587,7 @@ M  END`}
 
       {/* Initial State Message (Optional) */}
       {!standardizedData && !loading && !error && (
-        <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center shadow-sm">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center shadow-sm">
           <div className="space-y-3">
             <HiOutlineBeaker className="h-12 w-12 mx-auto text-blue-500 dark:text-blue-400" />
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">

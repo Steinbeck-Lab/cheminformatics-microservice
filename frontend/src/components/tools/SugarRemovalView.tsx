@@ -611,7 +611,7 @@ const SugarRemovalView = () => {
             <label
               className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
                 operationMode === "detect"
-                  ? "border-blue-500 bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20"
+                  ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
                   : "border-gray-300 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-700"
               }`}
             >
@@ -636,7 +636,7 @@ const SugarRemovalView = () => {
             <label
               className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
                 operationMode === "remove"
-                  ? "border-red-500 bg-red-50 dark:bg-red-900 dark:bg-opacity-20"
+                  ? "border-red-500 bg-red-50 dark:bg-red-900/20"
                   : "border-gray-300 dark:border-gray-600 hover:border-red-300 dark:hover:border-red-700"
               }`}
             >
@@ -661,7 +661,7 @@ const SugarRemovalView = () => {
             <label
               className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
                 operationMode === "extract"
-                  ? "border-green-500 bg-green-50 dark:bg-green-900 dark:bg-opacity-20"
+                  ? "border-green-500 bg-green-50 dark:bg-green-900/20"
                   : "border-gray-300 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-700"
               }`}
             >
@@ -799,7 +799,7 @@ const SugarRemovalView = () => {
           <button
             type="button"
             onClick={resetAllOptions}
-            className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900 dark:hover:bg-opacity-20 rounded-lg transition-colors"
+            className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
           >
             <HiOutlineRefresh className="h-4 w-4" />
             <span>Reset All to Default</span>
@@ -1152,7 +1152,7 @@ const SugarRemovalView = () => {
       {/* Error Display */}
       {error && !isLoading && (
         <div
-          className="p-4 rounded-md flex items-start shadow-sm bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700"
+          className="p-4 rounded-md flex items-start shadow-sm bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700"
           role="alert"
         >
           <HiOutlineExclamationCircle
@@ -1169,7 +1169,7 @@ const SugarRemovalView = () => {
           {/* Detect Results */}
           {results.type === "detect" && (
             <div className="space-y-4">
-              <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 shadow-sm">
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 shadow-sm">
                 <h3 className="text-lg font-medium text-blue-800 dark:text-blue-300 mb-2">
                   Detection Result
                 </h3>
@@ -1414,7 +1414,7 @@ const SugarRemovalView = () => {
               )}
 
               {(!results.sugars || results.sugars.length === 0) && (
-                <div className="p-4 rounded-md flex items-start shadow-sm bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-20 text-yellow-700 dark:text-yellow-200 border border-yellow-300 dark:border-yellow-700">
+                <div className="p-4 rounded-md flex items-start shadow-sm bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-200 border border-yellow-300 dark:border-yellow-700">
                   <HiOutlineInformationCircle className="h-5 w-5 mr-3 shrink-0 mt-0.5" />
                   <span>No sugar moieties were extracted from the molecule.</span>
                 </div>
@@ -1426,7 +1426,7 @@ const SugarRemovalView = () => {
 
       {/* Initial State / Help */}
       {!results && !isLoading && !error && (
-        <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow-sm">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow-sm">
           <HiOutlineInformationCircle className="h-6 w-6 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
           <div>
             <h3 className="text-lg font-medium text-blue-800 dark:text-blue-300 mb-2">

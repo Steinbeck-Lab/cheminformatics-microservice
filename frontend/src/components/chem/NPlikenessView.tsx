@@ -117,7 +117,7 @@ const NPlikenessView = () => {
       {error &&
         !loading && ( // Show error only if not loading
           <div
-            className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
+            className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
             role="alert"
           >
             <HiOutlineExclamationCircle
@@ -225,7 +225,7 @@ const NPlikenessView = () => {
       {/* Initial State Message (Optional) */}
       {/* Show only if no score, not loading, and no error */}
       {npScore === null && !loading && !error && (
-        <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center shadow-sm">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center shadow-sm">
           <p className="text-gray-600 dark:text-gray-300">
             Enter a SMILES string to calculate its Natural Product-likeness score.
           </p>

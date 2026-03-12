@@ -164,7 +164,7 @@ const PubChemLookupView = () => {
       {/* Error Display */}
       {error && !loading && (
         <div
-          className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-xs"
+          className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-xs"
           role="alert"
         >
           <HiOutlineExclamationCircle
@@ -186,8 +186,8 @@ const PubChemLookupView = () => {
           <div
             className={`p-4 mb-6 rounded-md flex items-start ${
               result.success
-                ? "bg-green-50 dark:bg-green-900 dark:bg-opacity-20 text-green-700 dark:text-green-200 border border-green-200 dark:border-green-800"
-                : "bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-20 text-yellow-700 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-800"
+                ? "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-200 border border-green-200 dark:border-green-800"
+                : "bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-800"
             }`}
           >
             <HiOutlineInformationCircle
@@ -279,7 +279,7 @@ const PubChemLookupView = () => {
       )}
 
       {/* Information Box */}
-      <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm shadow-sm">
+      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm shadow-sm">
         <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2 flex items-center">
           <HiOutlineInformationCircle className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
           About Chemical Structure Finder

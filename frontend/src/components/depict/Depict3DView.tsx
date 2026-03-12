@@ -691,7 +691,7 @@ const Depict3DView = ({ isActive = true }) => {
           {/* Error Display with Retry */}
           {error && !loading && (
             <div
-              className="p-4 bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 rounded-lg mt-4 shadow-xs flex justify-between items-start"
+              className="p-4 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 rounded-lg mt-4 shadow-xs flex justify-between items-start"
               role="alert"
             >
               <div className="flex items-start">
@@ -806,7 +806,7 @@ const Depict3DView = ({ isActive = true }) => {
       </div>
       {/* Method and Disclaimer Section */}
       {molData && !loading && (
-        <div className="bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 text-sm shadow-xs">
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 text-sm shadow-xs">
           <div className="flex items-start space-x-3">
             <HiOutlineExclamationCircle
               className="h-5 w-5 text-yellow-600 dark:text-yellow-400 shrink-0 mt-0.5"
@@ -831,7 +831,7 @@ const Depict3DView = ({ isActive = true }) => {
 
       {/* Interaction Instructions */}
       {/* Themed instructions box */}
-      <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm shadow-sm">
+      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm shadow-sm">
         <div className="flex items-start space-x-3">
           <HiOutlineViewGrid
             className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"

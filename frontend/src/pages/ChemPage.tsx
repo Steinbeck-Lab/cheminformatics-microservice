@@ -328,7 +328,7 @@ const ChemPage = () => {
             {/* Sidebar */}
             <div
               className={`glass md:w-64 lg:w-72 shrink-0 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 overflow-hidden
-                        fixed inset-y-0 left-0 z-40 w-64 mt-16 md:mt-0 md:sticky md:top-20 md:h-[calc(100vh-10rem)] transform transition-transform duration-300 ease-in-out md:transform-none ${
+                        fixed inset-y-0 left-0 z-40 w-64 mt-16 md:mt-0 md:sticky md:top-20 md:h-[calc(100vh-10rem)] transform transition-transform duration-300 ease-in-out md:translate-x-0 ${
                           sidebarOpen ? "translate-x-0" : "-translate-x-full"
                         }`}
             >

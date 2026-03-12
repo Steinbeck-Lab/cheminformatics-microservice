@@ -140,7 +140,7 @@ const FixRadicalsView = () => {
         </h2>
 
         {/* Info Box */}
-        <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 rounded-md border border-blue-200 dark:border-blue-700">
+        <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-md border border-blue-200 dark:border-blue-700">
           <div className="flex items-start">
             <HiOutlineInformationCircle className="h-5 w-5 text-blue-500 dark:text-blue-400 mr-3 mt-0.5 shrink-0" />
             <div className="text-sm text-blue-700 dark:text-blue-200">
@@ -193,8 +193,8 @@ const FixRadicalsView = () => {
         <div
           className={`p-4 rounded-md flex items-start shadow ${
             error.startsWith("No radicals")
-              ? "bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 text-blue-700 dark:text-blue-200 border border-blue-300 dark:border-blue-700"
-              : "bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700"
+              ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200 border border-blue-300 dark:border-blue-700"
+              : "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700"
           }`}
           role={error.startsWith("No radicals") ? "status" : "alert"}
         >
@@ -274,7 +274,7 @@ const FixRadicalsView = () => {
 
             {/* Note about unsupported radicals */}
             {result.radicals_detected > result.radicals_fixed && (
-              <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-30 rounded-md border border-yellow-200 dark:border-yellow-700">
+              <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/30 rounded-md border border-yellow-200 dark:border-yellow-700">
                 <div className="flex items-start">
                   <HiOutlineInformationCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mr-2 mt-0.5 shrink-0" />
                   <p className="text-sm text-yellow-700 dark:text-yellow-200">
@@ -415,7 +415,7 @@ const FixRadicalsView = () => {
             )}
 
             {smiles !== result.fixed_smiles && result.radicals_fixed > 0 && (
-              <div className="mt-4 p-3 bg-green-50 dark:bg-green-900 dark:bg-opacity-30 rounded-md border border-green-200 dark:border-green-700">
+              <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/30 rounded-md border border-green-200 dark:border-green-700">
                 <div className="flex items-start">
                   <HiOutlineCheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mr-2 mt-0.5 shrink-0" />
                   <p className="text-sm text-green-700 dark:text-green-200">

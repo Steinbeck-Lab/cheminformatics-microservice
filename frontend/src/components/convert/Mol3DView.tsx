@@ -183,7 +183,7 @@ const Mol3DView = () => {
         !isLoading && ( // Show error only if not loading
           // Error message styling
           <div
-            className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
+            className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
             role="alert"
           >
             <HiOutlineExclamationCircle
