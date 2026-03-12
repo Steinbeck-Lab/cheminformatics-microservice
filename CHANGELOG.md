@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.8.2](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.8.1...v3.8.2) (2026-03-12)
+
+
+### Bug Fixes
+
+* add production API origin to CSP connect-src directive ([f97f56c](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/f97f56c611a0cc2160c994502e4f8d26c23afc20))
+* track frontend/.env.production and set production API URL ([d2926ea](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d2926ea593fdde7dd929d9e43e4780adc0bdb50a))
+
 ## [3.8.1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.8.0...v3.8.1) (2026-03-11)
 
 
