@@ -32,7 +32,7 @@ const FixRadicalsView = () => {
       setDepictionLoading(true);
       setOriginalDepiction(null);
       setFixedDepiction(null);
-      
+
       try {
         // Use enhanced depiction for original molecule with radicals (perceive_radicals enabled)
         const originalSvg = await generate2DDepictionEnhanced(smiles, {
@@ -42,9 +42,9 @@ const FixRadicalsView = () => {
           annotate: "none",
           style: "cow",
         });
-        
+
         // Remove namespace prefix to fix rendering
-        const cleanedOriginalSvg = originalSvg.replace(/ns0:/g, '').replace('xmlns:ns0=', 'xmlns=');
+        const cleanedOriginalSvg = originalSvg.replace(/ns0:/g, "").replace("xmlns:ns0=", "xmlns=");
         setOriginalDepiction(cleanedOriginalSvg);
 
         // Use standard depiction for fixed molecule
@@ -53,9 +53,9 @@ const FixRadicalsView = () => {
           height: 400,
           toolkit: "cdk",
         });
-        
+
         // Remove namespace prefix to fix rendering
-        const cleanedFixedSvg = fixedSvg.replace(/ns0:/g, '').replace('xmlns:ns0=', 'xmlns=');
+        const cleanedFixedSvg = fixedSvg.replace(/ns0:/g, "").replace("xmlns:ns0=", "xmlns=");
         setFixedDepiction(cleanedFixedSvg);
       } catch (err) {
         console.error("Error generating depictions:", err);
@@ -146,11 +146,13 @@ const FixRadicalsView = () => {
             <div className="text-sm text-blue-700 dark:text-blue-200">
               <p className="font-medium mb-1">About Radical Fixing</p>
               <p>
-                This tool detects and fixes radical electrons (unpaired electrons) on atoms in molecular structures.
-                It supports radicals on Carbon (C), Nitrogen (N), and Oxygen (O) atoms.
+                This tool detects and fixes radical electrons (unpaired electrons) on atoms in
+                molecular structures. It supports radicals on Carbon (C), Nitrogen (N), and Oxygen
+                (O) atoms.
               </p>
               <p className="mt-2">
-                <strong>Examples:</strong> [CH3] (methyl radical), C[CH2] (ethyl radical), [OH] (hydroxyl radical)
+                <strong>Examples:</strong> [CH3] (methyl radical), C[CH2] (ethyl radical), [OH]
+                (hydroxyl radical)
               </p>
             </div>
           </div>
@@ -276,8 +278,8 @@ const FixRadicalsView = () => {
                 <div className="flex items-start">
                   <HiOutlineInformationCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mr-2 mt-0.5 flex-shrink-0" />
                   <p className="text-sm text-yellow-700 dark:text-yellow-200">
-                    Note: Some radicals were detected but not fixed. Currently, only radicals on Carbon (C),
-                    Nitrogen (N), and Oxygen (O) atoms are supported.
+                    Note: Some radicals were detected but not fixed. Currently, only radicals on
+                    Carbon (C), Nitrogen (N), and Oxygen (O) atoms are supported.
                   </p>
                 </div>
               </div>
@@ -290,7 +292,7 @@ const FixRadicalsView = () => {
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Structure Comparison
               </h3>
-              
+
               {/* Copy Fixed SMILES Button */}
               <button
                 onClick={handleCopySmiles}
@@ -319,7 +321,9 @@ const FixRadicalsView = () => {
             {depictionLoading && (
               <div className="flex justify-center items-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                <span className="ml-3 text-gray-600 dark:text-gray-400">Generating depictions...</span>
+                <span className="ml-3 text-gray-600 dark:text-gray-400">
+                  Generating depictions...
+                </span>
               </div>
             )}
 
@@ -331,13 +335,17 @@ const FixRadicalsView = () => {
                     <span className="inline-block w-2 h-2 bg-red-500 rounded-full mr-2"></span>
                     Original Structure (with radicals)
                   </h4>
-                  
+
                   {/* Depiction Container */}
                   <div className="bg-white dark:bg-gray-900 rounded-lg border-2 border-gray-200 dark:border-gray-700 p-4 mb-3">
                     {originalDepiction ? (
                       <div
                         className="w-full h-80 flex items-center justify-center [&>svg]:max-w-full [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:h-auto"
-                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(originalDepiction, { USE_PROFILES: { svg: true, svgFilters: true } }) }}
+                        dangerouslySetInnerHTML={{
+                          __html: DOMPurify.sanitize(originalDepiction, {
+                            USE_PROFILES: { svg: true, svgFilters: true },
+                          }),
+                        }}
                       />
                     ) : (
                       <div className="w-full h-80 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded">
@@ -364,13 +372,17 @@ const FixRadicalsView = () => {
                     <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                     Fixed Structure
                   </h4>
-                  
+
                   {/* Depiction Container */}
                   <div className="bg-white dark:bg-gray-900 rounded-lg border-2 border-green-200 dark:border-green-700 p-4 mb-3">
                     {fixedDepiction ? (
                       <div
                         className="w-full h-80 flex items-center justify-center [&>svg]:max-w-full [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:h-auto"
-                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(fixedDepiction, { USE_PROFILES: { svg: true, svgFilters: true } }) }}
+                        dangerouslySetInnerHTML={{
+                          __html: DOMPurify.sanitize(fixedDepiction, {
+                            USE_PROFILES: { svg: true, svgFilters: true },
+                          }),
+                        }}
                       />
                     ) : (
                       <div className="w-full h-80 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded">
@@ -407,8 +419,8 @@ const FixRadicalsView = () => {
                 <div className="flex items-start">
                   <HiOutlineCheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mr-2 mt-0.5 flex-shrink-0" />
                   <p className="text-sm text-green-700 dark:text-green-200">
-                    Successfully fixed {result.radicals_fixed} radical{result.radicals_fixed !== 1 ? "s" : ""} by
-                    adding implicit hydrogens.
+                    Successfully fixed {result.radicals_fixed} radical
+                    {result.radicals_fixed !== 1 ? "s" : ""} by adding implicit hydrogens.
                   </p>
                 </div>
               </div>

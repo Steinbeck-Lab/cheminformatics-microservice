@@ -26,14 +26,14 @@ const depictionCardVariant = {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { 
-      duration: 0.5, 
+    transition: {
+      duration: 0.5,
       ease: [0.25, 0.46, 0.45, 0.94],
       scale: {
         type: "spring",
         stiffness: 300,
-        damping: 25
-      }
+        damping: 25,
+      },
     },
   },
 };
@@ -58,7 +58,7 @@ const ToggleSwitch = ({ id, checked, onChange, label, disabled = false }) => {
         role="switch"
         aria-checked={checked}
         aria-label={label}
-      >        
+      >
         <LayoutGroup>
           <motion.div
             className={`relative h-5 w-5 rounded-full ${
@@ -79,8 +79,8 @@ const ToggleSwitch = ({ id, checked, onChange, label, disabled = false }) => {
       <label
         htmlFor={id}
         className={`text-sm font-medium select-none transition-colors duration-200 ${
-          disabled 
-            ? "text-gray-400 dark:text-gray-500" 
+          disabled
+            ? "text-gray-400 dark:text-gray-500"
             : checked
               ? "text-blue-700 dark:text-blue-400 cursor-pointer"
               : "text-gray-700 dark:text-gray-300 cursor-pointer hover:text-gray-900 dark:hover:text-gray-100"
@@ -153,7 +153,7 @@ const BatchDepictionView = () => {
     setDepictions((currentDepictions) =>
       currentDepictions.map((dep) => {
         const rotation = rotations[dep.id] || 0;
-        
+
         // Use appropriate endpoint based on toolkit
         if (toolkit === "cdk") {
           // CDK uses enhanced endpoint with all features
@@ -161,7 +161,7 @@ const BatchDepictionView = () => {
             console.error("depictService.get2DDepictionUrlEnhanced is not available.");
             return dep;
           }
-          
+
           const options = {
             width,
             height,
@@ -191,7 +191,7 @@ const BatchDepictionView = () => {
             console.error("depictService.get2DDepictionUrl is not available.");
             return dep;
           }
-          
+
           const options = {
             toolkit: "rdkit",
             width,
@@ -256,7 +256,7 @@ const BatchDepictionView = () => {
               console.error("depictService.get2DDepictionUrlEnhanced is not available.");
               return dep;
             }
-            
+
             const options = {
               width,
               height,
@@ -285,7 +285,7 @@ const BatchDepictionView = () => {
               console.error("depictService.get2DDepictionUrl is not available.");
               return dep;
             }
-            
+
             const options = {
               toolkit: "rdkit",
               width,
@@ -333,16 +333,16 @@ const BatchDepictionView = () => {
       const initialRotations = {};
       for (let i = 0; i < processingList.length; i++) {
         const smilesLine = processingList[i];
-        
+
         // Extract SMILES and Title with CXSMILES support
         let smiles;
         let title;
-        
+
         // Check if this is CXSMILES format (contains |...|)
-        const pipeIndex = smilesLine.indexOf('|');
+        const pipeIndex = smilesLine.indexOf("|");
         if (pipeIndex > -1) {
           // Find the closing pipe
-          const closingPipeIndex = smilesLine.indexOf('|', pipeIndex + 1);
+          const closingPipeIndex = smilesLine.indexOf("|", pipeIndex + 1);
           if (closingPipeIndex > -1) {
             // CXSMILES format: everything up to and including the closing | is the SMILES
             smiles = smilesLine.substring(0, closingPipeIndex + 1).trim();
@@ -354,13 +354,15 @@ const BatchDepictionView = () => {
             console.warn(`Malformed CXSMILES (missing closing |): ${smilesLine}`);
             const spaceIndex = smilesLine.search(/[\s\t]/);
             smiles = spaceIndex > 0 ? smilesLine.substring(0, spaceIndex) : smilesLine;
-            title = spaceIndex > 0 ? smilesLine.substring(spaceIndex + 1).trim() : `Molecule ${i + 1}`;
+            title =
+              spaceIndex > 0 ? smilesLine.substring(spaceIndex + 1).trim() : `Molecule ${i + 1}`;
           }
         } else {
           // Regular SMILES format: first space separates SMILES from title
           const spaceIndex = smilesLine.search(/[\s\t]/);
           smiles = spaceIndex > 0 ? smilesLine.substring(0, spaceIndex) : smilesLine;
-          title = spaceIndex > 0 ? smilesLine.substring(spaceIndex + 1).trim() : `Molecule ${i + 1}`;
+          title =
+            spaceIndex > 0 ? smilesLine.substring(spaceIndex + 1).trim() : `Molecule ${i + 1}`;
         }
 
         // Basic SMILES validation (can be improved)
@@ -374,7 +376,7 @@ const BatchDepictionView = () => {
         initialRotations[id] = 0; // Set initial rotation
 
         let imageUrl;
-        
+
         // Use appropriate endpoint based on toolkit
         if (toolkit === "cdk") {
           if (!depictService || typeof depictService.get2DDepictionUrlEnhanced !== "function") {
@@ -382,7 +384,7 @@ const BatchDepictionView = () => {
             setError("Depiction service is not configured correctly.");
             return;
           }
-          
+
           const options = {
             width,
             height,
@@ -411,7 +413,7 @@ const BatchDepictionView = () => {
             setError("Depiction service is not configured correctly.");
             return;
           }
-          
+
           const options = {
             toolkit: "rdkit",
             width,
@@ -465,13 +467,13 @@ const BatchDepictionView = () => {
         const rotation = rotations[depiction.id] || 0; // Get current rotation
 
         let downloadUrl;
-        
+
         // Use appropriate endpoint based on toolkit
         if (toolkit === "cdk") {
           if (!depictService || typeof depictService.get2DDepictionUrlEnhanced !== "function") {
             throw new Error("Depiction service (enhanced) is not configured correctly.");
           }
-          
+
           const options = {
             width,
             height,
@@ -499,7 +501,7 @@ const BatchDepictionView = () => {
           if (!depictService || typeof depictService.get2DDepictionUrl !== "function") {
             throw new Error("Depiction service is not configured correctly.");
           }
-          
+
           const options = {
             toolkit: "rdkit",
             width,
@@ -589,7 +591,7 @@ const BatchDepictionView = () => {
       const rotation = rotations[depiction.id] || 0;
 
       let url;
-      
+
       // Use appropriate endpoint based on toolkit
       if (toolkit === "cdk") {
         if (!depictService || typeof depictService.get2DDepictionUrlEnhanced !== "function") {
@@ -597,7 +599,7 @@ const BatchDepictionView = () => {
           setError("Depiction service is not configured correctly.");
           return;
         }
-        
+
         const options = {
           width,
           height,
@@ -627,7 +629,7 @@ const BatchDepictionView = () => {
           setError("Depiction service is not configured correctly.");
           return;
         }
-        
+
         const options = {
           toolkit: "rdkit",
           width,
@@ -703,7 +705,8 @@ const BatchDepictionView = () => {
           Batch 2D Depiction
         </h2>
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          Generate 2D molecular depictions with RDKit or CDK. Supports SMILES and CXSMILES formats. CDK offers enhanced features like abbreviations and advanced styling.
+          Generate 2D molecular depictions with RDKit or CDK. Supports SMILES and CXSMILES formats.
+          CDK offers enhanced features like abbreviations and advanced styling.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -736,7 +739,8 @@ const BatchDepictionView = () => {
               aria-required="true"
             />
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              Format: SMILES/CXSMILES [space/tab] Title (optional). CXSMILES with |...| notation fully supported. Max 50 molecules processed.
+              Format: SMILES/CXSMILES [space/tab] Title (optional). CXSMILES with |...| notation
+              fully supported. Max 50 molecules processed.
             </p>
           </div>
 
@@ -746,26 +750,26 @@ const BatchDepictionView = () => {
               <motion.div
                 key="tools-section"
                 initial={{ opacity: 0, height: 0, scale: 0.98 }}
-                animate={{ 
-                  opacity: 1, 
-                  height: "auto", 
+                animate={{
+                  opacity: 1,
+                  height: "auto",
                   scale: 1,
                   transition: {
                     duration: 0.4,
                     ease: [0.25, 0.46, 0.45, 0.94],
                     opacity: { duration: 0.3 },
                     height: { duration: 0.4 },
-                    scale: { duration: 0.3, delay: 0.1 }
-                  }
+                    scale: { duration: 0.3, delay: 0.1 },
+                  },
                 }}
-                exit={{ 
-                  opacity: 0, 
+                exit={{
+                  opacity: 0,
                   height: 0,
                   scale: 0.98,
                   transition: {
                     duration: 0.3,
-                    ease: "easeIn"
-                  }
+                    ease: "easeIn",
+                  },
                 }}
                 className="space-y-4 overflow-hidden border-t border-gray-200 dark:border-gray-700 pt-4"
               >
@@ -921,26 +925,26 @@ const BatchDepictionView = () => {
                   {toolkit === "cdk" && (
                     <motion.div
                       initial={{ opacity: 0, height: 0, y: -10 }}
-                      animate={{ 
-                        opacity: 1, 
-                        height: "auto", 
+                      animate={{
+                        opacity: 1,
+                        height: "auto",
                         y: 0,
                         transition: {
                           duration: 0.5,
                           ease: [0.25, 0.46, 0.45, 0.94],
                           opacity: { duration: 0.4, delay: 0.1 },
                           height: { duration: 0.5 },
-                          y: { duration: 0.4, delay: 0.1 }
-                        }
+                          y: { duration: 0.4, delay: 0.1 },
+                        },
                       }}
-                      exit={{ 
-                        opacity: 0, 
-                        height: 0, 
+                      exit={{
+                        opacity: 0,
+                        height: 0,
                         y: -10,
                         transition: {
                           duration: 0.3,
-                          ease: "easeIn"
-                        }
+                          ease: "easeIn",
+                        },
                       }}
                       className="space-y-4 overflow-hidden"
                     >
@@ -949,7 +953,7 @@ const BatchDepictionView = () => {
                           <span className="mr-2">✨</span>
                           Enhanced CDK Features
                         </h4>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-0.5">
                           {/* Style Preset */}
                           <div>
@@ -1112,14 +1116,14 @@ const BatchDepictionView = () => {
                             onChange={setFlip}
                             label="Flip structure horizontally"
                           />
-                          
+
                           <ToggleSwitch
                             id="showtitle"
                             checked={showtitle}
                             onChange={setShowtitle}
                             label="Show titles in depiction"
                           />
-                          
+
                           <ToggleSwitch
                             id="perceive-radicals"
                             checked={perceiveRadicals}
@@ -1444,11 +1448,11 @@ const BatchDepictionView = () => {
                           initial={{ scale: 0, rotate: -180 }}
                           animate={{ scale: 1, rotate: 0 }}
                           exit={{ scale: 0, rotate: 180 }}
-                          transition={{ 
-                            type: "spring", 
-                            stiffness: 500, 
+                          transition={{
+                            type: "spring",
+                            stiffness: 500,
                             damping: 25,
-                            duration: 0.3
+                            duration: 0.3,
                           }}
                           className="flex items-center justify-center"
                         >
@@ -1480,8 +1484,8 @@ const BatchDepictionView = () => {
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg flex flex-col items-center justify-center text-center min-h-[300px] border border-gray-200 dark:border-gray-700">
           <HiOutlinePhotograph className="h-16 w-16 text-gray-400 dark:text-gray-600 mb-4" />
           <p className="text-gray-500 dark:text-gray-400">
-            Enter SMILES or CXSMILES strings (one per line, optionally with titles) and click "Generate
-            Depictions".
+            Enter SMILES or CXSMILES strings (one per line, optionally with titles) and click
+            "Generate Depictions".
           </p>
           <button
             type="button"
