@@ -1,4 +1,5 @@
 /// <reference types="vitest/config" />
+import path from "path";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import tailwindcss from "@tailwindcss/vite";
@@ -10,6 +11,11 @@ export default defineConfig({
       jsxRuntime: "automatic",
     }),
   ],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
   server: {
     port: 3000,
     proxy: {
@@ -33,6 +39,9 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: "./src/__tests__/setup.ts",
     css: true,
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"],
