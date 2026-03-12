@@ -19,9 +19,9 @@ Requirements for this milestone. Each maps to roadmap phases.
 ### Framework Upgrades
 
 - [x] **FRAME-01**: React upgraded from 18.2 to 19.x (latest stable)
-- [ ] **FRAME-02**: Tailwind CSS upgraded from v3.3 to v4.x with CSS-first config
+- [x] **FRAME-02**: Tailwind CSS upgraded from v3.3 to v4.x with CSS-first config
 - [x] **FRAME-03**: TypeScript upgraded from 4.9.5 to 5.x (latest stable)
-- [ ] **FRAME-04**: All Tailwind v3 class renames and breaking changes resolved
+- [x] **FRAME-04**: All Tailwind v3 class renames and breaking changes resolved
 - [x] **FRAME-05**: Framer Motion verified compatible with React 19
 
 ### Component System
@@ -108,9 +108,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BUILD-05 | Phase 1 | Complete |
 | BUILD-06 | Phase 1 | Complete |
 | FRAME-01 | Phase 2 | Complete |
-| FRAME-02 | Phase 3 | Pending |
+| FRAME-02 | Phase 3 | Complete |
 | FRAME-03 | Phase 2 | Complete |
-| FRAME-04 | Phase 3 | Pending |
+| FRAME-04 | Phase 3 | Complete |
 | FRAME-05 | Phase 2 | Complete |
 | COMP-01 | Phase 4 | Pending |
 | COMP-02 | Phase 4 | Pending |

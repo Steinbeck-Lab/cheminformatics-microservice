@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Phase 3 context gathered
-last_updated: "2026-03-12T18:28:07.599Z"
-last_activity: 2026-03-12 -- Completed Plan 02-02 (Motion package migration)
+status: in-progress
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-03-12T19:18:29Z"
+last_activity: 2026-03-12 -- Completed Plan 03-01 (Tailwind v4 upgrade + CSS-first config)
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
-  percent: 33
+  total_plans: 6
+  completed_plans: 6
+  percent: 43
 ---
 
 # Project State
@@ -21,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-12)
 
 **Core value:** The frontend must feel noticeably modern, fast, and polished -- while never breaking existing functionality. Zero security alerts, production-grade quality.
-**Current focus:** Phase 2 complete. All plans done (React 19 + TypeScript + Motion). Ready for Phase 3 (Tailwind v4).
+**Current focus:** Phase 3 in progress. Plan 03-01 complete (Tailwind v4 upgrade + CSS-first config). Plan 03-02 next (edge case audit + visual verification).
 
 ## Current Position
 
-Phase: 2 of 6 (React 19 + TypeScript 5) -- COMPLETE
-Plan: 2 of 2 in current phase -- COMPLETE
-Status: Phase 02 Complete
-Last activity: 2026-03-12 -- Completed Plan 02-02 (Motion package migration)
+Phase: 3 of 6 (Tailwind v4 Migration) -- IN PROGRESS
+Plan: 1 of 2 in current phase -- COMPLETE
+Status: Plan 03-01 Complete
+Last activity: 2026-03-12 -- Completed Plan 03-01 (Tailwind v4 upgrade + CSS-first config)
 
-Progress: [███░░░░░░░] 33%
+Progress: [████░░░░░░] 43%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 9min
-- Total execution time: 0.8 hours
+- Total plans completed: 6
+- Average duration: 11min
+- Total execution time: 1.1 hours
 
 **By Phase:**
 
@@ -45,10 +45,11 @@ Progress: [███░░░░░░░] 33%
 |-------|-------|-------|----------|
 | 01-vite-migration | 3/3 | 26min | 9min |
 | 02-react-19-typescript-5 | 2/2 | 22min | 11min |
+| 03-tailwind-v4-migration | 1/2 | 19min | 19min |
 
 **Recent Trend:**
-- Last 5 plans: 13min, 5min, 8min, 10min, 12min
-- Trend: Stable
+- Last 5 plans: 5min, 8min, 10min, 12min, 19min
+- Trend: Stable (Tailwind v4 migration more complex)
 
 *Updated after each plan completion*
 
@@ -77,6 +78,12 @@ Recent decisions affecting current work:
 - [02-02]: Installed motion@12.36.0 (latest) instead of pinned 12.35.2 -- newer patch, same API
 - [02-02]: Spring physics applied to tab indicators (stiffness 500, damping 30) and page entrances (stiffness 100, damping 20)
 - [02-02]: Footer particles, Header mobile menu, LoadingScreen, AboutPage scroll animations left untouched per research recommendations
+- [03-01]: Used @utility directive for component classes (btn, card, form) -- v4 @layer components cannot use @apply to reference same-layer classes
+- [03-01]: Scoped global * transition-colors to interactive elements only (a, button, input, select, textarea, [role=button])
+- [03-01]: Removed all unused pattern definitions (dots-bg, grid-bg, mesh-bg, noise-bg) and custom shadows -- zero TSX usage
+- [03-01]: Kept custom gray-950 (#0f1521) to preserve dark mode background -- differs from v4 default #030712
+- [03-01]: glass and text-gradient converted to @utility with dark mode via :where() selector
+- [03-01]: Local development requires Node 20+ for Tailwind v4 Oxide engine
 
 ### Pending Todos
 
@@ -84,11 +91,10 @@ None yet.
 
 ### Blockers/Concerns
 
-- Tailwind v4 theme() function replacement needs manual work (Phase 3 risk)
 - shadcn/ui CLI support for JavaScript (not TypeScript) projects needs verification (Phase 4 risk)
 
 ## Session Continuity
 
-Last session: 2026-03-12T18:28:07.597Z
-Stopped at: Phase 3 context gathered
-Resume file: .planning/phases/03-tailwind-v4-migration/03-CONTEXT.md
+Last session: 2026-03-12T19:18:29Z
+Stopped at: Completed 03-01-PLAN.md
+Resume file: .planning/phases/03-tailwind-v4-migration/03-02-PLAN.md
