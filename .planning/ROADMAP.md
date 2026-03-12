@@ -39,18 +39,18 @@ Plans:
 - [x] 01-03-PLAN.md -- Docker update and full migration verification (9-page visual check)
 
 ### Phase 2: React 19 + TypeScript 5
-**Goal**: The application runs on React 19 and TypeScript 5 with all existing functionality intact
+**Goal**: The application runs on React 19 and TypeScript 5 with all existing functionality intact, and animations use the modern motion package
 **Depends on**: Phase 1
 **Requirements**: FRAME-01, FRAME-03, FRAME-05
 **Success Criteria** (what must be TRUE):
   1. React 19.x is installed and the app renders all 9 pages without console errors or warnings
   2. TypeScript 5.x compiles the project with no type errors
-  3. All framer-motion animations continue to work correctly (page transitions, component animations)
-**Plans**: TBD
+  3. All animations work correctly using the motion package (page transitions, component animations)
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md -- React 19 upgrade, TypeScript conversion (61 files .js/.jsx to .ts/.tsx), tsconfig, type definitions, ESLint TypeScript support
+- [ ] 02-02-PLAN.md -- Motion package migration (framer-motion to motion/react), animation enhancements, visual verification
 
 ### Phase 3: Tailwind v4 Migration
 **Goal**: All styling runs on Tailwind CSS v4 with CSS-first configuration and no visual regressions
