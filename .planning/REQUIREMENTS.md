@@ -13,7 +13,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 - [x] **BUILD-02**: All dependabot security vulnerabilities are resolved (zero alerts)
 - [x] **BUILD-03**: All package.json overrides are eliminated (proper dependency upgrades)
 - [x] **BUILD-04**: All dependencies updated to latest stable versions
-- [ ] **BUILD-05**: Docker frontend build (Dockerfile.frontend) works with Vite
+- [x] **BUILD-05**: Docker frontend build (Dockerfile.frontend) works with Vite
 - [x] **BUILD-06**: Environment variables migrated from REACT_APP_* to VITE_* prefix
 
 ### Framework Upgrades
@@ -105,7 +105,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BUILD-02 | Phase 1 | Complete |
 | BUILD-03 | Phase 1 | Complete |
 | BUILD-04 | Phase 1 | Complete |
-| BUILD-05 | Phase 1 | Pending |
+| BUILD-05 | Phase 1 | Complete |
 | BUILD-06 | Phase 1 | Complete |
 | FRAME-01 | Phase 2 | Pending |
 | FRAME-02 | Phase 3 | Pending |

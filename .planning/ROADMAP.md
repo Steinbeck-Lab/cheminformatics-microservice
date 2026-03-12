@@ -12,7 +12,7 @@ This roadmap modernizes the Cheminformatics Microservice frontend from a depreca
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Vite Migration** - Replace deprecated CRA with Vite, resolve all security vulnerabilities, update dependencies
+- [x] **Phase 1: Vite Migration** - Replace deprecated CRA with Vite, resolve all security vulnerabilities, update dependencies (completed 2026-03-12)
 - [ ] **Phase 2: React 19 + TypeScript 5** - Upgrade React 18 to 19, TypeScript 4.9 to 5.x, verify framer-motion compatibility
 - [ ] **Phase 3: Tailwind v4 Migration** - Upgrade Tailwind CSS v3 to v4 with CSS-first config and class rename resolution
 - [ ] **Phase 4: Component System + Dark Mode** - Integrate shadcn/ui components across all pages with CSS variable theming and dark mode
@@ -34,9 +34,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md -- Core Vite setup: uninstall CRA, install Vite stack, migrate env vars, update deps
-- [ ] 01-02-PLAN.md -- Developer tooling: ESLint v9 flat config, Vitest, husky, CI workflow
-- [ ] 01-03-PLAN.md -- Docker update and full migration verification (9-page visual check)
+- [x] 01-01-PLAN.md -- Core Vite setup: uninstall CRA, install Vite stack, migrate env vars, update deps
+- [x] 01-02-PLAN.md -- Developer tooling: ESLint v9 flat config, Vitest, husky, CI workflow
+- [x] 01-03-PLAN.md -- Docker update and full migration verification (9-page visual check)
 
 ### Phase 2: React 19 + TypeScript 5
 **Goal**: The application runs on React 19 and TypeScript 5 with all existing functionality intact
@@ -125,7 +125,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Vite Migration | 0/3 | Planned | - |
+| 1. Vite Migration | 3/3 | Complete   | 2026-03-12 |
 | 2. React 19 + TypeScript 5 | 0/2 | Not started | - |
 | 3. Tailwind v4 Migration | 0/2 | Not started | - |
 | 4. Component System + Dark Mode | 0/4 | Not started | - |
