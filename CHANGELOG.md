@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.8.1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.8.0...v3.8.1) (2026-03-11)
+
+
+### Bug Fixes
+
+* download npmodel ([b09ae4a](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/b09ae4a6411e30c7292fb83deab75505b2a93ce2))
+* flake8 issues ([2d26d78](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/2d26d78125d433c37206ba200e56676a566bc5e9))
+* frontend CSP font-src, MOL format conversion, and molblock header parsing ([43680af](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/43680af6c7e51b71ecadd0ea4f87abe8fec4b3d0))
+* resolve CI test failures for limiter, JVM setup, and NP model URL ([1db321c](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/1db321c3acfd782243da3b337e7e3c9d0a83cbfe))
+* security hardening, ensure_2d fallback, and CDK 2.12 upgrade ([00eebbe](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/00eebbe5524d670c13beeb9fa1eb83abc191f861))
+
 ## [3.8.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.7.3...v3.8.0) (2026-02-26)
 
 
