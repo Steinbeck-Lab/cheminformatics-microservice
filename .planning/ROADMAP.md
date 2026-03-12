@@ -60,11 +60,11 @@ Plans:
   1. Tailwind v4 is installed with the @tailwindcss/vite plugin and the old postcss/tailwind JS config files are removed
   2. All 9 pages render with correct styling -- no missing colors, broken layouts, or invisible elements from silent class renames
   3. CSS variables in tailwind.css use Tailwind v4 @theme block syntax instead of the v3 theme() function
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
+- [ ] 03-01-PLAN.md -- Upgrade tool + package swap, CSS-first config migration (@theme, @plugin, @custom-variant), theme() replacement, class renames
+- [ ] 03-02-PLAN.md -- Edge case audit (transform-none, ring defaults, bg-opacity merging), final sweep, 9-page visual verification
 
 ### Phase 4: Component System + Dark Mode
 **Goal**: All UI elements use shadcn/ui components with a unified CSS variable theming system and functional dark mode toggle
