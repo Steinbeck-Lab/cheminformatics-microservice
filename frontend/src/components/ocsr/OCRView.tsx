@@ -1,7 +1,7 @@
 // Description: Enhanced OCRView component with production-ready UX/UI
 import React, { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import {
   HiOutlineUpload,
   HiOutlineLink,

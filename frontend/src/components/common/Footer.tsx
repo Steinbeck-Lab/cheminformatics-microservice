@@ -9,7 +9,7 @@ import {
   FaShieldAlt,
   FaFileContract,
 } from "react-icons/fa";
-import { motion, useAnimation, useInView } from "framer-motion";
+import { motion, useAnimation, useInView } from "motion/react";
 import { useAppContext } from "../../context/AppContext";
 import { Link } from "react-router-dom";
 

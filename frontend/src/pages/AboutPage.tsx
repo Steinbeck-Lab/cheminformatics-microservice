@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform } from "motion/react";
 import {
   HiOutlineExternalLink,
   HiOutlineCode,
@@ -27,7 +27,7 @@ const headerItemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.7, ease: [0.2, 0.65, 0.3, 0.9] },
+    transition: { type: "spring", stiffness: 100, damping: 20 },
   },
 };
 
@@ -37,7 +37,7 @@ const contentContainerVariant = {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { duration: 0.7, delay: 0.3, ease: [0.2, 0.65, 0.3, 0.9] },
+    transition: { type: "spring", stiffness: 100, damping: 20, delay: 0.3 },
   },
 };
 

@@ -10,7 +10,7 @@ import {
   HiOutlineExclamationCircle, // FIX: Added missing import
 } from "react-icons/hi";
 import { FaAtom } from "react-icons/fa";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import LoadingScreen from "../common/LoadingScreen";
 import MoleculeCard from "../common/MoleculeCard";
 import toolsService from "../../services/toolsService";

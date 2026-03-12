@@ -1,7 +1,7 @@
 // Description: This page contains tools for structure generation and sugar removal.
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 import SugarRemovalView from "../components/tools/SugarRemovalView";
 import StructureGenView from "../components/tools/StructureGenView";
 import InChIView from "../components/tools/InChIView";
@@ -85,7 +85,7 @@ const contentVariants = {
   visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.45, ease: [0.25, 1, 0.5, 1] },
+    transition: { type: "spring", stiffness: 500, damping: 30 },
   },
   exit: { opacity: 0, x: 20, transition: { duration: 0.3, ease: "easeIn" } },
 };

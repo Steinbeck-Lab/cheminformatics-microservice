@@ -1,7 +1,7 @@
 // Description: HomePage component with a modern design, featuring a hero section, features grid, and recent molecules section. It uses Framer Motion for animations and Tailwind CSS for styling.
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import {
   HiOutlineArrowRight,
   HiOutlineBeaker,
@@ -58,7 +58,7 @@ const itemVariants = {
     y: 0,
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.6, ease: [0.25, 1, 0.5, 1] },
+    transition: { type: "spring", stiffness: 100, damping: 20 },
   },
 };
 
@@ -75,13 +75,13 @@ const heroTextVariants = {
   visible: (i = 1) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.8, delay: i * 0.07, ease: [0.2, 0.8, 0.2, 1] },
+    transition: { type: "spring", stiffness: 100, damping: 20, delay: i * 0.07 },
   }),
 };
 
 const sectionFadeIn = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.9, ease: "easeOut" } },
+  visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 20 } },
 };
 
 const ribbonContentVariants = {

@@ -1,6 +1,6 @@
 // Description: A loading screen component that displays a molecule animation with a loading message.
 import React from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 // --- Configuration (Moved outside component for clarity) ---
 

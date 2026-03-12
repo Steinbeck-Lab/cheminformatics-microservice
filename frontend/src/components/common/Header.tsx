@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
 import Navigation from "./Navigation";
 import { HiOutlineMoon, HiOutlineSun, HiOutlineMenu, HiOutlineX } from "react-icons/hi";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 
 // --- Enhanced Animation Variants ---
 const headerVariants = {

@@ -8,7 +8,7 @@ import {
   HiOutlineSwitchHorizontal,
   HiOutlineExclamationCircle,
 } from "react-icons/hi";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import LoadingScreen from "../common/LoadingScreen";
 // Assuming this service is configured correctly

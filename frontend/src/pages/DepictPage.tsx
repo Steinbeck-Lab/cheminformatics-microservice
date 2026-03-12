@@ -1,7 +1,7 @@
 // Description: DepictPage component for generating 2D and 3D depictions of chemical structures
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 import Depict3DView from "../components/depict/Depict3DView";
 import Depict2DMultiView from "../components/depict/Depict2DMultiView";
 import StructureVisualizerView from "../components/depict/StructureVisualizerView";
@@ -82,7 +82,7 @@ const contentVariants = {
   visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.45, ease: [0.25, 1, 0.5, 1] },
+    transition: { type: "spring", stiffness: 500, damping: 30 },
   },
   exit: { opacity: 0, x: 20, transition: { duration: 0.3, ease: "easeIn" } },
 };

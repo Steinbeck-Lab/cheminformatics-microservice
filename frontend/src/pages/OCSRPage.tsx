@@ -1,6 +1,6 @@
 // Description: This page implements the Optical Chemical Structure Recognition (OCSR) tool using DECIMER.
 import React from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import OCRView from "../components/ocsr/OCRView"; // Assuming path is correct
 import { HiOutlineDocumentSearch, HiOutlineExternalLink } from "react-icons/hi";
 
@@ -21,17 +21,16 @@ const headerItemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: [0.2, 0.65, 0.3, 0.9] },
+    transition: { type: "spring", stiffness: 100, damping: 20 },
   },
 };
 const contentContainerVariant = {
-  // Similar to tabContainerVariant
   hidden: { opacity: 0, y: 20, scale: 0.98 },
   visible: {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { duration: 0.5, delay: 0.2, ease: [0.2, 0.65, 0.3, 0.9] },
+    transition: { type: "spring", stiffness: 100, damping: 20, delay: 0.2 },
   },
 };
 const buttonVariant = {

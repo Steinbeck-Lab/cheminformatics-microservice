@@ -1,7 +1,7 @@
 // Description: This page provides a tabbed interface for format conversion and coordinate generation.
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 import FormatConversionView from "../components/convert/FormatConversionView";
 import Mol2DView from "../components/convert/Mol2DView";
 import Mol3DView from "../components/convert/Mol3DView";
@@ -73,7 +73,7 @@ const contentVariants = {
   visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.45, ease: [0.25, 1, 0.5, 1] },
+    transition: { type: "spring", stiffness: 500, damping: 30 },
   },
   exit: { opacity: 0, x: 20, transition: { duration: 0.3, ease: "easeIn" } },
 };

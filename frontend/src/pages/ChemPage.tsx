@@ -1,6 +1,6 @@
 // Description: This file contains the ChemPage component, which provides a user interface for various chemical analysis tools. It includes a sidebar for navigation and displays different views based on the selected tool.
 import React, { useState, useEffect, useMemo } from "react";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 
 // Import Views
 import StereoisomersView from "../components/chem/StereoisomersView";
@@ -183,7 +183,7 @@ const contentVariants = {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { duration: 0.5, ease: [0.25, 1, 0.5, 1] },
+    transition: { type: "spring", stiffness: 500, damping: 30 },
   },
 };
 // FIX: Removed unused categoryContentVariants
