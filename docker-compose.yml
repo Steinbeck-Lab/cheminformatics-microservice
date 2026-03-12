@@ -34,7 +34,7 @@ services:
       dockerfile: ./Dockerfile
     container_name: cheminformatics-microservice-frontend
     environment:
-      - REACT_APP_API_URL=http://localhost:8000/latest
+      - VITE_API_URL=http://localhost:8000/latest
       - NODE_ENV=development
     ports:
       - "3000:80"
