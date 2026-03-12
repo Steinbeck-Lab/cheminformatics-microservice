@@ -31,12 +31,12 @@ Requirements for this milestone. Each maps to roadmap phases.
 - [ ] **COMP-03**: Cards and content containers replaced with shadcn/ui Card
 - [ ] **COMP-04**: Modals and dialogs replaced with shadcn/ui Dialog/Sheet
 - [ ] **COMP-05**: Form inputs replaced with shadcn/ui Input/Select/Textarea
-- [ ] **COMP-06**: Icons migrated from react-icons to lucide-react
+- [x] **COMP-06**: Icons migrated from react-icons to lucide-react
 - [ ] **COMP-07**: Consistent component usage across all 9 pages
 
 ### Theming & Dark Mode
 
-- [ ] **THEME-01**: Dark mode toggle available in UI (header/nav)
+- [x] **THEME-01**: Dark mode toggle available in UI (header/nav)
 - [ ] **THEME-02**: System preference auto-detection (prefers-color-scheme)
 - [ ] **THEME-03**: Theme preference persisted in localStorage
 - [ ] **THEME-04**: CSS variable-based theming using shadcn/ui approach
@@ -117,9 +117,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | COMP-03 | Phase 4 | Pending |
 | COMP-04 | Phase 4 | Pending |
 | COMP-05 | Phase 4 | Pending |
-| COMP-06 | Phase 4 | Pending |
+| COMP-06 | Phase 4 | Complete |
 | COMP-07 | Phase 4 | Pending |
-| THEME-01 | Phase 4 | Pending |
+| THEME-01 | Phase 4 | Complete |
 | THEME-02 | Phase 4 | Pending |
 | THEME-03 | Phase 4 | Pending |
 | THEME-04 | Phase 4 | Pending |
