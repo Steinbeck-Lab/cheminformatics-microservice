@@ -138,7 +138,7 @@ const Mol3DView = () => {
               id="toolkit-select-mol3d"
               value={toolkit}
               onChange={(e) => setToolkit(e.target.value)}
-              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
             >
               {TOOLKIT_OPTIONS_3D.map(
                 (
@@ -161,10 +161,10 @@ const Mol3DView = () => {
             <button
               type="submit"
               // Button styling
-              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                 !smiles.trim() || isLoading
                   ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed" // Disabled state
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm" // Enabled state
+                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs" // Enabled state
               }`}
               disabled={!smiles.trim() || isLoading}
             >
@@ -183,11 +183,11 @@ const Mol3DView = () => {
         !isLoading && ( // Show error only if not loading
           // Error message styling
           <div
-            className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow"
+            className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
             role="alert"
           >
             <HiOutlineExclamationCircle
-              className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+              className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
               aria-hidden="true"
             />
             <span>{error}</span>
@@ -205,11 +205,11 @@ const Mol3DView = () => {
               3D Molblock (MDL Molfile V2000)
             </h3>
             {/* Action Buttons */}
-            <div className="flex space-x-2 flex-shrink-0">
+            <div className="flex space-x-2 shrink-0">
               {/* Copy Button */}
               <button
                 onClick={handleCopy}
-                className={`px-3 py-1.5 text-sm rounded-md flex items-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+                className={`px-3 py-1.5 text-sm rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                   copied
                     ? "bg-green-100 dark:bg-green-700 text-green-700 dark:text-green-200" // Copied state
                     : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600" // Default state
@@ -227,7 +227,7 @@ const Mol3DView = () => {
               {/* Download Button */}
               <button
                 onClick={downloadMolblock}
-                className="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md flex items-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500"
+                className="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500"
                 title="Download as MOL file"
                 aria-label="Download 3D Molblock as MOL file"
               >
@@ -238,7 +238,7 @@ const Mol3DView = () => {
           </div>
 
           {/* Molblock Display Area */}
-          <div className="bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 overflow-auto max-h-96 shadow-sm">
+          <div className="bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 overflow-auto max-h-96 shadow-xs">
             {/* Molblock text styling */}
             <pre className="text-gray-700 dark:text-gray-300 font-mono text-xs sm:text-sm whitespace-pre">
               {molblock}

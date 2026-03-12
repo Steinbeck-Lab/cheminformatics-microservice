@@ -97,10 +97,10 @@ const NPlikenessView = () => {
             <button
               type="submit"
               disabled={!smiles.trim() || loading}
-              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                 !smiles.trim() || loading
                   ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm"
+                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
               <HiOutlineCalculator className="mr-2 h-5 w-5" aria-hidden="true" />
@@ -117,11 +117,11 @@ const NPlikenessView = () => {
       {error &&
         !loading && ( // Show error only if not loading
           <div
-            className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow"
+            className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
             role="alert"
           >
             <HiOutlineExclamationCircle
-              className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+              className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
               aria-hidden="true"
             />
             <span>{error}</span>
@@ -139,7 +139,7 @@ const NPlikenessView = () => {
             </h3>
             {/* Info Button (Consider adding tooltip/modal functionality) */}
             <button
-              className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               title="About NP-likeness scores (Not implemented)"
               onClick={() =>
                 alert(
@@ -174,15 +174,15 @@ const NPlikenessView = () => {
               <div className="overflow-hidden h-2.5 mb-4 flex rounded-full bg-gray-200 dark:bg-gray-700 shadow-inner">
                 {/* Gradient Segments */}
                 {/* These gradients provide a visual representation */}
-                <div className="h-full w-[30%] bg-gradient-to-r from-red-500 to-orange-500"></div>{" "}
+                <div className="h-full w-[30%] bg-linear-to-r from-red-500 to-orange-500"></div>{" "}
                 {/* -5 to -2 */}
-                <div className="h-full w-[10%] bg-gradient-to-r from-orange-500 to-amber-500"></div>{" "}
+                <div className="h-full w-[10%] bg-linear-to-r from-orange-500 to-amber-500"></div>{" "}
                 {/* -2 to -1 */}
-                <div className="h-full w-[10%] bg-gradient-to-r from-amber-500 to-blue-500"></div>{" "}
+                <div className="h-full w-[10%] bg-linear-to-r from-amber-500 to-blue-500"></div>{" "}
                 {/* -1 to 0 */}
-                <div className="h-full w-[10%] bg-gradient-to-r from-blue-500 to-green-400"></div>{" "}
+                <div className="h-full w-[10%] bg-linear-to-r from-blue-500 to-green-400"></div>{" "}
                 {/* 0 to 1 */}
-                <div className="h-full w-[40%] bg-gradient-to-r from-green-400 to-green-600"></div>{" "}
+                <div className="h-full w-[40%] bg-linear-to-r from-green-400 to-green-600"></div>{" "}
                 {/* 1 to 5 */}
               </div>
               {/* Marker for the current score */}
@@ -207,7 +207,7 @@ const NPlikenessView = () => {
               </div>
             </div>
             {/* Informational Box about the score */}
-            <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg text-sm text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg text-sm text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 shadow-xs">
               <p>
                 <strong>About NP-likeness Score:</strong> This score measures molecular similarity
                 to known natural products, ranging from -5 (synthetic-like) to +5 (natural
@@ -225,7 +225,7 @@ const NPlikenessView = () => {
       {/* Initial State Message (Optional) */}
       {/* Show only if no score, not loading, and no error */}
       {npScore === null && !loading && !error && (
-        <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center shadow">
+        <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center shadow-sm">
           <p className="text-gray-600 dark:text-gray-300">
             Enter a SMILES string to calculate its Natural Product-likeness score.
           </p>

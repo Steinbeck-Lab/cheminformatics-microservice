@@ -485,7 +485,7 @@ const FormatConversionView = () => {
                 Input Format
               </label>
               {autoDetected && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
                   Auto-detected
                 </span>
               )}
@@ -494,7 +494,7 @@ const FormatConversionView = () => {
               id="input-format-select"
               value={inputFormat}
               onChange={(e) => handleInputFormatChange(e.target.value)}
-              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
             >
               {INPUT_FORMAT_OPTIONS.map((option) => (
                 <option key={option.id} value={option.id}>
@@ -517,7 +517,7 @@ const FormatConversionView = () => {
                 id="iupac-converter-select"
                 value={iupacConverter}
                 onChange={(e) => setIupacConverter(e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
               >
                 {IUPAC_CONVERTER_OPTIONS.map((option) => (
                   <option key={option.id} value={option.id}>
@@ -540,7 +540,7 @@ const FormatConversionView = () => {
                 </label>
                 <label
                   htmlFor="cdx-file-upload"
-                  className="group relative flex items-center justify-center px-6 py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all duration-300 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 hover:shadow-md"
+                  className="group relative flex items-center justify-center px-6 py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all duration-300 bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 hover:shadow-md"
                 >
                   <input
                     ref={cdxFileInputRef}
@@ -565,7 +565,7 @@ const FormatConversionView = () => {
                   </div>
                 </label>
                 {cdxFilename && (
-                  <div className="mt-3 flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg shadow-sm">
+                  <div className="mt-3 flex items-center justify-between p-3 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg shadow-xs">
                     <div className="flex items-center space-x-2 flex-1 min-w-0">
                       <div className="p-1.5 bg-blue-100 dark:bg-blue-800/40 rounded-md">
                         <HiOutlineDocumentText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
@@ -604,7 +604,7 @@ const FormatConversionView = () => {
                 <div className="mb-3">
                   <label
                     htmlFor="mol-file-upload"
-                    className="group relative flex items-center justify-center px-6 py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all duration-300 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 hover:shadow-md"
+                    className="group relative flex items-center justify-center px-6 py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all duration-300 bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 hover:shadow-md"
                   >
                     <input
                       ref={fileInputRef}
@@ -635,7 +635,7 @@ const FormatConversionView = () => {
 
                 {/* Display uploaded filename with clear option */}
                 {uploadedFilename && (
-                  <div className="mb-3 flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg shadow-sm animate-fadeIn">
+                  <div className="mb-3 flex items-center justify-between p-3 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg shadow-xs animate-fadeIn">
                     <div className="flex items-center space-x-2 flex-1 min-w-0">
                       <div className="p-1.5 bg-blue-100 dark:bg-blue-800/40 rounded-md">
                         <HiOutlineDocumentText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
@@ -664,7 +664,7 @@ const FormatConversionView = () => {
                   placeholder="Paste MOL or SDF block here...&#10;&#10;Example:&#10;  CDK     09012308392D&#10;&#10;  2  1  0  0  0  0  0  0  0  0999 V2000&#10;    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0&#10;    1.5000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0&#10;  1  2  1  0  0  0  0&#10;M  END"
                   rows={12}
                   required
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm font-mono text-sm"
+                  className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs font-mono text-sm"
                 />
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Upload a file or paste a MOL or SDF block. If SDF format is detected (contains
@@ -710,11 +710,11 @@ const FormatConversionView = () => {
 
           {/* Conversion Direction Indicator */}
           <div className="flex items-center justify-center py-4">
-            <div className="flex-grow h-px bg-gray-200 dark:bg-gray-700"></div>
+            <div className="grow h-px bg-gray-200 dark:bg-gray-700"></div>
             <div className="mx-4 bg-gray-100 dark:bg-gray-700 p-2 rounded-full ring-1 ring-gray-300 dark:ring-gray-600">
               <HiOutlineArrowRight className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
-            <div className="flex-grow h-px bg-gray-200 dark:bg-gray-700"></div>
+            <div className="grow h-px bg-gray-200 dark:bg-gray-700"></div>
           </div>
 
           {/* Output Format Selection */}
@@ -729,7 +729,7 @@ const FormatConversionView = () => {
               id="output-format-select"
               value={outputFormat}
               onChange={(e) => handleOutputFormatChange(e.target.value)}
-              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
               disabled={inputFormat !== "smiles"}
             >
               {OUTPUT_FORMAT_OPTIONS.map((option) => (
@@ -775,7 +775,7 @@ const FormatConversionView = () => {
                 id="toolkit-select-convert"
                 value={toolkit}
                 onChange={(e) => setToolkit(e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
               >
                 {TOOLKIT_OPTIONS.filter((option) => {
                   // MOL/SDF only supports CDK and RDKit
@@ -799,7 +799,7 @@ const FormatConversionView = () => {
 
           {/* Information about toolkit for SMARTS (when relevant) */}
           {outputFormat === "smarts" && (
-            <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 rounded text-xs text-blue-600 dark:text-blue-300">
+            <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 rounded-sm text-xs text-blue-600 dark:text-blue-300">
               <p>SMARTS conversion is only available using RDKit.</p>
             </div>
           )}
@@ -809,10 +809,10 @@ const FormatConversionView = () => {
             <button
               type="submit"
               disabled={(inputFormat === "cdx" ? !cdxFile : !input.trim()) || loading}
-              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                 (inputFormat === "cdx" ? !cdxFile : !input.trim()) || loading
                   ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm"
+                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
               <HiOutlineSwitchHorizontal className="mr-2 h-5 w-5" aria-hidden="true" />
@@ -828,11 +828,11 @@ const FormatConversionView = () => {
       {/* Error Display */}
       {error && !loading && (
         <div
-          className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow"
+          className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
           role="alert"
         >
           <HiOutlineExclamationCircle
-            className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+            className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
             aria-hidden="true"
           />
           <span>{error}</span>
@@ -848,7 +848,7 @@ const FormatConversionView = () => {
             {/* Copy Button */}
             <button
               onClick={handleCopyResult}
-              className={`p-1.5 rounded-md transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+              className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
                 copied
                   ? "text-green-500 dark:text-green-500"
                   : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -872,7 +872,7 @@ const FormatConversionView = () => {
                 Conversion Result
               </h4>
               {/* Result Display Box */}
-              <div className="p-3 bg-gray-100 dark:bg-gray-900 rounded-md font-mono text-sm overflow-x-auto border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div className="p-3 bg-gray-100 dark:bg-gray-900 rounded-md font-mono text-sm overflow-x-auto border border-gray-200 dark:border-gray-700 shadow-xs">
                 <pre className="whitespace-pre-wrap break-all text-gray-700 dark:text-gray-300">
                   {result}
                 </pre>
@@ -909,7 +909,7 @@ const FormatConversionView = () => {
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
                   Structure generated from SMILES:{" "}
-                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">
+                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded-sm text-xs">
                     {smilesForStructure}
                   </code>
                 </div>
@@ -921,7 +921,7 @@ const FormatConversionView = () => {
 
       {/* Initial State Message */}
       {!result && !loading && !error && (
-        <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center shadow">
+        <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center shadow-sm">
           <p className="text-gray-600 dark:text-gray-300">
             Enter input data and select options to perform format conversion.
           </p>

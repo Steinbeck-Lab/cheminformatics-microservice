@@ -53,11 +53,11 @@ const OCSRPage = () => {
     >
       {/* --- Adaptive Background Effects --- */}
       <div className="absolute inset-0 -z-20 overflow-hidden dark:opacity-100 opacity-0 transition-opacity duration-500">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-slate-900 to-indigo-950"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-gray-950 via-slate-900 to-indigo-950"></div>
         <div className="animated-mesh-gradient"></div>
       </div>
       <div className="absolute inset-0 -z-20 overflow-hidden dark:opacity-0 opacity-100 transition-opacity duration-500">
-        <div className="absolute inset-0 bg-gradient-to-br from-sky-50 via-white to-indigo-50"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-sky-50 via-white to-indigo-50"></div>
         <div
           className="absolute inset-0 opacity-[0.025]"
           style={{
@@ -82,13 +82,13 @@ const OCSRPage = () => {
           >
             <motion.h1
               variants={headerItemVariants}
-              className="text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--text-primary)] mb-3"
+              className="text-3xl md:text-4xl lg:text-5xl font-bold text-(--text-primary) mb-3"
             >
               Optical Chemical Structure Recognition
             </motion.h1>
             <motion.p
               variants={headerItemVariants}
-              className="text-[var(--text-secondary)] text-base md:text-lg max-w-3xl mx-auto"
+              className="text-(--text-secondary) text-base md:text-lg max-w-3xl mx-auto"
             >
               Extract chemical structures from images using deep learning (DECIMER & MARCUS).
             </motion.p>
@@ -104,7 +104,7 @@ const OCSRPage = () => {
               href="https://decimer.ai"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold rounded-lg shadow-lg w-full md:w-auto"
+              className="flex items-center justify-center px-6 py-4 bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold rounded-lg shadow-lg w-full md:w-auto"
               variants={buttonVariant}
               whileHover="hover"
             >
@@ -115,7 +115,7 @@ const OCSRPage = () => {
               href="https://marcus.decimer.ai"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white font-semibold rounded-lg shadow-lg w-full md:w-auto"
+              className="flex items-center justify-center px-6 py-4 bg-linear-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white font-semibold rounded-lg shadow-lg w-full md:w-auto"
               variants={buttonVariant}
               whileHover="hover"
             >
@@ -137,11 +137,11 @@ const OCSRPage = () => {
               <h3 className="text-lg font-semibold text-blue-600 dark:text-blue-400 mb-2">
                 What is DECIMER?
               </h3>
-              <p className="text-[var(--text-secondary)] mb-3">
+              <p className="text-(--text-secondary) mb-3">
                 DECIMER (Deep lEarning for Chemical IMagE Recognition) is an advanced deep learning
                 model developed by the Steinbeck Lab for extracting chemical structures from images.
               </p>
-              <p className="text-[var(--text-secondary)]">
+              <p className="text-(--text-secondary)">
                 It can process images from scientific publications, patents, and other documents,
                 converting visual chemical structures into machine-readable formats like SMILES.
               </p>
@@ -153,13 +153,13 @@ const OCSRPage = () => {
               <h3 className="text-lg font-semibold text-purple-600 dark:text-purple-400 mb-2">
                 What is MARCUS?
               </h3>
-              <p className="text-[var(--text-secondary)] mb-3">
+              <p className="text-(--text-secondary) mb-3">
                 MARCUS (Molecular Annotation and Recognition for Curating Unravelled Structures) is
                 an integrated web-based platform designed for natural product literature curation.
                 It combines automated text annotation, multi-engine OCSR, and direct database
                 submission capabilities.
               </p>
-              <p className="text-[var(--text-secondary)]">
+              <p className="text-(--text-secondary)">
                 MARCUS employs a Human-in-the-loop ensemble approach integrating DECIMER, MolNexTR,
                 and MolScribe for structure recognition, significantly streamlining the workflow
                 from PDF upload to database submission.
@@ -176,12 +176,10 @@ const OCSRPage = () => {
             {/* Content Header */}
             <div className="p-5 sm:p-6 border-b border-slate-200/80 dark:border-slate-700/50 bg-white/30 dark:bg-slate-800/20">
               <div className="flex items-start sm:items-center">
-                <HiOutlineDocumentSearch className="h-7 w-7 sm:h-8 sm:w-8 text-[var(--text-accent)] mr-3 sm:mr-4 flex-shrink-0 mt-0.5 sm:mt-0" />
+                <HiOutlineDocumentSearch className="h-7 w-7 sm:h-8 sm:w-8 text-(--text-accent) mr-3 sm:mr-4 shrink-0 mt-0.5 sm:mt-0" />
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
-                    OCSR Tool
-                  </h2>
-                  <p className="text-sm text-[var(--text-secondary)] mt-1">
+                  <h2 className="text-xl sm:text-2xl font-bold text-(--text-primary)">OCSR Tool</h2>
+                  <p className="text-sm text-(--text-secondary) mt-1">
                     Analyze images to extract chemical structures
                   </p>
                 </div>
@@ -210,10 +208,10 @@ const OCSRPage = () => {
                 >
                   {/* Info Box 1 */}
                   <div className="bg-slate-100 dark:bg-slate-800/60 rounded-lg p-5 border border-slate-200 dark:border-slate-700">
-                    <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-3">
+                    <h3 className="text-lg font-semibold text-(--text-primary) mb-3">
                       About OCSR Technology
                     </h3>
-                    <p className="text-[var(--text-secondary)] text-sm leading-relaxed space-y-3">
+                    <p className="text-(--text-secondary) text-sm leading-relaxed space-y-3">
                       <span className="block mb-3">
                         The OCSR functionality is powered by DECIMER (Deep lEarning for Chemical
                         IMagE Recognition), a deep learning model developed by the Steinbeck Lab. It
@@ -228,12 +226,12 @@ const OCSRPage = () => {
 
                     {/* References Section */}
                     <div className="mt-4 pt-4 border-t border-slate-300 dark:border-slate-600">
-                      <h4 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
+                      <h4 className="text-sm font-semibold text-(--text-primary) mb-3">
                         References
                       </h4>
                       <div className="space-y-3 text-xs">
                         <div className="border-l-2 border-blue-500 pl-3 py-1">
-                          <p className="text-[var(--text-secondary)] leading-relaxed">
+                          <p className="text-(--text-secondary) leading-relaxed">
                             <span className="font-medium">[1]</span> Rajan, K., Brinkhaus, H.O.,
                             Agea, I.A., Zielesny, A., Steinbeck, C. (2023). DECIMER.ai: an open
                             platform for automated optical chemical structure identification,
@@ -254,7 +252,7 @@ const OCSRPage = () => {
                           </p>
                         </div>
                         <div className="border-l-2 border-purple-500 pl-3 py-1">
-                          <p className="text-[var(--text-secondary)] leading-relaxed">
+                          <p className="text-(--text-secondary) leading-relaxed">
                             <span className="font-medium">[2]</span> Rajan K, Weissenborn VK,
                             Lederer L, Zielesny A, Steinbeck C (2025). MARCUS: Molecular annotation
                             and recognition for curating unravelled structures.

@@ -51,8 +51,8 @@ const ToggleSwitch = ({ id, checked, onChange, label, disabled = false }) => {
       <div
         className={`relative flex items-center w-12 h-6 rounded-full p-0.5 cursor-pointer transition-all duration-300 ease-in-out ${
           checked
-            ? "bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-500 border-2 border-cyan-400 dark:border-cyan-300"
-            : "bg-gradient-to-r from-gray-300 via-gray-350 to-gray-400 dark:from-gray-600 dark:via-gray-650 dark:to-gray-700"
+            ? "bg-linear-to-r from-blue-600 via-blue-500 to-indigo-500 border-2 border-cyan-400 dark:border-cyan-300"
+            : "bg-linear-to-r from-gray-300 via-gray-350 to-gray-400 dark:from-gray-600 dark:via-gray-650 dark:to-gray-700"
         } ${disabled ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}`}
         onClick={() => !disabled && onChange(!checked)}
         role="switch"
@@ -63,8 +63,8 @@ const ToggleSwitch = ({ id, checked, onChange, label, disabled = false }) => {
           <motion.div
             className={`relative h-5 w-5 rounded-full ${
               checked
-                ? "bg-gradient-to-br from-white via-blue-50 to-indigo-50"
-                : "bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-200 dark:via-gray-300 dark:to-gray-400"
+                ? "bg-linear-to-br from-white via-blue-50 to-indigo-50"
+                : "bg-linear-to-br from-white via-gray-50 to-gray-100 dark:from-gray-200 dark:via-gray-300 dark:to-gray-400"
             }`}
             layout
             transition={toggleSpring}
@@ -723,7 +723,7 @@ const BatchDepictionView = () => {
               <button
                 type="button"
                 onClick={generateExamples}
-                className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+                className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm"
               >
                 Load Examples
               </button>
@@ -733,7 +733,7 @@ const BatchDepictionView = () => {
               id="smiles-input-batch"
               value={inputText}
               onChange={(e) => handleInputChange(e.target.value)}
-              className="w-full h-40 font-mono text-xs sm:text-sm px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:focus:border-blue-500 dark:focus:ring-blue-500 resize-y"
+              className="w-full h-40 font-mono text-xs sm:text-sm px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white shadow-xs focus:ring-indigo-500 focus:border-indigo-500 dark:focus:border-blue-500 dark:focus:ring-blue-500 resize-y"
               placeholder="CN1C=NC2=C1C(=O)N(C(=O)N2C)C Caffeine&#10;CCO Ethanol&#10;Cl*.Cl*.c1ccccc1-c1ccccc1 |m:1:4.5.6.7.8.9,3:10.11.12.13.14.15| Dichlorobiphenyl&#10;# Lines starting with # are ignored"
               required
               aria-required="true"
@@ -791,7 +791,7 @@ const BatchDepictionView = () => {
                         id="toolkit-select-batch"
                         value={toolkit}
                         onChange={(e) => handleToolkitChange(e.target.value)}
-                        className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                        className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
                       >
                         <option value="rdkit">RDKit</option>
                         <option value="cdk">CDK (Enhanced)</option>
@@ -799,7 +799,7 @@ const BatchDepictionView = () => {
                       <button
                         type="button"
                         onClick={handleSwitchToolkit}
-                        className="ml-2 p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 shadow-sm"
+                        className="ml-2 p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 shadow-xs"
                         title="Switch toolkit"
                       >
                         <HiOutlineSwitchHorizontal className="h-5 w-5" />
@@ -821,7 +821,7 @@ const BatchDepictionView = () => {
                         onClick={() => setWidth(Math.max(50, width - 10))}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="px-3 py-2 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-500 dark:hover:to-gray-600 text-gray-700 dark:text-gray-200 font-bold rounded-md border border-gray-400 dark:border-gray-500 shadow-md transition-all duration-200"
+                        className="px-3 py-2 bg-linear-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-500 dark:hover:to-gray-600 text-gray-700 dark:text-gray-200 font-bold rounded-md border border-gray-400 dark:border-gray-500 shadow-md transition-all duration-200"
                         aria-label="Decrease width"
                       >
                         −
@@ -836,14 +836,14 @@ const BatchDepictionView = () => {
                         min="50"
                         max="2000"
                         step="10"
-                        className="flex-1 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        className="flex-1 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                       <motion.button
                         type="button"
                         onClick={() => setWidth(Math.min(2000, width + 10))}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="px-3 py-2 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-500 dark:hover:to-gray-600 text-gray-700 dark:text-gray-200 font-bold rounded-md border border-gray-400 dark:border-gray-500 shadow-md transition-all duration-200"
+                        className="px-3 py-2 bg-linear-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-500 dark:hover:to-gray-600 text-gray-700 dark:text-gray-200 font-bold rounded-md border border-gray-400 dark:border-gray-500 shadow-md transition-all duration-200"
                         aria-label="Increase width"
                       >
                         +
@@ -865,7 +865,7 @@ const BatchDepictionView = () => {
                         onClick={() => setHeight(Math.max(50, height - 10))}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="px-3 py-2 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-500 dark:hover:to-gray-600 text-gray-700 dark:text-gray-200 font-bold rounded-md border border-gray-400 dark:border-gray-500 shadow-md transition-all duration-200"
+                        className="px-3 py-2 bg-linear-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-500 dark:hover:to-gray-600 text-gray-700 dark:text-gray-200 font-bold rounded-md border border-gray-400 dark:border-gray-500 shadow-md transition-all duration-200"
                         aria-label="Decrease height"
                       >
                         −
@@ -880,14 +880,14 @@ const BatchDepictionView = () => {
                         min="50"
                         max="2000"
                         step="10"
-                        className="flex-1 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        className="flex-1 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                       <motion.button
                         type="button"
                         onClick={() => setHeight(Math.min(2000, height + 10))}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="px-3 py-2 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-500 dark:hover:to-gray-600 text-gray-700 dark:text-gray-200 font-bold rounded-md border border-gray-400 dark:border-gray-500 shadow-md transition-all duration-200"
+                        className="px-3 py-2 bg-linear-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-500 dark:hover:to-gray-600 text-gray-700 dark:text-gray-200 font-bold rounded-md border border-gray-400 dark:border-gray-500 shadow-md transition-all duration-200"
                         aria-label="Increase height"
                       >
                         +
@@ -908,7 +908,7 @@ const BatchDepictionView = () => {
                         id="hydrogen-display-select"
                         value={hydrogenDisplay}
                         onChange={(e) => setHydrogenDisplay(e.target.value)}
-                        className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                        className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
                       >
                         <option value="Smart">Smart</option>
                         <option value="Provided">Provided</option>
@@ -967,7 +967,7 @@ const BatchDepictionView = () => {
                               id="style-select"
                               value={style}
                               onChange={(e) => setStyle(e.target.value)}
-                              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
                             >
                               <option value="cow">Color on White</option>
                               <option value="cob">Color on Black</option>
@@ -991,7 +991,7 @@ const BatchDepictionView = () => {
                               id="abbreviate-select"
                               value={abbreviate}
                               onChange={(e) => setAbbreviate(e.target.value)}
-                              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
                             >
                               <option value="off">None</option>
                               <option value="groups">Functional Groups (Ph, Me, Et)</option>
@@ -1012,7 +1012,7 @@ const BatchDepictionView = () => {
                               id="annotate-select"
                               value={annotate}
                               onChange={(e) => setAnnotate(e.target.value)}
-                              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
                             >
                               <option value="none">None</option>
                               <option value="number">Atom Numbers</option>
@@ -1036,7 +1036,7 @@ const BatchDepictionView = () => {
                               id="dative-select"
                               value={dative}
                               onChange={(e) => setDative(e.target.value)}
-                              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
                             >
                               <option value="never">Never</option>
                               <option value="metals">Metal Complexes</option>
@@ -1056,7 +1056,7 @@ const BatchDepictionView = () => {
                               id="multicenter-select"
                               value={multicenter}
                               onChange={(e) => setMulticenter(e.target.value)}
-                              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
                             >
                               <option value="provided">As Provided</option>
                               <option value="dative">Dative Arrows</option>
@@ -1150,7 +1150,7 @@ const BatchDepictionView = () => {
                     value={highlight}
                     onChange={(e) => setHighlight(e.target.value)}
                     placeholder="e.g., c1ccccc1"
-                    className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                    className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
                   />
                 </div>
 
@@ -1204,7 +1204,7 @@ const BatchDepictionView = () => {
               whileHover={!inputText.trim() || loading ? {} : { scale: 1.02, y: -1 }}
               whileTap={!inputText.trim() || loading ? {} : { scale: 0.98 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              className={`px-5 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+              className={`px-5 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                 !inputText.trim() || loading
                   ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed" // Disabled
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-lg hover:shadow-xl" // Enabled
@@ -1224,7 +1224,7 @@ const BatchDepictionView = () => {
                 whileHover={{ scale: 1.02, y: -1 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 font-medium flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-gray-500 shadow-md hover:shadow-lg"
+                className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 font-medium flex items-center justify-center transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-gray-500 shadow-md hover:shadow-lg"
                 title="Apply current options to all depictions"
               >
                 <HiOutlinePhotograph className="mr-2 h-4 w-4" />
@@ -1254,7 +1254,7 @@ const BatchDepictionView = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                    className="px-4 py-2 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-medium flex items-center text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800 focus:ring-green-500"
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-medium flex items-center text-sm transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800 focus:ring-green-500"
                     title="Download all depictions as a ZIP file"
                   >
                     <HiOutlineDownload className="mr-1.5 h-4 w-4" />
@@ -1269,7 +1269,7 @@ const BatchDepictionView = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  className={`px-4 py-2 font-medium rounded-lg flex items-center text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 shadow-md hover:shadow-lg ${
+                  className={`px-4 py-2 font-medium rounded-lg flex items-center text-sm transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 shadow-md hover:shadow-lg ${
                     copiedSmiles
                       ? "bg-green-100 dark:bg-green-700 text-green-700 dark:text-green-200"
                       : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600"
@@ -1301,11 +1301,11 @@ const BatchDepictionView = () => {
       {error && !loading && (
         // Error message styling
         <div
-          className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow"
+          className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
           role="alert"
         >
           <HiOutlineExclamationCircle
-            className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+            className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
             aria-hidden="true"
           />
           <span>{error}</span>
@@ -1348,7 +1348,7 @@ const BatchDepictionView = () => {
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
               >
                 {/* Image container - Kept white background for consistency */}
-                <div className="p-2 flex-grow">
+                <div className="p-2 grow">
                   {/* Ensure depiction image background is consistent */}
                   <div className="bg-white rounded-md p-2 flex items-center justify-center h-48">
                     <img
@@ -1404,7 +1404,7 @@ const BatchDepictionView = () => {
                     max="359"
                     step="1"
                     // Enhanced slider styling
-                    className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer range-sm accent-blue-500 dark:accent-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 focus:ring-blue-500"
+                    className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer range-sm accent-blue-500 dark:accent-blue-400 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 focus:ring-blue-500"
                     aria-label={`Rotation for ${depiction.title}`}
                   />
                   {/* Slider Labels */}
@@ -1415,14 +1415,14 @@ const BatchDepictionView = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="px-3 py-2 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border-t border-gray-200 dark:border-gray-600 flex justify-end space-x-2">
+                <div className="px-3 py-2 bg-linear-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border-t border-gray-200 dark:border-gray-600 flex justify-end space-x-2">
                   {/* Download Button */}
                   <motion.button
                     onClick={() => downloadSingleDepiction(depiction)}
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                    className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm hover:shadow-md"
+                    className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 shadow-xs hover:shadow-md"
                     title={`Download ${downloadFormat.toUpperCase()}`}
                     aria-label={`Download ${depiction.title} as ${downloadFormat.toUpperCase()}`}
                     disabled={loading}
@@ -1436,7 +1436,7 @@ const BatchDepictionView = () => {
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                    className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 relative transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 shadow-sm hover:shadow-md"
+                    className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 relative transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-green-500 shadow-xs hover:shadow-md"
                     title="Copy SMILES"
                     aria-label={`Copy SMILES for ${depiction.title}`}
                   >
@@ -1490,7 +1490,7 @@ const BatchDepictionView = () => {
           <button
             type="button"
             onClick={generateExamples}
-            className="mt-4 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+            className="mt-4 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm"
           >
             Or load example molecules
           </button>

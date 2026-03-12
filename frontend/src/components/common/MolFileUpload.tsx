@@ -205,7 +205,7 @@ const MolFileUpload = ({
       {/* Error Display */}
       {error && !loading && (
         <div className="flex items-start p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <HiOutlineExclamationCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+          <HiOutlineExclamationCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
           <div className="ml-3 flex-1">
             <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
           </div>
@@ -222,12 +222,12 @@ const MolFileUpload = ({
       {smiles && !loading && !error && (
         <div className="space-y-3">
           <div className="flex items-start p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-            <HiOutlineCheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+            <HiOutlineCheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
             <div className="ml-3 flex-1">
               <p className="text-sm font-medium text-green-800 dark:text-green-200 mb-1">
                 Conversion Successful
               </p>
-              <div className="bg-white dark:bg-gray-800 p-3 rounded border border-green-200 dark:border-green-700">
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-sm border border-green-200 dark:border-green-700">
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">SMILES:</p>
                 <p className="text-sm font-mono text-gray-900 dark:text-gray-100 break-all">
                   {smiles}
@@ -252,7 +252,7 @@ const MolFileUpload = ({
                   MOL Block Content
                 </p>
               </div>
-              <pre className="text-xs font-mono text-gray-700 dark:text-gray-300 overflow-x-auto max-h-60 overflow-y-auto bg-white dark:bg-gray-900 p-3 rounded border border-gray-200 dark:border-gray-700">
+              <pre className="text-xs font-mono text-gray-700 dark:text-gray-300 overflow-x-auto max-h-60 overflow-y-auto bg-white dark:bg-gray-900 p-3 rounded-sm border border-gray-200 dark:border-gray-700">
                 {molblock}
               </pre>
             </div>

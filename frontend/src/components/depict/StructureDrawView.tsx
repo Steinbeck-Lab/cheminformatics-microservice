@@ -396,7 +396,7 @@ const StructureDrawView = () => {
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6 bg-white dark:bg-gray-900 min-h-screen">
       {/* Header with animated background */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-700 dark:from-blue-700 dark:to-purple-900 rounded-xl shadow-xl overflow-hidden relative">
+      <div className="bg-linear-to-r from-blue-600 to-purple-700 dark:from-blue-700 dark:to-purple-900 rounded-xl shadow-xl overflow-hidden relative">
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden opacity-10">
           <div className="absolute left-0 top-0 w-40 h-40 rounded-full bg-white transform -translate-x-1/2 -translate-y-1/2"></div>
@@ -427,14 +427,14 @@ const StructureDrawView = () => {
                 ref={copyTextRef}
                 value={copyModalText}
                 readOnly
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded font-mono text-sm bg-gray-50 dark:bg-gray-900"
+                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-sm font-mono text-sm bg-gray-50 dark:bg-gray-900"
                 onClick={(e) => e.target.select()}
               />
             </div>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowCopyModal(false)}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
               >
                 Close
               </button>
@@ -470,17 +470,17 @@ const StructureDrawView = () => {
                   value={inputSmiles}
                   onChange={(e) => setInputSmiles(e.target.value)}
                   placeholder="e.g., CCO for ethanol"
-                  className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
+                  className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-xs focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                 />
               </div>
 
               <button
                 onClick={loadSmiles}
                 disabled={isLoading || !isEditorReady || !inputSmiles.trim()}
-                className={`w-full relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+                className={`w-full relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                   isLoading || !isEditorReady || !inputSmiles.trim()
                     ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                    : "bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800"
+                    : "bg-linear-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800"
                 }`}
               >
                 {isLoading ? "Loading..." : !isEditorReady ? "Initializing..." : "Load Structure"}
@@ -497,7 +497,7 @@ const StructureDrawView = () => {
                   <button
                     key={index}
                     onClick={() => handleUseExample(example.value)}
-                    className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-xs font-medium rounded-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition-all duration-200"
+                    className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-xs text-xs font-medium rounded-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition-all duration-200"
                     title={`${example.name}: ${example.description}`}
                   >
                     {example.name}
@@ -521,7 +521,7 @@ const StructureDrawView = () => {
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
                   Structure as SMILES:
                 </p>
-                <div className="font-mono text-sm bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700 break-all max-h-32 overflow-y-auto">
+                <div className="font-mono text-sm bg-white dark:bg-gray-800 p-3 rounded-sm border border-gray-200 dark:border-gray-700 break-all max-h-32 overflow-y-auto">
                   {smiles || (
                     <span className="text-gray-400 dark:text-gray-500">
                       No structure generated yet
@@ -534,7 +534,7 @@ const StructureDrawView = () => {
                 <button
                   onClick={getSmiles}
                   disabled={isLoading || !isEditorReady}
-                  className={`flex-1 relative overflow-hidden px-4 py-2.5 rounded-lg font-medium flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                  className={`flex-1 relative overflow-hidden px-4 py-2.5 rounded-lg font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
                     isLoading || !isEditorReady
                       ? "bg-gray-400 dark:bg-gray-600 text-white cursor-not-allowed"
                       : "bg-blue-600 text-white hover:bg-blue-700"
@@ -546,7 +546,7 @@ const StructureDrawView = () => {
                 <button
                   onClick={() => copyToClipboard()}
                   disabled={!smiles}
-                  className={`flex-1 relative overflow-hidden px-4 py-2.5 rounded-lg font-medium flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+                  className={`flex-1 relative overflow-hidden px-4 py-2.5 rounded-lg font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
                     !smiles
                       ? "bg-gray-400 dark:bg-gray-600 text-white cursor-not-allowed"
                       : "bg-indigo-600 text-white hover:bg-indigo-700"
@@ -569,7 +569,7 @@ const StructureDrawView = () => {
           </div>
 
           {/* Information Box */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border border-blue-200 dark:border-blue-800/50 rounded-xl p-5 text-sm shadow-lg">
+          <div className="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border border-blue-200 dark:border-blue-800/50 rounded-xl p-5 text-sm shadow-lg">
             <h4 className="font-bold text-blue-800 dark:text-blue-300 mb-3 flex items-center">
               <HiOutlineInformationCircle className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
               About This Tool
@@ -652,7 +652,7 @@ const StructureDrawView = () => {
               role="alert"
             >
               <HiOutlineExclamationCircle
-                className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+                className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
                 aria-hidden="true"
               />
               <p>{error}</p>
@@ -661,7 +661,7 @@ const StructureDrawView = () => {
 
           {/* Ketcher Editor Container */}
           <div
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-grow"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden grow"
             style={{ minHeight: "600px" }}
           >
             <iframe

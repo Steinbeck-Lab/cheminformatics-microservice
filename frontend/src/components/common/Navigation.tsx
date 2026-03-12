@@ -114,7 +114,7 @@ const Navigation = ({ isMobile = false, closeMenu = () => {} }) => {
     >
       {navLinks.map((link) => {
         const Icon = link.icon; // Get the icon component
-        const iconClassName = `flex-shrink-0 h-5 w-5 ${isMobile ? "mr-3" : "mr-1.5"}`;
+        const iconClassName = `shrink-0 h-5 w-5 ${isMobile ? "mr-3" : "mr-1.5"}`;
 
         return (
           <NavLink

@@ -140,11 +140,11 @@ const HomePage = () => {
     <div className="relative min-h-screen w-full bg-slate-100 dark:bg-gray-950 text-slate-900 dark:text-slate-100 font-sans overflow-x-hidden isolate">
       {/* --- Adaptive Background Effects --- */}
       <div className="absolute inset-0 -z-20 overflow-hidden dark:opacity-100 opacity-0 transition-opacity duration-500">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-slate-900 to-indigo-950"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-gray-950 via-slate-900 to-indigo-950"></div>
         <div className="animated-mesh-gradient"></div>
       </div>
       <div className="absolute inset-0 -z-20 overflow-hidden dark:opacity-0 opacity-100 transition-opacity duration-500">
-        <div className="absolute inset-0 bg-gradient-to-br from-sky-50 via-white to-indigo-50"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-sky-50 via-white to-indigo-50"></div>
         <div
           className="absolute inset-0 opacity-[0.025]"
           style={{
@@ -201,7 +201,7 @@ const HomePage = () => {
               <motion.span
                 variants={heroTextVariants}
                 custom={1}
-                className="block text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-cyan-500 to-indigo-600 dark:from-sky-400 dark:via-cyan-400 dark:to-emerald-400 mt-1 md:mt-2"
+                className="block text-transparent bg-clip-text bg-linear-to-r from-sky-600 via-cyan-500 to-indigo-600 dark:from-sky-400 dark:via-cyan-400 dark:to-emerald-400 mt-1 md:mt-2"
               >
                 Open Cheminformatics Tools
               </motion.span>
@@ -226,9 +226,9 @@ const HomePage = () => {
               {/* Primary Button */}
               <Link
                 to="/depict"
-                className="group primary-button w-full sm:w-auto relative inline-flex items-center justify-center px-7 py-3 sm:px-9 sm:py-4 text-base sm:text-lg font-semibold text-white bg-gradient-to-r from-sky-600 to-cyan-500 dark:from-blue-600 dark:to-cyan-500 rounded-xl shadow-lg hover:shadow-xl hover:brightness-110 dark:hover:shadow-cyan-500/30 transition-all duration-300 ease-out transform hover:scale-[1.06] focus:outline-none focus:ring-4 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950 focus:ring-cyan-500/50 dark:focus:ring-cyan-400/50"
+                className="group primary-button w-full sm:w-auto relative inline-flex items-center justify-center px-7 py-3 sm:px-9 sm:py-4 text-base sm:text-lg font-semibold text-white bg-linear-to-r from-sky-600 to-cyan-500 dark:from-blue-600 dark:to-cyan-500 rounded-xl shadow-lg hover:shadow-xl hover:brightness-110 dark:hover:shadow-cyan-500/30 transition-all duration-300 ease-out transform hover:scale-[1.06] focus:outline-hidden focus:ring-4 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950 focus:ring-cyan-500/50 dark:focus:ring-cyan-400/50"
               >
-                <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 dark:from-white/5 transition-opacity duration-300 blur-sm"></span>
+                <span className="absolute inset-0 rounded-xl bg-linear-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 dark:from-white/5 transition-opacity duration-300 blur-xs"></span>
                 <span className="relative z-10 flex items-center">
                   Get Started{" "}
                   <HiOutlineArrowRight className="ml-2.5 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1.5" />
@@ -239,9 +239,9 @@ const HomePage = () => {
                 href="https://docs.api.naturalproducts.net/introduction.html"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group w-full sm:w-auto relative inline-flex items-center justify-center px-7 py-3 sm:px-9 sm:py-4 text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-200 bg-white/90 dark:bg-slate-800/80 backdrop-blur-md border border-slate-300 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700/90 hover:border-slate-400 dark:hover:border-slate-500 rounded-xl shadow-md hover:shadow-lg dark:hover:shadow-slate-700/40 transition-all duration-300 ease-out transform hover:scale-[1.06] focus:outline-none focus:ring-4 focus:ring-slate-400/50 dark:focus:ring-slate-600/50 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950"
+                className="group w-full sm:w-auto relative inline-flex items-center justify-center px-7 py-3 sm:px-9 sm:py-4 text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-200 bg-white/90 dark:bg-slate-800/80 backdrop-blur-md border border-slate-300 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700/90 hover:border-slate-400 dark:hover:border-slate-500 rounded-xl shadow-md hover:shadow-lg dark:hover:shadow-slate-700/40 transition-all duration-300 ease-out transform hover:scale-[1.06] focus:outline-hidden focus:ring-4 focus:ring-slate-400/50 dark:focus:ring-slate-600/50 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950"
               >
-                <span className="absolute inset-0 rounded-xl bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-50 dark:from-white/5 dark:group-hover:opacity-100 transition-opacity duration-300"></span>
+                <span className="absolute inset-0 rounded-xl bg-linear-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-50 dark:from-white/5 dark:group-hover:opacity-100 transition-opacity duration-300"></span>
                 <span className="relative z-10 flex items-center">
                   <FaCode className="mr-2 h-5 w-5 text-green-600 dark:text-green-400" /> Guides
                 </span>
@@ -250,9 +250,9 @@ const HomePage = () => {
                 href="https://api.naturalproducts.net/latest/docs"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group w-full sm:w-auto relative inline-flex items-center justify-center px-7 py-3 sm:px-9 sm:py-4 text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-200 bg-white/90 dark:bg-slate-800/80 backdrop-blur-md border border-slate-300 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700/90 hover:border-slate-400 dark:hover:border-slate-500 rounded-xl shadow-md hover:shadow-lg dark:hover:shadow-slate-700/40 transition-all duration-300 ease-out transform hover:scale-[1.06] focus:outline-none focus:ring-4 focus:ring-slate-400/50 dark:focus:ring-slate-600/50 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950"
+                className="group w-full sm:w-auto relative inline-flex items-center justify-center px-7 py-3 sm:px-9 sm:py-4 text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-200 bg-white/90 dark:bg-slate-800/80 backdrop-blur-md border border-slate-300 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700/90 hover:border-slate-400 dark:hover:border-slate-500 rounded-xl shadow-md hover:shadow-lg dark:hover:shadow-slate-700/40 transition-all duration-300 ease-out transform hover:scale-[1.06] focus:outline-hidden focus:ring-4 focus:ring-slate-400/50 dark:focus:ring-slate-600/50 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950"
               >
-                <span className="absolute inset-0 rounded-xl bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-50 dark:from-white/5 dark:group-hover:opacity-100 transition-opacity duration-300"></span>
+                <span className="absolute inset-0 rounded-xl bg-linear-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-50 dark:from-white/5 dark:group-hover:opacity-100 transition-opacity duration-300"></span>
                 <span className="relative z-10 flex items-center">
                   <FaBook className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" /> API Docs
                 </span>
@@ -270,7 +270,7 @@ const HomePage = () => {
           >
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-12 md:mb-16 tracking-tight text-slate-900 dark:text-white">
               Core
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-indigo-600 dark:from-blue-400 dark:to-cyan-400">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-sky-600 to-indigo-600 dark:from-blue-400 dark:to-cyan-400">
                 {" "}
                 Capabilities
               </span>
@@ -290,9 +290,9 @@ const HomePage = () => {
                           willChange: "border-color, backdrop-filter",
                         }}
                       >
-                        <div className="absolute inset-0 rounded-3xl bg-gradient-radial from-[var(--primary-accent-faint)] via-transparent to-transparent opacity-0 group-hover:opacity-60 dark:group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                        <div className="absolute inset-0 rounded-3xl bg-gradient-radial from-(--primary-accent-faint) via-transparent to-transparent opacity-0 group-hover:opacity-60 dark:group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
                         <motion.div
-                          className="mb-5 sm:mb-6 flex justify-center items-center h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-gradient-to-br from-slate-100 to-sky-100 dark:from-blue-700/60 dark:to-cyan-700/60 group-hover:from-sky-100 group-hover:to-cyan-100 dark:group-hover:from-blue-600/70 dark:group-hover:to-cyan-600/70 transition-all duration-300 shadow-md dark:shadow-inner transform group-hover:scale-105"
+                          className="mb-5 sm:mb-6 flex justify-center items-center h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-linear-to-br from-slate-100 to-sky-100 dark:from-blue-700/60 dark:to-cyan-700/60 group-hover:from-sky-100 group-hover:to-cyan-100 dark:group-hover:from-blue-600/70 dark:group-hover:to-cyan-600/70 transition-all duration-300 shadow-md dark:shadow-inner transform group-hover:scale-105"
                           style={{ transform: "translateZ(40px)" }}
                         >
                           <Icon className="h-7 w-7 sm:h-8 sm:w-8 text-sky-700 dark:text-sky-200 group-hover:text-cyan-800 dark:group-hover:text-cyan-100 transition-colors duration-300" />
@@ -301,7 +301,7 @@ const HomePage = () => {
                           <h3 className="text-lg sm:text-xl font-semibold text-slate-800 dark:text-white mb-2 sm:mb-3">
                             {feature.title}
                           </h3>
-                          <p className="text-sm sm:text-[15px] text-slate-600 dark:text-slate-300 flex-grow mb-5 sm:mb-6 leading-relaxed">
+                          <p className="text-sm sm:text-[15px] text-slate-600 dark:text-slate-300 grow mb-5 sm:mb-6 leading-relaxed">
                             {feature.description}
                           </p>
                         </div>
@@ -335,7 +335,7 @@ const HomePage = () => {
                 </h2>
                 <Link
                   to="/chem"
-                  className="text-sky-700 dark:text-sky-400 hover:text-indigo-700 dark:hover:text-cyan-200 flex-shrink-0 flex items-center font-medium transition-colors duration-300 group text-sm hover-underline-link"
+                  className="text-sky-700 dark:text-sky-400 hover:text-indigo-700 dark:hover:text-cyan-200 shrink-0 flex items-center font-medium transition-colors duration-300 group text-sm hover-underline-link"
                 >
                   <span>View all</span>
                   <HiOutlineArrowRight className="ml-1.5 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -353,7 +353,7 @@ const HomePage = () => {
                   <motion.div key={index} variants={itemVariants} className="mx-auto w-[85%]">
                     <TiltCard tiltIntensity={5}>
                       <div className="relative bg-white/80 dark:bg-slate-800/70 backdrop-blur-lg sm:backdrop-blur-xl rounded-2xl shadow-lg dark:shadow-xl border border-slate-200 dark:border-slate-700/80 overflow-hidden transition-all duration-300 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/80 p-1">
-                        <div className="absolute inset-0 rounded-2xl bg-gradient-radial from-[var(--primary-accent-fainter)] via-transparent to-transparent opacity-0 hover:opacity-70 transition-opacity duration-500 pointer-events-none"></div>
+                        <div className="absolute inset-0 rounded-2xl bg-gradient-radial from-(--primary-accent-fainter) via-transparent to-transparent opacity-0 hover:opacity-70 transition-opacity duration-500 pointer-events-none"></div>
                         <MoleculeCard
                           smiles={molecule.smiles}
                           title={molecule.name || `Molecule ${index + 1}`}
@@ -378,16 +378,16 @@ const HomePage = () => {
       {/* --- API Information Section (Ribbon Style - Full Width Background) --- */}
       {/* This section's background spans full width; content is centered by its own container. */}
       <motion.section
-        className="relative bg-gradient-to-r from-sky-100 via-indigo-100 to-fuchsia-100 dark:from-gray-900 dark:via-indigo-950/80 dark:to-fuchsia-950/70 py-12 sm:py-16 md:py-20"
+        className="relative bg-linear-to-r from-sky-100 via-indigo-100 to-fuchsia-100 dark:from-gray-900 dark:via-indigo-950/80 dark:to-fuchsia-950/70 py-12 sm:py-16 md:py-20"
         variants={sectionFadeIn}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.2 }}
       >
         {/* Internal container centers content within the ribbon */}
-        <div className="max-w-screen-lg mx-auto flex flex-col lg:flex-row items-center text-center lg:text-left px-4 sm:px-6 lg:px-8">
+        <div className="max-w-(--breakpoint-lg) mx-auto flex flex-col lg:flex-row items-center text-center lg:text-left px-4 sm:px-6 lg:px-8">
           <motion.div
-            className="mb-8 sm:mb-10 lg:mb-0 lg:mr-16 flex-shrink-0 text-sky-600 dark:text-blue-500/90"
+            className="mb-8 sm:mb-10 lg:mb-0 lg:mr-16 shrink-0 text-sky-600 dark:text-blue-500/90"
             variants={ribbonContentVariants}
             custom={0}
             initial="hidden"
@@ -399,7 +399,7 @@ const HomePage = () => {
             <HiOutlineCubeTransparent className="h-28 w-28 sm:h-32 sm:w-32 md:h-40 md:w-40 mx-auto lg:mx-0 opacity-90 drop-shadow-lg" />
           </motion.div>
           <motion.div
-            className="flex-grow lg:max-w-3xl"
+            className="grow lg:max-w-3xl"
             variants={ribbonContentVariants}
             custom={1}
             initial="hidden"

@@ -521,7 +521,7 @@ const Depict3DView = ({ isActive = true }) => {
                 id="toolkit-select-3d"
                 value={toolkit}
                 onChange={(e) => setToolkit(e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
               >
                 {TOOLKIT_OPTIONS_3D.map((option) => (
                   <option key={option.id} value={option.id}>
@@ -542,7 +542,7 @@ const Depict3DView = ({ isActive = true }) => {
                 id="style-select"
                 value={style}
                 onChange={(e) => setStyle(e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
               >
                 {VISUALIZATION_STYLES.map((visualStyle) => (
                   <option key={visualStyle.id} value={visualStyle.id}>
@@ -563,7 +563,7 @@ const Depict3DView = ({ isActive = true }) => {
                 id="bg-color-select"
                 value={backgroundColor}
                 onChange={(e) => setBackgroundColor(e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
               >
                 {BACKGROUND_COLORS.map((color) => (
                   <option key={color.id} value={color.id}>
@@ -584,7 +584,7 @@ const Depict3DView = ({ isActive = true }) => {
                 id="color-scheme-select"
                 value={colorScheme}
                 onChange={(e) => setColorScheme(e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
               >
                 {COLOR_SCHEMES.map((scheme) => (
                   <option key={scheme.id} value={scheme.id}>
@@ -603,7 +603,7 @@ const Depict3DView = ({ isActive = true }) => {
                 type="checkbox"
                 checked={showLabels}
                 onChange={(e) => setShowLabels(e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-sm focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
+                className="h-4 w-4 rounded-sm border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-xs focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
               />
               <label
                 htmlFor="show-labels"
@@ -620,10 +620,10 @@ const Depict3DView = ({ isActive = true }) => {
             <button
               type="submit"
               disabled={!smiles.trim() || loading}
-              className={`px-5 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+              className={`px-5 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                 !smiles.trim() || loading
                   ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm"
+                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
               <HiOutlineCube className="mr-2 h-5 w-5" />
@@ -634,10 +634,10 @@ const Depict3DView = ({ isActive = true }) => {
               type="button"
               onClick={handleTakeScreenshot}
               disabled={loading || !molData || !viewerInitialized}
-              className={`px-4 py-2 rounded-lg font-medium flex items-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 ${
+              className={`px-4 py-2 rounded-lg font-medium flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 ${
                 loading || !molData || !viewerInitialized
                   ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                  : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 shadow-sm"
+                  : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 shadow-xs"
               }`}
             >
               <HiOutlineCamera className="mr-2 h-5 w-5" />
@@ -648,10 +648,10 @@ const Depict3DView = ({ isActive = true }) => {
               type="button"
               onClick={() => setSpin(!spin)}
               disabled={loading || !molData || !viewerInitialized}
-              className={`px-4 py-2 rounded-lg font-medium flex items-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 ${
+              className={`px-4 py-2 rounded-lg font-medium flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 ${
                 loading || !molData || !viewerInitialized
                   ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                  : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 shadow-sm"
+                  : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 shadow-xs"
               }`}
             >
               <HiOutlineRefresh className="mr-2 h-5 w-5" />
@@ -662,10 +662,10 @@ const Depict3DView = ({ isActive = true }) => {
               type="button"
               onClick={handleResetView}
               disabled={loading || !molData || !viewerInitialized}
-              className={`px-4 py-2 rounded-lg font-medium flex items-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 ${
+              className={`px-4 py-2 rounded-lg font-medium flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 ${
                 loading || !molData || !viewerInitialized
                   ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                  : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 shadow-sm"
+                  : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 shadow-xs"
               }`}
             >
               <HiOutlineColorSwatch className="mr-2 h-5 w-5" />{" "}
@@ -681,7 +681,7 @@ const Depict3DView = ({ isActive = true }) => {
                 <button
                   type="button"
                   onClick={handleUseExampleMolecule}
-                  className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+                  className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm"
                 >
                   Use example molecule?
                 </button>
@@ -691,12 +691,12 @@ const Depict3DView = ({ isActive = true }) => {
           {/* Error Display with Retry */}
           {error && !loading && (
             <div
-              className="p-4 bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 rounded-lg mt-4 shadow-sm flex justify-between items-start"
+              className="p-4 bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 rounded-lg mt-4 shadow-xs flex justify-between items-start"
               role="alert"
             >
               <div className="flex items-start">
                 <HiOutlineExclamationCircle
-                  className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+                  className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
                   aria-hidden="true"
                 />
                 <span>{error}</span>
@@ -706,7 +706,7 @@ const Depict3DView = ({ isActive = true }) => {
                 <button
                   type="button"
                   onClick={handleReinitialize}
-                  className="ml-4 px-2 py-1 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 rounded text-white text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-red-900 focus:ring-red-500"
+                  className="ml-4 px-2 py-1 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 rounded-sm text-white text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-red-900 focus:ring-red-500"
                 >
                   Retry Init
                 </button>
@@ -718,7 +718,7 @@ const Depict3DView = ({ isActive = true }) => {
 
       {/* Loading state for API call (distinct from viewer init) */}
       {loading && (
-        <div className="flex justify-center items-center p-4 bg-blue-50 dark:bg-gray-700 rounded-lg border border-blue-200 dark:border-gray-600 shadow-sm">
+        <div className="flex justify-center items-center p-4 bg-blue-50 dark:bg-gray-700 rounded-lg border border-blue-200 dark:border-gray-600 shadow-xs">
           <div className="animate-spin h-5 w-5 border-2 border-blue-500 dark:border-blue-400 border-t-transparent rounded-full mr-3"></div>
           <span className="text-blue-700 dark:text-blue-300">Generating 3D structure...</span>
         </div>
@@ -771,7 +771,7 @@ const Depict3DView = ({ isActive = true }) => {
               <div className="flex space-x-2">
                 <button
                   onClick={handleCopy}
-                  className={`p-1.5 rounded-md transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+                  className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
                     copied
                       ? "text-green-500 dark:text-green-500"
                       : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -787,7 +787,7 @@ const Depict3DView = ({ isActive = true }) => {
                 </button>
                 <button
                   onClick={downloadMolblock}
-                  className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500"
                   title="Download Molblock (.mol)"
                   aria-label="Download Molblock"
                 >
@@ -795,7 +795,7 @@ const Depict3DView = ({ isActive = true }) => {
                 </button>
               </div>
             </div>
-            <div className="mt-2 p-3 bg-gray-100 dark:bg-gray-900 rounded-lg font-mono text-xs overflow-auto max-h-[500px] border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className="mt-2 p-3 bg-gray-100 dark:bg-gray-900 rounded-lg font-mono text-xs overflow-auto max-h-[500px] border border-gray-200 dark:border-gray-700 shadow-xs">
               <pre className="whitespace-pre text-gray-700 dark:text-gray-300">{molData}</pre>
             </div>
           </div>
@@ -806,10 +806,10 @@ const Depict3DView = ({ isActive = true }) => {
       </div>
       {/* Method and Disclaimer Section */}
       {molData && !loading && (
-        <div className="bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 text-sm shadow-sm">
+        <div className="bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 text-sm shadow-xs">
           <div className="flex items-start space-x-3">
             <HiOutlineExclamationCircle
-              className="h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5"
+              className="h-5 w-5 text-yellow-600 dark:text-yellow-400 shrink-0 mt-0.5"
               aria-hidden="true"
             />
             <div>
@@ -831,10 +831,10 @@ const Depict3DView = ({ isActive = true }) => {
 
       {/* Interaction Instructions */}
       {/* Themed instructions box */}
-      <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm shadow">
+      <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm shadow-sm">
         <div className="flex items-start space-x-3">
           <HiOutlineViewGrid
-            className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5"
+            className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"
             aria-hidden="true"
           />
           <div>

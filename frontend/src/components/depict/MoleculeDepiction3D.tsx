@@ -455,7 +455,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden h-full flex flex-col">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-750">
+      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-linear-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-750">
         <h3 className="font-medium text-gray-800 dark:text-white text-sm sm:text-base truncate">
           {title || "3D Structure"}
         </h3>
@@ -465,7 +465,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
           <button
             onClick={handleTakeScreenshot}
             disabled={!viewerInitialized || !molData}
-            className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             title="Take screenshot"
           >
             <HiOutlineCamera className="h-5 w-5" />
@@ -474,7 +474,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
           <button
             onClick={handleResetView}
             disabled={!viewerInitialized || !molData}
-            className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             title="Reset view"
           >
             <HiOutlineRefresh className="h-5 w-5" />
@@ -484,7 +484,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
 
       {/* Viewer container */}
       <div
-        className="relative flex-grow"
+        className="relative grow"
         style={{
           backgroundColor:
             BACKGROUND_COLORS.find((c) => c.id === backgroundColor)?.value || "#ffffff",
@@ -604,7 +604,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
               type="checkbox"
               checked={showLabels}
               onChange={(e) => setShowLabels(e.target.checked)}
-              className="h-3 w-3 rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-sm focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
+              className="h-3 w-3 rounded-sm border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-xs focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
             />
             <label
               htmlFor="show-labels"
@@ -621,7 +621,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
               type="checkbox"
               checked={spin}
               onChange={(e) => setSpin(e.target.checked)}
-              className="h-3 w-3 rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-sm focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
+              className="h-3 w-3 rounded-sm border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-xs focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
             />
             <label
               htmlFor="spin-toggle"
@@ -636,7 +636,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
             <button
               onClick={downloadMolblock}
               disabled={!molData}
-              className="py-1 px-2 rounded-md text-xs bg-green-50 text-green-700 dark:bg-green-900 dark:text-green-200 hover:bg-green-100 dark:hover:bg-green-800 transition-colors focus:outline-none focus:ring-1 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed border border-green-200 dark:border-green-800"
+              className="py-1 px-2 rounded-md text-xs bg-green-50 text-green-700 dark:bg-green-900 dark:text-green-200 hover:bg-green-100 dark:hover:bg-green-800 transition-colors focus:outline-hidden focus:ring-1 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed border border-green-200 dark:border-green-800"
               title="Download 3D molfile"
             >
               <span className="flex items-center">
@@ -653,7 +653,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
         <div className="p-3 bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border-t border-red-300 dark:border-red-700 text-xs">
           <div className="flex items-start">
             <HiOutlineExclamationCircle
-              className="h-4 w-4 mr-2 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+              className="h-4 w-4 mr-2 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
               aria-hidden="true"
             />
             <span>{error}</span>

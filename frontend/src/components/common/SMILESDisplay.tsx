@@ -56,7 +56,7 @@ const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
           <button
             onClick={handleCopy}
             disabled={!smiles}
-            className={`p-1.5 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 ${
+            className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 ${
               !smiles
                 ? "text-gray-400 dark:text-gray-600 cursor-not-allowed"
                 : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -73,7 +73,7 @@ const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
             <button
               onClick={handleDownload}
               disabled={downloading || !smiles}
-              className={`p-1.5 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 ${
+              className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 ${
                 downloading || !smiles
                   ? "text-gray-400 dark:text-gray-600 cursor-not-allowed"
                   : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"

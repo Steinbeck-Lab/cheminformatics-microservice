@@ -95,7 +95,7 @@ const MoleculeDepiction2D = ({
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden h-full flex flex-col">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-750">
+      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-linear-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-750">
         <h3 className="font-medium text-gray-800 dark:text-white text-sm sm:text-base truncate">
           {title || "2D Structure"}
         </h3>
@@ -104,7 +104,7 @@ const MoleculeDepiction2D = ({
         <button
           onClick={handleDownload}
           disabled={!imageUrl}
-          className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500"
           title="Download 2D structure"
         >
           <HiOutlineDownload className="h-5 w-5" />
@@ -113,7 +113,7 @@ const MoleculeDepiction2D = ({
 
       {/* Image Display */}
       <div
-        className="p-4 bg-white flex-grow flex items-center justify-center"
+        className="p-4 bg-white grow flex items-center justify-center"
         style={{ minHeight: "350px" }}
       >
         {imageUrl ? (
@@ -160,7 +160,7 @@ const MoleculeDepiction2D = ({
               type="checkbox"
               checked={useUnicolor}
               onChange={(e) => setUseUnicolor(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-sm focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
+              className="h-4 w-4 rounded-sm border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-xs focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
             />
             <label
               htmlFor="unicolor-toggle"
@@ -177,7 +177,7 @@ const MoleculeDepiction2D = ({
               type="checkbox"
               checked={showCIP}
               onChange={(e) => setShowCIP(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-sm focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
+              className="h-4 w-4 rounded-sm border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-xs focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
             />
             <label htmlFor="cip-toggle" className="ml-2 text-xs text-gray-700 dark:text-gray-300">
               Show R/S, E/Z
@@ -197,7 +197,7 @@ const MoleculeDepiction2D = ({
                 id="hydrogen-display"
                 value={hydrogenDisplay}
                 onChange={(e) => setHydrogenDisplay(e.target.value)}
-                className="text-xs px-2 py-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500"
+                className="text-xs px-2 py-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-sm text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="Smart">Smart</option>
                 <option value="Provided">Provided</option>
@@ -211,7 +211,7 @@ const MoleculeDepiction2D = ({
           {/* Refresh Button */}
           <button
             onClick={handleRefresh}
-            className="ml-auto p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="ml-auto p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500"
             title="Reset to original view"
           >
             <HiOutlineRefresh className="h-5 w-5" />

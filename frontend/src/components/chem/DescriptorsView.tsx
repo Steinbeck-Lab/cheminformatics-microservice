@@ -59,7 +59,7 @@ const DescriptorsView = () => {
 
       return (
         <div
-          className="prose prose-sm dark:prose-invert max-w-none bg-white dark:bg-gray-800 p-4 rounded border border-gray-200 dark:border-gray-700 shadow-sm"
+          className="prose prose-sm dark:prose-invert max-w-none bg-white dark:bg-gray-800 p-4 rounded-sm border border-gray-200 dark:border-gray-700 shadow-xs"
           // Sanitize HTML before rendering to prevent XSS attacks
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(descriptors) }}
         />
@@ -75,7 +75,7 @@ const DescriptorsView = () => {
 
       return (
         // Table container with overflow and styling
-        <div className="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-md shadow-sm">
+        <div className="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-md shadow-xs">
           <table className="w-full min-w-[400px] border-collapse">
             {/* Table Header */}
             <thead className="bg-gray-50 dark:bg-gray-700">
@@ -163,7 +163,7 @@ const DescriptorsView = () => {
                 value={toolkit}
                 onChange={(e) => setToolkit(e.target.value)}
                 // Select styling for light/dark mode
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
               >
                 <option value="rdkit">RDKit</option>
                 <option value="cdk">CDK</option>
@@ -184,7 +184,7 @@ const DescriptorsView = () => {
                 value={format}
                 onChange={(e) => setFormat(e.target.value)}
                 // Select styling for light/dark mode
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
               >
                 <option value="json">JSON (Table)</option>
                 <option value="html">HTML (Raw)</option>
@@ -197,10 +197,10 @@ const DescriptorsView = () => {
             <button
               type="submit"
               disabled={!smiles.trim() || loading}
-              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                 !smiles.trim() || loading
                   ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm"
+                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
               <HiOutlineCalculator className="mr-2 h-5 w-5" aria-hidden="true" />
@@ -216,11 +216,11 @@ const DescriptorsView = () => {
       {/* Error Display */}
       {error && (
         <div
-          className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow"
+          className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
           role="alert"
         >
           <HiOutlineExclamationCircle
-            className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+            className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
             aria-hidden="true"
           />
           <span>{error}</span>
@@ -235,13 +235,13 @@ const DescriptorsView = () => {
           <div className="bg-gray-50 dark:bg-gray-900 px-6 py-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white flex items-center">
               <HiOutlineDocumentReport
-                className="mr-3 h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0"
+                className="mr-3 h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0"
                 aria-hidden="true"
               />
               Molecular Descriptors
             </h3>
             {/* Toolkit Info */}
-            <div className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
+            <div className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-sm">
               Toolkit: {toolkit === "all" ? "RDKit + CDK" : toolkit.toUpperCase()} | Format:{" "}
               {format.toUpperCase()}
             </div>
@@ -254,7 +254,7 @@ const DescriptorsView = () => {
 
       {/* Initial State Message (Optional) */}
       {!descriptors && !loading && !error && (
-        <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center shadow">
+        <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center shadow-sm">
           <p className="text-gray-600 dark:text-gray-300">
             Enter a SMILES string and select options to calculate molecular descriptors.
           </p>

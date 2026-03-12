@@ -142,7 +142,7 @@ const FixRadicalsView = () => {
         {/* Info Box */}
         <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 rounded-md border border-blue-200 dark:border-blue-700">
           <div className="flex items-start">
-            <HiOutlineInformationCircle className="h-5 w-5 text-blue-500 dark:text-blue-400 mr-3 mt-0.5 flex-shrink-0" />
+            <HiOutlineInformationCircle className="h-5 w-5 text-blue-500 dark:text-blue-400 mr-3 mt-0.5 shrink-0" />
             <div className="text-sm text-blue-700 dark:text-blue-200">
               <p className="font-medium mb-1">About Radical Fixing</p>
               <p>
@@ -172,10 +172,10 @@ const FixRadicalsView = () => {
             <button
               type="submit"
               disabled={!smiles.trim() || loading}
-              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                 !smiles.trim() || loading
                   ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm"
+                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
               <HiOutlineBeaker className="mr-2 h-5 w-5" aria-hidden="true" />
@@ -200,12 +200,12 @@ const FixRadicalsView = () => {
         >
           {error.startsWith("No radicals") ? (
             <HiOutlineInformationCircle
-              className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-blue-500 dark:text-blue-400"
+              className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-blue-500 dark:text-blue-400"
               aria-hidden="true"
             />
           ) : (
             <HiOutlineExclamationCircle
-              className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+              className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
               aria-hidden="true"
             />
           )}
@@ -224,7 +224,7 @@ const FixRadicalsView = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Radicals Detected */}
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+              <div className="bg-linear-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-blue-600 dark:text-blue-300">
@@ -239,7 +239,7 @@ const FixRadicalsView = () => {
               </div>
 
               {/* Radicals Fixed */}
-              <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 p-4 rounded-lg border border-green-200 dark:border-green-700">
+              <div className="bg-linear-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 p-4 rounded-lg border border-green-200 dark:border-green-700">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-green-600 dark:text-green-300">
@@ -254,7 +254,7 @@ const FixRadicalsView = () => {
               </div>
 
               {/* Success Rate */}
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
+              <div className="bg-linear-to-br from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-purple-600 dark:text-purple-300">
@@ -276,7 +276,7 @@ const FixRadicalsView = () => {
             {result.radicals_detected > result.radicals_fixed && (
               <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-30 rounded-md border border-yellow-200 dark:border-yellow-700">
                 <div className="flex items-start">
-                  <HiOutlineInformationCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mr-2 mt-0.5 flex-shrink-0" />
+                  <HiOutlineInformationCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mr-2 mt-0.5 shrink-0" />
                   <p className="text-sm text-yellow-700 dark:text-yellow-200">
                     Note: Some radicals were detected but not fixed. Currently, only radicals on
                     Carbon (C), Nitrogen (N), and Oxygen (O) atoms are supported.
@@ -348,7 +348,7 @@ const FixRadicalsView = () => {
                         }}
                       />
                     ) : (
-                      <div className="w-full h-80 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded">
+                      <div className="w-full h-80 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-sm">
                         <p className="text-gray-500 dark:text-gray-400 text-sm">
                           Depiction unavailable
                         </p>
@@ -357,7 +357,7 @@ const FixRadicalsView = () => {
                   </div>
 
                   {/* SMILES Display */}
-                  <div className="bg-gray-100 dark:bg-gray-900 p-3 rounded-md border border-gray-200 dark:border-gray-700 font-mono text-xs overflow-x-auto shadow-sm">
+                  <div className="bg-gray-100 dark:bg-gray-900 p-3 rounded-md border border-gray-200 dark:border-gray-700 font-mono text-xs overflow-x-auto shadow-xs">
                     <div className="flex items-start justify-between">
                       <pre className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-all flex-1">
                         {smiles}
@@ -385,7 +385,7 @@ const FixRadicalsView = () => {
                         }}
                       />
                     ) : (
-                      <div className="w-full h-80 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded">
+                      <div className="w-full h-80 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-sm">
                         <p className="text-gray-500 dark:text-gray-400 text-sm">
                           Depiction unavailable
                         </p>
@@ -394,7 +394,7 @@ const FixRadicalsView = () => {
                   </div>
 
                   {/* SMILES Display */}
-                  <div className="bg-gray-100 dark:bg-gray-900 p-3 rounded-md border border-gray-200 dark:border-gray-700 font-mono text-xs overflow-x-auto shadow-sm">
+                  <div className="bg-gray-100 dark:bg-gray-900 p-3 rounded-md border border-gray-200 dark:border-gray-700 font-mono text-xs overflow-x-auto shadow-xs">
                     <div className="flex items-start justify-between">
                       <pre className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-all flex-1">
                         {result.fixed_smiles}
@@ -417,7 +417,7 @@ const FixRadicalsView = () => {
             {smiles !== result.fixed_smiles && result.radicals_fixed > 0 && (
               <div className="mt-4 p-3 bg-green-50 dark:bg-green-900 dark:bg-opacity-30 rounded-md border border-green-200 dark:border-green-700">
                 <div className="flex items-start">
-                  <HiOutlineCheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mr-2 mt-0.5 flex-shrink-0" />
+                  <HiOutlineCheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mr-2 mt-0.5 shrink-0" />
                   <p className="text-sm text-green-700 dark:text-green-200">
                     Successfully fixed {result.radicals_fixed} radical
                     {result.radicals_fixed !== 1 ? "s" : ""} by adding implicit hydrogens.

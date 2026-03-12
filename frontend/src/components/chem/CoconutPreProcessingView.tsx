@@ -96,7 +96,7 @@ const CoconutPreProcessingView = () => {
       <div className="space-y-6 py-4">
         {/* Molblocks Section */}
         {Object.keys(molblocks).length > 0 && (
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-xs">
             <h4 className="text-lg font-medium text-gray-800 dark:text-blue-300 mb-4">
               Molecular Structures
             </h4>
@@ -107,7 +107,7 @@ const CoconutPreProcessingView = () => {
                     {formatKey(key)}
                   </div>
                   {/* Preformatted block for MOL data */}
-                  <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded overflow-x-auto max-h-80 border border-gray-200 dark:border-gray-700">
+                  <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-sm overflow-x-auto max-h-80 border border-gray-200 dark:border-gray-700">
                     <pre className="text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-mono whitespace-pre">
                       {value}
                     </pre>
@@ -121,7 +121,7 @@ const CoconutPreProcessingView = () => {
         {/* Representations and Properties Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Other Representations Card */}
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-xs">
             <h4 className="text-lg font-medium text-gray-800 dark:text-blue-300 mb-3">
               Representations
             </h4>
@@ -133,8 +133,8 @@ const CoconutPreProcessingView = () => {
                       {formatKey(key)}
                     </div>
                     {/* Preformatted block for SMILES, InChI, etc. */}
-                    <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-x-auto border border-gray-200 dark:border-gray-700">
-                      <pre className="text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-mono break-words whitespace-pre-wrap">
+                    <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded-sm overflow-x-auto border border-gray-200 dark:border-gray-700">
+                      <pre className="text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-mono wrap-break-word whitespace-pre-wrap">
                         {value}
                       </pre>
                     </div>
@@ -151,7 +151,7 @@ const CoconutPreProcessingView = () => {
           {/* Properties and Errors Column */}
           <div className="space-y-6">
             {/* Properties Card */}
-            <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-xs">
               <h4 className="text-lg font-medium text-gray-800 dark:text-blue-300 mb-3">
                 Properties
               </h4>
@@ -195,7 +195,7 @@ const CoconutPreProcessingView = () => {
 
             {/* Validation Errors Card (only if errors exist) */}
             {tabData.errors && (
-              <div className="bg-red-50 dark:bg-red-900 dark:bg-opacity-20 rounded-lg p-4 border border-red-200 dark:border-red-700 shadow-sm">
+              <div className="bg-red-50 dark:bg-red-900 dark:bg-opacity-20 rounded-lg p-4 border border-red-200 dark:border-red-700 shadow-xs">
                 <h4 className="text-lg font-medium text-red-700 dark:text-red-300 mb-3">
                   Validation Errors
                 </h4>
@@ -219,7 +219,7 @@ const CoconutPreProcessingView = () => {
 
         {/* Descriptors Section (only if requested and available) */}
         {generateDescriptors && tabData.descriptors && (
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-sm mt-6">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-xs mt-6">
             <h4 className="text-lg font-medium text-gray-800 dark:text-blue-300 mb-3">
               Descriptors
             </h4>
@@ -264,7 +264,7 @@ const CoconutPreProcessingView = () => {
               <button
                 key={key}
                 onClick={() => setActiveTab(key)}
-                className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm focus:outline-none ${
+                className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm focus:outline-hidden ${
                   activeTab === key
                     ? "border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400"
                     : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600"
@@ -311,7 +311,7 @@ const CoconutPreProcessingView = () => {
                 checked={generate3D}
                 onChange={(e) => setGenerate3D(e.target.checked)}
                 // Checkbox styling for light/dark mode
-                className="h-4 w-4 rounded bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-offset-gray-800 shadow-sm"
+                className="h-4 w-4 rounded-sm bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-offset-gray-800 shadow-xs"
               />
               <label
                 htmlFor="generate-3d"
@@ -327,7 +327,7 @@ const CoconutPreProcessingView = () => {
                 checked={generateDescriptors}
                 onChange={(e) => setGenerateDescriptors(e.target.checked)}
                 // Checkbox styling for light/dark mode
-                className="h-4 w-4 rounded bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-offset-gray-800 shadow-sm"
+                className="h-4 w-4 rounded-sm bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-offset-gray-800 shadow-xs"
               />
               <label
                 htmlFor="generate-descriptors"
@@ -343,10 +343,10 @@ const CoconutPreProcessingView = () => {
             <button
               type="submit"
               disabled={!smiles.trim() || loading}
-              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                 !smiles.trim() || loading
                   ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm"
+                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
               <HiOutlineBeaker className="mr-2 h-5 w-5" aria-hidden="true" />
@@ -362,11 +362,11 @@ const CoconutPreProcessingView = () => {
       {/* Error Display */}
       {error && (
         <div
-          className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow"
+          className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
           role="alert"
         >
           <HiOutlineExclamationCircle
-            className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+            className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
             aria-hidden="true"
           />
           <span>{error}</span>
@@ -380,7 +380,7 @@ const CoconutPreProcessingView = () => {
           {/* Results Header */}
           <div className="flex items-center mb-4 border-b border-gray-200 dark:border-gray-700 pb-3">
             <HiOutlineDocumentReport
-              className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-3 flex-shrink-0"
+              className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-3 shrink-0"
               aria-hidden="true"
             />
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -396,11 +396,11 @@ const CoconutPreProcessingView = () => {
       {/* Show only if no data, not loading, and no error */}
       {!preprocessData && !loading && !error && (
         <div
-          className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow"
+          className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow-sm"
           role="complementary"
         >
           <HiOutlineInformationCircle
-            className="h-6 w-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5"
+            className="h-6 w-6 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"
             aria-hidden="true"
           />
           <div>

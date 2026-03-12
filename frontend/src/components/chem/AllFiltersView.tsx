@@ -345,7 +345,7 @@ const AllFiltersView = () => {
       <p className="text-sm text-gray-600 dark:text-gray-400">
         <strong>Rule of 3</strong>: Criteria for fragment-based drug discovery
       </p>
-      <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded">
+      <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-sm">
         <p className="text-sm text-green-800 dark:text-green-200 font-medium mb-1">
           💡 New: Detailed View Mode
         </p>
@@ -374,7 +374,7 @@ const AllFiltersView = () => {
           </h2>
           {/* Info button - now opens the modal */}
           <button
-            className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             title="Information about filters"
             onClick={() => setShowInfoModal(true)}
           >
@@ -397,7 +397,7 @@ const AllFiltersView = () => {
               value={smilesInput}
               onChange={(e) => setSmilesInput(e.target.value)}
               placeholder="Enter SMILES strings, one per line or separated by space/comma/semicolon..."
-              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 h-32 shadow-sm"
+              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 h-32 shadow-xs"
               required
               aria-required="true"
             />
@@ -409,7 +409,7 @@ const AllFiltersView = () => {
               <button
                 type="button"
                 onClick={loadExampleMolecules}
-                className="px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors duration-150 flex items-center"
+                className="px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-sm hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors duration-150 flex items-center"
               >
                 <HiOutlineBeaker className="mr-1 h-3.5 w-3.5" />
                 Load Examples
@@ -434,7 +434,7 @@ const AllFiltersView = () => {
                       type="checkbox"
                       checked={filterOptions[filter.key]}
                       onChange={handleCheckboxChange}
-                      className="h-4 w-4 rounded bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-offset-gray-800 shadow-sm"
+                      className="h-4 w-4 rounded-sm bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-offset-gray-800 shadow-xs"
                     />
                     <label
                       htmlFor={filter.key}
@@ -465,7 +465,7 @@ const AllFiltersView = () => {
                   name="qedscore"
                   value={filterOptions.qedscore}
                   onChange={handleSelectChange} // Use specific handler
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                  className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
                 >
                   <option value="0-1">0-1 (All)</option>
                   <option value="0-0.3">0-0.3 (Low)</option>
@@ -486,7 +486,7 @@ const AllFiltersView = () => {
                   name="sascore"
                   value={filterOptions.sascore}
                   onChange={handleSelectChange}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                  className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
                 >
                   <option value="1-10">1-10 (All)</option> {/* Adjusted range */}
                   <option value="1-4">1-4 (Easy synthesis)</option>
@@ -507,7 +507,7 @@ const AllFiltersView = () => {
                   name="nplikeness"
                   value={filterOptions.nplikeness}
                   onChange={handleSelectChange}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                  className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
                 >
                   <option value="-5-5">-5 to 5 (All)</option>
                   <option value="-5-0">-5 to 0 (Synthetic-like)</option>
@@ -531,9 +531,9 @@ const AllFiltersView = () => {
                   <button
                     type="button"
                     onClick={() => handleFilterOperatorChange("AND")}
-                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 ${
                       filterOperator === "AND"
-                        ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm"
+                        ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-xs"
                         : "text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                     }`}
                   >
@@ -542,9 +542,9 @@ const AllFiltersView = () => {
                   <button
                     type="button"
                     onClick={() => handleFilterOperatorChange("OR")}
-                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 ${
                       filterOperator === "OR"
-                        ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm"
+                        ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-xs"
                         : "text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                     }`}
                   >
@@ -564,7 +564,7 @@ const AllFiltersView = () => {
                     type="checkbox"
                     checked={showDetailedView}
                     onChange={(e) => setShowDetailedView(e.target.checked)}
-                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-700"
                   />
                   <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                     Show detailed violation information
@@ -582,10 +582,10 @@ const AllFiltersView = () => {
             <button
               type="submit"
               disabled={loading || !smilesInput.trim()}
-              className={`w-full md:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+              className={`w-full md:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                 !smilesInput.trim() || loading
                   ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm"
+                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
               <HiOutlineFilter className="mr-2 h-5 w-5" aria-hidden="true" />
@@ -625,7 +625,7 @@ const AllFiltersView = () => {
                       </h3>
                       <button
                         type="button"
-                        className="bg-white dark:bg-gray-800 rounded-md text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        className="bg-white dark:bg-gray-800 rounded-md text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         onClick={() => setShowInfoModal(false)}
                       >
                         <span className="sr-only">Close</span>
@@ -646,7 +646,7 @@ const AllFiltersView = () => {
               <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button
                   type="button"
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-xs px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
                   onClick={() => setShowInfoModal(false)}
                 >
                   Close
@@ -663,11 +663,11 @@ const AllFiltersView = () => {
       {/* Error Message */}
       {error && (
         <div
-          className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow"
+          className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
           role="alert"
         >
           <HiOutlineExclamationCircle
-            className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+            className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
             aria-hidden="true"
           />
           <div>
@@ -680,11 +680,11 @@ const AllFiltersView = () => {
       {/* No Results Message - Display when a filter operation was performed but returned no results */}
       {!loading && !error && smilesInput.trim() && results.length === 0 && (
         <div
-          className="p-4 rounded-md bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-30 text-yellow-700 dark:text-yellow-200 border border-yellow-300 dark:border-yellow-700 flex items-start shadow"
+          className="p-4 rounded-md bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-30 text-yellow-700 dark:text-yellow-200 border border-yellow-300 dark:border-yellow-700 flex items-start shadow-sm"
           role="alert"
         >
           <HiOutlineExclamationCircle
-            className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-yellow-500 dark:text-yellow-400"
+            className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-yellow-500 dark:text-yellow-400"
             aria-hidden="true"
           />
           <div>
@@ -710,10 +710,10 @@ const AllFiltersView = () => {
               </span>
             </h3>
             {/* Action Buttons */}
-            <div className="flex space-x-2 flex-shrink-0">
+            <div className="flex space-x-2 shrink-0">
               <button
                 onClick={copyToClipboard}
-                className={`px-3 py-1.5 text-sm rounded-md flex items-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+                className={`px-3 py-1.5 text-sm rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                   copied
                     ? "bg-green-100 dark:bg-green-700 text-green-700 dark:text-green-200"
                     : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600"
@@ -728,7 +728,7 @@ const AllFiltersView = () => {
               </button>
               <button
                 onClick={downloadResults}
-                className="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md flex items-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500"
+                className="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500"
                 title="Download results as a text file"
               >
                 <HiOutlineDocumentDownload className="mr-1.5 h-4 w-4" aria-hidden="true" />
@@ -753,7 +753,7 @@ const AllFiltersView = () => {
                   </th>
                   <th
                     scope="col"
-                    className="sticky left-[calc(theme(space.12))] z-10 bg-gray-50 dark:bg-gray-700 px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 border-r border-gray-200 dark:border-gray-600"
+                    className="sticky left-[calc(var(--spacing-12))] z-10 bg-gray-50 dark:bg-gray-700 px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 border-r border-gray-200 dark:border-gray-600"
                   >
                     SMILES
                   </th>
@@ -782,7 +782,7 @@ const AllFiltersView = () => {
                         {index + 1}
                       </td>
                       {/* SMILES String (Sticky) */}
-                      <td className="sticky left-[calc(theme(space.12))] z-10 bg-white dark:bg-gray-800 px-4 py-2 text-sm text-blue-600 dark:text-blue-300 font-mono whitespace-nowrap border-r border-gray-200 dark:border-gray-600">
+                      <td className="sticky left-[calc(var(--spacing-12))] z-10 bg-white dark:bg-gray-800 px-4 py-2 text-sm text-blue-600 dark:text-blue-300 font-mono whitespace-nowrap border-r border-gray-200 dark:border-gray-600">
                         {smiles}
                       </td>
                       {/* Filter Results */}
@@ -879,7 +879,7 @@ const AllFiltersView = () => {
                     {Object.entries(result.filters).map(([filterName, filterResult]) => (
                       <div
                         key={filterName}
-                        className="border border-gray-100 dark:border-gray-600 rounded p-3"
+                        className="border border-gray-100 dark:border-gray-600 rounded-sm p-3"
                       >
                         <div className="flex items-center justify-between mb-2">
                           <h4 className="font-medium text-sm text-gray-900 dark:text-white capitalize">
@@ -946,7 +946,7 @@ const AllFiltersView = () => {
       {/* About Chemical Filters Info Box - Always visible */}
       {!loading && !error && (
         <div
-          className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 shadow"
+          className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 shadow-sm"
           role="complementary"
         >
           <h3 className="text-lg font-medium text-blue-800 dark:text-blue-300 mb-3">

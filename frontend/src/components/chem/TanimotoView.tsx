@@ -174,7 +174,7 @@ const TanimotoView = () => {
         </h2>
         <button
           onClick={() => setInfoVisible(!infoVisible)}
-          className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full focus:outline-hidden focus:ring-2 focus:ring-blue-500"
           aria-label="Toggle Information"
           aria-expanded={infoVisible}
         >
@@ -185,7 +185,7 @@ const TanimotoView = () => {
       {/* Toggleable Info Box */}
       {infoVisible && (
         // Info box styling for light/dark mode
-        <div className="bg-blue-50 dark:bg-gray-800 border border-blue-200 dark:border-gray-700 rounded-lg p-4 mb-6 shadow-sm">
+        <div className="bg-blue-50 dark:bg-gray-800 border border-blue-200 dark:border-gray-700 rounded-lg p-4 mb-6 shadow-xs">
           <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-300 mb-2">
             About Tanimoto Similarity
           </h3>
@@ -262,7 +262,7 @@ const TanimotoView = () => {
               id="toolkit-select-tanimoto"
               value={toolkit}
               onChange={(e) => handleToolkitChange(e.target.value)}
-              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
             >
               <option value="rdkit">RDKit</option>
               <option value="cdk">CDK</option>
@@ -280,7 +280,7 @@ const TanimotoView = () => {
               id="fingerprinter-select"
               value={fingerprinter}
               onChange={(e) => setFingerprinter(e.target.value)}
-              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
             >
               {getFingerprinterOptions().map((option) => (
                 <option key={option.value} value={option.value}>
@@ -306,7 +306,7 @@ const TanimotoView = () => {
                 id="nbits-select"
                 value={nBits}
                 onChange={(e) => setNBits(Number(e.target.value))}
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
               >
                 <option value={1024}>1024</option>
                 <option value={2048}>2048</option>
@@ -325,7 +325,7 @@ const TanimotoView = () => {
                 id="radius-select"
                 value={radius}
                 onChange={(e) => setRadius(Number(e.target.value))}
-                className={`w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm ${fingerprinter !== "ECFP" && fingerprinter !== "MAPC" ? "opacity-50 cursor-not-allowed dark:opacity-60" : ""}`}
+                className={`w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs ${fingerprinter !== "ECFP" && fingerprinter !== "MAPC" ? "opacity-50 cursor-not-allowed dark:opacity-60" : ""}`}
                 disabled={fingerprinter !== "ECFP" && fingerprinter !== "MAPC"} // Disable if not ECFP/MAPC
               >
                 <option value={2}>2 (ECFP4)</option>
@@ -348,10 +348,10 @@ const TanimotoView = () => {
           <button
             onClick={handleCalculate} // Use onClick for button
             disabled={loading || !smiles1.trim() || !smiles2.trim()}
-            className={`w-full px-6 py-3 rounded-lg font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+            className={`w-full px-6 py-3 rounded-lg font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
               loading || !smiles1.trim() || !smiles2.trim()
                 ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed" // Disabled state
-                : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm" // Enabled state
+                : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs" // Enabled state
             }`}
           >
             <HiOutlineCalculator className="mr-2 h-5 w-5" />
@@ -367,11 +367,11 @@ const TanimotoView = () => {
       {error && !loading && (
         // Error message styling
         <div
-          className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow"
+          className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
           role="alert"
         >
           <HiOutlineExclamationCircle
-            className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+            className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
             aria-hidden="true"
           />
           <span>{error}</span>

@@ -1,13 +1,14 @@
 /// <reference types="vitest/config" />
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [
+    tailwindcss(),
     react({
       jsxRuntime: "automatic",
     }),
-    // treat-js-as-jsx plugin REMOVED -- no longer needed with .tsx files
   ],
   server: {
     port: 3000,

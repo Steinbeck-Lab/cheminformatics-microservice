@@ -144,7 +144,7 @@ const Header = () => {
         <div className="flex items-center h-16 justify-between md:justify-center">
           {/* Logo and title */}
           <motion.div
-            className="flex-shrink-0 flex items-center"
+            className="shrink-0 flex items-center"
             variants={headerContentVariants}
             custom={0}
           >
@@ -171,8 +171,8 @@ const Header = () => {
                 <motion.span
                   className={`font-bold text-lg sm:text-xl leading-tight ${
                     isDarkMode
-                      ? "bg-gradient-to-r from-sky-300 to-blue-400 text-transparent bg-clip-text"
-                      : "bg-gradient-to-r from-sky-600 to-indigo-600 text-transparent bg-clip-text"
+                      ? "bg-linear-to-r from-sky-300 to-blue-400 text-transparent bg-clip-text"
+                      : "bg-linear-to-r from-sky-600 to-indigo-600 text-transparent bg-clip-text"
                   }`}
                   whileHover={{ scale: 1.03 }}
                 >
@@ -213,8 +213,8 @@ const Header = () => {
             <div
               className={`relative flex items-center w-[62px] h-8 rounded-full p-1 cursor-pointer transition-all duration-300 ease-in-out ${
                 isDarkMode
-                  ? "bg-gradient-to-r from-slate-800 to-slate-700 hover:shadow-inner hover:shadow-slate-900"
-                  : "bg-gradient-to-r from-sky-100 to-indigo-100 hover:shadow-md hover:shadow-indigo-200/50"
+                  ? "bg-linear-to-r from-slate-800 to-slate-700 hover:shadow-inner hover:shadow-slate-900"
+                  : "bg-linear-to-r from-sky-100 to-indigo-100 hover:shadow-md hover:shadow-indigo-200/50"
               }`}
               onClick={toggleDarkMode}
               aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
@@ -225,8 +225,8 @@ const Header = () => {
                 <motion.div
                   className={`absolute z-10 h-6 w-6 rounded-full shadow-lg ${
                     isDarkMode
-                      ? "bg-gradient-to-br from-slate-800 to-slate-900"
-                      : "bg-gradient-to-br from-white to-sky-50"
+                      ? "bg-linear-to-br from-slate-800 to-slate-900"
+                      : "bg-linear-to-br from-white to-sky-50"
                   }`}
                   layout
                   transition={pillSwitchTransition}
@@ -259,7 +259,7 @@ const Header = () => {
                 isDarkMode
                   ? "text-slate-300 hover:text-sky-300 hover:bg-slate-700/70"
                   : "text-slate-600 hover:text-sky-600 hover:bg-slate-200/70"
-              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-sky-500`}
+              } focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-sky-500`}
               aria-label="Toggle mobile menu"
               aria-expanded={isMenuOpen}
               whileHover={{ scale: 1.05 }}
@@ -324,8 +324,8 @@ const Header = () => {
                   <div
                     className={`relative flex items-center w-[62px] h-8 rounded-full p-1 cursor-pointer transition-all duration-300 ease-in-out ${
                       isDarkMode
-                        ? "bg-gradient-to-r from-slate-800 to-slate-700"
-                        : "bg-gradient-to-r from-sky-100 to-indigo-100"
+                        ? "bg-linear-to-r from-slate-800 to-slate-700"
+                        : "bg-linear-to-r from-sky-100 to-indigo-100"
                     }`}
                     onClick={toggleDarkMode}
                     aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
@@ -336,8 +336,8 @@ const Header = () => {
                       <motion.div
                         className={`absolute z-10 h-6 w-6 rounded-full shadow-lg ${
                           isDarkMode
-                            ? "bg-gradient-to-br from-slate-800 to-slate-900"
-                            : "bg-gradient-to-br from-white to-sky-50"
+                            ? "bg-linear-to-br from-slate-800 to-slate-900"
+                            : "bg-linear-to-br from-white to-sky-50"
                         }`}
                         layout
                         transition={pillSwitchTransition}

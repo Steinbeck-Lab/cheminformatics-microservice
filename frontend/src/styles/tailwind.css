@@ -1,27 +1,176 @@
 /* src/styles/tailwind.css */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+/* Custom components using CSS Variables and dark: modifier */
+@utility btn {
+  @apply px-4 py-2 rounded-md font-medium transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2;
+  @apply focus:ring-offset-(--bg-primary);
+
+  /* .form-control uses base input styles */
+}
+@utility btn-primary {
+  @apply btn bg-sky-600 hover:bg-sky-700 text-white focus:ring-sky-500;
+  @apply dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-500;
+
+  /* .form-control uses base input styles */
+}
+@utility btn-secondary {
+  @apply btn bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 focus:ring-slate-400;
+  @apply dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white dark:border-slate-600 dark:focus:ring-slate-500;
+
+  /* .form-control uses base input styles */
+}
+@utility btn-danger {
+  @apply btn bg-red-600 hover:bg-red-700 text-white focus:ring-red-500;
+
+  /* .form-control uses base input styles */
+}
+@utility card {
+  @apply bg-(--bg-secondary) border rounded-lg shadow-md dark:shadow-xl overflow-hidden;
+  @apply dark:bg-slate-800/80 dark:border-slate-700/80;
+  border-color: var(--border-primary);
+
+  /* .form-control uses base input styles */
+}
+@utility card-header {
+  @apply p-4 border-b font-semibold;
+  background-color: color-mix(in srgb, var(--bg-secondary) 95%, black 5%);
+  border-color: var(--border-primary);
+  @apply dark:bg-slate-900/50 dark:border-slate-700;
+
+  /* .form-control uses base input styles */
+}
+@utility card-body {
+  @apply p-4;
+
+  /* .form-control uses base input styles */
+}
+@utility card-footer {
+  @apply p-4 border-t text-sm;
+  background-color: color-mix(in srgb, var(--bg-secondary) 95%, black 5%);
+  border-color: var(--border-primary);
+  color: var(--text-secondary);
+  @apply dark:bg-slate-900/50 dark:border-slate-700 dark:text-slate-400;
+
+  /* .form-control uses base input styles */
+}
+@utility form-group {
+  /* Form group */
+  @apply mb-4;
+
+  /* .form-control uses base input styles */
+}
+@utility form-label {
+  @apply block text-sm font-medium mb-1;
+  color: var(--text-secondary);
+
+  /* .form-control uses base input styles */
+}
+@utility dots-bg {
+  /* Pattern components for backgrounds */
+  background-image: var(--dots-pattern);
+  background-size: 20px 20px;
+
+  /* .form-control uses base input styles */
+}
+@utility grid-bg {
+  background-image: var(--grid-pattern);
+  background-size: 40px 40px;
+
+  /* .form-control uses base input styles */
+}
+@utility mesh-bg {
+  background-image: var(--mesh-pattern);
+  background-size: 200% 200%;
+  animation: mesh-gradient-move 15s ease infinite;
+
+  /* .form-control uses base input styles */
+}
+@utility noise-bg {
+  background-image: var(--noise-pattern);
+
+  /* .form-control uses base input styles */
+}
+@utility glass {
+  /* Glass effect - Adaptive */
+  /* Light mode */
+  @apply bg-white/70 backdrop-blur-lg border border-slate-300/50;
+  /* Dark mode */
+  @apply dark:bg-slate-800/70 dark:backdrop-blur-xl dark:border-slate-700/50; /* Matched definition from previous Header component */
+}
+@utility text-gradient {
+  /* Gradient text - Adaptive */
+  /* Light mode */
+  @apply text-transparent bg-clip-text bg-linear-to-r from-sky-600 to-indigo-600;
+  /* Dark mode */
+  @apply dark:from-sky-400 dark:to-cyan-400; /* Matched definition from previous Header component */
+}
+@utility theme-toggle-button {
+  /* Subtle pulse animation for theme toggle button */
+
+  /* Apply pulse on hover to the theme toggle */
+  &:hover {
+    /* Define --tw-ring-color based on theme */
+    --tw-ring-color: var(--color-sky-500); /* Light mode */
+    animation: subtle-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  .dark &:hover {
+    --tw-ring-color: var(--color-sky-400); /* Dark mode */
+  }
+}
+@utility dark {
+  & .theme-toggle-button:hover {
+    --tw-ring-color: var(--color-sky-400); /* Dark mode */
+  }
+}
+@utility bg-gradient-radial {
+  /* Animation for mesh gradients */
+
+  /* Define radial gradient utility */
+  background-image: radial-gradient(var(--tw-gradient-stops));
+}
+@utility transform-style-3d {
+  /* Transform style utility for 3D effects */
+  transform-style: preserve-3d;
+}
 
 /* Define CSS Variables for theming */
 @layer base {
   :root {
     /* Light Mode Colors (Default) */
-    --bg-primary: theme("colors.slate.100");
-    --bg-secondary: theme("colors.white");
-    --text-primary: theme("colors.slate.900");
-    --text-secondary: theme("colors.slate.600");
-    --text-accent: theme("colors.sky.700");
-    --text-accent-hover: theme("colors.sky.800");
-    --border-primary: theme("colors.slate.300");
-    --border-secondary: theme("colors.slate.200");
-    --link-primary: theme("colors.sky.600");
-    --link-hover: theme("colors.sky.700");
-    --input-bg: theme("colors.white");
-    --input-border: theme("colors.slate.300");
-    --input-text: theme("colors.slate.900");
-    --input-focus-ring: theme("colors.sky.500");
-    --placeholder-color: theme("colors.slate.400");
+    --bg-primary: var(--color-slate-100);
+    --bg-secondary: var(--color-white);
+    --text-primary: var(--color-slate-900);
+    --text-secondary: var(--color-slate-600);
+    --text-accent: var(--color-sky-700);
+    --text-accent-hover: var(--color-sky-800);
+    --border-primary: var(--color-slate-300);
+    --border-secondary: var(--color-slate-200);
+    --link-primary: var(--color-sky-600);
+    --link-hover: var(--color-sky-700);
+    --input-bg: var(--color-white);
+    --input-border: var(--color-slate-300);
+    --input-text: var(--color-slate-900);
+    --input-focus-ring: var(--color-sky-500);
+    --placeholder-color: var(--color-slate-400);
     --shadow-color-rgb: 0, 0, 0; /* For light mode shadows */
 
     /* Pattern definitions for backgrounds */
@@ -40,21 +189,21 @@
 
   .dark {
     /* Dark Mode Colors */
-    --bg-primary: theme("colors.gray.950");
-    --bg-secondary: theme("colors.slate.800");
-    --text-primary: theme("colors.slate.100");
-    --text-secondary: theme("colors.slate.300");
-    --text-accent: theme("colors.sky.400");
-    --text-accent-hover: theme("colors.sky.300");
-    --border-primary: theme("colors.slate.700");
-    --border-secondary: theme("colors.slate.800"); /* Darker secondary border */
-    --link-primary: theme("colors.sky.400");
-    --link-hover: theme("colors.sky.300");
-    --input-bg: theme("colors.slate.800");
-    --input-border: theme("colors.slate.700");
-    --input-text: theme("colors.white");
-    --input-focus-ring: theme("colors.sky.400");
-    --placeholder-color: theme("colors.slate.500");
+    --bg-primary: var(--color-gray-950);
+    --bg-secondary: var(--color-slate-800);
+    --text-primary: var(--color-slate-100);
+    --text-secondary: var(--color-slate-300);
+    --text-accent: var(--color-sky-400);
+    --text-accent-hover: var(--color-sky-300);
+    --border-primary: var(--color-slate-700);
+    --border-secondary: var(--color-slate-800); /* Darker secondary border */
+    --link-primary: var(--color-sky-400);
+    --link-hover: var(--color-sky-300);
+    --input-bg: var(--color-slate-800);
+    --input-border: var(--color-slate-700);
+    --input-text: var(--color-white);
+    --input-focus-ring: var(--color-sky-400);
+    --placeholder-color: var(--color-slate-500);
     --shadow-color-rgb: 255, 255, 255; /* For dark mode subtle glows/shadows if needed */
 
     /* Dark mode pattern definitions */
@@ -104,12 +253,12 @@
     background-color: var(--input-bg);
     border-color: var(--input-border);
     color: var(--input-text);
-    @apply placeholder-[var(--placeholder-color)];
+    @apply placeholder-(--placeholder-color);
   }
   input:focus,
   select:focus,
   textarea:focus {
-    @apply outline-none ring-2 border-transparent;
+    @apply outline-hidden ring-2 border-transparent;
     border-color: var(--input-focus-ring);
     --tw-ring-color: var(--input-focus-ring);
     --tw-ring-opacity: 0.5;
@@ -130,105 +279,8 @@
   }
 }
 
-/* Custom components using CSS Variables and dark: modifier */
-@layer components {
-  .btn {
-    @apply px-4 py-2 rounded-md font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
-    @apply focus:ring-offset-[var(--bg-primary)];
-  }
-
-  .btn-primary {
-    @apply btn bg-sky-600 hover:bg-sky-700 text-white focus:ring-sky-500;
-    @apply dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-500;
-  }
-
-  .btn-secondary {
-    @apply btn bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 focus:ring-slate-400;
-    @apply dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white dark:border-slate-600 dark:focus:ring-slate-500;
-  }
-
-  .btn-danger {
-    @apply btn bg-red-600 hover:bg-red-700 text-white focus:ring-red-500;
-  }
-
-  .card {
-    @apply bg-[var(--bg-secondary)] border rounded-lg shadow-md dark:shadow-xl overflow-hidden;
-    @apply dark:bg-slate-800/80 dark:border-slate-700/80;
-    border-color: var(--border-primary);
-  }
-
-  .card-header {
-    @apply p-4 border-b font-semibold;
-    background-color: color-mix(in srgb, var(--bg-secondary) 95%, black 5%);
-    border-color: var(--border-primary);
-    @apply dark:bg-slate-900/50 dark:border-slate-700;
-  }
-
-  .card-body {
-    @apply p-4;
-  }
-
-  .card-footer {
-    @apply p-4 border-t text-sm;
-    background-color: color-mix(in srgb, var(--bg-secondary) 95%, black 5%);
-    border-color: var(--border-primary);
-    color: var(--text-secondary);
-    @apply dark:bg-slate-900/50 dark:border-slate-700 dark:text-slate-400;
-  }
-
-  /* Form group */
-  .form-group {
-    @apply mb-4;
-  }
-
-  .form-label {
-    @apply block text-sm font-medium mb-1;
-    color: var(--text-secondary);
-  }
-
-  /* Pattern components for backgrounds */
-  .dots-bg {
-    background-image: var(--dots-pattern);
-    background-size: 20px 20px;
-  }
-
-  .grid-bg {
-    background-image: var(--grid-pattern);
-    background-size: 40px 40px;
-  }
-
-  .mesh-bg {
-    background-image: var(--mesh-pattern);
-    background-size: 200% 200%;
-    animation: mesh-gradient-move 15s ease infinite;
-  }
-
-  .noise-bg {
-    background-image: var(--noise-pattern);
-  }
-
-  /* .form-control uses base input styles */
-}
-
 /* Custom utilities using CSS Variables and dark: modifier */
 @layer utilities {
-  /* Glass effect - Adaptive */
-  .glass {
-    /* Light mode */
-    @apply bg-white/70 backdrop-blur-lg border border-slate-300/50;
-    /* Dark mode */
-    @apply dark:bg-slate-800/70 dark:backdrop-blur-xl dark:border-slate-700/50; /* Matched definition from previous Header component */
-  }
-
-  /* Gradient text - Adaptive */
-  .text-gradient {
-    /* Light mode */
-    @apply text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-indigo-600;
-    /* Dark mode */
-    @apply dark:from-sky-400 dark:to-cyan-400; /* Matched definition from previous Header component */
-  }
-
-  /* Subtle pulse animation for theme toggle button */
   @keyframes subtle-pulse {
     0%,
     100% {
@@ -238,18 +290,6 @@
       box-shadow: 0 0 0 5px rgba(var(--tw-ring-color), 0);
     }
   }
-
-  /* Apply pulse on hover to the theme toggle */
-  .theme-toggle-button:hover {
-    /* Define --tw-ring-color based on theme */
-    --tw-ring-color: theme("colors.sky.500"); /* Light mode */
-    animation: subtle-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  .dark .theme-toggle-button:hover {
-    --tw-ring-color: theme("colors.sky.400"); /* Dark mode */
-  }
-
-  /* Animation for mesh gradients */
   @keyframes mesh-gradient-move {
     0% {
       background-position: 0% 50%;
@@ -260,15 +300,5 @@
     100% {
       background-position: 0% 50%;
     }
-  }
-
-  /* Define radial gradient utility */
-  .bg-gradient-radial {
-    background-image: radial-gradient(var(--tw-gradient-stops));
-  }
-
-  /* Transform style utility for 3D effects */
-  .transform-style-3d {
-    transform-style: preserve-3d;
   }
 }

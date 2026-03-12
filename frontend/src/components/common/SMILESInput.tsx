@@ -104,7 +104,7 @@ const PasteModal = ({ isOpen, onClose, onPaste }) => {
             ref={textareaRef}
             value={text}
             onChange={(e) => setText(e.target.value)}
-            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded font-mono text-sm bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 h-24"
+            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-sm font-mono text-sm bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 h-24"
             placeholder="Paste SMILES here..."
             autoFocus
           />
@@ -112,7 +112,7 @@ const PasteModal = ({ isOpen, onClose, onPaste }) => {
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
           >
             Cancel
           </button>
@@ -121,7 +121,7 @@ const PasteModal = ({ isOpen, onClose, onPaste }) => {
               onPaste(text);
               onClose();
             }}
-            className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+            className="px-4 py-2 bg-indigo-600 text-white rounded-sm hover:bg-indigo-700"
             disabled={!text.trim()}
           >
             Use SMILES
@@ -278,7 +278,7 @@ const SMILESInput = ({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           // Input styling with theme awareness
-          className="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md text-gray-900 dark:text-white shadow-sm focus:outline-none focus:border-indigo-500 dark:focus:border-blue-500 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-blue-500 pr-10" // Added pr-10 for clear button space
+          className="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md text-gray-900 dark:text-white shadow-xs focus:outline-hidden focus:border-indigo-500 dark:focus:border-blue-500 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-blue-500 pr-10" // Added pr-10 for clear button space
           required={required}
           aria-required={required}
         />
@@ -289,7 +289,7 @@ const SMILESInput = ({
             type="button" // Prevent form submission
             onClick={handleClear}
             // Button styling
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 rounded-r-md"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 rounded-r-md"
             aria-label="Clear input"
           >
             <HiOutlineX className="h-5 w-5" />
@@ -312,7 +312,7 @@ const SMILESInput = ({
           type="button"
           onClick={handlePaste}
           // Button styling
-          className="inline-flex items-center px-2.5 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 text-xs font-medium shadow-sm transition-colors duration-150 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="inline-flex items-center px-2.5 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 text-xs font-medium shadow-xs transition-colors duration-150 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
           title="Paste from clipboard"
         >
           <HiOutlineClipboard className="mr-1 h-4 w-4" />
@@ -332,7 +332,7 @@ const SMILESInput = ({
               aria-expanded={showExampleList}
               aria-controls="examples-dropdown"
               // Button styling
-              className="inline-flex items-center px-2.5 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 text-xs font-medium shadow-sm transition-colors duration-150 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="inline-flex items-center px-2.5 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 text-xs font-medium shadow-xs transition-colors duration-150 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
             >
               <HiOutlineLightBulb className="mr-1 h-4 w-4" />
               <span>Examples</span>
@@ -343,7 +343,7 @@ const SMILESInput = ({
               <div
                 id="examples-dropdown"
                 // Dropdown styling
-                className="absolute z-20 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                className="absolute z-20 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-hidden"
                 role="menu"
                 aria-orientation="vertical"
                 aria-labelledby="examples-button" // Needs id on button
@@ -371,7 +371,7 @@ const SMILESInput = ({
               aria-expanded={showRecentList}
               aria-controls="recent-dropdown"
               // Button styling
-              className="inline-flex items-center px-2.5 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 text-xs font-medium shadow-sm transition-colors duration-150 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="inline-flex items-center px-2.5 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 text-xs font-medium shadow-xs transition-colors duration-150 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
             >
               <HiOutlineClock className="mr-1 h-4 w-4" /> {/* Replaced SVG */}
               <span>Recent</span>
@@ -382,7 +382,7 @@ const SMILESInput = ({
               <div
                 id="recent-dropdown"
                 // Dropdown styling
-                className="absolute z-20 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                className="absolute z-20 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-hidden"
                 role="menu"
                 aria-orientation="vertical"
                 aria-labelledby="recent-button" // Needs id on button

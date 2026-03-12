@@ -60,8 +60,8 @@ const StructureErrorView = () => {
     if (!messages || messages.length === 0) {
       // Optionally return a default "No messages" state or null
       return (
-        <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
-          <HiOutlineInformationCircle className="mr-2 h-5 w-5 flex-shrink-0" />
+        <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xs">
+          <HiOutlineInformationCircle className="mr-2 h-5 w-5 shrink-0" />
           No validation messages reported.
         </div>
       );
@@ -71,8 +71,8 @@ const StructureErrorView = () => {
     if (messages.length === 1 && messages[0] === "No Errors Found") {
       return (
         // Success message styling
-        <div className="flex items-center text-green-700 dark:text-green-400 font-medium p-3 bg-green-50 dark:bg-green-900 dark:bg-opacity-20 border border-green-300 dark:border-green-700 rounded-lg shadow-sm">
-          <HiOutlineCheck className="mr-2 h-5 w-5 flex-shrink-0" aria-hidden="true" />
+        <div className="flex items-center text-green-700 dark:text-green-400 font-medium p-3 bg-green-50 dark:bg-green-900 dark:bg-opacity-20 border border-green-300 dark:border-green-700 rounded-lg shadow-xs">
+          <HiOutlineCheck className="mr-2 h-5 w-5 shrink-0" aria-hidden="true" />
           {messages[0]}
         </div>
       );
@@ -81,9 +81,9 @@ const StructureErrorView = () => {
     // Handle actual error/warning messages
     return (
       // Warning/Error message styling (using amber for visibility)
-      <div className="p-3 bg-amber-50 dark:bg-amber-900 dark:bg-opacity-20 border border-amber-300 dark:border-amber-700 rounded-lg shadow-sm">
+      <div className="p-3 bg-amber-50 dark:bg-amber-900 dark:bg-opacity-20 border border-amber-300 dark:border-amber-700 rounded-lg shadow-xs">
         <h4 className="font-medium text-amber-700 dark:text-amber-300 mb-2 flex items-center">
-          <HiOutlineExclamationCircle className="h-5 w-5 mr-2 flex-shrink-0" aria-hidden="true" />
+          <HiOutlineExclamationCircle className="h-5 w-5 mr-2 shrink-0" aria-hidden="true" />
           Structure Issues Found
         </h4>
         <ul className="list-disc list-inside space-y-1 text-sm text-amber-700 dark:text-amber-200 pl-5">
@@ -122,7 +122,7 @@ const StructureErrorView = () => {
               checked={fix}
               onChange={(e) => setFix(e.target.checked)}
               // Checkbox styling for light/dark mode
-              className="h-4 w-4 rounded bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-offset-gray-800 shadow-sm"
+              className="h-4 w-4 rounded-sm bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-offset-gray-800 shadow-xs"
             />
             <label
               htmlFor="fix-structure"
@@ -137,10 +137,10 @@ const StructureErrorView = () => {
             <button
               type="submit"
               disabled={!smiles.trim() || loading}
-              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                 !smiles.trim() || loading
                   ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm"
+                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
               <HiOutlineShieldCheck className="mr-2 h-5 w-5" aria-hidden="true" />
@@ -157,11 +157,11 @@ const StructureErrorView = () => {
       {error &&
         !loading && ( // Show error only if not loading
           <div
-            className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow"
+            className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
             role="alert"
           >
             <HiOutlineExclamationCircle
-              className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+              className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
               aria-hidden="true"
             />
             <span>{error}</span>
@@ -183,10 +183,10 @@ const StructureErrorView = () => {
               {/* Original SMILES Display */}
               <div className="flex items-center space-x-3 text-gray-700 dark:text-gray-300">
                 <HiOutlinePencilAlt
-                  className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0"
+                  className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0"
                   aria-hidden="true"
                 />
-                <span className="font-mono text-sm bg-gray-100 dark:bg-gray-900 px-3 py-1 rounded border border-gray-200 dark:border-gray-700 break-all">
+                <span className="font-mono text-sm bg-gray-100 dark:bg-gray-900 px-3 py-1 rounded-sm border border-gray-200 dark:border-gray-700 break-all">
                   {result.original?.smi || smiles} {/* Show original SMILES from result or input */}
                 </span>
               </div>
@@ -206,16 +206,16 @@ const StructureErrorView = () => {
                   {/* Use check icon if standardized messages indicate no errors */}
                   {result.standardized.messages?.includes("No Errors Found") ? (
                     <HiOutlineCheck
-                      className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0"
+                      className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0"
                       aria-hidden="true"
                     />
                   ) : (
                     <HiOutlinePencilAlt
-                      className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0"
+                      className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0"
                       aria-hidden="true"
                     />
                   )}
-                  <span className="font-mono text-sm bg-gray-100 dark:bg-gray-900 px-3 py-1 rounded border border-gray-200 dark:border-gray-700 break-all">
+                  <span className="font-mono text-sm bg-gray-100 dark:bg-gray-900 px-3 py-1 rounded-sm border border-gray-200 dark:border-gray-700 break-all">
                     {result.standardized.smi}
                   </span>
                 </div>
@@ -246,11 +246,11 @@ const StructureErrorView = () => {
       {/* Show only if no result, not loading, and no error */}
       {!result && !loading && !error && (
         <div
-          className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow"
+          className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow-sm"
           role="complementary"
         >
           <HiOutlineInformationCircle
-            className="h-6 w-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5"
+            className="h-6 w-6 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"
             aria-hidden="true"
           />
           <div>

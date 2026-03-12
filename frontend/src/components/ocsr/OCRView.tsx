@@ -264,7 +264,7 @@ const OCRView = () => {
                   }}
                   placeholder="https://example.com/structure.png"
                   disabled={loading}
-                  className="w-full pl-10 pr-4 py-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full pl-10 pr-4 py-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -319,7 +319,7 @@ const OCRView = () => {
               onChange={(e) => setReference(e.target.value)}
               placeholder="e.g., Figure 1A, Compound X"
               disabled={loading}
-              className="w-full px-4 py-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
 
@@ -334,7 +334,7 @@ const OCRView = () => {
                 type="button"
                 onClick={() => setHandDrawn(!handDrawn)}
                 disabled={loading}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 disabled:opacity-50 disabled:cursor-not-allowed ${
                   handDrawn ? "bg-green-600 dark:bg-green-500" : "bg-slate-300 dark:bg-slate-600"
                 }`}
                 role="switch"
@@ -358,7 +358,7 @@ const OCRView = () => {
                   type="button"
                   onClick={clearAll}
                   disabled={loading}
-                  className="px-5 py-2.5 rounded-lg font-medium bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-5 py-2.5 rounded-lg font-medium bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-colors focus:outline-hidden focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <div className="flex items-center gap-2">
                     <HiOutlineRefresh className="h-4 w-4" />
@@ -371,7 +371,7 @@ const OCRView = () => {
                 type="button"
                 onClick={handleProcessImage}
                 disabled={loading || (!files.length && !imageUrl.trim())}
-                className={`px-6 py-2.5 rounded-lg font-medium text-white transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 ${
+                className={`px-6 py-2.5 rounded-lg font-medium text-white transition-all focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 ${
                   loading || (!files.length && !imageUrl.trim())
                     ? "bg-slate-400 dark:bg-slate-600 cursor-not-allowed"
                     : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-md hover:shadow-lg"
@@ -449,7 +449,7 @@ const OCRView = () => {
             role="alert"
           >
             <div className="flex items-start gap-3">
-              <HiOutlineExclamationCircle className="h-6 w-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+              <HiOutlineExclamationCircle className="h-6 w-6 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
               <div className="flex-1">
                 <h3 className="text-sm font-medium text-red-800 dark:text-red-300 mb-1">
                   Processing Error

@@ -285,7 +285,7 @@ const StandardizeView = () => {
               onClick={() => setInputMethod("smiles")}
               className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 flex items-center justify-center ${
                 inputMethod === "smiles"
-                  ? "bg-blue-600 text-white shadow-sm"
+                  ? "bg-blue-600 text-white shadow-xs"
                   : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               }`}
             >
@@ -297,7 +297,7 @@ const StandardizeView = () => {
               onClick={() => setInputMethod("molblock")}
               className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 flex items-center justify-center ${
                 inputMethod === "molblock"
-                  ? "bg-blue-600 text-white shadow-sm"
+                  ? "bg-blue-600 text-white shadow-xs"
                   : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               }`}
             >
@@ -310,7 +310,7 @@ const StandardizeView = () => {
         {/* Important Notice */}
         <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-20 border border-yellow-200 dark:border-yellow-800 rounded-md">
           <div className="flex">
-            <HiOutlineExclamationCircle className="h-5 w-5 text-yellow-400 mr-2 flex-shrink-0 mt-0.5" />
+            <HiOutlineExclamationCircle className="h-5 w-5 text-yellow-400 mr-2 shrink-0 mt-0.5" />
             <div className="text-sm text-yellow-800 dark:text-yellow-200">
               <strong>Important:</strong> This tool accepts only one molecule at a time. Multiple
               molecules (separated by dots in SMILES or multiple records in molblock) will cause
@@ -367,14 +367,14 @@ Example format (simple molecule):
 M  END`}
                 rows={12}
                 // Textarea styling for light/dark mode
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white font-mono text-xs sm:text-sm resize-y shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white font-mono text-xs sm:text-sm resize-y shadow-xs focus:ring-indigo-500 focus:border-indigo-500"
                 required
                 aria-required="true"
               />
               {/* File Upload and Info */}
               <div className="mt-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 {/* File Upload Button */}
-                <label className="inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 text-sm font-medium rounded-md cursor-pointer border border-gray-300 dark:border-gray-600 shadow-sm transition-colors duration-150">
+                <label className="inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 text-sm font-medium rounded-md cursor-pointer border border-gray-300 dark:border-gray-600 shadow-xs transition-colors duration-150">
                   <HiOutlineUpload className="mr-2 h-5 w-5" aria-hidden="true" />
                   <span>Upload MOL/SDF File</span>
                   <input
@@ -402,10 +402,10 @@ M  END`}
             <button
               type="submit"
               disabled={(inputMethod === "smiles" ? !smiles.trim() : !molblock.trim()) || loading}
-              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                 (inputMethod === "smiles" ? !smiles.trim() : !molblock.trim()) || loading
                   ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm"
+                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
               <HiOutlineDocumentReport className="mr-2 h-5 w-5" aria-hidden="true" />
@@ -428,11 +428,11 @@ M  END`}
       {error &&
         !loading && ( // Show error only if not loading
           <div
-            className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow"
+            className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
             role="alert"
           >
             <HiOutlineExclamationCircle
-              className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+              className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
               aria-hidden="true"
             />
             <span>{error}</span>
@@ -470,13 +470,13 @@ M  END`}
                   <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                     Canonical SMILES
                   </label>
-                  <div className="flex bg-gray-100 dark:bg-gray-900 rounded-lg p-2 items-center border border-gray-200 dark:border-gray-700 shadow-sm">
+                  <div className="flex bg-gray-100 dark:bg-gray-900 rounded-lg p-2 items-center border border-gray-200 dark:border-gray-700 shadow-xs">
                     <div className="flex-1 font-mono text-xs sm:text-sm text-gray-800 dark:text-blue-300 break-all pr-2">
                       {standardizedData.canonical_smiles}
                     </div>
                     <button
                       onClick={() => handleCopy(standardizedData.canonical_smiles, "smiles")}
-                      className="ml-auto p-1 text-gray-400 hover:text-gray-700 dark:hover:text-white flex-shrink-0"
+                      className="ml-auto p-1 text-gray-400 hover:text-gray-700 dark:hover:text-white shrink-0"
                       title="Copy SMILES"
                     >
                       <HiOutlineClipboard className="h-5 w-5" />
@@ -488,13 +488,13 @@ M  END`}
                   <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                     InChI
                   </label>
-                  <div className="flex bg-gray-100 dark:bg-gray-900 rounded-lg p-2 items-center border border-gray-200 dark:border-gray-700 shadow-sm">
+                  <div className="flex bg-gray-100 dark:bg-gray-900 rounded-lg p-2 items-center border border-gray-200 dark:border-gray-700 shadow-xs">
                     <div className="flex-1 font-mono text-xs sm:text-sm text-gray-800 dark:text-blue-300 break-all pr-2">
                       {standardizedData.inchi}
                     </div>
                     <button
                       onClick={() => handleCopy(standardizedData.inchi, "inchi")}
-                      className="ml-auto p-1 text-gray-400 hover:text-gray-700 dark:hover:text-white flex-shrink-0"
+                      className="ml-auto p-1 text-gray-400 hover:text-gray-700 dark:hover:text-white shrink-0"
                       title="Copy InChI"
                     >
                       <HiOutlineClipboard className="h-5 w-5" />
@@ -506,13 +506,13 @@ M  END`}
                   <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                     InChI Key
                   </label>
-                  <div className="flex bg-gray-100 dark:bg-gray-900 rounded-lg p-2 items-center border border-gray-200 dark:border-gray-700 shadow-sm">
+                  <div className="flex bg-gray-100 dark:bg-gray-900 rounded-lg p-2 items-center border border-gray-200 dark:border-gray-700 shadow-xs">
                     <div className="flex-1 font-mono text-xs sm:text-sm text-gray-800 dark:text-blue-300 break-all pr-2">
                       {standardizedData.inchikey}
                     </div>
                     <button
                       onClick={() => handleCopy(standardizedData.inchikey, "inchikey")}
-                      className="ml-auto p-1 text-gray-400 hover:text-gray-700 dark:hover:text-white flex-shrink-0"
+                      className="ml-auto p-1 text-gray-400 hover:text-gray-700 dark:hover:text-white shrink-0"
                       title="Copy InChI Key"
                     >
                       <HiOutlineClipboard className="h-5 w-5" />
@@ -528,7 +528,7 @@ M  END`}
                 Standardized Molblock
               </h4>
               {/* Molblock Display Area */}
-              <div className="bg-gray-100 dark:bg-gray-900 rounded-lg p-3 max-h-60 overflow-auto border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div className="bg-gray-100 dark:bg-gray-900 rounded-lg p-3 max-h-60 overflow-auto border border-gray-200 dark:border-gray-700 shadow-xs">
                 <pre className="font-mono text-xs text-gray-700 dark:text-gray-300 whitespace-pre">
                   {standardizedData.standardized_mol}
                 </pre>
@@ -536,7 +536,7 @@ M  END`}
               {/* Copy Molblock Button */}
               <button
                 onClick={() => handleCopy(standardizedData.standardized_mol, "molblock")}
-                className={`mt-3 px-3 py-1 text-sm rounded-md flex items-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+                className={`mt-3 px-3 py-1 text-sm rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                   copiedStates["molblock"]
                     ? "bg-green-100 dark:bg-green-700 text-green-700 dark:text-green-200"
                     : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600"
@@ -568,7 +568,7 @@ M  END`}
                     // Property Card
                     <div
                       key={key}
-                      className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3 border border-gray-200 dark:border-gray-700 shadow-sm"
+                      className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3 border border-gray-200 dark:border-gray-700 shadow-xs"
                     >
                       <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1 capitalize">
                         {key.replace(/_/g, " ")} {/* Format key */}
@@ -587,7 +587,7 @@ M  END`}
 
       {/* Initial State Message (Optional) */}
       {!standardizedData && !loading && !error && (
-        <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center shadow">
+        <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center shadow-sm">
           <div className="space-y-3">
             <HiOutlineBeaker className="h-12 w-12 mx-auto text-blue-500 dark:text-blue-400" />
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">

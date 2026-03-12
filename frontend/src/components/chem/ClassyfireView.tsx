@@ -229,7 +229,7 @@ const ClassyfireView = () => {
           <div className="flex border-b border-gray-200 dark:border-gray-700">
             {/* Classify Tab Button */}
             <button
-              className={`px-4 py-2 font-medium text-sm focus:outline-none transition-colors duration-150 ${
+              className={`px-4 py-2 font-medium text-sm focus:outline-hidden transition-colors duration-150 ${
                 activeTab === "classify"
                   ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
                   : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-500"
@@ -241,7 +241,7 @@ const ClassyfireView = () => {
             </button>
             {/* Check Job ID Tab Button */}
             <button
-              className={`px-4 py-2 font-medium text-sm focus:outline-none transition-colors duration-150 ${
+              className={`px-4 py-2 font-medium text-sm focus:outline-hidden transition-colors duration-150 ${
                 activeTab === "jobid"
                   ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
                   : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-500"
@@ -269,10 +269,10 @@ const ClassyfireView = () => {
             <button
               type="submit"
               disabled={!smiles.trim() || loading} // Disable if input is empty/whitespace or loading
-              className={`w-full px-4 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+              className={`w-full px-4 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                 !smiles.trim() || loading
                   ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm"
+                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
               <HiOutlineSearch className="mr-2 h-5 w-5" aria-hidden="true" />
@@ -296,7 +296,7 @@ const ClassyfireView = () => {
                 onChange={(e) => setManualJobId(e.target.value)}
                 placeholder="Enter job ID..."
                 // Input styling for light/dark mode
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
                 required
                 aria-required="true"
               />
@@ -308,10 +308,10 @@ const ClassyfireView = () => {
               // Disable if no manualJobId, or if currently loading a new classification,
               // or if currently polling *this specific* job ID.
               disabled={!manualJobId.trim() || loading || (polling && jobId === manualJobId.trim())}
-              className={`w-full px-4 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+              className={`w-full px-4 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                 !manualJobId.trim() || loading || (polling && jobId === manualJobId.trim())
                   ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm"
+                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
               <HiOutlineSearch className="mr-2 h-5 w-5" aria-hidden="true" />
@@ -330,11 +330,11 @@ const ClassyfireView = () => {
       {/* Error Message */}
       {error && (
         <div
-          className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow"
+          className="p-4 rounded-md bg-red-50 dark:bg-red-900 dark:bg-opacity-30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
           role="alert"
         >
           <HiOutlineExclamationCircle
-            className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+            className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
             aria-hidden="true"
           />
           <span>{error}</span>
@@ -344,9 +344,9 @@ const ClassyfireView = () => {
       {/* Job Status / Polling Indicator */}
       {/* Show this block if we have a job ID, are not in the initial loading state, and don't have final results yet */}
       {jobId && !loading && !classificationResults && (
-        <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-start shadow">
+        <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-start shadow-sm">
           {/* Spinner/Icon */}
-          <div className="mr-4 flex-shrink-0 pt-1">
+          <div className="mr-4 shrink-0 pt-1">
             {/* Show spinner if polling OR in the initial 'fetching' or 'submitted' state */}
             {polling || ["fetching", "submitted", "processing"].includes(jobStatus) ? (
               <div
@@ -366,8 +366,11 @@ const ClassyfireView = () => {
             <h3 className="text-md font-medium text-blue-800 dark:text-blue-300 mb-1">
               {/* Display more informative status */}
               Classification Job{" "}
-              <span className="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">{jobId}</span> -
-              Status: <span className="font-semibold capitalize">{jobStatus || "Waiting..."}</span>
+              <span className="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded-sm">
+                {jobId}
+              </span>{" "}
+              - Status:{" "}
+              <span className="font-semibold capitalize">{jobStatus || "Waiting..."}</span>
             </h3>
             <p className="text-gray-600 dark:text-gray-300 text-sm">
               {jobStatus === "error"
@@ -380,7 +383,7 @@ const ClassyfireView = () => {
             <div className="mt-3 flex items-center text-sm space-x-4">
               <button
                 onClick={() => handleCopy(jobId.toString())}
-                className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 focus:outline-none"
+                className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 focus:outline-hidden"
               >
                 <HiOutlineClipboard className="mr-1 h-4 w-4" aria-hidden="true" />
                 {copied ? "Copied!" : "Copy Job ID"}
@@ -389,7 +392,7 @@ const ClassyfireView = () => {
               {!polling && jobStatus !== "completed" && jobStatus !== "error" && (
                 <button
                   onClick={handleManualRefresh}
-                  className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 focus:outline-none"
+                  className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 focus:outline-hidden"
                 >
                   <HiOutlineRefresh className="mr-1 h-4 w-4" aria-hidden="true" />
                   Refresh Status
@@ -460,7 +463,7 @@ const ClassyfireView = () => {
                               // Ontology Item Card
                               <div
                                 key={level}
-                                className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm"
+                                className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700 shadow-xs"
                               >
                                 <h5 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
                                   {levelName}
@@ -497,7 +500,7 @@ const ClassyfireView = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Molecular Framework */}
                         {entity.molecular_framework && (
-                          <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+                          <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700 shadow-xs">
                             <h5 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
                               Molecular Framework
                             </h5>
@@ -509,7 +512,7 @@ const ClassyfireView = () => {
 
                         {/* Substituents */}
                         {entity.substituents && entity.substituents.length > 0 && (
-                          <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+                          <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700 shadow-xs">
                             <h5 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
                               Substituents
                             </h5>
@@ -529,7 +532,7 @@ const ClassyfireView = () => {
 
                         {/* Classification Lineage (Ancestors) */}
                         {entity.ancestors && entity.ancestors.length > 0 && (
-                          <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2 shadow-sm">
+                          <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2 shadow-xs">
                             <h5 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
                               Classification Lineage
                             </h5>
@@ -576,7 +579,7 @@ const ClassyfireView = () => {
       {/* Using the detailed about section with light/dark mode styling */}
       {!classificationResults && !loading && !error && !jobId && (
         <div
-          className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 shadow"
+          className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 shadow-sm"
           role="complementary"
         >
           <h3 className="text-lg font-medium text-blue-800 dark:text-blue-300 mb-3">

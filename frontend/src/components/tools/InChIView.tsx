@@ -209,7 +209,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
           InChI Version
         </label>
         <select
-          className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-sm focus:ring-green-500 focus:border-green-500"
+          className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-xs focus:ring-green-500 focus:border-green-500"
           value={inchiVersion}
           onChange={(e) => setInchiVersion(e.target.value)}
         >
@@ -228,7 +228,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
             type="checkbox"
             checked={mobileH}
             onChange={(e) => setMobileH(e.target.checked)}
-            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
           />
           <label htmlFor="mobileH" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
             Mobile H Perception
@@ -243,7 +243,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
               type="checkbox"
               checked={includeStereo}
               onChange={(e) => setIncludeStereo(e.target.checked)}
-              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
             />
             <label
               htmlFor="includeStereo"
@@ -339,7 +339,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
                   type="checkbox"
                   checked={SUU}
                   onChange={(e) => setSUU(e.target.checked)}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
                 />
                 <label
                   htmlFor="SUU"
@@ -356,7 +356,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
                   type="checkbox"
                   checked={SLUUD}
                   onChange={(e) => setSLUUD(e.target.checked)}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
                 />
                 <label
                   htmlFor="SLUUD"
@@ -373,7 +373,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
                   type="checkbox"
                   checked={NEWPSOFF}
                   onChange={(e) => setNEWPSOFF(e.target.checked)}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
                 />
                 <label
                   htmlFor="NEWPSOFF"
@@ -393,7 +393,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
             type="checkbox"
             checked={recMet}
             onChange={(e) => setRecMet(e.target.checked)}
-            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
           />
           <label htmlFor="recmet" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
             Include Bonds to Metal
@@ -424,7 +424,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
                   type="checkbox"
                   checked={ket}
                   onChange={(e) => setKet(e.target.checked)}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
                 />
                 <label
                   htmlFor="ket"
@@ -441,7 +441,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
                   type="checkbox"
                   checked={t15}
                   onChange={(e) => setT15(e.target.checked)}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
                 />
                 <label
                   htmlFor="15t"
@@ -461,7 +461,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
                       type="checkbox"
                       checked={PT_06_00}
                       onChange={(e) => setPT_06_00(e.target.checked)}
-                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
                     />
                     <label
                       htmlFor="PT_06_00"
@@ -478,7 +478,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
                       type="checkbox"
                       checked={PT_13_00}
                       onChange={(e) => setPT_13_00(e.target.checked)}
-                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
                     />
                     <label
                       htmlFor="PT_13_00"
@@ -495,7 +495,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
                       type="checkbox"
                       checked={PT_16_00}
                       onChange={(e) => setPT_16_00(e.target.checked)}
-                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
                     />
                     <label
                       htmlFor="PT_16_00"
@@ -512,7 +512,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
                       type="checkbox"
                       checked={PT_18_00}
                       onChange={(e) => setPT_18_00(e.target.checked)}
-                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
                     />
                     <label
                       htmlFor="PT_18_00"
@@ -529,7 +529,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
                       type="checkbox"
                       checked={PT_22_00}
                       onChange={(e) => setPT_22_00(e.target.checked)}
-                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
                     />
                     <label
                       htmlFor="PT_22_00"
@@ -546,7 +546,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
                       type="checkbox"
                       checked={PT_39_00}
                       onChange={(e) => setPT_39_00(e.target.checked)}
-                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
                     />
                     <label
                       htmlFor="PT_39_00"
@@ -570,7 +570,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
               type="checkbox"
               checked={polymers}
               onChange={(e) => setPolymers(e.target.checked)}
-              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
             />
             <label
               htmlFor="polymers"
@@ -589,7 +589,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
                   type="checkbox"
                   checked={NoEdits}
                   onChange={(e) => setNoEdits(e.target.checked)}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
                 />
                 <label
                   htmlFor="NoEdits"
@@ -606,7 +606,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
                   type="checkbox"
                   checked={FoldCRU}
                   onChange={(e) => setFoldCRU(e.target.checked)}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
                 />
                 <label
                   htmlFor="FoldCRU"
@@ -623,7 +623,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
                   type="checkbox"
                   checked={NoFrameShift}
                   onChange={(e) => setNoFrameShift(e.target.checked)}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
                 />
                 <label
                   htmlFor="NoFrameShift"
@@ -643,7 +643,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
             type="checkbox"
             checked={NPZz}
             onChange={(e) => setNPZz(e.target.checked)}
-            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
           />
           <label htmlFor="npzz" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
             Allow non-polymer Zz pseudoatoms
@@ -658,7 +658,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
               type="checkbox"
               checked={molecularInorganics}
               onChange={(e) => setMolecularInorganics(e.target.checked)}
-              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
             />
             <label
               htmlFor="molecularInorganics"
@@ -686,7 +686,7 @@ const ResultBlock = ({ title, value, onCopy, copyState, icon }) => {
         {value && (
           <button
             onClick={onCopy}
-            className="inline-flex items-center px-2 py-1 text-xs text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 rounded hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors duration-200"
+            className="inline-flex items-center px-2 py-1 text-xs text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 rounded-sm hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors duration-200"
           >
             {copyState ? (
               <>
@@ -702,7 +702,7 @@ const ResultBlock = ({ title, value, onCopy, copyState, icon }) => {
           </button>
         )}
       </div>
-      <div className="font-mono text-sm overflow-x-auto bg-gray-50 dark:bg-gray-900 p-3 rounded border border-gray-200 dark:border-gray-700 break-all max-h-24 overflow-y-auto">
+      <div className="font-mono text-sm overflow-x-auto bg-gray-50 dark:bg-gray-900 p-3 rounded-sm border border-gray-200 dark:border-gray-700 break-all max-h-24 overflow-y-auto">
         {value || <span className="text-gray-400 dark:text-gray-500">No data generated yet</span>}
       </div>
     </div>
@@ -1496,7 +1496,7 @@ const InChIView = () => {
   ];
 
   return (
-    <div className="flex flex-col gap-6 p-4 md:p-6 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-slate-900 min-h-screen">
+    <div className="flex flex-col gap-6 p-4 md:p-6 bg-linear-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-slate-900 min-h-screen">
       {/* Copy Modal - For fallback copying */}
       {showCopyModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fadeIn">
@@ -1519,14 +1519,14 @@ const InChIView = () => {
                 ref={copyTextRef}
                 value={copyModalText}
                 readOnly
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded font-mono text-sm bg-gray-50 dark:bg-gray-900"
+                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-sm font-mono text-sm bg-gray-50 dark:bg-gray-900"
                 onClick={(e) => e.target.select()}
               />
             </div>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowCopyModal(false)}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
               >
                 Close
               </button>
@@ -1599,7 +1599,7 @@ const InChIView = () => {
                 className={`w-full px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center ${
                   isLoading || !isEditorReady || !inchiModuleLoaded
                     ? "bg-gray-400 dark:bg-gray-600 text-white cursor-not-allowed"
-                    : "bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white"
+                    : "bg-linear-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white"
                 }`}
               >
                 <HiOutlineDocumentText className="h-4 w-4 mr-2" />
@@ -1683,17 +1683,17 @@ const InChIView = () => {
                     value={inputSmiles}
                     onChange={(e) => setInputSmiles(e.target.value)}
                     placeholder="e.g., CCO for ethanol"
-                    className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-sm focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                    className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-xs focus:ring-green-500 focus:border-green-500 transition-all duration-200"
                   />
                 </div>
 
                 <button
                   onClick={loadSmiles}
                   disabled={isLoading || !isEditorReady || !inputSmiles.trim()}
-                  className={`w-full relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-green-500 ${
+                  className={`w-full relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-green-500 ${
                     isLoading || !isEditorReady || !inputSmiles.trim()
                       ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                      : "bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800"
+                      : "bg-linear-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800"
                   }`}
                 >
                   {isLoading ? "Loading..." : !isEditorReady ? "Initializing..." : "Load Structure"}
@@ -1709,7 +1709,7 @@ const InChIView = () => {
                       <button
                         key={index}
                         onClick={() => setInputSmiles(example.smiles)}
-                        className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-xs font-medium rounded-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 transition-all duration-200"
+                        className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-xs text-xs font-medium rounded-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 transition-all duration-200"
                         title={`${example.name}: ${example.description}`}
                       >
                         {example.name}
@@ -1735,7 +1735,7 @@ const InChIView = () => {
                     value={molfileContent}
                     onChange={(e) => setMolfileContent(e.target.value)}
                     placeholder="Paste Molfile content here... or AuxInfo=1/0/N:1,2,3/E:(1,2)/rA:3nCCO/rB:s1;s2;/rC:;;;"
-                    className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-sm focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                    className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-xs focus:ring-green-500 focus:border-green-500 transition-all duration-200"
                     rows={6}
                   />
                 </div>
@@ -1762,10 +1762,10 @@ const InChIView = () => {
                   <button
                     onClick={loadMolfile}
                     disabled={isLoading || !isEditorReady || !molfileContent.trim()}
-                    className={`relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-green-500 ${
+                    className={`relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-green-500 ${
                       isLoading || !isEditorReady || !molfileContent.trim()
                         ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                        : "bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800"
+                        : "bg-linear-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800"
                     }`}
                   >
                     <HiOutlineDocumentText className="mr-2 h-5 w-5" />
@@ -1790,7 +1790,7 @@ const InChIView = () => {
                     value={inputInchi}
                     onChange={(e) => setInputInchi(e.target.value)}
                     placeholder="e.g., InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3"
-                    className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-sm focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                    className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-xs focus:ring-green-500 focus:border-green-500 transition-all duration-200"
                     rows={4}
                   />
                 </div>
@@ -1798,10 +1798,10 @@ const InChIView = () => {
                 <button
                   onClick={loadInChI}
                   disabled={isLoading || !isEditorReady || !inputInchi.trim() || !inchiModuleLoaded}
-                  className={`w-full relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-green-500 ${
+                  className={`w-full relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-green-500 ${
                     isLoading || !isEditorReady || !inputInchi.trim() || !inchiModuleLoaded
                       ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                      : "bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800"
+                      : "bg-linear-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800"
                   }`}
                 >
                   {isLoading
@@ -1823,7 +1823,7 @@ const InChIView = () => {
                       <button
                         key={index}
                         onClick={() => setInputInchi(example.inchi)}
-                        className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-xs font-medium rounded-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 transition-all duration-200"
+                        className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-xs text-xs font-medium rounded-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 transition-all duration-200"
                         title={`${example.name}: ${example.description}`}
                       >
                         {example.name}
@@ -1908,7 +1908,7 @@ const InChIView = () => {
           </div>
 
           {/* Information Box */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border border-blue-200 dark:border-blue-800/50 rounded-xl p-5 text-sm shadow-lg">
+          <div className="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border border-blue-200 dark:border-blue-800/50 rounded-xl p-5 text-sm shadow-lg">
             <h4 className="font-bold text-blue-800 dark:text-blue-300 mb-3 flex items-center">
               <HiOutlineInformationCircle className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
               About InChI
@@ -1942,7 +1942,7 @@ const InChIView = () => {
               role="alert"
             >
               <HiOutlineExclamationCircle
-                className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+                className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
                 aria-hidden="true"
               />
               <p>{error}</p>

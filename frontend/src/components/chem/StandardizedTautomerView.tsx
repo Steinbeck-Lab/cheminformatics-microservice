@@ -76,10 +76,10 @@ const StandardizedTautomerView = () => {
             <button
               type="submit"
               disabled={!smiles.trim() || loading}
-              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                 !smiles.trim() || loading
                   ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm"
+                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
               <HiOutlineRefresh className="mr-2 h-5 w-5" aria-hidden="true" />
@@ -105,12 +105,12 @@ const StandardizedTautomerView = () => {
         >
           {error.startsWith("Input is already") ? (
             <HiOutlineInformationCircle
-              className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-blue-500 dark:text-blue-400"
+              className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-blue-500 dark:text-blue-400"
               aria-hidden="true"
             />
           ) : (
             <HiOutlineExclamationCircle
-              className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+              className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
               aria-hidden="true"
             />
           )}
@@ -144,7 +144,7 @@ const StandardizedTautomerView = () => {
                   size="md" // Adjust size as needed
                 />
                 {/* Display original SMILES string */}
-                <div className="mt-2 bg-gray-100 dark:bg-gray-900 p-2 rounded-md border border-gray-200 dark:border-gray-700 font-mono text-xs overflow-x-auto shadow-sm">
+                <div className="mt-2 bg-gray-100 dark:bg-gray-900 p-2 rounded-md border border-gray-200 dark:border-gray-700 font-mono text-xs overflow-x-auto shadow-xs">
                   <pre className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-all">
                     {smiles}
                   </pre>
@@ -164,7 +164,7 @@ const StandardizedTautomerView = () => {
                   size="md"
                 />
                 {/* Display standardized SMILES string */}
-                <div className="mt-2 bg-gray-100 dark:bg-gray-900 p-2 rounded-md border border-gray-200 dark:border-gray-700 font-mono text-xs overflow-x-auto shadow-sm">
+                <div className="mt-2 bg-gray-100 dark:bg-gray-900 p-2 rounded-md border border-gray-200 dark:border-gray-700 font-mono text-xs overflow-x-auto shadow-xs">
                   <pre className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-all">
                     {standardizedSmiles}
                   </pre>
@@ -174,7 +174,7 @@ const StandardizedTautomerView = () => {
           </div>
 
           {/* Informational Box about Tautomers */}
-          <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 shadow">
+          <div className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 shadow-sm">
             <h4 className="text-md font-medium text-blue-800 dark:text-blue-300 mb-2">
               About Tautomers
             </h4>
@@ -194,11 +194,11 @@ const StandardizedTautomerView = () => {
       {/* Show only if no results, not loading, and no error */}
       {!standardizedSmiles && !loading && !error && (
         <div
-          className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow"
+          className="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow-sm"
           role="complementary"
         >
           <HiOutlineInformationCircle
-            className="h-6 w-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5"
+            className="h-6 w-6 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"
             aria-hidden="true"
           />
           <div>
@@ -212,14 +212,14 @@ const StandardizedTautomerView = () => {
             {/* Example Section */}
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Keto Example */}
-              <div className="bg-gray-100 dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div className="bg-gray-100 dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700 shadow-xs">
                 <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">
                   Example (Keto form):
                 </p>
                 <pre className="text-xs text-gray-700 dark:text-gray-300 font-mono">CC(=O)CC</pre>
               </div>
               {/* Enol Example */}
-              <div className="bg-gray-100 dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div className="bg-gray-100 dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700 shadow-xs">
                 <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">
                   Example (Enol form):
                 </p>

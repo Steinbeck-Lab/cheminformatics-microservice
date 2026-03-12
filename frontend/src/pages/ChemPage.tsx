@@ -258,11 +258,11 @@ const ChemPage = () => {
     >
       {/* Background Effects */}
       <div className="absolute inset-0 -z-20 overflow-hidden dark:opacity-100 opacity-0 transition-opacity duration-500">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-slate-900 to-indigo-950"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-gray-950 via-slate-900 to-indigo-950"></div>
         <div className="animated-mesh-gradient"></div>
       </div>
       <div className="absolute inset-0 -z-20 overflow-hidden dark:opacity-0 opacity-100 transition-opacity duration-500">
-        <div className="absolute inset-0 bg-gradient-to-br from-sky-50 via-white to-indigo-50"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-sky-50 via-white to-indigo-50"></div>
         <div
           className="absolute inset-0 opacity-[0.025]"
           style={{
@@ -316,10 +316,10 @@ const ChemPage = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.1 }}
           >
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--text-primary)] mb-3">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-(--text-primary) mb-3">
               Chemical Analysis Tools
             </h1>
-            <p className="text-[var(--text-secondary)] text-base md:text-lg max-w-3xl mx-auto">
+            <p className="text-(--text-secondary) text-base md:text-lg max-w-3xl mx-auto">
               Comprehensive toolkit for molecular analysis, classification, and validation.
             </p>
           </motion.div>
@@ -327,7 +327,7 @@ const ChemPage = () => {
           <div className="flex flex-col md:flex-row md:gap-x-4 lg:gap-x-6">
             {/* Sidebar */}
             <div
-              className={`glass md:w-64 lg:w-72 flex-shrink-0 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 overflow-hidden
+              className={`glass md:w-64 lg:w-72 shrink-0 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 overflow-hidden
                         fixed inset-y-0 left-0 z-40 w-64 mt-16 md:mt-0 md:sticky md:top-20 md:h-[calc(100vh-10rem)] transform transition-transform duration-300 ease-in-out md:transform-none ${
                           sidebarOpen ? "translate-x-0" : "-translate-x-full"
                         }`}
@@ -344,7 +344,7 @@ const ChemPage = () => {
                         {viewMode === "categories" && (
                           <motion.div
                             layoutId="viewModePill-chem"
-                            className="absolute inset-0 bg-white dark:bg-slate-700 rounded-md shadow-sm"
+                            className="absolute inset-0 bg-white dark:bg-slate-700 rounded-md shadow-xs"
                             transition={{
                               type: "spring",
                               stiffness: 400,
@@ -363,7 +363,7 @@ const ChemPage = () => {
                         {viewMode === "all" && (
                           <motion.div
                             layoutId="viewModePill-chem"
-                            className="absolute inset-0 bg-white dark:bg-slate-700 rounded-md shadow-sm"
+                            className="absolute inset-0 bg-white dark:bg-slate-700 rounded-md shadow-xs"
                             transition={{
                               type: "spring",
                               stiffness: 400,
@@ -427,7 +427,7 @@ const ChemPage = () => {
                                           />
                                         )}{" "}
                                         <tab.icon
-                                          className={`h-5 w-5 mr-2 flex-shrink-0 ${isActive ? getCategoryColorClass(category, "text") : "text-slate-500 dark:text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300"}`}
+                                          className={`h-5 w-5 mr-2 shrink-0 ${isActive ? getCategoryColorClass(category, "text") : "text-slate-500 dark:text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300"}`}
                                         />{" "}
                                         <span className="truncate">{tab.name}</span>{" "}
                                       </button>
@@ -463,7 +463,7 @@ const ChemPage = () => {
                                 />
                               )}{" "}
                               <tab.icon
-                                className={`h-5 w-5 mr-2 flex-shrink-0 ${isActive ? getCategoryColorClass(tab.category, "text") : "text-slate-500 dark:text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300"}`}
+                                className={`h-5 w-5 mr-2 shrink-0 ${isActive ? getCategoryColorClass(tab.category, "text") : "text-slate-500 dark:text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300"}`}
                               />{" "}
                               <span className="truncate">{tab.name}</span>{" "}
                             </motion.button>
@@ -492,13 +492,13 @@ const ChemPage = () => {
                     <div className="p-5 sm:p-6 border-b border-slate-200/80 dark:border-slate-700/50 bg-white/30 dark:bg-slate-800/20">
                       <div className="flex items-start sm:items-center">
                         <activeTab.icon
-                          className={`h-6 w-6 sm:h-7 sm:w-7 mr-3 sm:mr-4 flex-shrink-0 mt-0.5 sm:mt-0 ${getCategoryColorClass(activeTab.category, "text")}`}
+                          className={`h-6 w-6 sm:h-7 sm:w-7 mr-3 sm:mr-4 shrink-0 mt-0.5 sm:mt-0 ${getCategoryColorClass(activeTab.category, "text")}`}
                         />
                         <div>
-                          <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
+                          <h1 className="text-xl sm:text-2xl font-bold text-(--text-primary)">
                             {activeTab.name}
                           </h1>
-                          <p className="text-sm text-[var(--text-secondary)] mt-1">
+                          <p className="text-sm text-(--text-secondary) mt-1">
                             {activeTab.description}
                           </p>
                         </div>

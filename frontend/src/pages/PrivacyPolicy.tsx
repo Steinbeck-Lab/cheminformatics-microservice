@@ -47,13 +47,13 @@ const PrivacyPolicy = () => {
     >
       {/* Background Effects */}
       <div className="absolute inset-0 -z-20 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 dark:bg-gradient-to-br dark:from-slate-900 dark:via-indigo-950/50 dark:to-slate-950 opacity-0 dark:opacity-100 transition-opacity duration-500"></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/80 opacity-100 dark:opacity-0 transition-opacity duration-500"></div>
-        <div className="absolute inset-0 w-full h-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b30_1px,transparent_1px)] [background-size:20px_20px] opacity-50 dark:opacity-30"></div>
+        <div className="absolute inset-0 dark:bg-linear-to-br dark:from-slate-900 dark:via-indigo-950/50 dark:to-slate-950 opacity-0 dark:opacity-100 transition-opacity duration-500"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-blue-50/80 via-white to-indigo-50/80 opacity-100 dark:opacity-0 transition-opacity duration-500"></div>
+        <div className="absolute inset-0 w-full h-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b30_1px,transparent_1px)] bg-size-[20px_20px] opacity-50 dark:opacity-30"></div>
       </div>
 
       {/* Content Area */}
-      <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 z-10 flex-grow">
+      <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 z-10 grow">
         <div className="w-full max-w-4xl mx-auto">
           {/* Page Header */}
           <motion.div
@@ -63,7 +63,7 @@ const PrivacyPolicy = () => {
             animate={isLoaded ? "visible" : "hidden"}
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
                 Privacy Policy
               </span>
             </h1>

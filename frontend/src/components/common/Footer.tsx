@@ -180,7 +180,7 @@ const Footer = () => {
   return (
     <motion.footer
       ref={footerRef}
-      className="relative overflow-hidden bg-gradient-to-b from-slate-100 via-white to-slate-100 dark:from-gray-950 dark:via-slate-900 dark:to-gray-950 py-4 sm:py-6 mt-auto border-t border-slate-200 dark:border-slate-800"
+      className="relative overflow-hidden bg-linear-to-b from-slate-100 via-white to-slate-100 dark:from-gray-950 dark:via-slate-900 dark:to-gray-950 py-4 sm:py-6 mt-auto border-t border-slate-200 dark:border-slate-800"
       variants={footerVariant}
       initial="hidden"
       animate={controls}
@@ -255,7 +255,7 @@ const Footer = () => {
               >
                 {/* Glowing animated border */}
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 opacity-75 rounded-lg"
+                  className="absolute inset-0 bg-linear-to-r from-blue-500 via-purple-500 to-blue-500 opacity-75 rounded-lg"
                   animate={{
                     backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
                   }}
@@ -361,7 +361,7 @@ const Footer = () => {
                 whileTap={{ scale: 0.98 }}
               >
                 {/* Gradient accent line */}
-                <div className={`h-1 w-8 mb-1 rounded-full bg-gradient-to-r ${link.color}`}></div>
+                <div className={`h-1 w-8 mb-1 rounded-full bg-linear-to-r ${link.color}`}></div>
 
                 {/* Icon and title in horizontal layout */}
                 <div className="flex items-center gap-2 mb-0.5">
@@ -404,7 +404,7 @@ const Footer = () => {
           className="relative py-2 flex items-center justify-center mt-2 sm:mt-3"
           variants={itemVariant}
         >
-          <div className="flex-grow h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent"></div>
+          <div className="grow h-px bg-linear-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent"></div>
 
           <div className="mx-3 sm:mx-4">
             <motion.div
@@ -454,14 +454,14 @@ const Footer = () => {
             </motion.div>
           </div>
 
-          <div className="flex-grow h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent"></div>
+          <div className="grow h-px bg-linear-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent"></div>
         </motion.div>
 
         {/* Enhanced Copyright section - better font sizing for mobile */}
         <motion.div className="mt-2 text-center relative" variants={itemVariant}>
           {/* Decorative gradient line */}
           <motion.div
-            className="h-0.5 w-16 mx-auto mb-2 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500"
+            className="h-0.5 w-16 mx-auto mb-2 rounded-full bg-linear-to-r from-blue-500 via-purple-500 to-blue-500"
             animate={{
               backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
             }}

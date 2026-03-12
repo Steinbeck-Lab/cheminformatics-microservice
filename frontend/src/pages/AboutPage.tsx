@@ -91,7 +91,7 @@ const CitationCard = ({ title, citation }) => {
 
   return (
     <motion.div
-      className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300"
+      className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-xs border border-slate-200 dark:border-slate-700 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300"
       whileHover={{
         y: -4,
       }}
@@ -163,7 +163,7 @@ const AboutPage = () => {
 
   return (
     <motion.div
-      className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-gray-950 text-slate-900 dark:text-slate-100 font-sans overflow-x-hidden"
+      className="flex flex-col min-h-screen bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-gray-950 text-slate-900 dark:text-slate-100 font-sans overflow-x-hidden"
       style={{ maxHeight: "fit-content" }}
       variants={pageVariants}
       initial="hidden"
@@ -174,9 +174,9 @@ const AboutPage = () => {
         className="absolute inset-0 -z-20 overflow-hidden pointer-events-none"
         style={{ y: backgroundY, scale: backgroundScale, maxHeight: "100vh" }}
       >
-        <div className="absolute inset-0 dark:bg-gradient-to-br dark:from-slate-900 dark:via-indigo-950/50 dark:to-slate-950 opacity-0 dark:opacity-100 transition-opacity duration-500"></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/80 opacity-100 dark:opacity-0 transition-opacity duration-500"></div>
-        <div className="absolute inset-0 w-full h-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b30_1px,transparent_1px)] [background-size:20px_20px] opacity-50 dark:opacity-30"></div>
+        <div className="absolute inset-0 dark:bg-linear-to-br dark:from-slate-900 dark:via-indigo-950/50 dark:to-slate-950 opacity-0 dark:opacity-100 transition-opacity duration-500"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-blue-50/80 via-white to-indigo-50/80 opacity-100 dark:opacity-0 transition-opacity duration-500"></div>
+        <div className="absolute inset-0 w-full h-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b30_1px,transparent_1px)] bg-size-[20px_20px] opacity-50 dark:opacity-30"></div>
       </motion.div>
 
       {/* Enhanced Accent Patterns */}
@@ -220,7 +220,7 @@ const AboutPage = () => {
           .map((_, i) => (
             <motion.div
               key={i}
-              className="particle absolute rounded-full bg-gradient-to-br from-blue-400 to-indigo-400 dark:from-blue-500 dark:to-indigo-500"
+              className="particle absolute rounded-full bg-linear-to-br from-blue-400 to-indigo-400 dark:from-blue-500 dark:to-indigo-500"
               initial={{
                 x: typeof window !== "undefined" ? Math.random() * window.innerWidth : 0,
                 y: typeof window !== "undefined" ? Math.random() * window.innerHeight : 0,
@@ -265,7 +265,7 @@ const AboutPage = () => {
       </div>
 
       {/* Content Area */}
-      <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 pb-0 z-10 flex-grow">
+      <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 pb-0 z-10 grow">
         <div className="w-full max-w-6xl mx-auto">
           {/* Page Header */}
           <motion.div
@@ -283,7 +283,7 @@ const AboutPage = () => {
                 alt="Cheminformatics Microservice Logo"
                 className="w-full filter dark:brightness-100 brightness-75 transition-all duration-500 transform hover:scale-105 drop-shadow-2xl"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/10 to-blue-500/0 opacity-0 group-hover:opacity-100 animate-shimmer"></div>
+              <div className="absolute inset-0 bg-linear-to-r from-blue-500/0 via-blue-500/10 to-blue-500/0 opacity-0 group-hover:opacity-100 animate-shimmer"></div>
             </motion.div>
 
             <motion.h1
@@ -438,7 +438,7 @@ const AboutPage = () => {
                       whileHover={{ x: 5 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <div className="flex-shrink-0 w-16 h-16 bg-white dark:bg-slate-700 rounded-lg flex items-center justify-center p-2 shadow-md group-hover:shadow-lg transition-shadow">
+                      <div className="shrink-0 w-16 h-16 bg-white dark:bg-slate-700 rounded-lg flex items-center justify-center p-2 shadow-md group-hover:shadow-lg transition-shadow">
                         <img
                           src="https://github.com/rdkit/rdkit/raw/71935ecae38c2f469ac0ed7d81dacd6cd6a19d5a/Docs/Images/logo.png"
                           alt="RDKit Logo"
@@ -468,7 +468,7 @@ const AboutPage = () => {
                       whileHover={{ x: 5 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <div className="flex-shrink-0 w-16 h-16 bg-white dark:bg-slate-700 rounded-lg flex items-center justify-center p-2 shadow-md group-hover:shadow-lg transition-shadow">
+                      <div className="shrink-0 w-16 h-16 bg-white dark:bg-slate-700 rounded-lg flex items-center justify-center p-2 shadow-md group-hover:shadow-lg transition-shadow">
                         <img
                           src="https://github.com/cdk/cdk.github.io/raw/source/src/img/logo.png"
                           alt="CDK Logo"
@@ -498,7 +498,7 @@ const AboutPage = () => {
                       whileHover={{ x: 5 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <div className="flex-shrink-0 w-16 h-16 bg-white dark:bg-slate-700 rounded-lg flex items-center justify-center p-2 shadow-md group-hover:shadow-lg transition-shadow">
+                      <div className="shrink-0 w-16 h-16 bg-white dark:bg-slate-700 rounded-lg flex items-center justify-center p-2 shadow-md group-hover:shadow-lg transition-shadow">
                         <img
                           src="https://upload.wikimedia.org/wikipedia/commons/c/ce/Open_Babel_computer_icon.png"
                           alt="OpenBabel Logo"
@@ -534,7 +534,7 @@ const AboutPage = () => {
                       whileHover={{ x: 5 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <div className="flex-shrink-0 w-12 h-12 bg-white dark:bg-slate-700 rounded-lg flex items-center justify-center p-2 shadow-md mr-4">
+                      <div className="shrink-0 w-12 h-12 bg-white dark:bg-slate-700 rounded-lg flex items-center justify-center p-2 shadow-md mr-4">
                         <img
                           src="https://github.com/Steinbeck-Lab/cheminf-jena-logos/blob/main/DECIMER/DECIMER-1.png?raw=true"
                           alt="DECIMER Logo"
@@ -551,7 +551,7 @@ const AboutPage = () => {
                       whileHover={{ x: 5 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <div className="flex-shrink-0 w-12 h-12 bg-white dark:bg-slate-700 rounded-lg flex items-center justify-center p-2 shadow-md mr-4">
+                      <div className="shrink-0 w-12 h-12 bg-white dark:bg-slate-700 rounded-lg flex items-center justify-center p-2 shadow-md mr-4">
                         <img
                           src="https://raw.githubusercontent.com/epam/ketcher/refs/heads/master/demo/public/favicon.ico"
                           alt="Ketcher Logo"
@@ -568,7 +568,7 @@ const AboutPage = () => {
                       whileHover={{ x: 5 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <div className="flex-shrink-0 w-12 h-12 bg-white dark:bg-slate-700 rounded-lg flex items-center justify-center p-2 shadow-md mr-4">
+                      <div className="shrink-0 w-12 h-12 bg-white dark:bg-slate-700 rounded-lg flex items-center justify-center p-2 shadow-md mr-4">
                         <img
                           src="https://upload.wikimedia.org/wikipedia/commons/b/b6/PubChem_logo.svg"
                           alt="PubChem Logo"
@@ -585,7 +585,7 @@ const AboutPage = () => {
                       whileHover={{ x: 5 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <div className="flex-shrink-0 w-12 h-12 bg-white dark:bg-slate-700 rounded-lg flex items-center justify-center p-2 shadow-md mr-4">
+                      <div className="shrink-0 w-12 h-12 bg-white dark:bg-slate-700 rounded-lg flex items-center justify-center p-2 shadow-md mr-4">
                         <img
                           src="https://github.com/IUPAC-InChI/InChI-Web-Demo/blob/main/pages/img/InChI-logo2.png?raw=true"
                           alt="InChI Logo"
@@ -618,7 +618,7 @@ const AboutPage = () => {
                 href="https://naturalproducts.net"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white font-semibold rounded-lg shadow-lg"
+                className="inline-flex items-center justify-center px-8 py-4 bg-linear-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white font-semibold rounded-lg shadow-lg"
                 variants={buttonVariant}
                 whileHover="hover"
               >
@@ -663,7 +663,7 @@ const AboutPage = () => {
                     href="https://api.naturalproducts.net/latest/docs"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center px-8 py-4 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white font-medium transition-all duration-300 hover:shadow-lg hover:from-blue-700 hover:to-indigo-700"
+                    className="inline-flex items-center px-8 py-4 rounded-lg bg-linear-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white font-medium transition-all duration-300 hover:shadow-lg hover:from-blue-700 hover:to-indigo-700"
                     whileHover={{ y: -5, scale: 1.03 }}
                     transition={{ duration: 0.2 }}
                   >
@@ -929,7 +929,7 @@ const AboutPage = () => {
         }
 
         .text-gradient {
-          @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400;
+          @apply bg-clip-text text-transparent bg-linear-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400;
         }
 
         .link-style {

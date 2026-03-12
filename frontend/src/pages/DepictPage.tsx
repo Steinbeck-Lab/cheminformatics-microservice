@@ -148,18 +148,18 @@ const DepictPage = () => {
 
   return (
     <motion.div
-      className="relative min-h-screen w-full bg-gradient-to-b from-slate-100 to-slate-200 dark:from-gray-950 dark:to-indigo-950/60 text-slate-900 dark:text-slate-100 font-sans overflow-hidden isolate"
+      className="relative min-h-screen w-full bg-linear-to-b from-slate-100 to-slate-200 dark:from-gray-950 dark:to-indigo-950/60 text-slate-900 dark:text-slate-100 font-sans overflow-hidden isolate"
       variants={pageVariants}
       initial="hidden"
       animate="visible"
     >
       {/* --- Enhanced Background Effects (Static on Mobile) --- */}
       <div className="absolute inset-0 -z-20 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-slate-900 to-indigo-950 dark:opacity-100 opacity-0 transition-opacity duration-700"></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-sky-50 via-white to-indigo-100 dark:opacity-0 opacity-100 transition-opacity duration-700"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-gray-950 via-slate-900 to-indigo-950 dark:opacity-100 opacity-0 transition-opacity duration-700"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-sky-50 via-white to-indigo-100 dark:opacity-0 opacity-100 transition-opacity duration-700"></div>
         {/* Static mesh gradient on mobile, animated on desktop */}
         {isMobile ? (
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-blue-500/20 dark:from-indigo-600/30 dark:via-purple-600/30 dark:to-blue-600/30 blur-3xl opacity-30"></div>
+          <div className="absolute inset-0 bg-linear-to-br from-indigo-500/20 via-purple-500/20 to-blue-500/20 dark:from-indigo-600/30 dark:via-purple-600/30 dark:to-blue-600/30 blur-3xl opacity-30"></div>
         ) : (
           <div className="animated-mesh-gradient"></div>
         )}
@@ -193,13 +193,13 @@ const DepictPage = () => {
           >
             <motion.h1
               variants={headerItemVariants}
-              className="text-2xl md:text-4xl lg:text-5xl font-bold text-[var(--text-primary)] mb-2 md:mb-3"
+              className="text-2xl md:text-4xl lg:text-5xl font-bold text-(--text-primary) mb-2 md:mb-3"
             >
               Chemical Structure Depiction
             </motion.h1>
             <motion.p
               variants={headerItemVariants}
-              className="text-[var(--text-secondary)] text-sm md:text-lg max-w-3xl mx-auto"
+              className="text-(--text-secondary) text-sm md:text-lg max-w-3xl mx-auto"
             >
               Generate customizable 2D and interactive 3D visualizations of chemical structures.
             </motion.p>
@@ -215,12 +215,12 @@ const DepictPage = () => {
             style={{ willChange: "transform, opacity" }}
           >
             {/* Tab Navigation - Mobile Optimized */}
-            <div className="relative border-b border-slate-200/80 dark:border-slate-700/50 bg-gradient-to-r from-slate-100/80 to-slate-200/80 dark:from-slate-800/60 dark:to-slate-900/60">
+            <div className="relative border-b border-slate-200/80 dark:border-slate-700/50 bg-linear-to-r from-slate-100/80 to-slate-200/80 dark:from-slate-800/60 dark:to-slate-900/60">
               {/* Mobile Tab Navigation (Dropdown Style) */}
               <div className="block md:hidden">
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="flex items-center justify-between w-full py-3 px-4 text-left bg-white/50 dark:bg-slate-800/50 focus:outline-none"
+                  className="flex items-center justify-between w-full py-3 px-4 text-left bg-white/50 dark:bg-slate-800/50 focus:outline-hidden"
                   aria-expanded={isMobileMenuOpen}
                 >
                   <div className="flex items-center">
@@ -281,7 +281,7 @@ const DepictPage = () => {
                         <motion.button
                           key={tab.id}
                           onClick={() => handleTabSelection(tab.id)}
-                          className={`tab-button relative flex items-center px-5 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-secondary)] focus-visible:ring-[var(--text-accent)] ${
+                          className={`tab-button relative flex items-center px-5 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 whitespace-nowrap focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-(--bg-secondary) focus-visible:ring-(--text-accent) ${
                             isActive
                               ? "text-sky-700 dark:text-white"
                               : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -300,7 +300,7 @@ const DepictPage = () => {
                         >
                           {isActive && (
                             <motion.div
-                              className="absolute inset-0 bg-white dark:bg-slate-700/90 rounded-lg shadow-sm"
+                              className="absolute inset-0 bg-white dark:bg-slate-700/90 rounded-lg shadow-xs"
                               layoutId="activeTabPill"
                               transition={{
                                 type: "spring",
@@ -318,7 +318,7 @@ const DepictPage = () => {
                             style={{ willChange: "transform" }}
                           >
                             <tab.icon
-                              className={`h-5 w-5 mr-2 flex-shrink-0 transition-colors duration-200 ${
+                              className={`h-5 w-5 mr-2 shrink-0 transition-colors duration-200 ${
                                 isActive
                                   ? "text-sky-600 dark:text-sky-400"
                                   : "text-slate-500 dark:text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300"
@@ -343,7 +343,7 @@ const DepictPage = () => {
                 transition={{ duration: 0.4, delay: 0.15 }}
                 className="mx-3 sm:mx-4 mt-3 sm:mt-4 mb-2"
               >
-                <div className="bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-800 dark:to-purple-950 rounded-lg shadow-lg overflow-hidden relative">
+                <div className="bg-linear-to-r from-blue-500 to-purple-600 dark:from-blue-800 dark:to-purple-950 rounded-lg shadow-lg overflow-hidden relative">
                   {/* Animated background elements with theme-adaptive colors */}
                   <div className="absolute inset-0 overflow-hidden opacity-10">
                     <div className="absolute left-0 top-0 w-32 h-32 rounded-full bg-white dark:bg-slate-300 transform -translate-x-1/2 -translate-y-1/2"></div>

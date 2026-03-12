@@ -385,7 +385,7 @@ const MoleculeCard = ({
       <div
         // Card container styling with theme awareness
         className={`bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700
-          hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-lg transition-all duration-200 group ${onClick ? "cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800" : ""}`}
+          hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-lg transition-all duration-200 group ${onClick ? "cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800" : ""}`}
         onClick={onClick ? handleCardClick : undefined}
         onKeyPress={
           onClick
@@ -441,7 +441,7 @@ const MoleculeCard = ({
         <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 text-sm">
           <div className="flex items-start">
             {/* Label styling */}
-            <span className="font-medium text-gray-500 dark:text-gray-400 mr-2 flex-shrink-0">
+            <span className="font-medium text-gray-500 dark:text-gray-400 mr-2 shrink-0">
               SMILES:
             </span>
             {/* SMILES text container */}
@@ -492,7 +492,7 @@ const MoleculeCard = ({
               onClick={handleCopy}
               disabled={!smiles} // Disable if no SMILES
               // Button styling with theme awareness
-              className={`p-1.5 rounded-md transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+              className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
                 !smiles
                   ? "text-gray-300 dark:text-gray-600 cursor-not-allowed"
                   : copied
@@ -513,7 +513,7 @@ const MoleculeCard = ({
             <button
               onClick={handleDownload}
               disabled={!smiles} // Disable if no SMILES
-              className={`p-1.5 rounded-md transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+              className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
                 !smiles
                   ? "text-gray-300 dark:text-gray-600 cursor-not-allowed"
                   : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -528,7 +528,7 @@ const MoleculeCard = ({
             <button
               onClick={handleShowDetails}
               disabled={!smiles} // Disable if no SMILES
-              className={`p-1.5 rounded-md transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+              className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
                 !smiles
                   ? "text-gray-300 dark:text-gray-600 cursor-not-allowed"
                   : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -564,14 +564,14 @@ const MoleculeCard = ({
                 ref={copyTextRef}
                 value={smiles || ""}
                 readOnly
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded font-mono text-sm bg-gray-50 dark:bg-gray-900"
+                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-sm font-mono text-sm bg-gray-50 dark:bg-gray-900"
                 onClick={(e) => e.target.select()}
               />
             </div>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowCopyModal(false)}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
               >
                 Close
               </button>
@@ -647,7 +647,7 @@ const MoleculeCard = ({
                     <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       SMILES
                     </h4>
-                    <div className="font-mono text-xs break-all text-gray-800 dark:text-gray-200 p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
+                    <div className="font-mono text-xs break-all text-gray-800 dark:text-gray-200 p-2 bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700">
                       {smiles || "N/A"}
                     </div>
                   </div>
@@ -658,7 +658,7 @@ const MoleculeCard = ({
                       <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         InChI
                       </h4>
-                      <div className="font-mono text-xs overflow-x-auto whitespace-nowrap text-gray-800 dark:text-gray-200 p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
+                      <div className="font-mono text-xs overflow-x-auto whitespace-nowrap text-gray-800 dark:text-gray-200 p-2 bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700">
                         {moleculeDetails.inchi || "N/A"}
                       </div>
                     </div>
@@ -743,7 +743,7 @@ const MoleculeCard = ({
                           <div className="font-medium text-gray-600 dark:text-gray-400 mb-1">
                             InChI
                           </div>
-                          <div className="font-mono text-xs break-all bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700">
+                          <div className="font-mono text-xs break-all bg-white dark:bg-gray-800 p-2 rounded-sm border border-gray-200 dark:border-gray-700">
                             {moleculeDetails.inchi}
                           </div>
                         </div>
@@ -755,7 +755,7 @@ const MoleculeCard = ({
                           <div className="font-medium text-gray-600 dark:text-gray-400 mb-1">
                             InChI Key
                           </div>
-                          <div className="font-mono text-xs bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700">
+                          <div className="font-mono text-xs bg-white dark:bg-gray-800 p-2 rounded-sm border border-gray-200 dark:border-gray-700">
                             {moleculeDetails.inchiKey}
                           </div>
                         </div>
@@ -836,14 +836,14 @@ const MoleculeCard = ({
               {/* Download button in modal */}
               <button
                 onClick={handleDownload}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="px-4 py-2 bg-blue-600 text-white rounded-sm hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
                 Download Structure
               </button>
 
               <button
                 onClick={() => setShowDetailsModal(false)}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
               >
                 Close
               </button>

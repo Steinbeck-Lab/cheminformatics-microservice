@@ -134,11 +134,11 @@ const StructureGenView = () => {
     >
       {/* Form Container - Apply glass, adaptive styles */}
       <motion.div
-        className="glass p-5 sm:p-6 rounded-xl shadow-lg border border-[var(--border-secondary)] dark:border-[var(--border-primary)]"
+        className="glass p-5 sm:p-6 rounded-xl shadow-lg border border-(--border-secondary) dark:border-(--border-primary)"
         variants={contentSectionVariant} // Animate form section
       >
         {/* Use adaptive text color */}
-        <h2 className="text-xl font-semibold text-[var(--text-accent)] mb-4">
+        <h2 className="text-xl font-semibold text-(--text-accent) mb-4">
           Structure Generation (from Formula)
         </h2>
 
@@ -148,7 +148,7 @@ const StructureGenView = () => {
             {/* Use adaptive label color */}
             <label
               htmlFor="formula-input"
-              className="block text-sm font-medium text-[var(--text-secondary)] mb-1"
+              className="block text-sm font-medium text-(--text-secondary) mb-1"
             >
               Molecular Formula
             </label>
@@ -237,7 +237,7 @@ const StructureGenView = () => {
           animate={{ opacity: 1, y: 0 }}
         >
           {/* FIX: Use imported HiOutlineExclamationCircle */}
-          <HiOutlineExclamationCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+          <HiOutlineExclamationCircle className="h-5 w-5 shrink-0 mt-0.5" />
           <span>
             <span className="font-medium">Error:</span> {error}
           </span>
@@ -255,56 +255,54 @@ const StructureGenView = () => {
           {/* Generation Summary */}
           {generationResult && (
             <motion.div
-              className="glass p-4 rounded-lg border border-[var(--border-secondary)] dark:border-[var(--border-primary)]"
+              className="glass p-4 rounded-lg border border-(--border-secondary) dark:border-(--border-primary)"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <h3 className="text-lg font-medium text-[var(--text-primary)] mb-3">
-                Generation Summary
-              </h3>
+              <h3 className="text-lg font-medium text-(--text-primary) mb-3">Generation Summary</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-[var(--text-accent)]">
+                  <div className="text-2xl font-bold text-(--text-accent)">
                     {generationResult.total_count?.toLocaleString()}
                   </div>
-                  <div className="text-sm text-[var(--text-secondary)]">Total Possible</div>
+                  <div className="text-sm text-(--text-secondary)">Total Possible</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-[var(--text-accent)]">
+                  <div className="text-2xl font-bold text-(--text-accent)">
                     {generationResult.generated_count?.toLocaleString()}
                   </div>
-                  <div className="text-sm text-[var(--text-secondary)]">Generated</div>
+                  <div className="text-sm text-(--text-secondary)">Generated</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-[var(--text-accent)]">
+                  <div className="text-2xl font-bold text-(--text-accent)">
                     {selectedStructures.length}
                   </div>
-                  <div className="text-sm text-[var(--text-secondary)]">Selected</div>
+                  <div className="text-sm text-(--text-secondary)">Selected</div>
                 </div>
                 <div className="text-center">
                   <div
-                    className={`text-sm px-2 py-1 rounded ${generationResult.limit_applied ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300" : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"}`}
+                    className={`text-sm px-2 py-1 rounded-sm ${generationResult.limit_applied ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300" : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"}`}
                   >
                     {generationResult.limit_applied ? "Limited" : "Complete"}
                   </div>
-                  <div className="text-sm text-[var(--text-secondary)]">Results</div>
+                  <div className="text-sm text-(--text-secondary)">Results</div>
                 </div>
               </div>
 
               {/* Generation Settings */}
               {generationResult.settings && (
                 <div>
-                  <h4 className="text-sm font-medium text-[var(--text-primary)] mb-2">
+                  <h4 className="text-sm font-medium text-(--text-primary) mb-2">
                     Generation Settings
                   </h4>
                   <div className="space-y-1">
                     {Object.entries(generationResult.settings).map(([flag, description]) => (
                       <div key={flag} className="text-xs flex">
-                        <code className="bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded mr-2 font-mono text-[var(--text-accent)]">
+                        <code className="bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded-sm mr-2 font-mono text-(--text-accent)">
                           {flag}
                         </code>
-                        <span className="text-[var(--text-secondary)]">{description}</span>
+                        <span className="text-(--text-secondary)">{description}</span>
                       </div>
                     ))}
                   </div>
@@ -312,7 +310,7 @@ const StructureGenView = () => {
               )}
 
               {generationResult.limit_applied && (
-                <div className="mt-3 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800/50 rounded text-sm">
+                <div className="mt-3 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800/50 rounded-sm text-sm">
                   <HiOutlineInformationCircle className="inline h-4 w-4 mr-1.5 text-orange-600 dark:text-orange-400" />
                   <span className="text-orange-700 dark:text-orange-300">
                     Results limited to first {generationResult.generated_count} structures out of{" "}
@@ -325,14 +323,14 @@ const StructureGenView = () => {
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             {/* Use adaptive text color */}
-            <h3 className="text-lg font-medium text-[var(--text-primary)]">
+            <h3 className="text-lg font-medium text-(--text-primary)">
               Generated Structures ({structures.length})
             </h3>
             {/* Use adaptive text color */}
-            <div className="text-[var(--text-secondary)] flex items-center text-sm flex-shrink-0">
+            <div className="text-(--text-secondary) flex items-center text-sm shrink-0">
               <FaAtom className="mr-1.5 h-4 w-4" />
               Formula:{" "}
-              <code className="ml-1.5 text-xs bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded">
+              <code className="ml-1.5 text-xs bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded-sm">
                 {formula}
               </code>
             </div>
@@ -354,7 +352,7 @@ const StructureGenView = () => {
                 // Apply adaptive border for selection state
                 className={`rounded-lg transition-all duration-200 cursor-pointer relative group ${
                   selectedStructures.includes(smiles)
-                    ? "ring-2 ring-offset-2 ring-offset-[var(--bg-primary)] ring-[var(--text-accent)]" // Use ring for selection
+                    ? "ring-2 ring-offset-2 ring-offset-(--bg-primary) ring-(--text-accent)" // Use ring for selection
                     : "ring-1 ring-transparent hover:ring-slate-300 dark:hover:ring-slate-600" // Subtle hover ring
                 }`}
                 onClick={() => toggleSelectStructure(smiles)}
@@ -395,7 +393,7 @@ const StructureGenView = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }} // Simple fade-in
         >
-          <HiOutlineInformationCircle className="h-6 w-6 text-sky-700 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+          <HiOutlineInformationCircle className="h-6 w-6 text-sky-700 dark:text-blue-400 shrink-0 mt-0.5" />
           <div>
             <h3 className="text-base font-medium text-sky-800 dark:text-blue-300 mb-1.5">
               About Structure Generation

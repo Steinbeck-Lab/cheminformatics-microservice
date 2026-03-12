@@ -339,7 +339,7 @@ const HighlightedMoleculeCard = ({
     <>
       <div
         className={`bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700
-          hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-lg transition-all duration-200 group ${onClick ? "cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800" : ""}`}
+          hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-lg transition-all duration-200 group ${onClick ? "cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800" : ""}`}
         onClick={onClick ? handleCardClick : undefined}
         onKeyPress={
           onClick
@@ -396,7 +396,7 @@ const HighlightedMoleculeCard = ({
         {/* SMILES information section */}
         <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 text-sm">
           <div className="flex items-start">
-            <span className="font-medium text-gray-500 dark:text-gray-400 mr-2 flex-shrink-0">
+            <span className="font-medium text-gray-500 dark:text-gray-400 mr-2 shrink-0">
               SMILES:
             </span>
             <div className="text-gray-700 dark:text-gray-300 flex-1 min-w-0">
@@ -438,7 +438,7 @@ const HighlightedMoleculeCard = ({
             <button
               onClick={handleCopy}
               disabled={!smiles}
-              className={`p-1.5 rounded-md transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+              className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
                 !smiles
                   ? "text-gray-300 dark:text-gray-600 cursor-not-allowed"
                   : copied
@@ -459,7 +459,7 @@ const HighlightedMoleculeCard = ({
             <button
               onClick={handleDownload}
               disabled={!smiles}
-              className={`p-1.5 rounded-md transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+              className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
                 !smiles
                   ? "text-gray-300 dark:text-gray-600 cursor-not-allowed"
                   : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -495,14 +495,14 @@ const HighlightedMoleculeCard = ({
                 ref={copyTextRef}
                 value={smiles || ""}
                 readOnly
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded font-mono text-sm bg-gray-50 dark:bg-gray-900"
+                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-sm font-mono text-sm bg-gray-50 dark:bg-gray-900"
                 onClick={(e) => e.target.select()}
               />
             </div>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowCopyModal(false)}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
               >
                 Close
               </button>

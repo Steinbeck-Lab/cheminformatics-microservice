@@ -24,7 +24,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 const Layout = () => (
   <div className="flex flex-col min-h-screen bg-gray-900 text-white">
     <Header />
-    <main className="flex-grow">
+    <main className="grow">
       <Outlet />
     </main>
     <Footer />
