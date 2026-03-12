@@ -76,13 +76,13 @@ Plans:
   3. A dark mode toggle is visible in the header/navigation and switching it changes the entire UI between light and dark themes
   4. Theme preference persists across page reloads (localStorage) and auto-detects system preference on first visit
   5. Icons throughout the app use lucide-react instead of react-icons
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
-- [ ] 04-03: TBD
-- [ ] 04-04: TBD
+- [ ] 04-01-PLAN.md -- shadcn/ui foundation: install deps, path aliases, cn() utility, CSS variable rewrite to OKLCH, FOUC prevention, system preference detection
+- [ ] 04-02-PLAN.md -- Icon migration: replace all react-icons and @fortawesome with lucide-react across 43+ files, uninstall old packages
+- [ ] 04-03-PLAN.md -- Component migration: replace all buttons with shadcn Button, cards with Card, form inputs with Input/Select/Textarea
+- [ ] 04-04-PLAN.md -- Final pass: mobile menu to Sheet, isDarkMode ternary cleanup, consistency sweep, visual verification (both modes)
 
 ### Phase 5: Loading States + UX
 **Goal**: The application provides clear feedback during all async operations and works well across all viewport sizes with measurably faster load times
