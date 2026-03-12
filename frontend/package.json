@@ -64,7 +64,6 @@
     "lint:fix": "eslint \"src/**/*.{js,jsx}\" --fix",
     "format": "prettier --write \"src/**/*.{js,jsx,json,css,md}\"",
     "format:check": "prettier --check \"src/**/*.{js,jsx,json,css,md}\"",
-    "build:analyze": "ANALYZE=true vite build",
-    "prepare": "husky"
+    "build:analyze": "ANALYZE=true vite build"
   }
 }

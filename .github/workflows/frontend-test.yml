@@ -1,0 +1,36 @@
+name: frontend-test
+
+on:
+  pull_request:
+    branches: [main, development]
+    paths:
+      - 'frontend/**'
+  push:
+    branches: [main, development]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: ESLint
+        run: npm run lint
+      - name: Prettier
+        run: npm run format:check
+      - name: Tests
+        run: npm run test
+      - name: Security audit
+        run: npm audit --audit-level=low
+      - name: Production build
+        run: npm run build
