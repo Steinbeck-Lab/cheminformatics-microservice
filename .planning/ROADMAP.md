@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Vite Migration** - Replace deprecated CRA with Vite, resolve all security vulnerabilities, update dependencies (completed 2026-03-12)
 - [x] **Phase 2: React 19 + TypeScript 5** - Upgrade React 18 to 19, TypeScript 4.9 to 5.x, verify framer-motion compatibility (completed 2026-03-12)
-- [ ] **Phase 3: Tailwind v4 Migration** - Upgrade Tailwind CSS v3 to v4 with CSS-first config and class rename resolution
+- [x] **Phase 3: Tailwind v4 Migration** - Upgrade Tailwind CSS v3 to v4 with CSS-first config and class rename resolution (completed 2026-03-12)
 - [ ] **Phase 4: Component System + Dark Mode** - Integrate shadcn/ui components across all pages with CSS variable theming and dark mode
 - [ ] **Phase 5: Loading States + UX** - Add skeleton loaders, toast notifications, error states, responsive improvements, and performance optimization
 - [ ] **Phase 6: Animations + Power Features** - Polish with smooth transitions, micro-interactions, command palette, and inline SMILES preview
@@ -63,8 +63,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 03-01-PLAN.md -- Upgrade tool + package swap, CSS-first config migration (@theme, @plugin, @custom-variant), theme() replacement, class renames
-- [ ] 03-02-PLAN.md -- Edge case audit (transform-none, ring defaults, bg-opacity merging), final sweep, 9-page visual verification
+- [x] 03-01-PLAN.md -- Upgrade tool + package swap, CSS-first config migration (@theme, @plugin, @custom-variant), theme() replacement, class renames
+- [x] 03-02-PLAN.md -- Edge case audit (transform-none, ring defaults, bg-opacity merging), final sweep, 9-page visual verification
 
 ### Phase 4: Component System + Dark Mode
 **Goal**: All UI elements use shadcn/ui components with a unified CSS variable theming system and functional dark mode toggle
@@ -127,7 +127,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 |-------|----------------|--------|-----------|
 | 1. Vite Migration | 3/3 | Complete   | 2026-03-12 |
 | 2. React 19 + TypeScript 5 | 2/2 | Complete | 2026-03-12 |
-| 3. Tailwind v4 Migration | 0/2 | Not started | - |
+| 3. Tailwind v4 Migration | 2/2 | Complete   | 2026-03-12 |
 | 4. Component System + Dark Mode | 0/4 | Not started | - |
 | 5. Loading States + UX | 0/3 | Not started | - |
 | 6. Animations + Power Features | 0/3 | Not started | - |
