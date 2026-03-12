@@ -9,12 +9,12 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Build & Infrastructure
 
-- [ ] **BUILD-01**: Frontend builds and runs on Vite instead of Create React App (react-scripts)
-- [ ] **BUILD-02**: All dependabot security vulnerabilities are resolved (zero alerts)
-- [ ] **BUILD-03**: All package.json overrides are eliminated (proper dependency upgrades)
-- [ ] **BUILD-04**: All dependencies updated to latest stable versions
+- [x] **BUILD-01**: Frontend builds and runs on Vite instead of Create React App (react-scripts)
+- [x] **BUILD-02**: All dependabot security vulnerabilities are resolved (zero alerts)
+- [x] **BUILD-03**: All package.json overrides are eliminated (proper dependency upgrades)
+- [x] **BUILD-04**: All dependencies updated to latest stable versions
 - [ ] **BUILD-05**: Docker frontend build (Dockerfile.frontend) works with Vite
-- [ ] **BUILD-06**: Environment variables migrated from REACT_APP_* to VITE_* prefix
+- [x] **BUILD-06**: Environment variables migrated from REACT_APP_* to VITE_* prefix
 
 ### Framework Upgrades
 
@@ -101,12 +101,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUILD-01 | Phase 1 | Pending |
-| BUILD-02 | Phase 1 | Pending |
-| BUILD-03 | Phase 1 | Pending |
-| BUILD-04 | Phase 1 | Pending |
+| BUILD-01 | Phase 1 | Complete |
+| BUILD-02 | Phase 1 | Complete |
+| BUILD-03 | Phase 1 | Complete |
+| BUILD-04 | Phase 1 | Complete |
 | BUILD-05 | Phase 1 | Pending |
-| BUILD-06 | Phase 1 | Pending |
+| BUILD-06 | Phase 1 | Complete |
 | FRAME-01 | Phase 2 | Pending |
 | FRAME-02 | Phase 3 | Pending |
 | FRAME-03 | Phase 2 | Pending |
