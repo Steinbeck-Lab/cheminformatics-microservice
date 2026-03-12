@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-03-12T15:12:48Z"
-last_activity: 2026-03-12 -- Completed Plan 01-01 (CRA to Vite migration)
+stopped_at: Completed 01-02-PLAN.md
+last_updated: "2026-03-12T15:23:03Z"
+last_activity: 2026-03-12 -- Completed Plan 01-02 (Developer Tooling)
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
-  percent: 5
+  completed_plans: 2
+  percent: 10
 ---
 
 # Project State
@@ -26,28 +26,28 @@ See: .planning/PROJECT.md (updated 2026-03-12)
 ## Current Position
 
 Phase: 1 of 6 (Vite Migration)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: Executing
-Last activity: 2026-03-12 -- Completed Plan 01-01 (CRA to Vite migration)
+Last activity: 2026-03-12 -- Completed Plan 01-02 (Developer Tooling)
 
-Progress: [█░░░░░░░░░] 5%
+Progress: [██░░░░░░░░] 10%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 13min
-- Total execution time: 0.2 hours
+- Total plans completed: 2
+- Average duration: 9min
+- Total execution time: 0.3 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-vite-migration | 1/3 | 13min | 13min |
+| 01-vite-migration | 2/3 | 18min | 9min |
 
 **Recent Trend:**
-- Last 5 plans: 13min
-- Trend: Starting
+- Last 5 plans: 13min, 5min
+- Trend: Accelerating
 
 *Updated after each plan completion*
 
@@ -63,6 +63,10 @@ Recent decisions affecting current work:
 - [01-01]: Used vite.config.mjs instead of .js to avoid type:module breaking CJS PostCSS/Tailwind configs
 - [01-01]: Custom Vite plugin (treat-js-as-jsx) handles JSX in .js files rather than mass-renaming files
 - [01-01]: Entry point renamed from index.js to index.jsx for Vite HTML entry compatibility
+- [01-02]: Used eslint.config.mjs extension to force ESM without type:module in package.json
+- [01-02]: Relaxed 8 ESLint rules to warnings for existing codebase (zero errors, 163 warnings)
+- [01-02]: Husky initialized at repo root (where .git lives), pre-commit hook does cd frontend && npx lint-staged
+- [01-02]: Smoke test uses createMemoryRouter to avoid browser history API dependency in jsdom
 
 ### Pending Todos
 
@@ -76,6 +80,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12T15:12:48Z
-Stopped at: Completed 01-01-PLAN.md
-Resume file: .planning/phases/01-vite-migration/01-02-PLAN.md
+Last session: 2026-03-12T15:23:03Z
+Stopped at: Completed 01-02-PLAN.md
+Resume file: .planning/phases/01-vite-migration/01-03-PLAN.md
