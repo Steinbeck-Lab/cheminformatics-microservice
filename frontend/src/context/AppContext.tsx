@@ -1,22 +1,29 @@
 // Description: This file contains the context provider for the application, managing global state such as theme, recent molecules, API settings, and loading/error states.
 import React, { createContext, useContext, useState, useEffect } from "react";
+import type { RecentMolecule, ApiConfig, AppContextValue } from "../types/molecule";
 
 // Create the context
-const AppContext = createContext();
+const AppContext = createContext<AppContextValue | undefined>(undefined);
 
 // Custom hook for using the context
-export const useAppContext = () => useContext(AppContext);
+export const useAppContext = (): AppContextValue => {
+  const context = useContext(AppContext);
+  if (!context) {
+    throw new Error("useAppContext must be used within an AppProvider");
+  }
+  return context;
+};
 
 // Provider component
-export const AppProvider = ({ children }) => {
+export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // Theme state (dark/light)
   const [isDarkMode, setIsDarkMode] = useState(true);
 
   // History of recent molecules
-  const [recentMolecules, setRecentMolecules] = useState([]);
+  const [recentMolecules, setRecentMolecules] = useState<RecentMolecule[]>([]);
 
   // API settings
-  const [apiConfig, setApiConfig] = useState({
+  const [apiConfig, setApiConfig] = useState<ApiConfig>({
     baseUrl: import.meta.env.VITE_API_URL || "https://dev.api.naturalproducts.net/latest",
     timeout: 30000,
   });
@@ -25,7 +32,7 @@ export const AppProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Global error state
-  const [globalError, setGlobalError] = useState(null);
+  const [globalError, setGlobalError] = useState<string | null>(null);
 
   // Toggle dark/light mode
   const toggleDarkMode = () => {
@@ -33,7 +40,7 @@ export const AppProvider = ({ children }) => {
   };
 
   // Add a molecule to recent history
-  const addRecentMolecule = (molecule) => {
+  const addRecentMolecule = (molecule: Omit<RecentMolecule, "_savedAt">) => {
     if (!molecule.smiles) return;
 
     setRecentMolecules((prev) => {
@@ -51,7 +58,7 @@ export const AppProvider = ({ children }) => {
   };
 
   // Update API configuration
-  const updateApiConfig = (newConfig) => {
+  const updateApiConfig = (newConfig: Partial<ApiConfig>) => {
     setApiConfig((prev) => ({ ...prev, ...newConfig }));
   };
 
@@ -66,7 +73,7 @@ export const AppProvider = ({ children }) => {
     const savedMolecules = localStorage.getItem("recentMolecules");
     if (savedMolecules) {
       try {
-        const parsed = JSON.parse(savedMolecules);
+        const parsed = JSON.parse(savedMolecules) as RecentMolecule[];
         const cutoff = Date.now() - 24 * 60 * 60 * 1000;
         const fresh = Array.isArray(parsed)
           ? parsed.filter((m) => m._savedAt && m._savedAt > cutoff)
@@ -80,7 +87,7 @@ export const AppProvider = ({ children }) => {
 
   // Save theme preference to localStorage when it changes
   useEffect(() => {
-    localStorage.setItem("darkMode", isDarkMode);
+    localStorage.setItem("darkMode", String(isDarkMode));
 
     // Update document class for global styling
     if (isDarkMode) {
@@ -96,7 +103,7 @@ export const AppProvider = ({ children }) => {
   }, [recentMolecules]);
 
   // Context value with all state and functions
-  const contextValue = {
+  const contextValue: AppContextValue = {
     isDarkMode,
     toggleDarkMode,
     recentMolecules,

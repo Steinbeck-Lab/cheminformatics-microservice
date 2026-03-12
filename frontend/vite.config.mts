@@ -4,23 +4,10 @@ import react from "@vitejs/plugin-react-swc";
 
 export default defineConfig({
   plugins: [
-    // Enable JSX handling for .js files (CRA convention)
     react({
       jsxRuntime: "automatic",
     }),
-    // Custom plugin to let Vite know .js files may contain JSX
-    {
-      name: "treat-js-as-jsx",
-      async transform(code, id) {
-        if (!id.match(/src\/.*\.js$/)) return null;
-        // Use esbuild to transform JSX in .js files
-        const { transformWithEsbuild } = await import("vite");
-        return transformWithEsbuild(code, id + "x", {
-          loader: "jsx",
-          jsx: "automatic",
-        });
-      },
-    },
+    // treat-js-as-jsx plugin REMOVED -- no longer needed with .tsx files
   ],
   server: {
     port: 3000,
@@ -35,13 +22,7 @@ export default defineConfig({
       },
     },
   },
-  optimizeDeps: {
-    esbuildOptions: {
-      loader: {
-        ".js": "jsx",
-      },
-    },
-  },
+  // optimizeDeps.esbuildOptions.loader REMOVED -- no longer needed
   build: {
     sourcemap: "hidden",
     outDir: "dist",
@@ -49,7 +30,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
-    setupFiles: "./src/__tests__/setup.js",
+    setupFiles: "./src/__tests__/setup.ts",
     css: true,
     coverage: {
       provider: "v8",

@@ -1,44 +1,21 @@
 // This module provides functions to generate 2D and 3D depictions of molecules
 import api from "./api";
+import type {
+  DepictionOptions,
+  EnhancedDepictionOptions,
+  BatchDepictionResult,
+  ParsedSmilesEntry,
+} from "../types/api";
 
 const DEPICT_URL = "/depict";
 
 /**
  * Generate an enhanced 2D depiction of a molecule with advanced features
- * @param {string} smiles - SMILES or CXSMILES string
- * @param {Object} options - Enhanced depiction options
- * @param {number} options.width - Width of the generated image
- * @param {number} options.height - Height of the generated image
- * @param {number} options.rotate - Rotation angle in degrees
- * @param {boolean} options.CIP - Include Cahn-Ingold-Prelog stereochemistry
- * @param {boolean} options.unicolor - Use a single color for the molecule (deprecated, use style)
- * @param {string} options.highlight - SMARTS pattern to highlight atoms/bonds
- * @param {Array<number>|Array<Array<number>>} options.atomIds - Atom indices to highlight
- * @param {boolean} options.showAtomNumbers - Show atom numbers on the depiction
- * @param {string} options.hydrogen_display - Hydrogen display mode (Provided, Minimal, Explicit, Stereo, Smart)
- * @param {string} options.abbreviate - Chemical abbreviation mode (off, groups, reagents, on)
- * @param {string} options.dative - Dative bond perception (never, metals, always)
- * @param {string} options.multicenter - Multicenter bond display style
- * @param {string} options.annotate - Annotation mode (none, number, bondnumber, mapidx, atomvalue, colmap, cip)
- * @param {string} options.style - Color scheme preset (cow, cob, cot, bow, bot, wob, nob)
- * @param {boolean} options.donuts - Use circle-in-ring for aromatic rings
- * @param {string} options.arrow - Reaction arrow type
- * @param {boolean} options.alignrxnmap - Align reaction mapped atoms
- * @param {boolean} options.showtitle - Display molecule/reaction title
- * @param {string} options.title - Optional title to display
- * @param {string} options.bgcolor - Custom background color (hex)
- * @param {string} options.fgcolor - Custom foreground color (hex)
- * @param {number} options.zoom - Zoom level (0.1 to 5.0)
- * @param {number} options.ratio - Bond thickness ratio (0.5 to 2.0)
- * @param {boolean} options.flip - Horizontally flip the structure
- * @param {boolean} options.anon - Use anonymous atom display
- * @param {number} options.smalim - SMARTS hit limit
- * @param {string} options.svgunits - SVG coordinate units (px, mm, cm, in)
- * @param {boolean} options.perceive_radicals - Detect and mark radicals
- * @param {boolean} options.apply_mdl_highlighting - Apply MDL V3000 highlighting
- * @returns {Promise<string>} - SVG depiction as text
  */
-export const generate2DDepictionEnhanced = async (smiles, options = {}) => {
+export const generate2DDepictionEnhanced = async (
+  smiles: string,
+  options: EnhancedDepictionOptions = {}
+): Promise<string> => {
   const {
     width = 512,
     height = 512,
@@ -72,7 +49,7 @@ export const generate2DDepictionEnhanced = async (smiles, options = {}) => {
   } = options;
 
   try {
-    const params = {
+    const params: Record<string, unknown> = {
       smiles,
       width,
       height,
@@ -108,38 +85,29 @@ export const generate2DDepictionEnhanced = async (smiles, options = {}) => {
     // Convert atomIds to comma-separated string if provided
     if (atomIds) {
       if (Array.isArray(atomIds)) {
-        const flatIds = atomIds.flat();
+        const flatIds = (atomIds as number[][]).flat();
         params.atomIds = flatIds.join(",");
       }
     }
 
-    const response = await api.get(`${DEPICT_URL}/2D_enhanced`, {
+    const response = await api.get<string>(`${DEPICT_URL}/2D_enhanced`, {
       params,
       responseType: "text",
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to generate enhanced 2D depiction: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to generate enhanced 2D depiction: ${message}`);
   }
 };
 
 /**
  * Generate a 2D depiction of a molecule
- * @param {string} smiles - SMILES string
- * @param {Object} options - Depiction options
- * @param {string} options.toolkit - Toolkit to use (cdk, rdkit)
- * @param {number} options.width - Width of the generated image
- * @param {number} options.height - Height of the generated image
- * @param {number} options.rotate - Rotation angle in degrees
- * @param {boolean} options.CIP - Include Cahn-Ingold-Prelog stereochemistry
- * @param {boolean} options.unicolor - Use a single color for the molecule
- * @param {string} options.highlight - SMARTS pattern to highlight atoms/bonds
- * @param {Array<number>|Array<Array<number>>} options.atomIds - Atom indices to highlight (single array or array of arrays for multiple substructures)
- * @param {boolean} options.showAtomNumbers - Show atom numbers on the depiction
- * @param {string} options.hydrogen_display - Hydrogen display mode for CDK (Provided, Minimal, Explicit, Stereo, Smart)
- * @returns {Promise<string>} - SVG depiction as text
  */
-export const generate2DDepiction = async (smiles, options = {}) => {
+export const generate2DDepiction = async (
+  smiles: string,
+  options: DepictionOptions = {}
+): Promise<string> => {
   const {
     toolkit = "rdkit",
     width = 512,
@@ -154,7 +122,7 @@ export const generate2DDepiction = async (smiles, options = {}) => {
   } = options;
 
   try {
-    const params = {
+    const params: Record<string, unknown> = {
       smiles,
       toolkit,
       width,
@@ -175,46 +143,48 @@ export const generate2DDepiction = async (smiles, options = {}) => {
     if (atomIds) {
       if (Array.isArray(atomIds)) {
         // Flatten if it's an array of arrays
-        const flatIds = atomIds.flat();
+        const flatIds = (atomIds as number[][]).flat();
         params.atomIds = flatIds.join(",");
       }
     }
 
-    const response = await api.get(`${DEPICT_URL}/2D`, {
+    const response = await api.get<string>(`${DEPICT_URL}/2D`, {
       params,
       responseType: "text",
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to generate 2D depiction: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to generate 2D depiction: ${message}`);
   }
 };
 
 /**
  * Generate a 3D depiction of a molecule
- * @param {string} smiles - SMILES string
- * @param {string} toolkit - Toolkit to use (rdkit, openbabel)
- * @returns {Promise<string>} - HTML with embedded 3D viewer
  */
-export const generate3DDepiction = async (smiles, toolkit = "openbabel") => {
+export const generate3DDepiction = async (
+  smiles: string,
+  toolkit = "openbabel"
+): Promise<string> => {
   try {
-    const response = await api.get(`${DEPICT_URL}/3D`, {
+    const response = await api.get<string>(`${DEPICT_URL}/3D`, {
       params: { smiles, toolkit },
       responseType: "text",
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to generate 3D depiction: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to generate 3D depiction: ${message}`);
   }
 };
 
 /**
  * Get the URL for an enhanced 2D depiction image with advanced features
- * @param {string} smiles - SMILES or CXSMILES string
- * @param {Object} options - Enhanced depiction options
- * @returns {string} - URL to the enhanced depiction image
  */
-export const get2DDepictionUrlEnhanced = (smiles, options = {}) => {
+export const get2DDepictionUrlEnhanced = (
+  smiles: string,
+  options: EnhancedDepictionOptions = {}
+): string => {
   const {
     width = 512,
     height = 512,
@@ -223,8 +193,8 @@ export const get2DDepictionUrlEnhanced = (smiles, options = {}) => {
     unicolor = false,
     highlight = "",
     atomIds = null,
-    // eslint-disable-next-line no-unused-vars
-    format = "svg",
+
+    format: _format = "svg",
     showAtomNumbers = false,
     hydrogen_display = "Smart",
     abbreviate = "off",
@@ -253,30 +223,30 @@ export const get2DDepictionUrlEnhanced = (smiles, options = {}) => {
   const url = new URL(`${baseUrl}${DEPICT_URL}/2D_enhanced`);
 
   url.searchParams.append("smiles", smiles);
-  url.searchParams.append("width", width);
-  url.searchParams.append("height", height);
-  url.searchParams.append("rotate", rotate);
-  url.searchParams.append("CIP", CIP);
-  url.searchParams.append("unicolor", unicolor);
-  url.searchParams.append("showAtomNumbers", showAtomNumbers);
+  url.searchParams.append("width", String(width));
+  url.searchParams.append("height", String(height));
+  url.searchParams.append("rotate", String(rotate));
+  url.searchParams.append("CIP", String(CIP));
+  url.searchParams.append("unicolor", String(unicolor));
+  url.searchParams.append("showAtomNumbers", String(showAtomNumbers));
   url.searchParams.append("hydrogen_display", hydrogen_display);
   url.searchParams.append("abbreviate", abbreviate);
   url.searchParams.append("dative", dative);
   url.searchParams.append("multicenter", multicenter);
   url.searchParams.append("annotate", annotate);
   url.searchParams.append("style", style);
-  url.searchParams.append("donuts", donuts);
+  url.searchParams.append("donuts", String(donuts));
   url.searchParams.append("arrow", arrow);
-  url.searchParams.append("alignrxnmap", alignrxnmap);
-  url.searchParams.append("showtitle", showtitle);
-  url.searchParams.append("zoom", zoom);
-  url.searchParams.append("ratio", ratio);
-  url.searchParams.append("flip", flip);
-  url.searchParams.append("anon", anon);
-  url.searchParams.append("smalim", smalim);
+  url.searchParams.append("alignrxnmap", String(alignrxnmap));
+  url.searchParams.append("showtitle", String(showtitle));
+  url.searchParams.append("zoom", String(zoom));
+  url.searchParams.append("ratio", String(ratio));
+  url.searchParams.append("flip", String(flip));
+  url.searchParams.append("anon", String(anon));
+  url.searchParams.append("smalim", String(smalim));
   url.searchParams.append("svgunits", svgunits);
-  url.searchParams.append("perceive_radicals", perceive_radicals);
-  url.searchParams.append("apply_mdl_highlighting", apply_mdl_highlighting);
+  url.searchParams.append("perceive_radicals", String(perceive_radicals));
+  url.searchParams.append("apply_mdl_highlighting", String(apply_mdl_highlighting));
 
   if (highlight) {
     url.searchParams.append("highlight", highlight);
@@ -297,7 +267,7 @@ export const get2DDepictionUrlEnhanced = (smiles, options = {}) => {
   // Add atomIds if provided
   if (atomIds) {
     if (Array.isArray(atomIds)) {
-      const flatIds = atomIds.flat();
+      const flatIds = (atomIds as number[][]).flat();
       url.searchParams.append("atomIds", flatIds.join(","));
     }
   }
@@ -307,13 +277,11 @@ export const get2DDepictionUrlEnhanced = (smiles, options = {}) => {
 
 /**
  * Get the URL for a 2D depiction image
- * @param {string} smiles - SMILES string
- * @param {Object} options - Depiction options
- * @param {Array<number>|Array<Array<number>>} options.atomIds - Atom indices to highlight
- * @param {string} options.hydrogen_display - Hydrogen display mode for CDK (Provided, Minimal, Explicit, Stereo, Smart)
- * @returns {string} - URL to the depiction image
  */
-export const get2DDepictionUrl = (smiles, options = {}) => {
+export const get2DDepictionUrl = (
+  smiles: string,
+  options: DepictionOptions & { format?: string } = {}
+): string => {
   const {
     width = 512,
     height = 512,
@@ -329,7 +297,7 @@ export const get2DDepictionUrl = (smiles, options = {}) => {
   } = options;
 
   const baseUrl = api.defaults.baseURL || "";
-  let url;
+  let url: URL;
 
   // Support format parameter in the URL
   if (format && format !== "svg") {
@@ -339,13 +307,13 @@ export const get2DDepictionUrl = (smiles, options = {}) => {
   }
 
   url.searchParams.append("smiles", smiles);
-  url.searchParams.append("width", width);
-  url.searchParams.append("height", height);
+  url.searchParams.append("width", String(width));
+  url.searchParams.append("height", String(height));
   url.searchParams.append("toolkit", toolkit);
-  url.searchParams.append("rotate", rotate);
-  url.searchParams.append("CIP", CIP);
-  url.searchParams.append("unicolor", unicolor);
-  url.searchParams.append("showAtomNumbers", showAtomNumbers);
+  url.searchParams.append("rotate", String(rotate));
+  url.searchParams.append("CIP", String(CIP));
+  url.searchParams.append("unicolor", String(unicolor));
+  url.searchParams.append("showAtomNumbers", String(showAtomNumbers));
 
   // Add hydrogen_display parameter for CDK toolkit
   if (toolkit === "cdk" && hydrogen_display) {
@@ -360,7 +328,7 @@ export const get2DDepictionUrl = (smiles, options = {}) => {
   if (atomIds) {
     if (Array.isArray(atomIds)) {
       // Flatten if it's an array of arrays
-      const flatIds = atomIds.flat();
+      const flatIds = (atomIds as number[][]).flat();
       url.searchParams.append("atomIds", flatIds.join(","));
     }
   }
@@ -370,11 +338,11 @@ export const get2DDepictionUrl = (smiles, options = {}) => {
 
 /**
  * Get the URL for an enhanced 2D depiction with advanced CDK features
- * @param {string} smiles - SMILES or CXSMILES string
- * @param {Object} options - Enhanced depiction options (same as generate2DDepictionEnhanced)
- * @returns {string} - URL to the enhanced depiction image
  */
-export const get2DDepictionEnhancedUrl = (smiles, options = {}) => {
+export const get2DDepictionEnhancedUrl = (
+  smiles: string,
+  options: EnhancedDepictionOptions = {}
+): string => {
   const {
     width = 512,
     height = 512,
@@ -411,30 +379,30 @@ export const get2DDepictionEnhancedUrl = (smiles, options = {}) => {
   const url = new URL(`${baseUrl}${DEPICT_URL}/2D_enhanced`);
 
   url.searchParams.append("smiles", smiles);
-  url.searchParams.append("width", width);
-  url.searchParams.append("height", height);
-  url.searchParams.append("rotate", rotate);
-  url.searchParams.append("CIP", CIP);
-  url.searchParams.append("unicolor", unicolor);
-  url.searchParams.append("showAtomNumbers", showAtomNumbers);
+  url.searchParams.append("width", String(width));
+  url.searchParams.append("height", String(height));
+  url.searchParams.append("rotate", String(rotate));
+  url.searchParams.append("CIP", String(CIP));
+  url.searchParams.append("unicolor", String(unicolor));
+  url.searchParams.append("showAtomNumbers", String(showAtomNumbers));
   url.searchParams.append("hydrogen_display", hydrogen_display);
   url.searchParams.append("abbreviate", abbreviate);
   url.searchParams.append("dative", dative);
   url.searchParams.append("multicenter", multicenter);
   url.searchParams.append("annotate", annotate);
   url.searchParams.append("style", style);
-  url.searchParams.append("donuts", donuts);
+  url.searchParams.append("donuts", String(donuts));
   url.searchParams.append("arrow", arrow);
-  url.searchParams.append("alignrxnmap", alignrxnmap);
-  url.searchParams.append("showtitle", showtitle);
-  url.searchParams.append("zoom", zoom);
-  url.searchParams.append("ratio", ratio);
-  url.searchParams.append("flip", flip);
-  url.searchParams.append("anon", anon);
-  url.searchParams.append("smalim", smalim);
+  url.searchParams.append("alignrxnmap", String(alignrxnmap));
+  url.searchParams.append("showtitle", String(showtitle));
+  url.searchParams.append("zoom", String(zoom));
+  url.searchParams.append("ratio", String(ratio));
+  url.searchParams.append("flip", String(flip));
+  url.searchParams.append("anon", String(anon));
+  url.searchParams.append("smalim", String(smalim));
   url.searchParams.append("svgunits", svgunits);
-  url.searchParams.append("perceive_radicals", perceive_radicals);
-  url.searchParams.append("apply_mdl_highlighting", apply_mdl_highlighting);
+  url.searchParams.append("perceive_radicals", String(perceive_radicals));
+  url.searchParams.append("apply_mdl_highlighting", String(apply_mdl_highlighting));
 
   if (highlight) {
     url.searchParams.append("highlight", highlight);
@@ -455,7 +423,7 @@ export const get2DDepictionEnhancedUrl = (smiles, options = {}) => {
   // Add atomIds if provided
   if (atomIds) {
     if (Array.isArray(atomIds)) {
-      const flatIds = atomIds.flat();
+      const flatIds = (atomIds as number[][]).flat();
       url.searchParams.append("atomIds", flatIds.join(","));
     }
   }
@@ -465,13 +433,13 @@ export const get2DDepictionEnhancedUrl = (smiles, options = {}) => {
 
 /**
  * Generate batch 2D depictions for multiple SMILES strings
- * @param {Array<string>} smilesList - Array of SMILES strings
- * @param {Object} options - Depiction options
- * @returns {Promise<Array<Object>>} - Array of depiction results with SMILES and SVG content
  */
-export const generateBatchDepictions = async (smilesList, options = {}) => {
+export const generateBatchDepictions = async (
+  smilesList: string[],
+  options: DepictionOptions = {}
+): Promise<BatchDepictionResult[]> => {
   try {
-    const results = [];
+    const results: BatchDepictionResult[] = [];
 
     for (const smiles of smilesList) {
       const svg = await generate2DDepiction(smiles, options);
@@ -483,20 +451,25 @@ export const generateBatchDepictions = async (smilesList, options = {}) => {
 
     return results;
   } catch (error) {
-    throw new Error(`Failed to generate batch depictions: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to generate batch depictions: ${message}`);
   }
 };
 
+interface DepictionEntry {
+  smiles: string;
+  title: string;
+  svg: string;
+}
+
 /**
  * Download multiple depictions as a ZIP file
- * @param {Array<Object>} depictions - Array of depiction objects with smiles, title, and svg properties
- * @param {string} format - File format to download (svg, png)
- * @param {Object} options - Depiction options
- * @returns {Promise<Blob>} - ZIP file as a Blob
  */
-export const downloadDepictionsAsZip = async (depictions, format = "svg", options = {}) => {
-  // This function requires JSZip to be installed
-  // npm install jszip
+export const downloadDepictionsAsZip = async (
+  depictions: DepictionEntry[],
+  format = "svg",
+  options: DepictionOptions = {}
+): Promise<Blob> => {
   try {
     const JSZip = (await import("jszip")).default;
     const zip = new JSZip();
@@ -518,18 +491,19 @@ export const downloadDepictionsAsZip = async (depictions, format = "svg", option
 
     return await zip.generateAsync({ type: "blob" });
   } catch (error) {
-    throw new Error(`Failed to create ZIP file: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to create ZIP file: ${message}`);
   }
 };
 
 /**
  * Highlight a substructure in a molecule
- * @param {string} smiles - SMILES string of the full molecule
- * @param {string} substructure - SMARTS pattern of the substructure to highlight
- * @param {Object} options - Additional depiction options
- * @returns {Promise<string>} - SVG depiction with highlighted substructure
  */
-export const highlightSubstructure = async (smiles, substructure, options = {}) => {
+export const highlightSubstructure = async (
+  smiles: string,
+  substructure: string,
+  options: DepictionOptions = {}
+): Promise<string> => {
   const depictionOptions = {
     ...options,
     highlight: substructure,
@@ -540,14 +514,12 @@ export const highlightSubstructure = async (smiles, substructure, options = {}) 
 
 /**
  * Generate a color-coded depiction based on atom properties
- * @param {string} smiles - SMILES string
- * @param {string} colorBy - Property to color by (e.g., 'charge', 'element')
- * @param {Object} options - Additional depiction options
- * @returns {Promise<string>} - SVG depiction with color-coded atoms
  */
-export const generateColorCodedDepiction = async (smiles, colorBy = "element", options = {}) => {
-  // This is a placeholder - the actual API might not support this directly
-  // but we can implement it as a convenience method that uses other endpoints
+export const generateColorCodedDepiction = async (
+  smiles: string,
+  colorBy = "element",
+  options: DepictionOptions = {}
+): Promise<string> => {
   const depictionOptions = {
     ...options,
     unicolor: colorBy === "none",
@@ -558,30 +530,29 @@ export const generateColorCodedDepiction = async (smiles, colorBy = "element", o
 
 /**
  * Generate multiple depictions with different settings
- * @param {string} smiles - SMILES string
- * @param {Array<Object>} optionsArray - Array of depiction option objects
- * @returns {Promise<Array<string>>} - Array of SVG depictions
  */
-export const generateMultipleDepictions = async (smiles, optionsArray = [{}]) => {
+export const generateMultipleDepictions = async (
+  smiles: string,
+  optionsArray: DepictionOptions[] = [{}]
+): Promise<string[]> => {
   try {
     const promises = optionsArray.map((options) => generate2DDepiction(smiles, options));
 
     return Promise.all(promises);
   } catch (error) {
-    throw new Error(`Failed to generate multiple depictions: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to generate multiple depictions: ${message}`);
   }
 };
 
 /**
  * Parse SMILES strings from a text input with optional titles
- * @param {string} text - Input text with one SMILES per line, optionally with titles
- * @returns {Array<Object>} - Array of objects with smiles and title properties
  */
-export const parseSmilesInput = (text) => {
+export const parseSmilesInput = (text: string): ParsedSmilesEntry[] => {
   return text
     .split("\n")
-    .map((line) => {
-      line = line.trim();
+    .map((rawLine) => {
+      const line = rawLine.trim();
       // Skip empty lines and comments
       if (line.length === 0 || line.startsWith("#")) {
         return null;
@@ -594,7 +565,7 @@ export const parseSmilesInput = (text) => {
 
       return { smiles, title };
     })
-    .filter((item) => item !== null);
+    .filter((item): item is ParsedSmilesEntry => item !== null);
 };
 
 // Assemble all functions into a service object

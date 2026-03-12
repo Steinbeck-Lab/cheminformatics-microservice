@@ -1,177 +1,165 @@
 // This module provides functions to convert chemical representations using a REST API.
 import api from "./api";
+import { AxiosError } from "axios";
+import type { MultipleFormatsResult, CdxConversionResult } from "../types/api";
 
 const CONVERT_URL = "/convert";
 
 /**
  * Generate 2D coordinates for a molecule
- * @param {string} smiles - SMILES string
- * @param {string} toolkit - Toolkit to use (cdk, rdkit, openbabel)
- * @returns {Promise<string>} - Mol block with 2D coordinates
  */
-export const generate2DCoordinates = async (smiles, toolkit = "cdk") => {
+export const generate2DCoordinates = async (smiles: string, toolkit = "cdk"): Promise<string> => {
   try {
-    const response = await api.get(`${CONVERT_URL}/mol2D`, {
+    const response = await api.get<string>(`${CONVERT_URL}/mol2D`, {
       params: { smiles, toolkit },
       responseType: "text",
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to generate 2D coordinates: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to generate 2D coordinates: ${message}`);
   }
 };
 
 /**
  * Generate 3D coordinates for a molecule
- * @param {string} smiles - SMILES string
- * @param {string} toolkit - Toolkit to use (rdkit, openbabel)
- * @returns {Promise<string>} - Mol block with 3D coordinates
  */
-export const generate3DCoordinates = async (smiles, toolkit = "openbabel") => {
+export const generate3DCoordinates = async (
+  smiles: string,
+  toolkit = "openbabel"
+): Promise<string> => {
   try {
-    const response = await api.get(`${CONVERT_URL}/mol3D`, {
+    const response = await api.get<string>(`${CONVERT_URL}/mol3D`, {
       params: { smiles, toolkit },
       responseType: "text",
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to generate 3D coordinates: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to generate 3D coordinates: ${message}`);
   }
 };
 
 /**
  * Generate SMILES from IUPAC name or SELFIES
- * @param {string} inputText - IUPAC name or SELFIES
- * @param {string} representation - Input representation type (iupac, selfies)
- * @param {string} converter - Converter to use for IUPAC (opsin)
- * @returns {Promise<string>} - Generated SMILES
  */
-export const generateSMILES = async (inputText, representation = "iupac", converter = "opsin") => {
+export const generateSMILES = async (
+  inputText: string,
+  representation = "iupac",
+  converter = "opsin"
+): Promise<string> => {
   try {
-    const response = await api.get(`${CONVERT_URL}/smiles`, {
+    const response = await api.get<string>(`${CONVERT_URL}/smiles`, {
       params: { input_text: inputText, representation, converter },
       responseType: "text",
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to generate SMILES: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to generate SMILES: ${message}`);
   }
 };
 
 /**
  * Generate canonical SMILES
- * @param {string} smiles - SMILES string
- * @param {string} toolkit - Toolkit to use (cdk, rdkit, openbabel)
- * @returns {Promise<string>} - Canonical SMILES
  */
-export const generateCanonicalSMILES = async (smiles, toolkit = "cdk") => {
+export const generateCanonicalSMILES = async (smiles: string, toolkit = "cdk"): Promise<string> => {
   try {
-    const response = await api.get(`${CONVERT_URL}/canonicalsmiles`, {
+    const response = await api.get<string>(`${CONVERT_URL}/canonicalsmiles`, {
       params: { smiles, toolkit },
       responseType: "text",
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to generate canonical SMILES: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to generate canonical SMILES: ${message}`);
   }
 };
 
 /**
  * Generate CXSMILES (ChemAxon Extended SMILES)
- * @param {string} smiles - SMILES string
- * @param {string} toolkit - Toolkit to use (cdk, rdkit)
- * @returns {Promise<string>} - CXSMILES
  */
-export const generateCXSMILES = async (smiles, toolkit = "cdk") => {
+export const generateCXSMILES = async (smiles: string, toolkit = "cdk"): Promise<string> => {
   try {
-    const response = await api.get(`${CONVERT_URL}/cxsmiles`, {
+    const response = await api.get<string>(`${CONVERT_URL}/cxsmiles`, {
       params: { smiles, toolkit },
       responseType: "text",
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to generate CXSMILES: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to generate CXSMILES: ${message}`);
   }
 };
 
 /**
  * Generate InChI (IUPAC International Chemical Identifier)
- * @param {string} smiles - SMILES string
- * @param {string} toolkit - Toolkit to use (cdk, rdkit, openbabel)
- * @returns {Promise<string>} - InChI
  */
-export const generateInChI = async (smiles, toolkit = "cdk") => {
+export const generateInChI = async (smiles: string, toolkit = "cdk"): Promise<string> => {
   try {
-    const response = await api.get(`${CONVERT_URL}/inchi`, {
+    const response = await api.get<string>(`${CONVERT_URL}/inchi`, {
       params: { smiles, toolkit },
       responseType: "text",
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to generate InChI: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to generate InChI: ${message}`);
   }
 };
 
 /**
  * Generate InChI Key
- * @param {string} smiles - SMILES string
- * @param {string} toolkit - Toolkit to use (cdk, rdkit, openbabel)
- * @returns {Promise<string>} - InChI Key
  */
-export const generateInChIKey = async (smiles, toolkit = "cdk") => {
+export const generateInChIKey = async (smiles: string, toolkit = "cdk"): Promise<string> => {
   try {
-    const response = await api.get(`${CONVERT_URL}/inchikey`, {
+    const response = await api.get<string>(`${CONVERT_URL}/inchikey`, {
       params: { smiles, toolkit },
       responseType: "text",
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to generate InChI Key: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to generate InChI Key: ${message}`);
   }
 };
 
 /**
  * Generate SELFIES (Self-Referencing Embedded Strings)
- * @param {string} smiles - SMILES string
- * @returns {Promise<string>} - SELFIES
  */
-export const generateSELFIES = async (smiles) => {
+export const generateSELFIES = async (smiles: string): Promise<string> => {
   try {
-    const response = await api.get(`${CONVERT_URL}/selfies`, {
+    const response = await api.get<string>(`${CONVERT_URL}/selfies`, {
       params: { smiles },
       responseType: "text",
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to generate SELFIES: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to generate SELFIES: ${message}`);
   }
 };
 
 /**
  * Generate SMARTS pattern
- * @param {string} smiles - SMILES string
- * @param {string} toolkit - Toolkit to use (rdkit)
- * @returns {Promise<string>} - SMARTS pattern
  */
-export const generateSMARTS = async (smiles, toolkit = "rdkit") => {
+export const generateSMARTS = async (smiles: string, toolkit = "rdkit"): Promise<string> => {
   try {
-    const response = await api.get(`${CONVERT_URL}/smarts`, {
+    const response = await api.get<string>(`${CONVERT_URL}/smarts`, {
       params: { smiles, toolkit },
       responseType: "text",
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to generate SMARTS: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to generate SMARTS: ${message}`);
   }
 };
 
 /**
  * Convert MOL/SDF block to SMILES
- * @param {string} molblock - MOL or SDF block string
- * @param {string} toolkit - Toolkit to use (cdk, rdkit)
- * @returns {Promise<string>} - SMILES string
  */
-export const molblockToSMILES = async (molblock, toolkit = "cdk") => {
+export const molblockToSMILES = async (molblock: string, toolkit = "cdk"): Promise<string> => {
   try {
     // Get the base URL from the api instance or use default
     const baseURL = api.defaults.baseURL;
@@ -189,9 +177,9 @@ export const molblockToSMILES = async (molblock, toolkit = "cdk") => {
     if (!response.ok) {
       let errorMsg = `Error ${response.status}: ${response.statusText}`;
       try {
-        const errorData = await response.json();
+        const errorData = (await response.json()) as { detail?: string };
         errorMsg = errorData.detail || errorMsg;
-      } catch (jsonError) {
+      } catch (_jsonError) {
         // Ignore if response is not JSON
       }
       throw new Error(errorMsg);
@@ -207,44 +195,46 @@ export const molblockToSMILES = async (molblock, toolkit = "cdk") => {
 
     return result;
   } catch (error) {
-    throw new Error(`Failed to convert MOL/SDF to SMILES: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to convert MOL/SDF to SMILES: ${message}`);
   }
 };
 
 /**
  * Generate multiple formats at once
- * @param {string} smiles - SMILES string
- * @param {string} toolkit - Toolkit to use (cdk, rdkit, openbabel)
- * @returns {Promise<Object>} - Object with multiple formats
  */
-export const generateMultipleFormats = async (smiles, toolkit = "cdk") => {
+export const generateMultipleFormats = async (
+  smiles: string,
+  toolkit = "cdk"
+): Promise<MultipleFormatsResult> => {
   try {
-    const response = await api.get(`${CONVERT_URL}/formats`, {
+    const response = await api.get<MultipleFormatsResult>(`${CONVERT_URL}/formats`, {
       params: { smiles, toolkit },
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to generate multiple formats: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to generate multiple formats: ${message}`);
   }
 };
 
 /**
  * Convert a CDX or CDXML file to a MOL block
- * @param {File} file - A .cdx or .cdxml File object from an <input> or dropzone
- * @returns {Promise<string>} - MOL block string
  */
-export const convertCDXToMol = async (file) => {
+export const convertCDXToMol = async (file: File): Promise<string> => {
   const formData = new FormData();
   formData.append("file", file);
 
   try {
-    const response = await api.post(`${CONVERT_URL}/cdx-to-mol`, formData, {
+    const response = await api.post<CdxConversionResult>(`${CONVERT_URL}/cdx-to-mol`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return response.data.molblock;
   } catch (error) {
-    const detail = error.response?.data?.detail;
-    throw new Error(detail || `Failed to convert CDX file: ${error.message}`);
+    const axiosError = error as AxiosError<{ detail?: string }>;
+    const detail = axiosError.response?.data?.detail;
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(detail || `Failed to convert CDX file: ${message}`);
   }
 };
 

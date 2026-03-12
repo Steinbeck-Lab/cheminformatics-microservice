@@ -1,31 +1,37 @@
 // This file contains functions to interact with the tools API for chemical structure generation, sugar detection, and filtering.
 import api from "./api";
+import type {
+  SugarRemovalOptions,
+  ExtractionOptions,
+  ChemicalFilterOptions,
+  ClassyFireResult,
+  StandardizeResult,
+} from "../types/api";
 
 const TOOLS_URL = "/tools";
 
 /**
  * Generate chemical structures based on a molecular formula
- * @param {string} molecularFormula - Molecular formula (e.g., "C6H6")
- * @returns {Promise<Array<string>>} - Array of generated SMILES strings
  */
-export const generateStructures = async (molecularFormula) => {
+export const generateStructures = async (molecularFormula: string): Promise<string[]> => {
   try {
-    const response = await api.get(`${TOOLS_URL}/generate-structures`, {
+    const response = await api.get<string[]>(`${TOOLS_URL}/generate-structures`, {
       params: { molecular_formula: molecularFormula },
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to generate structures: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to generate structures: ${message}`);
   }
 };
 
 /**
  * Get information about sugar moieties in a molecule with full parameter support
- * @param {string} smiles - SMILES string
- * @param {Object} options - Detection options
- * @returns {Promise<string>} - Sugar information message
  */
-export const getSugarInfo = async (smiles, options = {}) => {
+export const getSugarInfo = async (
+  smiles: string,
+  options: SugarRemovalOptions = {}
+): Promise<string> => {
   try {
     const params = {
       smiles,
@@ -39,28 +45,26 @@ export const getSugarInfo = async (smiles, options = {}) => {
       spiro_sugars: options.spiro_sugars ?? false,
       keto_sugars: options.keto_sugars ?? false,
     };
-    const response = await api.get(`${TOOLS_URL}/sugars-info`, { params });
+    const response = await api.get<string>(`${TOOLS_URL}/sugars-info`, { params });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to get sugar information: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to get sugar information: ${message}`);
   }
 };
 
 /**
  * Detect sugar moieties in a molecule (alias for getSugarInfo)
- * @param {string} smiles - SMILES string
- * @param {Object} options - Detection options
- * @returns {Promise<string>} - Sugar information message
  */
 export const detectSugars = getSugarInfo;
 
 /**
  * Remove linear sugars from a molecule with full parameter support
- * @param {string} smiles - SMILES string
- * @param {Object} options - Removal options
- * @returns {Promise<string>} - SMILES with linear sugars removed
  */
-export const removeLinearSugars = async (smiles, options = {}) => {
+export const removeLinearSugars = async (
+  smiles: string,
+  options: SugarRemovalOptions = {}
+): Promise<string> => {
   try {
     const params = {
       smiles,
@@ -73,22 +77,23 @@ export const removeLinearSugars = async (smiles, options = {}) => {
       linear_acidic_sugars: options.linear_acidic_sugars ?? false,
       mark_attach_points: options.mark_attach_points ?? false,
     };
-    const response = await api.get(`${TOOLS_URL}/remove-linear-sugars`, {
+    const response = await api.get<string>(`${TOOLS_URL}/remove-linear-sugars`, {
       params,
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to remove linear sugars: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to remove linear sugars: ${message}`);
   }
 };
 
 /**
  * Remove circular sugars from a molecule with full parameter support
- * @param {string} smiles - SMILES string
- * @param {Object} options - Removal options
- * @returns {Promise<string>} - SMILES with circular sugars removed
  */
-export const removeCircularSugars = async (smiles, options = {}) => {
+export const removeCircularSugars = async (
+  smiles: string,
+  options: SugarRemovalOptions = {}
+): Promise<string> => {
   try {
     const params = {
       smiles,
@@ -102,22 +107,23 @@ export const removeCircularSugars = async (smiles, options = {}) => {
       keto_sugars: options.keto_sugars ?? false,
       mark_attach_points: options.mark_attach_points ?? false,
     };
-    const response = await api.get(`${TOOLS_URL}/remove-circular-sugars`, {
+    const response = await api.get<string>(`${TOOLS_URL}/remove-circular-sugars`, {
       params,
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to remove circular sugars: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to remove circular sugars: ${message}`);
   }
 };
 
 /**
  * Remove both linear and circular sugars from a molecule with full parameter support
- * @param {string} smiles - SMILES string
- * @param {Object} options - Removal options
- * @returns {Promise<string>} - SMILES with all sugars removed
  */
-export const removeAllSugars = async (smiles, options = {}) => {
+export const removeAllSugars = async (
+  smiles: string,
+  options: SugarRemovalOptions = {}
+): Promise<string> => {
   try {
     const params = {
       smiles,
@@ -135,20 +141,21 @@ export const removeAllSugars = async (smiles, options = {}) => {
       keto_sugars: options.keto_sugars ?? false,
       mark_attach_points: options.mark_attach_points ?? false,
     };
-    const response = await api.get(`${TOOLS_URL}/remove-sugars`, { params });
+    const response = await api.get<string>(`${TOOLS_URL}/remove-sugars`, { params });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to remove all sugars: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to remove all sugars: ${message}`);
   }
 };
 
 /**
  * Extract aglycone and sugar moieties from a molecule with full parameter support
- * @param {string} smiles - SMILES string
- * @param {Object} options - Extraction options
- * @returns {Promise<Array<string>>} - Array of SMILES strings (aglycone first, then sugars)
  */
-export const extractAglyconeAndSugars = async (smiles, options = {}) => {
+export const extractAglyconeAndSugars = async (
+  smiles: string,
+  options: ExtractionOptions = {}
+): Promise<string[]> => {
   try {
     const params = {
       smiles,
@@ -170,23 +177,24 @@ export const extractAglyconeAndSugars = async (smiles, options = {}) => {
       post_process_sugars: options.post_process_sugars ?? false,
       limit_post_process_by_size: options.limit_post_process_by_size ?? false,
     };
-    const response = await api.get(`${TOOLS_URL}/extract-aglycone-and-sugars`, {
+    const response = await api.get<string[]>(`${TOOLS_URL}/extract-aglycone-and-sugars`, {
       params,
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to extract aglycone and sugars: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to extract aglycone and sugars: ${message}`);
   }
 };
 
 /**
  * General sugar removal function
- * @param {string} smiles - SMILES string
- * @param {string} type - Type of sugars to remove ('all', 'linear', 'circular')
- * @param {Object} options - Removal options
- * @returns {Promise<string>} - SMILES with sugars removed
  */
-export const removeSugars = async (smiles, type = "all", options = {}) => {
+export const removeSugars = async (
+  smiles: string,
+  type = "all",
+  options: SugarRemovalOptions = {}
+): Promise<string> => {
   try {
     switch (type) {
       case "linear":
@@ -198,17 +206,18 @@ export const removeSugars = async (smiles, type = "all", options = {}) => {
         return await removeAllSugars(smiles, options);
     }
   } catch (error) {
-    throw new Error(`Failed to remove sugars: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to remove sugars: ${message}`);
   }
 };
 
 /**
  * Get atom indices of aglycone and sugar moieties
- * @param {string} smiles - SMILES string
- * @param {Object} options - Extraction options
- * @returns {Promise<Array<Array<number>>>} - Array of atom index arrays [aglycone_indices, sugar1_indices, sugar2_indices, ...]
  */
-export const getAglyconeAndSugarIndices = async (smiles, options = {}) => {
+export const getAglyconeAndSugarIndices = async (
+  smiles: string,
+  options: ExtractionOptions = {}
+): Promise<number[][]> => {
   try {
     const params = {
       smiles,
@@ -230,20 +239,23 @@ export const getAglyconeAndSugarIndices = async (smiles, options = {}) => {
       post_process_sugars: options.post_process_sugars ?? false,
       limit_post_process_by_size: options.limit_post_process_by_size ?? false,
     };
-    const response = await api.get(`${TOOLS_URL}/get-aglycone-and-sugar-indices`, { params });
+    const response = await api.get<number[][]>(`${TOOLS_URL}/get-aglycone-and-sugar-indices`, {
+      params,
+    });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to get aglycone and sugar indices: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to get aglycone and sugar indices: ${message}`);
   }
 };
 
 /**
  * Apply multiple chemical filters to a list of molecules
- * @param {string} smilesList - Newline-separated list of SMILES strings
- * @param {Object} filterOptions - Filter options to apply
- * @returns {Promise<Array<string>>} - Filtered results
  */
-export const applyChemicalFilters = async (smilesList, filterOptions = {}) => {
+export const applyChemicalFilters = async (
+  smilesList: string,
+  filterOptions: ChemicalFilterOptions = {}
+): Promise<string[]> => {
   const {
     pains = true,
     lipinski = true,
@@ -257,7 +269,7 @@ export const applyChemicalFilters = async (smilesList, filterOptions = {}) => {
   } = filterOptions;
 
   try {
-    const response = await api.post(`/chem/all_filters`, smilesList, {
+    const response = await api.post<string[]>(`/chem/all_filters`, smilesList, {
       params: {
         pains,
         lipinski,
@@ -275,17 +287,18 @@ export const applyChemicalFilters = async (smilesList, filterOptions = {}) => {
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to apply chemical filters: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to apply chemical filters: ${message}`);
   }
 };
 
 /**
  * Apply chemical filters with detailed violation information
- * @param {string} smilesList - Newline-separated list of SMILES strings
- * @param {Object} filterOptions - Filter options to apply
- * @returns {Promise<Object>} - Detailed filter results with violation information
  */
-export const applyChemicalFiltersDetailed = async (smilesList, filterOptions = {}) => {
+export const applyChemicalFiltersDetailed = async (
+  smilesList: string,
+  filterOptions: ChemicalFilterOptions = {}
+): Promise<unknown> => {
   const {
     pains = true,
     lipinski = true,
@@ -320,55 +333,53 @@ export const applyChemicalFiltersDetailed = async (smilesList, filterOptions = {
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to apply detailed chemical filters: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to apply detailed chemical filters: ${message}`);
   }
 };
 
 /**
  * Standardize a molecule using the ChEMBL curation pipeline
- * @param {string} molblock - Molecule in molblock format
- * @returns {Promise<Object>} - Standardized molecule data
  */
-export const standardizeMolecule = async (molblock) => {
+export const standardizeMolecule = async (molblock: string): Promise<StandardizeResult> => {
   try {
-    const response = await api.post(`/chem/standardize`, molblock, {
+    const response = await api.post<StandardizeResult>(`/chem/standardize`, molblock, {
       headers: {
         "Content-Type": "text/plain",
       },
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to standardize molecule: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to standardize molecule: ${message}`);
   }
 };
 
 /**
  * Get ClassyFire classification for a molecule
- * @param {string} smiles - SMILES string
- * @returns {Promise<Object>} - ClassyFire job data
  */
-export const classifyMolecule = async (smiles) => {
+export const classifyMolecule = async (smiles: string): Promise<ClassyFireResult> => {
   try {
-    const response = await api.get(`/chem/classyfire/classify`, {
+    const response = await api.get<ClassyFireResult>(`/chem/classyfire/classify`, {
       params: { smiles },
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to classify molecule: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to classify molecule: ${message}`);
   }
 };
 
 /**
  * Get ClassyFire classification results
- * @param {string} jobId - ClassyFire job ID
- * @returns {Promise<Object>} - ClassyFire classification results
  */
-export const getClassificationResults = async (jobId) => {
+export const getClassificationResults = async (jobId: string): Promise<ClassyFireResult> => {
   try {
-    const response = await api.get(`/chem/classyfire/${jobId}/result`);
+    const response = await api.get<ClassyFireResult>(`/chem/classyfire/${jobId}/result`);
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to get classification results: ${error.message}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to get classification results: ${message}`);
   }
 };
 

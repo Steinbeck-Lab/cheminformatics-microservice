@@ -1,11 +1,12 @@
 // This file sets up an Axios instance for making API requests to the Natural Products API.
-import axios from "axios";
+import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
 
 // Get the API URL from environment variables or use a default
-const API_URL = import.meta.env.VITE_API_URL || "https://dev.api.naturalproducts.net/latest";
+const API_URL: string =
+  import.meta.env.VITE_API_URL || "https://dev.api.naturalproducts.net/latest";
 
 // Create an Axios instance with default config
-const api = axios.create({
+const api: AxiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
     "Content-Type": "application/json",
@@ -15,32 +16,33 @@ const api = axios.create({
 
 // Request interceptor for adding auth tokens or other headers
 api.interceptors.request.use(
-  (config) => {
+  (config: InternalAxiosRequestConfig) => {
     // Add any common request handling here
     return config;
   },
-  (error) => {
+  (error: unknown) => {
     return Promise.reject(error);
   }
 );
 
 // Response interceptor for common error handling
 api.interceptors.response.use(
-  (response) => {
+  (response: AxiosResponse) => {
     return response;
   },
-  (error) => {
+  (error: unknown) => {
+    const axiosError = error as AxiosError;
     if (import.meta.env.DEV) {
-      if (error.response) {
-        console.error("API Error Response:", error.response.status);
-      } else if (error.request) {
+      if (axiosError.response) {
+        console.error("API Error Response:", axiosError.response.status);
+      } else if (axiosError.request) {
         console.error("API No Response");
-      } else {
+      } else if (error instanceof Error) {
         console.error("API Request Error:", error.message);
       }
     }
 
-    if (error.response && error.response.status === 429) {
+    if (axiosError.response && axiosError.response.status === 429) {
       console.warn("API rate limit reached");
     }
 
