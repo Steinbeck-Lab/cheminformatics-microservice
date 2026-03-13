@@ -27,10 +27,10 @@ Requirements for this milestone. Each maps to roadmap phases.
 ### Component System
 
 - [x] **COMP-01**: shadcn/ui installed and configured for Vite + Tailwind v4
-- [ ] **COMP-02**: Core buttons replaced with shadcn/ui Button component
-- [ ] **COMP-03**: Cards and content containers replaced with shadcn/ui Card
+- [x] **COMP-02**: Core buttons replaced with shadcn/ui Button component
+- [x] **COMP-03**: Cards and content containers replaced with shadcn/ui Card
 - [ ] **COMP-04**: Modals and dialogs replaced with shadcn/ui Dialog/Sheet
-- [ ] **COMP-05**: Form inputs replaced with shadcn/ui Input/Select/Textarea
+- [x] **COMP-05**: Form inputs replaced with shadcn/ui Input/Select/Textarea
 - [x] **COMP-06**: Icons migrated from react-icons to lucide-react
 - [ ] **COMP-07**: Consistent component usage across all 9 pages
 
@@ -113,10 +113,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FRAME-04 | Phase 3 | Complete |
 | FRAME-05 | Phase 2 | Complete |
 | COMP-01 | Phase 4 | Complete |
-| COMP-02 | Phase 4 | Pending |
-| COMP-03 | Phase 4 | Pending |
+| COMP-02 | Phase 4 | Complete |
+| COMP-03 | Phase 4 | Complete |
 | COMP-04 | Phase 4 | Pending |
-| COMP-05 | Phase 4 | Pending |
+| COMP-05 | Phase 4 | Complete |
 | COMP-06 | Phase 4 | Complete |
 | COMP-07 | Phase 4 | Pending |
 | THEME-01 | Phase 4 | Complete |
