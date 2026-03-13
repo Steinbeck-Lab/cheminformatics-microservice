@@ -820,38 +820,42 @@ const BatchDepictionView = () => {
                       Width (px)
                     </label>
                     <div className="flex items-center space-x-2">
-                      <motion.button
-                        type="button"
-                        onClick={() => setWidth(Math.max(50, width - 10))}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="px-3 py-2 bg-linear-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-500 dark:hover:to-gray-600 text-gray-700 dark:text-gray-200 font-bold rounded-md border border-gray-400 dark:border-gray-500 shadow-md transition-all duration-200"
-                        aria-label="Decrease width"
-                      >
-                        −
-                      </motion.button>
-                      <input
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setWidth(Math.max(50, width - 10))}
+                          className="px-3 py-2 font-bold"
+                          aria-label="Decrease width"
+                        >
+                          −
+                        </Button>
+                      </motion.div>
+                      <Input
                         id="width-input"
                         type="number"
                         value={width}
                         onChange={(e) =>
                           setWidth(Math.max(50, Math.min(2000, Number(e.target.value))))
                         }
-                        min="50"
-                        max="2000"
-                        step="10"
-                        className="flex-1 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        min={50}
+                        max={2000}
+                        step={10}
+                        className="flex-1 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
-                      <motion.button
-                        type="button"
-                        onClick={() => setWidth(Math.min(2000, width + 10))}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="px-3 py-2 bg-linear-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-500 dark:hover:to-gray-600 text-gray-700 dark:text-gray-200 font-bold rounded-md border border-gray-400 dark:border-gray-500 shadow-md transition-all duration-200"
-                        aria-label="Increase width"
-                      >
-                        +
-                      </motion.button>
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setWidth(Math.min(2000, width + 10))}
+                          className="px-3 py-2 font-bold"
+                          aria-label="Increase width"
+                        >
+                          +
+                        </Button>
+                      </motion.div>
                     </div>
                   </div>
 
@@ -864,38 +868,42 @@ const BatchDepictionView = () => {
                       Height (px)
                     </label>
                     <div className="flex items-center space-x-2">
-                      <motion.button
-                        type="button"
-                        onClick={() => setHeight(Math.max(50, height - 10))}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="px-3 py-2 bg-linear-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-500 dark:hover:to-gray-600 text-gray-700 dark:text-gray-200 font-bold rounded-md border border-gray-400 dark:border-gray-500 shadow-md transition-all duration-200"
-                        aria-label="Decrease height"
-                      >
-                        −
-                      </motion.button>
-                      <input
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setHeight(Math.max(50, height - 10))}
+                          className="px-3 py-2 font-bold"
+                          aria-label="Decrease height"
+                        >
+                          −
+                        </Button>
+                      </motion.div>
+                      <Input
                         id="height-input"
                         type="number"
                         value={height}
                         onChange={(e) =>
                           setHeight(Math.max(50, Math.min(2000, Number(e.target.value))))
                         }
-                        min="50"
-                        max="2000"
-                        step="10"
-                        className="flex-1 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        min={50}
+                        max={2000}
+                        step={10}
+                        className="flex-1 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
-                      <motion.button
-                        type="button"
-                        onClick={() => setHeight(Math.min(2000, height + 10))}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="px-3 py-2 bg-linear-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-500 dark:hover:to-gray-600 text-gray-700 dark:text-gray-200 font-bold rounded-md border border-gray-400 dark:border-gray-500 shadow-md transition-all duration-200"
-                        aria-label="Increase height"
-                      >
-                        +
-                      </motion.button>
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setHeight(Math.min(2000, height + 10))}
+                          className="px-3 py-2 font-bold"
+                          aria-label="Increase height"
+                        >
+                          +
+                        </Button>
+                      </motion.div>
                     </div>
                   </div>
 
@@ -1202,38 +1210,44 @@ const BatchDepictionView = () => {
           {/* Action Buttons Row */}
           <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
             {/* Generate Button */}
-            <motion.button
-              type="submit"
-              disabled={!inputText.trim() || loading}
+            <motion.div
               whileHover={!inputText.trim() || loading ? {} : { scale: 1.02, y: -1 }}
               whileTap={!inputText.trim() || loading ? {} : { scale: 0.98 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              className={`px-5 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
-                !inputText.trim() || loading
-                  ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed" // Disabled
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-lg hover:shadow-xl" // Enabled
-              }`}
             >
-              <Image className="mr-2 h-5 w-5" />
-              {loading ? "Generating..." : "Generate Depictions"}
-            </motion.button>
+              <Button
+                type="submit"
+                disabled={!inputText.trim() || loading}
+                className={cn(
+                  "flex items-center justify-center",
+                  !inputText.trim() || loading ? "" : "shadow-lg hover:shadow-xl"
+                )}
+              >
+                <Image className="mr-2 h-5 w-5" />
+                {loading ? "Generating..." : "Generate Depictions"}
+              </Button>
+            </motion.div>
 
             {/* Regenerate Button - only shown when depictions exist and not loading */}
             {depictions.length > 0 && !loading && (
-              <motion.button
-                onClick={() => regenerateDepictions()}
+              <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 whileHover={{ scale: 1.02, y: -1 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 font-medium flex items-center justify-center transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-gray-500 shadow-md hover:shadow-lg"
-                title="Apply current options to all depictions"
               >
-                <Image className="mr-2 h-4 w-4" />
-                Update All
-              </motion.button>
+                <Button
+                  variant="secondary"
+                  onClick={() => regenerateDepictions()}
+                  className="flex items-center justify-center shadow-md hover:shadow-lg"
+                  title="Apply current options to all depictions"
+                >
+                  <Image className="mr-2 h-4 w-4" />
+                  Update All
+                </Button>
+              </motion.div>
             )}
 
             {/* Download and Copy buttons - only shown when depictions exist */}
@@ -1252,46 +1266,53 @@ const BatchDepictionView = () => {
                     <option value="png">PNG</option>
                   </select>
                   {/* Download Button with Animation */}
-                  <motion.button
-                    type="button"
-                    onClick={downloadAllDepictions}
+                  <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                    className="px-4 py-2 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-medium flex items-center text-sm transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800 focus:ring-green-500"
-                    title="Download all depictions as a ZIP file"
                   >
-                    <Download className="mr-1.5 h-4 w-4" />
-                    Download All (.zip)
-                  </motion.button>
+                    <Button
+                      type="button"
+                      onClick={downloadAllDepictions}
+                      className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white flex items-center text-sm"
+                      title="Download all depictions as a ZIP file"
+                    >
+                      <Download className="mr-1.5 h-4 w-4" />
+                      Download All (.zip)
+                    </Button>
+                  </motion.div>
                 </div>
 
                 {/* Copy All SMILES Button */}
-                <motion.button
-                  type="button"
-                  onClick={copyAllSmiles}
+                <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  className={`px-4 py-2 font-medium rounded-lg flex items-center text-sm transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 shadow-md hover:shadow-lg ${
-                    copiedSmiles
-                      ? "bg-green-100 dark:bg-green-700 text-green-700 dark:text-green-200"
-                      : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600"
-                  }`}
-                  title="Copy all input SMILES to clipboard"
                 >
-                  <motion.div
-                    animate={{ rotate: copiedSmiles ? [0, -10, 10, -10, 0] : 0 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    {copiedSmiles ? (
-                      <Check className="mr-1.5 h-5 w-5" />
-                    ) : (
-                      <Clipboard className="mr-1.5 h-5 w-5" />
+                  <Button
+                    type="button"
+                    variant={copiedSmiles ? "secondary" : "outline"}
+                    onClick={copyAllSmiles}
+                    className={cn(
+                      "flex items-center text-sm shadow-md hover:shadow-lg",
+                      copiedSmiles &&
+                        "bg-green-100 dark:bg-green-700 text-green-700 dark:text-green-200"
                     )}
-                  </motion.div>
-                  {copiedSmiles ? "Copied!" : "Copy All SMILES"}
-                </motion.button>
+                    title="Copy all input SMILES to clipboard"
+                  >
+                    <motion.div
+                      animate={{ rotate: copiedSmiles ? [0, -10, 10, -10, 0] : 0 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      {copiedSmiles ? (
+                        <Check className="mr-1.5 h-5 w-5" />
+                      ) : (
+                        <Clipboard className="mr-1.5 h-5 w-5" />
+                      )}
+                    </motion.div>
+                    {copiedSmiles ? "Copied!" : "Copy All SMILES"}
+                  </Button>
+                </motion.div>
               </>
             )}
           </div>
@@ -1421,60 +1442,70 @@ const BatchDepictionView = () => {
                 {/* Action Buttons */}
                 <div className="px-3 py-2 bg-linear-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border-t border-gray-200 dark:border-gray-600 flex justify-end space-x-2">
                   {/* Download Button */}
-                  <motion.button
-                    onClick={() => downloadSingleDepiction(depiction)}
+                  <motion.div
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                    className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 shadow-xs hover:shadow-md"
-                    title={`Download ${downloadFormat.toUpperCase()}`}
-                    aria-label={`Download ${depiction.title} as ${downloadFormat.toUpperCase()}`}
-                    disabled={loading}
                   >
-                    <Download className="h-5 w-5" />
-                  </motion.button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => downloadSingleDepiction(depiction)}
+                      className="rounded-lg text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 shadow-xs hover:shadow-md"
+                      title={`Download ${downloadFormat.toUpperCase()}`}
+                      aria-label={`Download ${depiction.title} as ${downloadFormat.toUpperCase()}`}
+                      disabled={loading}
+                    >
+                      <Download className="h-5 w-5" />
+                    </Button>
+                  </motion.div>
 
                   {/* Copy SMILES Button */}
-                  <motion.button
-                    onClick={() => copySingleSmiles(depiction.smiles, depiction.id)}
+                  <motion.div
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                    className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 relative transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-green-500 shadow-xs hover:shadow-md"
-                    title="Copy SMILES"
-                    aria-label={`Copy SMILES for ${depiction.title}`}
                   >
-                    {/* Animated Check/Clipboard Icon */}
-                    <AnimatePresence mode="wait">
-                      {copiedSingle === depiction.id ? (
-                        <motion.div
-                          key="check"
-                          initial={{ scale: 0, rotate: -180 }}
-                          animate={{ scale: 1, rotate: 0 }}
-                          exit={{ scale: 0, rotate: 180 }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 500,
-                            damping: 25,
-                            duration: 0.3,
-                          }}
-                          className="flex items-center justify-center"
-                        >
-                          <Check className="h-5 w-5 text-green-500 dark:text-green-400" />
-                        </motion.div>
-                      ) : (
-                        <motion.div
-                          key="clipboard"
-                          initial={{ scale: 1, rotate: 0 }}
-                          exit={{ scale: 0, rotate: -180 }}
-                          transition={{ duration: 0.2 }}
-                          className="flex items-center justify-center"
-                        >
-                          <Clipboard className="h-5 w-5" />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => copySingleSmiles(depiction.smiles, depiction.id)}
+                      className="rounded-lg text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 relative shadow-xs hover:shadow-md"
+                      title="Copy SMILES"
+                      aria-label={`Copy SMILES for ${depiction.title}`}
+                    >
+                      {/* Animated Check/Clipboard Icon */}
+                      <AnimatePresence mode="wait">
+                        {copiedSingle === depiction.id ? (
+                          <motion.div
+                            key="check"
+                            initial={{ scale: 0, rotate: -180 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            exit={{ scale: 0, rotate: 180 }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 500,
+                              damping: 25,
+                              duration: 0.3,
+                            }}
+                            className="flex items-center justify-center"
+                          >
+                            <Check className="h-5 w-5 text-green-500 dark:text-green-400" />
+                          </motion.div>
+                        ) : (
+                          <motion.div
+                            key="clipboard"
+                            initial={{ scale: 1, rotate: 0 }}
+                            exit={{ scale: 0, rotate: -180 }}
+                            transition={{ duration: 0.2 }}
+                            className="flex items-center justify-center"
+                          >
+                            <Clipboard className="h-5 w-5" />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </Button>
+                  </motion.div>
                 </div>
               </motion.div>
             ))}

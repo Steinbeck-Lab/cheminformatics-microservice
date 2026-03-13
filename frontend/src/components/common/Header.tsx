@@ -4,6 +4,7 @@ import { useAppContext } from "../../context/AppContext";
 import Navigation from "./Navigation";
 import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 import { Menu, Moon, Sun, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 // --- Enhanced Animation Variants ---
 const headerVariants = {
@@ -253,42 +254,44 @@ const Header = () => {
 
           {/* Mobile menu button */}
           <div className="flex items-center md:hidden">
-            <motion.button
-              onClick={toggleMenu}
-              className={`p-2 rounded-full transition-colors duration-200 ${
-                isDarkMode
-                  ? "text-slate-300 hover:text-sky-300 hover:bg-slate-700/70"
-                  : "text-slate-600 hover:text-sky-600 hover:bg-slate-200/70"
-              } focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-sky-500`}
-              aria-label="Toggle mobile menu"
-              aria-expanded={isMenuOpen}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <AnimatePresence mode="wait" initial={false}>
-                {isMenuOpen ? (
-                  <motion.div
-                    key="close"
-                    initial={{ rotate: -90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <X className="h-6 w-6" />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="open"
-                    initial={{ rotate: 90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: -90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Menu className="h-6 w-6" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.button>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleMenu}
+                className={`rounded-full ${
+                  isDarkMode
+                    ? "text-slate-300 hover:text-sky-300 hover:bg-slate-700/70"
+                    : "text-slate-600 hover:text-sky-600 hover:bg-slate-200/70"
+                } focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-sky-500`}
+                aria-label="Toggle mobile menu"
+                aria-expanded={isMenuOpen}
+              >
+                <AnimatePresence mode="wait" initial={false}>
+                  {isMenuOpen ? (
+                    <motion.div
+                      key="close"
+                      initial={{ rotate: -90, opacity: 0 }}
+                      animate={{ rotate: 0, opacity: 1 }}
+                      exit={{ rotate: 90, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <X className="h-6 w-6" />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="open"
+                      initial={{ rotate: 90, opacity: 0 }}
+                      animate={{ rotate: 0, opacity: 1 }}
+                      exit={{ rotate: -90, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Menu className="h-6 w-6" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </Button>
+            </motion.div>
           </div>
         </div>
       </div>

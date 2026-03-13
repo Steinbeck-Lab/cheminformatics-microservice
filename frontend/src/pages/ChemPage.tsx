@@ -36,6 +36,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 // Import icons
 
@@ -275,38 +276,41 @@ const ChemPage = () => {
         style={{ backgroundImage: "url(/noise.svg)" }}
       ></div>
       {/* Mobile toggle button */}
-      <motion.button
-        className={`md:hidden fixed top-20 left-4 z-[60] p-2 rounded-full shadow-lg transition-colors duration-200 ${sidebarOpen ? "bg-slate-300/80 dark:bg-slate-700/80 text-slate-800 dark:text-slate-100 hover:bg-slate-400/80 dark:hover:bg-slate-600/80" : "bg-sky-600/80 dark:bg-blue-600/80 text-white hover:bg-sky-700/90 dark:hover:bg-blue-700/90"}`}
-        onClick={handleSidebarToggle}
-        aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
-        whileTap={{ scale: 0.95 }}
-      >
-        <AnimatePresence mode="wait" initial={false}>
-          {sidebarOpen ? (
-            <motion.div
-              key="close-sb"
-              initial={{ rotate: -90, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              exit={{ rotate: 90, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              {" "}
-              <X className="h-6 w-6" />{" "}
-            </motion.div>
-          ) : (
-            <motion.div
-              key="open-sb"
-              initial={{ rotate: 90, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              exit={{ rotate: -90, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              {" "}
-              <AlignLeft className="h-6 w-6" />{" "}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.button>
+      <motion.div className="md:hidden fixed top-20 left-4 z-[60]" whileTap={{ scale: 0.95 }}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className={`rounded-full shadow-lg transition-colors duration-200 ${sidebarOpen ? "bg-slate-300/80 dark:bg-slate-700/80 text-slate-800 dark:text-slate-100 hover:bg-slate-400/80 dark:hover:bg-slate-600/80" : "bg-sky-600/80 dark:bg-blue-600/80 text-white hover:bg-sky-700/90 dark:hover:bg-blue-700/90"}`}
+          onClick={handleSidebarToggle}
+          aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            {sidebarOpen ? (
+              <motion.div
+                key="close-sb"
+                initial={{ rotate: -90, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: 90, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {" "}
+                <X className="h-6 w-6" />{" "}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="open-sb"
+                initial={{ rotate: 90, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: -90, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {" "}
+                <AlignLeft className="h-6 w-6" />{" "}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </Button>
+      </motion.div>
       {/* Main Layout Container */}
       <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 z-10">
         <div className="w-full lg:w-3/4 mx-auto">
