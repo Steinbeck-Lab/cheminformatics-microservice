@@ -15,6 +15,8 @@ import { ComparisonView } from "./components/common/ComparisonView";
 import { RouteLoadingFallback } from "./components/feedback/RouteLoadingFallback";
 import { AnimatedOutlet } from "./components/common/AnimatedOutlet";
 import { Toaster } from "./components/ui/sonner";
+import { CommandPalette } from "./components/common/CommandPalette";
+import { Breadcrumbs } from "./components/common/Breadcrumbs";
 
 // Lazy-loaded pages (route-level code splitting)
 const HomePage = lazy(() => import("./pages/HomePage"));
@@ -32,6 +34,7 @@ const Layout = () => (
   <div className="flex flex-col min-h-screen bg-background text-foreground">
     <Header />
     <main className="grow">
+      <Breadcrumbs />
       <Suspense fallback={<RouteLoadingFallback />}>
         <AnimatedOutlet />
       </Suspense>
@@ -40,6 +43,7 @@ const Layout = () => (
     <ComparisonTray />
     <ComparisonView />
     <Toaster />
+    <CommandPalette />
   </div>
 );
 
