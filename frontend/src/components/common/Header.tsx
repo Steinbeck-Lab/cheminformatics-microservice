@@ -152,7 +152,7 @@ const Header = () => {
 
   return (
     <motion.header
-      className="sticky top-0 z-50 w-full px-3 sm:px-4 pt-2.5"
+      className="sticky top-0 z-50 w-full px-3 sm:px-4"
       variants={headerVariants}
       initial="hidden"
       animate="visible"
