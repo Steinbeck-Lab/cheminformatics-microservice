@@ -69,9 +69,9 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Power User Features
 
-- [ ] **POWER-01**: Cmd+K / Ctrl+K command palette for quick tool navigation
+- [x] **POWER-01**: Cmd+K / Ctrl+K command palette for quick tool navigation
 - [x] **POWER-02**: Inline molecule structure preview when entering SMILES strings
-- [ ] **POWER-03**: Breadcrumb navigation showing current location in tool hierarchy
+- [x] **POWER-03**: Breadcrumb navigation showing current location in tool hierarchy
 
 ### UX Improvements
 
@@ -149,9 +149,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ANIM-04 | Phase 6 | Complete |
 | ANIM-05 | Phase 6 | Complete |
 | ANIM-06 | Phase 6 | Complete |
-| POWER-01 | Phase 6 | Pending |
+| POWER-01 | Phase 6 | Complete |
 | POWER-02 | Phase 6 | Complete |
-| POWER-03 | Phase 6 | Pending |
+| POWER-03 | Phase 6 | Complete |
 | UX-01 | Phase 5 | Complete |
 | UX-02 | Phase 5 | Complete |
 | UX-03 | Phase 5 | Complete |
