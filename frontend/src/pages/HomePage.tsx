@@ -15,6 +15,8 @@ import {
   FlaskConical,
   Wrench,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 // --- Feature Configuration ---
 const features = [
@@ -225,39 +227,54 @@ const HomePage = () => {
               className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4 md:gap-6"
             >
               {/* Primary Button */}
-              <Link
-                to="/depict"
-                className="group primary-button w-full sm:w-auto relative inline-flex items-center justify-center px-7 py-3 sm:px-9 sm:py-4 text-base sm:text-lg font-semibold text-white bg-linear-to-r from-sky-600 to-cyan-500 dark:from-blue-600 dark:to-cyan-500 rounded-xl shadow-lg hover:shadow-xl hover:brightness-110 dark:hover:shadow-cyan-500/30 transition-all duration-300 ease-out transform hover:scale-[1.06] focus:outline-hidden focus:ring-4 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950 focus:ring-cyan-500/50 dark:focus:ring-cyan-400/50"
+              <Button
+                asChild
+                size="lg"
+                className="group primary-button w-full sm:w-auto relative h-auto inline-flex items-center justify-center px-7 py-3 sm:px-9 sm:py-4 text-base sm:text-lg font-semibold text-white bg-linear-to-r from-sky-600 to-cyan-500 dark:from-blue-600 dark:to-cyan-500 rounded-xl shadow-lg hover:shadow-xl hover:brightness-110 dark:hover:shadow-cyan-500/30 transition-all duration-300 ease-out transform hover:scale-[1.06] focus:outline-hidden focus:ring-4 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950 focus:ring-cyan-500/50 dark:focus:ring-cyan-400/50"
               >
-                <span className="absolute inset-0 rounded-xl bg-linear-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 dark:from-white/5 transition-opacity duration-300 blur-xs"></span>
-                <span className="relative z-10 flex items-center">
-                  Get Started{" "}
-                  <ArrowRight className="ml-2.5 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1.5" />
-                </span>
-              </Link>
+                <Link to="/depict">
+                  <span className="absolute inset-0 rounded-xl bg-linear-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 dark:from-white/5 transition-opacity duration-300 blur-xs"></span>
+                  <span className="relative z-10 flex items-center">
+                    Get Started{" "}
+                    <ArrowRight className="ml-2.5 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1.5" />
+                  </span>
+                </Link>
+              </Button>
               {/* Secondary Buttons */}
-              <a
-                href="https://docs.api.naturalproducts.net/introduction.html"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group w-full sm:w-auto relative inline-flex items-center justify-center px-7 py-3 sm:px-9 sm:py-4 text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-200 bg-white/90 dark:bg-slate-800/80 backdrop-blur-md border border-slate-300 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700/90 hover:border-slate-400 dark:hover:border-slate-500 rounded-xl shadow-md hover:shadow-lg dark:hover:shadow-slate-700/40 transition-all duration-300 ease-out transform hover:scale-[1.06] focus:outline-hidden focus:ring-4 focus:ring-slate-400/50 dark:focus:ring-slate-600/50 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950"
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="group w-full sm:w-auto relative h-auto inline-flex items-center justify-center px-7 py-3 sm:px-9 sm:py-4 text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-200 bg-white/90 dark:bg-slate-800/80 backdrop-blur-md border-slate-300 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700/90 hover:border-slate-400 dark:hover:border-slate-500 rounded-xl shadow-md hover:shadow-lg dark:hover:shadow-slate-700/40 transition-all duration-300 ease-out transform hover:scale-[1.06] focus:outline-hidden focus:ring-4 focus:ring-slate-400/50 dark:focus:ring-slate-600/50 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950"
               >
-                <span className="absolute inset-0 rounded-xl bg-linear-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-50 dark:from-white/5 dark:group-hover:opacity-100 transition-opacity duration-300"></span>
-                <span className="relative z-10 flex items-center">
-                  <Code className="mr-2 h-5 w-5 text-green-600 dark:text-green-400" /> Guides
-                </span>
-              </a>
-              <a
-                href="https://api.naturalproducts.net/latest/docs"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group w-full sm:w-auto relative inline-flex items-center justify-center px-7 py-3 sm:px-9 sm:py-4 text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-200 bg-white/90 dark:bg-slate-800/80 backdrop-blur-md border border-slate-300 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700/90 hover:border-slate-400 dark:hover:border-slate-500 rounded-xl shadow-md hover:shadow-lg dark:hover:shadow-slate-700/40 transition-all duration-300 ease-out transform hover:scale-[1.06] focus:outline-hidden focus:ring-4 focus:ring-slate-400/50 dark:focus:ring-slate-600/50 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950"
+                <a
+                  href="https://docs.api.naturalproducts.net/introduction.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className="absolute inset-0 rounded-xl bg-linear-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-50 dark:from-white/5 dark:group-hover:opacity-100 transition-opacity duration-300"></span>
+                  <span className="relative z-10 flex items-center">
+                    <Code className="mr-2 h-5 w-5 text-green-600 dark:text-green-400" /> Guides
+                  </span>
+                </a>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="group w-full sm:w-auto relative h-auto inline-flex items-center justify-center px-7 py-3 sm:px-9 sm:py-4 text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-200 bg-white/90 dark:bg-slate-800/80 backdrop-blur-md border-slate-300 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700/90 hover:border-slate-400 dark:hover:border-slate-500 rounded-xl shadow-md hover:shadow-lg dark:hover:shadow-slate-700/40 transition-all duration-300 ease-out transform hover:scale-[1.06] focus:outline-hidden focus:ring-4 focus:ring-slate-400/50 dark:focus:ring-slate-600/50 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950"
               >
-                <span className="absolute inset-0 rounded-xl bg-linear-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-50 dark:from-white/5 dark:group-hover:opacity-100 transition-opacity duration-300"></span>
-                <span className="relative z-10 flex items-center">
-                  <BookOpen className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" /> API Docs
-                </span>
-              </a>
+                <a
+                  href="https://api.naturalproducts.net/latest/docs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className="absolute inset-0 rounded-xl bg-linear-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-50 dark:from-white/5 dark:group-hover:opacity-100 transition-opacity duration-300"></span>
+                  <span className="relative z-10 flex items-center">
+                    <BookOpen className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" /> API Docs
+                  </span>
+                </a>
+              </Button>
             </motion.div>
           </motion.section>
 
@@ -283,37 +300,39 @@ const HomePage = () => {
                 return (
                   <motion.div key={index} variants={itemVariants} className="mx-auto w-[85%]">
                     <TiltCard tiltIntensity={7}>
-                      <Link
-                        to={feature.link}
-                        className="feature-card-enhanced group relative flex flex-col h-full min-h-[270px] sm:min-h-[290px] bg-white/80 dark:bg-slate-800/75 backdrop-blur-xl border border-transparent rounded-3xl p-4 sm:p-6 transition-all duration-400 ease-out shadow-lg dark:shadow-xl hover:shadow-xl dark:hover:shadow-blue-900/30 overflow-hidden transform-style-3d"
-                        style={{
-                          transform: "translateZ(0)",
-                          willChange: "border-color, backdrop-filter",
-                        }}
-                      >
-                        <div className="absolute inset-0 rounded-3xl bg-gradient-radial from-(--primary-accent-faint) via-transparent to-transparent opacity-0 group-hover:opacity-60 dark:group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-                        <motion.div
-                          className="mb-5 sm:mb-6 flex justify-center items-center h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-linear-to-br from-slate-100 to-sky-100 dark:from-blue-700/60 dark:to-cyan-700/60 group-hover:from-sky-100 group-hover:to-cyan-100 dark:group-hover:from-blue-600/70 dark:group-hover:to-cyan-600/70 transition-all duration-300 shadow-md dark:shadow-inner transform group-hover:scale-105"
-                          style={{ transform: "translateZ(40px)" }}
+                      <Card className="feature-card-enhanced group relative flex flex-col h-full min-h-[270px] sm:min-h-[290px] bg-white/80 dark:bg-slate-800/75 backdrop-blur-xl border border-transparent rounded-3xl shadow-lg dark:shadow-xl hover:shadow-xl dark:hover:shadow-blue-900/30 overflow-hidden transform-style-3d p-0 gap-0 transition-all duration-400 ease-out">
+                        <Link
+                          to={feature.link}
+                          className="flex flex-col h-full p-4 sm:p-6"
+                          style={{
+                            transform: "translateZ(0)",
+                            willChange: "border-color, backdrop-filter",
+                          }}
                         >
-                          <Icon className="h-7 w-7 sm:h-8 sm:w-8 text-sky-700 dark:text-sky-200 group-hover:text-cyan-800 dark:group-hover:text-cyan-100 transition-colors duration-300" />
-                        </motion.div>
-                        <div style={{ transform: "translateZ(25px)" }}>
-                          <h3 className="text-lg sm:text-xl font-semibold text-slate-800 dark:text-white mb-2 sm:mb-3">
-                            {feature.title}
-                          </h3>
-                          <p className="text-sm sm:text-[15px] text-slate-600 dark:text-slate-300 grow mb-5 sm:mb-6 leading-relaxed">
-                            {feature.description}
-                          </p>
-                        </div>
-                        <div
-                          className="mt-auto flex items-center text-sky-700 dark:text-sky-400 group-hover:text-cyan-800 dark:group-hover:text-cyan-200 font-medium transition-colors duration-300 text-sm"
-                          style={{ transform: "translateZ(15px)" }}
-                        >
-                          <span>Explore Feature</span>
-                          <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
-                        </div>
-                      </Link>
+                          <div className="absolute inset-0 rounded-3xl bg-gradient-radial from-(--primary-accent-faint) via-transparent to-transparent opacity-0 group-hover:opacity-60 dark:group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                          <motion.div
+                            className="mb-5 sm:mb-6 flex justify-center items-center h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-linear-to-br from-slate-100 to-sky-100 dark:from-blue-700/60 dark:to-cyan-700/60 group-hover:from-sky-100 group-hover:to-cyan-100 dark:group-hover:from-blue-600/70 dark:group-hover:to-cyan-600/70 transition-all duration-300 shadow-md dark:shadow-inner transform group-hover:scale-105"
+                            style={{ transform: "translateZ(40px)" }}
+                          >
+                            <Icon className="h-7 w-7 sm:h-8 sm:w-8 text-sky-700 dark:text-sky-200 group-hover:text-cyan-800 dark:group-hover:text-cyan-100 transition-colors duration-300" />
+                          </motion.div>
+                          <div style={{ transform: "translateZ(25px)" }}>
+                            <h3 className="text-lg sm:text-xl font-semibold text-slate-800 dark:text-white mb-2 sm:mb-3">
+                              {feature.title}
+                            </h3>
+                            <p className="text-sm sm:text-[15px] text-slate-600 dark:text-slate-300 grow mb-5 sm:mb-6 leading-relaxed">
+                              {feature.description}
+                            </p>
+                          </div>
+                          <div
+                            className="mt-auto flex items-center text-sky-700 dark:text-sky-400 group-hover:text-cyan-800 dark:group-hover:text-cyan-200 font-medium transition-colors duration-300 text-sm"
+                            style={{ transform: "translateZ(15px)" }}
+                          >
+                            <span>Explore Feature</span>
+                            <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
+                          </div>
+                        </Link>
+                      </Card>
                     </TiltCard>
                   </motion.div>
                 );
@@ -353,7 +372,7 @@ const HomePage = () => {
                 {recentMolecules.slice(0, 3).map((molecule, index) => (
                   <motion.div key={index} variants={itemVariants} className="mx-auto w-[85%]">
                     <TiltCard tiltIntensity={5}>
-                      <div className="relative bg-white/80 dark:bg-slate-800/70 backdrop-blur-lg sm:backdrop-blur-xl rounded-2xl shadow-lg dark:shadow-xl border border-slate-200 dark:border-slate-700/80 overflow-hidden transition-all duration-300 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/80 p-1">
+                      <Card className="relative bg-white/80 dark:bg-slate-800/70 backdrop-blur-lg sm:backdrop-blur-xl rounded-2xl shadow-lg dark:shadow-xl border-slate-200 dark:border-slate-700/80 overflow-hidden transition-all duration-300 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/80 p-1 py-0 gap-0">
                         <div className="absolute inset-0 rounded-2xl bg-gradient-radial from-(--primary-accent-fainter) via-transparent to-transparent opacity-0 hover:opacity-70 transition-opacity duration-500 pointer-events-none"></div>
                         <MoleculeCard
                           smiles={molecule.smiles}
@@ -361,7 +380,7 @@ const HomePage = () => {
                           size="sm"
                           className="p-4 text-slate-800 dark:text-white bg-transparent"
                         />
-                      </div>
+                      </Card>
                     </TiltCard>
                   </motion.div>
                 ))}

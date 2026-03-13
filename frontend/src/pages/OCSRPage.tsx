@@ -3,6 +3,8 @@ import React from "react";
 import { motion } from "motion/react";
 import OCRView from "../components/ocsr/OCRView"; // Assuming path is correct
 import { ExternalLink, FileSearch } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 // --- Animation Variants (Consistent with other pages) ---
 const pageVariants = {
@@ -100,28 +102,30 @@ const OCSRPage = () => {
             initial="hidden"
             animate="visible"
           >
-            <motion.a
-              href="https://decimer.ai"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center px-6 py-4 bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold rounded-lg shadow-lg w-full md:w-auto"
-              variants={buttonVariant}
-              whileHover="hover"
-            >
-              <span className="mr-2 text-lg">Visit DECIMER</span>
-              <ExternalLink className="h-5 w-5" />
-            </motion.a>
-            <motion.a
-              href="https://marcus.decimer.ai"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center px-6 py-4 bg-linear-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white font-semibold rounded-lg shadow-lg w-full md:w-auto"
-              variants={buttonVariant}
-              whileHover="hover"
-            >
-              <span className="mr-2 text-lg">Visit MARCUS</span>
-              <ExternalLink className="h-5 w-5" />
-            </motion.a>
+            <motion.div variants={buttonVariant} whileHover="hover">
+              <Button
+                asChild
+                size="lg"
+                className="h-auto flex items-center justify-center px-6 py-4 bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold rounded-lg shadow-lg w-full md:w-auto text-lg"
+              >
+                <a href="https://decimer.ai" target="_blank" rel="noopener noreferrer">
+                  <span className="mr-2 text-lg">Visit DECIMER</span>
+                  <ExternalLink className="h-5 w-5" />
+                </a>
+              </Button>
+            </motion.div>
+            <motion.div variants={buttonVariant} whileHover="hover">
+              <Button
+                asChild
+                size="lg"
+                className="h-auto flex items-center justify-center px-6 py-4 bg-linear-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white font-semibold rounded-lg shadow-lg w-full md:w-auto text-lg"
+              >
+                <a href="https://marcus.decimer.ai" target="_blank" rel="noopener noreferrer">
+                  <span className="mr-2 text-lg">Visit MARCUS</span>
+                  <ExternalLink className="h-5 w-5" />
+                </a>
+              </Button>
+            </motion.div>
           </motion.div>
           {/* DECIMER & MARCUS Info Cards */}
           <motion.div
@@ -130,40 +134,44 @@ const OCSRPage = () => {
             initial="hidden"
             animate="visible"
           >
-            <motion.div
-              className="bg-white dark:bg-slate-800/80 rounded-lg p-5 border border-slate-200 dark:border-slate-700/50 shadow-md"
-              variants={headerItemVariants}
-            >
-              <h3 className="text-lg font-semibold text-blue-600 dark:text-blue-400 mb-2">
-                What is DECIMER?
-              </h3>
-              <p className="text-muted-foreground mb-3">
-                DECIMER (Deep lEarning for Chemical IMagE Recognition) is an advanced deep learning
-                model developed by the Steinbeck Lab for extracting chemical structures from images.
-              </p>
-              <p className="text-muted-foreground">
-                It can process images from scientific publications, patents, and other documents,
-                converting visual chemical structures into machine-readable formats like SMILES.
-              </p>
+            <motion.div variants={headerItemVariants}>
+              <Card className="bg-white dark:bg-slate-800/80 rounded-lg border-slate-200 dark:border-slate-700/50 shadow-md py-0 gap-0">
+                <CardContent className="p-5">
+                  <h3 className="text-lg font-semibold text-blue-600 dark:text-blue-400 mb-2">
+                    What is DECIMER?
+                  </h3>
+                  <p className="text-muted-foreground mb-3">
+                    DECIMER (Deep lEarning for Chemical IMagE Recognition) is an advanced deep
+                    learning model developed by the Steinbeck Lab for extracting chemical structures
+                    from images.
+                  </p>
+                  <p className="text-muted-foreground">
+                    It can process images from scientific publications, patents, and other
+                    documents, converting visual chemical structures into machine-readable formats
+                    like SMILES.
+                  </p>
+                </CardContent>
+              </Card>
             </motion.div>
-            <motion.div
-              className="bg-white dark:bg-slate-800/80 rounded-lg p-5 border border-slate-200 dark:border-slate-700/50 shadow-md"
-              variants={headerItemVariants}
-            >
-              <h3 className="text-lg font-semibold text-purple-600 dark:text-purple-400 mb-2">
-                What is MARCUS?
-              </h3>
-              <p className="text-muted-foreground mb-3">
-                MARCUS (Molecular Annotation and Recognition for Curating Unravelled Structures) is
-                an integrated web-based platform designed for natural product literature curation.
-                It combines automated text annotation, multi-engine OCSR, and direct database
-                submission capabilities.
-              </p>
-              <p className="text-muted-foreground">
-                MARCUS employs a Human-in-the-loop ensemble approach integrating DECIMER, MolNexTR,
-                and MolScribe for structure recognition, significantly streamlining the workflow
-                from PDF upload to database submission.
-              </p>
+            <motion.div variants={headerItemVariants}>
+              <Card className="bg-white dark:bg-slate-800/80 rounded-lg border-slate-200 dark:border-slate-700/50 shadow-md py-0 gap-0">
+                <CardContent className="p-5">
+                  <h3 className="text-lg font-semibold text-purple-600 dark:text-purple-400 mb-2">
+                    What is MARCUS?
+                  </h3>
+                  <p className="text-muted-foreground mb-3">
+                    MARCUS (Molecular Annotation and Recognition for Curating Unravelled Structures)
+                    is an integrated web-based platform designed for natural product literature
+                    curation. It combines automated text annotation, multi-engine OCSR, and direct
+                    database submission capabilities.
+                  </p>
+                  <p className="text-muted-foreground">
+                    MARCUS employs a Human-in-the-loop ensemble approach integrating DECIMER,
+                    MolNexTR, and MolScribe for structure recognition, significantly streamlining
+                    the workflow from PDF upload to database submission.
+                  </p>
+                </CardContent>
+              </Card>
             </motion.div>
           </motion.div>
           {/* Main Content Container - Animated */}
@@ -207,71 +215,73 @@ const OCSRPage = () => {
                   variants={headerItemVariants} // Use headerItemVariants for grid item entrance
                 >
                   {/* Info Box 1 */}
-                  <div className="bg-slate-100 dark:bg-slate-800/60 rounded-lg p-5 border border-slate-200 dark:border-slate-700">
-                    <h3 className="text-lg font-semibold text-foreground mb-3">
-                      About OCSR Technology
-                    </h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed space-y-3">
-                      <span className="block mb-3">
-                        The OCSR functionality is powered by DECIMER (Deep lEarning for Chemical
-                        IMagE Recognition), a deep learning model developed by the Steinbeck Lab. It
-                        enables the extraction of chemical structures from images such as scientific
-                        publications, patents, and other documents.
-                      </span>
-                      <span className="block mb-4">
-                        For optimal results, provide clear images of chemical structures with good
-                        contrast. The system works best with standard 2D chemical depictions.
-                      </span>
-                    </p>
+                  <Card className="bg-slate-100 dark:bg-slate-800/60 rounded-lg border-slate-200 dark:border-slate-700 py-0 gap-0">
+                    <CardContent className="p-5">
+                      <h3 className="text-lg font-semibold text-foreground mb-3">
+                        About OCSR Technology
+                      </h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed space-y-3">
+                        <span className="block mb-3">
+                          The OCSR functionality is powered by DECIMER (Deep lEarning for Chemical
+                          IMagE Recognition), a deep learning model developed by the Steinbeck Lab.
+                          It enables the extraction of chemical structures from images such as
+                          scientific publications, patents, and other documents.
+                        </span>
+                        <span className="block mb-4">
+                          For optimal results, provide clear images of chemical structures with good
+                          contrast. The system works best with standard 2D chemical depictions.
+                        </span>
+                      </p>
 
-                    {/* References Section */}
-                    <div className="mt-4 pt-4 border-t border-slate-300 dark:border-slate-600">
-                      <h4 className="text-sm font-semibold text-foreground mb-3">References</h4>
-                      <div className="space-y-3 text-xs">
-                        <div className="border-l-2 border-blue-500 pl-3 py-1">
-                          <p className="text-muted-foreground leading-relaxed">
-                            <span className="font-medium">[1]</span> Rajan, K., Brinkhaus, H.O.,
-                            Agea, I.A., Zielesny, A., Steinbeck, C. (2023). DECIMER.ai: an open
-                            platform for automated optical chemical structure identification,
-                            segmentation and recognition in scientific publications.
-                            <em className="text-blue-600 dark:text-blue-400">
-                              {" "}
-                              Nat Commun, 14, 5045
-                            </em>
-                            .
-                            <a
-                              href="https://doi.org/10.1038/s41467-023-40782-0"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 dark:text-blue-400 hover:underline ml-1 text-xs"
-                            >
-                              doi.org/10.1038/s41467-023-40782-0
-                            </a>
-                          </p>
-                        </div>
-                        <div className="border-l-2 border-purple-500 pl-3 py-1">
-                          <p className="text-muted-foreground leading-relaxed">
-                            <span className="font-medium">[2]</span> Rajan K, Weissenborn VK,
-                            Lederer L, Zielesny A, Steinbeck C (2025). MARCUS: Molecular annotation
-                            and recognition for curating unravelled structures.
-                            <em className="text-purple-600 dark:text-purple-400">
-                              {" "}
-                              Digit Discovery
-                            </em>
-                            .
-                            <a
-                              href="https://doi.org/10.1039/d5dd00313j"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-purple-600 dark:text-purple-400 hover:underline ml-1 text-xs"
-                            >
-                              doi.org/10.1039/d5dd00313j
-                            </a>
-                          </p>
+                      {/* References Section */}
+                      <div className="mt-4 pt-4 border-t border-slate-300 dark:border-slate-600">
+                        <h4 className="text-sm font-semibold text-foreground mb-3">References</h4>
+                        <div className="space-y-3 text-xs">
+                          <div className="border-l-2 border-blue-500 pl-3 py-1">
+                            <p className="text-muted-foreground leading-relaxed">
+                              <span className="font-medium">[1]</span> Rajan, K., Brinkhaus, H.O.,
+                              Agea, I.A., Zielesny, A., Steinbeck, C. (2023). DECIMER.ai: an open
+                              platform for automated optical chemical structure identification,
+                              segmentation and recognition in scientific publications.
+                              <em className="text-blue-600 dark:text-blue-400">
+                                {" "}
+                                Nat Commun, 14, 5045
+                              </em>
+                              .
+                              <a
+                                href="https://doi.org/10.1038/s41467-023-40782-0"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 dark:text-blue-400 hover:underline ml-1 text-xs"
+                              >
+                                doi.org/10.1038/s41467-023-40782-0
+                              </a>
+                            </p>
+                          </div>
+                          <div className="border-l-2 border-purple-500 pl-3 py-1">
+                            <p className="text-muted-foreground leading-relaxed">
+                              <span className="font-medium">[2]</span> Rajan K, Weissenborn VK,
+                              Lederer L, Zielesny A, Steinbeck C (2025). MARCUS: Molecular
+                              annotation and recognition for curating unravelled structures.
+                              <em className="text-purple-600 dark:text-purple-400">
+                                {" "}
+                                Digit Discovery
+                              </em>
+                              .
+                              <a
+                                href="https://doi.org/10.1039/d5dd00313j"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-purple-600 dark:text-purple-400 hover:underline ml-1 text-xs"
+                              >
+                                doi.org/10.1039/d5dd00313j
+                              </a>
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 </motion.div>
               </div>
             </motion.div>{" "}
