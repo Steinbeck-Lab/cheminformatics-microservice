@@ -76,13 +76,17 @@ const tabContainerVariant = {
   },
 };
 const contentVariants = {
-  hidden: { opacity: 0, x: -20 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { type: "spring", stiffness: 500, damping: 30 },
-  },
-  exit: { opacity: 0, x: 20, transition: { duration: 0.3, ease: "easeIn" } },
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.15 } },
+  exit: { opacity: 0, transition: { duration: 0.1 } },
+};
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.1 } },
+};
+const staggerItem = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.2 } },
 };
 const mobileMenuVariants = {
   closed: { opacity: 0, y: -10, height: 0 },
@@ -332,6 +336,7 @@ const DepictPage = () => {
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeTabId}
+                  layout
                   initial="hidden"
                   animate="visible"
                   exit="exit"

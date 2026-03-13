@@ -184,13 +184,17 @@ const pageVariants = {
   visible: { opacity: 1, transition: { duration: 0.5 } },
 };
 const contentVariants = {
-  hidden: { opacity: 0, y: 15, scale: 0.98 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { type: "spring", stiffness: 500, damping: 30 },
-  },
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.15 } },
+  exit: { opacity: 0, transition: { duration: 0.1 } },
+};
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.1 } },
+};
+const staggerItem = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.2 } },
 };
 const sidebarItemVariant = {
   hidden: { opacity: 0, x: -15 },
@@ -478,10 +482,11 @@ const ChemPage = () => {
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeTabId}
+                  layout
                   className="glass-bold rounded-xl shadow-lg overflow-hidden min-h-[calc(100vh-12rem)]"
                   initial="hidden"
                   animate="visible"
-                  exit="hidden"
+                  exit="exit"
                   variants={contentVariants}
                 >
                   {/* Tab Content Header */}
