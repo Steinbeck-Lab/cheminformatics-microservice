@@ -164,7 +164,7 @@ const Header = () => {
       }}
     >
       <div
-        className={`w-full lg:w-3/4 mx-auto rounded-full transition-all duration-300 shadow-md shadow-slate-900/[0.03] dark:shadow-black/10 glass-bold glass-refraction-hover`}
+        className={`w-full lg:w-3/4 mx-auto rounded-full transition-all duration-300 shadow-md shadow-slate-900/[0.03] dark:shadow-black/10 glass-bold`}
       >
         <div className="relative flex items-center justify-between h-14 px-4 sm:px-5 lg:px-6">
           {/* Logo and title */}

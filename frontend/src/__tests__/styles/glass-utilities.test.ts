@@ -13,10 +13,4 @@ describe("Glass utility classes", () => {
     it.todo("applies reduced backdrop-filter blur(12px)");
     it.todo("applies background-color with white/10 transparency");
   });
-
-  describe("glass-refraction-hover", () => {
-    it.todo("only activates on hover-capable devices");
-    it.todo("applies SVG filter url on hover");
-    it.todo("applies subtle scale(1.005) on hover");
-  });
 });

@@ -303,23 +303,6 @@
   .dark .theme-toggle-button:hover {
     --pulse-color: var(--color-sky-400);
   }
-
-  /* Liquid glass refraction hover effect (desktop only) */
-  .glass-refraction-hover {
-    transition:
-      filter 300ms ease,
-      transform 300ms ease;
-  }
-
-  @media (hover: hover) {
-    .glass-refraction-hover:hover {
-      filter: url(#liquid-glass-refraction);
-      transform: scale(1.005);
-      transition:
-        filter 300ms ease,
-        transform 300ms ease;
-    }
-  }
 }
 
 /* ===== Keyframes ===== */
