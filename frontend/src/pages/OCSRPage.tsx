@@ -5,6 +5,7 @@ import OCRView from "../components/ocsr/OCRView"; // Assuming path is correct
 import { ExternalLink, FileSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { GradientMesh } from "@/components/common/GradientMesh";
 
 // --- Animation Variants (Consistent with other pages) ---
 const pageVariants = {
@@ -53,24 +54,8 @@ const OCSRPage = () => {
       initial="hidden"
       animate="visible"
     >
-      {/* --- Adaptive Background Effects --- */}
-      <div className="absolute inset-0 -z-20 overflow-hidden dark:opacity-100 opacity-0 transition-opacity duration-500">
-        <div className="absolute inset-0 bg-linear-to-br from-gray-950 via-slate-900 to-indigo-950"></div>
-        <div className="animated-mesh-gradient"></div>
-      </div>
-      <div className="absolute inset-0 -z-20 overflow-hidden dark:opacity-0 opacity-100 transition-opacity duration-500">
-        <div className="absolute inset-0 bg-linear-to-br from-sky-50 via-white to-indigo-50"></div>
-        <div
-          className="absolute inset-0 opacity-[0.025]"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='70' height='70' viewBox='0 0 70 70' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23BBB' fill-opacity='.2'%3E%3Cpath d='M35 0v70M0 35h70' stroke-width='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}
-        />
-      </div>
-      <div
-        className="absolute inset-0 -z-10 opacity-[0.02] dark:opacity-[0.03]"
-        style={{ backgroundImage: "url(/noise.svg)" }}
-      ></div>
+      {/* Gradient Mesh Background (emerald-cyan) */}
+      <GradientMesh page="ocsr" />
       {/* Content Area - Outer padding container */}
       <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 z-10">
         {/* Inner wrapper for width constraint (lg:w-3/4) */}
@@ -106,7 +91,7 @@ const OCSRPage = () => {
               <Button
                 asChild
                 size="lg"
-                className="h-auto flex items-center justify-center px-6 py-4 bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold rounded-lg shadow-lg w-full md:w-auto text-lg"
+                className="h-auto flex items-center justify-center px-6 py-4 bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold rounded-lg shadow-lg w-full md:w-auto text-lg clay-interactive"
               >
                 <a href="https://decimer.ai" target="_blank" rel="noopener noreferrer">
                   <span className="mr-2 text-lg">Visit DECIMER</span>
@@ -118,7 +103,7 @@ const OCSRPage = () => {
               <Button
                 asChild
                 size="lg"
-                className="h-auto flex items-center justify-center px-6 py-4 bg-linear-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white font-semibold rounded-lg shadow-lg w-full md:w-auto text-lg"
+                className="h-auto flex items-center justify-center px-6 py-4 bg-linear-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white font-semibold rounded-lg shadow-lg w-full md:w-auto text-lg clay-interactive"
               >
                 <a href="https://marcus.decimer.ai" target="_blank" rel="noopener noreferrer">
                   <span className="mr-2 text-lg">Visit MARCUS</span>
@@ -135,7 +120,7 @@ const OCSRPage = () => {
             animate="visible"
           >
             <motion.div variants={headerItemVariants}>
-              <Card className="bg-white dark:bg-slate-800/80 rounded-lg border-slate-200 dark:border-slate-700/50 shadow-md py-0 gap-0">
+              <Card className="glass-bold rounded-lg shadow-md py-0 gap-0">
                 <CardContent className="p-5">
                   <h3 className="text-lg font-semibold text-blue-600 dark:text-blue-400 mb-2">
                     What is DECIMER?
@@ -154,7 +139,7 @@ const OCSRPage = () => {
               </Card>
             </motion.div>
             <motion.div variants={headerItemVariants}>
-              <Card className="bg-white dark:bg-slate-800/80 rounded-lg border-slate-200 dark:border-slate-700/50 shadow-md py-0 gap-0">
+              <Card className="glass-bold rounded-lg shadow-md py-0 gap-0">
                 <CardContent className="p-5">
                   <h3 className="text-lg font-semibold text-purple-600 dark:text-purple-400 mb-2">
                     What is MARCUS?
@@ -176,7 +161,7 @@ const OCSRPage = () => {
           </motion.div>
           {/* Main Content Container - Animated */}
           <motion.div
-            className="glass rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 overflow-hidden"
+            className="glass-bold rounded-2xl shadow-lg overflow-hidden"
             variants={contentContainerVariant}
             initial="hidden"
             animate="visible"
@@ -215,7 +200,7 @@ const OCSRPage = () => {
                   variants={headerItemVariants} // Use headerItemVariants for grid item entrance
                 >
                   {/* Info Box 1 */}
-                  <Card className="bg-slate-100 dark:bg-slate-800/60 rounded-lg border-slate-200 dark:border-slate-700 py-0 gap-0">
+                  <Card className="glass-bold rounded-lg py-0 gap-0">
                     <CardContent className="p-5">
                       <h3 className="text-lg font-semibold text-foreground mb-3">
                         About OCSR Technology
@@ -292,21 +277,7 @@ const OCSRPage = () => {
         {/* End Width Constraint Wrapper */}
       </div>{" "}
       {/* End Outer Padding Container */}
-      {/* Global Styles */}
-      <style jsx global>{`
-        /* Ensure required CSS variables and utilities like .glass are defined */
-        /* --- Animated Mesh Gradient (Dark Mode Only) --- */
-        @keyframes mesh-gradient-move {
-          /* ... */
-        }
-        .animated-mesh-gradient {
-          /* ... */
-        }
-        .dark .animated-mesh-gradient {
-          /* ... */
-        }
-        /* Noise overlay needs noise.svg in public folder */
-      `}</style>
+      {/* GradientMesh component provides the background -- no inline styles needed */}
     </motion.div> // End Page Container
   );
 };

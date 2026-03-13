@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { motion, useScroll, useTransform } from "motion/react";
+import { motion } from "motion/react";
 import { Atom, Code, Database, ExternalLink, FileText, FlaskConical, Network } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { GradientMesh } from "@/components/common/GradientMesh";
 
 // Sophisticated Animation Variants
 const pageVariants = {
@@ -145,10 +145,6 @@ const CitationCard = ({ title, citation }) => {
 
 const AboutPage = () => {
   const [currentYear] = useState(new Date().getFullYear());
-  const { scrollYProgress } = useScroll();
-  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
-  const backgroundScale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
-  const rotation = useTransform(scrollYProgress, [0, 0.5], [0, 5]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -166,100 +162,8 @@ const AboutPage = () => {
       initial="hidden"
       animate="visible"
     >
-      {/* Enhanced Background Effects */}
-      <motion.div
-        className="absolute inset-0 -z-20 overflow-hidden pointer-events-none"
-        style={{ y: backgroundY, scale: backgroundScale, maxHeight: "100vh" }}
-      >
-        <div className="absolute inset-0 dark:bg-linear-to-br dark:from-slate-900 dark:via-indigo-950/50 dark:to-slate-950 opacity-0 dark:opacity-100 transition-opacity duration-500"></div>
-        <div className="absolute inset-0 bg-linear-to-br from-blue-50/80 via-white to-indigo-50/80 opacity-100 dark:opacity-0 transition-opacity duration-500"></div>
-        <div className="absolute inset-0 w-full h-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b30_1px,transparent_1px)] bg-size-[20px_20px] opacity-50 dark:opacity-30"></div>
-      </motion.div>
-
-      {/* Enhanced Accent Patterns */}
-      <div
-        className="absolute -z-10 inset-0 overflow-hidden opacity-30 dark:opacity-20 pointer-events-none"
-        style={{ maxHeight: "100vh" }}
-      >
-        <motion.svg
-          className="absolute -top-[40%] -right-[30%] w-[80%] h-auto text-blue-500/10 dark:text-blue-300/10"
-          viewBox="0 0 200 200"
-          xmlns="http://www.w3.org/2000/svg"
-          style={{ rotate: rotation }}
-        >
-          <path
-            fill="currentColor"
-            d="M39.5,-65.3C50.3,-56.7,57.6,-44.3,64.2,-31.1C70.8,-17.9,76.7,-3.8,74.6,9.4C72.6,22.5,62.6,34.8,51.5,43.9C40.5,53.1,28.3,59.1,14.9,63.5C1.5,68,-13.2,70.8,-24.5,65.8C-35.9,60.7,-43.9,47.7,-52.3,35.2C-60.6,22.7,-69.3,10.8,-70.8,-2.2C-72.3,-15.2,-66.5,-29.3,-57.1,-39.5C-47.7,-49.7,-34.5,-56,-21.5,-62.3C-8.6,-68.6,4.2,-74.9,17.4,-74.2C30.7,-73.5,44.5,-65.8,39.5,-65.3Z"
-            transform="translate(100 100)"
-          />
-        </motion.svg>
-        <motion.svg
-          className="absolute top-[30%] -left-[20%] w-[70%] h-auto text-indigo-500/10 dark:text-indigo-300/10"
-          viewBox="0 0 200 200"
-          xmlns="http://www.w3.org/2000/svg"
-          style={{ rotate: useTransform(scrollYProgress, [0, 0.5], [0, -5]) }}
-        >
-          <path
-            fill="currentColor"
-            d="M39.5,-65.3C50.3,-56.7,57.6,-44.3,64.2,-31.1C70.8,-17.9,76.7,-3.8,74.6,9.4C72.6,22.5,62.6,34.8,51.5,43.9C40.5,53.1,28.3,59.1,14.9,63.5C1.5,68,-13.2,70.8,-24.5,65.8C-35.9,60.7,-43.9,47.7,-52.3,35.2C-60.6,22.7,-69.3,10.8,-70.8,-2.2C-72.3,-15.2,-66.5,-29.3,-57.1,-39.5C-47.7,-49.7,-34.5,-56,-21.5,-62.3C-8.6,-68.6,4.2,-74.9,17.4,-74.2C30.7,-73.5,44.5,-65.8,39.5,-65.3Z"
-            transform="translate(100 100)"
-          />
-        </motion.svg>
-      </div>
-
-      {/* Enhanced Floating Particles Effect */}
-      <div
-        className="particle-container absolute inset-0 -z-10 overflow-hidden pointer-events-none opacity-40 dark:opacity-30"
-        style={{ maxHeight: "100vh" }}
-      >
-        {Array(20)
-          .fill()
-          .map((_, i) => (
-            <motion.div
-              key={i}
-              className="particle absolute rounded-full bg-linear-to-br from-blue-400 to-indigo-400 dark:from-blue-500 dark:to-indigo-500"
-              initial={{
-                x: typeof window !== "undefined" ? Math.random() * window.innerWidth : 0,
-                y: typeof window !== "undefined" ? Math.random() * window.innerHeight : 0,
-                scale: Math.random() * 0.5 + 0.5,
-              }}
-              animate={{
-                x:
-                  typeof window !== "undefined"
-                    ? [
-                        Math.random() * window.innerWidth,
-                        Math.random() * window.innerWidth,
-                        Math.random() * window.innerWidth,
-                      ]
-                    : [0, 0, 0],
-                y:
-                  typeof window !== "undefined"
-                    ? [
-                        Math.random() * window.innerHeight,
-                        Math.random() * window.innerHeight,
-                        Math.random() * window.innerHeight,
-                      ]
-                    : [0, 0, 0],
-                scale: [
-                  Math.random() * 0.5 + 0.5,
-                  Math.random() * 1 + 0.8,
-                  Math.random() * 0.5 + 0.5,
-                ],
-              }}
-              transition={{
-                duration: Math.random() * 20 + 20,
-                repeat: Infinity,
-                ease: "linear",
-              }}
-              style={{
-                width: `${Math.random() * 10 + 2}px`,
-                height: `${Math.random() * 10 + 2}px`,
-                opacity: Math.random() * 0.6 + 0.2,
-                filter: `blur(${Math.random() * 2}px)`,
-              }}
-            />
-          ))}
-      </div>
+      {/* Gradient Mesh Background (slate-blue) */}
+      <GradientMesh page="about" />
 
       {/* Content Area */}
       <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 pb-0 z-10 grow">
@@ -280,7 +184,7 @@ const AboutPage = () => {
                 alt="Cheminformatics Microservice Logo"
                 className="w-full filter dark:brightness-100 brightness-75 transition-all duration-500 transform hover:scale-105 drop-shadow-2xl"
               />
-              <div className="absolute inset-0 bg-linear-to-r from-blue-500/0 via-blue-500/10 to-blue-500/0 opacity-0 group-hover:opacity-100 animate-shimmer"></div>
+              <div className="absolute inset-0 bg-linear-to-r from-blue-500/0 via-blue-500/10 to-blue-500/0 opacity-0 group-hover:opacity-100 animate-pulse"></div>
             </motion.div>
 
             <motion.h1
@@ -307,7 +211,7 @@ const AboutPage = () => {
             animate="visible"
           >
             <motion.div
-              className="glass rounded-xl shadow-xl border border-slate-200/50 dark:border-slate-700/30 overflow-hidden h-full transition-all duration-500 hover:shadow-2xl hover:border-blue-200/50 dark:hover:border-blue-700/30"
+              className="glass-bold rounded-2xl shadow-xl overflow-hidden h-full transition-all duration-500 hover:shadow-2xl hover:border-blue-200/50 dark:hover:border-blue-700/30"
               whileHover={{ y: -10 }}
               transition={{ duration: 0.3 }}
             >
@@ -358,7 +262,7 @@ const AboutPage = () => {
             </motion.div>
 
             <motion.div
-              className="glass rounded-xl shadow-xl border border-slate-200/50 dark:border-slate-700/30 overflow-hidden h-full transition-all duration-500 hover:shadow-2xl hover:border-blue-200/50 dark:hover:border-blue-700/30"
+              className="glass-bold rounded-2xl shadow-xl overflow-hidden h-full transition-all duration-500 hover:shadow-2xl hover:border-blue-200/50 dark:hover:border-blue-700/30"
               whileHover={{ y: -10 }}
               transition={{ duration: 0.3 }}
             >
@@ -407,7 +311,7 @@ const AboutPage = () => {
 
           {/* Integrated Tools Section */}
           <motion.div
-            className="glass rounded-xl shadow-xl border border-slate-200/50 dark:border-slate-700/30 overflow-hidden mb-16 transition-all duration-500 hover:shadow-2xl hover:border-blue-200/50 dark:hover:border-blue-700/30"
+            className="glass-bold rounded-2xl shadow-xl overflow-hidden mb-16 transition-all duration-500 hover:shadow-2xl hover:border-blue-200/50 dark:hover:border-blue-700/30"
             variants={contentContainerVariant}
             initial="hidden"
             animate="visible"
@@ -615,7 +519,7 @@ const AboutPage = () => {
                 <Button
                   asChild
                   size="lg"
-                  className="h-auto inline-flex items-center justify-center px-8 py-4 bg-linear-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white font-semibold rounded-lg shadow-lg text-lg"
+                  className="h-auto inline-flex items-center justify-center px-8 py-4 bg-linear-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white font-semibold rounded-lg shadow-lg text-lg clay-interactive"
                 >
                   <a href="https://naturalproducts.net" target="_blank" rel="noopener noreferrer">
                     <Atom className="mr-3 h-5 w-5" />
@@ -628,7 +532,7 @@ const AboutPage = () => {
                 <Button
                   asChild
                   size="lg"
-                  className="h-auto inline-flex items-center justify-center px-8 py-4 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 font-semibold rounded-lg shadow-lg text-lg border border-slate-200 dark:border-slate-700"
+                  className="h-auto inline-flex items-center justify-center px-8 py-4 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 font-semibold rounded-lg shadow-lg text-lg border border-slate-200 dark:border-slate-700 clay-interactive"
                 >
                   <a
                     href="https://chemaudit.naturalproducts.net/"
@@ -653,7 +557,7 @@ const AboutPage = () => {
 
           {/* Public Instance */}
           <motion.div
-            className="glass rounded-xl shadow-xl border border-slate-200/50 dark:border-slate-700/30 overflow-hidden mb-12 transition-all duration-500 hover:shadow-2xl hover:border-blue-200/50 dark:hover:border-blue-700/30"
+            className="glass-bold rounded-2xl shadow-xl overflow-hidden mb-12 transition-all duration-500 hover:shadow-2xl hover:border-blue-200/50 dark:hover:border-blue-700/30"
             variants={contentContainerVariant}
             initial="hidden"
             animate="visible"
@@ -689,7 +593,7 @@ const AboutPage = () => {
                     <Button
                       asChild
                       size="lg"
-                      className="h-auto inline-flex items-center px-8 py-4 rounded-lg bg-linear-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white font-medium transition-all duration-300 hover:shadow-lg hover:from-blue-700 hover:to-indigo-700"
+                      className="h-auto inline-flex items-center px-8 py-4 rounded-lg bg-linear-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white font-medium transition-all duration-300 hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 clay-interactive"
                     >
                       <a
                         href="https://api.naturalproducts.net/latest/docs"
@@ -708,7 +612,7 @@ const AboutPage = () => {
 
           {/* Citation Guidelines */}
           <motion.div
-            className="glass rounded-xl shadow-xl border border-slate-200/50 dark:border-slate-700/30 overflow-hidden mb-12 transition-all duration-500 hover:shadow-2xl hover:border-blue-200/50 dark:hover:border-blue-700/30"
+            className="glass-bold rounded-2xl shadow-xl overflow-hidden mb-12 transition-all duration-500 hover:shadow-2xl hover:border-blue-200/50 dark:hover:border-blue-700/30"
             variants={contentContainerVariant}
             initial="hidden"
             animate="visible"
@@ -750,7 +654,7 @@ const AboutPage = () => {
 
           {/* License Information */}
           <motion.div
-            className="glass rounded-xl shadow-xl border border-slate-200/50 dark:border-slate-700/30 overflow-hidden mb-12 transition-all duration-500 hover:shadow-2xl hover:border-blue-200/50 dark:hover:border-blue-700/30"
+            className="glass-bold rounded-2xl shadow-xl overflow-hidden mb-12 transition-all duration-500 hover:shadow-2xl hover:border-blue-200/50 dark:hover:border-blue-700/30"
             variants={contentContainerVariant}
             initial="hidden"
             animate="visible"
@@ -824,7 +728,7 @@ const AboutPage = () => {
 
           {/* Acknowledgements */}
           <motion.div
-            className="glass rounded-xl shadow-xl border border-slate-200/50 dark:border-slate-700/30 overflow-hidden mb-8"
+            className="glass-bold rounded-2xl shadow-xl overflow-hidden mb-8"
             variants={contentContainerVariant}
             initial="hidden"
             animate="visible"
@@ -892,7 +796,7 @@ const AboutPage = () => {
                     href="https://www.dfg.de/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="link-style"
+                    className="text-blue-600 dark:text-blue-400 hover:underline"
                   >
                     DFG
                   </a>{" "}
@@ -901,7 +805,7 @@ const AboutPage = () => {
                     href="https://nfdi4chem.de/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="link-style"
+                    className="text-blue-600 dark:text-blue-400 hover:underline"
                   >
                     NFDI4Chem
                   </a>{" "}
@@ -910,7 +814,7 @@ const AboutPage = () => {
                     href="https://www.chembiosys.de/en/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="link-style"
+                    className="text-blue-600 dark:text-blue-400 hover:underline"
                   >
                     ChemBioSys
                   </a>{" "}
@@ -941,7 +845,7 @@ const AboutPage = () => {
                       whileHover={{ y: -5, scale: 1.05 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <Card className="bg-white dark:bg-slate-800/60 p-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 py-0 gap-0">
+                      <Card className="glass-bold p-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 py-0 gap-0">
                         <a
                           href={funder.url}
                           target="_blank"
@@ -967,79 +871,7 @@ const AboutPage = () => {
       {/* Fix for potential extra space */}
       <div style={{ height: 0, clear: "both", overflow: "hidden" }} />
 
-      {/* Custom CSS */}
-      <style jsx global>{`
-        .glass {
-          @apply bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl dark:backdrop-blur-2xl;
-        }
-
-        .text-gradient {
-          @apply bg-clip-text text-transparent bg-linear-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400;
-        }
-
-        .link-style {
-          @apply text-blue-600 dark:text-blue-400 hover:underline;
-        }
-
-        /* Animation for shimmer effect */
-        @keyframes shimmer {
-          from {
-            transform: translateX(-100%);
-          }
-          to {
-            transform: translateX(100%);
-          }
-        }
-
-        .animate-shimmer {
-          animation: shimmer 2s infinite;
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-          width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-          background: rgba(241, 245, 249, 0.1);
-        }
-
-        ::-webkit-scrollbar-thumb {
-          background: #94a3b8;
-          border-radius: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-          background: #64748b;
-        }
-
-        /* Smooth hover transitions for all links */
-        a {
-          transition: all 0.2s ease-in-out;
-        }
-
-        a:hover {
-          transform: translateY(-2px);
-        }
-
-        /* Fix for extra whitespace */
-        html,
-        body {
-          height: 100%;
-          overflow-x: hidden;
-        }
-
-        #root {
-          min-height: 100%;
-          display: flex;
-          flex-direction: column;
-        }
-
-        .particle-container {
-          max-height: 100vh;
-          overflow: hidden;
-        }
-      `}</style>
+      {/* GradientMesh + tailwind.css utilities provide glass/text-gradient -- no inline styles needed */}
     </motion.div>
   );
 };

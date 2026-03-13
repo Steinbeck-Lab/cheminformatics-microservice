@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { Link } from "react-router-dom";
+import { GradientMesh } from "@/components/common/GradientMesh";
 
 // Animation Variants
 const pageVariants = {
@@ -40,17 +41,13 @@ const TermsOfService = () => {
 
   return (
     <motion.div
-      className="flex flex-col min-h-screen bg-slate-50 dark:bg-gray-900 text-slate-800 dark:text-slate-100 font-sans overflow-x-hidden"
+      className="relative flex flex-col min-h-screen bg-slate-50 dark:bg-gray-900 text-slate-800 dark:text-slate-100 font-sans overflow-x-hidden"
       variants={pageVariants}
       initial="hidden"
       animate="visible"
     >
-      {/* Background Effects */}
-      <div className="absolute inset-0 -z-20 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 dark:bg-linear-to-br dark:from-slate-900 dark:via-indigo-950/50 dark:to-slate-950 opacity-0 dark:opacity-100 transition-opacity duration-500"></div>
-        <div className="absolute inset-0 bg-linear-to-br from-blue-50/80 via-white to-indigo-50/80 opacity-100 dark:opacity-0 transition-opacity duration-500"></div>
-        <div className="absolute inset-0 w-full h-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b30_1px,transparent_1px)] bg-size-[20px_20px] opacity-50 dark:opacity-30"></div>
-      </div>
+      {/* Gradient Mesh Background (neutral gray) */}
+      <GradientMesh page="terms" />
 
       {/* Content Area */}
       <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 z-10 grow">
@@ -72,7 +69,7 @@ const TermsOfService = () => {
 
           {/* Main Content */}
           <motion.div
-            className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden"
+            className="glass-bold rounded-2xl shadow-lg overflow-hidden"
             variants={contentVariants}
             initial="hidden"
             animate={isLoaded ? "visible" : "hidden"}
@@ -204,7 +201,10 @@ const TermsOfService = () => {
                 </p>
 
                 <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
-                  <Link to="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">
+                  <Link
+                    to="/privacy"
+                    className="text-blue-600 dark:text-blue-400 hover:underline clay-interactive inline-block px-3 py-1 rounded-lg"
+                  >
                     View our Privacy Policy
                   </Link>
                 </div>
