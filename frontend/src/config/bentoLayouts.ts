@@ -27,14 +27,14 @@ export const BENTO_LAYOUTS: Record<string, BentoLayoutEntry[]> = {
     { id: "similarity", size: "medium" },
     { id: "classyfire", size: "medium" },
     // Compact -- minor tools
-    { id: "hose-codes", size: "compact" },
+    { id: "hosecodes", size: "compact" },
     { id: "functional-groups", size: "compact" },
-    { id: "tautomers", size: "compact" },
-    { id: "fix-radicals", size: "compact" },
-    { id: "np-likeness", size: "compact" },
-    { id: "check-structure", size: "compact" },
-    { id: "all-filters", size: "compact" },
-    { id: "coconut-preprocessing", size: "compact" },
+    { id: "tautomer", size: "compact" },
+    { id: "fixradicals", size: "compact" },
+    { id: "nplikeness", size: "compact" },
+    { id: "structureerror", size: "compact" },
+    { id: "filters", size: "compact" },
+    { id: "coconut", size: "compact" },
   ],
   tools: [
     // Hero -- primary tools

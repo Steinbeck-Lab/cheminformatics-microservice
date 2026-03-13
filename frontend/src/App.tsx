@@ -54,6 +54,7 @@ const router = createBrowserRouter(
       <Route index element={<DepictPage />} />
       <Route path="/home" element={<HomePage />} />
       <Route path="/chem" element={<ChemPage />} />
+      <Route path="/chem/:toolId" element={<ChemPage />} />
       <Route path="/convert" element={<ConvertPage />} />
       <Route path="/convert/:convertId" element={<ConvertPage />} />
       <Route path="/depict" element={<DepictPage />} />
