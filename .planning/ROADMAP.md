@@ -97,14 +97,15 @@ Plans:
   4. Wide-screen tool pages have resizable input/output panels with a draggable divider
   5. Users can compare two molecule results side-by-side in a comparison mode
   6. Claymorphism accents (soft shadows, raised surfaces) blend with glass effects for depth
-**Plans**: 6 plans
+**Plans**: 7 plans
 
 Plans:
+- [ ] 04.1-00-PLAN.md -- Wave 0: Test stub files for all 6 VISUAL requirements (vitest scaffolds)
 - [ ] 04.1-01-PLAN.md -- Foundation: CSS glass/clay/gradient utilities, per-page gradient mesh config, bento layout config, useMediaQuery hook, GradientMesh and LiquidGlassFilter components
 - [ ] 04.1-02-PLAN.md -- BentoGrid component + ChemPage migration from sidebar tabs to bento grid (14 tools)
 - [ ] 04.1-03-PLAN.md -- Remaining bento pages: ConvertPage, DepictPage, ToolsPage migration + HomePage glass hero and bento feature cards
-- [ ] 04.1-04-PLAN.md -- Resizable panels (shadcn Resizable + ResizableToolPanel) + MoleculeCard glow/lift/expand enhancements
-- [ ] 04.1-05-PLAN.md -- Comparison mode: ComparisonContext, ComparisonTray, ComparisonView, App.tsx wiring
+- [ ] 04.1-04-PLAN.md -- Resizable panels (shadcn Resizable + ResizableToolPanel), MoleculeCard glow/lift/expand enhancements, BentoCard-to-ResizableToolPanel wiring
+- [ ] 04.1-05-PLAN.md -- Comparison mode: ComparisonContext, ComparisonTray, ComparisonView, AddToCompareButton, App.tsx wiring, ChemPage compare integration
 - [ ] 04.1-06-PLAN.md -- Glass sweep: Header/Footer glass treatment, OCSR/About/Privacy/Terms gradient mesh + glass containers, visual verification checkpoint
 
 ### Phase 5: Loading States + UX
@@ -152,6 +153,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 4.1 -> 5 -> 6
 | 2. React 19 + TypeScript 5 | 2/2 | Complete | 2026-03-12 |
 | 3. Tailwind v4 Migration | 2/2 | Complete   | 2026-03-12 |
 | 4. Component System + Dark Mode | 4/5 | Gap closure | 2026-03-13 |
-| 4.1 Visual Design System | 0/6 | Not started | - |
+| 4.1 Visual Design System | 0/7 | Not started | - |
 | 5. Loading States + UX | 0/3 | Not started | - |
 | 6. Animations + Power Features | 0/3 | Not started | - |
