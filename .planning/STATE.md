@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 04-04-PLAN.md
-last_updated: "2026-03-13T08:28:45.043Z"
-last_activity: 2026-03-13 -- Completed Plan 04-04 (final component pass + visual verification)
+stopped_at: Completed 04-05-PLAN.md
+last_updated: "2026-03-13T09:23:46Z"
+last_activity: 2026-03-13 -- Completed Plan 04-05 (gap closure -- shadcn Button + Card across all pages)
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 12
+  completed_plans: 12
   percent: 100
 ---
 
@@ -21,21 +21,21 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-12)
 
 **Core value:** The frontend must feel noticeably modern, fast, and polished -- while never breaking existing functionality. Zero security alerts, production-grade quality.
-**Current focus:** Phase 4 complete. All components migrated to shadcn/ui with dark mode verified. Ready for Phase 5 (Loading States + UX).
+**Current focus:** Phase 4 fully complete including gap closure. All components migrated to shadcn/ui with dark mode verified. Ready for Phase 5 (Loading States + UX).
 
 ## Current Position
 
 Phase: 4 of 6 (Component System + Dark Mode) -- COMPLETE
-Plan: 4 of 4 in current phase (all done)
-Status: Phase 4 complete, ready for Phase 5
-Last activity: 2026-03-13 -- Completed Plan 04-04 (final component pass + visual verification)
+Plan: 5 of 5 in current phase (all done, including gap closure plan)
+Status: Phase 4 fully complete, ready for Phase 5
+Last activity: 2026-03-13 -- Completed Plan 04-05 (gap closure -- shadcn Button + Card across all pages)
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
+- Total plans completed: 12
 - Average duration: 10min
 - Total execution time: ~2 hours
 
@@ -46,16 +46,17 @@ Progress: [██████████] 100%
 | 01-vite-migration | 3/3 | 26min | 9min |
 | 02-react-19-typescript-5 | 2/2 | 22min | 11min |
 | 03-tailwind-v4-migration | 2/2 | 24min | 12min |
-| 04-component-system-dark-mode | 4/4 | 70min | 18min |
+| 04-component-system-dark-mode | 5/5 | 77min | 15min |
 
 **Recent Trend:**
-- Last 5 plans: 12min, 19min, 5min, 10min, 10min
+- Last 5 plans: 19min, 5min, 10min, 10min, 7min
 - Trend: Stable
 
 *Updated after each plan completion*
 | Phase 04 P01 | 18min | 3 tasks | 29 files |
 | Phase 04 P03 | 45min | 2 tasks | 36 files |
 | Phase 04 P04 | 5min | 2 tasks | 1 files |
+| Phase 04 P05 | 7min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -104,6 +105,9 @@ Recent decisions affecting current work:
 - [04-04]: Extracted ThemeToggle into reusable component shared between desktop header and mobile Sheet
 - [04-04]: Used dark: Tailwind variant classes instead of isDarkMode ternaries for header styling
 - [04-04]: No dialog/modal patterns found in codebase -- Dialog conversion skipped as unnecessary
+- [04-05]: Used motion.div wrapper pattern (not motion.create(Button)) for animated button links per research findings
+- [04-05]: Kept feature-card-enhanced CSS class on Card element to preserve ::before pseudo-element border reveal effect
+- [04-05]: Funder logos wrapped in Card (not Button) since they contain images, not button text -- semantically correct
 
 ### Pending Todos
 
@@ -115,6 +119,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-13T08:27:25Z
-Stopped at: Completed 04-04-PLAN.md -- Phase 4 complete
+Last session: 2026-03-13T09:23:46Z
+Stopped at: Completed 04-05-PLAN.md -- Phase 4 gap closure complete
 Resume file: None
