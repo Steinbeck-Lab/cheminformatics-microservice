@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04.1-01-PLAN.md
-last_updated: "2026-03-13T13:15:32Z"
-last_activity: 2026-03-13 -- Completed Plan 04.1-01 (Foundation CSS utilities, gradient mesh config, bento layouts, useMediaQuery, GradientMesh, LiquidGlassFilter)
+stopped_at: Completed 04.1-02-PLAN.md
+last_updated: "2026-03-13T13:25:00Z"
+last_activity: 2026-03-13 -- Completed Plan 04.1-02 (BentoGrid/BentoCard components, ChemPage bento grid migration)
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 19
-  completed_plans: 15
-  percent: 79
+  completed_plans: 16
+  percent: 84
 ---
 
 # Project State
@@ -21,21 +21,21 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-12)
 
 **Core value:** The frontend must feel noticeably modern, fast, and polished -- while never breaking existing functionality. Zero security alerts, production-grade quality.
-**Current focus:** Phase 04.1 in progress -- Visual Design System (glassmorphism, liquid glass, bento grids). Foundation CSS utilities, configs, and components complete. Ready for Plan 02 (BentoGrid + ChemPage migration).
+**Current focus:** Phase 04.1 in progress -- Visual Design System (glassmorphism, liquid glass, bento grids). BentoGrid components and ChemPage migration complete. Ready for Plan 03 (remaining page migrations).
 
 ## Current Position
 
 Phase: 4.1 of 6 (Visual Design System -- Glassmorphism, Liquid Glass & Bento Grids)
-Plan: 2 of 7 in current phase (Plans 00-01 complete)
+Plan: 3 of 7 in current phase (Plans 00-02 complete)
 Status: Phase 04.1 in progress
-Last activity: 2026-03-13 -- Completed Plan 04.1-01 (Foundation CSS utilities, gradient mesh config, bento layouts, useMediaQuery, GradientMesh, LiquidGlassFilter)
+Last activity: 2026-03-13 -- Completed Plan 04.1-02 (BentoGrid/BentoCard components, ChemPage bento grid migration)
 
-Progress: [███████░░░] 79%
+Progress: [████████░░] 84%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15
+- Total plans completed: 16
 - Average duration: 9min
 - Total execution time: ~2 hours
 
@@ -49,7 +49,7 @@ Progress: [███████░░░] 79%
 | 04-component-system-dark-mode | 5/5 | 77min | 15min |
 
 **Recent Trend:**
-- Last 5 plans: 10min, 10min, 7min, 2min, 3min
+- Last 5 plans: 10min, 7min, 2min, 3min, 4min
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -59,6 +59,7 @@ Progress: [███████░░░] 79%
 | Phase 04 P05 | 7min | 2 tasks | 4 files |
 | Phase 04.1 P00 | 2min | 2 tasks | 6 files |
 | Phase 04.1 P01 | 3min | 2 tasks | 6 files |
+| Phase 04.1 P02 | 4min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -114,6 +115,9 @@ Recent decisions affecting current work:
 - [04.1-01]: glass-refraction-hover uses @layer components (not @utility) because @utility cannot contain :hover pseudo-class or @media query wrappers
 - [04.1-01]: Privacy and Terms pages share identical neutral gray gradient palettes per user decision
 - [04.1-01]: getBentoSize helper returns 'compact' as default fallback for unknown tool IDs
+- [04.1-02]: Fixed bentoLayouts.ts chem IDs to match actual ChemPage tab IDs (hosecodes not hose-codes, tautomer not tautomers, etc.)
+- [04.1-02]: Added /chem/:toolId route to App.tsx for URL param support on bento card expand
+- [04.1-02]: Removed category property from ChemPage tabs array since bento grid is flat (no category grouping)
 
 ### Pending Todos
 
@@ -129,6 +133,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-13T13:15:32Z
-Stopped at: Completed 04.1-01-PLAN.md
-Resume file: .planning/phases/04.1-visual-design-system-glassmorphism-liquid-glass-bento-grids/04.1-02-PLAN.md
+Last session: 2026-03-13T13:25:00Z
+Stopped at: Completed 04.1-02-PLAN.md
+Resume file: .planning/phases/04.1-visual-design-system-glassmorphism-liquid-glass-bento-grids/04.1-03-PLAN.md
