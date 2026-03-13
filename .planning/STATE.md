@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04.1-02-PLAN.md
-last_updated: "2026-03-13T13:25:00Z"
-last_activity: 2026-03-13 -- Completed Plan 04.1-02 (BentoGrid/BentoCard components, ChemPage bento grid migration)
+stopped_at: Completed 04.1-03-PLAN.md
+last_updated: "2026-03-13T13:33:33Z"
+last_activity: 2026-03-13 -- Completed Plan 04.1-03 (ConvertPage, DepictPage, ToolsPage bento migration + HomePage glass redesign)
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 19
-  completed_plans: 16
-  percent: 84
+  completed_plans: 17
+  percent: 89
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-12)
 
 **Core value:** The frontend must feel noticeably modern, fast, and polished -- while never breaking existing functionality. Zero security alerts, production-grade quality.
-**Current focus:** Phase 04.1 in progress -- Visual Design System (glassmorphism, liquid glass, bento grids). BentoGrid components and ChemPage migration complete. Ready for Plan 03 (remaining page migrations).
+**Current focus:** Phase 04.1 in progress -- Visual Design System (glassmorphism, liquid glass, bento grids). All tool pages migrated to bento grid. HomePage glass redesign complete. Ready for Plan 04 (resizable panels).
 
 ## Current Position
 
 Phase: 4.1 of 6 (Visual Design System -- Glassmorphism, Liquid Glass & Bento Grids)
-Plan: 3 of 7 in current phase (Plans 00-02 complete)
+Plan: 4 of 7 in current phase (Plans 00-03 complete)
 Status: Phase 04.1 in progress
-Last activity: 2026-03-13 -- Completed Plan 04.1-02 (BentoGrid/BentoCard components, ChemPage bento grid migration)
+Last activity: 2026-03-13 -- Completed Plan 04.1-03 (ConvertPage, DepictPage, ToolsPage bento migration + HomePage glass redesign)
 
-Progress: [████████░░] 84%
+Progress: [█████████░] 89%
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Progress: [████████░░] 84%
 | Phase 04.1 P00 | 2min | 2 tasks | 6 files |
 | Phase 04.1 P01 | 3min | 2 tasks | 6 files |
 | Phase 04.1 P02 | 4min | 2 tasks | 4 files |
+| Phase 04.1 P03 | 4min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -118,6 +119,10 @@ Recent decisions affecting current work:
 - [04.1-02]: Fixed bentoLayouts.ts chem IDs to match actual ChemPage tab IDs (hosecodes not hose-codes, tautomer not tautomers, etc.)
 - [04.1-02]: Added /chem/:toolId route to App.tsx for URL param support on bento card expand
 - [04.1-02]: Removed category property from ChemPage tabs array since bento grid is flat (no category grouping)
+- [04.1-03]: Fixed bentoLayouts.ts depict IDs to match actual DepictPage tab IDs (structureexplorer not structure-explorer)
+- [04.1-03]: HomePage feature cards use glass-bold + clay-interactive with Link navigation (not expandable BentoCard)
+- [04.1-03]: Removed all inline style JSX blocks from migrated pages since GradientMesh replaces animated-mesh-gradient CSS
+- [04.1-03]: Kept TiltCard helper on HomePage feature cards for tactile 3D tilt alongside glass styling
 
 ### Pending Todos
 
@@ -133,6 +138,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-13T13:25:00Z
-Stopped at: Completed 04.1-02-PLAN.md
-Resume file: .planning/phases/04.1-visual-design-system-glassmorphism-liquid-glass-bento-grids/04.1-03-PLAN.md
+Last session: 2026-03-13T13:33:33Z
+Stopped at: Completed 04.1-03-PLAN.md
+Resume file: .planning/phases/04.1-visual-design-system-glassmorphism-liquid-glass-bento-grids/04.1-04-PLAN.md
