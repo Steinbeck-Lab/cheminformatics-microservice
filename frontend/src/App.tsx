@@ -8,8 +8,12 @@ import {
   Outlet,
 } from "react-router-dom";
 import { AppProvider } from "./context/AppContext";
+import { ComparisonProvider } from "./context/ComparisonContext";
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
+import { ComparisonTray } from "./components/common/ComparisonTray";
+import { ComparisonView } from "./components/common/ComparisonView";
+import { LiquidGlassFilter } from "./components/common/LiquidGlassFilter";
 import HomePage from "./pages/HomePage";
 import ChemPage from "./pages/ChemPage";
 import ConvertPage from "./pages/ConvertPage";
@@ -23,11 +27,14 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 // Layout component with header/footer
 const Layout = () => (
   <div className="flex flex-col min-h-screen bg-background text-foreground">
+    <LiquidGlassFilter />
     <Header />
     <main className="grow">
       <Outlet />
     </main>
     <Footer />
+    <ComparisonTray />
+    <ComparisonView />
   </div>
 );
 
@@ -79,7 +86,9 @@ const router = createBrowserRouter(
 function App() {
   return (
     <AppProvider>
-      <RouterProvider router={router} />
+      <ComparisonProvider>
+        <RouterProvider router={router} />
+      </ComparisonProvider>
     </AppProvider>
   );
 }
