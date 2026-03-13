@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-12)
 ## Current Position
 
 Phase: 6 of 7 (Animations + Power Features)
-Plan: 1 of 3 in current phase (Plan 01 complete)
+Plan: 2 of 3 in current phase (Plans 01, 02 complete)
 Status: Phase 06 in progress
-Last activity: 2026-03-13 -- Completed Plan 06-01 (Animation polish: page transitions, button micro-interactions, tab cross-fades)
+Last activity: 2026-03-13 -- Completed Plan 06-02 (Inline SMILES preview with debounce and glass skeleton)
 
-Progress: [█████████░] 92%
+Progress: [█████████░] 96%
 
 ## Performance Metrics
 
@@ -69,6 +69,7 @@ Progress: [█████████░] 92%
 | Phase 05 P03 | 6min | 2 tasks | 15 files |
 | Phase 05 P04 | 12min | 2 tasks | 22 files |
 | Phase 06 P01 | 4min | 3 tasks | 10 files |
+| Phase 06 P02 | 6min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -152,6 +153,8 @@ Recent decisions affecting current work:
 - [Phase 06-01]: btn-hover-lift and focus-ring-animate implemented as CSS @utility directives for Tailwind v4 compatibility
 - [Phase 06-01]: AnimatedOutlet uses mode=sync per user decision with absolute positioning on exit to prevent vertical stacking
 - [Phase 06-01]: Tab content simplified from spring+scale to pure 150ms opacity cross-fade per ANIM-04 user decision
+- [06-02]: withFakeTimers helper pattern for vitest -- restores real timers before test returns to prevent React effect teardown timeouts
+- [06-02]: SMILESPreview uses native img src={url} with onLoad/onError callbacks for zero-fetch overhead
 
 ### Pending Todos
 
@@ -167,6 +170,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-13T22:26:16.435Z
-Stopped at: Completed 06-01-PLAN.md
-Resume file: None
+Last session: 2026-03-13T22:26:49Z
+Stopped at: Completed 06-02-PLAN.md
+Resume file: .planning/phases/06-animations-power-features/06-02-SUMMARY.md
