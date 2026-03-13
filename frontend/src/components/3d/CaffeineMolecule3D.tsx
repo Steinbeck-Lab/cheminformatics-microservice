@@ -1,25 +1,22 @@
 /**
- * CaffeineMolecule3D — Neon-glow wireframe caffeine molecule background.
+ * CaffeineMolecule3D — Minimal wireframe caffeine molecule background.
  *
- * Uses @react-three/postprocessing Bloom to create a real neon glow effect.
- * Atoms are emissive spheres (intensity > 1 triggers bloom). Bonds are
- * glowing tubes. A BufferGeometry point cloud adds atmospheric depth.
- *
- * The molecule auto-rotates and tracks the mouse with smooth parallax.
- * Lazy-loaded; mobile/reduced-motion gets CSS fallback.
+ * Subtle, elegant molecule that adapts to light/dark mode.
+ * Dark mode: soft cyan/indigo glow with gentle bloom.
+ * Light mode: muted slate/blue wireframe, very understated.
+ * No orbit rings, minimal particles — molecule is the focus.
  */
-import React, { useRef, useMemo, useEffect, useState } from "react";
+import React, { useRef, useMemo, useEffect, useState, useCallback } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import * as THREE from "three";
 
 // ---------------------------------------------------------------------------
-// Caffeine molecule data (C8H10N4O2) — heavy atoms, approximate 3D coords
+// Caffeine molecule data (C8H10N4O2)
 // ---------------------------------------------------------------------------
 type AtomDef = { element: "C" | "N" | "O"; pos: [number, number, number] };
-
-const SCALE = 1.8;
+const SCALE = 1.6;
 
 const RAW_ATOMS: AtomDef[] = [
   { element: "N", pos: [0, 1.4, 0.05] },
@@ -40,7 +37,7 @@ const RAW_ATOMS: AtomDef[] = [
 
 const ATOMS = RAW_ATOMS.map((a) => ({
   ...a,
-  pos: [a.pos[0] * SCALE, a.pos[1] * SCALE, a.pos[2] * SCALE * 4] as [number, number, number],
+  pos: [a.pos[0] * SCALE, a.pos[1] * SCALE, a.pos[2] * SCALE * 3] as [number, number, number],
 }));
 
 const BONDS: [number, number][] = [
@@ -61,63 +58,60 @@ const BONDS: [number, number][] = [
   [6, 13],
 ];
 
-// Colors — high-intensity for bloom trigger
-const ELEMENT_COLOR: Record<string, [number, number, number]> = {
-  C: [0.1, 0.85, 0.95], // cyan
-  N: [0.45, 0.4, 1.0], // indigo
-  O: [1.0, 0.35, 0.65], // rose
+// Theme-aware colors
+const DARK_COLORS: Record<string, [number, number, number]> = {
+  C: [0.05, 0.55, 0.65],
+  N: [0.3, 0.28, 0.7],
+  O: [0.65, 0.2, 0.42],
+};
+const LIGHT_COLORS: Record<string, [number, number, number]> = {
+  C: [0.25, 0.45, 0.55],
+  N: [0.3, 0.3, 0.55],
+  O: [0.55, 0.25, 0.4],
 };
 
 // ---------------------------------------------------------------------------
-// Glowing atom — emissiveIntensity > 1 + toneMapped=false triggers bloom
+// Atom
 // ---------------------------------------------------------------------------
 const Atom = ({
   position,
   element,
-  pulse,
+  dark,
 }: {
   position: [number, number, number];
   element: string;
-  pulse: number;
+  dark: boolean;
 }) => {
-  const [r, g, b] = ELEMENT_COLOR[element] || ELEMENT_COLOR.C;
-  const radius = element === "O" ? 0.22 : element === "N" ? 0.19 : 0.16;
-  const intensity = 2.5 + Math.sin(pulse) * 0.8;
+  const colors = dark ? DARK_COLORS : LIGHT_COLORS;
+  const [r, g, b] = colors[element] || colors.C;
+  const radius = element === "O" ? 0.16 : element === "N" ? 0.14 : 0.12;
+  const mult = dark ? 2.0 : 0.9;
 
   return (
     <mesh position={position}>
-      <sphereGeometry args={[radius, 24, 24]} />
-      <meshBasicMaterial color={[r * intensity, g * intensity, b * intensity]} toneMapped={false} />
+      <sphereGeometry args={[radius, 20, 20]} />
+      <meshBasicMaterial
+        color={[r * mult, g * mult, b * mult]}
+        toneMapped={false}
+        transparent
+        opacity={dark ? 0.95 : 0.6}
+      />
     </mesh>
   );
 };
 
 // ---------------------------------------------------------------------------
-// Glowing bond — cylinder tube between two atoms
+// Bond — thin cylinder
 // ---------------------------------------------------------------------------
 const Bond = ({
   start,
   end,
-  pulse,
+  dark,
 }: {
   start: [number, number, number];
   end: [number, number, number];
-  pulse: number;
+  dark: boolean;
 }) => {
-  const ref = useRef<THREE.Mesh>(null!);
-
-  useMemo(() => {
-    if (!ref.current) return;
-    const s = new THREE.Vector3(...start);
-    const e = new THREE.Vector3(...end);
-    const mid = s.clone().add(e).multiplyScalar(0.5);
-    const dir = e.clone().sub(s);
-    const len = dir.length();
-    ref.current.position.copy(mid);
-    ref.current.scale.set(1, len, 1);
-    ref.current.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
-  }, [start, end]);
-
   const s = new THREE.Vector3(...start);
   const e = new THREE.Vector3(...end);
   const mid = s.clone().add(e).multiplyScalar(0.5);
@@ -128,105 +122,76 @@ const Bond = ({
     dir.normalize()
   );
 
-  const intensity = 1.5 + Math.sin(pulse * 0.7) * 0.3;
+  const c = dark ? [0.12, 0.45, 0.6] : [0.35, 0.45, 0.55];
+  const mult = dark ? 1.3 : 0.7;
 
   return (
-    <mesh ref={ref} position={[mid.x, mid.y, mid.z]} quaternion={quat}>
-      <cylinderGeometry args={[0.04, 0.04, len, 8, 1]} />
+    <mesh position={[mid.x, mid.y, mid.z]} quaternion={quat}>
+      <cylinderGeometry args={[0.025, 0.025, len, 6, 1]} />
       <meshBasicMaterial
-        color={[0.2 * intensity, 0.75 * intensity, 1.0 * intensity]}
+        color={[c[0] * mult, c[1] * mult, c[2] * mult]}
         toneMapped={false}
         transparent
-        opacity={0.7}
+        opacity={dark ? 0.5 : 0.3}
       />
     </mesh>
   );
 };
 
 // ---------------------------------------------------------------------------
-// Particle field — BufferGeometry Points for atmosphere
+// Sparse particle dust
 // ---------------------------------------------------------------------------
-const ParticleField = () => {
+const ParticleDust = ({ dark }: { dark: boolean }) => {
   const ref = useRef<THREE.Points>(null!);
-  const count = 200;
+  const count = 80;
 
-  const [positions, sizes] = useMemo(() => {
+  const positions = useMemo(() => {
     const pos = new Float32Array(count * 3);
-    const sz = new Float32Array(count);
     for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 20;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 20;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 12;
-      sz[i] = Math.random() * 3 + 1;
+      pos[i * 3] = (Math.random() - 0.5) * 18;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 18;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 10;
     }
-    return [pos, sz];
+    return pos;
   }, []);
 
   useFrame((state) => {
     if (!ref.current) return;
-    const geo = ref.current.geometry;
-    const posAttr = geo.attributes.position as THREE.BufferAttribute;
-    const t = state.clock.elapsedTime * 0.15;
+    const posAttr = ref.current.geometry.attributes.position as THREE.BufferAttribute;
+    const t = state.clock.elapsedTime * 0.1;
     for (let i = 0; i < count; i++) {
-      posAttr.array[i * 3 + 1] += Math.sin(t + i * 0.5) * 0.002;
+      posAttr.array[i * 3 + 1] += Math.sin(t + i * 0.3) * 0.001;
     }
     posAttr.needsUpdate = true;
   });
+
+  const col: [number, number, number] = dark ? [0.6, 1.2, 1.8] : [0.3, 0.4, 0.55];
 
   return (
     <points ref={ref}>
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
-        <bufferAttribute attach="attributes-size" args={[sizes, 1]} />
       </bufferGeometry>
       <pointsMaterial
-        size={0.06}
-        color={[1.5, 2.5, 4.0]}
+        size={0.04}
+        color={col}
         toneMapped={false}
         transparent
-        opacity={0.6}
+        opacity={dark ? 0.4 : 0.2}
         sizeAttenuation
         depthWrite={false}
-        blending={THREE.AdditiveBlending}
+        blending={dark ? THREE.AdditiveBlending : THREE.NormalBlending}
       />
     </points>
   );
 };
 
 // ---------------------------------------------------------------------------
-// Orbit ring — glowing torus that slowly spins
+// Scene
 // ---------------------------------------------------------------------------
-const OrbitRing = ({
-  radius,
-  color,
-  speed,
-  tilt,
-}: {
-  radius: number;
-  color: [number, number, number];
-  speed: number;
-  tilt: [number, number, number];
-}) => {
-  const ref = useRef<THREE.Mesh>(null!);
-  useFrame((_, delta) => {
-    ref.current.rotation.z += delta * speed;
-  });
-  return (
-    <mesh ref={ref} rotation={tilt}>
-      <torusGeometry args={[radius, 0.02, 16, 120]} />
-      <meshBasicMaterial color={color} toneMapped={false} transparent opacity={0.35} />
-    </mesh>
-  );
-};
-
-// ---------------------------------------------------------------------------
-// Main scene — molecule + effects + mouse tracking
-// ---------------------------------------------------------------------------
-const MoleculeScene = () => {
+const MoleculeScene = ({ dark }: { dark: boolean }) => {
   const groupRef = useRef<THREE.Group>(null!);
   const mouse = useRef({ x: 0, y: 0 });
-  const { size } = useThree();
-  const pulseRef = useRef(0);
 
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
@@ -235,65 +200,38 @@ const MoleculeScene = () => {
     };
     window.addEventListener("mousemove", onMove);
     return () => window.removeEventListener("mousemove", onMove);
-  }, [size]);
+  }, []);
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (!groupRef.current) return;
-    pulseRef.current = state.clock.elapsedTime;
-
-    // Slow auto-rotation
-    groupRef.current.rotation.y += delta * 0.06;
-    groupRef.current.rotation.x += delta * 0.02;
-
-    // Mouse parallax (smooth lerp)
-    const tx = mouse.current.x * 0.35;
-    const ty = mouse.current.y * 0.25;
-    groupRef.current.rotation.x += (ty - groupRef.current.rotation.x) * 0.015;
-    groupRef.current.rotation.y += (tx - groupRef.current.rotation.y) * 0.015;
-    groupRef.current.position.x += (mouse.current.x * 0.6 - groupRef.current.position.x) * 0.015;
-    groupRef.current.position.y += (mouse.current.y * 0.4 - groupRef.current.position.y) * 0.015;
+    groupRef.current.rotation.y += delta * 0.05;
+    groupRef.current.rotation.x += delta * 0.015;
+    groupRef.current.rotation.x += (mouse.current.y * 0.2 - groupRef.current.rotation.x) * 0.01;
+    groupRef.current.rotation.y += (mouse.current.x * 0.25 - groupRef.current.rotation.y) * 0.01;
+    groupRef.current.position.x += (mouse.current.x * 0.4 - groupRef.current.position.x) * 0.01;
+    groupRef.current.position.y += (mouse.current.y * 0.25 - groupRef.current.position.y) * 0.01;
   });
 
   return (
     <>
-      <color attach="background" args={["#000000"]} />
-      <fog attach="fog" args={["#000308", 8, 25]} />
-
-      <Float speed={0.6} rotationIntensity={0.08} floatIntensity={0.2}>
+      <Float speed={0.5} rotationIntensity={0.05} floatIntensity={0.15}>
         <group ref={groupRef}>
           {ATOMS.map((atom, i) => (
-            <Atom
-              key={`a${i}`}
-              position={atom.pos}
-              element={atom.element}
-              pulse={pulseRef.current + i * 0.4}
-            />
+            <Atom key={`a${i}`} position={atom.pos} element={atom.element} dark={dark} />
           ))}
           {BONDS.map(([a, b], i) => (
-            <Bond key={`b${i}`} start={ATOMS[a].pos} end={ATOMS[b].pos} pulse={pulseRef.current} />
+            <Bond key={`b${i}`} start={ATOMS[a].pos} end={ATOMS[b].pos} dark={dark} />
           ))}
-          <OrbitRing radius={6} color={[0.3, 0.8, 1.2]} speed={0.12} tilt={[Math.PI / 2.5, 0, 0]} />
-          <OrbitRing
-            radius={5}
-            color={[0.5, 0.4, 1.4]}
-            speed={-0.08}
-            tilt={[Math.PI / 3, 0.3, 0]}
-          />
-          <OrbitRing
-            radius={7.5}
-            color={[0.2, 0.6, 0.9]}
-            speed={0.05}
-            tilt={[Math.PI / 2, -0.2, 0.4]}
-          />
         </group>
       </Float>
 
-      <ParticleField />
+      <ParticleDust dark={dark} />
 
-      {/* Bloom postprocessing — the key to neon glow */}
-      <EffectComposer>
-        <Bloom luminanceThreshold={0.8} luminanceSmoothing={0.3} intensity={1.8} mipmapBlur />
-      </EffectComposer>
+      {dark && (
+        <EffectComposer>
+          <Bloom luminanceThreshold={0.6} luminanceSmoothing={0.4} intensity={0.8} mipmapBlur />
+        </EffectComposer>
+      )}
     </>
   );
 };
@@ -324,29 +262,42 @@ const useIsMobile = () => {
   return m;
 };
 
+const useDarkMode = () => {
+  const [dark, setDark] = useState(false);
+  const check = useCallback(() => {
+    setDark(document.documentElement.classList.contains("dark"));
+  }, []);
+  useEffect(() => {
+    check();
+    const obs = new MutationObserver(check);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  }, [check]);
+  return dark;
+};
+
 // ---------------------------------------------------------------------------
-// Export — full-viewport 3D canvas
+// Export
 // ---------------------------------------------------------------------------
 export const CaffeineMolecule3D: React.FC<{ className?: string }> = ({ className = "" }) => {
   const isMobile = useIsMobile();
   const reduced = useReducedMotion();
+  const dark = useDarkMode();
 
   if (isMobile || reduced) return null;
 
   return (
-    <div className={`absolute inset-0 z-0 pointer-events-none ${className}`}>
+    <div
+      className={`absolute inset-0 z-0 pointer-events-none ${className}`}
+      style={{ opacity: dark ? 0.7 : 0.4 }}
+    >
       <Canvas
         dpr={[1, 1.5]}
         camera={{ position: [0, 0, 12], fov: 45 }}
-        gl={{
-          alpha: false,
-          antialias: true,
-          powerPreference: "high-performance",
-          toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.2,
-        }}
+        gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
+        style={{ background: "transparent" }}
       >
-        <MoleculeScene />
+        <MoleculeScene dark={dark} />
       </Canvas>
     </div>
   );

@@ -168,12 +168,12 @@ const HomePage = () => {
       {/* ============================================================ */}
       <div className="relative z-10 flex items-center justify-center min-h-[92vh] w-full px-4 sm:px-6 lg:px-8">
         <motion.section
-          className="w-full max-w-6xl mx-auto text-center"
+          className="w-full max-w-[90rem] mx-auto text-center"
           initial="hidden"
           animate="visible"
         >
           {/* Glass hero card */}
-          <div className="glass-bold rounded-3xl p-8 sm:p-12 md:p-16 lg:p-20 shadow-2xl">
+          <div className="glass-bold rounded-3xl p-8 sm:p-12 md:p-16 lg:p-20 xl:p-24 shadow-2xl">
             {/* Headline */}
             <motion.h1
               variants={heroTextVariants}
