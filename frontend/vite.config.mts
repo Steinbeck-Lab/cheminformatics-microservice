@@ -33,6 +33,15 @@ export default defineConfig({
   build: {
     sourcemap: "hidden",
     outDir: "dist",
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-react": ["react", "react-dom", "react-router-dom"],
+          "vendor-motion": ["motion"],
+          "vendor-ui": ["lucide-react", "class-variance-authority", "clsx", "tailwind-merge"],
+        },
+      },
+    },
   },
   test: {
     globals: true,

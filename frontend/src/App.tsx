@@ -1,5 +1,5 @@
 // src/App.js
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import {
   createBrowserRouter,
   RouterProvider,
@@ -13,26 +13,33 @@ import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
 import { ComparisonTray } from "./components/common/ComparisonTray";
 import { ComparisonView } from "./components/common/ComparisonView";
-import HomePage from "./pages/HomePage";
-import ChemPage from "./pages/ChemPage";
-import ConvertPage from "./pages/ConvertPage";
-import DepictPage from "./pages/DepictPage";
-import ToolsPage from "./pages/ToolsPage";
-import OCSRPage from "./pages/OCSRPage";
-import AboutPage from "./pages/AboutPage";
-import TermsOfService from "./pages/TermsOfService";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
+import { RouteLoadingFallback } from "./components/feedback/RouteLoadingFallback";
+import { Toaster } from "./components/ui/sonner";
+
+// Lazy-loaded pages (route-level code splitting)
+const HomePage = lazy(() => import("./pages/HomePage"));
+const ChemPage = lazy(() => import("./pages/ChemPage"));
+const ConvertPage = lazy(() => import("./pages/ConvertPage"));
+const DepictPage = lazy(() => import("./pages/DepictPage"));
+const ToolsPage = lazy(() => import("./pages/ToolsPage"));
+const OCSRPage = lazy(() => import("./pages/OCSRPage"));
+const AboutPage = lazy(() => import("./pages/AboutPage"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 
 // Layout component with header/footer
 const Layout = () => (
   <div className="flex flex-col min-h-screen bg-background text-foreground">
     <Header />
     <main className="grow">
-      <Outlet />
+      <Suspense fallback={<RouteLoadingFallback />}>
+        <Outlet />
+      </Suspense>
     </main>
     <Footer />
     <ComparisonTray />
     <ComparisonView />
+    <Toaster />
   </div>
 );
 
