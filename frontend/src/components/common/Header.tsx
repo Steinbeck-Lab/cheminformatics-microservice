@@ -127,7 +127,7 @@ const ThemeToggle = ({
 const Header = () => {
   const { isDarkMode, toggleDarkMode } = useAppContext();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [scrollOpacity, setScrollOpacity] = useState(1);
   const location = useLocation();
 
   useEffect(() => {
@@ -135,8 +135,12 @@ const Header = () => {
   }, [location]);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", handleScroll);
+    const handleScroll = () => {
+      // Fade out over the first 200px of scroll
+      const opacity = Math.max(0, 1 - window.scrollY / 200);
+      setScrollOpacity(opacity);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -145,10 +149,8 @@ const Header = () => {
   const logoLight =
     "https://raw.githubusercontent.com/Steinbeck-Lab/cheminformatics-microservice/main/public/img/logo_small.png";
 
-  // Floating pill — glass intensifies on scroll
-  const pillClasses = isScrolled
-    ? "backdrop-blur-xl bg-white/85 dark:bg-slate-900/90 shadow-lg shadow-slate-900/5 dark:shadow-black/25 border-slate-200/80 dark:border-slate-700/60"
-    : "backdrop-blur-md bg-white/70 dark:bg-slate-900/70 shadow-md shadow-slate-900/[0.03] dark:shadow-black/10 border-slate-200/50 dark:border-slate-700/40";
+  // Header fades out as user scrolls, reappears at top
+  const isVisible = scrollOpacity > 0.05;
 
   return (
     <motion.header
@@ -156,10 +158,12 @@ const Header = () => {
       variants={headerVariants}
       initial="hidden"
       animate="visible"
+      style={{
+        opacity: scrollOpacity,
+        pointerEvents: isVisible ? "auto" : "none",
+      }}
     >
-      <div
-        className={`max-w-7xl mx-auto rounded-full border transition-all duration-300 ${pillClasses}`}
-      >
+      <div className="max-w-7xl mx-auto rounded-full border transition-all duration-300 backdrop-blur-md bg-white/70 dark:bg-slate-900/70 shadow-md shadow-slate-900/[0.03] dark:shadow-black/10 border-slate-200/50 dark:border-slate-700/40">
         <div className="flex items-center h-14 px-4 sm:px-5 lg:px-6">
           {/* Logo and title */}
           <motion.div
