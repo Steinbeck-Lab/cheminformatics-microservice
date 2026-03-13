@@ -153,6 +153,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 4.1 -> 5 -> 6
 | 2. React 19 + TypeScript 5 | 2/2 | Complete | 2026-03-12 |
 | 3. Tailwind v4 Migration | 2/2 | Complete   | 2026-03-12 |
 | 4. Component System + Dark Mode | 4/5 | Gap closure | 2026-03-13 |
-| 4.1 Visual Design System | 0/7 | Not started | - |
+| 4.1 Visual Design System | 2/7 | In progress | - |
 | 5. Loading States + UX | 0/3 | Not started | - |
 | 6. Animations + Power Features | 0/3 | Not started | - |
