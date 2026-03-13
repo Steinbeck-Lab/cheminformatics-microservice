@@ -5,7 +5,6 @@ import {
   RouterProvider,
   createRoutesFromElements,
   Route,
-  Outlet,
 } from "react-router-dom";
 import { AppProvider } from "./context/AppContext";
 import { ComparisonProvider } from "./context/ComparisonContext";
@@ -14,6 +13,7 @@ import Footer from "./components/common/Footer";
 import { ComparisonTray } from "./components/common/ComparisonTray";
 import { ComparisonView } from "./components/common/ComparisonView";
 import { RouteLoadingFallback } from "./components/feedback/RouteLoadingFallback";
+import { AnimatedOutlet } from "./components/common/AnimatedOutlet";
 import { Toaster } from "./components/ui/sonner";
 
 // Lazy-loaded pages (route-level code splitting)
@@ -33,7 +33,7 @@ const Layout = () => (
     <Header />
     <main className="grow">
       <Suspense fallback={<RouteLoadingFallback />}>
-        <Outlet />
+        <AnimatedOutlet />
       </Suspense>
     </main>
     <Footer />
