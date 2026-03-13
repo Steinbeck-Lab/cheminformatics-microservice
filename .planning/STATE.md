@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 04-03-PLAN.md
-last_updated: "2026-03-12T21:34:00.889Z"
-last_activity: 2026-03-12 -- Completed Plan 04-02 (icon library consolidation)
+stopped_at: Completed 04-04-PLAN.md
+last_updated: "2026-03-13T08:28:45.043Z"
+last_activity: 2026-03-13 -- Completed Plan 04-04 (final component pass + visual verification)
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 11
-  completed_plans: 10
-  percent: 70
+  completed_plans: 11
+  percent: 100
 ---
 
 # Project State
@@ -21,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-12)
 
 **Core value:** The frontend must feel noticeably modern, fast, and polished -- while never breaking existing functionality. Zero security alerts, production-grade quality.
-**Current focus:** Phase 4 in progress. All components migrated to shadcn/ui primitives. Next: dark mode implementation (Plan 04-04).
+**Current focus:** Phase 4 complete. All components migrated to shadcn/ui with dark mode verified. Ready for Phase 5 (Loading States + UX).
 
 ## Current Position
 
-Phase: 4 of 6 (Component System + Dark Mode)
-Plan: 3 of 4 in current phase
-Status: Plan 04-03 complete, ready for Plan 04-04
-Last activity: 2026-03-13 -- Completed Plan 04-03 (bulk component migration)
+Phase: 4 of 6 (Component System + Dark Mode) -- COMPLETE
+Plan: 4 of 4 in current phase (all done)
+Status: Phase 4 complete, ready for Phase 5
+Last activity: 2026-03-13 -- Completed Plan 04-04 (final component pass + visual verification)
 
-Progress: [███████░░░] 70%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
+- Total plans completed: 11
 - Average duration: 10min
-- Total execution time: 1.5 hours
+- Total execution time: ~2 hours
 
 **By Phase:**
 
@@ -46,7 +46,7 @@ Progress: [███████░░░] 70%
 | 01-vite-migration | 3/3 | 26min | 9min |
 | 02-react-19-typescript-5 | 2/2 | 22min | 11min |
 | 03-tailwind-v4-migration | 2/2 | 24min | 12min |
-| 04-component-system-dark-mode | 3/4 | 65min | 22min |
+| 04-component-system-dark-mode | 4/4 | 70min | 18min |
 
 **Recent Trend:**
 - Last 5 plans: 12min, 19min, 5min, 10min, 10min
@@ -55,6 +55,7 @@ Progress: [███████░░░] 70%
 *Updated after each plan completion*
 | Phase 04 P01 | 18min | 3 tasks | 29 files |
 | Phase 04 P03 | 45min | 2 tasks | 36 files |
+| Phase 04 P04 | 5min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -100,6 +101,9 @@ Recent decisions affecting current work:
 - [04-03]: LayoutGroup animated tab indicators preserved as native buttons -- converting breaks framer-motion layoutId animations
 - [04-03]: AllFiltersView handleSelectChange bypassed -- call handleFilterChange(name, value) directly since shadcn onValueChange has no event.target.name
 - [04-03]: Card migration skipped -- existing card containers already work well with OKLCH variables, wrapping in Card would require restructuring 38 components for marginal benefit
+- [04-04]: Extracted ThemeToggle into reusable component shared between desktop header and mobile Sheet
+- [04-04]: Used dark: Tailwind variant classes instead of isDarkMode ternaries for header styling
+- [04-04]: No dialog/modal patterns found in codebase -- Dialog conversion skipped as unnecessary
 
 ### Pending Todos
 
@@ -107,10 +111,10 @@ None yet.
 
 ### Blockers/Concerns
 
-- shadcn/ui CLI support for JavaScript (not TypeScript) projects needs verification (Phase 4 risk)
+- ~~shadcn/ui CLI support for JavaScript (not TypeScript) projects needs verification (Phase 4 risk)~~ -- RESOLVED: shadcn/ui working with TypeScript project after Phase 2 migration
 
 ## Session Continuity
 
-Last session: 2026-03-13T12:00:00Z
-Stopped at: Completed 04-03-PLAN.md
+Last session: 2026-03-13T08:27:25Z
+Stopped at: Completed 04-04-PLAN.md -- Phase 4 complete
 Resume file: None

@@ -29,10 +29,10 @@ Requirements for this milestone. Each maps to roadmap phases.
 - [x] **COMP-01**: shadcn/ui installed and configured for Vite + Tailwind v4
 - [x] **COMP-02**: Core buttons replaced with shadcn/ui Button component
 - [x] **COMP-03**: Cards and content containers replaced with shadcn/ui Card
-- [ ] **COMP-04**: Modals and dialogs replaced with shadcn/ui Dialog/Sheet
+- [x] **COMP-04**: Modals and dialogs replaced with shadcn/ui Dialog/Sheet
 - [x] **COMP-05**: Form inputs replaced with shadcn/ui Input/Select/Textarea
 - [x] **COMP-06**: Icons migrated from react-icons to lucide-react
-- [ ] **COMP-07**: Consistent component usage across all 9 pages
+- [x] **COMP-07**: Consistent component usage across all 9 pages
 
 ### Theming & Dark Mode
 
@@ -40,7 +40,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 - [x] **THEME-02**: System preference auto-detection (prefers-color-scheme)
 - [x] **THEME-03**: Theme preference persisted in localStorage
 - [x] **THEME-04**: CSS variable-based theming using shadcn/ui approach
-- [ ] **THEME-05**: All pages and components render correctly in both light and dark modes
+- [x] **THEME-05**: All pages and components render correctly in both light and dark modes
 
 ### Loading & Feedback
 
@@ -115,15 +115,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | COMP-01 | Phase 4 | Complete |
 | COMP-02 | Phase 4 | Complete |
 | COMP-03 | Phase 4 | Complete |
-| COMP-04 | Phase 4 | Pending |
+| COMP-04 | Phase 4 | Complete |
 | COMP-05 | Phase 4 | Complete |
 | COMP-06 | Phase 4 | Complete |
-| COMP-07 | Phase 4 | Pending |
+| COMP-07 | Phase 4 | Complete |
 | THEME-01 | Phase 4 | Complete |
 | THEME-02 | Phase 4 | Complete |
 | THEME-03 | Phase 4 | Complete |
 | THEME-04 | Phase 4 | Complete |
-| THEME-05 | Phase 4 | Pending |
+| THEME-05 | Phase 4 | Complete |
 | LOAD-01 | Phase 5 | Pending |
 | LOAD-02 | Phase 5 | Pending |
 | LOAD-03 | Phase 5 | Pending |
