@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04.1-04-PLAN.md
-last_updated: "2026-03-13T13:41:28Z"
-last_activity: 2026-03-13 -- Completed Plan 04.1-04 (Resizable panels, enhanced molecule cards, BentoCard wiring)
+stopped_at: Completed 04.1-05-PLAN.md
+last_updated: "2026-03-13T13:54:01Z"
+last_activity: 2026-03-13 -- Completed Plan 04.1-05 (Comparison mode with tray, side-by-side view, AddToCompareButton)
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 19
-  completed_plans: 18
-  percent: 95
+  completed_plans: 19
+  percent: 100
 ---
 
 # Project State
@@ -21,21 +21,21 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-12)
 
 **Core value:** The frontend must feel noticeably modern, fast, and polished -- while never breaking existing functionality. Zero security alerts, production-grade quality.
-**Current focus:** Phase 04.1 in progress -- Visual Design System (glassmorphism, liquid glass, bento grids). Resizable panels installed, molecule cards enhanced, BentoCard wired to ResizableToolPanel. Ready for Plan 05 (comparison mode).
+**Current focus:** Phase 04.1 in progress -- Visual Design System (glassmorphism, liquid glass, bento grids). Comparison mode complete with ComparisonContext, tray, side-by-side view, and AddToCompareButton wired into ChemPage. Ready for Plan 06 (polish).
 
 ## Current Position
 
 Phase: 4.1 of 6 (Visual Design System -- Glassmorphism, Liquid Glass & Bento Grids)
-Plan: 5 of 7 in current phase (Plans 00-04 complete)
+Plan: 6 of 7 in current phase (Plans 00-05 complete)
 Status: Phase 04.1 in progress
-Last activity: 2026-03-13 -- Completed Plan 04.1-04 (Resizable panels, enhanced molecule cards, BentoCard wiring)
+Last activity: 2026-03-13 -- Completed Plan 04.1-05 (Comparison mode with tray, side-by-side view, AddToCompareButton)
 
-Progress: [█████████░] 95%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16
+- Total plans completed: 17
 - Average duration: 9min
 - Total execution time: ~2 hours
 
@@ -49,7 +49,7 @@ Progress: [█████████░] 95%
 | 04-component-system-dark-mode | 5/5 | 77min | 15min |
 
 **Recent Trend:**
-- Last 5 plans: 10min, 7min, 2min, 3min, 4min
+- Last 5 plans: 7min, 2min, 3min, 4min, 7min
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -62,6 +62,7 @@ Progress: [█████████░] 95%
 | Phase 04.1 P02 | 4min | 2 tasks | 4 files |
 | Phase 04.1 P03 | 4min | 2 tasks | 5 files |
 | Phase 04.1 P04 | 11min | 3 tasks | 9 files |
+| Phase 04.1 P05 | 7min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -127,6 +128,9 @@ Recent decisions affecting current work:
 - [04.1-04]: Used autoSaveId on ResizablePanelGroup for localStorage persistence -- no hand-rolled localStorage management
 - [04.1-04]: BentoCard inputContent/outputContent optional props keep backward compatibility with children-only usage
 - [04.1-04]: MoleculeCard expand/collapse fetches descriptors on-demand via existing /latest/chem/descriptors endpoint
+- [04.1-05]: Used React Context (not zustand) for comparison state -- bounded to max 2 items, no complex selectors needed
+- [04.1-05]: DOM event delegation on #smiles-input captures SMILES from any tool component without refactoring all 14 tool views
+- [04.1-05]: BentoCard headerExtra prop provides extensible slot for additional expanded header content
 
 ### Pending Todos
 
@@ -142,6 +146,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-13T13:41:28Z
-Stopped at: Completed 04.1-04-PLAN.md
-Resume file: .planning/phases/04.1-visual-design-system-glassmorphism-liquid-glass-bento-grids/04.1-05-PLAN.md
+Last session: 2026-03-13T13:54:01Z
+Stopped at: Completed 04.1-05-PLAN.md
+Resume file: .planning/phases/04.1-visual-design-system-glassmorphism-liquid-glass-bento-grids/04.1-06-PLAN.md
