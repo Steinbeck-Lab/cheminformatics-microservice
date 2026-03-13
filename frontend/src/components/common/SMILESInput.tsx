@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { SMILESPreview } from "./SMILESPreview";
 
 // Example molecules data (static, moved outside component)
 const EXAMPLE_MOLECULES = [
@@ -87,6 +88,7 @@ const PasteModal = ({ isOpen, onClose, onPaste }) => {
             Paste SMILES
           </h3>
           <Button
+            variant="ghost"
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             aria-label="Close"
@@ -109,6 +111,7 @@ const PasteModal = ({ isOpen, onClose, onPaste }) => {
         </div>
         <div className="flex justify-end gap-3">
           <Button
+            variant="secondary"
             onClick={onClose}
             className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
           >
@@ -283,6 +286,7 @@ const SMILESInput = ({
         {/* Clear button */}
         {value && (
           <Button
+            variant="ghost"
             type="button" // Prevent form submission
             onClick={handleClear}
             // Button styling
@@ -293,6 +297,9 @@ const SMILESInput = ({
           </Button>
         )}
       </div>
+
+      {/* Inline 2D structure preview */}
+      <SMILESPreview smiles={value} />
 
       {/* Paste Error Display */}
       {pasteError && (
