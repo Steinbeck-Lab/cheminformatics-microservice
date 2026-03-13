@@ -66,6 +66,8 @@ interface BentoCardProps {
   inputContent?: React.ReactNode;
   /** Right/bottom panel content for resizable split layout (optional). */
   outputContent?: React.ReactNode;
+  /** Extra content rendered in expanded card header (e.g., AddToCompareButton). */
+  headerExtra?: React.ReactNode;
 }
 
 /**
@@ -109,6 +111,7 @@ export function BentoCard({
   children,
   inputContent,
   outputContent,
+  headerExtra,
 }: BentoCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery("(max-width: 639px)");
@@ -159,6 +162,7 @@ export function BentoCard({
           <h3 className="text-base font-semibold text-foreground truncate">{name}</h3>
           <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{description}</p>
         </div>
+        {isExpanded && headerExtra}
         {isExpanded && (
           <Button
             variant="ghost"

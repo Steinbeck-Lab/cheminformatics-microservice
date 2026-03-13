@@ -42,6 +42,7 @@ import {
 import { BentoGrid, BentoCard } from "@/components/common/BentoGrid";
 import { getBentoSize } from "@/config/bentoLayouts";
 import { GradientMesh } from "@/components/common/GradientMesh";
+import { AddToCompareButton } from "@/components/common/AddToCompareButton";
 
 // Define tab data with icons and components
 const tabs = [
@@ -161,6 +162,21 @@ const ChemPage = () => {
   const { toolId } = useParams<{ toolId?: string }>();
   const navigate = useNavigate();
   const [expandedToolId, setExpandedToolId] = useState<string | null>(null);
+  const [currentSmiles, setCurrentSmiles] = useState("");
+
+  // Capture SMILES from tool input fields via DOM event delegation.
+  // Tool components use internal state for SMILES; this listener picks up
+  // changes from any #smiles-input within the page for the compare button.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      if (target.id === "smiles-input" || target.getAttribute("data-smiles-input")) {
+        setCurrentSmiles(target.value || "");
+      }
+    };
+    document.addEventListener("input", handler);
+    return () => document.removeEventListener("input", handler);
+  }, []);
 
   // Initialize expanded tool from URL parameter on mount
   useEffect(() => {
@@ -211,6 +227,15 @@ const ChemPage = () => {
               isExpanded={expandedToolId === tab.id}
               isOtherExpanded={expandedToolId !== null && expandedToolId !== tab.id}
               onToggle={() => handleToggle(tab.id)}
+              headerExtra={
+                expandedToolId === tab.id ? (
+                  <AddToCompareButton
+                    smiles={currentSmiles}
+                    title={tab.name}
+                    sourceToolId={tab.id}
+                  />
+                ) : undefined
+              }
             >
               <tab.component />
             </BentoCard>
