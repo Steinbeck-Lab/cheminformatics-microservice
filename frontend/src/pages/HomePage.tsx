@@ -1,10 +1,11 @@
 /**
- * HomePage -- glassmorphism hero with bento-style feature cards.
+ * HomePage — Immersive hero with 3D caffeine molecule background,
+ * glassmorphism card, and claymorphism buttons.
  *
- * Uses GradientMesh background, glass-bold hero section, and
- * bento-style feature cards that navigate to tool pages (not expandable).
+ * Wide-screen optimised: hero fills the viewport, content uses max-w-7xl.
+ * 3D molecule renders on desktop only; mobile gets the GradientMesh fallback.
  */
-import React, { useState } from "react";
+import React, { useState, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { useAppContext } from "../context/AppContext";
@@ -22,6 +23,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { GradientMesh } from "@/components/common/GradientMesh";
+
+// Lazy-load 3D scene (heavy — Three.js bundle)
+const CaffeineMolecule3D = lazy(() => import("@/components/3d/CaffeineMolecule3D"));
 
 // --- Feature Configuration ---
 const features = [
@@ -60,14 +64,13 @@ const features = [
 ];
 
 // --- Animation Variants ---
-const itemVariants = {
-  hidden: { y: 25, opacity: 0, scale: 0.97 },
-  visible: {
-    y: 0,
+const heroTextVariants = {
+  hidden: { opacity: 0, y: -20 },
+  visible: (i = 1) => ({
     opacity: 1,
-    scale: 1,
-    transition: { type: "spring", stiffness: 100, damping: 20 },
-  },
+    y: 0,
+    transition: { type: "spring", stiffness: 100, damping: 20, delay: i * 0.07 },
+  }),
 };
 
 const containerVariants = {
@@ -78,13 +81,14 @@ const containerVariants = {
   },
 };
 
-const heroTextVariants = {
-  hidden: { opacity: 0, y: -20 },
-  visible: (i = 1) => ({
-    opacity: 1,
+const itemVariants = {
+  hidden: { y: 25, opacity: 0, scale: 0.97 },
+  visible: {
     y: 0,
-    transition: { type: "spring", stiffness: 100, damping: 20, delay: i * 0.07 },
-  }),
+    opacity: 1,
+    scale: 1,
+    transition: { type: "spring", stiffness: 100, damping: 20 },
+  },
 };
 
 const sectionFadeIn = {
@@ -101,7 +105,7 @@ const ribbonContentVariants = {
   }),
 };
 
-// --- Helper Component for 3D Tilt Effect (Subtle) ---
+// --- Tilt Card (for feature cards) ---
 const TiltCard = ({
   children,
   className = "",
@@ -124,9 +128,7 @@ const TiltCard = ({
     setRotate({ x: rotateX, y: rotateY });
   };
 
-  const onMouseLeave = () => {
-    setRotate({ x: 0, y: 0 });
-  };
+  const onMouseLeave = () => setRotate({ x: 0, y: 0 });
 
   return (
     <motion.div
@@ -153,103 +155,117 @@ const HomePage = () => {
 
   return (
     <div className="relative min-h-screen w-full text-slate-900 dark:text-slate-100 font-sans overflow-x-hidden isolate">
-      {/* Gradient mesh background */}
+      {/* Gradient mesh — visible on mobile, sits behind 3D on desktop */}
       <GradientMesh page="home" />
 
-      {/* --- Content Container --- */}
-      <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 z-10">
+      {/* 3D Caffeine molecule background — desktop only, lazy-loaded */}
+      <Suspense fallback={null}>
+        <CaffeineMolecule3D />
+      </Suspense>
+
+      {/* ============================================================ */}
+      {/* HERO SECTION — Full viewport, glass card centered             */}
+      {/* ============================================================ */}
+      <div className="relative z-10 flex items-center justify-center min-h-[92vh] w-full px-4 sm:px-6 lg:px-8">
+        <motion.section
+          className="w-full max-w-6xl mx-auto text-center"
+          initial="hidden"
+          animate="visible"
+        >
+          {/* Glass hero card */}
+          <div className="glass-bold rounded-3xl p-8 sm:p-12 md:p-16 lg:p-20 shadow-2xl">
+            {/* Headline */}
+            <motion.h1
+              variants={heroTextVariants}
+              custom={0}
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold text-slate-900 dark:text-white mb-5 sm:mb-6 leading-[1.08] tracking-tighter"
+            >
+              Seamless Access to
+              <motion.span
+                variants={heroTextVariants}
+                custom={1}
+                className="block text-transparent bg-clip-text bg-linear-to-r from-sky-600 via-cyan-500 to-indigo-600 dark:from-sky-400 dark:via-cyan-400 dark:to-emerald-400 mt-1 md:mt-2"
+              >
+                Open Cheminformatics Tools
+              </motion.span>
+            </motion.h1>
+
+            {/* Sub-headline */}
+            <motion.p
+              variants={heroTextVariants}
+              custom={2}
+              className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto mb-10 sm:mb-12 leading-relaxed"
+            >
+              Visualize, analyze, and manipulate chemical structures seamlessly using the powerful
+              Cheminformatics Microservice API.
+            </motion.p>
+
+            {/* CTA Buttons — claymorphism */}
+            <motion.div
+              variants={heroTextVariants}
+              custom={3}
+              className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4 md:gap-6"
+            >
+              {/* Primary CTA */}
+              <Button
+                asChild
+                size="lg"
+                className="clay-interactive group w-full sm:w-auto relative h-auto inline-flex items-center justify-center px-8 py-3.5 sm:px-10 sm:py-4 text-base sm:text-lg font-semibold text-white bg-linear-to-r from-sky-600 to-cyan-500 dark:from-blue-600 dark:to-cyan-500 rounded-2xl shadow-lg hover:shadow-xl hover:brightness-110 dark:hover:shadow-cyan-500/30 transition-all duration-300 ease-out transform hover:scale-[1.04] active:scale-[0.98] focus:outline-hidden focus:ring-4 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950 focus:ring-cyan-500/50 cursor-pointer"
+              >
+                <Link to="/depict">
+                  <span className="relative z-10 flex items-center">
+                    Get Started{" "}
+                    <ArrowRight className="ml-2.5 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1.5" />
+                  </span>
+                </Link>
+              </Button>
+
+              {/* Secondary: Guides */}
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="clay-interactive group w-full sm:w-auto relative h-auto inline-flex items-center justify-center px-8 py-3.5 sm:px-10 sm:py-4 text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-200 glass-bold rounded-2xl border-white/30 dark:border-slate-600/30 hover:bg-white/20 dark:hover:bg-slate-700/30 shadow-lg hover:shadow-xl transition-all duration-300 ease-out transform hover:scale-[1.04] active:scale-[0.98] focus:outline-hidden focus:ring-4 focus:ring-slate-400/50 dark:focus:ring-slate-600/50 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950 cursor-pointer"
+              >
+                <a
+                  href="https://docs.api.naturalproducts.net/introduction.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className="relative z-10 flex items-center">
+                    <Code className="mr-2 h-5 w-5 text-green-600 dark:text-green-400" /> Guides
+                  </span>
+                </a>
+              </Button>
+
+              {/* Secondary: API Docs */}
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="clay-interactive group w-full sm:w-auto relative h-auto inline-flex items-center justify-center px-8 py-3.5 sm:px-10 sm:py-4 text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-200 glass-bold rounded-2xl border-white/30 dark:border-slate-600/30 hover:bg-white/20 dark:hover:bg-slate-700/30 shadow-lg hover:shadow-xl transition-all duration-300 ease-out transform hover:scale-[1.04] active:scale-[0.98] focus:outline-hidden focus:ring-4 focus:ring-slate-400/50 dark:focus:ring-slate-600/50 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950 cursor-pointer"
+              >
+                <a
+                  href="https://api.naturalproducts.net/latest/docs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className="relative z-10 flex items-center">
+                    <BookOpen className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" /> API Docs
+                  </span>
+                </a>
+              </Button>
+            </motion.div>
+          </div>
+        </motion.section>
+      </div>
+
+      {/* ============================================================ */}
+      {/* BELOW THE FOLD — Feature cards, recent molecules, ribbon     */}
+      {/* ============================================================ */}
+      <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 pb-12 md:pb-16 z-10">
         <div className="max-w-7xl mx-auto">
-          {/* --- Glass Hero Section --- */}
-          <motion.section
-            className="relative text-center mb-16 md:mb-24 pt-8 sm:pt-12 md:pt-16"
-            initial="hidden"
-            animate="visible"
-          >
-            <div className="glass-bold rounded-3xl p-8 sm:p-12 md:p-16 max-w-5xl mx-auto">
-              {/* Headline */}
-              <motion.h1
-                variants={heroTextVariants}
-                custom={0}
-                className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold text-slate-900 dark:text-white mb-5 sm:mb-6 leading-tight tracking-tighter"
-              >
-                Seamless Access to
-                <motion.span
-                  variants={heroTextVariants}
-                  custom={1}
-                  className="block text-transparent bg-clip-text bg-linear-to-r from-sky-600 via-cyan-500 to-indigo-600 dark:from-sky-400 dark:via-cyan-400 dark:to-emerald-400 mt-1 md:mt-2"
-                >
-                  Open Cheminformatics Tools
-                </motion.span>
-              </motion.h1>
-
-              {/* Sub-headline */}
-              <motion.p
-                variants={heroTextVariants}
-                custom={2}
-                className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto mb-10 sm:mb-12"
-              >
-                Visualize, analyze, and manipulate chemical structures seamlessly using the powerful
-                Cheminformatics Microservice API.
-              </motion.p>
-
-              {/* Button Container */}
-              <motion.div
-                variants={heroTextVariants}
-                custom={3}
-                className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4 md:gap-6"
-              >
-                {/* Primary CTA Button */}
-                <Button
-                  asChild
-                  size="lg"
-                  className="clay-interactive group w-full sm:w-auto relative h-auto inline-flex items-center justify-center px-7 py-3 sm:px-9 sm:py-4 text-base sm:text-lg font-semibold text-white bg-linear-to-r from-sky-600 to-cyan-500 dark:from-blue-600 dark:to-cyan-500 rounded-xl shadow-lg hover:shadow-xl hover:brightness-110 dark:hover:shadow-cyan-500/30 transition-all duration-300 ease-out transform hover:scale-[1.06] focus:outline-hidden focus:ring-4 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950 focus:ring-cyan-500/50 dark:focus:ring-cyan-400/50"
-                >
-                  <Link to="/depict">
-                    <span className="relative z-10 flex items-center">
-                      Get Started{" "}
-                      <ArrowRight className="ml-2.5 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1.5" />
-                    </span>
-                  </Link>
-                </Button>
-                {/* Secondary Buttons */}
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="group w-full sm:w-auto relative h-auto inline-flex items-center justify-center px-7 py-3 sm:px-9 sm:py-4 text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-200 bg-white/90 dark:bg-slate-800/80 backdrop-blur-md border-slate-300 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700/90 hover:border-slate-400 dark:hover:border-slate-500 rounded-xl shadow-md hover:shadow-lg dark:hover:shadow-slate-700/40 transition-all duration-300 ease-out transform hover:scale-[1.06] focus:outline-hidden focus:ring-4 focus:ring-slate-400/50 dark:focus:ring-slate-600/50 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950"
-                >
-                  <a
-                    href="https://docs.api.naturalproducts.net/introduction.html"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <span className="relative z-10 flex items-center">
-                      <Code className="mr-2 h-5 w-5 text-green-600 dark:text-green-400" /> Guides
-                    </span>
-                  </a>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="group w-full sm:w-auto relative h-auto inline-flex items-center justify-center px-7 py-3 sm:px-9 sm:py-4 text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-200 bg-white/90 dark:bg-slate-800/80 backdrop-blur-md border-slate-300 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700/90 hover:border-slate-400 dark:hover:border-slate-500 rounded-xl shadow-md hover:shadow-lg dark:hover:shadow-slate-700/40 transition-all duration-300 ease-out transform hover:scale-[1.06] focus:outline-hidden focus:ring-4 focus:ring-slate-400/50 dark:focus:ring-slate-600/50 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950"
-                >
-                  <a
-                    href="https://api.naturalproducts.net/latest/docs"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <span className="relative z-10 flex items-center">
-                      <BookOpen className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" /> API
-                      Docs
-                    </span>
-                  </a>
-                </Button>
-              </motion.div>
-            </div>
-          </motion.section>
-
-          {/* --- Bento-Style Feature Cards --- */}
+          {/* --- Feature Cards --- */}
           <motion.section
             className="mb-16 md:mb-24"
             variants={containerVariants}
@@ -271,7 +287,7 @@ const HomePage = () => {
                   <motion.div key={index} variants={itemVariants}>
                     <TiltCard tiltIntensity={5}>
                       <Link to={feature.link} className="block h-full">
-                        <Card className="glass-bold clay-interactive rounded-2xl p-6 sm:p-8 h-full flex flex-col hover:-translate-y-1 transition-transform duration-200 border-0 gap-0">
+                        <Card className="glass-bold clay-interactive rounded-2xl p-6 sm:p-8 h-full flex flex-col hover:-translate-y-1 transition-transform duration-200 border-0 gap-0 cursor-pointer">
                           <div className="mb-5 flex items-center justify-center h-14 w-14 rounded-2xl bg-linear-to-br from-slate-100 to-sky-100 dark:from-blue-700/60 dark:to-cyan-700/60 shadow-md">
                             <Icon className="h-7 w-7 text-sky-700 dark:text-sky-200" />
                           </div>
@@ -294,7 +310,7 @@ const HomePage = () => {
             </div>
           </motion.section>
 
-          {/* --- Recent Molecules Section (Glass-wrapped) --- */}
+          {/* --- Recent Molecules --- */}
           {recentMolecules && recentMolecules.length > 0 && (
             <motion.section
               className="mb-16 md:mb-24"
@@ -342,7 +358,7 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* --- API Information Section (Ribbon Style - Full Width Background) --- */}
+      {/* --- API Ribbon Section --- */}
       <motion.section
         className="relative bg-linear-to-r from-sky-100 via-indigo-100 to-fuchsia-100 dark:from-gray-900 dark:via-indigo-950/80 dark:to-fuchsia-950/70 py-12 sm:py-16 md:py-20"
         variants={sectionFadeIn}

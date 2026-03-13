@@ -58,6 +58,13 @@ export default [
       "jsx-a11y/no-autofocus": "warn",
     },
   },
+  // React Three Fiber uses custom JSX props (position, args, intensity, etc.)
+  {
+    files: ["**/components/3d/**/*.{ts,tsx}"],
+    rules: {
+      "react/no-unknown-property": "off",
+    },
+  },
   prettierConfig,
   {
     ignores: ["dist/", "build/", "node_modules/", "public/standalone/"],
