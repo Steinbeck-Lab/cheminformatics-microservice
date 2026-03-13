@@ -136,12 +136,12 @@ Plans:
   3. Results lists and data displays animate in with staggered timing, and tab/section changes animate content layout shifts
   4. Pressing Cmd+K (Mac) or Ctrl+K (Windows) opens a command palette that allows quick navigation to any tool page
   5. Typing a SMILES string in any input field shows an inline 2D structure preview of the molecule
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 06-01: TBD
-- [ ] 06-02: TBD
-- [ ] 06-03: TBD
+- [ ] 06-01-PLAN.md -- All animations: CSS button micro-interactions (hover lift+glow, press scale), focus ring animations, AnimatedOutlet page transitions, tab content cross-fade, stagger/layout animations
+- [ ] 06-02-PLAN.md -- Inline SMILES preview: useDebounce hook, SMILESPreview component with glass skeleton, SMILESInput integration across all 23 tool views
+- [ ] 06-03-PLAN.md -- Command palette + breadcrumbs: navigation registry, shadcn Command (cmdk), Cmd+K palette with fuzzy search across pages/tools/molecules, breadcrumb navigation on tool pages
 
 ## Progress
 
