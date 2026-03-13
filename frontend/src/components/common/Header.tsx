@@ -116,8 +116,8 @@ const Header = () => {
 
   // Floating pill glass effect — intensifies on scroll
   const pillClasses = isScrolled
-    ? "backdrop-blur-xl bg-white/80 dark:bg-slate-900/85 shadow-lg shadow-slate-900/5 dark:shadow-black/20 border-white/60 dark:border-slate-700/50"
-    : "backdrop-blur-md bg-white/60 dark:bg-slate-900/60 shadow-md shadow-slate-900/[0.03] dark:shadow-black/10 border-white/40 dark:border-slate-700/30";
+    ? "backdrop-blur-xl bg-white/85 dark:bg-slate-900/90 shadow-lg shadow-slate-900/5 dark:shadow-black/25 border-slate-200/80 dark:border-slate-700/60"
+    : "backdrop-blur-md bg-white/70 dark:bg-slate-900/70 shadow-md shadow-slate-900/[0.03] dark:shadow-black/10 border-slate-200/50 dark:border-slate-700/40";
 
   return (
     <motion.header
@@ -127,9 +127,9 @@ const Header = () => {
       animate="visible"
     >
       <div
-        className={`max-w-6xl mx-auto rounded-2xl border transition-all duration-300 ${pillClasses}`}
+        className={`max-w-7xl mx-auto rounded-2xl border transition-all duration-300 ${pillClasses}`}
       >
-        <div className="flex items-center h-14 px-4 sm:px-5 justify-between">
+        <div className="flex items-center h-16 px-5 sm:px-6 lg:px-8">
           {/* Logo and title */}
           <motion.div
             className="shrink-0 flex items-center"
@@ -157,7 +157,7 @@ const Header = () => {
                 <span className="font-bold text-lg sm:text-xl leading-tight bg-linear-to-r from-sky-600 to-indigo-600 dark:from-sky-300 dark:to-blue-400 text-transparent bg-clip-text">
                   Cheminformatics
                 </span>
-                <span className="hidden md:inline text-[11px] leading-tight -mt-0.5 text-indigo-500 dark:text-sky-300">
+                <span className="hidden lg:inline text-[11px] leading-tight -mt-0.5 text-indigo-500 dark:text-sky-300">
                   Microservices
                 </span>
               </div>
@@ -165,9 +165,9 @@ const Header = () => {
           </motion.div>
 
           {/* Separator — logo / nav */}
-          <div className="hidden md:block h-8 w-px bg-slate-300/70 dark:bg-slate-600/50 mx-4 lg:mx-5 shrink-0" />
+          <div className="hidden md:block self-stretch my-3 w-px bg-slate-300 dark:bg-slate-600 mx-5 lg:mx-7 shrink-0" />
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation — fills center */}
           <motion.div
             className="hidden md:flex items-center flex-1 min-w-0 justify-center"
             variants={headerContentVariants}
@@ -176,12 +176,9 @@ const Header = () => {
             <Navigation />
           </motion.div>
 
-          {/* Separator — nav / toggle */}
-          <div className="hidden md:block h-8 w-px bg-slate-300/70 dark:bg-slate-600/50 mx-4 lg:mx-5 shrink-0" />
-
-          {/* Desktop Theme Toggle */}
+          {/* Desktop Theme Toggle — right edge */}
           <motion.div
-            className="hidden md:flex items-center shrink-0"
+            className="hidden md:flex items-center shrink-0 ml-5 lg:ml-7"
             variants={headerContentVariants}
             custom={2}
           >
