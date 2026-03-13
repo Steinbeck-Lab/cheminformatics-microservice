@@ -11,15 +11,15 @@ import {
   Users,
 } from "lucide-react";
 
-// Navigation links configuration
+// Navigation links — shortLabel used at lg, full label at xl+
 const navLinks = [
-  { to: "/home", label: "Home", icon: House, exact: true },
-  { to: "/chem", label: "Chemical Analysis", icon: FlaskConical },
-  { to: "/convert", label: "Format Conversion", icon: RefreshCw },
-  { to: "/depict", label: "Depiction", icon: LineChart },
-  { to: "/tools", label: "Tools", icon: SlidersHorizontal },
-  { to: "/ocsr", label: "OCSR", icon: Camera },
-  { to: "/about", label: "About", icon: Users },
+  { to: "/home", label: "Home", shortLabel: "Home", icon: House, exact: true },
+  { to: "/chem", label: "Chemical Analysis", shortLabel: "Analysis", icon: FlaskConical },
+  { to: "/convert", label: "Format Conversion", shortLabel: "Convert", icon: RefreshCw },
+  { to: "/depict", label: "Depiction", shortLabel: "Depict", icon: LineChart },
+  { to: "/tools", label: "Tools", shortLabel: "Tools", icon: SlidersHorizontal },
+  { to: "/ocsr", label: "OCSR", shortLabel: "OCSR", icon: Camera },
+  { to: "/about", label: "About", shortLabel: "About", icon: Users },
 ];
 
 // Smooth spring for icon hover/tap
@@ -71,14 +71,14 @@ const Navigation = ({
   // --- Desktop layout with animated active pill ---
   return (
     <LayoutGroup id="desktopNav">
-      <nav className="flex items-center gap-0.5 lg:gap-1">
+      <nav className="flex items-center gap-0.5 xl:gap-1">
         {navLinks.map((link) => {
           const Icon = link.icon;
           return (
             <NavLink key={link.to} to={link.to} end={link.exact} className="relative outline-none">
               {({ isActive }) => (
                 <motion.div
-                  className={`relative flex items-center px-2 lg:px-2.5 py-1 text-sm font-medium rounded-full cursor-pointer select-none ${
+                  className={`relative flex items-center px-2.5 xl:px-3 py-1.5 text-sm font-medium rounded-full cursor-pointer select-none ${
                     isActive
                       ? "text-white dark:text-slate-900"
                       : "text-slate-600 dark:text-slate-400"
@@ -117,13 +117,19 @@ const Navigation = ({
                     />
                   )}
 
-                  {/* Icon with hover/tap animation */}
-                  <motion.span className="relative z-10 shrink-0 mr-1.5" variants={iconVariants}>
+                  {/* Icon — hidden at lg, visible at xl */}
+                  <motion.span
+                    className="relative z-10 shrink-0 mr-1.5 hidden xl:inline-flex"
+                    variants={iconVariants}
+                  >
                     <Icon className="h-4 w-4" aria-hidden="true" />
                   </motion.span>
 
-                  {/* Label */}
-                  <span className="relative z-10 whitespace-nowrap">{link.label}</span>
+                  {/* Label — short at lg, full at xl */}
+                  <span className="relative z-10 whitespace-nowrap">
+                    <span className="xl:hidden">{link.shortLabel}</span>
+                    <span className="hidden xl:inline">{link.label}</span>
+                  </span>
                 </motion.div>
               )}
             </NavLink>

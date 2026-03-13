@@ -22,7 +22,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 // Layout component with header/footer
 const Layout = () => (
-  <div className="flex flex-col min-h-screen bg-gray-900 text-white">
+  <div className="flex flex-col min-h-screen bg-background text-foreground">
     <Header />
     <main className="grow">
       <Outlet />

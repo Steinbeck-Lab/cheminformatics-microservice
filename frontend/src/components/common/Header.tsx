@@ -160,7 +160,7 @@ const Header = () => {
       <div
         className={`max-w-7xl mx-auto rounded-full border transition-all duration-300 ${pillClasses}`}
       >
-        <div className="flex items-center h-12 px-4 sm:px-5 lg:px-6">
+        <div className="flex items-center h-14 px-4 sm:px-5 lg:px-6">
           {/* Logo and title */}
           <motion.div
             className="shrink-0 flex items-center"
@@ -180,7 +180,7 @@ const Header = () => {
                 <img
                   src={isDarkMode ? logoDark : logoLight}
                   alt="Cheminformatics Microservice Logo"
-                  className="h-7 w-auto"
+                  className="h-8 w-auto"
                 />
               </motion.div>
 
@@ -188,7 +188,7 @@ const Header = () => {
                 <span className="font-bold text-base sm:text-lg leading-tight bg-linear-to-r from-sky-600 to-indigo-600 dark:from-sky-300 dark:to-blue-400 text-transparent bg-clip-text">
                   Cheminformatics
                 </span>
-                <span className="hidden lg:inline text-[10px] leading-tight -mt-0.5 text-indigo-500 dark:text-sky-300">
+                <span className="hidden xl:inline text-[10px] leading-tight -mt-0.5 text-indigo-500 dark:text-sky-300">
                   Microservices
                 </span>
               </div>
@@ -196,11 +196,11 @@ const Header = () => {
           </motion.div>
 
           {/* Separator — logo / nav */}
-          <div className="hidden md:block self-stretch my-2.5 w-px bg-slate-300 dark:bg-slate-600 mx-4 lg:mx-5 shrink-0" />
+          <div className="hidden lg:block self-stretch my-3 w-px bg-slate-300 dark:bg-slate-600 mx-4 xl:mx-5 shrink-0" />
 
           {/* Desktop Navigation — fills center */}
           <motion.div
-            className="hidden md:flex items-center flex-1 min-w-0 justify-center"
+            className="hidden lg:flex items-center flex-1 min-w-0 justify-center"
             variants={headerContentVariants}
             custom={1}
           >
@@ -208,11 +208,11 @@ const Header = () => {
           </motion.div>
 
           {/* Separator — nav / toggle */}
-          <div className="hidden md:block self-stretch my-2.5 w-px bg-slate-300 dark:bg-slate-600 mx-4 lg:mx-5 shrink-0" />
+          <div className="hidden lg:block self-stretch my-3 w-px bg-slate-300 dark:bg-slate-600 mx-4 xl:mx-5 shrink-0" />
 
           {/* Desktop Theme Toggle */}
           <motion.div
-            className="hidden md:flex items-center shrink-0"
+            className="hidden lg:flex items-center shrink-0"
             variants={headerContentVariants}
             custom={2}
           >
@@ -220,7 +220,7 @@ const Header = () => {
           </motion.div>
 
           {/* Mobile menu button */}
-          <div className="flex items-center md:hidden ml-auto">
+          <div className="flex items-center lg:hidden ml-auto">
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
               <SheetTrigger asChild>
                 <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}>
