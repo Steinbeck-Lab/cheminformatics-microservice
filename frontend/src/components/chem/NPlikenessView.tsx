@@ -3,10 +3,12 @@ import React, { useState } from "react";
 // Ensure all used icons are imported
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
-import LoadingScreen from "../common/LoadingScreen";
-// Assuming this service is configured correctly
 import { calculateNPLikeness } from "../../services/chemService"; // Assuming this service exists
-import { AlertCircle, Calculator, Info } from "lucide-react";
+import { AlertCircle, Calculator, Info, Loader2 } from "lucide-react";
+import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
+import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AddToCompareButton } from "../common/AddToCompareButton";
@@ -44,7 +46,7 @@ const NPlikenessView = () => {
       }
     } catch (err) {
       console.error("NP-likeness calculation error:", err); // Log the error
-      setError(`Error calculating NP-likeness: ${err.message || "An unknown error occurred."}`);
+      setError(getErrorMessage("chem", err));
       setNpScore(null); // Ensure score is null on error
     } finally {
       setLoading(false);
@@ -110,22 +112,18 @@ const NPlikenessView = () => {
       </div>
 
       {/* Loading State */}
-      {loading && <LoadingScreen text="Calculating NP-likeness score..." />}
+      {loading && !npScore && <ToolSkeleton variant="descriptors" />}
 
       {/* Error Display */}
-      {error &&
-        !loading && ( // Show error only if not loading
-          <div
-            className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
-            role="alert"
-          >
-            <AlertCircle
-              className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
-              aria-hidden="true"
-            />
-            <span>{error}</span>
-          </div>
-        )}
+      {error && !loading && (
+        <GlassErrorCard
+          message={error}
+          onRetry={() => {
+            setError(null);
+            document.getElementById("smiles-input")?.focus();
+          }}
+        />
+      )}
 
       {/* Results Display Section */}
       {/* Show only if score exists (is a number) and not loading and no error */}
@@ -149,6 +147,7 @@ const NPlikenessView = () => {
               )}
               {/* Info Button (Consider adding tooltip/modal functionality) */}
               <Button
+                variant="ghost"
                 className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 title="About NP-likeness scores (Not implemented)"
                 onClick={() =>

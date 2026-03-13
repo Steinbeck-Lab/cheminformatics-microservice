@@ -4,10 +4,12 @@ import React, { useState } from "react";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
 import MoleculeCard from "../common/MoleculeCard";
-import LoadingScreen from "../common/LoadingScreen";
-// Assuming this service is configured correctly
 import { checkStructureErrors } from "../../services/chemService"; // Assuming this service exists
-import { AlertCircle, Check, Info, PencilLine, ShieldCheck } from "lucide-react";
+import { AlertCircle, Check, Info, PencilLine, ShieldCheck, Loader2 } from "lucide-react";
+import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
+import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -44,7 +46,7 @@ const StructureErrorView = () => {
       // }
     } catch (err) {
       console.error("Structure check error:", err); // Log the error
-      setError(`Error checking structure: ${err.message || "An unknown error occurred."}`);
+      setError(getErrorMessage("chem", err));
       setResult(null); // Ensure result is null on error
     } finally {
       setLoading(false);
@@ -148,22 +150,18 @@ const StructureErrorView = () => {
       </div>
 
       {/* Loading State */}
-      {loading && <LoadingScreen text="Checking chemical structure..." />}
+      {loading && !result && <ToolSkeleton variant="molecule" />}
 
       {/* Error Display */}
-      {error &&
-        !loading && ( // Show error only if not loading
-          <div
-            className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
-            role="alert"
-          >
-            <AlertCircle
-              className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
-              aria-hidden="true"
-            />
-            <span>{error}</span>
-          </div>
-        )}
+      {error && !loading && (
+        <GlassErrorCard
+          message={error}
+          onRetry={() => {
+            setError(null);
+            document.getElementById("smiles-input")?.focus();
+          }}
+        />
+      )}
 
       {/* Results Display Section */}
       {/* Show only if result object exists and not loading */}

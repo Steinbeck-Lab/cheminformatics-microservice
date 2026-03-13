@@ -3,10 +3,12 @@ import React, { useState } from "react";
 // Ensure all used icons are imported
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
-import LoadingScreen from "../common/LoadingScreen";
-// Assuming this service is configured correctly
 import { generateHOSECodes } from "../../services/chemService"; // Assuming this service exists
-import { AlertCircle, Clipboard, FileSearch } from "lucide-react";
+import { AlertCircle, Clipboard, FileSearch, Loader2 } from "lucide-react";
+import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
+import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AddToCompareButton } from "../common/AddToCompareButton";
@@ -50,7 +52,7 @@ const HOSECodeView = () => {
       setHoseCodes(Array.isArray(result) ? result : []);
     } catch (err) {
       console.error("HOSE code generation error:", err); // Log the error
-      setError(`Error generating HOSE codes: ${err.message || "An unknown error occurred."}`);
+      setError(getErrorMessage("chem", err));
       setHoseCodes([]); // Ensure codes are empty on error
     } finally {
       setLoading(false);
@@ -176,22 +178,18 @@ const HOSECodeView = () => {
       </div>
 
       {/* Loading State */}
-      {loading && <LoadingScreen text="Generating HOSE codes..." />}
+      {loading && hoseCodes.length === 0 && <ToolSkeleton variant="descriptors" />}
 
       {/* Error Display */}
-      {error &&
-        !loading && ( // Show error only if not loading
-          <div
-            className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
-            role="alert"
-          >
-            <AlertCircle
-              className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
-              aria-hidden="true"
-            />
-            <span>{error}</span>
-          </div>
-        )}
+      {error && !loading && (
+        <GlassErrorCard
+          message={error}
+          onRetry={() => {
+            setError(null);
+            document.getElementById("smiles-input")?.focus();
+          }}
+        />
+      )}
 
       {/* Results Display Section */}
       {/* Show only if results exist and not loading and no error */}
@@ -215,6 +213,7 @@ const HOSECodeView = () => {
               )}
               {/* Copy Button */}
               <Button
+                variant="ghost"
                 onClick={copyAllHoseCodes}
                 className={`px-3 py-1.5 text-sm rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                   copied

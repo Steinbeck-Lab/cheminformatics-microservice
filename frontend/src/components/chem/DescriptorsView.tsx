@@ -49,7 +49,7 @@ const DescriptorsView = () => {
     } catch (err) {
       console.error("Descriptor calculation error:", err); // Log the actual error
       // Set a user-friendly error message
-      setError(`Error calculating descriptors: ${err.message || "An unknown error occurred."}`);
+      setError(getErrorMessage("chem", err));
     } finally {
       setLoading(false);
     }

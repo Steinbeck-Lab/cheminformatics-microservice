@@ -80,7 +80,7 @@ const ClassyfireView = () => {
       }
     } catch (err) {
       console.error("Classification submission error:", err); // Log the actual error
-      setError(`Error submitting classification: ${err.message}`);
+      setError(getErrorMessage("chem", err));
       setJobId(null); // Clear Job ID on error
       setJobStatus(null);
     } finally {
@@ -132,7 +132,7 @@ const ClassyfireView = () => {
         }
       } catch (err) {
         console.error(`Error fetching results for Job ID ${id}:`, err); // Log the actual error
-        setError(`Error fetching results: ${err.message}`);
+        setError(getErrorMessage("chem", err));
         setPolling(false); // Stop polling on error
         setJobStatus("error"); // Set a specific error status
       }

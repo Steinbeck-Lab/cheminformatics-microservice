@@ -4,10 +4,12 @@ import React, { useState } from "react";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
 import MoleculeCard from "../common/MoleculeCard";
-import LoadingScreen from "../common/LoadingScreen";
-// Assuming this service is configured correctly
 import { generateStandardizedTautomer } from "../../services/chemService"; // Assuming this service exists
-import { AlertCircle, Info, RefreshCw } from "lucide-react";
+import { AlertCircle, Info, RefreshCw, Loader2 } from "lucide-react";
+import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
+import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +45,7 @@ const StandardizedTautomerView = () => {
       }
     } catch (err) {
       console.error("Tautomer standardization error:", err); // Log the error
-      setError(`Error standardizing tautomer: ${err.message || "An unknown error occurred."}`);
+      setError(getErrorMessage("chem", err));
       setStandardizedSmiles(null); // Ensure result is null on error
     } finally {
       setLoading(false);
@@ -88,32 +90,17 @@ const StandardizedTautomerView = () => {
       </div>
 
       {/* Loading State */}
-      {loading && <LoadingScreen text="Standardizing tautomer..." />}
+      {loading && !standardizedSmiles && <ToolSkeleton variant="molecule" />}
 
       {/* Error/Info Display */}
-      {/* Show error/info only if not loading */}
       {error && !loading && (
-        <div
-          className={`p-4 rounded-md flex items-start shadow ${
-            error.startsWith("Input is already") // Check if it's the informational message
-              ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200 border border-blue-300 dark:border-blue-700"
-              : "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700"
-          }`}
-          role={error.startsWith("Input is already") ? "status" : "alert"}
-        >
-          {error.startsWith("Input is already") ? (
-            <Info
-              className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-blue-500 dark:text-blue-400"
-              aria-hidden="true"
-            />
-          ) : (
-            <AlertCircle
-              className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
-              aria-hidden="true"
-            />
-          )}
-          <span>{error}</span>
-        </div>
+        <GlassErrorCard
+          message={error}
+          onRetry={() => {
+            setError(null);
+            document.getElementById("smiles-input")?.focus();
+          }}
+        />
       )}
 
       {/* Results Display Section */}

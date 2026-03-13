@@ -3,10 +3,21 @@ import React, { useState } from "react";
 // Ensure all used icons are imported
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
-import LoadingScreen from "../common/LoadingScreen";
 import MoleculeCard from "../common/MoleculeCard";
 import { generate2DCoordinates } from "../../services/convertService";
-import { AlertCircle, Clipboard, FileBarChart, FileText, FlaskConical, Upload } from "lucide-react";
+import {
+  AlertCircle,
+  Clipboard,
+  FileBarChart,
+  FileText,
+  FlaskConical,
+  Upload,
+  Loader2,
+} from "lucide-react";
+import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
+import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -172,27 +183,31 @@ const StandardizeView = () => {
       setStandardizedData(data);
     } catch (err) {
       console.error("Standardization error:", err); // Log the error
-      // Provide more specific error messages
-      let errorMessage = err.message || "An unknown error occurred.";
+      // Provide more specific error messages for molblock parsing issues
+      const rawMsg = err.message || "";
 
-      if (errorMessage.includes("cannot access local variable")) {
-        errorMessage =
-          "Error parsing molblock: The molblock format appears to be invalid or corrupted. Please ensure you have pasted a complete, valid molblock with proper structure and exactly one molecule.";
-      } else if (errorMessage.includes("422") && inputMethod === "molblock") {
-        errorMessage =
-          "Invalid molblock format: Please ensure your molblock is in proper MDL MOL format and contains exactly one valid molecule structure.";
+      if (rawMsg.includes("cannot access local variable")) {
+        setError(
+          "Error parsing molblock: The molblock format appears to be invalid or corrupted. Please ensure you have pasted a complete, valid molblock with proper structure and exactly one molecule."
+        );
+      } else if (rawMsg.includes("422") && inputMethod === "molblock") {
+        setError(
+          "Invalid molblock format: Please ensure your molblock is in proper MDL MOL format and contains exactly one valid molecule structure."
+        );
       } else if (
-        errorMessage.includes("Unable to parse molblock") ||
-        errorMessage.includes("Failure parsing molblock")
+        rawMsg.includes("Unable to parse molblock") ||
+        rawMsg.includes("Failure parsing molblock")
       ) {
-        errorMessage =
-          "Unable to parse molblock: Please check that your molblock is in valid MDL MOL format and try again.";
-      } else if (errorMessage.includes("500") || errorMessage.includes("Internal Server Error")) {
-        errorMessage =
-          "Server processing error: There was an issue processing your molblock. Please verify the format is correct and contains a single valid molecule.";
+        setError(
+          "Unable to parse molblock: Please check that your molblock is in valid MDL MOL format and try again."
+        );
+      } else if (rawMsg.includes("500") || rawMsg.includes("Internal Server Error")) {
+        setError(
+          "Server processing error: There was an issue processing your molblock. Please verify the format is correct and contains a single valid molecule."
+        );
+      } else {
+        setError(getErrorMessage("chem", err));
       }
-
-      setError(errorMessage);
       setStandardizedData(null); // Ensure data is null on error
     } finally {
       setLoading(false);
@@ -420,22 +435,18 @@ M  END`}
       </div>
 
       {/* Loading State */}
-      {loading && <LoadingScreen text="Standardizing molecule..." />}
+      {loading && !standardizedData && <ToolSkeleton variant="molecule" />}
 
       {/* Error Display */}
-      {error &&
-        !loading && ( // Show error only if not loading
-          <div
-            className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
-            role="alert"
-          >
-            <AlertCircle
-              className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
-              aria-hidden="true"
-            />
-            <span>{error}</span>
-          </div>
-        )}
+      {error && !loading && (
+        <GlassErrorCard
+          message={error}
+          onRetry={() => {
+            setError(null);
+            document.getElementById("smiles-input")?.focus();
+          }}
+        />
+      )}
 
       {/* Results Display Section */}
       {/* Show only if data exists and not loading */}
@@ -473,6 +484,7 @@ M  END`}
                       {standardizedData.canonical_smiles}
                     </div>
                     <Button
+                      variant="ghost"
                       onClick={() => handleCopy(standardizedData.canonical_smiles, "smiles")}
                       className="ml-auto p-1 text-gray-400 hover:text-gray-700 dark:hover:text-white shrink-0"
                       title="Copy SMILES"
@@ -491,6 +503,7 @@ M  END`}
                       {standardizedData.inchi}
                     </div>
                     <Button
+                      variant="ghost"
                       onClick={() => handleCopy(standardizedData.inchi, "inchi")}
                       className="ml-auto p-1 text-gray-400 hover:text-gray-700 dark:hover:text-white shrink-0"
                       title="Copy InChI"
@@ -509,6 +522,7 @@ M  END`}
                       {standardizedData.inchikey}
                     </div>
                     <Button
+                      variant="ghost"
                       onClick={() => handleCopy(standardizedData.inchikey, "inchikey")}
                       className="ml-auto p-1 text-gray-400 hover:text-gray-700 dark:hover:text-white shrink-0"
                       title="Copy InChI Key"
@@ -533,6 +547,7 @@ M  END`}
               </div>
               {/* Copy Molblock Button */}
               <Button
+                variant="ghost"
                 onClick={() => handleCopy(standardizedData.standardized_mol, "molblock")}
                 className={`mt-3 px-3 py-1 text-sm rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                   copiedStates["molblock"]

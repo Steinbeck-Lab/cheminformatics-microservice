@@ -158,9 +158,7 @@ const AllFiltersView = () => {
       }
     } catch (err) {
       console.error("Filter API error:", err);
-      // Extract more specific error message if available (e.g., from response)
-      const errorMsg = err.response?.data?.detail || err.message || "An unknown error occurred.";
-      setError(`Error applying filters: ${errorMsg}`);
+      setError(getErrorMessage("chem", err));
       setResults([]); // Clear results on error
     } finally {
       setLoading(false);
@@ -684,23 +682,17 @@ const AllFiltersView = () => {
       )}
 
       {/* Loading Indicator */}
-      {loading && !results && <ToolSkeleton variant="descriptors" />}
+      {loading && results.length === 0 && <ToolSkeleton variant="descriptors" />}
 
       {/* Error Message */}
-      {error && (
-        <div
-          className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
-          role="alert"
-        >
-          <AlertCircle
-            className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
-            aria-hidden="true"
-          />
-          <div>
-            <h4 className="font-medium">Error</h4>
-            <p className="text-sm">{error}</p>
-          </div>
-        </div>
+      {error && !loading && (
+        <GlassErrorCard
+          message={error}
+          onRetry={() => {
+            setError(null);
+            document.getElementById("smiles-input")?.focus();
+          }}
+        />
       )}
 
       {/* No Results Message - Display when a filter operation was performed but returned no results */}

@@ -81,7 +81,7 @@ const PubChemLookupView = () => {
       }
     } catch (err) {
       console.error("PubChem lookup error:", err);
-      setError(`${err.message}`);
+      setError(getErrorMessage("chem", err));
     } finally {
       setLoading(false);
     }

@@ -4,10 +4,13 @@ import React, { useState } from "react";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
 import MoleculeCard from "../common/MoleculeCard";
-import LoadingScreen from "../common/LoadingScreen";
 import { useAppContext } from "../../context/AppContext"; // Assuming context provides addRecentMolecule
 import api from "../../services/api"; // Assuming api service is configured
-import { AlertCircle, Calculator, Info } from "lucide-react";
+import { AlertCircle, Calculator, Info, Loader2 } from "lucide-react";
+import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
+import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -98,9 +101,7 @@ const TanimotoView = () => {
       });
     } catch (err) {
       console.error("Tanimoto calculation error:", err);
-      setError(
-        `Error calculating similarity: ${err.response?.data?.detail || err.message || "Unknown error"}`
-      );
+      setError(getErrorMessage("chem", err));
       setResult(null); // Ensure result is null on error
     } finally {
       setLoading(false);
@@ -178,6 +179,7 @@ const TanimotoView = () => {
           Tanimoto Similarity Calculator
         </h2>
         <Button
+          variant="ghost"
           onClick={() => setInfoVisible(!infoVisible)}
           className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full focus:outline-hidden focus:ring-2 focus:ring-blue-500"
           aria-label="Toggle Information"
@@ -375,21 +377,17 @@ const TanimotoView = () => {
       </div>
 
       {/* Loading State */}
-      {loading && <LoadingScreen text="Calculating similarity..." />}
+      {loading && !result && <ToolSkeleton variant="general" />}
 
       {/* Error Display */}
       {error && !loading && (
-        // Error message styling
-        <div
-          className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
-          role="alert"
-        >
-          <AlertCircle
-            className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
-            aria-hidden="true"
-          />
-          <span>{error}</span>
-        </div>
+        <GlassErrorCard
+          message={error}
+          onRetry={() => {
+            setError(null);
+            document.getElementById("smiles-input")?.focus();
+          }}
+        />
       )}
 
       {/* Results Display Section */}

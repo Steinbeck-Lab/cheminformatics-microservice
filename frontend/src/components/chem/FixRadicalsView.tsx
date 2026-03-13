@@ -2,10 +2,21 @@
 import React, { useState, useEffect } from "react";
 import DOMPurify from "dompurify";
 import SMILESInput from "../common/SMILESInput";
-import LoadingScreen from "../common/LoadingScreen";
 import { fixRadicals } from "../../services/chemService";
 import { generate2DDepictionEnhanced, generate2DDepiction } from "../../services/depictService";
-import { AlertCircle, Check, CheckCircle, Clipboard, FlaskConical, Info } from "lucide-react";
+import {
+  AlertCircle,
+  Check,
+  CheckCircle,
+  Clipboard,
+  FlaskConical,
+  Info,
+  Loader2,
+} from "lucide-react";
+import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
+import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AddToCompareButton } from "../common/AddToCompareButton";
@@ -120,7 +131,7 @@ const FixRadicalsView = () => {
       }
     } catch (err) {
       console.error("Radical fixing error:", err);
-      setError(`Error fixing radicals: ${err.message || "An unknown error occurred."}`);
+      setError(getErrorMessage("chem", err));
       setResult(null);
     } finally {
       setLoading(false);
@@ -182,31 +193,17 @@ const FixRadicalsView = () => {
       </div>
 
       {/* Loading State */}
-      {loading && <LoadingScreen text="Fixing radicals..." />}
+      {loading && !result && <ToolSkeleton variant="molecule" />}
 
       {/* Error/Info Display */}
       {error && !loading && (
-        <div
-          className={`p-4 rounded-md flex items-start shadow ${
-            error.startsWith("No radicals")
-              ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200 border border-blue-300 dark:border-blue-700"
-              : "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700"
-          }`}
-          role={error.startsWith("No radicals") ? "status" : "alert"}
-        >
-          {error.startsWith("No radicals") ? (
-            <Info
-              className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-blue-500 dark:text-blue-400"
-              aria-hidden="true"
-            />
-          ) : (
-            <AlertCircle
-              className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
-              aria-hidden="true"
-            />
-          )}
-          <span>{error}</span>
-        </div>
+        <GlassErrorCard
+          message={error}
+          onRetry={() => {
+            setError(null);
+            document.getElementById("smiles-input")?.focus();
+          }}
+        />
       )}
 
       {/* Results Display Section */}

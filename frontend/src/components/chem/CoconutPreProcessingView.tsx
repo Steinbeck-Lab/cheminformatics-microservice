@@ -44,7 +44,7 @@ const CoconutPreProcessingView = () => {
     } catch (err) {
       console.error("Preprocessing error:", err); // Log the error
       // Set a user-friendly error message
-      setError(`Error processing data: ${err.message || "An unknown error occurred."}`);
+      setError(getErrorMessage("chem", err));
     } finally {
       setLoading(false);
     }
