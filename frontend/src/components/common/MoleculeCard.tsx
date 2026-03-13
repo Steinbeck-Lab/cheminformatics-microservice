@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useAppContext } from "../../context/AppContext"; // Assuming context provides addRecentMolecule
-import { AlertCircle, CheckCircle, Clipboard, Download, Info, X } from "lucide-react";
+import { AlertCircle, CheckCircle, ChevronDown, Clipboard, Download, Info, X } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,7 @@ const MoleculeCard = ({
   showActions = true,
   size = "xl", // sm, md, lg, xl
   onClick = null, // Optional click handler for the whole card
+  isExpandable = false, // Enable expand/collapse for additional molecule details
 }) => {
   const [copied, setCopied] = useState(false);
   const [showFullSmiles, setShowFullSmiles] = useState(false);
@@ -23,6 +25,7 @@ const MoleculeCard = ({
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [moleculeDetails, setMoleculeDetails] = useState(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const copyTextRef = useRef(null);
 
   // --- Context Handling ---
@@ -379,9 +382,14 @@ const MoleculeCard = ({
   return (
     <>
       <div
-        // Card container styling with theme awareness
-        className={`bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700
-          hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-lg transition-all duration-200 group ${onClick ? "cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800" : ""}`}
+        // Card container: glass-bold + clay-interactive with hover glow/lift
+        className={cn(
+          "glass-bold clay-interactive rounded-2xl overflow-hidden",
+          "hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-200",
+          "group",
+          onClick &&
+            "cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+        )}
         onClick={onClick ? handleCardClick : undefined}
         onKeyPress={
           onClick
@@ -389,26 +397,45 @@ const MoleculeCard = ({
                 if (e.key === "Enter" || e.key === " ") handleCardClick();
               }
             : undefined
-        } // Keyboard accessibility
-        role={onClick ? "button" : "figure"} // Role depends on interactivity
-        tabIndex={onClick ? 0 : undefined} // Make clickable cards focusable
+        }
+        role={onClick ? "button" : "figure"}
+        tabIndex={onClick ? 0 : undefined}
         aria-label={title}
       >
         {/* Title bar */}
-        <div className="px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+        <div className="px-4 py-2 border-b border-white/10 flex justify-between items-center">
           {/* Theme-aware title text */}
-          <h3
-            className="font-medium text-sm text-gray-700 dark:text-gray-200 truncate"
-            title={title}
-          >
+          <h3 className="font-medium text-sm text-foreground truncate" title={title}>
             {title}
           </h3>
+          {isExpandable && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 shrink-0"
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpanded((prev) => !prev);
+                // Fetch details when expanding if not already loaded
+                if (!expanded && !moleculeDetails) {
+                  fetchMoleculeDetails(smiles);
+                }
+              }}
+              aria-label={expanded ? "Collapse details" : "Expand details"}
+            >
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 transition-transform duration-200",
+                  expanded && "rotate-180"
+                )}
+              />
+            </Button>
+          )}
         </div>
 
         {/* Molecule visualization area */}
-        {/* Centering the image, theme-aware background */}
         <div
-          className={`relative p-2 flex justify-center items-center bg-gray-50 dark:bg-gray-800 ${sizeClasses[size] || "h-60"}`}
+          className={`relative p-2 flex justify-center items-center bg-background/30 ${sizeClasses[size] || "h-60"}`}
         >
           {smiles ? ( // Only render img tag if smiles is present
             <img
@@ -434,7 +461,7 @@ const MoleculeCard = ({
         </div>
 
         {/* SMILES information section */}
-        <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 text-sm">
+        <div className="px-4 py-3 border-t border-white/10 text-sm">
           <div className="flex items-start">
             {/* Label styling */}
             <span className="font-medium text-gray-500 dark:text-gray-400 mr-2 shrink-0">
@@ -479,10 +506,87 @@ const MoleculeCard = ({
           )}
         </div>
 
+        {/* Expandable details section */}
+        <AnimatePresence>
+          {isExpandable && expanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="px-4 py-3 border-t border-white/10 text-sm space-y-2">
+                {isLoadingDetails && (
+                  <div className="py-4 text-center">
+                    <div className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-solid border-primary border-r-transparent" />
+                    <p className="mt-2 text-xs text-muted-foreground">Loading details...</p>
+                  </div>
+                )}
+                {!isLoadingDetails && moleculeDetails && (
+                  <>
+                    {moleculeDetails.molecularFormula && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Formula</span>
+                        <span className="font-mono text-foreground">
+                          {moleculeDetails.molecularFormula}
+                        </span>
+                      </div>
+                    )}
+                    {moleculeDetails.physicalProperties?.molecularWeight != null && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">MW</span>
+                        <span className="font-mono text-foreground">
+                          {Number(moleculeDetails.physicalProperties.molecularWeight).toFixed(2)}{" "}
+                          g/mol
+                        </span>
+                      </div>
+                    )}
+                    {moleculeDetails.physicalProperties?.alogp != null && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">ALogP</span>
+                        <span className="font-mono text-foreground">
+                          {Number(moleculeDetails.physicalProperties.alogp).toFixed(2)}
+                        </span>
+                      </div>
+                    )}
+                    {moleculeDetails.atomCounts?.heavyAtomCount != null && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Heavy atoms</span>
+                        <span className="font-mono text-foreground">
+                          {moleculeDetails.atomCounts.heavyAtomCount}
+                        </span>
+                      </div>
+                    )}
+                    {moleculeDetails.drugLikeProperties?.hydrogenBondDonors != null && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">HBD / HBA</span>
+                        <span className="font-mono text-foreground">
+                          {moleculeDetails.drugLikeProperties.hydrogenBondDonors} /{" "}
+                          {moleculeDetails.drugLikeProperties.hydrogenBondAcceptors}
+                        </span>
+                      </div>
+                    )}
+                    <div className="pt-1">
+                      <span className="text-muted-foreground text-xs">SMILES</span>
+                      <div className="font-mono text-xs break-all text-foreground mt-0.5 bg-background/50 rounded p-1.5">
+                        {smiles || "N/A"}
+                      </div>
+                    </div>
+                  </>
+                )}
+                {!isLoadingDetails && moleculeDetails?.error && (
+                  <p className="text-xs text-destructive">Could not load full details.</p>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Action buttons (optional) */}
         {showActions && (
           // Actions bar styling
-          <div className="px-3 py-1.5 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-1">
+          <div className="px-3 py-1.5 border-t border-white/10 flex justify-end space-x-1">
             {/* Copy Button */}
             <Button
               onClick={handleCopy}

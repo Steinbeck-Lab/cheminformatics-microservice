@@ -1,6 +1,7 @@
 import React, { useState, useRef, useMemo } from "react";
 import { useAppContext } from "../../context/AppContext";
-import { CheckCircle, Clipboard, Download, X } from "lucide-react";
+import { CheckCircle, ChevronDown, Clipboard, Download, X } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -18,10 +19,12 @@ const HighlightedMoleculeCard = ({
   showActions = true,
   size = "xl",
   onClick = null,
+  isExpandable = false, // Enable expand/collapse for SMILES details
 }) => {
   const [copied, setCopied] = useState(false);
   const [showFullSmiles, setShowFullSmiles] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const copyTextRef = useRef(null);
 
   // Context handling
@@ -336,8 +339,13 @@ const HighlightedMoleculeCard = ({
   return (
     <>
       <div
-        className={`bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700
-          hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-lg transition-all duration-200 group ${onClick ? "cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800" : ""}`}
+        className={cn(
+          "glass-bold rounded-2xl overflow-hidden",
+          "hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-200",
+          "group",
+          onClick &&
+            "cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+        )}
         onClick={onClick ? handleCardClick : undefined}
         onKeyPress={
           onClick
@@ -351,25 +359,43 @@ const HighlightedMoleculeCard = ({
         aria-label={title}
       >
         {/* Title bar */}
-        <div className="px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-          <h3
-            className="font-medium text-sm text-gray-700 dark:text-gray-200 truncate"
-            title={title}
-          >
+        <div className="px-4 py-2 border-b border-white/10 flex justify-between items-center">
+          <h3 className="font-medium text-sm text-foreground truncate" title={title}>
             {title}
           </h3>
-          {highlightedGroupIndex !== null &&
-            functionalGroups[highlightedGroupIndex] &&
-            !functionalGroups[highlightedGroupIndex].None && (
-              <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full">
-                Highlighted
-              </span>
+          <div className="flex items-center gap-2">
+            {highlightedGroupIndex !== null &&
+              functionalGroups[highlightedGroupIndex] &&
+              !functionalGroups[highlightedGroupIndex].None && (
+                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                  Highlighted
+                </span>
+              )}
+            {isExpandable && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 shrink-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setExpanded((prev) => !prev);
+                }}
+                aria-label={expanded ? "Collapse details" : "Expand details"}
+              >
+                <ChevronDown
+                  className={cn(
+                    "h-4 w-4 transition-transform duration-200",
+                    expanded && "rotate-180"
+                  )}
+                />
+              </Button>
             )}
+          </div>
         </div>
 
         {/* Molecule visualization area */}
         <div
-          className={`relative p-2 flex justify-center items-center bg-gray-50 dark:bg-gray-800 ${sizeClasses[size] || "h-60"}`}
+          className={`relative p-2 flex justify-center items-center bg-background/30 ${sizeClasses[size] || "h-60"}`}
         >
           {smiles ? (
             <img
@@ -392,7 +418,7 @@ const HighlightedMoleculeCard = ({
         </div>
 
         {/* SMILES information section */}
-        <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 text-sm">
+        <div className="px-4 py-3 border-t border-white/10 text-sm">
           <div className="flex items-start">
             <span className="font-medium text-gray-500 dark:text-gray-400 mr-2 shrink-0">
               SMILES:
@@ -429,9 +455,41 @@ const HighlightedMoleculeCard = ({
           <div className="px-4 pb-3 text-gray-500 dark:text-gray-400 text-xs">{description}</div>
         )}
 
+        {/* Expandable details section */}
+        <AnimatePresence>
+          {isExpandable && expanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="px-4 py-3 border-t border-white/10 text-sm space-y-1">
+                <div className="pt-1">
+                  <span className="text-muted-foreground text-xs">Full SMILES</span>
+                  <div className="font-mono text-xs break-all text-foreground mt-0.5 bg-background/50 rounded p-1.5">
+                    {smiles || "N/A"}
+                  </div>
+                </div>
+                {highlightedGroupIndex !== null && functionalGroups[highlightedGroupIndex] && (
+                  <div className="pt-1">
+                    <span className="text-muted-foreground text-xs">Highlighted group</span>
+                    <div className="text-xs text-foreground mt-0.5">
+                      {functionalGroups[highlightedGroupIndex].description ||
+                        functionalGroups[highlightedGroupIndex].type ||
+                        "Unknown group"}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Action buttons */}
         {showActions && (
-          <div className="px-3 py-1.5 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-1">
+          <div className="px-3 py-1.5 border-t border-white/10 flex justify-end space-x-1">
             {/* Copy Button */}
             <Button
               onClick={handleCopy}
