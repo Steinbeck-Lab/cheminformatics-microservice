@@ -9,6 +9,7 @@ import { calculateNPLikeness } from "../../services/chemService"; // Assuming th
 import { AlertCircle, Calculator, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AddToCompareButton } from "../common/AddToCompareButton";
 
 const NPlikenessView = () => {
   const [smiles, setSmiles] = useState("");
@@ -135,18 +136,30 @@ const NPlikenessView = () => {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               NP-likeness Results
             </h3>
-            {/* Info Button (Consider adding tooltip/modal functionality) */}
-            <Button
-              className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full focus:outline-hidden focus:ring-2 focus:ring-blue-500"
-              title="About NP-likeness scores (Not implemented)"
-              onClick={() =>
-                alert(
-                  "Info about NP-likeness score ranges:\n\n> 1: Very High NP-like\n0 to 1: High NP-like\n-1 to 0: Moderate NP-like\n-2 to -1: Low NP-like\n< -2: Very Low NP-like (Synthetic)"
-                )
-              } // Simple alert for now
-            >
-              <Info className="h-6 w-6" aria-hidden="true" />
-            </Button>
+            <div className="flex items-center gap-2">
+              {smiles.trim() && (
+                <AddToCompareButton
+                  smiles={smiles.trim()}
+                  title="NP-likeness molecule"
+                  descriptors={
+                    typeof npScore === "number" ? { npLikenessScore: npScore } : undefined
+                  }
+                  sourceToolId="nplikeness"
+                />
+              )}
+              {/* Info Button (Consider adding tooltip/modal functionality) */}
+              <Button
+                className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                title="About NP-likeness scores (Not implemented)"
+                onClick={() =>
+                  alert(
+                    "Info about NP-likeness score ranges:\n\n> 1: Very High NP-like\n0 to 1: High NP-like\n-1 to 0: Moderate NP-like\n-2 to -1: Low NP-like\n< -2: Very Low NP-like (Synthetic)"
+                  )
+                } // Simple alert for now
+              >
+                <Info className="h-6 w-6" aria-hidden="true" />
+              </Button>
+            </div>
           </div>
 
           {/* Results Content */}

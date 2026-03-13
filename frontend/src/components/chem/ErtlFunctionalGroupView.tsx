@@ -9,6 +9,7 @@ import { generateFunctionalGroups } from "../../services/chemService";
 import { AlertCircle, Info, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AddToCompareButton } from "../common/AddToCompareButton";
 
 const ErtlFunctionalGroupView = () => {
   const [smiles, setSmiles] = useState("");
@@ -149,11 +150,20 @@ const ErtlFunctionalGroupView = () => {
           {/* Main Results Card */}
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg">
             {/* Results Summary Header */}
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
-              {noGroupsFound
-                ? "No Functional Groups Found"
-                : `Found ${functionalGroups.length} Functional Group${functionalGroups.length !== 1 ? "s" : ""}`}
-            </h3>
+            <div className="flex items-center justify-between mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {noGroupsFound
+                  ? "No Functional Groups Found"
+                  : `Found ${functionalGroups.length} Functional Group${functionalGroups.length !== 1 ? "s" : ""}`}
+              </h3>
+              {smiles.trim() && (
+                <AddToCompareButton
+                  smiles={smiles.trim()}
+                  title="Functional groups molecule"
+                  sourceToolId="functional-groups"
+                />
+              )}
+            </div>
 
             {/* Grid for Molecule Card and List */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

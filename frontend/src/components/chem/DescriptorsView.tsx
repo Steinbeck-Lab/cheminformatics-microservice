@@ -10,6 +10,7 @@ import DOMPurify from "dompurify"; // Import DOMPurify for sanitizing HTML
 import { AlertCircle, Calculator, FileBarChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AddToCompareButton } from "../common/AddToCompareButton";
 import {
   Select,
   SelectContent,
@@ -243,10 +244,24 @@ const DescriptorsView = () => {
               />
               Molecular Descriptors
             </h3>
-            {/* Toolkit Info */}
-            <div className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-sm">
-              Toolkit: {toolkit === "all" ? "RDKit + CDK" : toolkit.toUpperCase()} | Format:{" "}
-              {format.toUpperCase()}
+            <div className="flex items-center gap-2">
+              {smiles.trim() && (
+                <AddToCompareButton
+                  smiles={smiles.trim()}
+                  title="Descriptors molecule"
+                  descriptors={
+                    format === "json" && typeof descriptors === "object" && descriptors !== null
+                      ? descriptors
+                      : undefined
+                  }
+                  sourceToolId="descriptors"
+                />
+              )}
+              {/* Toolkit Info */}
+              <div className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-sm">
+                Toolkit: {toolkit === "all" ? "RDKit + CDK" : toolkit.toUpperCase()} | Format:{" "}
+                {format.toUpperCase()}
+              </div>
             </div>
           </div>
 

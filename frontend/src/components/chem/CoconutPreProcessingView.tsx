@@ -9,6 +9,7 @@ import { coconutPreprocessing } from "../../services/chemService"; // Assuming t
 import { AlertCircle, FileBarChart, FlaskConical, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AddToCompareButton } from "../common/AddToCompareButton";
 import { Input } from "@/components/ui/input";
 
 const CoconutPreProcessingView = () => {
@@ -377,14 +378,23 @@ const CoconutPreProcessingView = () => {
       {preprocessData && !loading && (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg">
           {/* Results Header */}
-          <div className="flex items-center mb-4 border-b border-gray-200 dark:border-gray-700 pb-3">
-            <FileBarChart
-              className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-3 shrink-0"
-              aria-hidden="true"
-            />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              COCONUT Pre-processing Results
-            </h3>
+          <div className="flex items-center justify-between mb-4 border-b border-gray-200 dark:border-gray-700 pb-3">
+            <div className="flex items-center">
+              <FileBarChart
+                className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-3 shrink-0"
+                aria-hidden="true"
+              />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                COCONUT Pre-processing Results
+              </h3>
+            </div>
+            {smiles.trim() && (
+              <AddToCompareButton
+                smiles={smiles.trim()}
+                title="COCONUT molecule"
+                sourceToolId="coconut"
+              />
+            )}
           </div>
           {/* Render Tabs and Content */}
           {renderResults(preprocessData)}

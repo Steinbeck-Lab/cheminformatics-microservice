@@ -9,6 +9,7 @@ import { generateHOSECodes } from "../../services/chemService"; // Assuming this
 import { AlertCircle, Clipboard, FileSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AddToCompareButton } from "../common/AddToCompareButton";
 import {
   Select,
   SelectContent,
@@ -204,19 +205,28 @@ const HOSECodeView = () => {
                 ({hoseCodes.length} atoms)
               </span>
             </h3>
-            {/* Copy Button */}
-            <Button
-              onClick={copyAllHoseCodes}
-              className={`px-3 py-1.5 text-sm rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
-                copied
-                  ? "bg-green-100 dark:bg-green-700 text-green-700 dark:text-green-200"
-                  : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600"
-              }`}
-              title="Copy all HOSE codes to clipboard"
-            >
-              <Clipboard className="mr-1.5 h-4 w-4" aria-hidden="true" />
-              {copied ? "Copied!" : "Copy All"}
-            </Button>
+            <div className="flex items-center gap-2">
+              {smiles.trim() && (
+                <AddToCompareButton
+                  smiles={smiles.trim()}
+                  title="HOSE code molecule"
+                  sourceToolId="hosecodes"
+                />
+              )}
+              {/* Copy Button */}
+              <Button
+                onClick={copyAllHoseCodes}
+                className={`px-3 py-1.5 text-sm rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
+                  copied
+                    ? "bg-green-100 dark:bg-green-700 text-green-700 dark:text-green-200"
+                    : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600"
+                }`}
+                title="Copy all HOSE codes to clipboard"
+              >
+                <Clipboard className="mr-1.5 h-4 w-4" aria-hidden="true" />
+                {copied ? "Copied!" : "Copy All"}
+              </Button>
+            </div>
           </div>
 
           {/* Table Container */}

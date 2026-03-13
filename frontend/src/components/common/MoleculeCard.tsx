@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
+import { AddToCompareButton } from "./AddToCompareButton";
 
 // Default fallback SVG with a neutral gray fill color (#888888)
 const FALLBACK_SVG_BASE64 =
@@ -587,6 +588,15 @@ const MoleculeCard = ({
         {showActions && (
           // Actions bar styling
           <div className="px-3 py-1.5 border-t border-white/10 flex justify-end space-x-1">
+            {/* Compare Button */}
+            {smiles && (
+              <AddToCompareButton
+                smiles={smiles}
+                title={title}
+                imageUrl={imageUrl}
+                sourceToolId={undefined}
+              />
+            )}
             {/* Copy Button */}
             <Button
               onClick={handleCopy}

@@ -8,6 +8,7 @@ import { generate2DDepictionEnhanced, generate2DDepiction } from "../../services
 import { AlertCircle, Check, CheckCircle, Clipboard, FlaskConical, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AddToCompareButton } from "../common/AddToCompareButton";
 
 const FixRadicalsView = () => {
   const [smiles, setSmiles] = useState("");
@@ -288,29 +289,38 @@ const FixRadicalsView = () => {
                 Structure Comparison
               </h3>
 
-              {/* Copy Fixed SMILES Button */}
-              <Button
-                onClick={handleCopySmiles}
-                disabled={!result?.fixed_smiles}
-                className={`flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
-                  copied
-                    ? "bg-green-500 text-white"
-                    : "bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-500 dark:hover:bg-blue-600"
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
-                title="Copy fixed SMILES to clipboard"
-              >
-                {copied ? (
-                  <>
-                    <Check className="h-4 w-4 mr-2" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Clipboard className="h-4 w-4 mr-2" />
-                    Copy Fixed SMILES
-                  </>
+              <div className="flex items-center gap-2">
+                {result?.fixed_smiles && (
+                  <AddToCompareButton
+                    smiles={result.fixed_smiles}
+                    title="Fixed molecule"
+                    sourceToolId="fixradicals"
+                  />
                 )}
-              </Button>
+                {/* Copy Fixed SMILES Button */}
+                <Button
+                  onClick={handleCopySmiles}
+                  disabled={!result?.fixed_smiles}
+                  className={`flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                    copied
+                      ? "bg-green-500 text-white"
+                      : "bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-500 dark:hover:bg-blue-600"
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  title="Copy fixed SMILES to clipboard"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="h-4 w-4 mr-2" />
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <Clipboard className="h-4 w-4 mr-2" />
+                      Copy Fixed SMILES
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
 
             {depictionLoading && (
