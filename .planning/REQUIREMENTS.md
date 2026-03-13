@@ -75,10 +75,10 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### UX Improvements
 
-- [ ] **UX-01**: Responsive layout works well on mobile and tablet viewports
-- [ ] **UX-02**: Code splitting with React.lazy for route-level lazy loading
-- [ ] **UX-03**: Improved navigation structure and visual wayfinding
-- [ ] **UX-04**: Faster initial page load (measurable improvement via Lighthouse)
+- [x] **UX-01**: Responsive layout works well on mobile and tablet viewports
+- [x] **UX-02**: Code splitting with React.lazy for route-level lazy loading
+- [x] **UX-03**: Improved navigation structure and visual wayfinding
+- [x] **UX-04**: Faster initial page load (measurable improvement via Lighthouse)
 
 ## v2 Requirements
 
@@ -152,10 +152,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | POWER-01 | Phase 6 | Pending |
 | POWER-02 | Phase 6 | Pending |
 | POWER-03 | Phase 6 | Pending |
-| UX-01 | Phase 5 | Pending |
-| UX-02 | Phase 5 | Pending |
-| UX-03 | Phase 5 | Pending |
-| UX-04 | Phase 5 | Pending |
+| UX-01 | Phase 5 | Complete |
+| UX-02 | Phase 5 | Complete |
+| UX-03 | Phase 5 | Complete |
+| UX-04 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 46 total
