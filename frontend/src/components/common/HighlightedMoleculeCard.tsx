@@ -1,6 +1,7 @@
 import React, { useState, useRef, useMemo } from "react";
 import { useAppContext } from "../../context/AppContext";
 import { CheckCircle, ChevronDown, Clipboard, Download, X } from "lucide-react";
+import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -312,7 +313,7 @@ const HighlightedMoleculeCard = ({
       })
       .catch((err) => {
         console.error("Structure download failed:", err);
-        alert("Failed to download structure. Please try again later.");
+        toast.error("Failed to download structure. Please try again later.");
       });
   };
 
@@ -492,6 +493,7 @@ const HighlightedMoleculeCard = ({
           <div className="px-3 py-1.5 border-t border-white/10 flex justify-end space-x-1">
             {/* Copy Button */}
             <Button
+              variant="ghost"
               onClick={handleCopy}
               disabled={!smiles}
               className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
@@ -509,6 +511,7 @@ const HighlightedMoleculeCard = ({
 
             {/* Download Button */}
             <Button
+              variant="ghost"
               onClick={handleDownload}
               disabled={!smiles}
               className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
@@ -532,6 +535,7 @@ const HighlightedMoleculeCard = ({
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">Copy SMILES</h3>
               <Button
+                variant="ghost"
                 onClick={() => setShowCopyModal(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
@@ -553,6 +557,7 @@ const HighlightedMoleculeCard = ({
             </div>
             <div className="flex justify-end gap-3">
               <Button
+                variant="secondary"
                 onClick={() => setShowCopyModal(false)}
                 className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
               >

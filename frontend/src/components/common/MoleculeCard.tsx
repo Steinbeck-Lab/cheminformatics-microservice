@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useAppContext } from "../../context/AppContext"; // Assuming context provides addRecentMolecule
 import { AlertCircle, CheckCircle, ChevronDown, Clipboard, Download, Info, X } from "lucide-react";
+import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -180,8 +181,7 @@ const MoleculeCard = ({
       })
       .catch((err) => {
         console.error("Structure download failed:", err);
-        // Alert user of failure
-        alert("Failed to download structure. Please try again later.");
+        toast.error("Failed to download structure. Please try again later.");
       });
   };
 
@@ -599,6 +599,7 @@ const MoleculeCard = ({
             )}
             {/* Copy Button */}
             <Button
+              variant="ghost"
               onClick={handleCopy}
               disabled={!smiles} // Disable if no SMILES
               // Button styling with theme awareness
@@ -617,6 +618,7 @@ const MoleculeCard = ({
 
             {/* Download Button */}
             <Button
+              variant="ghost"
               onClick={handleDownload}
               disabled={!smiles} // Disable if no SMILES
               className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
@@ -632,6 +634,7 @@ const MoleculeCard = ({
 
             {/* Info Button (Implemented) */}
             <Button
+              variant="ghost"
               onClick={handleShowDetails}
               disabled={!smiles} // Disable if no SMILES
               className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
@@ -655,6 +658,7 @@ const MoleculeCard = ({
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">Copy SMILES</h3>
               <Button
+                variant="ghost"
                 onClick={() => setShowCopyModal(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
@@ -676,8 +680,9 @@ const MoleculeCard = ({
             </div>
             <div className="flex justify-end gap-3">
               <Button
+                variant="secondary"
                 onClick={() => setShowCopyModal(false)}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
+                className="px-4 py-2 rounded-sm"
               >
                 Close
               </Button>
@@ -695,6 +700,7 @@ const MoleculeCard = ({
                 {title !== "Molecule" ? title : "Molecule Details"}
               </h3>
               <Button
+                variant="ghost"
                 onClick={() => setShowDetailsModal(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
@@ -913,6 +919,7 @@ const MoleculeCard = ({
                     </div>
                     <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                       <Button
+                        variant="ghost"
                         onClick={handleShowDetails} // Re-attempt fetch
                         className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center"
                       >
@@ -940,16 +947,14 @@ const MoleculeCard = ({
             {/* Action buttons */}
             <div className="mt-6 flex justify-end gap-3">
               {/* Download button in modal */}
-              <Button
-                onClick={handleDownload}
-                className="px-4 py-2 bg-blue-600 text-white rounded-sm hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              >
+              <Button onClick={handleDownload} className="px-4 py-2 rounded-sm">
                 Download Structure
               </Button>
 
               <Button
+                variant="secondary"
                 onClick={() => setShowDetailsModal(false)}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
+                className="px-4 py-2 rounded-sm"
               >
                 Close
               </Button>
