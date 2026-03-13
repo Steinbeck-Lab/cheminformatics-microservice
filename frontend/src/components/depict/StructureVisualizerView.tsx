@@ -1,7 +1,10 @@
 // Description: This component combines PubChem lookup with 2D and 3D visualization
 import React, { useState } from "react";
-import LoadingScreen from "../common/LoadingScreen";
 import SMILESDisplay from "../common/SMILESDisplay";
+import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
+import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { getErrorMessage } from "@/lib/error-messages";
 import { useAppContext } from "../../context/AppContext"; // For adding to recent molecules
 import { lookupPubChem } from "../../services/chemService";
 
@@ -131,7 +134,7 @@ const StructureVisualizerView = () => {
       }
     } catch (err) {
       console.error("PubChem lookup error:", err);
-      setError(`${err.message}`);
+      setError(getErrorMessage("depict", err));
     } finally {
       setLoading(false);
     }
@@ -308,28 +311,17 @@ const StructureVisualizerView = () => {
         {/* Main content area - right side / bottom */}
         <div className="xl:col-span-8 space-y-6">
           {/* Loading State */}
-          {loading && <LoadingScreen text="Searching and preparing visualizations..." />}
+          {loading && !result && <ToolSkeleton variant="molecule" />}
 
           {/* Error Display */}
           {error && !loading && (
-            <div
-              className="p-5 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700/50 flex items-start shadow-lg"
-              role="alert"
-            >
-              <AlertCircle
-                className="h-6 w-6 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
-                aria-hidden="true"
-              />
-              <div>
-                <h3 className="font-medium text-lg text-red-800 dark:text-red-300 mb-1">
-                  Search Error
-                </h3>
-                <p>{error}</p>
-                <p className="mt-2 text-sm">
-                  Try using a different identifier or check your spelling.
-                </p>
-              </div>
-            </div>
+            <GlassErrorCard
+              message={error}
+              onRetry={() => {
+                setError(null);
+                document.getElementById("identifier-input")?.focus();
+              }}
+            />
           )}
 
           {/* Results Display */}

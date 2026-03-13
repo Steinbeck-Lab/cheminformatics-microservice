@@ -1,8 +1,11 @@
 // Description: StructureGenView component for generating chemical structures from molecular formulas.
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import LoadingScreen from "../common/LoadingScreen";
 import MoleculeCard from "../common/MoleculeCard";
+import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
+import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { getErrorMessage } from "@/lib/error-messages";
 import toolsService from "../../services/toolsService";
 import {
   AlertCircle,
@@ -99,7 +102,7 @@ const StructureGenView = () => {
       }
     } catch (err) {
       console.error("Error generating structures:", err);
-      setError(`Error generating structures: ${err.message || "Unknown error"}`);
+      setError(getErrorMessage("tools", err));
       setStructures([]);
       setGenerationResult(null);
     } finally {
@@ -195,27 +198,30 @@ const StructureGenView = () => {
                   transition={{ delay: 0.1 }}
                 >
                   <Button
+                    variant="secondary"
                     type="button"
                     onClick={downloadSelectedStructures}
                     disabled={selectedStructures.length === 0}
-                    className="px-3 py-1.5 text-sm rounded-md font-medium bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white dark:border-slate-600 focus:outline-hidden focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center" // Use btn-secondary
+                    className="px-3 py-1.5 text-sm rounded-md font-medium inline-flex items-center"
                   >
                     <Download className="mr-1.5 h-4 w-4" />
                     Download Selected ({selectedStructures.length})
                   </Button>
                   <Button
+                    variant="secondary"
                     type="button"
                     onClick={() => setSelectedStructures([...structures])}
-                    className="px-3 py-1.5 text-sm rounded-md font-medium bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white dark:border-slate-600 focus:outline-hidden focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 inline-flex items-center" // Use btn-secondary
+                    className="px-3 py-1.5 text-sm rounded-md font-medium inline-flex items-center"
                   >
                     <Copy className="mr-1.5 h-4 w-4" />
                     Select All
                   </Button>
                   <Button
+                    variant="secondary"
                     type="button"
                     onClick={() => setSelectedStructures([])}
                     disabled={selectedStructures.length === 0}
-                    className="px-3 py-1.5 text-sm rounded-md font-medium bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white dark:border-slate-600 focus:outline-hidden focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center" // Use btn-secondary
+                    className="px-3 py-1.5 text-sm rounded-md font-medium inline-flex items-center"
                   >
                     <XCircle className="mr-1.5 h-4 w-4" /> {/* Changed Icon */}
                     Deselect All
@@ -227,24 +233,20 @@ const StructureGenView = () => {
         </form>
       </motion.div>
 
-      {/* Loading Screen */}
+      {/* Loading State */}
       <AnimatePresence>
-        {isLoading && <LoadingScreen text="Generating structures..." />}
+        {isLoading && structures.length === 0 && <ToolSkeleton variant="molecule" />}
       </AnimatePresence>
 
-      {/* Error Display - Adaptive */}
-      {error && (
-        <motion.div
-          className="p-4 bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700/60 rounded-lg text-sm flex items-start gap-2"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          {/* FIX: Use imported HiOutlineExclamationCircle */}
-          <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
-          <span>
-            <span className="font-medium">Error:</span> {error}
-          </span>
-        </motion.div>
+      {/* Error Display */}
+      {error && !isLoading && (
+        <GlassErrorCard
+          message={error}
+          onRetry={() => {
+            setError(null);
+            document.getElementById("formula-input")?.focus();
+          }}
+        />
       )}
 
       {/* Results Grid Section - Animate entrance */}

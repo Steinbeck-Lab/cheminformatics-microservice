@@ -3,7 +3,10 @@ import React, { useState } from "react";
 // Ensure all used icons are imported
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
-import LoadingScreen from "../common/LoadingScreen";
+import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
+import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { getErrorMessage } from "@/lib/error-messages";
 // Assuming this service is configured correctly
 import { generate3DCoordinates } from "../../services/convertService"; // Assuming this service exists
 import { AlertCircle, Box, Check, Clipboard, Download } from "lucide-react";
@@ -58,7 +61,7 @@ const Mol3DView = () => {
       }
     } catch (err) {
       console.error("3D Molblock generation error:", err); // Log the actual error
-      setError(err.message || "Failed to generate 3D coordinates");
+      setError(getErrorMessage("convert", err));
       setMolblock(null); // Ensure molblock is null on error
     } finally {
       setIsLoading(false);
@@ -179,23 +182,18 @@ const Mol3DView = () => {
       </div>
 
       {/* Loading State */}
-      {isLoading && <LoadingScreen text="Generating 3D coordinates..." />}
+      {isLoading && !molblock && <ToolSkeleton variant="conversion" />}
 
       {/* Error Display */}
-      {error &&
-        !isLoading && ( // Show error only if not loading
-          // Error message styling
-          <div
-            className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
-            role="alert"
-          >
-            <AlertCircle
-              className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
-              aria-hidden="true"
-            />
-            <span>{error}</span>
-          </div>
-        )}
+      {error && !isLoading && (
+        <GlassErrorCard
+          message={error}
+          onRetry={() => {
+            setError(null);
+            document.getElementById("smiles-input")?.focus();
+          }}
+        />
+      )}
 
       {/* Results Display Section */}
       {/* Show only if molblock exists and not loading */}

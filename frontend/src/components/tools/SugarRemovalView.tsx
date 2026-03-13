@@ -3,8 +3,11 @@ import React, { useState } from "react";
 import SMILESInput from "../common/SMILESInput";
 import MolFileUpload from "../common/MolFileUpload";
 import MoleculeCard from "../common/MoleculeCard";
-import LoadingScreen from "../common/LoadingScreen";
 import SMILESDisplay from "../common/SMILESDisplay";
+import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
+import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { getErrorMessage } from "@/lib/error-messages";
 import depictService from "../../services/depictService";
 import {
   getSugarInfo,
@@ -279,7 +282,7 @@ const SugarRemovalView = () => {
       }
     } catch (err) {
       console.error(`Error during ${operationMode} operation:`, err);
-      setError(`Error: ${err.message || "Unknown error occurred"}`);
+      setError(getErrorMessage("tools", err));
     } finally {
       setIsLoading(false);
     }
@@ -301,10 +304,11 @@ const SugarRemovalView = () => {
             )}
           </label>
           <Button
+            variant="ghost"
             type="button"
             onClick={() => resetOption(key)}
             disabled={!isModified}
-            className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+            className={`p-1 rounded ${
               isModified
                 ? "text-blue-600 dark:text-blue-400"
                 : "text-gray-400 dark:text-gray-600 cursor-not-allowed"
@@ -423,9 +427,10 @@ const SugarRemovalView = () => {
     return (
       <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
         <Button
+          variant="ghost"
           type="button"
           onClick={() => toggleSection(sectionKey)}
-          className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 flex items-center justify-between transition-colors"
+          className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 flex items-center justify-between rounded-none"
         >
           <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{title}</span>
           {isExpanded ? (
@@ -806,9 +811,10 @@ const SugarRemovalView = () => {
                 : "Sugar Extraction Options"}
           </h3>
           <Button
+            variant="ghost"
             type="button"
             onClick={resetAllOptions}
-            className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+            className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg"
           >
             <RefreshCw className="h-4 w-4" />
             <span>Reset All to Default</span>
@@ -1146,30 +1152,17 @@ const SugarRemovalView = () => {
       </div>
 
       {/* Loading State */}
-      {isLoading && (
-        <LoadingScreen
-          text={`${
-            operationMode === "detect"
-              ? "Detecting"
-              : operationMode === "remove"
-                ? "Removing"
-                : "Extracting"
-          } sugar moieties...`}
-        />
-      )}
+      {isLoading && <ToolSkeleton variant="molecule" />}
 
       {/* Error Display */}
       {error && !isLoading && (
-        <div
-          className="p-4 rounded-md flex items-start shadow-sm bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700"
-          role="alert"
-        >
-          <AlertCircle
-            className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
-            aria-hidden="true"
-          />
-          <span>{error}</span>
-        </div>
+        <GlassErrorCard
+          message={error}
+          onRetry={() => {
+            setError(null);
+            document.getElementById("smiles-input")?.focus();
+          }}
+        />
       )}
 
       {/* Results Display */}
@@ -1193,30 +1186,33 @@ const SugarRemovalView = () => {
                   </label>
                   <div className="grid grid-cols-3 gap-3">
                     <Button
+                      variant="ghost"
                       onClick={() => setHighlightMode("circular")}
-                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                      className={`px-4 py-2 rounded-lg font-medium ${
                         highlightMode === "circular"
-                          ? "bg-blue-600 text-white shadow-md"
+                          ? "bg-blue-600 text-white shadow-md hover:bg-blue-700"
                           : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                       }`}
                     >
                       Circular Only
                     </Button>
                     <Button
+                      variant="ghost"
                       onClick={() => setHighlightMode("linear")}
-                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                      className={`px-4 py-2 rounded-lg font-medium ${
                         highlightMode === "linear"
-                          ? "bg-blue-600 text-white shadow-md"
+                          ? "bg-blue-600 text-white shadow-md hover:bg-blue-700"
                           : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                       }`}
                     >
                       Linear Only
                     </Button>
                     <Button
+                      variant="ghost"
                       onClick={() => setHighlightMode("both")}
-                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                      className={`px-4 py-2 rounded-lg font-medium ${
                         highlightMode === "both"
-                          ? "bg-blue-600 text-white shadow-md"
+                          ? "bg-blue-600 text-white shadow-md hover:bg-blue-700"
                           : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                       }`}
                     >

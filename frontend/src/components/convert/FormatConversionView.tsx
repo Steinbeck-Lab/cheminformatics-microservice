@@ -3,8 +3,11 @@ import React, { useState, useRef } from "react";
 // Ensure all used icons are imported
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
-import LoadingScreen from "../common/LoadingScreen";
 import MoleculeDepiction2D from "../depict/MoleculeDepiction2D";
+import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
+import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { getErrorMessage } from "@/lib/error-messages";
 // Assuming this service is configured correctly
 import convertService from "../../services/convertService";
 import {
@@ -444,7 +447,7 @@ const FormatConversionView = () => {
       }
     } catch (err) {
       console.error("Conversion failed:", err);
-      setError(`Conversion failed: ${err.message || "An unknown error occurred."}`);
+      setError(getErrorMessage("convert", err));
       setResult("");
     } finally {
       setLoading(false);
@@ -589,9 +592,10 @@ const FormatConversionView = () => {
                       </span>
                     </div>
                     <Button
+                      variant="outline"
                       type="button"
                       onClick={handleClearCdxFile}
-                      className="ml-3 px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-300 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 border border-blue-300 dark:border-blue-700 rounded-md transition-all duration-200 hover:shadow-md"
+                      className="ml-3 px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-300 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 border-blue-300 dark:border-blue-700 rounded-md"
                     >
                       Clear
                     </Button>
@@ -659,9 +663,10 @@ const FormatConversionView = () => {
                       </span>
                     </div>
                     <Button
+                      variant="outline"
                       type="button"
                       onClick={handleClearFile}
-                      className="ml-3 px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-300 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 border border-blue-300 dark:border-blue-700 rounded-md transition-all duration-200 hover:shadow-md"
+                      className="ml-3 px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-300 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 border-blue-300 dark:border-blue-700 rounded-md"
                     >
                       Clear
                     </Button>
@@ -843,20 +848,17 @@ const FormatConversionView = () => {
       </div>
 
       {/* Loading State */}
-      {loading && <LoadingScreen text="Converting format..." />}
+      {loading && !result && <ToolSkeleton variant="conversion" />}
 
       {/* Error Display */}
       {error && !loading && (
-        <div
-          className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
-          role="alert"
-        >
-          <AlertCircle
-            className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
-            aria-hidden="true"
-          />
-          <span>{error}</span>
-        </div>
+        <GlassErrorCard
+          message={error}
+          onRetry={() => {
+            setError(null);
+            document.getElementById("smiles-input")?.focus();
+          }}
+        />
       )}
 
       {/* Results Display Section */}

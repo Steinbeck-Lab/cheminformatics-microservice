@@ -2,7 +2,10 @@
 import React, { useState } from "react"; // Removed useEffect
 import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 // Assuming these components are correctly implemented and styled for dark/light mode
-import LoadingScreen from "../common/LoadingScreen";
+import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
+import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { getErrorMessage } from "@/lib/error-messages";
 // Assuming this service is configured correctly
 import depictService from "../../services/depictService"; // Assuming this service exists
 import { AlertCircle, ArrowLeftRight, Check, Clipboard, Download, Image } from "lucide-react";
@@ -442,7 +445,7 @@ const BatchDepictionView = () => {
       }
     } catch (err) {
       console.error("Error generating depictions:", err);
-      setError(`Error generating depictions: ${err.message || "Unknown error"}`);
+      setError(getErrorMessage("depict", err));
       setDepictions([]);
       setRotations({});
     } finally {
@@ -551,7 +554,7 @@ const BatchDepictionView = () => {
       URL.revokeObjectURL(downloadUrl); // Clean up
     } catch (err) {
       console.error("Error creating zip file:", err);
-      setError(`Error downloading depictions: ${err.message || "Failed to create ZIP."}`);
+      setError(getErrorMessage("depict", err));
     } finally {
       setLoading(false); // Hide loading indicator
     }
@@ -667,7 +670,7 @@ const BatchDepictionView = () => {
       URL.revokeObjectURL(downloadUrl);
     } catch (err) {
       console.error("Error downloading single depiction:", err);
-      setError(`Error downloading depiction: ${err.message || "Unknown error"}`);
+      setError(getErrorMessage("depict", err));
     } finally {
       setLoading(false); // Hide loading indicator
     }
@@ -725,6 +728,7 @@ const BatchDepictionView = () => {
               </label>
               {/* Load Examples Button */}
               <Button
+                variant="ghost"
                 type="button"
                 onClick={generateExamples}
                 className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm"
@@ -801,6 +805,7 @@ const BatchDepictionView = () => {
                         </SelectContent>
                       </Select>
                       <Button
+                        variant="ghost"
                         type="button"
                         onClick={handleSwitchToolkit}
                         className="ml-2 p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 shadow-xs"
@@ -1324,22 +1329,17 @@ const BatchDepictionView = () => {
         </form>
       </motion.div>
 
-      {/* Loading Screen */}
-      {loading && <LoadingScreen text="Generating depictions..." />}
+      {/* Loading State */}
+      {loading && depictions.length === 0 && <ToolSkeleton variant="molecule" />}
 
       {/* Error Display */}
       {error && !loading && (
-        // Error message styling
-        <div
-          className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
-          role="alert"
-        >
-          <AlertCircle
-            className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
-            aria-hidden="true"
-          />
-          <span>{error}</span>
-        </div>
+        <GlassErrorCard
+          message={error}
+          onRetry={() => {
+            setError(null);
+          }}
+        />
       )}
 
       {/* Results Grid */}
@@ -1528,6 +1528,7 @@ const BatchDepictionView = () => {
             "Generate Depictions".
           </p>
           <Button
+            variant="ghost"
             type="button"
             onClick={generateExamples}
             className="mt-4 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm"
