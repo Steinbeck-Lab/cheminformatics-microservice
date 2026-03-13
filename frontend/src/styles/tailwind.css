@@ -182,6 +182,12 @@
     @apply text-primary hover:underline decoration-transparent hover:decoration-current underline-offset-4 transition-all duration-200;
   }
 
+  /* Fixed header clearance — absolute backgrounds fill from container
+     top (unaffected by padding), content pushed below header */
+  main > * {
+    padding-top: 4.5rem; /* 72px: h-14 + pt-2 + breathing room */
+  }
+
   /* Scoped transition to interactive elements (was global * selector) */
   a,
   button,
