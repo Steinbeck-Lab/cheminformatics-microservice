@@ -8,7 +8,6 @@ import {
   ArrowLeftRight,
   ArrowRight,
   BookOpen,
-  BoxSelect,
   Camera,
   Code,
   Eye,
@@ -405,9 +404,9 @@ const HomePage = () => {
         viewport={{ once: true, amount: 0.2 }}
       >
         {/* Internal container centers content within the ribbon */}
-        <div className="max-w-(--breakpoint-lg) mx-auto flex flex-col lg:flex-row items-center text-center lg:text-left px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto flex flex-col lg:flex-row items-center text-center lg:text-left px-4 sm:px-6 lg:px-8">
           <motion.div
-            className="mb-8 sm:mb-10 lg:mb-0 lg:mr-16 shrink-0 text-sky-600 dark:text-blue-500/90"
+            className="mb-8 sm:mb-10 lg:mb-0 lg:mr-10 shrink-0 text-sky-600 dark:text-blue-500/90"
             variants={ribbonContentVariants}
             custom={0}
             initial="hidden"
@@ -416,10 +415,20 @@ const HomePage = () => {
             animate={{ rotate: 360 }}
             transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
           >
-            <BoxSelect className="h-28 w-28 sm:h-32 sm:w-32 md:h-40 md:w-40 mx-auto lg:mx-0 opacity-90 drop-shadow-lg" />
+            <svg
+              className="h-28 w-28 sm:h-32 sm:w-32 md:h-36 md:w-36 mx-auto lg:mx-0 opacity-90 drop-shadow-lg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+            </svg>
           </motion.div>
           <motion.div
-            className="grow lg:max-w-3xl"
+            className="grow min-w-0"
             variants={ribbonContentVariants}
             custom={1}
             initial="hidden"
@@ -429,13 +438,13 @@ const HomePage = () => {
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-5 tracking-tight whitespace-nowrap">
               Designed for Chemists. Fueled by Open-Source.
             </h3>
-            <p className="text-base md:text-lg text-slate-700 dark:text-slate-300 leading-relaxed whitespace-nowrap">
+            <p className="text-base md:text-lg text-slate-700 dark:text-slate-300 leading-relaxed">
               Built upon the open-source Cheminformatics Microservice API developed by the{" "}
               <a
                 href="https://cheminf.uni-jena.de"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sky-700 dark:text-sky-300 hover:text-indigo-700 dark:hover:text-cyan-300 font-medium transition-colors duration-300 hover-underline-link"
+                className="text-sky-700 dark:text-sky-300 hover:text-indigo-700 dark:hover:text-cyan-300 font-medium transition-colors duration-300 hover-underline-link whitespace-nowrap"
               >
                 Steinbeck Lab
               </a>{" "}
@@ -444,7 +453,7 @@ const HomePage = () => {
                 href="https://www.uni-jena.de/en"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sky-700 dark:text-sky-300 hover:text-indigo-700 dark:hover:text-cyan-300 font-medium transition-colors duration-300 hover-underline-link"
+                className="text-sky-700 dark:text-sky-300 hover:text-indigo-700 dark:hover:text-cyan-300 font-medium transition-colors duration-300 hover-underline-link whitespace-nowrap"
               >
                 Friedrich Schiller University Jena
               </a>

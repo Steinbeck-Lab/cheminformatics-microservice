@@ -261,11 +261,12 @@ const CoconutPreProcessingView = () => {
             {Object.keys(data).map((key) => (
               <Button
                 key={key}
+                variant="ghost"
                 onClick={() => setActiveTab(key)}
-                className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm focus:outline-hidden ${
+                className={`h-auto whitespace-nowrap py-3 px-1 border-b-2 rounded-none font-medium text-sm focus:outline-hidden ${
                   activeTab === key
-                    ? "border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400"
-                    : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600"
+                    ? "border-sky-600 dark:border-sky-400 text-sky-700 dark:text-sky-400"
+                    : "bg-transparent border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600"
                 }`}
                 aria-current={activeTab === key ? "page" : undefined}
               >

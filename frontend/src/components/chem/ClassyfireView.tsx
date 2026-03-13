@@ -226,10 +226,11 @@ const ClassyfireView = () => {
           <div className="flex border-b border-gray-200 dark:border-gray-700">
             {/* Classify Tab Button */}
             <Button
-              className={`px-4 py-2 font-medium text-sm focus:outline-hidden transition-colors duration-150 ${
+              variant="ghost"
+              className={`h-auto px-4 py-2 font-medium text-sm rounded-none focus:outline-hidden transition-colors duration-150 ${
                 activeTab === "classify"
-                  ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-500"
+                  ? "text-sky-700 dark:text-sky-400 border-b-2 border-sky-600 dark:border-sky-400"
+                  : "bg-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white hover:border-b-2 hover:border-slate-300 dark:hover:border-slate-500"
               }`}
               onClick={() => setActiveTab("classify")}
               aria-current={activeTab === "classify" ? "page" : undefined}
@@ -238,10 +239,11 @@ const ClassyfireView = () => {
             </Button>
             {/* Check Job ID Tab Button */}
             <Button
-              className={`px-4 py-2 font-medium text-sm focus:outline-hidden transition-colors duration-150 ${
+              variant="ghost"
+              className={`h-auto px-4 py-2 font-medium text-sm rounded-none focus:outline-hidden transition-colors duration-150 ${
                 activeTab === "jobid"
-                  ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-500"
+                  ? "text-sky-700 dark:text-sky-400 border-b-2 border-sky-600 dark:border-sky-400"
+                  : "bg-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white hover:border-b-2 hover:border-slate-300 dark:hover:border-slate-500"
               }`}
               onClick={() => setActiveTab("jobid")}
               aria-current={activeTab === "jobid" ? "page" : undefined}

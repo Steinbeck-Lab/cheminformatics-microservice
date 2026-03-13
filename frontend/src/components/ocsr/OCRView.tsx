@@ -150,11 +150,12 @@ const OCRView = () => {
                 setImageUrl("");
                 setError(null);
               }}
+              variant="ghost"
               disabled={loading}
-              className={`flex-1 px-6 py-4 text-sm font-medium transition-all duration-200 ${
+              className={`flex-1 h-auto px-6 py-4 text-sm font-medium rounded-none transition-all duration-200 ${
                 inputMethod === "upload"
-                  ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50"
+                  ? "bg-white dark:bg-slate-800 text-sky-700 dark:text-sky-400 border-b-2 border-sky-600 dark:border-sky-400 hover:bg-white dark:hover:bg-slate-800"
+                  : "bg-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50"
               }`}
             >
               <div className="flex items-center justify-center gap-2">
@@ -169,11 +170,12 @@ const OCRView = () => {
                 setFiles([]);
                 setError(null);
               }}
+              variant="ghost"
               disabled={loading}
-              className={`flex-1 px-6 py-4 text-sm font-medium transition-all duration-200 ${
+              className={`flex-1 h-auto px-6 py-4 text-sm font-medium rounded-none transition-all duration-200 ${
                 inputMethod === "url"
-                  ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50"
+                  ? "bg-white dark:bg-slate-800 text-sky-700 dark:text-sky-400 border-b-2 border-sky-600 dark:border-sky-400 hover:bg-white dark:hover:bg-slate-800"
+                  : "bg-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50"
               }`}
             >
               <div className="flex items-center justify-center gap-2">

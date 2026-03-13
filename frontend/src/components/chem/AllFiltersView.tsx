@@ -1,5 +1,6 @@
 // Description: This component provides a user interface for filtering chemical compounds based on various medicinal chemistry rules and properties. It allows users to input SMILES strings, apply filters, and view results in a table format. The component is designed to be responsive and theme-aware, adapting to light and dark modes.
 import React, { useState } from "react";
+import { LayoutGroup, motion } from "motion/react";
 // Import HiOutlineExclamationCircle along with other icons
 import LoadingScreen from "../common/LoadingScreen"; // Assuming this component is theme-aware
 import { useAppContext } from "../../context/AppContext"; // Assuming this provides theme-aware context if needed
@@ -543,30 +544,31 @@ const AllFiltersView = () => {
                   <ArrowLeftRight className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
                   Filter Match Logic:
                 </label>
-                <div className="flex p-1 space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                  <Button
-                    type="button"
-                    onClick={() => handleFilterOperatorChange("AND")}
-                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 ${
-                      filterOperator === "AND"
-                        ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-xs"
-                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-                    }`}
-                  >
-                    Match All Filters (AND)
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() => handleFilterOperatorChange("OR")}
-                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 ${
-                      filterOperator === "OR"
-                        ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-xs"
-                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-                    }`}
-                  >
-                    Match Any Filter (OR)
-                  </Button>
-                </div>
+                <LayoutGroup id="filterOperatorToggle">
+                  <div className="relative flex p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    {["AND", "OR"].map((op) => (
+                      <button
+                        key={op}
+                        type="button"
+                        onClick={() => handleFilterOperatorChange(op)}
+                        className={`relative z-10 px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-sky-500 ${
+                          filterOperator === op
+                            ? "text-sky-700 dark:text-sky-400"
+                            : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                        }`}
+                      >
+                        {filterOperator === op && (
+                          <motion.div
+                            layoutId="filterOpPill"
+                            className="absolute inset-0 bg-white dark:bg-slate-600 rounded-md shadow-xs -z-10"
+                            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                          />
+                        )}
+                        {op === "AND" ? "Match All Filters (AND)" : "Match Any Filter (OR)"}
+                      </button>
+                    ))}
+                  </div>
+                </LayoutGroup>
               </div>
 
               {/* Detailed View Toggle */}

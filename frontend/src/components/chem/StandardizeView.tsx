@@ -279,11 +279,12 @@ const StandardizeView = () => {
           <div className="flex rounded-lg bg-gray-100 dark:bg-gray-700 p-1">
             <Button
               type="button"
+              variant="ghost"
               onClick={() => setInputMethod("smiles")}
-              className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 flex items-center justify-center ${
+              className={`flex-1 h-auto px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 flex items-center justify-center ${
                 inputMethod === "smiles"
-                  ? "bg-blue-600 text-white shadow-xs"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                  ? "bg-sky-600 text-white shadow-xs hover:bg-sky-700 hover:text-white"
+                  : "bg-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-600/50"
               }`}
             >
               <FlaskConical className="mr-2 h-4 w-4" />
@@ -291,11 +292,12 @@ const StandardizeView = () => {
             </Button>
             <Button
               type="button"
+              variant="ghost"
               onClick={() => setInputMethod("molblock")}
-              className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 flex items-center justify-center ${
+              className={`flex-1 h-auto px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 flex items-center justify-center ${
                 inputMethod === "molblock"
-                  ? "bg-blue-600 text-white shadow-xs"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                  ? "bg-sky-600 text-white shadow-xs hover:bg-sky-700 hover:text-white"
+                  : "bg-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-600/50"
               }`}
             >
               <FileText className="mr-2 h-4 w-4" />
