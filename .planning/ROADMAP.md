@@ -85,6 +85,28 @@ Plans:
 - [x] 04-04-PLAN.md -- Final pass: mobile menu to Sheet, isDarkMode ternary cleanup, consistency sweep, visual verification (both modes)
 - [ ] 04-05-PLAN.md -- Gap closure: migrate remaining hand-rolled buttons and cards in OCSRPage, HomePage, AboutPage, and Footer to shadcn/ui
 
+### Phase 04.1: Visual Design System — Glassmorphism, Liquid Glass & Bento Grids (INSERTED)
+
+**Goal**: All pages use a cohesive glassmorphism + liquid glass fusion aesthetic with bento grid layouts, resizable panels, animated molecule cards, and result comparison mode
+**Depends on**: Phase 4
+**Requirements**: VISUAL-01, VISUAL-02, VISUAL-03, VISUAL-04, VISUAL-05, VISUAL-06
+**Success Criteria** (what must be TRUE):
+  1. Cards, containers, and panels across all 9 pages use glassmorphism styling (frosted glass backgrounds, subtle borders, backdrop blur)
+  2. Tool pages use bento grid layouts with varied, editorial-style sizing instead of uniform grids
+  3. Molecule cards animate on hover with shimmer/glow effects and support expand/collapse
+  4. Wide-screen tool pages have resizable input/output panels with a draggable divider
+  5. Users can compare two molecule results side-by-side in a comparison mode
+  6. Claymorphism accents (soft shadows, raised surfaces) blend with glass effects for depth
+**Plans**: 6 plans
+
+Plans:
+- [ ] 04.1-01-PLAN.md -- Foundation: CSS glass/clay/gradient utilities, per-page gradient mesh config, bento layout config, useMediaQuery hook, GradientMesh and LiquidGlassFilter components
+- [ ] 04.1-02-PLAN.md -- BentoGrid component + ChemPage migration from sidebar tabs to bento grid (14 tools)
+- [ ] 04.1-03-PLAN.md -- Remaining bento pages: ConvertPage, DepictPage, ToolsPage migration + HomePage glass hero and bento feature cards
+- [ ] 04.1-04-PLAN.md -- Resizable panels (shadcn Resizable + ResizableToolPanel) + MoleculeCard glow/lift/expand enhancements
+- [ ] 04.1-05-PLAN.md -- Comparison mode: ComparisonContext, ComparisonTray, ComparisonView, App.tsx wiring
+- [ ] 04.1-06-PLAN.md -- Glass sweep: Header/Footer glass treatment, OCSR/About/Privacy/Terms gradient mesh + glass containers, visual verification checkpoint
+
 ### Phase 5: Loading States + UX
 **Goal**: The application provides clear feedback during all async operations and works well across all viewport sizes with measurably faster load times
 **Depends on**: Phase 4
@@ -122,7 +144,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 4.1 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -130,5 +152,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 2. React 19 + TypeScript 5 | 2/2 | Complete | 2026-03-12 |
 | 3. Tailwind v4 Migration | 2/2 | Complete   | 2026-03-12 |
 | 4. Component System + Dark Mode | 4/5 | Gap closure | 2026-03-13 |
+| 4.1 Visual Design System | 0/6 | Not started | - |
 | 5. Loading States + UX | 0/3 | Not started | - |
 | 6. Animations + Power Features | 0/3 | Not started | - |
