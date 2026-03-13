@@ -3,6 +3,7 @@ import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { ResizableToolPanel } from "@/components/layout/ResizableToolPanel";
 import type { BentoSize } from "@/config/bentoLayouts";
 
 /** Spring transition shared by all bento layout animations. */
@@ -59,8 +60,12 @@ interface BentoCardProps {
   isOtherExpanded: boolean;
   /** Toggle expand/collapse. */
   onToggle: () => void;
-  /** Tool component rendered inside expanded card. */
+  /** Tool component rendered inside expanded card (backward-compatible). */
   children?: React.ReactNode;
+  /** Left/top panel content for resizable split layout (optional). */
+  inputContent?: React.ReactNode;
+  /** Right/bottom panel content for resizable split layout (optional). */
+  outputContent?: React.ReactNode;
 }
 
 /**
@@ -102,6 +107,8 @@ export function BentoCard({
   isOtherExpanded,
   onToggle,
   children,
+  inputContent,
+  outputContent,
 }: BentoCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery("(max-width: 639px)");
@@ -170,14 +177,22 @@ export function BentoCard({
 
       {/* Expanded content */}
       <AnimatePresence>
-        {isExpanded && children && (
+        {isExpanded && (inputContent || outputContent || children) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1, transition: { delay: 0.2 } }}
             exit={{ opacity: 0 }}
             className="p-5 pt-0"
           >
-            {children}
+            {inputContent && outputContent ? (
+              <ResizableToolPanel
+                toolId={id}
+                inputContent={inputContent}
+                outputContent={outputContent}
+              />
+            ) : (
+              children
+            )}
           </motion.div>
         )}
       </AnimatePresence>
