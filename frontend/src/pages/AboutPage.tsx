@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { Atom, Code, Database, ExternalLink, FileText, FlaskConical, Network } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 // Sophisticated Animation Variants
@@ -610,18 +611,19 @@ const AboutPage = () => {
               Related Projects
             </h2>
             <div className="text-center">
-              <motion.a
-                href="https://naturalproducts.net"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center px-8 py-4 bg-linear-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white font-semibold rounded-lg shadow-lg"
-                variants={buttonVariant}
-                whileHover="hover"
-              >
-                <Atom className="mr-3 h-5 w-5" />
-                <span className="text-lg">Natural Products Online</span>
-                <ExternalLink className="ml-3 h-5 w-5" />
-              </motion.a>
+              <motion.div variants={buttonVariant} whileHover="hover" className="inline-block">
+                <Button
+                  asChild
+                  size="lg"
+                  className="h-auto inline-flex items-center justify-center px-8 py-4 bg-linear-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white font-semibold rounded-lg shadow-lg text-lg"
+                >
+                  <a href="https://naturalproducts.net" target="_blank" rel="noopener noreferrer">
+                    <Atom className="mr-3 h-5 w-5" />
+                    <span className="text-lg">Natural Products Online</span>
+                    <ExternalLink className="ml-3 h-5 w-5" />
+                  </a>
+                </Button>
+              </motion.div>
             </div>
           </motion.div>
 
@@ -655,17 +657,26 @@ const AboutPage = () => {
                   in Germany, accessible at:
                 </p>
                 <div className="text-center">
-                  <motion.a
-                    href="https://api.naturalproducts.net/latest/docs"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center px-8 py-4 rounded-lg bg-linear-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white font-medium transition-all duration-300 hover:shadow-lg hover:from-blue-700 hover:to-indigo-700"
+                  <motion.div
                     whileHover={{ y: -5, scale: 1.03 }}
                     transition={{ duration: 0.2 }}
+                    className="inline-block"
                   >
-                    <ExternalLink className="mr-2 h-5 w-5" />
-                    api.naturalproducts.net/latest/docs
-                  </motion.a>
+                    <Button
+                      asChild
+                      size="lg"
+                      className="h-auto inline-flex items-center px-8 py-4 rounded-lg bg-linear-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white font-medium transition-all duration-300 hover:shadow-lg hover:from-blue-700 hover:to-indigo-700"
+                    >
+                      <a
+                        href="https://api.naturalproducts.net/latest/docs"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink className="mr-2 h-5 w-5" />
+                        api.naturalproducts.net/latest/docs
+                      </a>
+                    </Button>
+                  </motion.div>
                 </div>
               </div>
             </div>
@@ -892,21 +903,26 @@ const AboutPage = () => {
                       logo: "https://github.com/Steinbeck-Lab/cheminformatics-microservice/assets/30716951/45c8e153-8322-4563-a51d-cbdbe4e08627",
                     },
                   ].map((funder) => (
-                    <motion.a
+                    <motion.div
                       key={funder.name}
-                      href={funder.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block bg-white dark:bg-slate-800/60 p-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 w-auto h-16 flex items-center justify-center"
                       whileHover={{ y: -5, scale: 1.05 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <img
-                        src={funder.logo}
-                        alt={`${funder.name} Logo`}
-                        className="max-h-12 object-contain"
-                      />
-                    </motion.a>
+                      <Card className="bg-white dark:bg-slate-800/60 p-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 py-0 gap-0">
+                        <a
+                          href={funder.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-auto h-16 flex items-center justify-center"
+                        >
+                          <img
+                            src={funder.logo}
+                            alt={`${funder.name} Logo`}
+                            className="max-h-12 object-contain"
+                          />
+                        </a>
+                      </Card>
+                    </motion.div>
                   ))}
                 </div>
               </div>

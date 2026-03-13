@@ -12,6 +12,7 @@ import {
   Landmark,
   Shield,
 } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 // Enhanced animation variants
 const footerVariant = {
@@ -347,12 +348,8 @@ const Footer = () => {
             variants={itemVariant}
           >
             {resources.map((link, index) => (
-              <motion.a
+              <motion.div
                 key={index}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex flex-col justify-center items-start p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm transition-all duration-300 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-500"
                 variants={itemVariant}
                 whileHover={{
                   y: -3,
@@ -360,41 +357,50 @@ const Footer = () => {
                 }}
                 whileTap={{ scale: 0.98 }}
               >
-                {/* Gradient accent line */}
-                <div className={`h-1 w-8 mb-1 rounded-full bg-linear-to-r ${link.color}`}></div>
-
-                {/* Icon and title in horizontal layout */}
-                <div className="flex items-center gap-2 mb-0.5">
-                  <motion.div
-                    className="text-slate-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
-                    whileHover={{ scale: 1.1, rotate: 5 }}
+                <Card className="group h-full p-0 py-0 gap-0 rounded-lg border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm transition-all duration-300 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-500">
+                  <a
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col justify-center items-start p-2"
                   >
-                    <link.icon className="h-4 w-4" />
-                  </motion.div>
-                  <h4 className="font-medium text-slate-900 dark:text-white text-sm">
-                    {link.title}
-                  </h4>
-                </div>
+                    {/* Gradient accent line */}
+                    <div className={`h-1 w-8 mb-1 rounded-full bg-linear-to-r ${link.color}`}></div>
 
-                {/* Description */}
-                <p className="text-xs text-slate-600 dark:text-slate-400">{link.desc}</p>
+                    {/* Icon and title in horizontal layout */}
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <motion.div
+                        className="text-slate-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                      >
+                        <link.icon className="h-4 w-4" />
+                      </motion.div>
+                      <h4 className="font-medium text-slate-900 dark:text-white text-sm">
+                        {link.title}
+                      </h4>
+                    </div>
 
-                {/* Animated arrow that appears on hover */}
-                <motion.div
-                  className="mt-0.5 overflow-hidden h-3 w-full"
-                  initial={{ opacity: 0 }}
-                  whileHover={{ opacity: 1 }}
-                >
-                  <motion.span
-                    className="text-blue-600 dark:text-blue-400 text-xs flex items-center"
-                    initial={{ x: -20, opacity: 0 }}
-                    whileHover={{ x: 0, opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    Explore →
-                  </motion.span>
-                </motion.div>
-              </motion.a>
+                    {/* Description */}
+                    <p className="text-xs text-slate-600 dark:text-slate-400">{link.desc}</p>
+
+                    {/* Animated arrow that appears on hover */}
+                    <motion.div
+                      className="mt-0.5 overflow-hidden h-3 w-full"
+                      initial={{ opacity: 0 }}
+                      whileHover={{ opacity: 1 }}
+                    >
+                      <motion.span
+                        className="text-blue-600 dark:text-blue-400 text-xs flex items-center"
+                        initial={{ x: -20, opacity: 0 }}
+                        whileHover={{ x: 0, opacity: 1 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        Explore →
+                      </motion.span>
+                    </motion.div>
+                  </a>
+                </Card>
+              </motion.div>
             ))}
           </motion.div>
         </div>
