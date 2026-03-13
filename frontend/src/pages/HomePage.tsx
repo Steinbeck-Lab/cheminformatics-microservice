@@ -264,7 +264,7 @@ const HomePage = () => {
       {/* BELOW THE FOLD — Feature cards, recent molecules, ribbon     */}
       {/* ============================================================ */}
       <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 pb-12 md:pb-16 z-10">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-[90rem] mx-auto">
           {/* --- Feature Cards --- */}
           <motion.section
             className="mb-16 md:mb-24"
@@ -280,7 +280,7 @@ const HomePage = () => {
                 Capabilities
               </span>
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
               {features.map((feature, index) => {
                 const Icon = feature.icon;
                 return (
