@@ -118,12 +118,12 @@ Plans:
   3. Failed API calls show inline error messages with a visible retry button on the affected component
   4. The layout is usable on mobile (375px) and tablet (768px) viewports with no horizontal overflow or overlapping elements
   5. Lighthouse performance score improves measurably over the Phase 4 baseline due to route-level code splitting and lazy loading
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
-- [ ] 05-03: TBD
+- [ ] 05-01-PLAN.md -- Foundation: feedback components (GlassSkeleton, GlassErrorCard, ToolSkeleton, EmptyState), Sonner toast system, error message mapping, Axios interceptor
+- [ ] 05-02-PLAN.md -- Tool view refactoring: replace LoadingScreen in all 21 tool views with glass skeletons + error cards, replace alert() calls, delete LoadingScreen
+- [ ] 05-03-PLAN.md -- Code splitting (React.lazy + vendor chunks), responsive fixes (mobile 3D, scrollable tabs, tap targets), navigation wayfinding
 
 ### Phase 6: Animations + Power Features
 **Goal**: The UI feels premium and fluid with smooth transitions throughout, and power users can navigate instantly via command palette
