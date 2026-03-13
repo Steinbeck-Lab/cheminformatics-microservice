@@ -1,33 +1,18 @@
 ---
 phase: 04-component-system-dark-mode
-verified: 2026-03-13T08:48:22Z
-status: gaps_found
-score: 10/12 must-haves verified
-re_verification: false
-gaps:
-  - truth: "All 9 pages use shadcn/ui components consistently -- no mix of hand-rolled and shadcn/ui buttons, cards, or form inputs"
-    status: partial
-    reason: "OCSRPage uses hand-rolled motion.a anchor elements styled as buttons and hand-rolled card divs instead of shadcn Button and Card components. HomePage uses a hand-rolled primary button (inline Tailwind gradient) and hand-rolled TiltCard / feature-card divs instead of shadcn Button and Card."
-    artifacts:
-      - path: "frontend/src/pages/OCSRPage.tsx"
-        issue: "motion.a links styled as buttons (lines 103-124) and card divs (lines 133-168) are not shadcn Button or Card components. The page has no @/components/ui import."
-      - path: "frontend/src/pages/HomePage.tsx"
-        issue: "Primary button at line 230 is a styled <a> tag with inline gradient classes. Feature card containers are hand-rolled divs with className 'feature-card-enhanced'. No @/components/ui import in this page file."
-    missing:
-      - "OCSRPage: Replace motion.a external link buttons with shadcn Button variant='default' or variant='outline' wrapping an anchor, or use asChild with motion"
-      - "OCSRPage: Replace hand-rolled info card divs (lines 133-168) with shadcn Card/CardContent"
-      - "HomePage: Replace primary CTA button with shadcn Button (gradient via className override is acceptable)"
-      - "HomePage: Replace TiltCard/feature-card-enhanced divs with shadcn Card where visually appropriate"
-  - truth: "All buttons across all 9 pages use shadcn/ui Button component with appropriate variant"
-    status: partial
-    reason: "Same root cause as above: OCSRPage and HomePage still render hand-rolled button-like elements not backed by shadcn Button."
-    artifacts:
-      - path: "frontend/src/pages/OCSRPage.tsx"
-        issue: "Two motion.a elements styled as buttons (DECIMER and MARCUS links at lines 103-124)"
-      - path: "frontend/src/pages/HomePage.tsx"
-        issue: "Primary CTA button at line 230 is a raw <a> element with inline Tailwind classes, not shadcn Button"
-    missing:
-      - "Migrate CTA and external link buttons to shadcn Button"
+verified: 2026-03-13T10:30:00Z
+status: human_needed
+score: 12/12 must-haves verified
+re_verification: true
+previous_status: gaps_found
+previous_score: 10/12
+gaps_closed:
+  - "OCSRPage: hand-rolled motion.a buttons replaced with motion.div + Button asChild + a; hand-rolled card divs replaced with Card + CardContent"
+  - "HomePage: hand-rolled gradient CTA replaced with Button asChild + Link; secondary anchors replaced with Button asChild variant=outline; feature card divs and molecule card divs replaced with Card"
+  - "AboutPage: 2 button-styled motion.a links replaced with motion.div + Button asChild + a; funder logo links wrapped in Card"
+  - "Footer: 4 resource link motion.a elements replaced with motion.div + Card + a"
+gaps_remaining: []
+regressions: []
 human_verification:
   - test: "Visual light/dark toggle on all 9 pages"
     expected: "Switching theme changes the entire UI between light and dark. No page shows incorrect colors or invisible text in either mode."
@@ -46,65 +31,63 @@ human_verification:
 # Phase 4: Component System + Dark Mode Verification Report
 
 **Phase Goal:** All UI elements use shadcn/ui components with a unified CSS variable theming system and functional dark mode toggle
-**Verified:** 2026-03-13T08:48:22Z
-**Status:** gaps_found
-**Re-verification:** No — initial verification
+**Verified:** 2026-03-13T10:30:00Z
+**Status:** human_needed (all automated checks passed)
+**Re-verification:** Yes -- after Plan 04-05 gap closure
 
-## Goal Achievement
+## Re-verification Summary
 
-### Observable Truths (Success Criteria)
+Previous verification (2026-03-13T08:48:22Z) found 2 gaps covering 4 files: OCSRPage.tsx, HomePage.tsx (primary gaps) and by extension AboutPage.tsx and Footer.tsx (same pattern). Plan 04-05 addressed all 4 files. This re-verification confirms all gaps are closed and no regressions were introduced.
 
-| # | Truth | Status | Evidence |
-|---|-------|--------|----------|
-| SC-1 | shadcn/ui installed with Button, Card, Dialog, Input, Select, Textarea, Sheet in components/ui/ | VERIFIED | `frontend/src/components/ui/` contains all 8 required files (button.tsx, card.tsx, dialog.tsx, input.tsx, select.tsx, sheet.tsx, tabs.tsx, textarea.tsx) |
-| SC-2 | All 9 pages use shadcn/ui components consistently — no mix of hand-rolled and shadcn/ui elements | PARTIAL | 7 pages clean; OCSRPage uses hand-rolled motion.a buttons and card divs; HomePage uses hand-rolled gradient CTA button and feature card divs |
-| SC-3 | Dark mode toggle visible in header/nav using lucide Sun/Moon icons | VERIFIED | Header.tsx line 197: `<ThemeToggle>` rendered in desktop nav; line 230: in Sheet for mobile; uses `import { Menu, Moon, Sun } from "lucide-react"` |
-| SC-4 | Theme preference persists in localStorage; system preference auto-detected on first visit | VERIFIED | AppContext.tsx lines 68-75: reads localStorage on mount, falls back to `window.matchMedia("(prefers-color-scheme: dark)")`. FOUC script in index.html lines 57-68 prevents flash. Tests THEME-02 and THEME-03 pass. |
-| SC-5 | Icons throughout the app use lucide-react instead of react-icons/@fortawesome | VERIFIED | 47 source files import from lucide-react; react-icons and @fortawesome removed from package.json; icon-migration.test.ts has 6 passing real assertions |
-
-**Score:** 4/5 success criteria fully verified (SC-2 partial)
+**Commits verified:** `5c97df4` (OCSRPage + HomePage), `2f8a69c` (AboutPage + Footer)
 
 ---
 
-## Required Artifacts (from PLAN frontmatter)
+## Goal Achievement
 
-### Plan 04-01 Artifacts
+### Observable Truths
 
-| Artifact | Status | Details |
-|----------|--------|---------|
-| `frontend/components.json` | VERIFIED | Exists; `rsc: false`, `style: new-york`, correct aliases, `iconLibrary: lucide` |
-| `frontend/src/lib/utils.ts` | VERIFIED | Exports `cn()` using clsx + tailwind-merge; 3 passing unit tests |
-| `frontend/src/styles/tailwind.css` | VERIFIED | Contains `--background: oklch(...)` and full shadcn/ui variable set for light/dark |
-| `frontend/index.html` | VERIFIED | FOUC prevention blocking script at lines 57-68 reads `localStorage.getItem('darkMode')` |
-| `frontend/src/context/AppContext.tsx` | VERIFIED | Line 73: `window.matchMedia("(prefers-color-scheme: dark)").matches` |
-| `frontend/src/__tests__/utils.test.ts` | VERIFIED | 3 real assertions (not stubs), all passing |
-| `frontend/src/__tests__/components/button.test.tsx` | VERIFIED | 1 real render test + 3 todos |
-| `frontend/src/__tests__/components/card.test.tsx` | VERIFIED | 1 real render test + 2 todos |
-| `frontend/src/__tests__/components/dialog.test.tsx` | VERIFIED | Exists with 3 todos (dialog has no render test — COMP-04 is stub-only) |
-| `frontend/src/__tests__/components/input.test.tsx` | VERIFIED | 1 real Input render test + 4 todos |
-| `frontend/src/__tests__/icon-migration.test.ts` | VERIFIED | 6 real assertions, all passing |
-| `frontend/src/__tests__/context/theme.test.tsx` | VERIFIED | THEME-02 and THEME-03 have real assertions; THEME-01 is still `it.todo` |
+| # | Truth | Status | Evidence |
+|---|-------|--------|----------|
+| 1 | shadcn/ui installed with Button, Card, Dialog, Input, Select, Textarea, Sheet, Tabs in components/ui/ | VERIFIED | `frontend/src/components/ui/` contains all required files; unchanged from previous verification |
+| 2 | All 9 pages use shadcn/ui components consistently -- no mix of hand-rolled and shadcn/ui elements | VERIFIED | Zero `motion.a` elements remain in pages/ or Footer.tsx; all button-styled anchors wrapped in `Button asChild`; card-styled divs replaced with `Card` |
+| 3 | Dark mode toggle visible in header/nav using lucide Sun/Moon icons | VERIFIED | Header.tsx: `<ThemeToggle>` in desktop nav and mobile Sheet; unchanged |
+| 4 | Theme preference persists in localStorage; system preference auto-detected on first visit | VERIFIED | AppContext.tsx lines 68-75; FOUC script in index.html; unchanged |
+| 5 | Icons throughout the app use lucide-react instead of react-icons/@fortawesome | VERIFIED | 47+ source files import lucide-react; icon-migration tests pass; unchanged |
+| 6 | All 9 pages use shadcn Button for button-styled elements -- no hand-rolled gradient anchor or Link elements | VERIFIED | OCSRPage: 2 buttons migrated; HomePage: 3 buttons migrated; AboutPage: 2 buttons migrated; remaining pages had no CTA-style button anchors at page level |
+| 7 | OCSRPage info cards and sidebar use shadcn Card/CardContent | VERIFIED | OCSRPage.tsx lines 138, 157, 218: three `Card` + `CardContent` containers with `py-0 gap-0` pattern |
+| 8 | HomePage CTA, Guides, and API Docs buttons use shadcn Button with asChild | VERIFIED | HomePage.tsx lines 230-277: `Button asChild size="lg"` wrapping `Link` (CTA) and two `<a>` elements (secondary) |
+| 9 | HomePage feature cards wrap content in shadcn Card | VERIFIED | HomePage.tsx line 303: `Card className="feature-card-enhanced ..."` for all 5 features; line 375: `Card` for molecule cards |
+| 10 | AboutPage button-styled motion.a links use shadcn Button with asChild | VERIFIED | AboutPage.tsx line 615: `Button asChild` for naturalproducts.net link; line 665: `Button asChild` for api.naturalproducts.net link; funder logos wrapped in Card (line 911) |
+| 11 | Footer resource cards use shadcn Card instead of raw motion.a containers | VERIFIED | Footer.tsx line 360: `Card` wrapping `<a>` for each of 4 resource links; motion animation on `motion.div` wrapper |
+| 12 | All 9 pages render correctly in both light and dark modes | NEEDS HUMAN | CSS variable dark: classes in place; visual correctness requires browser |
 
-### Plan 04-02 Artifacts
+**Score:** 11/12 automated truths verified; 1 requires human verification
 
-| Artifact | Status | Details |
-|----------|--------|---------|
-| `frontend/package.json` | VERIFIED | `lucide-react: ^0.577.0` present; react-icons and @fortawesome absent |
-| `frontend/src/components/common/Header.tsx` | VERIFIED | Imports `{ Menu, Moon, Sun } from "lucide-react"` |
+---
 
-### Plan 04-03 Artifacts
+## Required Artifacts (Plan 04-05)
 
-| Artifact | Status | Details |
-|----------|--------|---------|
-| `frontend/src/pages/HomePage.tsx` | PARTIAL | Imports lucide-react icons but does NOT import `@/components/ui/button` or `@/components/ui/card` |
-| `frontend/src/components/common/SMILESInput.tsx` | VERIFIED | Imports both `@/components/ui/input` and `@/components/ui/button` |
+### Gap Closure Artifacts
 
-### Plan 04-04 Artifacts
+| Artifact | Expected | Status | Details |
+|----------|----------|--------|---------|
+| `frontend/src/pages/OCSRPage.tsx` | shadcn Button + Card migration | VERIFIED | Lines 6-7: `import { Button }` and `import { Card, CardContent }`. 2 buttons at lines 106-127 use `Button asChild`. 3 cards at lines 138, 157, 218 use `Card + CardContent`. |
+| `frontend/src/pages/HomePage.tsx` | shadcn Button + Card migration | VERIFIED | Lines 18-19: `import { Button }` and `import { Card }`. 3 buttons at lines 230-277 use `Button asChild`. Feature cards at line 303 and molecule cards at line 375 use `Card`. |
+| `frontend/src/pages/AboutPage.tsx` | shadcn Button + Card for buttons and funder logos | VERIFIED | Lines 4-5: `import { Button }` and `import { Card }`. Button asChild at lines 615, 665. Card at line 911 (funder logos). |
+| `frontend/src/components/common/Footer.tsx` | shadcn Card for resource links | VERIFIED | Line 15: `import { Card }`. Line 360: all 4 resource `motion.a` elements replaced with `motion.div + Card + a` pattern. |
 
-| Artifact | Status | Details |
-|----------|--------|---------|
-| `frontend/src/components/common/Navigation.tsx` | NOT_PRIMARY | Plan listed Navigation.tsx but SUMMARY shows only Header.tsx was modified; Sheet is implemented in Header.tsx |
-| `frontend/src/components/common/Header.tsx` | VERIFIED | Uses `Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle` from `@/components/ui/sheet` (line 8) |
+### Previously Verified Artifacts (Regression Check)
+
+| Artifact | Status |
+|----------|--------|
+| `frontend/components.json` | VERIFIED (no change) |
+| `frontend/src/lib/utils.ts` | VERIFIED (no change) |
+| `frontend/src/styles/tailwind.css` | VERIFIED (no change) |
+| `frontend/index.html` (FOUC script) | VERIFIED (no change) |
+| `frontend/src/context/AppContext.tsx` | VERIFIED (no change) |
+| `frontend/src/components/common/Header.tsx` (Sheet, ThemeToggle) | VERIFIED (no change) |
+| `frontend/src/components/ui/` (all 8 component files) | VERIFIED (no change) |
 
 ---
 
@@ -112,44 +95,57 @@ human_verification:
 
 | From | To | Via | Status | Details |
 |------|----|-----|--------|---------|
-| `frontend/index.html` | localStorage | blocking script reads `darkMode` key | VERIFIED | `localStorage.getItem('darkMode')` at line 59 |
-| `frontend/src/context/AppContext.tsx` | window.matchMedia | system preference detection | VERIFIED | `window.matchMedia("(prefers-color-scheme: dark)").matches` at line 73 |
-| `frontend/vite.config.mts` | `frontend/src` | @ path alias | VERIFIED | `resolve.alias: { "@": path.resolve(__dirname, "./src") }` at lines 15-16; also in test alias at lines 42-43 |
-| all component/page TSX files | `@/components/ui/button` | shadcn Button imports | PARTIAL | 38 files import Button; OCSRPage and HomePage page-level files do not |
-| all component/page TSX files | `@/components/ui/card` | shadcn Card imports | PARTIAL | Only 1 component file imports Card directly; OCSRPage and HomePage use hand-rolled card divs |
-| `frontend/src/components/common/Header.tsx` | `@/components/ui/sheet` | Sheet for mobile navigation | VERIFIED | `Sheet, SheetTrigger, SheetContent` imported and used |
+| `OCSRPage.tsx` | `@/components/ui/button` | `import { Button }` | VERIFIED | Line 6; used at lines 106, 118 with asChild |
+| `OCSRPage.tsx` | `@/components/ui/card` | `import { Card, CardContent }` | VERIFIED | Line 7; Card at lines 138, 157, 218; CardContent at lines 139, 158, 219 |
+| `HomePage.tsx` | `@/components/ui/button` | `import { Button }` | VERIFIED | Line 18; used at lines 230, 244, 261 with asChild |
+| `HomePage.tsx` | `@/components/ui/card` | `import { Card }` | VERIFIED | Line 19; used at lines 303 (feature cards) and 375 (molecule cards) |
+| `AboutPage.tsx` | `@/components/ui/button` | `import { Button }` | VERIFIED | Line 4; Button asChild at lines 615, 665 |
+| `AboutPage.tsx` | `@/components/ui/card` | `import { Card }` | VERIFIED | Line 5; Card at line 911 (funder logos) |
+| `Footer.tsx` | `@/components/ui/card` | `import { Card }` | VERIFIED | Line 15; Card at line 360 for all 4 resource links |
+| All pages + Footer | no remaining `motion.a` | grep scan over src/pages/ + Footer.tsx | VERIFIED | Zero occurrences found |
 
 ---
 
 ## Requirements Coverage
 
-| Requirement | Source Plan | Description | Status | Evidence |
+| Requirement | Source Plans | Description | Status | Evidence |
 |-------------|-------------|-------------|--------|---------|
-| COMP-01 | 04-01 | shadcn/ui installed and configured for Vite + Tailwind v4 | SATISFIED | components.json, src/components/ui/ (8 components), cn() utility, path aliases |
-| COMP-02 | 04-03 | Core buttons replaced with shadcn/ui Button | PARTIAL | 38 files use shadcn Button; OCSRPage and HomePage page files use hand-rolled button-like elements |
-| COMP-03 | 04-03 | Cards and content containers replaced with shadcn/ui Card | PARTIAL | Most components use Card; OCSRPage and HomePage page-level containers are hand-rolled divs |
-| COMP-04 | 04-04 | Modals and dialogs replaced with shadcn/ui Dialog/Sheet | SATISFIED | Sheet implemented in Header for mobile nav; no dialog patterns existed in codebase (confirmed by plan) |
-| COMP-05 | 04-03 | Form inputs replaced with shadcn/ui Input/Select/Textarea | SATISFIED | 24 files use shadcn Input; remaining native inputs in InChIView/RInChIView are checkbox/radio types (explicitly excluded per plan) |
-| COMP-06 | 04-02 | Icons migrated from react-icons to lucide-react | SATISFIED | 47 files use lucide-react; react-icons/fortawesome removed from package.json; 6 automated tests pass |
-| COMP-07 | 04-04 | Consistent component usage across all 9 pages | PARTIAL | 7 pages consistent; OCSRPage and HomePage page-level still have hand-rolled elements |
-| THEME-01 | 04-01, 04-04 | Dark mode toggle available in UI (header/nav) | SATISFIED | ThemeToggle component in Header.tsx rendered in both desktop nav (line 197) and mobile Sheet (line 230) |
-| THEME-02 | 04-01 | System preference auto-detection (prefers-color-scheme) | SATISFIED | AppContext.tsx line 73; FOUC script in index.html also detects system preference; THEME-03 test passes |
+| COMP-01 | 04-01 | shadcn/ui installed and configured for Vite + Tailwind v4 | SATISFIED | components.json, 8 UI components, cn() utility, path aliases all present |
+| COMP-02 | 04-03, 04-05 | Core buttons replaced with shadcn/ui Button | SATISFIED | All button-styled elements across all 9 pages now use `Button` or `Button asChild`. Zero hand-rolled button-styled anchors remain in any page or common component. |
+| COMP-03 | 04-03, 04-05 | Cards and content containers replaced with shadcn/ui Card | SATISFIED | OCSRPage (3 cards), HomePage (8 cards), AboutPage (3 cards), Footer (4 cards) migrated in 04-05. All other pages migrated in 04-03. |
+| COMP-04 | 04-04 | Modals and dialogs replaced with shadcn/ui Dialog/Sheet | SATISFIED | Sheet in Header for mobile nav; no Dialog patterns existed in codebase |
+| COMP-05 | 04-03 | Form inputs replaced with shadcn/ui Input/Select/Textarea | SATISFIED | 24+ files use shadcn Input; native checkbox/radio excluded per plan |
+| COMP-06 | 04-02 | Icons migrated from react-icons to lucide-react | SATISFIED | 47+ files import lucide-react; react-icons/fortawesome absent from package.json; 6 tests pass |
+| COMP-07 | 04-03, 04-04, 04-05 | Consistent component usage across all 9 pages | SATISFIED | All 9 pages confirmed consistent: no page retains hand-rolled button-styled or card-styled elements |
+| THEME-01 | 04-01, 04-04 | Dark mode toggle available in UI (header/nav) | SATISFIED | ThemeToggle in Header.tsx desktop nav and mobile Sheet |
+| THEME-02 | 04-01 | System preference auto-detection (prefers-color-scheme) | SATISFIED | AppContext.tsx line 73; FOUC script in index.html; THEME-03 test passes |
 | THEME-03 | 04-01 | Theme preference persisted in localStorage | SATISFIED | AppContext.tsx lines 94-95; THEME-02 test passes |
-| THEME-04 | 04-01 | CSS variable-based theming using shadcn/ui approach | SATISFIED | tailwind.css uses full shadcn/ui OKLCH variable set (--background, --foreground, --primary, etc.) with @theme inline block |
-| THEME-05 | 04-04 | All pages and components render correctly in both light and dark modes | NEEDS HUMAN | All dark: variant classes in place; visual correctness requires browser verification |
+| THEME-04 | 04-01 | CSS variable-based theming using shadcn/ui approach | SATISFIED | tailwind.css uses full shadcn/ui OKLCH variable set with @theme inline |
+| THEME-05 | 04-04 | All pages and components render correctly in both light and dark modes | NEEDS HUMAN | dark: variant classes in place; visual correctness requires browser verification |
+
+**All 12 requirements marked [x] Complete in REQUIREMENTS.md.**
 
 ---
 
-## Anti-Patterns Found
+## Anti-Patterns Found (Post Gap Closure)
 
 | File | Line | Pattern | Severity | Impact |
 |------|------|---------|----------|--------|
-| `frontend/src/pages/HomePage.tsx` | 230 | Hand-rolled `<a>` styled as primary button with inline gradient classes instead of shadcn Button | Warning | Inconsistency with COMP-02/COMP-07; no functional regression |
-| `frontend/src/pages/OCSRPage.tsx` | 103-124 | `motion.a` elements styled as buttons (no shadcn Button) | Warning | Inconsistency with COMP-02/COMP-07; no functional regression |
-| `frontend/src/pages/OCSRPage.tsx` | 133-168 | Hand-rolled card divs with `bg-white dark:bg-slate-800/80` instead of shadcn Card | Warning | Uses isDarkMode-style dark: ternary in className; inconsistency with COMP-03/COMP-07 |
-| `frontend/src/__tests__/context/theme.test.tsx` | 27 | `it.todo("THEME-01: toggleDarkMode switches isDarkMode state")` | Info | THEME-01 has no automated assertion; toggleDarkMode itself is tested indirectly by THEME-02 |
-| `frontend/src/__tests__/components/dialog.test.tsx` | all | All 3 tests are `it.todo` — no real Dialog assertions | Info | Dialog component installed but untested |
-| `frontend/src/components/common/Header.tsx` | 87,90 | Two `isDarkMode ? "text-..." : "text-..."` className ternaries in ThemeToggle for Sun/Moon icon colors | Info | Legitimate non-CSS use (icon-specific color that cannot use dark: variant without structural change); not a blocking issue |
+| `frontend/src/__tests__/context/theme.test.tsx` | 27 | `it.todo("THEME-01: toggleDarkMode switches isDarkMode state")` | Info | Pre-existing; toggleDarkMode tested indirectly by THEME-02 |
+| `frontend/src/__tests__/components/dialog.test.tsx` | all | All 3 tests are `it.todo` -- no real Dialog assertions | Info | Pre-existing; Dialog component installed but untested |
+| `frontend/src/pages/DepictPage.tsx` | 215, 244 | Native `<button>` elements for mobile tab dropdown | Info | Tab navigation controls -- semantically correct, not CTA-style anchors; all tool actions in sub-components use shadcn Button |
+| `frontend/src/pages/ConvertPage.tsx` | 203, 232 | Native `<button>` elements for mobile tab dropdown | Info | Same pattern as DepictPage; Info only |
+| `frontend/src/pages/ToolsPage.tsx` | 219, 248 | Native `<button>` elements for mobile tab dropdown | Info | Same pattern as DepictPage; Info only |
+
+No blocker anti-patterns found. The native `<button>` elements in tabbed pages are tab toggle controls (not CTA/link buttons) and are semantically appropriate. All actual tool-action buttons in those pages' sub-components use shadcn Button (confirmed by grep across `src/components/depict/` and `src/components/convert/`).
+
+---
+
+## Test Suite Status
+
+- **Test files:** 8 (7 passed, 1 skipped -- no change from pre-gap-closure)
+- **Tests:** 29 total (16 passed, 13 todo -- no change)
+- **No regressions** introduced by Plan 04-05
 
 ---
 
@@ -157,8 +153,8 @@ human_verification:
 
 ### 1. Full visual inspection: light and dark modes across all 9 pages
 
-**Test:** Start `npm run dev`, visit all 9 pages, toggle between light and dark mode on each.
-**Expected:** Colors are correct (sky/slate palette), text is readable, cards have visible boundaries, buttons are properly styled, no invisible elements.
+**Test:** Start `npm run dev` in `frontend/`, visit all 9 pages (Home, Chem, Depict, Convert, Tools, OCSR, About, Privacy Policy, Terms of Service), toggle between light and dark mode on each.
+**Expected:** Colors are correct (sky/slate palette in light, gray-950/slate-800 in dark), text is readable, cards have visible boundaries, buttons are properly styled, no invisible elements. Specifically verify OCSRPage info cards and sidebar, HomePage feature cards and CTA button, AboutPage external link buttons and funder logos, and Footer resource cards all look correct in both modes.
 **Why human:** Visual correctness of OKLCH color values and contrast ratios cannot be verified programmatically.
 
 ### 2. Mobile Sheet navigation
@@ -170,7 +166,7 @@ human_verification:
 ### 3. FOUC prevention verification
 
 **Test:** Enable dark mode, then hard-refresh the page (Cmd+Shift+R on Mac / Ctrl+Shift+R on Windows).
-**Expected:** Page renders directly in dark mode — no visible flash of light theme before dark mode is applied.
+**Expected:** Page renders directly in dark mode -- no visible flash of light theme before dark mode is applied.
 **Why human:** Flash of Unstyled Content is a rendering timing issue only observable in a real browser.
 
 ### 4. Tab animations on 4 tabbed pages
@@ -181,17 +177,20 @@ human_verification:
 
 ---
 
-## Gaps Summary
+## Gaps Closed (vs Previous Verification)
 
-Two gaps share the same root cause: **OCSRPage and HomePage page-level files were not migrated to shadcn/ui components during Plan 04-03.**
-
-The component files rendering the actual tool content (OCRView.tsx etc.) were migrated correctly. But the outer page wrapper components for OCSRPage and HomePage still contain hand-rolled button-like elements and card-like containers. This breaks success criterion SC-2 ("no mix of hand-rolled and shadcn/ui buttons, cards") and leaves COMP-02, COMP-03, and COMP-07 partially unsatisfied.
-
-**Scope:** The gaps are limited to 2 of 9 pages at the page wrapper level. All 35+ component files are correctly migrated. The gaps are styling inconsistencies, not functional failures — the dark mode toggle, theme persistence, system preference detection, icon migration, CSS variables, and all form inputs are fully working.
-
-**Priority:** Both gaps are in page-level wrappers, not in tool functionality. They are Warning-severity (not Blocker) since they do not prevent any feature from working.
+| Previous Gap | Resolution | Evidence |
+|-------------|------------|---------|
+| OCSRPage: hand-rolled `motion.a` DECIMER/MARCUS buttons | Replaced with `motion.div + Button asChild + a` | OCSRPage.tsx lines 105-128 |
+| OCSRPage: hand-rolled card divs (2 info cards + 1 sidebar box) | Replaced with `Card + CardContent` with `py-0 gap-0` | OCSRPage.tsx lines 138, 157, 218 |
+| HomePage: primary CTA as raw `<a>` with inline gradient | Replaced with `Button asChild size="lg"` wrapping `Link` | HomePage.tsx line 230 |
+| HomePage: feature card divs (TiltCard + raw div) | Replaced with `Card className="feature-card-enhanced ..."` | HomePage.tsx line 303 |
+| AboutPage: 2 button-styled `motion.a` external links | Replaced with `motion.div + Button asChild + a` | AboutPage.tsx lines 614-679 |
+| AboutPage: 3 funder logo `motion.a` containers | Wrapped in `Card` | AboutPage.tsx line 911 |
+| Footer: 4 resource link `motion.a` containers | Replaced with `motion.div + Card + a` | Footer.tsx line 360 |
 
 ---
 
-_Verified: 2026-03-13T08:48:22Z_
+_Verified: 2026-03-13T10:30:00Z_
 _Verifier: Claude (gsd-verifier)_
+_Re-verification after: Plan 04-05 (gap closure)_
