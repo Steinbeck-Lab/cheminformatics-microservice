@@ -19,6 +19,8 @@ services:
 
   api:
     image: nfdi4chem/cheminformatics-microservice:api-dev
+    env_file:
+      - ../.env
     environment:
       HOMEPAGE_URL: "/latest/docs"
       RELEASE_VERSION: dev-latest

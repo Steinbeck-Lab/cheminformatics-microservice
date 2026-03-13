@@ -20,8 +20,11 @@ RUN apt-get update && \
         wget && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
-    wget -O /usr/bin/surge "https://github.com/StructureGenerator/surge/releases/download/v1.0/surge-linux-v1.0" && \
-    chmod +x /usr/bin/surge
+    wget "https://github.com/StructureGenerator/surge/releases/download/v2.0/surge-linux-x86_64.tar.gz" && \
+    tar xzf surge-linux-x86_64.tar.gz && \
+    mv surge /usr/bin/surge && \
+    chmod +x /usr/bin/surge && \
+    rm surge-linux-x86_64.tar.gz
 
 # Combine conda and pip operations to reduce layers
 WORKDIR /code
@@ -31,11 +34,14 @@ RUN conda install -c conda-forge python=${PYTHON_VERSION} sqlite --force-reinsta
     pip3 install --no-cache-dir -r requirements.txt && \
     # Install specific packages without dependencies
     pip3 install --no-cache-dir --no-deps \
-        git+https://github.com/Kohulan/DECIMER-Image-Segmentation.git@bbox \
+        git+https://github.com/Kohulan/DECIMER-Image-Segmentation.git \
         decimer==2.7.1 \
         chembl_structure_pipeline
 
 
 COPY ./app ./app
+
+RUN useradd -m -r appuser && chown -R appuser:appuser /code
+USER appuser
 
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 80 --workers ${WORKERS}"]

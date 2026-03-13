@@ -23,6 +23,7 @@ const INPUT_FORMAT_OPTIONS = [
   { id: "iupac", label: "IUPAC Name" },
   { id: "selfies", label: "SELFIES" },
   { id: "molsdf", label: "MOL/SDF Block" },
+  { id: "cdx", label: "ChemDraw CDX/CDXML" },
 ];
 
 // Output format options configuration
@@ -38,6 +39,7 @@ const OUTPUT_FORMAT_OPTIONS = [
   { id: "cxsmiles", label: "CXSMILES", method: "generateCXSMILES" },
   { id: "selfies", label: "SELFIES", method: "generateSELFIES" },
   { id: "smarts", label: "SMARTS", method: "generateSMARTS" },
+  { id: "mol", label: "MOL Block", method: null },
 ];
 
 // Toolkit options configuration
@@ -50,6 +52,31 @@ const TOOLKIT_OPTIONS = [
 // Converter options for IUPAC
 const IUPAC_CONVERTER_OPTIONS = [{ id: "opsin", label: "OPSIN" }];
 
+// Detect whether input text is SMILES, SELFIES, or IUPAC name
+const detectInputFormat = (text) => {
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+
+  // SELFIES: entirely composed of [token] sequences
+  if (/^(\[[\w@=#+\-/\\%;.,^*]+\])+$/.test(trimmed)) return "selfies";
+
+  // IUPAC: word-like name — only lowercase letters, digits, spaces, hyphens, commas,
+  // parentheses; and no SMILES ring-closure patterns (letter immediately adjacent to digit)
+  if (
+    /^[a-z0-9][a-z0-9 ,\-().]*$/.test(trimmed) &&
+    !/[a-z]\d/.test(trimmed) &&
+    !/\d[a-z]/.test(trimmed)
+  ) {
+    return "iupac";
+  }
+
+  // SMILES: no whitespace, only valid SMILES characters
+  if (!/\s/.test(trimmed) && /^[A-Za-z0-9[\]()=#@+\-/.\\%:*]+$/.test(trimmed)) return "smiles";
+
+  // Otherwise assume IUPAC name
+  return "iupac";
+};
+
 const FormatConversionView = () => {
   const [input, setInput] = useState("");
   const [inputFormat, setInputFormat] = useState("smiles");
@@ -60,12 +87,17 @@ const FormatConversionView = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [autoDetected, setAutoDetected] = useState(false);
   // State for molecular structure display
   const [smilesForStructure, setSmilesForStructure] = useState("");
   const [showStructure, setShowStructure] = useState(false);
-  // State for file upload
+  // State for file upload (MOL/SDF)
   const [uploadedFilename, setUploadedFilename] = useState("");
   const fileInputRef = useRef(null);
+  // State for CDX/CDXML file upload
+  const [cdxFile, setCdxFile] = useState(null);
+  const [cdxFilename, setCdxFilename] = useState("");
+  const cdxFileInputRef = useRef(null);
 
   // Helper function to ensure molblock is in proper format for backend
   const formatMolblockForBackend = (molblock) => {
@@ -79,8 +111,14 @@ const FormatConversionView = () => {
       .join("\n")
       .trim();
 
-    // Ensure proper molblock format - starts with newline (like the test fixture)
-    if (!formatted.startsWith("\n")) {
+    // V2000/V3000 molblocks have a 3-line header: name, program/timestamp, comment.
+    // CDK-style molblocks omit the name line (start with program line), so we
+    // prepend an empty name line.  Molblocks that already include a name line
+    // (e.g. Actelion MolfileCreator) must NOT get an extra blank line.
+    const lines = formatted.split("\n");
+    const countsIdx = lines.findIndex((l) => /V[23]000/.test(l));
+    if (countsIdx >= 0 && countsIdx <= 2) {
+      // Counts line found too early → name line is missing → add blank name
       formatted = "\n" + formatted;
     }
 
@@ -158,7 +196,7 @@ const FormatConversionView = () => {
     reader.readAsText(file);
   };
 
-  // Clear uploaded file
+  // Clear uploaded MOL/SDF file
   const handleClearFile = () => {
     setUploadedFilename("");
     setInput("");
@@ -167,18 +205,69 @@ const FormatConversionView = () => {
     }
   };
 
+  // Handle CDX/CDXML file selection
+  const handleCdxFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setError(null);
+    const name = file.name.toLowerCase();
+    if (!name.endsWith(".cdx") && !name.endsWith(".cdxml")) {
+      setError("Please upload a valid .cdx or .cdxml file.");
+      return;
+    }
+    setCdxFile(file);
+    setCdxFilename(file.name);
+  };
+
+  // Clear uploaded CDX file
+  const handleClearCdxFile = () => {
+    setCdxFile(null);
+    setCdxFilename("");
+    if (cdxFileInputRef.current) {
+      cdxFileInputRef.current.value = "";
+    }
+  };
+
   // When input format changes, automatically update output format if needed
   const handleInputFormatChange = (format) => {
     setInputFormat(format);
+    setAutoDetected(false);
 
-    // Clear uploaded file when switching away from molsdf
+    // Clear MOL/SDF file when switching away from molsdf
     if (format !== "molsdf") {
       handleClearFile();
     }
+    // Clear CDX file when switching away from cdx
+    if (format !== "cdx") {
+      handleClearCdxFile();
+    }
 
-    // If switching to IUPAC, SELFIES, or MOL/SDF, automatically set output to SMILES
+    // Lock output format based on input type
     if (format === "iupac" || format === "selfies" || format === "molsdf") {
       setOutputFormat("smiles");
+    } else if (format === "cdx") {
+      setOutputFormat("mol");
+    }
+  };
+
+  // Handle text input changes with auto-format detection
+  const handleInputChange = (value) => {
+    setInput(value);
+    if (inputFormat === "molsdf") return;
+
+    const detected = detectInputFormat(value);
+    if (!value.trim()) {
+      setAutoDetected(false);
+      return;
+    }
+    if (detected && detected !== inputFormat) {
+      setInputFormat(detected);
+      setAutoDetected(true);
+      if (detected === "iupac" || detected === "selfies") {
+        setOutputFormat("smiles");
+      } else if (detected === "smiles") {
+        setOutputFormat("canonicalsmiles");
+      }
     }
   };
 
@@ -196,9 +285,14 @@ const FormatConversionView = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const trimmedInput = input.trim();
-    if (!trimmedInput) {
+    if (inputFormat !== "cdx" && !trimmedInput) {
       setError("Please enter input data.");
       setResult("");
+      return;
+    }
+
+    if (inputFormat === "cdx" && !cdxFile) {
+      setError("Please upload a .cdx or .cdxml file.");
       return;
     }
 
@@ -212,8 +306,16 @@ const FormatConversionView = () => {
       let convertedResult;
       let smilesForDisplay = "";
 
-      // Handle IUPAC to SMILES or SELFIES to SMILES conversion
-      if (inputFormat !== "smiles") {
+      // CDX/CDXML → MOL Block
+      if (inputFormat === "cdx") {
+        const molblock = await convertService.convertCDXToMol(cdxFile);
+        convertedResult = molblock;
+        try {
+          smilesForDisplay = await convertService.molblockToSMILES(molblock, "rdkit");
+        } catch {
+          // Structure preview is optional
+        }
+      } else if (inputFormat !== "smiles") {
         // Handle MOL/SDF to SMILES conversion
         if (inputFormat === "molsdf") {
           // Format the MOL block properly before sending
@@ -224,6 +326,9 @@ const FormatConversionView = () => {
           // If the output is SMILES, we're done
           if (outputFormat === "smiles") {
             convertedResult = smiles;
+          } else if (outputFormat === "mol") {
+            // MOL Block output: generate 2D coordinates from SMILES
+            convertedResult = await convertService.generate2DCoordinates(smiles, toolkit);
           } else {
             // Otherwise, convert SMILES to the target format
             const formatOption = OUTPUT_FORMAT_OPTIONS.find((option) => option.id === outputFormat);
@@ -239,7 +344,7 @@ const FormatConversionView = () => {
             // Convert the SMILES to the target format
             convertedResult = await method(smiles, toolkit);
           }
-        } else {
+        } else if (inputFormat !== "cdx") {
           // First convert IUPAC or SELFIES to SMILES
           const smiles = await convertService.generateSMILES(
             trimmedInput,
@@ -253,6 +358,9 @@ const FormatConversionView = () => {
           // If the output is SMILES, we're done
           if (outputFormat === "smiles") {
             convertedResult = smiles;
+          } else if (outputFormat === "mol") {
+            // MOL Block output: generate 2D coordinates from SMILES
+            convertedResult = await convertService.generate2DCoordinates(smiles, toolkit);
           } else {
             // Otherwise, convert SMILES to the target format
             const formatOption = OUTPUT_FORMAT_OPTIONS.find((option) => option.id === outputFormat);
@@ -277,6 +385,9 @@ const FormatConversionView = () => {
         if (outputFormat === "smiles") {
           // Just return the input if output is also SMILES
           convertedResult = trimmedInput;
+        } else if (outputFormat === "mol") {
+          // MOL Block output: generate 2D coordinates from SMILES
+          convertedResult = await convertService.generate2DCoordinates(trimmedInput, toolkit);
         } else {
           const formatOption = OUTPUT_FORMAT_OPTIONS.find((option) => option.id === outputFormat);
           if (!formatOption || !formatOption.method) {
@@ -349,7 +460,8 @@ const FormatConversionView = () => {
   const showToolkitSelection =
     (inputFormat === "smiles" || inputFormat === "molsdf") &&
     outputFormat !== "selfies" &&
-    outputFormat !== "smarts"; // SMARTS only uses RDKit
+    outputFormat !== "smarts" &&
+    inputFormat !== "cdx";
 
   // Determine if IUPAC converter selection should be shown
   const showIupacConverterSelection = inputFormat === "iupac";
@@ -365,12 +477,19 @@ const FormatConversionView = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Input Format Selection */}
           <div>
-            <label
-              htmlFor="input-format-select"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >
-              Input Format
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label
+                htmlFor="input-format-select"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                Input Format
+              </label>
+              {autoDetected && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                  Auto-detected
+                </span>
+              )}
+            </div>
             <select
               id="input-format-select"
               value={inputFormat}
@@ -412,9 +531,67 @@ const FormatConversionView = () => {
             </div>
           )}
 
-          {/* Input Field using SMILESInput component or textarea for MOL/SDF */}
+          {/* Input Field */}
           <div>
-            {inputFormat === "molsdf" ? (
+            {inputFormat === "cdx" ? (
+              <>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  ChemDraw File Upload
+                </label>
+                <label
+                  htmlFor="cdx-file-upload"
+                  className="group relative flex items-center justify-center px-6 py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all duration-300 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 hover:shadow-md"
+                >
+                  <input
+                    ref={cdxFileInputRef}
+                    id="cdx-file-upload"
+                    type="file"
+                    accept=".cdx,.cdxml"
+                    onChange={handleCdxFileUpload}
+                    className="hidden"
+                  />
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg group-hover:bg-blue-200 dark:group-hover:bg-blue-800/40 transition-colors duration-300">
+                      <HiOutlineUpload className="h-6 w-6 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-300" />
+                    </div>
+                    <div className="text-left">
+                      <span className="block text-sm font-semibold text-gray-800 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
+                        {cdxFilename || "Choose CDX or CDXML File"}
+                      </span>
+                      <span className="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                        .cdx (binary) or .cdxml (XML) formats
+                      </span>
+                    </div>
+                  </div>
+                </label>
+                {cdxFilename && (
+                  <div className="mt-3 flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg shadow-sm">
+                    <div className="flex items-center space-x-2 flex-1 min-w-0">
+                      <div className="p-1.5 bg-blue-100 dark:bg-blue-800/40 rounded-md">
+                        <HiOutlineDocumentText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <span className="text-sm font-medium text-blue-900 dark:text-blue-100 truncate">
+                        {cdxFilename}
+                      </span>
+                      <span className="text-xs text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-800/40 px-2 py-0.5 rounded-full">
+                        Ready
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleClearCdxFile}
+                      className="ml-3 px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-300 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 border border-blue-300 dark:border-blue-700 rounded-md transition-all duration-200 hover:shadow-md"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                )}
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  Upload a ChemDraw binary (.cdx) or XML (.cdxml) file. The output will be a V2000
+                  MOL block.
+                </p>
+              </>
+            ) : inputFormat === "molsdf" ? (
               <>
                 <label
                   htmlFor="molsdf-input"
@@ -494,11 +671,11 @@ const FormatConversionView = () => {
                   $$$$), only the first molecule will be processed.
                 </p>
               </>
-            ) : (
+            ) : inputFormat !== "cdx" ? (
               <>
                 <SMILESInput
                   value={input}
-                  onChange={setInput}
+                  onChange={handleInputChange}
                   label={
                     inputFormat === "smiles"
                       ? "SMILES Input"
@@ -528,7 +705,7 @@ const FormatConversionView = () => {
                   </p>
                 )}
               </>
-            )}
+            ) : null}
           </div>
 
           {/* Conversion Direction Indicator */}
@@ -553,7 +730,7 @@ const FormatConversionView = () => {
               value={outputFormat}
               onChange={(e) => handleOutputFormatChange(e.target.value)}
               className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
-              disabled={inputFormat !== "smiles"} // Disable selection if input is IUPAC, SELFIES, or MOL/SDF
+              disabled={inputFormat !== "smiles"}
             >
               {OUTPUT_FORMAT_OPTIONS.map((option) => (
                 <option key={option.id} value={option.id}>
@@ -569,6 +746,11 @@ const FormatConversionView = () => {
                     ? "SELFIES"
                     : "MOL/SDF blocks"}{" "}
                 can only be converted to SMILES format
+              </p>
+            )}
+            {inputFormat === "cdx" && (
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                ChemDraw CDX/CDXML files are converted to a V2000 MOL block.
               </p>
             )}
             {outputFormat === "smarts" && (
@@ -626,9 +808,9 @@ const FormatConversionView = () => {
           <div className="pt-2">
             <button
               type="submit"
-              disabled={!input.trim() || loading}
+              disabled={(inputFormat === "cdx" ? !cdxFile : !input.trim()) || loading}
               className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
-                !input.trim() || loading
+                (inputFormat === "cdx" ? !cdxFile : !input.trim()) || loading
                   ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-sm"
               }`}
@@ -699,7 +881,7 @@ const FormatConversionView = () => {
               <div className="text-xs text-gray-500 dark:text-gray-400">
                 Converted from{" "}
                 {INPUT_FORMAT_OPTIONS.find((o) => o.id === inputFormat)?.label ||
-                  inputFormat.toUpperCase()}
+                  inputFormat.toUpperCase()}{" "}
                 to{" "}
                 {OUTPUT_FORMAT_OPTIONS.find((o) => o.id === outputFormat)?.label ||
                   outputFormat.toUpperCase()}

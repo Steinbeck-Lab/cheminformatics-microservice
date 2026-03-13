@@ -17,7 +17,6 @@ from datetime import datetime
 sys.path.insert(0, os.path.abspath(".."))
 import app
 
-
 # -- Project information -----------------------------------------------------
 
 project = "Cheminformatics Microservice"

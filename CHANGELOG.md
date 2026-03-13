@@ -1,5 +1,59 @@
 # Changelog
 
+## [3.8.1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.8.0...v3.8.1) (2026-03-11)
+
+
+### Bug Fixes
+
+* download npmodel ([b09ae4a](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/b09ae4a6411e30c7292fb83deab75505b2a93ce2))
+* flake8 issues ([2d26d78](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/2d26d78125d433c37206ba200e56676a566bc5e9))
+* frontend CSP font-src, MOL format conversion, and molblock header parsing ([43680af](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/43680af6c7e51b71ecadd0ea4f87abe8fec4b3d0))
+* resolve CI test failures for limiter, JVM setup, and NP model URL ([1db321c](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/1db321c3acfd782243da3b337e7e3c9d0a83cbfe))
+* security hardening, ensure_2d fallback, and CDK 2.12 upgrade ([00eebbe](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/00eebbe5524d670c13beeb9fa1eb83abc191f861))
+
+## [3.8.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.7.3...v3.8.0) (2026-02-26)
+
+
+### Features
+
+* CDKtoMOl and tests ([c17e1ca](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/c17e1ca369f54afe6260a6446fd1af25fa2044fe))
+* Surge 2.0 implementation ([61a774c](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/61a774c9335df6b3df0c8bfb5f4bfd81a350a8dc))
+* Surge 2.0 implementation ([d40fba9](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d40fba9dfa5b005f996e8570ee62883109799310))
+
+
+### Bug Fixes
+
+* bump axios to 1.13.5 to fix CVE DoS vulnerability ([a0a8ccd](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/a0a8ccdcba6f530da4f08ab49939386aabc8f2c2))
+* button activation colour ([4c6e076](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/4c6e0762b787dfaf4bac6e2895aa20312ab8ae65))
+* E203 flake8 ([2bbec76](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/2bbec7608d19b8498432d22d539d7bb17ee80e15))
+* format conversions ([aaf0173](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/aaf01737fc68be3b5a514caa0f0ff30d4a979e2c))
+* package_lock ([bbfb016](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/bbfb01642efde4d7f6b97332484c1e9bc2a00121))
+
+## [3.7.3](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.7.2...v3.7.3) (2026-01-13)
+
+
+### Bug Fixes
+
+* segementation download issues ([92ec56f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/92ec56f26876f355f64edae9959f5525473f613a))
+* segementation requirements ([6e3cccb](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/6e3cccb94ac1668f33d8166cf963fce90a5f02dd))
+
+## [3.7.2](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.7.1...v3.7.2) (2026-01-13)
+
+
+### Bug Fixes
+
+* Classyfire Test coverage ([ed7d058](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/ed7d05854b0812d690823570cb35fd19e8877a7e))
+* Classyfire Test coverage ([ae7e26a](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/ae7e26a17327d5c6319ac5e94a82ad37e2a3372b))
+* Classyfire Test coverage ([7924a9f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/7924a9fd6889ea552d2569f992da58b42dbab0ed))
+* Let FastAPI handle asynchronous tasks ([d65c7b9](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d65c7b957b4835b0552d11b9e1343a3a7221ee5a))
+
+## [3.7.1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.7.0...v3.7.1) (2025-11-21)
+
+
+### Bug Fixes
+
+* frontend title differenciations ([98bd818](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/98bd818fb6451f5a242c61c0b01d837bf0cdf579))
+
 ## [3.6.3](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.6.2...v3.6.3) (2025-10-27)
 
 

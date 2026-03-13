@@ -41,7 +41,9 @@ const HighlightedMoleculeCard = ({
     xl: "h-80",
   };
 
-  const baseUrl = "https://dev.api.naturalproducts.net";
+  const baseUrl = (
+    process.env.REACT_APP_API_URL || "https://dev.api.naturalproducts.net/latest"
+  ).replace(/\/latest$/, "");
 
   // Generate highlighting information from functional groups
   const highlightInfo = useMemo(() => {
@@ -209,7 +211,7 @@ const HighlightedMoleculeCard = ({
     console.log("🖼️ Generated image URL:", finalUrl);
 
     return finalUrl;
-  }, [smiles, highlightInfo]);
+  }, [smiles, highlightInfo, baseUrl]);
 
   // Copy functionality
   const handleCopy = (e) => {

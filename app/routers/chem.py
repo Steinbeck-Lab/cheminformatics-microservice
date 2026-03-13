@@ -51,6 +51,7 @@ from app.modules.toolkits.rdkit_wrapper import get_tanimoto_similarity_rdkit
 from app.modules.toolkits.rdkit_wrapper import get_VeberFilter
 from app.modules.toolkits.rdkit_wrapper import get_VeberFilter_detailed
 from app.modules.toolkits.rdkit_wrapper import get_standardized_tautomer
+from app.modules.toolkits.rdkit_wrapper import ensure_2d
 from app.modules.toolkits.rdkit_wrapper import QED
 from app.modules.pubchem_retrieve import PubChemClient
 from app.schemas import HealthCheck
@@ -75,7 +76,6 @@ from app.schemas.coconut import COCONUTPreprocessingModel
 from app.schemas.error import BadRequestModel
 from app.schemas.error import ErrorResponse
 from app.schemas.error import NotFoundModel
-
 
 router = APIRouter(
     prefix="/chem",
@@ -131,9 +131,10 @@ def get_health() -> HealthCheck:
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def get_stereoisomers(
+def get_stereoisomers(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES string to be enumerated",
         openapi_examples={
             "example1": {
@@ -182,9 +183,10 @@ async def get_stereoisomers(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def get_descriptors(
+def get_descriptors(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -268,9 +270,10 @@ async def get_descriptors(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def get_multiple_descriptors(
+def get_multiple_descriptors(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecules",
         openapi_examples={
             "example1": {
@@ -339,9 +342,10 @@ async def get_multiple_descriptors(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def hose_codes(
+def hose_codes(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -391,10 +395,10 @@ async def hose_codes(
     """
     if toolkit == "cdk":
         mol = parse_input(smiles, "cdk", False)
-        hose_codes = await get_CDK_HOSE_codes(mol, spheres, ringsize)
+        hose_codes = get_CDK_HOSE_codes(mol, spheres, ringsize)
     elif toolkit == "rdkit":
         mol = parse_input(smiles, "rdkit", False)
-        hose_codes = await get_rdkit_HOSE_codes(mol, spheres)
+        hose_codes = get_rdkit_HOSE_codes(mol, spheres)
 
     if hose_codes:
         return hose_codes
@@ -418,7 +422,7 @@ async def hose_codes(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def standardize_mol(
+def standardize_mol(
     data: Annotated[
         str,
         Body(
@@ -459,11 +463,18 @@ M  END""",
         if data:
             suppl = Chem.SDMolSupplier()
             suppl.SetData(data.encode("utf-8"))
-            if len(suppl) == 1 and suppl[0]:
-                mol_data = suppl[0]
+            if len(suppl) != 1 or suppl[0] is None:
+                raise ValueError("Expected exactly one valid molecule in the input SDF data.")
+            mol_data = suppl[0]
             mol = Chem.MolToMolBlock(mol_data)
-            standardized_mol = standardizer.standardize_molblock(mol)
-            rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
+            try:
+                standardized_mol = standardizer.standardize_molblock(mol)
+                rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
+            except Exception:
+                ensure_2d(mol_data)
+                mol = Chem.MolToMolBlock(mol_data)
+                standardized_mol = standardizer.standardize_molblock(mol)
+                rdkit_mol = Chem.MolFromMolBlock(standardized_mol)
 
         else:
             raise HTTPException(
@@ -483,8 +494,9 @@ M  END""",
             response.update(original_properties)
             return response
 
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=str(e))
+    except Exception:
+        logger.exception("Error processing SMILES")
+        raise HTTPException(status_code=422, detail="Invalid input")
 
 
 @router.get(
@@ -500,9 +512,10 @@ M  END""",
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def check_errors(
+def check_errors(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="The SMILES string to check and standardize.",
         openapi_examples={
             "example1": {
@@ -592,9 +605,10 @@ async def check_errors(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def np_likeness_score(
+def np_likeness_score(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="The SMILES string to calculate the natural product likeness score",
         openapi_examples={
             "example1": {
@@ -626,8 +640,9 @@ async def np_likeness_score(
         np_score = get_np_score(mol)
         if np_score:
             return float(np_score)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logger.exception("Error computing NP score")
+        raise HTTPException(status_code=500, detail="Processing error")
 
 
 @router.get(
@@ -643,9 +658,10 @@ async def np_likeness_score(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def tanimoto_similarity(
+def tanimoto_similarity(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecules",
         openapi_examples={
             "example1": {
@@ -764,10 +780,11 @@ async def tanimoto_similarity(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def coconut_preprocessing(
+def coconut_preprocessing(
     smiles: str = Query(
         ...,
         title="SMILES",
+        max_length=5000,
         description="SMILES string representing a chemical compound",
         openapi_examples={
             "example1": {
@@ -814,10 +831,13 @@ async def coconut_preprocessing(
                 status_code=422,
                 detail="Error reading SMILES string, please check again.",
             )
-    except Exception as e:
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error processing COCONUT request")
         raise HTTPException(
             status_code=422,
-            detail="Error processing request: " + str(e),
+            detail="Processing error",
         )
 
 
@@ -837,6 +857,7 @@ async def coconut_preprocessing(
 async def classyfire_classify(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the compound to be classified",
         openapi_examples={
             "example1": {
@@ -909,10 +930,11 @@ async def classyfire_result(jobid: str):
             # Replace with your function to retrieve the result
             data = await result(jobid)
             return data
-        except Exception as e:
+        except Exception:
+            logger.exception("Error processing ClassyFire request")
             raise HTTPException(
                 status_code=500,
-                detail="Error processing request: " + str(e),
+                detail="Processing error",
             )
     else:
         raise HTTPException(status_code=422, detail="Job ID is required.")
@@ -931,7 +953,7 @@ async def classyfire_result(jobid: str):
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def all_filter_molecules(
+def all_filter_molecules(
     smiles_list: str = Body(
         embed=False,
         media_type="text/plain",
@@ -1107,7 +1129,7 @@ async def all_filter_molecules(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def all_filter_molecules_detailed(
+def all_filter_molecules_detailed(
     smiles_list: str = Body(
         embed=False,
         media_type="text/plain",
@@ -1316,9 +1338,10 @@ async def all_filter_molecules_detailed(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def get_functional_groups(
+def get_functional_groups(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES string to be enumerated",
         openapi_examples={
             "example1": {
@@ -1350,8 +1373,9 @@ async def get_functional_groups(
         try:
             f_groups = get_ertl_functional_groups(mol)
             return f_groups
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+        except Exception:
+            logger.exception("Error getting functional groups")
+            raise HTTPException(status_code=500, detail="Processing error")
     else:
         raise HTTPException(
             status_code=422,
@@ -1372,9 +1396,10 @@ async def get_functional_groups(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def get_standardized_tautomer_smiles(
+def get_standardized_tautomer_smiles(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES string to be standardized",
         openapi_examples={
             "example1": {
@@ -1407,9 +1432,10 @@ async def get_standardized_tautomer_smiles(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def fix_radicals_endpoint(
+def fix_radicals_endpoint(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES string containing radicals to be fixed",
         openapi_examples={
             "example1": {
@@ -1491,16 +1517,16 @@ async def fix_radicals_endpoint(
             radicals_detected=result["radicals_detected"],
             radicals_fixed=result["radicals_fixed"],
         )
-    except ValueError as e:
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=str(e),
+            detail="Invalid input",
         )
-    except Exception as e:
-        logger.error(f"Error fixing radicals for SMILES '{smiles}': {str(e)}")
+    except Exception:
+        logger.exception("Error fixing radicals")
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Error processing molecule: {str(e)}",
+            detail="Processing error",
         )
 
 
@@ -1514,7 +1540,7 @@ async def fix_radicals_endpoint(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def get_pubchem_smiles(
+def get_pubchem_smiles(
     identifier: str = Query(
         title="Chemical Identifier",
         description="Chemical identifier (name, CID, InChI, InChIKey, SMILES, formula, CAS number)",
@@ -1579,9 +1605,9 @@ async def get_pubchem_smiles(
             pubchem_links=result["pubchem_links"],
         )
 
-    except Exception as e:
-        logger.error(f"Error processing PubChem request for '{identifier}': {str(e)}")
+    except Exception:
+        logger.exception("Error processing PubChem request")
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Error processing request: {str(e)}",
+            detail="Processing error",
         )

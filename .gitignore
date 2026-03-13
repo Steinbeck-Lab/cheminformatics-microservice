@@ -2,6 +2,9 @@
 .vscode/
 .idea/
 
+# Claude Code
+CLAUDE.md
+
 # Vagrant
 .vagrant/
 
@@ -100,8 +103,10 @@ celerybeat-schedule
 # SageMath parsed files
 *.sage.py
 
-# Environments
-.env
+# Environments (root-level only — frontend/.env.production is safe to track)
+/.env
+/.env.development
+/.env.production
 .venv
 env/
 venv/

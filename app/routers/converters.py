@@ -1,14 +1,19 @@
 from __future__ import annotations
 
+import logging
+from typing import Annotated
 from typing import Literal
 
 import selfies as sf
+
 from fastapi import APIRouter
+from fastapi import File
 from fastapi import HTTPException
 from fastapi import Query
 from fastapi import status
 from fastapi import Request
 from fastapi import Body
+from fastapi import UploadFile
 from fastapi.responses import Response
 
 # Use the shared limiter instance
@@ -31,6 +36,7 @@ from app.schemas.converters_schema import ThreeDCoordinatesResponse
 from app.schemas.converters_schema import TwoDCoordinatesResponse
 from app.schemas.converters_schema import GenerateSMARTSResponse
 from app.schemas.converters_schema import MolToSMILESResponse
+from app.schemas.converters_schema import CDXToMolResponse
 
 # Module imports
 from app.modules.toolkits.cdk_wrapper import get_canonical_SMILES
@@ -43,10 +49,12 @@ from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.openbabel_wrapper import get_ob_canonical_SMILES
 from app.modules.toolkits.openbabel_wrapper import get_ob_InChI
 from app.modules.toolkits.openbabel_wrapper import get_ob_mol
+from app.modules.toolkits.rdkit_wrapper import convert_cdx_to_mol
 from app.modules.toolkits.rdkit_wrapper import get_2d_mol
 from app.modules.toolkits.rdkit_wrapper import get_3d_conformers
 from app.modules.toolkits.rdkit_wrapper import get_rdkit_CXSMILES
 
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/convert",
@@ -98,10 +106,11 @@ def get_health() -> HealthCheck:
     },
 )
 @limiter.limit("20/minute")
-async def create2d_coordinates(
+def create2d_coordinates(
     request: Request,
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -169,10 +178,11 @@ async def create2d_coordinates(
     },
 )
 @limiter.limit("20/minute")
-async def create3d_coordinates(
+def create3d_coordinates(
     request: Request,
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -235,7 +245,7 @@ async def create3d_coordinates(
     },
 )
 @limiter.limit("10/minute")
-async def iupac_name_or_selfies_to_smiles(
+def iupac_name_or_selfies_to_smiles(
     request: Request,
     input_text: str = Query(
         title="Input IUPAC name or SELFIES",
@@ -294,8 +304,11 @@ async def iupac_name_or_selfies_to_smiles(
                 status_code=422,
                 detail="Error reading input text, please check again.",
             )
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error in conversion")
+        raise HTTPException(status_code=422, detail="Processing error")
 
 
 @router.get(
@@ -311,9 +324,10 @@ async def iupac_name_or_selfies_to_smiles(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def smiles_canonicalise(
+def smiles_canonicalise(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -369,9 +383,10 @@ async def smiles_canonicalise(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def smiles_to_cxsmiles(
+def smiles_to_cxsmiles(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -434,9 +449,10 @@ async def smiles_to_cxsmiles(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def smiles_to_inchi(
+def smiles_to_inchi(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -498,9 +514,10 @@ async def smiles_to_inchi(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def smiles_to_inchikey(
+def smiles_to_inchikey(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -563,9 +580,10 @@ async def smiles_to_inchikey(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def encode_selfies(
+def encode_selfies(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -602,8 +620,11 @@ async def encode_selfies(
                 status_code=400,
                 detail="Error reading input text, please check again.",
             )
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error in conversion")
+        raise HTTPException(status_code=400, detail="Processing error")
 
 
 @router.get(
@@ -619,9 +640,10 @@ async def encode_selfies(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def smiles_convert_to_formats(
+def smiles_convert_to_formats(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -694,10 +716,13 @@ async def smiles_convert_to_formats(
                 status_code=422,
                 detail="Error reading SMILES string, please check again.",
             )
-    except Exception as e:
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error processing conversion request")
         raise HTTPException(
             status_code=422,
-            detail="Error processing request: " + str(e),
+            detail="Processing error",
         )
 
 
@@ -714,9 +739,10 @@ async def smiles_convert_to_formats(
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def smiles_to_smarts(
+def smiles_to_smarts(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES representation of the molecule",
         openapi_examples={
             "example1": {
@@ -757,7 +783,7 @@ async def smiles_to_smarts(
     },
 )
 @limiter.limit("20/minute")
-async def molblock_to_smiles(
+def molblock_to_smiles(
     request: Request,
     data: str = Body(
         ...,
@@ -801,11 +827,11 @@ async def molblock_to_smiles(
                 status_code=422,
                 detail="Invalid or missing molblock",
             )
-        print("Received MOL/SDF block for conversion.")
+        logger.debug("Received MOL/SDF block for conversion.")
         if "$$$$" in cleaned_molblock:
             # Extract only the first molecule (everything before $$$$)
             cleaned_molblock = cleaned_molblock.split("$$$$")[0].strip()
-            print("Detected SDF format, processing as MOL block.")
+            logger.debug("Detected SDF format, processing as MOL block.")
 
         if not cleaned_molblock:
             raise HTTPException(
@@ -854,10 +880,11 @@ async def molblock_to_smiles(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
+        logger.exception("Error processing MOL block")
         raise HTTPException(
             status_code=422,
-            detail=f"Error processing MOL block: {str(e)}",
+            detail="Error processing MOL block",
         )
 
 
@@ -872,7 +899,7 @@ async def molblock_to_smiles(
     },
 )
 @limiter.limit("10/minute")
-async def batch_convert(
+def batch_convert(
     request: Request,
     body: dict = Body(...),
     output_format: str = Query(
@@ -1072,3 +1099,71 @@ async def batch_convert(
 
     # Return the response as a dictionary
     return {"results": results, "summary": summary}
+
+
+@router.post(
+    "/cdx-to-mol",
+    summary="Parse an uploaded .cdx file and return its MDL MOL content",
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": CDXToMolResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
+)
+def cdx_to_mol(
+    file: Annotated[
+        UploadFile,
+        File(description="ChemDraw binary (.cdx) file to convert to MOL format"),
+    ],
+) -> CDXToMolResponse:
+    """Parse an uploaded ChemDraw binary (.cdx) file and return the MDL MOL block.
+
+    The conversion is performed by the OpenBabel Python bindings (pybel).
+    2D coordinates are generated when not already present in the CDX file.
+
+    Parameters:
+    - **file**: required (.cdx file): ChemDraw binary file containing the molecule.
+
+    Returns:
+    - CDXToMolResponse: A JSON response containing the MDL MOL block string.
+
+    Raises:
+    - HTTPException 422: If the file cannot be parsed or contains no atoms.
+    """
+    if not file.filename or not file.filename.lower().endswith((".cdx", ".cdxml")):
+        raise HTTPException(
+            status_code=400,
+            detail="Only .cdx and .cdxml files are accepted.",
+        )
+
+    fmt = "cdxml" if file.filename.lower().endswith(".cdxml") else "cdx"
+
+    try:
+        cdx_bytes = file.file.read()
+    finally:
+        file.file.close()
+
+    max_size = 10 * 1024 * 1024  # 10 MB
+    if len(cdx_bytes) > max_size:
+        raise HTTPException(
+            status_code=400,
+            detail="File too large. Maximum allowed size is 10 MB.",
+        )
+
+    try:
+        molblock = convert_cdx_to_mol(cdx_bytes, fmt=fmt)
+    except ValueError as exc:
+        logger.warning("Invalid CDX input: %s", exc)
+        raise HTTPException(status_code=422, detail="Invalid CDX file") from exc
+    except Exception as exc:
+        logger.exception("Error converting CDX file")
+        raise HTTPException(
+            status_code=422,
+            detail="Error converting CDX file",
+        ) from exc
+
+    return CDXToMolResponse(molblock=molblock)

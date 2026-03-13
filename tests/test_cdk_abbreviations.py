@@ -578,3 +578,157 @@ class TestExceptionHandling:
             success = False
 
         assert success is True
+
+
+class TestParseAbbreviationMode:
+    """Test parse_abbreviation_mode function."""
+
+    def test_parse_off_mode(self):
+        from app.modules.cdk_depict.abbreviations import parse_abbreviation_mode
+
+        assert parse_abbreviation_mode("off") == AbbreviationMode.OFF
+
+    def test_parse_false_mode(self):
+        from app.modules.cdk_depict.abbreviations import parse_abbreviation_mode
+
+        assert parse_abbreviation_mode("false") == AbbreviationMode.OFF
+
+    def test_parse_no_mode(self):
+        from app.modules.cdk_depict.abbreviations import parse_abbreviation_mode
+
+        assert parse_abbreviation_mode("no") == AbbreviationMode.OFF
+
+    def test_parse_groups_mode(self):
+        from app.modules.cdk_depict.abbreviations import parse_abbreviation_mode
+
+        assert parse_abbreviation_mode("groups") == AbbreviationMode.GROUPS
+
+    def test_parse_group_mode(self):
+        from app.modules.cdk_depict.abbreviations import parse_abbreviation_mode
+
+        assert parse_abbreviation_mode("group") == AbbreviationMode.GROUPS
+
+    def test_parse_reagents_mode(self):
+        from app.modules.cdk_depict.abbreviations import parse_abbreviation_mode
+
+        assert parse_abbreviation_mode("reagents") == AbbreviationMode.REAGENTS
+
+    def test_parse_reagent_mode(self):
+        from app.modules.cdk_depict.abbreviations import parse_abbreviation_mode
+
+        assert parse_abbreviation_mode("reagent") == AbbreviationMode.REAGENTS
+
+    def test_parse_on_mode(self):
+        from app.modules.cdk_depict.abbreviations import parse_abbreviation_mode
+
+        assert parse_abbreviation_mode("on") == AbbreviationMode.ALL
+
+    def test_parse_true_mode(self):
+        from app.modules.cdk_depict.abbreviations import parse_abbreviation_mode
+
+        assert parse_abbreviation_mode("true") == AbbreviationMode.ALL
+
+    def test_parse_yes_mode(self):
+        from app.modules.cdk_depict.abbreviations import parse_abbreviation_mode
+
+        assert parse_abbreviation_mode("yes") == AbbreviationMode.ALL
+
+    def test_parse_all_mode(self):
+        from app.modules.cdk_depict.abbreviations import parse_abbreviation_mode
+
+        assert parse_abbreviation_mode("all") == AbbreviationMode.ALL
+
+    def test_parse_both_mode(self):
+        from app.modules.cdk_depict.abbreviations import parse_abbreviation_mode
+
+        assert parse_abbreviation_mode("both") == AbbreviationMode.ALL
+
+    def test_parse_unknown_mode_defaults_to_reagents(self):
+        from app.modules.cdk_depict.abbreviations import parse_abbreviation_mode
+
+        assert parse_abbreviation_mode("unknown") == AbbreviationMode.REAGENTS
+
+    def test_parse_mode_case_insensitive(self):
+        from app.modules.cdk_depict.abbreviations import parse_abbreviation_mode
+
+        assert parse_abbreviation_mode("OFF") == AbbreviationMode.OFF
+        assert parse_abbreviation_mode("GROUPS") == AbbreviationMode.GROUPS
+        assert parse_abbreviation_mode("ON") == AbbreviationMode.ALL
+
+    def test_parse_mode_with_whitespace(self):
+        from app.modules.cdk_depict.abbreviations import parse_abbreviation_mode
+
+        assert parse_abbreviation_mode("  off  ") == AbbreviationMode.OFF
+        assert parse_abbreviation_mode("  groups  ") == AbbreviationMode.GROUPS
+
+
+class TestApplyToReactionDirect:
+    """Test apply_to_reaction method directly (without going through apply)."""
+
+    def test_apply_to_reaction_initializes_if_needed(self):
+        """Test that apply_to_reaction initializes if not already initialized."""
+        system = ChemicalAbbreviations()
+        assert system._initialized is False
+
+        Reaction = JClass("org.openscience.cdk.Reaction")
+        reaction = Reaction()
+        reactant = get_CDK_IAtomContainer("c1ccccc1C")
+        reaction.addReactant(reactant)
+
+        system.apply_to_reaction(reaction, mode=AbbreviationMode.GROUPS)
+        assert system._initialized is True
+
+    def test_apply_to_reaction_off_mode_returns_early(self):
+        """Test that OFF mode in apply_to_reaction returns without processing."""
+        system = ChemicalAbbreviations()
+        system.initialize()
+
+        Reaction = JClass("org.openscience.cdk.Reaction")
+        reaction = Reaction()
+        reactant = get_CDK_IAtomContainer("c1ccccc1C")
+        initial_count = reactant.getAtomCount()
+        reaction.addReactant(reactant)
+
+        system.apply_to_reaction(reaction, mode=AbbreviationMode.OFF)
+        assert reactant.getAtomCount() == initial_count
+
+
+class TestHydrateContractionPaths:
+    """Test hydrate contraction internal paths."""
+
+    def test_hydrate_contraction_multiple_waters(self, abbr_system):
+        """Test hydrate contraction with multiple water molecules."""
+        mol = get_CDK_IAtomContainer("c1ccccc1.O.O.O")
+        abbr_system.apply(mol, mode=AbbreviationMode.ALL)
+        assert mol is not None
+
+    def test_hydrate_contraction_no_water(self, abbr_system):
+        """Test hydrate contraction on molecule without water."""
+        mol = get_CDK_IAtomContainer("CCCC")
+        abbr_system.apply(mol, mode=AbbreviationMode.ALL)
+        assert mol is not None
+
+    def test_hydrate_contraction_single_water(self, abbr_system):
+        """Test hydrate contraction with a single water molecule."""
+        mol = get_CDK_IAtomContainer("c1ccccc1.O")
+        abbr_system.apply(mol, mode=AbbreviationMode.ALL)
+        assert mol is not None
+
+
+class TestIsReactionMethod:
+    """Test _is_reaction method edge cases."""
+
+    def test_is_reaction_with_molecule(self, abbr_system):
+        """Test _is_reaction correctly returns False for molecules."""
+        mol = get_CDK_IAtomContainer("CCO")
+        assert abbr_system._is_reaction(mol) is False
+
+    def test_is_reaction_with_reaction(self, abbr_system):
+        """Test _is_reaction correctly returns True for reactions."""
+        Reaction = JClass("org.openscience.cdk.Reaction")
+        reaction = Reaction()
+        assert abbr_system._is_reaction(reaction) is True
+
+    def test_is_reaction_with_none(self, abbr_system):
+        """Test _is_reaction with None."""
+        assert abbr_system._is_reaction(None) is False

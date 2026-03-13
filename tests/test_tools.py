@@ -5,7 +5,6 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 
-
 client = TestClient(app)
 
 
@@ -209,3 +208,24 @@ def test_get_aglycone_and_sugar_indices(input, response_text, response_code):
     assert response.headers["content-type"] == "application/json"
     if input != "INVALID_INPUT":
         assert response.text == response_text
+
+
+# ---------------------------------------------------------------------------
+# Coverage tests for security hardening (error paths & input validation)
+# ---------------------------------------------------------------------------
+
+
+def test_surge_invalid_formula_characters():
+    """SURGE rejects formulas with invalid characters."""
+    response = client.get(
+        "/latest/tools/generate-structures?molecular_formula=C6H6%3Brm"
+    )
+    assert response.status_code in [422, 500]
+
+
+def test_generate_structures_invalid_formula_special():
+    """Generate structures rejects formula with special chars."""
+    response = client.get(
+        "/latest/tools/generate-structures?molecular_formula=C6H6%21%40"
+    )
+    assert response.status_code in [422, 500]

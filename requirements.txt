@@ -12,7 +12,7 @@ matplotlib>=3.4.3
 opencv-python==4.8.1.78
 pandas
 pdf2image==1.16.2
-pillow==10.3.0
+pillow==12.1.1
 pillow-heif==0.10.0
 pre-commit
 flake8
@@ -25,7 +25,7 @@ selfies>=2.1.1
 tensorflow==2.15.1
 Keras-Preprocessing==1.1.2
 unicodedata2==15.0.0
-websockets==10.4
+websockets>=14.0
 mapchiral
 slowapi
 imantics==0.1.12
@@ -34,3 +34,4 @@ openbabel-wheel
 uvicorn[standard]
 pytest
 pytest-asyncio
+pymupdf

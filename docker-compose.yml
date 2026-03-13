@@ -4,6 +4,8 @@ services:
       context: ./
       dockerfile: Dockerfile
     container_name: cheminformatics-microservice-api
+    env_file:
+      - .env
     environment:
       - HOMEPAGE_URL=https://docs.api.naturalproducts.net
       - RELEASE_VERSION=v2.6.0
@@ -73,7 +75,7 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD in .env}
       - GF_USERS_ALLOW_SIGN_UP=false
     restart: unless-stopped
     depends_on:

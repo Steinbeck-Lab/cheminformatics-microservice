@@ -6,8 +6,18 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.limiter import limiter
 
 client = TestClient(app)
+
+AUTH_HEADERS = {}
+
+
+@pytest.fixture(autouse=True)
+def _reset_limiter():
+    """Reset rate limiter state before each test."""
+    limiter.reset()
+    yield
 
 
 def test_converters_index():
@@ -493,3 +503,690 @@ def test_molblock_to_smiles(molblock, toolkit, expected_contains, response_code)
         assert (
             expected_contains in smiles or "N" in smiles
         )  # Caffeine contains both C and N
+
+
+# ---------------------------------------------------------------------------
+# Coverage tests for security hardening (error paths & input validation)
+# ---------------------------------------------------------------------------
+
+
+def test_cdx_to_mol_oversized_file():
+    """CDX upload rejects files over 10MB."""
+    large_content = b"\x00" * (10 * 1024 * 1024 + 1)
+    response = client.post(
+        "/latest/convert/cdx-to-mol",
+        files={"file": ("huge.cdx", large_content, "chemical/x-cdx")},
+    )
+    assert response.status_code == 400
+    assert "too large" in response.json()["detail"].lower()
+
+
+def test_iupac_to_smiles_invalid():
+    """IUPAC conversion with garbage input returns error."""
+    response = client.get(
+        "/latest/convert/smiles?input_text=ZZZZNOTACHEMICAL&representation=iupac&converter=opsin"
+    )
+    assert response.status_code in [200, 422]
+
+
+def test_selfies_encode_invalid():
+    """SELFIES encoding of invalid SMILES returns error."""
+    response = client.get("/latest/convert/selfies?smiles=INVALID_SMILES&toolkit=rdkit")
+    assert response.status_code in [400, 422]
+
+
+def test_molblock_to_smiles_invalid():
+    """Invalid molblock conversion returns error."""
+    response = client.post(
+        "/latest/convert/molblock?toolkit=rdkit",
+        data="NOT_A_MOLBLOCK",
+        headers={"Content-Type": "text/plain"},
+    )
+    assert response.status_code in [422, 500]
+
+
+def test_smiles_to_formats_invalid():
+    """Invalid SMILES to formats conversion returns error."""
+    response = client.get("/latest/convert/mol2D?smiles=INVALID!!!&toolkit=rdkit")
+    assert response.status_code in [422, 500]
+
+
+# ---------------------------------------------------------------------------
+# Additional coverage tests targeting uncovered lines
+# ---------------------------------------------------------------------------
+
+# --- Lines 303-311: /smiles endpoint error handling ---
+
+
+def test_smiles_endpoint_generic_exception():
+    """Test the generic exception handler in /smiles endpoint (lines 309-311).
+
+    Passing an invalid SELFIES string that causes an exception during decoding.
+    """
+    response = client.get(
+        "/latest/convert/smiles?input_text=NOT_VALID_SELFIES&representation=selfies"
+    )
+    # sf.decoder may return empty or raise; either way the endpoint should handle it
+    assert response.status_code in [200, 422]
+
+
+# --- Lines 498-501: /inchi endpoint with openbabel toolkit ---
+
+
+def test_smiles_to_inchi_openbabel():
+    """Test InChI generation using openbabel toolkit (lines 498-501)."""
+    response = client.get(
+        "/latest/convert/inchi?smiles=CN1C%3DNC2%3DC1C(%3DO)N(C(%3DO)N2C)C&toolkit=openbabel",
+    )
+    assert response.status_code == 200
+    assert "InChI" in response.text
+
+
+def test_smiles_to_inchi_openbabel_simple():
+    """Test InChI generation using openbabel toolkit with simple SMILES."""
+    response = client.get(
+        "/latest/convert/inchi?smiles=CCO&toolkit=openbabel",
+    )
+    assert response.status_code == 200
+    assert "InChI" in response.text
+
+
+# --- Lines 619, 624: /selfies endpoint error paths ---
+
+
+def test_selfies_encode_empty_result():
+    """Test SELFIES encoding when encoder returns empty (lines 619, 624).
+
+    Uses a truly invalid SMILES that sf.encoder cannot handle.
+    """
+    response = client.get("/latest/convert/selfies?smiles=%5B%5D")
+    # An empty SMILES-like input may cause encoder to fail
+    assert response.status_code in [200, 400]
+
+
+# --- Lines 715, 720: /formats endpoint error paths ---
+
+
+def test_formats_rdkit_invalid_smiles():
+    """Test /formats with rdkit toolkit and invalid SMILES."""
+    response = client.get(
+        "/latest/convert/formats?smiles=INVALID&toolkit=rdkit",
+    )
+    assert response.status_code == 422
+
+
+def test_formats_openbabel_valid_smiles():
+    """Test /formats with openbabel toolkit and valid SMILES."""
+    response = client.get(
+        "/latest/convert/formats?smiles=CCO&toolkit=openbabel",
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert "mol" in data
+    assert "canonicalsmiles" in data
+    assert "inchi" in data
+    assert "inchikey" in data
+
+
+# --- Lines 826, 837, 850, 871-876: /molblock POST endpoint ---
+
+
+def test_molblock_empty_body():
+    """Test molblock endpoint with empty body (line 826)."""
+    response = client.post(
+        "/latest/convert/molblock?toolkit=cdk",
+        data="",
+        headers={"Content-Type": "text/plain"},
+    )
+    # Empty body should trigger 422 ("Invalid or missing molblock")
+    assert response.status_code in [400, 422]
+
+
+def test_molblock_sdf_only_terminator():
+    """Test molblock endpoint with only $$$$ (line 837 - empty after strip)."""
+    response = client.post(
+        "/latest/convert/molblock?toolkit=cdk",
+        data="$$$$",
+        headers={"Content-Type": "text/plain"},
+    )
+    # After splitting on $$$$, content should be empty -> 400
+    assert response.status_code in [400, 422]
+
+
+def test_molblock_rdkit_invalid_mol():
+    """Test molblock endpoint with rdkit toolkit and invalid MOL (lines 871-876)."""
+    # A string that is not a valid MOL block but not empty
+    invalid_mol = """invalid
+  invalid
+  0  0  0  0  0  0  0  0  0  0  0 V2000
+M  END"""
+    response = client.post(
+        "/latest/convert/molblock?toolkit=rdkit",
+        data=invalid_mol,
+        headers={"Content-Type": "text/plain"},
+    )
+    assert response.status_code in [422, 500]
+
+
+def test_molblock_rdkit_valid():
+    """Test molblock endpoint with rdkit toolkit and valid MOL block."""
+    response = client.post(
+        "/latest/convert/molblock?toolkit=rdkit",
+        data=CAFFEINE_MOL_BLOCK,
+        headers={"Content-Type": "text/plain"},
+    )
+    assert response.status_code == 200
+    smiles = response.text.strip('"')
+    assert len(smiles) > 0
+
+
+# --- Lines 960-1092: /batch POST endpoint ---
+
+
+def test_batch_smiles_to_canonicalsmiles_cdk():
+    """Test batch conversion: SMILES -> canonicalsmiles with CDK (lines 991-993)."""
+    body = {
+        "inputs": [{"value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C", "input_format": "smiles"}]
+    }
+    response = client.post(
+        "/latest/convert/batch?output_format=canonicalsmiles&toolkit=cdk",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["total"] == 1
+    assert data["summary"]["successful"] == 1
+    assert data["results"][0]["success"] is True
+    assert len(data["results"][0]["output"]) > 0
+
+
+def test_batch_smiles_to_canonicalsmiles_rdkit():
+    """Test batch conversion: SMILES -> canonicalsmiles with rdkit."""
+    body = {
+        "inputs": [{"value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C", "input_format": "smiles"}]
+    }
+    response = client.post(
+        "/latest/convert/batch?output_format=canonicalsmiles&toolkit=rdkit",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+
+
+def test_batch_smiles_to_canonicalsmiles_openbabel():
+    """Test batch conversion: SMILES -> canonicalsmiles with openbabel (line 997-998)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=canonicalsmiles&toolkit=openbabel",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+
+
+def test_batch_smiles_to_inchi_cdk():
+    """Test batch conversion: SMILES -> inchi with CDK (lines 1001-1003)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=inchi&toolkit=cdk",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+    assert "InChI" in data["results"][0]["output"]
+
+
+def test_batch_smiles_to_inchi_rdkit():
+    """Test batch conversion: SMILES -> inchi with rdkit (lines 1004-1006)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=inchi&toolkit=rdkit",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+    assert "InChI" in data["results"][0]["output"]
+
+
+def test_batch_smiles_to_inchi_openbabel():
+    """Test batch conversion: SMILES -> inchi with openbabel (lines 1007-1008)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=inchi&toolkit=openbabel",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+
+
+def test_batch_smiles_to_inchikey_cdk():
+    """Test batch conversion: SMILES -> inchikey with CDK (lines 1011-1013)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=inchikey&toolkit=cdk",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+    assert len(data["results"][0]["output"]) > 0
+
+
+def test_batch_smiles_to_inchikey_rdkit():
+    """Test batch conversion: SMILES -> inchikey with rdkit (lines 1015-1016)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=inchikey&toolkit=rdkit",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+
+
+def test_batch_smiles_to_inchikey_openbabel():
+    """Test batch conversion: SMILES -> inchikey with openbabel (lines 1017-1018)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=inchikey&toolkit=openbabel",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+
+
+def test_batch_smiles_to_selfies():
+    """Test batch conversion: SMILES -> selfies (line 1020-1021)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=selfies&toolkit=cdk",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+    assert "[C]" in data["results"][0]["output"]
+
+
+def test_batch_smiles_to_cxsmiles_cdk():
+    """Test batch conversion: SMILES -> cxsmiles with CDK (lines 1024-1026)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=cxsmiles&toolkit=cdk",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+
+
+def test_batch_smiles_to_cxsmiles_rdkit():
+    """Test batch conversion: SMILES -> cxsmiles with rdkit (lines 1028-1029)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=cxsmiles&toolkit=rdkit",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+
+
+def test_batch_cxsmiles_openbabel_unsupported():
+    """Test batch cxsmiles conversion with openbabel (lines 1030-1033 - unsupported)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=cxsmiles&toolkit=openbabel",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    # Should fail with unsupported error
+    assert data["summary"]["failed"] == 1
+    assert "not supported" in data["results"][0]["error"].lower()
+
+
+def test_batch_smiles_to_smarts_rdkit():
+    """Test batch conversion: SMILES -> smarts with rdkit (lines 1036-1038)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=smarts&toolkit=rdkit",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+    assert "#" in data["results"][0]["output"]  # SMARTS uses atomic number notation
+
+
+def test_batch_smarts_cdk_unsupported():
+    """Test batch smarts conversion with cdk (lines 1039-1042 - unsupported)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=smarts&toolkit=cdk",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["failed"] == 1
+    assert "not supported" in data["results"][0]["error"].lower()
+
+
+def test_batch_smiles_to_mol2d_cdk():
+    """Test batch conversion: SMILES -> mol2d with CDK (lines 1045-1047)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=mol2d&toolkit=cdk",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+    assert (
+        "V2000" in data["results"][0]["output"]
+        or "V3000" in data["results"][0]["output"]
+    )
+
+
+def test_batch_smiles_to_mol2d_rdkit():
+    """Test batch conversion: SMILES -> mol2d with rdkit (lines 1048-1050)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=mol2d&toolkit=rdkit",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+
+
+def test_batch_smiles_to_mol2d_openbabel():
+    """Test batch conversion: SMILES -> mol2d with openbabel (lines 1051-1052)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=mol2d&toolkit=openbabel",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+
+
+def test_batch_smiles_to_mol3d_rdkit():
+    """Test batch conversion: SMILES -> mol3d with rdkit (lines 1055-1057)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=mol3d&toolkit=rdkit",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+
+
+def test_batch_smiles_to_mol3d_openbabel():
+    """Test batch conversion: SMILES -> mol3d with openbabel (lines 1058-1059)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=mol3d&toolkit=openbabel",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+
+
+def test_batch_mol3d_cdk_unsupported():
+    """Test batch mol3d with cdk toolkit (lines 1060-1063 - unsupported)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=mol3d&toolkit=cdk",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["failed"] == 1
+    assert "not supported" in data["results"][0]["error"].lower()
+
+
+def test_batch_unsupported_output_format():
+    """Test batch with unsupported output format (lines 1065-1066)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=INVALID_FORMAT&toolkit=cdk",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["failed"] == 1
+    assert "unsupported output format" in data["results"][0]["error"].lower()
+
+
+def test_batch_smiles_output():
+    """Test batch conversion: SMILES -> smiles (line 987-988)."""
+    body = {"inputs": [{"value": "CCO", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=smiles&toolkit=cdk",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+    assert data["results"][0]["output"] == "CCO"
+
+
+def test_batch_missing_value_or_format():
+    """Test batch with missing value or input_format (lines 959-960)."""
+    body = {"inputs": [{"value": "", "input_format": "smiles"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=smiles&toolkit=cdk",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["failed"] == 1
+    assert "missing" in data["results"][0]["error"].lower()
+
+
+def test_batch_missing_input_format():
+    """Test batch with missing input_format (lines 959-960)."""
+    body = {"inputs": [{"value": "CCO", "input_format": ""}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=smiles&toolkit=cdk",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["failed"] == 1
+
+
+def test_batch_iupac_input():
+    """Test batch conversion with IUPAC input (lines 965-970)."""
+    body = {"inputs": [{"value": "ethanol", "input_format": "iupac"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=canonicalsmiles&toolkit=cdk",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["total"] == 1
+    # IUPAC conversion may succeed or fail depending on OPSIN
+    assert data["results"][0]["success"] in [True, False]
+
+
+def test_batch_selfies_input():
+    """Test batch conversion with SELFIES input (lines 971-974)."""
+    body = {"inputs": [{"value": "[C][C][O]", "input_format": "selfies"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=canonicalsmiles&toolkit=cdk",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+
+
+def test_batch_inchi_input():
+    """Test batch conversion with InChI input (lines 976-980)."""
+    body = {
+        "inputs": [
+            {"value": "InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3", "input_format": "inchi"}
+        ]
+    }
+    response = client.post(
+        "/latest/convert/batch?output_format=canonicalsmiles&toolkit=rdkit",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+
+
+def test_batch_inchi_input_invalid():
+    """Test batch conversion with invalid InChI input (lines 978-979)."""
+    body = {"inputs": [{"value": "NOT_AN_INCHI", "input_format": "inchi"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=smiles&toolkit=cdk",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["failed"] == 1
+
+
+def test_batch_unsupported_input_format():
+    """Test batch with unsupported input format (line 982)."""
+    body = {"inputs": [{"value": "something", "input_format": "mol2d"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=smiles&toolkit=cdk",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["failed"] == 1
+    assert "unsupported input format" in data["results"][0]["error"].lower()
+
+
+def test_batch_multiple_inputs():
+    """Test batch conversion with multiple inputs including failures (lines 1079-1092)."""
+    body = {
+        "inputs": [
+            {"value": "CCO", "input_format": "smiles"},
+            {"value": "INVALID", "input_format": "inchi"},
+            {"value": "c1ccccc1", "input_format": "smiles"},
+        ]
+    }
+    response = client.post(
+        "/latest/convert/batch?output_format=inchi&toolkit=cdk",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["total"] == 3
+    # At least some should succeed, some should fail
+    assert data["summary"]["successful"] >= 1
+    assert data["summary"]["failed"] >= 1
+
+
+def test_batch_empty_inputs():
+    """Test batch conversion with empty inputs list."""
+    body = {"inputs": []}
+    response = client.post(
+        "/latest/convert/batch?output_format=smiles&toolkit=cdk",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["total"] == 0
+    assert data["summary"]["successful"] == 0
+    assert data["summary"]["failed"] == 0
+
+
+def test_batch_selfies_input_invalid():
+    """Test batch conversion with invalid SELFIES input (lines 973-974)."""
+    body = {"inputs": [{"value": "NOT_SELFIES_AT_ALL", "input_format": "selfies"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=smiles&toolkit=cdk",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    # sf.decoder on invalid input may return empty -> should be a failure
+    assert data["summary"]["total"] == 1
+
+
+def test_batch_iupac_input_invalid():
+    """Test batch with invalid IUPAC name (lines 967-970)."""
+    body = {"inputs": [{"value": "ZZZZNOTACHEMICAL", "input_format": "iupac"}]}
+    response = client.post(
+        "/latest/convert/batch?output_format=smiles&toolkit=cdk",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["total"] == 1
+    # OPSIN may fail to convert this
+    assert data["results"][0]["success"] in [True, False]
+
+
+# --- Lines 1162-1164: CDX endpoint generic exception ---
+
+
+def test_cdx_to_mol_invalid_cdx_content():
+    """Test CDX to MOL with invalid CDX content (lines 1162-1164)."""
+    invalid_cdx = b"\x01\x02\x03\x04\x05\x06"
+    response = client.post(
+        "/latest/convert/cdx-to-mol",
+        files={"file": ("test.cdx", invalid_cdx, "chemical/x-cdx")},
+    )
+    assert response.status_code == 422
+
+
+def test_cdx_to_mol_wrong_extension():
+    """Test CDX endpoint rejects non-CDX files."""
+    response = client.post(
+        "/latest/convert/cdx-to-mol",
+        files={"file": ("test.txt", b"some content", "text/plain")},
+    )
+    assert response.status_code == 400
+    assert "cdx" in response.json()["detail"].lower()

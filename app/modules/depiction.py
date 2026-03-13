@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import logging
 import xml.etree.ElementTree as ET
+
+logger = logging.getLogger(__name__)
 
 from jpype import JClass
 from rdkit import Chem
@@ -96,7 +99,7 @@ def get_cdk_depiction(
         try:
             Kekulization.kekulize(SDGMol)
         except Exception as e:
-            print(str(e) + " Can't Kekulize molecule")
+            logger.debug("Can't kekulize molecule: %s", e)
 
     # Rotate molecule if requested
     if rotate != 0:
@@ -171,7 +174,7 @@ def _apply_highlighting(
 
                 # Add bonds between highlighted atoms
                 for i, idx1 in enumerate(atom_indices):
-                    for idx2 in atom_indices[i + 1:]:
+                    for idx2 in atom_indices[i + 1 :]:
                         if (
                             idx1 < molecule.getAtomCount()
                             and idx2 < molecule.getAtomCount()
@@ -201,7 +204,7 @@ def _apply_highlighting(
                 tmpSubstructures, lightBlue
             ).withOuterGlowHighlight()
         except Exception as e:
-            print(f"Warning: Invalid SMARTS pattern '{highlight_pattern}': {e}")
+            logger.warning("Invalid SMARTS pattern '%s': %s", highlight_pattern, e)
             return depiction_generator
 
     # No highlighting

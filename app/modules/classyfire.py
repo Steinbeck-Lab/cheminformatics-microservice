@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-import requests
+import httpx
 
 
 async def classify(smiles: str) -> dict:
@@ -34,11 +34,14 @@ async def classify(smiles: str) -> dict:
     headers = {"Content-Type": "application/json"}
 
     try:
-        # Make a POST request to the API
-        response = requests.post(url, headers=headers, data=payload)
-        response.raise_for_status()  # Raise exception for HTTP errors
-        return response.json()
-    except requests.RequestException as e:
+        # Make a POST request to the API asynchronously
+        # ClassyFire can be slow, so use a longer timeout (300 seconds = 5 minutes)
+        timeout = httpx.Timeout(300.0, connect=60.0)
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.post(url, headers=headers, content=payload)
+            response.raise_for_status()  # Raise exception for HTTP errors
+            return response.json()
+    except httpx.HTTPError as e:
         # Handle request-related errors
         raise e
 
@@ -67,9 +70,12 @@ async def result(id: str) -> dict:
     headers = {"Content-Type": "application/json"}
 
     try:
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()  # Raise an exception for 4xx/5xx status codes
-        return response.json()
-    except requests.exceptions.RequestException as e:
+        # ClassyFire can be slow, so use a longer timeout (300 seconds = 5 minutes)
+        timeout = httpx.Timeout(300.0, connect=60.0)
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.get(url, headers=headers)
+            response.raise_for_status()  # Raise an exception for 4xx/5xx status codes
+            return response.json()
+    except httpx.HTTPError as e:
         # Handle connection errors, timeouts, etc.
         raise e

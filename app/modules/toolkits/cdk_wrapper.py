@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os
 from typing import List
 from typing import Union
@@ -12,23 +13,24 @@ from jpype import JPackage
 from jpype import JVMNotFoundException
 from jpype import startJVM
 
+logger = logging.getLogger(__name__)
+
 
 def setup_jvm():
     try:
         jvmPath = getDefaultJVMPath()
     except JVMNotFoundException:
-        print("If you see this message, for some reason JPype cannot find jvm.dll.")
-        print(
-            "This indicates that the environment variable JAVA_HOME is not set properly."
+        logger.warning(
+            "JPype cannot find jvm.dll. "
+            "Ensure the JAVA_HOME environment variable is set properly."
         )
-        print("You can set it or set it manually in the code")
         jvmPath = "Define/path/or/set/JAVA_HOME/variable/properly"
 
-    print(jvmPath)
+    logger.debug("JVM path: %s", jvmPath)
 
     if not isJVMStarted():
         paths = {
-            "cdk-2.11": "https://github.com/cdk/cdk/releases/download/cdk-2.11/cdk-2.11.jar",
+            "cdk-2.12": "https://github.com/cdk/cdk/releases/download/cdk-2.12/cdk-2.12.jar",
             "SugarRemovalUtility-jar-with-dependencies": "https://github.com/JonasSchaub/SugarRemoval/releases/download/v1.6/SugarRemovalUtility-jar-with-dependencies.jar",
             "centres": "https://github.com/SiMolecule/centres/releases/download/1.0/centres.jar",
             "opsin-cli-2.8.0-jar-with-dependencies": "https://github.com/dan2097/opsin/releases/download/2.8.0/opsin-cli-2.8.0-jar-with-dependencies.jar",
@@ -689,7 +691,7 @@ def get_smiles_opsin(input_text: str) -> str:
         )
 
 
-async def get_CDK_HOSE_codes(
+def get_CDK_HOSE_codes(
     molecule: any,
     noOfSpheres: int,
     ringsize: bool,

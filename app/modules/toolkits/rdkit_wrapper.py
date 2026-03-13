@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+import tempfile
 from typing import List
 from typing import Tuple
 from typing import Union
@@ -263,7 +265,7 @@ def get_tanimoto_similarity_rdkit(
         return "Check SMILES strings for Errors"
 
 
-async def get_rdkit_HOSE_codes(molecule: any, noOfSpheres: int) -> List[str]:
+def get_rdkit_HOSE_codes(molecule: any, noOfSpheres: int) -> List[str]:
     """Calculate and retrieve RDKit HOSE codes for a given SMILES string.
 
     This function takes a SMILES string as input and returns the calculated HOSE codes.
@@ -955,3 +957,74 @@ def has_cis_trans_stereochemistry(molecule: any) -> bool:
                 return True
 
     return False
+
+
+def convert_cdx_to_mol(cdx_bytes: bytes, fmt: str = "cdx") -> str:
+    """Convert the raw bytes of a .cdx or .cdxml file to a MOL block.
+
+    Uses ``Chem.MolsFromCDXMLFile`` from RDKit 2024.09+, which automatically
+    handles both binary CDX (when ``Chem.HasChemDrawCDXSupport()`` is ``True``)
+    and CDXML text format by inspecting the file header.
+
+    The first successfully parsed molecule is returned as a V2000 MOL block.
+
+    Args:
+        cdx_bytes (bytes): Raw bytes of the uploaded .cdx or .cdxml file.
+        fmt (str): Format hint used only to choose the temp-file suffix
+            (``"cdx"`` or ``"cdxml"``).  Defaults to ``"cdx"``.
+
+    Returns:
+        str: V2000 MDL MOL block of the first molecule in the file.
+
+    Raises:
+        ValueError: If no valid molecules can be parsed from the file.
+    """
+    suffix = ".cdxml" if fmt == "cdxml" else ".cdx"
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+        tmp.write(cdx_bytes)
+        tmp_path = tmp.name
+
+    try:
+        mols = Chem.MolsFromCDXMLFile(tmp_path)
+    finally:
+        os.unlink(tmp_path)
+
+    valid = [m for m in (mols or []) if m is not None]
+    if not valid:
+        raise ValueError(f"No valid molecules found in the {suffix} file.")
+
+    return Chem.MolToMolBlock(valid[0]).rstrip()
+
+
+def ensure_2d(mol: Chem.Mol) -> Chem.Mol:
+    """Coerce pseudo-3D conformers to 2D by zeroing spurious Z coordinates.
+
+    Some molfile writers (e.g. Actelion MolfileCreator) emit near-zero Z
+    values for 2D drawings, causing RDKit to flag the conformer as 3D.
+    This breaks chembl_structure_pipeline's cleanup_drawing_mol(), which
+    strictly requires 2D input.
+
+    If all Z coordinates are within ±0.5 Å, they are set to 0.0 and the
+    3D flag is cleared. Genuine 3D conformers are left untouched.
+
+    Args:
+        mol: RDKit Mol object. Modified in-place.
+
+    Returns:
+        The same Mol object (for chaining).
+    """
+    if mol.GetNumConformers() == 0:
+        return mol
+    conf = mol.GetConformer()
+    if not conf.Is3D():
+        return mol
+    all_z_near_zero = all(
+        abs(conf.GetAtomPosition(i).z) < 0.5
+        for i in range(mol.GetNumAtoms())
+    )
+    if all_z_near_zero:
+        for i in range(mol.GetNumAtoms()):
+            pos = conf.GetAtomPosition(i)
+            conf.SetAtomPosition(i, (pos.x, pos.y, 0.0))
+        conf.Set3D(False)
+    return mol

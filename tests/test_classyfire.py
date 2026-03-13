@@ -1,5 +1,6 @@
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, AsyncMock
+import httpx
 from app.modules.classyfire import classify, result
 
 
@@ -14,10 +15,13 @@ def invalid_smiles():
 
 
 @pytest.mark.asyncio
-@patch("app.modules.classyfire.requests.post")
-@patch("app.modules.classyfire.requests.get")
-async def test_valid_classyfire(mock_get, mock_post, valid_smiles):
-    # Mock the initial classification request
+@patch("app.modules.classyfire.httpx.AsyncClient")
+async def test_valid_classyfire(mock_async_client, valid_smiles):
+    # Create mock client instance and context manager
+    mock_client_instance = MagicMock()
+    mock_async_client.return_value.__aenter__.return_value = mock_client_instance
+
+    # Mock the POST response for classify
     mock_post_response = MagicMock()
     mock_post_response.json.return_value = {
         "id": "12345",
@@ -25,9 +29,9 @@ async def test_valid_classyfire(mock_get, mock_post, valid_smiles):
         "query_input": valid_smiles,
     }
     mock_post_response.raise_for_status.return_value = None
-    mock_post.return_value = mock_post_response
+    mock_client_instance.post = AsyncMock(return_value=mock_post_response)
 
-    # Mock the result retrieval request
+    # Mock the GET response for result
     mock_get_response = MagicMock()
     mock_get_response.json.return_value = {
         "id": "12345",
@@ -35,7 +39,7 @@ async def test_valid_classyfire(mock_get, mock_post, valid_smiles):
         "entities": [{"class": {"name": "Imidazopyrimidines"}}],
     }
     mock_get_response.raise_for_status.return_value = None
-    mock_get.return_value = mock_get_response
+    mock_client_instance.get = AsyncMock(return_value=mock_get_response)
 
     result_ = await classify(valid_smiles)
     assert result_["query_type"] == "STRUCTURE"
@@ -47,10 +51,13 @@ async def test_valid_classyfire(mock_get, mock_post, valid_smiles):
 
 
 @pytest.mark.asyncio
-@patch("app.modules.classyfire.requests.post")
-@patch("app.modules.classyfire.requests.get")
-async def test_invalid_classyfire(mock_get, mock_post, invalid_smiles):
-    # Mock the initial classification request
+@patch("app.modules.classyfire.httpx.AsyncClient")
+async def test_invalid_classyfire(mock_async_client, invalid_smiles):
+    # Create mock client instance and context manager
+    mock_client_instance = MagicMock()
+    mock_async_client.return_value.__aenter__.return_value = mock_client_instance
+
+    # Mock the POST response for classify
     mock_post_response = MagicMock()
     mock_post_response.json.return_value = {
         "id": "12346",
@@ -58,9 +65,9 @@ async def test_invalid_classyfire(mock_get, mock_post, invalid_smiles):
         "query_input": invalid_smiles,
     }
     mock_post_response.raise_for_status.return_value = None
-    mock_post.return_value = mock_post_response
+    mock_client_instance.post = AsyncMock(return_value=mock_post_response)
 
-    # Mock the result retrieval request
+    # Mock the GET response for result
     mock_get_response = MagicMock()
     mock_get_response.json.return_value = {
         "id": "12346",
@@ -70,7 +77,7 @@ async def test_invalid_classyfire(mock_get, mock_post, invalid_smiles):
         ],
     }
     mock_get_response.raise_for_status.return_value = None
-    mock_get.return_value = mock_get_response
+    mock_client_instance.get = AsyncMock(return_value=mock_get_response)
 
     result_ = await classify(invalid_smiles)
     assert result_["query_input"] == "invalid_smiles"
@@ -82,3 +89,81 @@ async def test_invalid_classyfire(mock_get, mock_post, invalid_smiles):
         classified["invalid_entities"][0]["report"][0]
         == "Cannot process the input SMILES string, please check again"
     )
+
+
+@pytest.mark.asyncio
+@patch("app.modules.classyfire.httpx.AsyncClient")
+async def test_classify_http_error(mock_async_client, valid_smiles):
+    """Test that classify properly raises HTTPError exceptions"""
+    # Create mock client instance and context manager
+    mock_client_instance = MagicMock()
+    mock_async_client.return_value.__aenter__.return_value = mock_client_instance
+
+    # Mock the POST to raise an HTTPError
+    mock_client_instance.post = AsyncMock(
+        side_effect=httpx.HTTPError("Connection failed")
+    )
+
+    # Should re-raise the HTTPError
+    with pytest.raises(httpx.HTTPError):
+        await classify(valid_smiles)
+
+
+@pytest.mark.asyncio
+@patch("app.modules.classyfire.httpx.AsyncClient")
+async def test_classify_timeout_error(mock_async_client, valid_smiles):
+    """Test that classify properly raises timeout errors"""
+    # Create mock client instance and context manager
+    mock_client_instance = MagicMock()
+    mock_async_client.return_value.__aenter__.return_value = mock_client_instance
+
+    # Mock the POST to raise a timeout error
+    mock_client_instance.post = AsyncMock(
+        side_effect=httpx.TimeoutException("Request timed out")
+    )
+
+    # Should re-raise the HTTPError (TimeoutException is a subclass of HTTPError)
+    with pytest.raises(httpx.HTTPError):
+        await classify(valid_smiles)
+
+
+@pytest.mark.asyncio
+@patch("app.modules.classyfire.httpx.AsyncClient")
+async def test_result_http_error(mock_async_client):
+    """Test that result properly raises HTTPError exceptions"""
+    # Create mock client instance and context manager
+    mock_client_instance = MagicMock()
+    mock_async_client.return_value.__aenter__.return_value = mock_client_instance
+
+    # Mock the GET to raise an HTTPError
+    mock_client_instance.get = AsyncMock(
+        side_effect=httpx.HTTPError("Connection failed")
+    )
+
+    # Should re-raise the HTTPError
+    with pytest.raises(httpx.HTTPError):
+        await result("12345")
+
+
+@pytest.mark.asyncio
+@patch("app.modules.classyfire.httpx.AsyncClient")
+async def test_result_not_found_error(mock_async_client):
+    """Test that result properly raises HTTPStatusError for 404"""
+    # Create mock client instance and context manager
+    mock_client_instance = MagicMock()
+    mock_async_client.return_value.__aenter__.return_value = mock_client_instance
+
+    # Create a mock response for 404
+    mock_response = MagicMock()
+    mock_response.status_code = 404
+
+    # Mock the GET to raise an HTTPStatusError
+    mock_client_instance.get = AsyncMock(
+        side_effect=httpx.HTTPStatusError(
+            "Not Found", request=MagicMock(), response=mock_response
+        )
+    )
+
+    # Should re-raise the HTTPError
+    with pytest.raises(httpx.HTTPError):
+        await result("invalid_id")

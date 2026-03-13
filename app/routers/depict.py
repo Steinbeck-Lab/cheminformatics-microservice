@@ -81,9 +81,10 @@ def get_health() -> HealthCheck:
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
-async def depict_2d_molecule(
+def depict_2d_molecule(
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES string to be converted",
         openapi_examples={
             "example1": {
@@ -245,8 +246,9 @@ async def depict_2d_molecule(
                 detail="Error reading SMILES string, please check again.",
             )
         return Response(content=depiction, media_type="image/svg+xml")
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=str(e))
+    except Exception:
+        logger.exception("Error generating 2D depiction")
+        raise HTTPException(status_code=422, detail="Invalid input")
 
 
 @router.get(
@@ -263,10 +265,11 @@ async def depict_2d_molecule(
     },
 )
 @limiter.limit("25/minute")
-async def depict_3d_molecule(
+def depict_3d_molecule(
     request: Request,
     smiles: str = Query(
         title="SMILES",
+        max_length=5000,
         description="SMILES string to be converted",
         openapi_examples={
             "example1": {
@@ -317,8 +320,11 @@ async def depict_3d_molecule(
                 detail="Error reading SMILES string, please check again.",
             )
         return templates.TemplateResponse("mol.html", content)
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error generating 3D depiction")
+        raise HTTPException(status_code=422, detail="Invalid input")
 
 
 @router.get(
@@ -331,9 +337,10 @@ async def depict_3d_molecule(
         },
     },
 )
-async def depict_2d_molecule_enhanced(
+def depict_2d_molecule_enhanced(
     smiles: str = Query(
         title="SMILES or CXSMILES",
+        max_length=5000,
         description="SMILES or CXSMILES string to be converted. Supports CXSMILES extensions for highlighting.",
         openapi_examples={
             "example1": {
@@ -745,6 +752,6 @@ async def depict_2d_molecule_enhanced(
 
         return Response(content=depiction, media_type="image/svg+xml")
 
-    except Exception as e:
-        logger.error(f"Error generating enhanced depiction: {e}")
-        raise HTTPException(status_code=422, detail=str(e))
+    except Exception:
+        logger.exception("Error generating enhanced depiction")
+        raise HTTPException(status_code=422, detail="Invalid input")
