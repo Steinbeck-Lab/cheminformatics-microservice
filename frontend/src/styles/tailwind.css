@@ -142,6 +142,7 @@
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-pulse-fast: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-bounce-slow: bounce 2s infinite;
+  --animate-shimmer: shimmer 2s ease-in-out infinite;
 }
 
 /* ===== Base Styles ===== */
@@ -261,6 +262,23 @@
   }
 }
 
+/* Claymorphism button shadow (no border-radius — buttons control their own) */
+@utility clay-btn {
+  box-shadow:
+    inset 0 -3px 6px 0 rgb(0 0 0 / 0.08),
+    inset 0 2px 3px 0 rgb(255 255 255 / 0.4),
+    0 6px 16px -4px rgb(0 0 0 / 0.12),
+    0 2px 4px 0 rgb(0 0 0 / 0.04);
+
+  &:where(.dark, .dark *) {
+    box-shadow:
+      inset 0 -3px 6px 0 rgb(0 0 0 / 0.2),
+      inset 0 2px 3px 0 rgb(255 255 255 / 0.08),
+      0 6px 16px -4px rgb(0 0 0 / 0.35),
+      0 2px 4px 0 rgb(0 0 0 / 0.15);
+  }
+}
+
 /* Clay button pressed state (inverted shadows for pressed-in appearance) */
 @utility clay-pressed {
   box-shadow:
@@ -313,6 +331,15 @@
   }
   50% {
     box-shadow: 0 0 0 5px color-mix(in oklch, var(--pulse-color) 0%, transparent);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
   }
 }
 
