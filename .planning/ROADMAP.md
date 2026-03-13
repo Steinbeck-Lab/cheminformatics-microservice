@@ -100,13 +100,13 @@ Plans:
 **Plans**: 7 plans
 
 Plans:
-- [ ] 04.1-00-PLAN.md -- Wave 0: Test stub files for all 6 VISUAL requirements (vitest scaffolds)
-- [ ] 04.1-01-PLAN.md -- Foundation: CSS glass/clay/gradient utilities, per-page gradient mesh config, bento layout config, useMediaQuery hook, GradientMesh and LiquidGlassFilter components
-- [ ] 04.1-02-PLAN.md -- BentoGrid component + ChemPage migration from sidebar tabs to bento grid (14 tools)
-- [ ] 04.1-03-PLAN.md -- Remaining bento pages: ConvertPage, DepictPage, ToolsPage migration + HomePage glass hero and bento feature cards
-- [ ] 04.1-04-PLAN.md -- Resizable panels (shadcn Resizable + ResizableToolPanel), MoleculeCard glow/lift/expand enhancements, BentoCard-to-ResizableToolPanel wiring
+- [x] 04.1-00-PLAN.md -- Wave 0: Test stub files for all 6 VISUAL requirements (vitest scaffolds)
+- [x] 04.1-01-PLAN.md -- Foundation: CSS glass/clay/gradient utilities, per-page gradient mesh config, bento layout config, useMediaQuery hook, GradientMesh and LiquidGlassFilter components
+- [x] 04.1-02-PLAN.md -- BentoGrid component + ChemPage migration from sidebar tabs to bento grid (14 tools)
+- [x] 04.1-03-PLAN.md -- Remaining bento pages: ConvertPage, DepictPage, ToolsPage migration + HomePage glass hero and bento feature cards
+- [x] 04.1-04-PLAN.md -- Resizable panels (shadcn Resizable + ResizableToolPanel), MoleculeCard glow/lift/expand enhancements, BentoCard-to-ResizableToolPanel wiring
 - [x] 04.1-05-PLAN.md -- Comparison mode: ComparisonContext, ComparisonTray, ComparisonView, AddToCompareButton, App.tsx wiring, ChemPage compare integration
-- [ ] 04.1-06-PLAN.md -- Glass sweep: Header/Footer glass treatment, OCSR/About/Privacy/Terms gradient mesh + glass containers, visual verification checkpoint
+- [x] 04.1-06-PLAN.md -- Glass sweep: Header/Footer glass treatment, OCSR/About/Privacy/Terms gradient mesh + glass containers, refraction removed and tool pages reverted to tabs per user feedback
 
 ### Phase 5: Loading States + UX
 **Goal**: The application provides clear feedback during all async operations and works well across all viewport sizes with measurably faster load times
@@ -153,6 +153,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 4.1 -> 5 -> 6
 | 2. React 19 + TypeScript 5 | 2/2 | Complete | 2026-03-12 |
 | 3. Tailwind v4 Migration | 2/2 | Complete   | 2026-03-12 |
 | 4. Component System + Dark Mode | 4/5 | Gap closure | 2026-03-13 |
-| 4.1 Visual Design System | 6/7 | In progress | - |
+| 4.1 Visual Design System | 7/7 | Complete | 2026-03-13 |
 | 5. Loading States + UX | 0/3 | Not started | - |
 | 6. Animations + Power Features | 0/3 | Not started | - |

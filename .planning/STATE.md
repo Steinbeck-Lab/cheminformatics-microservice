@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04.1-05-PLAN.md
-last_updated: "2026-03-13T13:54:01Z"
-last_activity: 2026-03-13 -- Completed Plan 04.1-05 (Comparison mode with tray, side-by-side view, AddToCompareButton)
+stopped_at: Completed 04.1-06-PLAN.md
+last_updated: "2026-03-13T15:25:00Z"
+last_activity: 2026-03-13 -- Completed Plan 04.1-06 (Glass header/footer, remaining pages, visual polish with user feedback fixes)
 progress:
   total_phases: 7
   completed_phases: 4
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-03-12)
 ## Current Position
 
 Phase: 4.1 of 6 (Visual Design System -- Glassmorphism, Liquid Glass & Bento Grids)
-Plan: 6 of 7 in current phase (Plans 00-05 complete)
+Plan: 7 of 7 in current phase (Plans 00-06 complete)
 Status: Phase 04.1 in progress
-Last activity: 2026-03-13 -- Completed Plan 04.1-05 (Comparison mode with tray, side-by-side view, AddToCompareButton)
+Last activity: 2026-03-13 -- Completed Plan 04.1-06 (Glass header/footer, remaining pages, visual polish with user feedback fixes)
 
 Progress: [██████████] 100%
 
@@ -63,6 +63,7 @@ Progress: [██████████] 100%
 | Phase 04.1 P03 | 4min | 2 tasks | 5 files |
 | Phase 04.1 P04 | 11min | 3 tasks | 9 files |
 | Phase 04.1 P05 | 7min | 3 tasks | 8 files |
+| Phase 04.1 P06 | 12min | 3 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -131,6 +132,9 @@ Recent decisions affecting current work:
 - [04.1-05]: Used React Context (not zustand) for comparison state -- bounded to max 2 items, no complex selectors needed
 - [04.1-05]: DOM event delegation on #smiles-input captures SMILES from any tool component without refactoring all 14 tool views
 - [04.1-05]: BentoCard headerExtra prop provides extensible slot for additional expanded header content
+- [04.1-06]: Removed glass-refraction-hover entirely -- user found header refraction too distracting
+- [04.1-06]: Reverted 4 tool pages from bento grid back to tab navigation -- user prefers tabs for easier navigation
+- [04.1-06]: Removed LiquidGlassFilter SVG component since glass-refraction-hover CSS was its only consumer
 
 ### Pending Todos
 
@@ -146,6 +150,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-13T13:54:01Z
-Stopped at: Completed 04.1-05-PLAN.md
-Resume file: .planning/phases/04.1-visual-design-system-glassmorphism-liquid-glass-bento-grids/04.1-06-PLAN.md
+Last session: 2026-03-13T15:25:00Z
+Stopped at: Completed 04.1-06-PLAN.md
+Resume file: Next plan in phase or next phase
