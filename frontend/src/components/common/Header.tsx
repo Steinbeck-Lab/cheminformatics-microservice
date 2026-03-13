@@ -164,7 +164,7 @@ const Header = () => {
       }}
     >
       <div className="max-w-7xl mx-auto rounded-full border transition-all duration-300 backdrop-blur-md bg-white/70 dark:bg-slate-900/70 shadow-md shadow-slate-900/[0.03] dark:shadow-black/10 border-slate-200/50 dark:border-slate-700/40">
-        <div className="flex items-center h-14 px-4 sm:px-5 lg:px-6">
+        <div className="relative flex items-center justify-between h-14 px-4 sm:px-5 lg:px-6">
           {/* Logo and title */}
           <motion.div
             className="shrink-0 flex items-center"
@@ -199,20 +199,16 @@ const Header = () => {
             </Link>
           </motion.div>
 
-          {/* Separator — logo / nav */}
-          <div className="hidden lg:block self-stretch my-3 w-px bg-slate-300 dark:bg-slate-600 mx-4 xl:mx-5 shrink-0" />
-
-          {/* Desktop Navigation — fills center */}
+          {/* Desktop Navigation — absolutely centered in pill */}
           <motion.div
-            className="hidden lg:flex items-center flex-1 min-w-0 justify-center"
+            className="hidden lg:flex items-center justify-center absolute inset-0 pointer-events-none"
             variants={headerContentVariants}
             custom={1}
           >
-            <Navigation />
+            <div className="pointer-events-auto">
+              <Navigation />
+            </div>
           </motion.div>
-
-          {/* Separator — nav / toggle */}
-          <div className="hidden lg:block self-stretch my-3 w-px bg-slate-300 dark:bg-slate-600 mx-4 xl:mx-5 shrink-0" />
 
           {/* Desktop Theme Toggle */}
           <motion.div
