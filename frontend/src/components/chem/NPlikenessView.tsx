@@ -18,6 +18,7 @@ const NPlikenessView = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [npScore, setNpScore] = useState(null); // Store the score (null initially)
+  const [showInfo, setShowInfo] = useState(false);
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -104,8 +105,17 @@ const NPlikenessView = () => {
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
-              <Calculator className="mr-2 h-5 w-5" aria-hidden="true" />
-              {loading ? "Calculating..." : "Calculate NP Score"}
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Calculating...
+                </>
+              ) : (
+                <>
+                  <Calculator className="mr-2 h-5 w-5" aria-hidden="true" />
+                  Calculate NP Score
+                </>
+              )}
             </Button>
           </div>
         </form>
@@ -149,17 +159,42 @@ const NPlikenessView = () => {
               <Button
                 variant="ghost"
                 className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full focus:outline-hidden focus:ring-2 focus:ring-blue-500"
-                title="About NP-likeness scores (Not implemented)"
-                onClick={() =>
-                  alert(
-                    "Info about NP-likeness score ranges:\n\n> 1: Very High NP-like\n0 to 1: High NP-like\n-1 to 0: Moderate NP-like\n-2 to -1: Low NP-like\n< -2: Very Low NP-like (Synthetic)"
-                  )
-                } // Simple alert for now
+                title="About NP-likeness scores"
+                onClick={() => setShowInfo(!showInfo)}
               >
                 <Info className="h-6 w-6" aria-hidden="true" />
               </Button>
             </div>
           </div>
+          {showInfo && (
+            <div className="mt-3 glass-bold rounded-xl p-4 text-sm text-foreground space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+              <p className="font-semibold">NP-likeness Score Ranges:</p>
+              <ul className="space-y-1 text-muted-foreground">
+                <li>
+                  <span className="font-medium text-green-600 dark:text-green-400">&gt; 1:</span>{" "}
+                  Very High NP-like
+                </li>
+                <li>
+                  <span className="font-medium text-blue-600 dark:text-blue-400">0 to 1:</span> High
+                  NP-like
+                </li>
+                <li>
+                  <span className="font-medium text-amber-600 dark:text-yellow-400">-1 to 0:</span>{" "}
+                  Moderate NP-like
+                </li>
+                <li>
+                  <span className="font-medium text-orange-600 dark:text-orange-400">
+                    -2 to -1:
+                  </span>{" "}
+                  Low NP-like
+                </li>
+                <li>
+                  <span className="font-medium text-red-600 dark:text-red-400">&lt; -2:</span> Very
+                  Low NP-like (Synthetic)
+                </li>
+              </ul>
+            </div>
+          )}
 
           {/* Results Content */}
           <div className="space-y-8">
