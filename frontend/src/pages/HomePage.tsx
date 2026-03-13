@@ -180,11 +180,11 @@ const HomePage = () => {
               custom={0}
               className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold text-slate-900 dark:text-white mb-5 sm:mb-6 leading-[1.08] tracking-tighter"
             >
-              Seamless Access to
+              Seamless Access to{" "}
               <motion.span
                 variants={heroTextVariants}
                 custom={1}
-                className="block text-transparent bg-clip-text bg-linear-to-r from-sky-600 via-cyan-500 to-indigo-600 dark:from-sky-400 dark:via-cyan-400 dark:to-emerald-400 mt-1 md:mt-2"
+                className="text-transparent bg-clip-text bg-linear-to-r from-sky-600 via-cyan-500 to-indigo-600 dark:from-sky-400 dark:via-cyan-400 dark:to-emerald-400"
               >
                 Open Cheminformatics Tools
               </motion.span>
