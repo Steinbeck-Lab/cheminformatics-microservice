@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
 import Navigation from "./Navigation";
-import { motion, LayoutGroup } from "motion/react";
+import { motion } from "motion/react";
 import { Menu, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -36,13 +36,7 @@ const headerContentVariants = {
   }),
 };
 
-const pillSwitchTransition = {
-  type: "spring",
-  stiffness: 600,
-  damping: 30,
-};
-
-// Reusable theme toggle component
+// --- Day/Night Theme Toggle ---
 const ThemeToggle = ({
   isDarkMode,
   toggleDarkMode,
@@ -50,44 +44,83 @@ const ThemeToggle = ({
   isDarkMode: boolean;
   toggleDarkMode: () => void;
 }) => (
-  <motion.div
-    className={`relative flex items-center w-[62px] h-8 rounded-full p-1 cursor-pointer transition-all duration-300 ease-in-out ${
-      isDarkMode
-        ? "bg-linear-to-r from-slate-800 to-slate-700 hover:shadow-inner hover:shadow-slate-900"
-        : "bg-linear-to-r from-sky-100 to-indigo-100 hover:shadow-md hover:shadow-indigo-200/50"
-    }`}
+  <motion.button
     onClick={toggleDarkMode}
-    whileHover={{ scale: 1.05 }}
-    whileTap={{ scale: 0.95 }}
+    className={`relative flex items-center w-[52px] h-[28px] rounded-full p-[3px] cursor-pointer overflow-hidden ring-1 ring-inset transition-colors duration-500 ${
+      isDarkMode
+        ? "bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-800 ring-indigo-400/20"
+        : "bg-gradient-to-r from-sky-300 via-sky-200 to-amber-200 ring-amber-300/30"
+    }`}
+    whileHover={{ scale: 1.08 }}
+    whileTap={{ scale: 0.94 }}
     transition={{ type: "spring", stiffness: 400, damping: 20 }}
     aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
     role="switch"
     aria-checked={isDarkMode}
   >
-    <LayoutGroup>
+    {/* Outer glow */}
+    <motion.div
+      className="absolute -inset-1 rounded-full blur-md -z-10"
+      animate={{
+        opacity: 0.5,
+        background: isDarkMode
+          ? "radial-gradient(circle, rgba(99,102,241,0.4), transparent)"
+          : "radial-gradient(circle, rgba(250,204,21,0.35), transparent)",
+      }}
+      transition={{ duration: 0.6 }}
+    />
+
+    {/* Stars (dark mode only) */}
+    {isDarkMode && (
+      <>
+        <motion.div
+          className="absolute top-[5px] right-[10px] w-[3px] h-[3px] bg-white rounded-full"
+          animate={{ opacity: [0.2, 0.9, 0.2], scale: [0.8, 1, 0.8] }}
+          transition={{
+            repeat: Infinity,
+            duration: 2,
+            ease: "easeInOut",
+          }}
+        />
+        <motion.div
+          className="absolute bottom-[5px] right-[16px] w-[2px] h-[2px] bg-white/70 rounded-full"
+          animate={{ opacity: [0.4, 1, 0.4] }}
+          transition={{
+            repeat: Infinity,
+            duration: 1.6,
+            delay: 0.5,
+            ease: "easeInOut",
+          }}
+        />
+      </>
+    )}
+
+    {/* Sliding knob with icon */}
+    <motion.div
+      className="relative z-10 h-[22px] w-[22px] rounded-full flex items-center justify-center"
+      animate={{
+        x: isDarkMode ? 24 : 0,
+        backgroundColor: isDarkMode ? "#1e1b4b" : "#ffffff",
+        boxShadow: isDarkMode
+          ? "0 1px 8px rgba(129,140,248,0.45)"
+          : "0 1px 8px rgba(250,204,21,0.4)",
+      }}
+      transition={{ type: "spring", stiffness: 500, damping: 28 }}
+    >
       <motion.div
-        className={`absolute z-10 h-6 w-6 rounded-full shadow-lg ${
-          isDarkMode
-            ? "bg-linear-to-br from-slate-800 to-slate-900"
-            : "bg-linear-to-br from-white to-sky-50"
-        }`}
-        layout
-        transition={pillSwitchTransition}
-        style={{
-          left: isDarkMode ? "auto" : "4px",
-          right: isDarkMode ? "4px" : "auto",
-        }}
-      />
-    </LayoutGroup>
-    <div className="relative z-0 flex justify-between w-full px-1">
-      <Sun
-        className={`h-4 w-4 transition-colors ${isDarkMode ? "text-slate-500" : "text-yellow-500"}`}
-      />
-      <Moon
-        className={`h-4 w-4 transition-colors ${isDarkMode ? "text-yellow-300" : "text-slate-400"}`}
-      />
-    </div>
-  </motion.div>
+        key={isDarkMode ? "moon" : "sun"}
+        initial={{ rotate: isDarkMode ? -90 : 90, scale: 0.5, opacity: 0 }}
+        animate={{ rotate: 0, scale: 1, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+      >
+        {isDarkMode ? (
+          <Moon className="h-3 w-3 text-indigo-300" />
+        ) : (
+          <Sun className="h-3 w-3 text-amber-500" />
+        )}
+      </motion.div>
+    </motion.div>
+  </motion.button>
 );
 
 // --- Component ---
@@ -97,12 +130,10 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
 
-  // Close sheet on route change
   useEffect(() => {
     setIsSheetOpen(false);
   }, [location]);
 
-  // Track scroll for glass intensity
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
@@ -114,22 +145,22 @@ const Header = () => {
   const logoLight =
     "https://raw.githubusercontent.com/Steinbeck-Lab/cheminformatics-microservice/main/public/img/logo_small.png";
 
-  // Floating pill glass effect — intensifies on scroll
+  // Floating pill — glass intensifies on scroll
   const pillClasses = isScrolled
     ? "backdrop-blur-xl bg-white/85 dark:bg-slate-900/90 shadow-lg shadow-slate-900/5 dark:shadow-black/25 border-slate-200/80 dark:border-slate-700/60"
     : "backdrop-blur-md bg-white/70 dark:bg-slate-900/70 shadow-md shadow-slate-900/[0.03] dark:shadow-black/10 border-slate-200/50 dark:border-slate-700/40";
 
   return (
     <motion.header
-      className="sticky top-0 z-50 w-full px-3 sm:px-4 pt-3 pb-1"
+      className="sticky top-0 z-50 w-full px-3 sm:px-4 pt-2.5"
       variants={headerVariants}
       initial="hidden"
       animate="visible"
     >
       <div
-        className={`max-w-7xl mx-auto rounded-2xl border transition-all duration-300 ${pillClasses}`}
+        className={`max-w-7xl mx-auto rounded-full border transition-all duration-300 ${pillClasses}`}
       >
-        <div className="flex items-center h-16 px-5 sm:px-6 lg:px-8">
+        <div className="flex items-center h-12 px-4 sm:px-5 lg:px-6">
           {/* Logo and title */}
           <motion.div
             className="shrink-0 flex items-center"
@@ -138,7 +169,7 @@ const Header = () => {
           >
             <Link to="/" className="flex items-center group" aria-label="Homepage">
               <motion.div
-                className="overflow-hidden rounded-md mr-2.5"
+                className="overflow-hidden rounded-md mr-2"
                 whileHover={{
                   scale: 1.1,
                   rotate: [0, 3, -3, 0],
@@ -149,15 +180,15 @@ const Header = () => {
                 <img
                   src={isDarkMode ? logoDark : logoLight}
                   alt="Cheminformatics Microservice Logo"
-                  className="h-9 w-auto p-0.5"
+                  className="h-7 w-auto"
                 />
               </motion.div>
 
               <div className="flex flex-col justify-center">
-                <span className="font-bold text-lg sm:text-xl leading-tight bg-linear-to-r from-sky-600 to-indigo-600 dark:from-sky-300 dark:to-blue-400 text-transparent bg-clip-text">
+                <span className="font-bold text-base sm:text-lg leading-tight bg-linear-to-r from-sky-600 to-indigo-600 dark:from-sky-300 dark:to-blue-400 text-transparent bg-clip-text">
                   Cheminformatics
                 </span>
-                <span className="hidden lg:inline text-[11px] leading-tight -mt-0.5 text-indigo-500 dark:text-sky-300">
+                <span className="hidden lg:inline text-[10px] leading-tight -mt-0.5 text-indigo-500 dark:text-sky-300">
                   Microservices
                 </span>
               </div>
@@ -165,7 +196,7 @@ const Header = () => {
           </motion.div>
 
           {/* Separator — logo / nav */}
-          <div className="hidden md:block self-stretch my-3 w-px bg-slate-300 dark:bg-slate-600 mx-5 lg:mx-7 shrink-0" />
+          <div className="hidden md:block self-stretch my-2.5 w-px bg-slate-300 dark:bg-slate-600 mx-4 lg:mx-5 shrink-0" />
 
           {/* Desktop Navigation — fills center */}
           <motion.div
@@ -176,9 +207,12 @@ const Header = () => {
             <Navigation />
           </motion.div>
 
-          {/* Desktop Theme Toggle — right edge */}
+          {/* Separator — nav / toggle */}
+          <div className="hidden md:block self-stretch my-2.5 w-px bg-slate-300 dark:bg-slate-600 mx-4 lg:mx-5 shrink-0" />
+
+          {/* Desktop Theme Toggle */}
           <motion.div
-            className="hidden md:flex items-center shrink-0 ml-5 lg:ml-7"
+            className="hidden md:flex items-center shrink-0"
             variants={headerContentVariants}
             custom={2}
           >
@@ -186,17 +220,17 @@ const Header = () => {
           </motion.div>
 
           {/* Mobile menu button */}
-          <div className="flex items-center md:hidden">
+          <div className="flex items-center md:hidden ml-auto">
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
               <SheetTrigger asChild>
                 <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="rounded-full text-slate-600 hover:text-sky-600 hover:bg-slate-200/70 dark:text-slate-300 dark:hover:text-sky-300 dark:hover:bg-slate-700/70 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-sky-500"
+                    className="rounded-full h-8 w-8 text-slate-600 hover:text-sky-600 hover:bg-slate-200/70 dark:text-slate-300 dark:hover:text-sky-300 dark:hover:bg-slate-700/70 focus:outline-hidden"
                     aria-label="Toggle mobile menu"
                   >
-                    <Menu className="h-6 w-6" />
+                    <Menu className="h-5 w-5" />
                   </Button>
                 </motion.div>
               </SheetTrigger>

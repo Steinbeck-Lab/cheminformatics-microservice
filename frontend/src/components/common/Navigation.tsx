@@ -78,7 +78,7 @@ const Navigation = ({
             <NavLink key={link.to} to={link.to} end={link.exact} className="relative outline-none">
               {({ isActive }) => (
                 <motion.div
-                  className={`relative flex items-center px-2.5 lg:px-3 py-1.5 text-sm font-medium rounded-full cursor-pointer select-none ${
+                  className={`relative flex items-center px-2 lg:px-2.5 py-1 text-sm font-medium rounded-full cursor-pointer select-none ${
                     isActive
                       ? "text-white dark:text-slate-900"
                       : "text-slate-600 dark:text-slate-400"
