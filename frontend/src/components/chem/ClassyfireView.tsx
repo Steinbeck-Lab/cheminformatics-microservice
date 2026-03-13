@@ -3,10 +3,13 @@ import React, { useState, useEffect, useCallback } from "react";
 // Ensure all used icons are imported
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
-import LoadingScreen from "../common/LoadingScreen";
 import MoleculeCard from "../common/MoleculeCard";
 import { useAppContext } from "../../context/AppContext"; // Assuming AppContext provides apiConfig and addRecentMolecule
-import { AlertCircle, Check, Clipboard, RefreshCw, Search } from "lucide-react";
+import { AlertCircle, Check, Clipboard, RefreshCw, Search, Loader2 } from "lucide-react";
+import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
+import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -323,20 +326,17 @@ const ClassyfireView = () => {
       </div>
 
       {/* Loading Indicator (only for initial submission) */}
-      {loading && <LoadingScreen text="Submitting classification request..." />}
+      {loading && !classificationResults && <ToolSkeleton variant="molecule" />}
 
       {/* Error Message */}
-      {error && (
-        <div
-          className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
-          role="alert"
-        >
-          <AlertCircle
-            className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
-            aria-hidden="true"
-          />
-          <span>{error}</span>
-        </div>
+      {error && !loading && (
+        <GlassErrorCard
+          message={error}
+          onRetry={() => {
+            setError(null);
+            document.getElementById("smiles-input")?.focus();
+          }}
+        />
       )}
 
       {/* Job Status / Polling Indicator */}
@@ -380,8 +380,9 @@ const ClassyfireView = () => {
             {/* Action buttons */}
             <div className="mt-3 flex items-center text-sm space-x-4">
               <Button
+                variant="ghost"
                 onClick={() => handleCopy(jobId.toString())}
-                className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 focus:outline-hidden"
+                className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
               >
                 <Clipboard className="mr-1 h-4 w-4" aria-hidden="true" />
                 {copied ? "Copied!" : "Copy Job ID"}
@@ -389,8 +390,9 @@ const ClassyfireView = () => {
               {/* Show Refresh button only if not actively polling and status is not completed/error */}
               {!polling && jobStatus !== "completed" && jobStatus !== "error" && (
                 <Button
+                  variant="ghost"
                   onClick={handleManualRefresh}
-                  className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 focus:outline-hidden"
+                  className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
                 >
                   <RefreshCw className="mr-1 h-4 w-4" aria-hidden="true" />
                   Refresh Status

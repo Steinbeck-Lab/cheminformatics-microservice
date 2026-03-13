@@ -312,6 +312,14 @@
   transform-style: preserve-3d;
 }
 
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* ===== Theme Toggle Button ===== */
 @layer components {
   .theme-toggle-button:hover {

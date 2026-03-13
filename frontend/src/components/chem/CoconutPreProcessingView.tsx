@@ -3,10 +3,12 @@ import React, { useState } from "react"; // Removed useEffect, useCallback
 // Ensure all used icons are imported, including HiOutlineExclamationCircle for errors
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
-import LoadingScreen from "../common/LoadingScreen";
-// Assuming this service is configured correctly
 import { coconutPreprocessing } from "../../services/chemService"; // Assuming this service exists
-import { AlertCircle, FileBarChart, FlaskConical, Info } from "lucide-react";
+import { AlertCircle, FileBarChart, FlaskConical, Info, Loader2 } from "lucide-react";
+import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
+import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AddToCompareButton } from "../common/AddToCompareButton";
@@ -357,20 +359,17 @@ const CoconutPreProcessingView = () => {
       </div>
 
       {/* Loading State */}
-      {loading && <LoadingScreen text="Pre-processing for COCONUT..." />}
+      {loading && !preprocessData && <ToolSkeleton variant="descriptors" />}
 
       {/* Error Display */}
-      {error && (
-        <div
-          className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-sm"
-          role="alert"
-        >
-          <AlertCircle
-            className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
-            aria-hidden="true"
-          />
-          <span>{error}</span>
-        </div>
+      {error && !loading && (
+        <GlassErrorCard
+          message={error}
+          onRetry={() => {
+            setError(null);
+            document.getElementById("smiles-input")?.focus();
+          }}
+        />
       )}
 
       {/* Results Display Section */}

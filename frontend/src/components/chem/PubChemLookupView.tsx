@@ -1,13 +1,16 @@
 // Description: This component provides an interface to lookup chemical structures by name, formula, or identifiers using the PubChem database
 import React, { useState } from "react";
-import LoadingScreen from "../common/LoadingScreen";
 import MoleculeCard from "../common/MoleculeCard";
 import SMILESDisplay from "../common/SMILESDisplay";
 import { useAppContext } from "../../context/AppContext"; // For adding to recent molecules
 
 // Import the service function from chemService
 import { lookupPubChem } from "../../services/chemService";
-import { AlertCircle, Info, Search } from "lucide-react";
+import { AlertCircle, Info, Search, Loader2 } from "lucide-react";
+import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
+import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -127,6 +130,7 @@ const PubChemLookupView = () => {
             <div className="flex flex-wrap gap-2">
               {examples.map((example, index) => (
                 <Button
+                  variant="outline"
                   key={index}
                   type="button"
                   onClick={() => handleUseExample(example.value)}
@@ -158,20 +162,17 @@ const PubChemLookupView = () => {
       </div>
 
       {/* Loading State */}
-      {loading && <LoadingScreen text="Searching PubChem..." />}
+      {loading && !result && <ToolSkeleton variant="descriptors" />}
 
       {/* Error Display */}
       {error && !loading && (
-        <div
-          className="p-4 rounded-md bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 flex items-start shadow-xs"
-          role="alert"
-        >
-          <AlertCircle
-            className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
-            aria-hidden="true"
-          />
-          <span>{error}</span>
-        </div>
+        <GlassErrorCard
+          message={error}
+          onRetry={() => {
+            setError(null);
+            document.getElementById("smiles-input")?.focus();
+          }}
+        />
       )}
 
       {/* Results Display */}

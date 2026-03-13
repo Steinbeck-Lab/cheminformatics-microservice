@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { LayoutGroup, motion } from "motion/react";
 // Import HiOutlineExclamationCircle along with other icons
-import LoadingScreen from "../common/LoadingScreen"; // Assuming this component is theme-aware
 import { useAppContext } from "../../context/AppContext"; // Assuming this provides theme-aware context if needed
 import api from "../../services/api"; // Assuming api service is configured
 import { applyChemicalFiltersDetailed } from "../../services/toolsService";
@@ -16,7 +15,12 @@ import {
   FlaskConical,
   Info,
   X,
+  Loader2,
 } from "lucide-react";
+import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
+import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
+import { EmptyState } from "@/components/feedback/EmptyState";
+import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -385,6 +389,7 @@ const AllFiltersView = () => {
           </h2>
           {/* Info button - now opens the modal */}
           <Button
+            variant="ghost"
             className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             title="Information about filters"
             onClick={() => setShowInfoModal(true)}
@@ -418,6 +423,7 @@ const AllFiltersView = () => {
                 commas, or semicolons.
               </p>
               <Button
+                variant="ghost"
                 type="button"
                 onClick={loadExampleMolecules}
                 className="px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-sm hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors duration-150 flex items-center"
@@ -642,6 +648,7 @@ const AllFiltersView = () => {
                         About Chemical Filters
                       </h3>
                       <Button
+                        variant="ghost"
                         type="button"
                         className="bg-white dark:bg-gray-800 rounded-md text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         onClick={() => setShowInfoModal(false)}
@@ -663,6 +670,7 @@ const AllFiltersView = () => {
               </div>
               <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <Button
+                  variant="secondary"
                   type="button"
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-xs px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
                   onClick={() => setShowInfoModal(false)}
@@ -676,7 +684,7 @@ const AllFiltersView = () => {
       )}
 
       {/* Loading Indicator */}
-      {loading && <LoadingScreen text="Applying filters to molecules..." />}
+      {loading && !results && <ToolSkeleton variant="descriptors" />}
 
       {/* Error Message */}
       {error && (
@@ -730,6 +738,7 @@ const AllFiltersView = () => {
             {/* Action Buttons */}
             <div className="flex space-x-2 shrink-0">
               <Button
+                variant="ghost"
                 onClick={copyToClipboard}
                 className={`px-3 py-1.5 text-sm rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
                   copied

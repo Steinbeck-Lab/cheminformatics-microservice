@@ -20,7 +20,6 @@ import {
   FlaskConical,
   Wrench,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { GradientMesh } from "@/components/common/GradientMesh";
 
@@ -158,10 +157,12 @@ const HomePage = () => {
       {/* Gradient mesh — visible on mobile, sits behind 3D on desktop */}
       <GradientMesh page="home" />
 
-      {/* 3D Caffeine molecule background — desktop only, lazy-loaded */}
-      <Suspense fallback={null}>
-        <CaffeineMolecule3D />
-      </Suspense>
+      {/* 3D Caffeine molecule background — desktop only (hidden <768px for GPU perf) */}
+      <div className="hidden md:block">
+        <Suspense fallback={null}>
+          <CaffeineMolecule3D />
+        </Suspense>
+      </div>
 
       {/* ============================================================ */}
       {/* HERO SECTION — Full viewport, glass card centered             */}
@@ -206,55 +207,46 @@ const HomePage = () => {
               custom={3}
               className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4 md:gap-6"
             >
-              {/* Primary CTA */}
-              <Button
-                asChild
-                size="lg"
-                className="clay-interactive group w-full sm:w-auto relative h-auto inline-flex items-center justify-center px-8 py-3.5 sm:px-10 sm:py-4 text-base sm:text-lg font-semibold text-white bg-linear-to-r from-sky-600 to-cyan-500 dark:from-blue-600 dark:to-cyan-500 rounded-2xl shadow-lg hover:shadow-xl hover:brightness-110 dark:hover:shadow-cyan-500/30 transition-all duration-300 ease-out transform hover:scale-[1.04] active:scale-[0.98] focus:outline-hidden focus:ring-4 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950 focus:ring-cyan-500/50 cursor-pointer"
+              {/* Primary CTA — claymorphism */}
+              <Link
+                to="/depict"
+                className="group w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 sm:px-10 sm:py-4 text-base sm:text-lg font-semibold text-white bg-linear-to-br from-sky-500 to-cyan-500 dark:from-blue-500 dark:to-cyan-400 rounded-2xl border-0 cursor-pointer transition-all duration-300 hover:scale-[1.04] active:scale-[0.97] no-underline"
+                style={{
+                  boxShadow:
+                    "inset 0 -4px 8px 0 rgba(0,0,0,0.15), inset 0 2px 4px 0 rgba(255,255,255,0.35), 0 10px 24px -6px rgba(14,165,233,0.4), 0 4px 8px 0 rgba(0,0,0,0.08)",
+                }}
               >
-                <Link to="/depict">
-                  <span className="relative z-10 flex items-center">
-                    Get Started{" "}
-                    <ArrowRight className="ml-2.5 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1.5" />
-                  </span>
-                </Link>
-              </Button>
+                Get Started{" "}
+                <ArrowRight className="ml-2.5 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1.5" />
+              </Link>
 
-              {/* Secondary: Guides */}
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="clay-interactive group w-full sm:w-auto relative h-auto inline-flex items-center justify-center px-8 py-3.5 sm:px-10 sm:py-4 text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-200 glass-bold rounded-2xl border-white/30 dark:border-slate-600/30 hover:bg-white/20 dark:hover:bg-slate-700/30 shadow-lg hover:shadow-xl transition-all duration-300 ease-out transform hover:scale-[1.04] active:scale-[0.98] focus:outline-hidden focus:ring-4 focus:ring-slate-400/50 dark:focus:ring-slate-600/50 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950 cursor-pointer"
+              {/* Secondary: Guides — claymorphism */}
+              <a
+                href="https://docs.api.naturalproducts.net/introduction.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 sm:px-10 sm:py-4 text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-200 bg-white/80 dark:bg-slate-800/60 backdrop-blur-md rounded-2xl border-0 cursor-pointer transition-all duration-300 hover:scale-[1.04] active:scale-[0.97] no-underline"
+                style={{
+                  boxShadow:
+                    "inset 0 -4px 8px 0 rgba(0,0,0,0.08), inset 0 2px 4px 0 rgba(255,255,255,0.5), 0 10px 24px -6px rgba(0,0,0,0.15), 0 4px 8px 0 rgba(0,0,0,0.06)",
+                }}
               >
-                <a
-                  href="https://docs.api.naturalproducts.net/introduction.html"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span className="relative z-10 flex items-center">
-                    <Code className="mr-2 h-5 w-5 text-green-600 dark:text-green-400" /> Guides
-                  </span>
-                </a>
-              </Button>
+                <Code className="mr-2 h-5 w-5 text-green-600 dark:text-green-400" /> Guides
+              </a>
 
-              {/* Secondary: API Docs */}
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="clay-interactive group w-full sm:w-auto relative h-auto inline-flex items-center justify-center px-8 py-3.5 sm:px-10 sm:py-4 text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-200 glass-bold rounded-2xl border-white/30 dark:border-slate-600/30 hover:bg-white/20 dark:hover:bg-slate-700/30 shadow-lg hover:shadow-xl transition-all duration-300 ease-out transform hover:scale-[1.04] active:scale-[0.98] focus:outline-hidden focus:ring-4 focus:ring-slate-400/50 dark:focus:ring-slate-600/50 ring-offset-2 ring-offset-slate-100 dark:ring-offset-gray-950 cursor-pointer"
+              {/* Secondary: API Docs — claymorphism */}
+              <a
+                href="https://api.naturalproducts.net/latest/docs"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 sm:px-10 sm:py-4 text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-200 bg-white/80 dark:bg-slate-800/60 backdrop-blur-md rounded-2xl border-0 cursor-pointer transition-all duration-300 hover:scale-[1.04] active:scale-[0.97] no-underline"
+                style={{
+                  boxShadow:
+                    "inset 0 -4px 8px 0 rgba(0,0,0,0.08), inset 0 2px 4px 0 rgba(255,255,255,0.5), 0 10px 24px -6px rgba(0,0,0,0.15), 0 4px 8px 0 rgba(0,0,0,0.06)",
+                }}
               >
-                <a
-                  href="https://api.naturalproducts.net/latest/docs"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span className="relative z-10 flex items-center">
-                    <BookOpen className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" /> API Docs
-                  </span>
-                </a>
-              </Button>
+                <BookOpen className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" /> API Docs
+              </a>
             </motion.div>
           </div>
         </motion.section>

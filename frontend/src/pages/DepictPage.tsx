@@ -238,7 +238,7 @@ const DepictPage = () => {
 
               {/* Desktop Tab Navigation (Horizontal Tabs) */}
               <div className="hidden md:block">
-                <div className="flex justify-center overflow-x-auto py-3 px-4 space-x-3">
+                <div className="flex justify-center overflow-x-auto flex-nowrap scrollbar-hide py-3 px-4 space-x-3">
                   <LayoutGroup id="depict-tabs">
                     {tabs.map((tab) => {
                       const isActive = activeTabId === tab.id;

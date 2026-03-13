@@ -232,7 +232,7 @@ const Header = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="rounded-full h-8 w-8 text-slate-600 hover:text-sky-600 hover:bg-slate-200/70 dark:text-slate-300 dark:hover:text-sky-300 dark:hover:bg-slate-700/70 focus:outline-hidden clay-interactive"
+                    className="rounded-full h-11 w-11 min-h-[44px] min-w-[44px] text-slate-600 hover:text-sky-600 hover:bg-slate-200/70 dark:text-slate-300 dark:hover:text-sky-300 dark:hover:bg-slate-700/70 focus:outline-hidden clay-interactive"
                     aria-label="Toggle mobile menu"
                   >
                     <Menu className="h-5 w-5" />

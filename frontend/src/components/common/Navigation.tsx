@@ -52,9 +52,9 @@ const Navigation = ({
               onClick={closeMenu}
               end={link.exact}
               className={({ isActive }) =>
-                `flex items-center py-2.5 px-3 text-base font-medium rounded-lg transition-colors ${
+                `flex items-center min-h-[44px] py-3 px-3 text-base font-medium rounded-lg transition-colors ${
                   isActive
-                    ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900"
+                    ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-semibold border-l-4 border-primary"
                     : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                 }`
               }
