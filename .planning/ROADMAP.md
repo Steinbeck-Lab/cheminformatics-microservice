@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Vite Migration** - Replace deprecated CRA with Vite, resolve all security vulnerabilities, update dependencies (completed 2026-03-12)
 - [x] **Phase 2: React 19 + TypeScript 5** - Upgrade React 18 to 19, TypeScript 4.9 to 5.x, verify framer-motion compatibility (completed 2026-03-12)
 - [x] **Phase 3: Tailwind v4 Migration** - Upgrade Tailwind CSS v3 to v4 with CSS-first config and class rename resolution (completed 2026-03-12)
-- [x] **Phase 4: Component System + Dark Mode** - Integrate shadcn/ui components across all pages with CSS variable theming and dark mode (completed 2026-03-13)
+- [ ] **Phase 4: Component System + Dark Mode** - Integrate shadcn/ui components across all pages with CSS variable theming and dark mode (gap closure in progress)
 - [ ] **Phase 5: Loading States + UX** - Add skeleton loaders, toast notifications, error states, responsive improvements, and performance optimization
 - [ ] **Phase 6: Animations + Power Features** - Polish with smooth transitions, micro-interactions, command palette, and inline SMILES preview
 
@@ -76,13 +76,14 @@ Plans:
   3. A dark mode toggle is visible in the header/navigation and switching it changes the entire UI between light and dark themes
   4. Theme preference persists across page reloads (localStorage) and auto-detects system preference on first visit
   5. Icons throughout the app use lucide-react instead of react-icons
-**Plans**: 4 plans
+**Plans**: 5 plans
 
 Plans:
 - [x] 04-01-PLAN.md -- shadcn/ui foundation: install deps, path aliases, cn() utility, CSS variable rewrite to OKLCH, FOUC prevention, system preference detection
 - [x] 04-02-PLAN.md -- Icon migration: replace all react-icons and @fortawesome with lucide-react across 43+ files, uninstall old packages
 - [x] 04-03-PLAN.md -- Component migration: replace all buttons with shadcn Button, cards with Card, form inputs with Input/Select/Textarea
 - [x] 04-04-PLAN.md -- Final pass: mobile menu to Sheet, isDarkMode ternary cleanup, consistency sweep, visual verification (both modes)
+- [ ] 04-05-PLAN.md -- Gap closure: migrate remaining hand-rolled buttons and cards in OCSRPage, HomePage, AboutPage, and Footer to shadcn/ui
 
 ### Phase 5: Loading States + UX
 **Goal**: The application provides clear feedback during all async operations and works well across all viewport sizes with measurably faster load times
@@ -128,6 +129,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 1. Vite Migration | 3/3 | Complete   | 2026-03-12 |
 | 2. React 19 + TypeScript 5 | 2/2 | Complete | 2026-03-12 |
 | 3. Tailwind v4 Migration | 2/2 | Complete   | 2026-03-12 |
-| 4. Component System + Dark Mode | 4/4 | Complete   | 2026-03-13 |
+| 4. Component System + Dark Mode | 4/5 | Gap closure | 2026-03-13 |
 | 5. Loading States + UX | 0/3 | Not started | - |
 | 6. Animations + Power Features | 0/3 | Not started | - |
