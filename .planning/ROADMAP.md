@@ -121,7 +121,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 05-01-PLAN.md -- Foundation: feedback components (GlassSkeleton, GlassErrorCard, ToolSkeleton, EmptyState), Sonner toast system, error message mapping, Axios interceptor
+- [x] 05-01-PLAN.md -- Foundation: feedback components (GlassSkeleton, GlassErrorCard, ToolSkeleton, EmptyState), Sonner toast system, error message mapping, Axios interceptor
 - [ ] 05-02-PLAN.md -- Tool view refactoring: replace LoadingScreen in all 21 tool views with glass skeletons + error cards, replace alert() calls, delete LoadingScreen
 - [ ] 05-03-PLAN.md -- Code splitting (React.lazy + vendor chunks), responsive fixes (mobile 3D, scrollable tabs, tap targets), navigation wayfinding
 
@@ -154,5 +154,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 4.1 -> 5 -> 6
 | 3. Tailwind v4 Migration | 2/2 | Complete   | 2026-03-12 |
 | 4. Component System + Dark Mode | 4/5 | Gap closure | 2026-03-13 |
 | 4.1 Visual Design System | 7/7 | Complete | 2026-03-13 |
-| 5. Loading States + UX | 0/3 | Not started | - |
+| 5. Loading States + UX | 1/3 | In progress | - |
 | 6. Animations + Power Features | 0/3 | Not started | - |

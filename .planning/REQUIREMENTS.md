@@ -139,10 +139,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VISUAL-04 | Phase 4.1 | Complete |
 | VISUAL-05 | Phase 4.1 | Complete |
 | VISUAL-06 | Phase 4.1 | Complete |
-| LOAD-01 | Phase 5 | Pending |
-| LOAD-02 | Phase 5 | Pending |
-| LOAD-03 | Phase 5 | Pending |
-| LOAD-04 | Phase 5 | Pending |
+| LOAD-01 | Phase 5 | In Progress |
+| LOAD-02 | Phase 5 | In Progress |
+| LOAD-03 | Phase 5 | In Progress |
+| LOAD-04 | Phase 5 | In Progress |
 | ANIM-01 | Phase 6 | Pending |
 | ANIM-02 | Phase 6 | Pending |
 | ANIM-03 | Phase 6 | Pending |
