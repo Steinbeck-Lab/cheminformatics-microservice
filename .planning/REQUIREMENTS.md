@@ -45,7 +45,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 ### Visual Design System
 
 - [x] **VISUAL-01**: Glassmorphism + liquid glass fusion aesthetic applied to cards, containers, and panels across all pages
-- [x] **VISUAL-02**: Bento grid layouts for tool pages (replacing uniform grids with varied, editorial-style layouts)
+- [x] **VISUAL-02**: Glass-styled tabbed navigation for tool pages (tab-based UX with glassmorphism aesthetic, replacing the originally planned bento grid layouts per user preference)
 - [x] **VISUAL-03**: Animated molecule structure cards with hover shimmer, glow effects, and expand/collapse
 - [x] **VISUAL-04**: Resizable input/output panels with draggable divider on wide screens
 - [x] **VISUAL-05**: Result comparison mode for side-by-side molecule analysis
