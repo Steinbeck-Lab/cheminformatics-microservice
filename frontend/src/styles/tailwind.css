@@ -294,6 +294,51 @@
   }
 }
 
+/* Button hover lift with glow (ANIM-02) */
+@utility btn-hover-lift {
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 4px 12px -2px oklch(from var(--primary) l c h / 0.2),
+      inset 0 -3px 6px 0 rgb(0 0 0 / 0.08),
+      inset 0 2px 3px 0 rgb(255 255 255 / 0.4),
+      0 6px 16px -4px rgb(0 0 0 / 0.12);
+  }
+
+  &:where(.dark, .dark *):hover {
+    box-shadow:
+      0 4px 12px -2px oklch(from var(--primary) l c h / 0.3),
+      inset 0 -3px 6px 0 rgb(0 0 0 / 0.2),
+      inset 0 2px 3px 0 rgb(255 255 255 / 0.08),
+      0 6px 16px -4px rgb(0 0 0 / 0.35);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.97);
+    transition:
+      transform 100ms ease,
+      box-shadow 100ms ease;
+  }
+}
+
+/* Focus ring animation (ANIM-03) */
+@utility focus-ring-animate {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition:
+    outline-color 200ms ease,
+    outline-offset 200ms ease;
+
+  &:focus-visible {
+    outline-color: var(--ring);
+    outline-offset: 3px;
+  }
+}
+
 @utility text-gradient {
   color: transparent;
   background-clip: text;
