@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04.1-03-PLAN.md
-last_updated: "2026-03-13T13:33:33Z"
-last_activity: 2026-03-13 -- Completed Plan 04.1-03 (ConvertPage, DepictPage, ToolsPage bento migration + HomePage glass redesign)
+stopped_at: Completed 04.1-04-PLAN.md
+last_updated: "2026-03-13T13:41:28Z"
+last_activity: 2026-03-13 -- Completed Plan 04.1-04 (Resizable panels, enhanced molecule cards, BentoCard wiring)
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 19
-  completed_plans: 17
-  percent: 89
+  completed_plans: 18
+  percent: 95
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-12)
 
 **Core value:** The frontend must feel noticeably modern, fast, and polished -- while never breaking existing functionality. Zero security alerts, production-grade quality.
-**Current focus:** Phase 04.1 in progress -- Visual Design System (glassmorphism, liquid glass, bento grids). All tool pages migrated to bento grid. HomePage glass redesign complete. Ready for Plan 04 (resizable panels).
+**Current focus:** Phase 04.1 in progress -- Visual Design System (glassmorphism, liquid glass, bento grids). Resizable panels installed, molecule cards enhanced, BentoCard wired to ResizableToolPanel. Ready for Plan 05 (comparison mode).
 
 ## Current Position
 
 Phase: 4.1 of 6 (Visual Design System -- Glassmorphism, Liquid Glass & Bento Grids)
-Plan: 4 of 7 in current phase (Plans 00-03 complete)
+Plan: 5 of 7 in current phase (Plans 00-04 complete)
 Status: Phase 04.1 in progress
-Last activity: 2026-03-13 -- Completed Plan 04.1-03 (ConvertPage, DepictPage, ToolsPage bento migration + HomePage glass redesign)
+Last activity: 2026-03-13 -- Completed Plan 04.1-04 (Resizable panels, enhanced molecule cards, BentoCard wiring)
 
-Progress: [█████████░] 89%
+Progress: [█████████░] 95%
 
 ## Performance Metrics
 
@@ -61,6 +61,7 @@ Progress: [█████████░] 89%
 | Phase 04.1 P01 | 3min | 2 tasks | 6 files |
 | Phase 04.1 P02 | 4min | 2 tasks | 4 files |
 | Phase 04.1 P03 | 4min | 2 tasks | 5 files |
+| Phase 04.1 P04 | 11min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -123,6 +124,9 @@ Recent decisions affecting current work:
 - [04.1-03]: HomePage feature cards use glass-bold + clay-interactive with Link navigation (not expandable BentoCard)
 - [04.1-03]: Removed all inline style JSX blocks from migrated pages since GradientMesh replaces animated-mesh-gradient CSS
 - [04.1-03]: Kept TiltCard helper on HomePage feature cards for tactile 3D tilt alongside glass styling
+- [04.1-04]: Used autoSaveId on ResizablePanelGroup for localStorage persistence -- no hand-rolled localStorage management
+- [04.1-04]: BentoCard inputContent/outputContent optional props keep backward compatibility with children-only usage
+- [04.1-04]: MoleculeCard expand/collapse fetches descriptors on-demand via existing /latest/chem/descriptors endpoint
 
 ### Pending Todos
 
@@ -138,6 +142,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-13T13:33:33Z
-Stopped at: Completed 04.1-03-PLAN.md
-Resume file: .planning/phases/04.1-visual-design-system-glassmorphism-liquid-glass-bento-grids/04.1-04-PLAN.md
+Last session: 2026-03-13T13:41:28Z
+Stopped at: Completed 04.1-04-PLAN.md
+Resume file: .planning/phases/04.1-visual-design-system-glassmorphism-liquid-glass-bento-grids/04.1-05-PLAN.md
