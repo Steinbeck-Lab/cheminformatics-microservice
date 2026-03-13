@@ -70,17 +70,18 @@ const RInChIOptions = ({
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           RInChI Version
         </label>
-        <select
-          className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-xs focus:ring-indigo-500 focus:border-indigo-500"
-          value={rinchiVersion}
-          onChange={(e) => setRinchiVersion(e.target.value)}
-        >
-          {Object.entries(RINCHI_VERSIONS).map(([value, version]) => (
-            <option key={value} value={value}>
-              {version.label}
-            </option>
-          ))}
-        </select>
+        <Select value={rinchiVersion} onValueChange={setRinchiVersion}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select version" />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.entries(RINCHI_VERSIONS).map(([value, version]) => (
+              <SelectItem key={value} value={value}>
+                {version.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-4">
@@ -983,13 +984,13 @@ const RInChIView = () => {
               Automatic copying failed. Please select and copy this text manually:
             </p>
             <div className="mb-4">
-              <input
+              <Input
                 type="text"
                 ref={copyTextRef}
                 value={copyModalText}
                 readOnly
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-sm font-mono text-sm bg-gray-50 dark:bg-gray-900"
-                onClick={(e) => e.target.select()}
+                className="w-full font-mono text-sm"
+                onClick={(e) => (e.target as HTMLInputElement).select()}
               />
             </div>
             <div className="flex justify-end gap-3">
@@ -1122,12 +1123,11 @@ const RInChIView = () => {
                   >
                     Enter RXN/RD File Content
                   </label>
-                  <textarea
+                  <Textarea
                     id="rxnfile-input"
                     value={rxnfileContent}
                     onChange={(e) => setRxnfileContent(e.target.value)}
                     placeholder="Paste RXN/RD file content here..."
-                    className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-xs focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                     rows={6}
                   />
                 </div>
@@ -1177,12 +1177,11 @@ const RInChIView = () => {
                   >
                     Enter RInChI to Convert
                   </label>
-                  <textarea
+                  <Textarea
                     id="rinchi-input-structure"
                     value={inputRinchi}
                     onChange={(e) => setInputRinchi(e.target.value)}
                     placeholder="e.g., RInChI=1.00.1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)!C2H6O/c1-2-3/h3H,2H2,1H3<>C4H8O2/c1-3-6-4(2)5/h3H2,1-2H3!H2O/h1H2/d+"
-                    className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-xs focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                     rows={4}
                   />
                 </div>
@@ -1194,12 +1193,11 @@ const RInChIView = () => {
                   >
                     RAuxInfo (Optional)
                   </label>
-                  <textarea
+                  <Textarea
                     id="rauxinfo-input-structure"
                     value={inputRauxInfo}
                     onChange={(e) => setInputRauxInfo(e.target.value)}
                     placeholder="e.g., RAuxInfo=1.00.1/1/N:1,2,3,4/E:(3,4)/rA:4nCCOO/rB:s1;s2;d2;/rC:-3.8549,-.5552,0;..."
-                    className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-xs focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                     rows={3}
                   />
                 </div>
@@ -1255,12 +1253,11 @@ const RInChIView = () => {
                   >
                     Enter RInChI to Convert
                   </label>
-                  <textarea
+                  <Textarea
                     id="rinchi-input-file"
                     value={inputRinchi}
                     onChange={(e) => setInputRinchi(e.target.value)}
                     placeholder="e.g., RInChI=1.00.1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)!C2H6O/c1-2-3/h3H,2H2,1H3<>C4H8O2/c1-3-6-4(2)5/h3H2,1-2H3!H2O/h1H2/d+"
-                    className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-xs focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                     rows={4}
                   />
                 </div>
@@ -1272,12 +1269,11 @@ const RInChIView = () => {
                   >
                     RAuxInfo (Optional)
                   </label>
-                  <textarea
+                  <Textarea
                     id="rauxinfo-input-file"
                     value={inputRauxInfo}
                     onChange={(e) => setInputRauxInfo(e.target.value)}
                     placeholder="e.g., RAuxInfo=1.00.1/1/N:1,2,3,4/E:(3,4)/rA:4nCCOO/rB:s1;s2;d2;/rC:-3.8549,-.5552,0;..."
-                    className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-xs focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                     rows={3}
                   />
                 </div>

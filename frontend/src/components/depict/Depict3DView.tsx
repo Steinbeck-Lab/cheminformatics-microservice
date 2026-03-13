@@ -527,18 +527,18 @@ const Depict3DView = ({ isActive = true }) => {
               >
                 Toolkit (for 3D generation)
               </label>
-              <select
-                id="toolkit-select-3d"
-                value={toolkit}
-                onChange={(e) => setToolkit(e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-              >
-                {TOOLKIT_OPTIONS_3D.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              <Select value={toolkit} onValueChange={setToolkit}>
+                <SelectTrigger id="toolkit-select-3d" className="w-full">
+                  <SelectValue placeholder="Select toolkit" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TOOLKIT_OPTIONS_3D.map((option) => (
+                    <SelectItem key={option.id} value={option.id}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             {/* Visualization Style */}
             <div>
@@ -548,18 +548,18 @@ const Depict3DView = ({ isActive = true }) => {
               >
                 Visualization Style
               </label>
-              <select
-                id="style-select"
-                value={style}
-                onChange={(e) => setStyle(e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-              >
-                {VISUALIZATION_STYLES.map((visualStyle) => (
-                  <option key={visualStyle.id} value={visualStyle.id}>
-                    {visualStyle.label}
-                  </option>
-                ))}
-              </select>
+              <Select value={style} onValueChange={setStyle}>
+                <SelectTrigger id="style-select" className="w-full">
+                  <SelectValue placeholder="Select style" />
+                </SelectTrigger>
+                <SelectContent>
+                  {VISUALIZATION_STYLES.map((visualStyle) => (
+                    <SelectItem key={visualStyle.id} value={visualStyle.id}>
+                      {visualStyle.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             {/* Background Color */}
             <div>
@@ -569,18 +569,18 @@ const Depict3DView = ({ isActive = true }) => {
               >
                 Background Color
               </label>
-              <select
-                id="bg-color-select"
-                value={backgroundColor}
-                onChange={(e) => setBackgroundColor(e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-              >
-                {BACKGROUND_COLORS.map((color) => (
-                  <option key={color.id} value={color.id}>
-                    {color.label}
-                  </option>
-                ))}
-              </select>
+              <Select value={backgroundColor} onValueChange={setBackgroundColor}>
+                <SelectTrigger id="bg-color-select" className="w-full">
+                  <SelectValue placeholder="Select background" />
+                </SelectTrigger>
+                <SelectContent>
+                  {BACKGROUND_COLORS.map((color) => (
+                    <SelectItem key={color.id} value={color.id}>
+                      {color.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             {/* Color Scheme */}
             <div>
@@ -590,18 +590,18 @@ const Depict3DView = ({ isActive = true }) => {
               >
                 Color Scheme
               </label>
-              <select
-                id="color-scheme-select"
-                value={colorScheme}
-                onChange={(e) => setColorScheme(e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-              >
-                {COLOR_SCHEMES.map((scheme) => (
-                  <option key={scheme.id} value={scheme.id}>
-                    {scheme.label}
-                  </option>
-                ))}
-              </select>
+              <Select value={colorScheme} onValueChange={setColorScheme}>
+                <SelectTrigger id="color-scheme-select" className="w-full">
+                  <SelectValue placeholder="Select color scheme" />
+                </SelectTrigger>
+                <SelectContent>
+                  {COLOR_SCHEMES.map((scheme) => (
+                    <SelectItem key={scheme.id} value={scheme.id}>
+                      {scheme.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

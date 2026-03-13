@@ -402,12 +402,12 @@ const AllFiltersView = () => {
             >
               Molecule List (SMILES)
             </label>
-            <textarea
+            <Textarea
               id="smilesInputArea"
               value={smilesInput}
               onChange={(e) => setSmilesInput(e.target.value)}
               placeholder="Enter SMILES strings, one per line or separated by space/comma/semicolon..."
-              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 h-32 shadow-xs"
+              className="h-32"
               required
               aria-required="true"
             />
@@ -470,18 +470,20 @@ const AllFiltersView = () => {
                 >
                   QED Druglikeness (0-1)
                 </label>
-                <select
-                  id="qedscore"
-                  name="qedscore"
+                <Select
                   value={filterOptions.qedscore}
-                  onChange={handleSelectChange} // Use specific handler
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
+                  onValueChange={(v) => handleFilterChange("qedscore", v)}
                 >
-                  <option value="0-1">0-1 (All)</option>
-                  <option value="0-0.3">0-0.3 (Low)</option>
-                  <option value="0.3-0.6">0.3-0.6 (Medium)</option>
-                  <option value="0.6-1">0.6-1 (High)</option>
-                </select>
+                  <SelectTrigger id="qedscore" className="w-full">
+                    <SelectValue placeholder="Select range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0-1">0-1 (All)</SelectItem>
+                    <SelectItem value="0-0.3">0-0.3 (Low)</SelectItem>
+                    <SelectItem value="0.3-0.6">0.3-0.6 (Medium)</SelectItem>
+                    <SelectItem value="0.6-1">0.6-1 (High)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               {/* SA Score */}
               <div>
@@ -491,18 +493,20 @@ const AllFiltersView = () => {
                 >
                   Synthetic Accessibility (1-10) {/* Corrected range usually 1-10 */}
                 </label>
-                <select
-                  id="sascore"
-                  name="sascore"
+                <Select
                   value={filterOptions.sascore}
-                  onChange={handleSelectChange}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
+                  onValueChange={(v) => handleFilterChange("sascore", v)}
                 >
-                  <option value="1-10">1-10 (All)</option> {/* Adjusted range */}
-                  <option value="1-4">1-4 (Easy synthesis)</option>
-                  <option value="4-7">4-7 (Moderate synthesis)</option>
-                  <option value="7-10">7-10 (Difficult synthesis)</option>
-                </select>
+                  <SelectTrigger id="sascore" className="w-full">
+                    <SelectValue placeholder="Select range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1-10">1-10 (All)</SelectItem>
+                    <SelectItem value="1-4">1-4 (Easy synthesis)</SelectItem>
+                    <SelectItem value="4-7">4-7 (Moderate synthesis)</SelectItem>
+                    <SelectItem value="7-10">7-10 (Difficult synthesis)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               {/* NP-likeness Score */}
               <div>
@@ -512,18 +516,20 @@ const AllFiltersView = () => {
                 >
                   NP-likeness Score (-5 to 5)
                 </label>
-                <select
-                  id="nplikeness"
-                  name="nplikeness"
+                <Select
                   value={filterOptions.nplikeness}
-                  onChange={handleSelectChange}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
+                  onValueChange={(v) => handleFilterChange("nplikeness", v)}
                 >
-                  <option value="-5-5">-5 to 5 (All)</option>
-                  <option value="-5-0">-5 to 0 (Synthetic-like)</option>
-                  <option value="0-2">0 to 2 (Moderate NP-like)</option>
-                  <option value="2-5">2 to 5 (High NP-like)</option>
-                </select>
+                  <SelectTrigger id="nplikeness" className="w-full">
+                    <SelectValue placeholder="Select range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="-5-5">-5 to 5 (All)</SelectItem>
+                    <SelectItem value="-5-0">-5 to 0 (Synthetic-like)</SelectItem>
+                    <SelectItem value="0-2">0 to 2 (Moderate NP-like)</SelectItem>
+                    <SelectItem value="2-5">2 to 5 (High NP-like)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>

@@ -219,17 +219,18 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           InChI Version
         </label>
-        <select
-          className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-xs focus:ring-green-500 focus:border-green-500"
-          value={inchiVersion}
-          onChange={(e) => setInchiVersion(e.target.value)}
-        >
-          {Object.entries(INCHI_VERSIONS).map(([value, version]) => (
-            <option key={value} value={value}>
-              {version.label}
-            </option>
-          ))}
-        </select>
+        <Select value={inchiVersion} onValueChange={setInchiVersion}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select version" />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.entries(INCHI_VERSIONS).map(([value, version]) => (
+              <SelectItem key={value} value={value}>
+                {version.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-4">
@@ -1525,13 +1526,13 @@ const InChIView = () => {
               Automatic copying failed. Please select and copy this text manually:
             </p>
             <div className="mb-4">
-              <input
+              <Input
                 type="text"
                 ref={copyTextRef}
                 value={copyModalText}
                 readOnly
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-sm font-mono text-sm bg-gray-50 dark:bg-gray-900"
-                onClick={(e) => e.target.select()}
+                className="w-full font-mono text-sm"
+                onClick={(e) => (e.target as HTMLInputElement).select()}
               />
             </div>
             <div className="flex justify-end gap-3">
@@ -1688,13 +1689,13 @@ const InChIView = () => {
                   >
                     Enter SMILES to Edit
                   </label>
-                  <input
+                  <Input
                     id="smiles-input"
                     type="text"
                     value={inputSmiles}
                     onChange={(e) => setInputSmiles(e.target.value)}
                     placeholder="e.g., CCO for ethanol"
-                    className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-xs focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                    className="w-full"
                   />
                 </div>
 
@@ -1741,12 +1742,11 @@ const InChIView = () => {
                   >
                     Enter Molfile or AuxInfo Content
                   </label>
-                  <textarea
+                  <Textarea
                     id="molfile-input"
                     value={molfileContent}
                     onChange={(e) => setMolfileContent(e.target.value)}
                     placeholder="Paste Molfile content here... or AuxInfo=1/0/N:1,2,3/E:(1,2)/rA:3nCCO/rB:s1;s2;/rC:;;;"
-                    className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-xs focus:ring-green-500 focus:border-green-500 transition-all duration-200"
                     rows={6}
                   />
                 </div>
@@ -1796,12 +1796,11 @@ const InChIView = () => {
                   >
                     Enter InChI to Convert
                   </label>
-                  <textarea
+                  <Textarea
                     id="inchi-input-structure"
                     value={inputInchi}
                     onChange={(e) => setInputInchi(e.target.value)}
                     placeholder="e.g., InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3"
-                    className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-xs focus:ring-green-500 focus:border-green-500 transition-all duration-200"
                     rows={4}
                   />
                 </div>

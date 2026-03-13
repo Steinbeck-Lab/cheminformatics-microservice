@@ -102,18 +102,17 @@ const HOSECodeView = () => {
               >
                 Number of Spheres
               </label>
-              <select
-                id="spheres-select"
-                value={spheres}
-                onChange={(e) => setSpheres(Number(e.target.value))}
-                // Select styling for light/dark mode
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-              >
-                <option value={1}>1</option>
-                <option value={2}>2</option>
-                <option value={3}>3</option>
-                <option value={4}>4</option>
-              </select>
+              <Select value={String(spheres)} onValueChange={(v) => setSpheres(Number(v))}>
+                <SelectTrigger id="spheres-select" className="w-full">
+                  <SelectValue placeholder="Select spheres" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1</SelectItem>
+                  <SelectItem value="2">2</SelectItem>
+                  <SelectItem value="3">3</SelectItem>
+                  <SelectItem value="4">4</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Toolkit Selection */}
@@ -124,16 +123,15 @@ const HOSECodeView = () => {
               >
                 Toolkit
               </label>
-              <select
-                id="toolkit-select-hose"
-                value={toolkit}
-                onChange={(e) => setToolkit(e.target.value)}
-                // Select styling for light/dark mode
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-              >
-                <option value="rdkit">RDKit</option>
-                <option value="cdk">CDK</option>
-              </select>
+              <Select value={toolkit} onValueChange={setToolkit}>
+                <SelectTrigger id="toolkit-select-hose" className="w-full">
+                  <SelectValue placeholder="Select toolkit" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="rdkit">RDKit</SelectItem>
+                  <SelectItem value="cdk">CDK</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Ringsize Checkbox */}

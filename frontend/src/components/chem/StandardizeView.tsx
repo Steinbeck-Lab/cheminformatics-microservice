@@ -343,7 +343,7 @@ const StandardizeView = () => {
               >
                 Molblock (MDL MOL format)
               </label>
-              <textarea
+              <Textarea
                 id="molblock-input"
                 value={molblock}
                 onChange={(e) => setMolblock(e.target.value)}
@@ -363,8 +363,7 @@ Example format (simple molecule):
   2  4  1  0  0  0  0
 M  END`}
                 rows={12}
-                // Textarea styling for light/dark mode
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white font-mono text-xs sm:text-sm resize-y shadow-xs focus:ring-indigo-500 focus:border-indigo-500"
+                className="font-mono text-xs sm:text-sm resize-y"
                 required
                 aria-required="true"
               />

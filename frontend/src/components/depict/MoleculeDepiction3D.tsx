@@ -541,18 +541,18 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
             >
               Style
             </label>
-            <select
-              id="style-select"
-              value={style}
-              onChange={(e) => setStyle(e.target.value)}
-              className="w-full text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 py-1 px-2"
-            >
-              {VISUALIZATION_STYLES.map((visualStyle) => (
-                <option key={visualStyle.id} value={visualStyle.id}>
-                  {visualStyle.label}
-                </option>
-              ))}
-            </select>
+            <Select value={style} onValueChange={setStyle}>
+              <SelectTrigger id="style-select" className="w-full text-xs h-7">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {VISUALIZATION_STYLES.map((visualStyle) => (
+                  <SelectItem key={visualStyle.id} value={visualStyle.id}>
+                    {visualStyle.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Color Scheme Select */}
@@ -563,18 +563,18 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
             >
               Color
             </label>
-            <select
-              id="color-scheme-select"
-              value={colorScheme}
-              onChange={(e) => setColorScheme(e.target.value)}
-              className="w-full text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 py-1 px-2"
-            >
-              {COLOR_SCHEMES.map((scheme) => (
-                <option key={scheme.id} value={scheme.id}>
-                  {scheme.label}
-                </option>
-              ))}
-            </select>
+            <Select value={colorScheme} onValueChange={setColorScheme}>
+              <SelectTrigger id="color-scheme-select" className="w-full text-xs h-7">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {COLOR_SCHEMES.map((scheme) => (
+                  <SelectItem key={scheme.id} value={scheme.id}>
+                    {scheme.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Background Color Select */}
@@ -585,18 +585,18 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
             >
               Background
             </label>
-            <select
-              id="bg-color-select"
-              value={backgroundColor}
-              onChange={(e) => setBackgroundColor(e.target.value)}
-              className="w-full text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 py-1 px-2"
-            >
-              {BACKGROUND_COLORS.map((color) => (
-                <option key={color.id} value={color.id}>
-                  {color.label}
-                </option>
-              ))}
-            </select>
+            <Select value={backgroundColor} onValueChange={setBackgroundColor}>
+              <SelectTrigger id="bg-color-select" className="w-full text-xs h-7">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {BACKGROUND_COLORS.map((color) => (
+                  <SelectItem key={color.id} value={color.id}>
+                    {color.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

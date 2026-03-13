@@ -417,13 +417,13 @@ const StructureDrawView = () => {
               Automatic copying failed. Please select and copy this text manually:
             </p>
             <div className="mb-4">
-              <input
+              <Input
                 type="text"
                 ref={copyTextRef}
                 value={copyModalText}
                 readOnly
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-sm font-mono text-sm bg-gray-50 dark:bg-gray-900"
-                onClick={(e) => e.target.select()}
+                className="w-full font-mono text-sm"
+                onClick={(e) => (e.target as HTMLInputElement).select()}
               />
             </div>
             <div className="flex justify-end gap-3">
@@ -459,13 +459,13 @@ const StructureDrawView = () => {
                 >
                   Enter SMILES to Edit
                 </label>
-                <input
+                <Input
                   id="smiles-input"
                   type="text"
                   value={inputSmiles}
                   onChange={(e) => setInputSmiles(e.target.value)}
                   placeholder="e.g., CCO for ethanol"
-                  className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-xs focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
+                  className="w-full"
                 />
               </div>
 

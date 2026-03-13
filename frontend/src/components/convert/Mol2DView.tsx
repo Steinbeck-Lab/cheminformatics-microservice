@@ -137,18 +137,18 @@ const Mol2DView = () => {
               Cheminformatics Toolkit
             </label>
             {/* Select styling */}
-            <select
-              id="toolkit-select-mol2d"
-              value={toolkit}
-              onChange={(e) => setToolkit(e.target.value)}
-              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-            >
-              {TOOLKIT_OPTIONS.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+            <Select value={toolkit} onValueChange={setToolkit}>
+              <SelectTrigger id="toolkit-select-mol2d" className="w-full">
+                <SelectValue placeholder="Select toolkit" />
+              </SelectTrigger>
+              <SelectContent>
+                {TOOLKIT_OPTIONS.map((option) => (
+                  <SelectItem key={option.id} value={option.id}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {/* Hint text styling */}
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
               Different toolkits may produce different 2D layouts.

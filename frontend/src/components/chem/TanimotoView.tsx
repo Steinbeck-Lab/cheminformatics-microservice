@@ -263,15 +263,15 @@ const TanimotoView = () => {
               Toolkit
             </label>
             {/* Select styling */}
-            <select
-              id="toolkit-select-tanimoto"
-              value={toolkit}
-              onChange={(e) => handleToolkitChange(e.target.value)}
-              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-            >
-              <option value="rdkit">RDKit</option>
-              <option value="cdk">CDK</option>
-            </select>
+            <Select value={toolkit} onValueChange={handleToolkitChange}>
+              <SelectTrigger id="toolkit-select-tanimoto" className="w-full">
+                <SelectValue placeholder="Select toolkit" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="rdkit">RDKit</SelectItem>
+                <SelectItem value="cdk">CDK</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <label
@@ -281,18 +281,18 @@ const TanimotoView = () => {
               Fingerprinter
             </label>
             {/* Select styling */}
-            <select
-              id="fingerprinter-select"
-              value={fingerprinter}
-              onChange={(e) => setFingerprinter(e.target.value)}
-              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-            >
-              {getFingerprinterOptions().map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+            <Select value={fingerprinter} onValueChange={setFingerprinter}>
+              <SelectTrigger id="fingerprinter-select" className="w-full">
+                <SelectValue placeholder="Select fingerprinter" />
+              </SelectTrigger>
+              <SelectContent>
+                {getFingerprinterOptions().map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -307,16 +307,16 @@ const TanimotoView = () => {
                 Bits
               </label>
               {/* Select styling */}
-              <select
-                id="nbits-select"
-                value={nBits}
-                onChange={(e) => setNBits(Number(e.target.value))}
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-              >
-                <option value={1024}>1024</option>
-                <option value={2048}>2048</option>
-                <option value={4096}>4096</option>
-              </select>
+              <Select value={String(nBits)} onValueChange={(v) => setNBits(Number(v))}>
+                <SelectTrigger id="nbits-select" className="w-full">
+                  <SelectValue placeholder="Select bits" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1024">1024</SelectItem>
+                  <SelectItem value="2048">2048</SelectItem>
+                  <SelectItem value="4096">4096</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <label
@@ -326,17 +326,26 @@ const TanimotoView = () => {
                 Radius
               </label>
               {/* Select styling with disabled state */}
-              <select
-                id="radius-select"
-                value={radius}
-                onChange={(e) => setRadius(Number(e.target.value))}
-                className={`w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs ${fingerprinter !== "ECFP" && fingerprinter !== "MAPC" ? "opacity-50 cursor-not-allowed dark:opacity-60" : ""}`}
-                disabled={fingerprinter !== "ECFP" && fingerprinter !== "MAPC"} // Disable if not ECFP/MAPC
+              <Select
+                value={String(radius)}
+                onValueChange={(v) => setRadius(Number(v))}
+                disabled={fingerprinter !== "ECFP" && fingerprinter !== "MAPC"}
               >
-                <option value={2}>2 (ECFP4)</option>
-                <option value={3}>3 (ECFP6)</option>
-                <option value={4}>4 (ECFP8)</option>
-              </select>
+                <SelectTrigger
+                  id="radius-select"
+                  className={cn(
+                    "w-full",
+                    fingerprinter !== "ECFP" && fingerprinter !== "MAPC" && "opacity-50"
+                  )}
+                >
+                  <SelectValue placeholder="Select radius" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2">2 (ECFP4)</SelectItem>
+                  <SelectItem value="3">3 (ECFP6)</SelectItem>
+                  <SelectItem value="4">4 (ECFP8)</SelectItem>
+                </SelectContent>
+              </Select>
               {/* Info text for disabled state */}
               {fingerprinter !== "ECFP" && fingerprinter !== "MAPC" && (
                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">

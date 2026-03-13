@@ -286,14 +286,13 @@ const ClassyfireView = () => {
               >
                 ClassyFire Job ID
               </label>
-              <input
+              <Input
                 id="jobIdInput"
                 type="text"
                 value={manualJobId}
                 onChange={(e) => setManualJobId(e.target.value)}
                 placeholder="Enter job ID..."
-                // Input styling for light/dark mode
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
+                className="w-full"
                 required
                 aria-required="true"
               />

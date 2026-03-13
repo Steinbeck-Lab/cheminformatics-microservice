@@ -328,20 +328,14 @@ const SugarRemovalView = () => {
         ) : type === "number" ? (
           <div className="space-y-1">
             <div className="relative group">
-              <input
+              <Input
                 type="number"
                 value={value}
                 onChange={(e) => updateOption(key, parseFloat(e.target.value))}
                 min={min}
                 max={max}
                 step={step || 1}
-                className="w-full pl-3 pr-16 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all hover:border-blue-400 dark:hover:border-blue-500"
-                style={{
-                  // Hide default spinners
-                  MozAppearance: "textfield",
-                  WebkitAppearance: "none",
-                  margin: 0,
-                }}
+                className="w-full pr-16 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
               <style jsx>{`
                 input[type="number"]::-webkit-inner-spin-button,
@@ -401,15 +395,20 @@ const SugarRemovalView = () => {
           </div>
         ) : type === "select" ? (
           <div className="space-y-1">
-            <select
-              value={value}
-              onChange={(e) => updateOption(key, parseInt(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-            >
-              <option value={1}>All - Preserve all disconnected structures</option>
-              <option value={2}>Heavy Atom Count - Remove structures below threshold</option>
-              <option value={3}>Molecular Weight - Remove structures below threshold</option>
-            </select>
+            <Select value={String(value)} onValueChange={(v) => updateOption(key, parseInt(v))}>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">All - Preserve all disconnected structures</SelectItem>
+                <SelectItem value="2">
+                  Heavy Atom Count - Remove structures below threshold
+                </SelectItem>
+                <SelectItem value="3">
+                  Molecular Weight - Remove structures below threshold
+                </SelectItem>
+              </SelectContent>
+            </Select>
             <p className="text-xs text-gray-500 dark:text-gray-400">{description}</p>
           </div>
         ) : null}

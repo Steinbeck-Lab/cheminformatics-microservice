@@ -163,17 +163,16 @@ const DescriptorsView = () => {
               >
                 Toolkit
               </label>
-              <select
-                id="toolkit-select"
-                value={toolkit}
-                onChange={(e) => setToolkit(e.target.value)}
-                // Select styling for light/dark mode
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-              >
-                <option value="rdkit">RDKit</option>
-                <option value="cdk">CDK</option>
-                <option value="all">All (CDK + RDKit)</option>
-              </select>
+              <Select value={toolkit} onValueChange={setToolkit}>
+                <SelectTrigger id="toolkit-select" className="w-full">
+                  <SelectValue placeholder="Select toolkit" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="rdkit">RDKit</SelectItem>
+                  <SelectItem value="cdk">CDK</SelectItem>
+                  <SelectItem value="all">All (CDK + RDKit)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Format Selection */}
@@ -184,16 +183,15 @@ const DescriptorsView = () => {
               >
                 Output Format
               </label>
-              <select
-                id="format-select"
-                value={format}
-                onChange={(e) => setFormat(e.target.value)}
-                // Select styling for light/dark mode
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-              >
-                <option value="json">JSON (Table)</option>
-                <option value="html">HTML (Raw)</option>
-              </select>
+              <Select value={format} onValueChange={setFormat}>
+                <SelectTrigger id="format-select" className="w-full">
+                  <SelectValue placeholder="Select format" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="json">JSON (Table)</SelectItem>
+                  <SelectItem value="html">HTML (Raw)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

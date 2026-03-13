@@ -177,13 +177,13 @@ const StructureVisualizerView = () => {
                   </span>
                 </div>
                 <div className="relative">
-                  <input
+                  <Input
                     id="identifier-input"
                     type="text"
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     placeholder="Search for a chemical compound..."
-                    className="w-full px-4 py-3 pl-10 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white shadow-xs focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
+                    className="w-full pl-10"
                     required
                   />
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -245,15 +245,15 @@ const StructureVisualizerView = () => {
                         2D Toolkit
                       </label>
                     </div>
-                    <select
-                      id="depict-toolkit"
-                      value={depictToolkit}
-                      onChange={(e) => setDepictToolkit(e.target.value)}
-                      className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white text-sm px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-                    >
-                      <option value="rdkit">RDKit</option>
-                      <option value="cdk">CDK</option>
-                    </select>
+                    <Select value={depictToolkit} onValueChange={setDepictToolkit}>
+                      <SelectTrigger id="depict-toolkit" className="w-full">
+                        <SelectValue placeholder="Select toolkit" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="rdkit">RDKit</SelectItem>
+                        <SelectItem value="cdk">CDK</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
@@ -266,15 +266,15 @@ const StructureVisualizerView = () => {
                         3D Toolkit
                       </label>
                     </div>
-                    <select
-                      id="vis3d-toolkit"
-                      value={vis3DToolkit}
-                      onChange={(e) => setVis3DToolkit(e.target.value)}
-                      className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white text-sm px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-                    >
-                      <option value="openbabel">Open Babel</option>
-                      <option value="rdkit">RDKit</option>
-                    </select>
+                    <Select value={vis3DToolkit} onValueChange={setVis3DToolkit}>
+                      <SelectTrigger id="vis3d-toolkit" className="w-full">
+                        <SelectValue placeholder="Select toolkit" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="openbabel">Open Babel</SelectItem>
+                        <SelectItem value="rdkit">RDKit</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>

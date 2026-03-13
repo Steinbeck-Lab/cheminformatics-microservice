@@ -98,11 +98,11 @@ const PasteModal = ({ isOpen, onClose, onPaste }) => {
           Please paste your SMILES string in the area below:
         </p>
         <div className="mb-4">
-          <textarea
+          <Textarea
             ref={textareaRef}
             value={text}
             onChange={(e) => setText(e.target.value)}
-            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-sm font-mono text-sm bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 h-24"
+            className="w-full font-mono text-sm h-24"
             placeholder="Paste SMILES here..."
             autoFocus
           />
@@ -269,14 +269,13 @@ const SMILESInput = ({
 
       {/* Input field with Clear button */}
       <div className="relative">
-        <input
+        <Input
           id="smiles-input"
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          // Input styling with theme awareness
-          className="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md text-gray-900 dark:text-white shadow-xs focus:outline-hidden focus:border-indigo-500 dark:focus:border-blue-500 focus:ring-1 focus:ring-indigo-500 dark:focus:ring-blue-500 pr-10" // Added pr-10 for clear button space
+          className="w-full pr-10"
           required={required}
           aria-required={required}
         />

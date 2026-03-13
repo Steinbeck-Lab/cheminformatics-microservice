@@ -501,18 +501,18 @@ const FormatConversionView = () => {
                 </span>
               )}
             </div>
-            <select
-              id="input-format-select"
-              value={inputFormat}
-              onChange={(e) => handleInputFormatChange(e.target.value)}
-              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-            >
-              {INPUT_FORMAT_OPTIONS.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+            <Select value={inputFormat} onValueChange={handleInputFormatChange}>
+              <SelectTrigger id="input-format-select" className="w-full">
+                <SelectValue placeholder="Select input format" />
+              </SelectTrigger>
+              <SelectContent>
+                {INPUT_FORMAT_OPTIONS.map((option) => (
+                  <SelectItem key={option.id} value={option.id}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* IUPAC Converter Selection (conditionally shown) */}
@@ -524,18 +524,18 @@ const FormatConversionView = () => {
               >
                 IUPAC Converter
               </label>
-              <select
-                id="iupac-converter-select"
-                value={iupacConverter}
-                onChange={(e) => setIupacConverter(e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-              >
-                {IUPAC_CONVERTER_OPTIONS.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              <Select value={iupacConverter} onValueChange={setIupacConverter}>
+                <SelectTrigger id="iupac-converter-select" className="w-full">
+                  <SelectValue placeholder="Select converter" />
+                </SelectTrigger>
+                <SelectContent>
+                  {IUPAC_CONVERTER_OPTIONS.map((option) => (
+                    <SelectItem key={option.id} value={option.id}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 OPSIN is used to convert IUPAC names to SMILES
               </p>
@@ -668,14 +668,14 @@ const FormatConversionView = () => {
                   </div>
                 )}
 
-                <textarea
+                <Textarea
                   id="molsdf-input"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Paste MOL or SDF block here...&#10;&#10;Example:&#10;  CDK     09012308392D&#10;&#10;  2  1  0  0  0  0  0  0  0  0999 V2000&#10;    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0&#10;    1.5000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0&#10;  1  2  1  0  0  0  0&#10;M  END"
                   rows={12}
                   required
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs font-mono text-sm"
+                  className="font-mono text-sm"
                 />
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Upload a file or paste a MOL or SDF block. If SDF format is detected (contains
@@ -736,19 +736,28 @@ const FormatConversionView = () => {
             >
               Output Format
             </label>
-            <select
-              id="output-format-select"
+            <Select
               value={outputFormat}
-              onChange={(e) => handleOutputFormatChange(e.target.value)}
-              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
+              onValueChange={handleOutputFormatChange}
               disabled={inputFormat !== "smiles"}
             >
-              {OUTPUT_FORMAT_OPTIONS.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger
+                id="output-format-select"
+                className={cn(
+                  "w-full",
+                  inputFormat !== "smiles" && "opacity-50 cursor-not-allowed"
+                )}
+              >
+                <SelectValue placeholder="Select output format" />
+              </SelectTrigger>
+              <SelectContent>
+                {OUTPUT_FORMAT_OPTIONS.map((option) => (
+                  <SelectItem key={option.id} value={option.id}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {(inputFormat === "iupac" || inputFormat === "selfies" || inputFormat === "molsdf") && (
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 {inputFormat === "iupac"
@@ -782,24 +791,24 @@ const FormatConversionView = () => {
               >
                 Toolkit
               </label>
-              <select
-                id="toolkit-select-convert"
-                value={toolkit}
-                onChange={(e) => setToolkit(e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-              >
-                {TOOLKIT_OPTIONS.filter((option) => {
-                  // MOL/SDF only supports CDK and RDKit
-                  if (inputFormat === "molsdf") {
-                    return option.id === "cdk" || option.id === "rdkit";
-                  }
-                  return true;
-                }).map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              <Select value={toolkit} onValueChange={setToolkit}>
+                <SelectTrigger id="toolkit-select-convert" className="w-full">
+                  <SelectValue placeholder="Select toolkit" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TOOLKIT_OPTIONS.filter((option) => {
+                    // MOL/SDF only supports CDK and RDKit
+                    if (inputFormat === "molsdf") {
+                      return option.id === "cdk" || option.id === "rdkit";
+                    }
+                    return true;
+                  }).map((option) => (
+                    <SelectItem key={option.id} value={option.id}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 {inputFormat === "molsdf"
                   ? "MOL/SDF conversion supports CDK and RDKit toolkits."

@@ -203,18 +203,18 @@ const MoleculeDepiction2D = ({
               >
                 H Display:
               </label>
-              <select
-                id="hydrogen-display"
-                value={hydrogenDisplay}
-                onChange={(e) => setHydrogenDisplay(e.target.value)}
-                className="text-xs px-2 py-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-sm text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="Smart">Smart</option>
-                <option value="Provided">Provided</option>
-                <option value="Minimal">Minimal</option>
-                <option value="Explicit">Explicit</option>
-                <option value="Stereo">Stereo</option>
-              </select>
+              <Select value={hydrogenDisplay} onValueChange={setHydrogenDisplay}>
+                <SelectTrigger id="hydrogen-display" className="text-xs h-7 w-[100px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Smart">Smart</SelectItem>
+                  <SelectItem value="Provided">Provided</SelectItem>
+                  <SelectItem value="Minimal">Minimal</SelectItem>
+                  <SelectItem value="Explicit">Explicit</SelectItem>
+                  <SelectItem value="Stereo">Stereo</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           )}
 

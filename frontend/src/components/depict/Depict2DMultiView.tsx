@@ -733,11 +733,11 @@ const BatchDepictionView = () => {
               </Button>
             </div>
             {/* Textarea Styling */}
-            <textarea
+            <Textarea
               id="smiles-input-batch"
               value={inputText}
               onChange={(e) => handleInputChange(e.target.value)}
-              className="w-full h-40 font-mono text-xs sm:text-sm px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white shadow-xs focus:ring-indigo-500 focus:border-indigo-500 dark:focus:border-blue-500 dark:focus:ring-blue-500 resize-y"
+              className="w-full h-40 font-mono text-xs sm:text-sm resize-y"
               placeholder="CN1C=NC2=C1C(=O)N(C(=O)N2C)C Caffeine&#10;CCO Ethanol&#10;Cl*.Cl*.c1ccccc1-c1ccccc1 |m:1:4.5.6.7.8.9,3:10.11.12.13.14.15| Dichlorobiphenyl&#10;# Lines starting with # are ignored"
               required
               aria-required="true"
@@ -791,15 +791,15 @@ const BatchDepictionView = () => {
                       Toolkit
                     </label>
                     <div className="flex items-center">
-                      <select
-                        id="toolkit-select-batch"
-                        value={toolkit}
-                        onChange={(e) => handleToolkitChange(e.target.value)}
-                        className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-                      >
-                        <option value="rdkit">RDKit</option>
-                        <option value="cdk">CDK (Enhanced)</option>
-                      </select>
+                      <Select value={toolkit} onValueChange={handleToolkitChange}>
+                        <SelectTrigger id="toolkit-select-batch" className="w-full">
+                          <SelectValue placeholder="Select toolkit" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="rdkit">RDKit</SelectItem>
+                          <SelectItem value="cdk">CDK (Enhanced)</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <Button
                         type="button"
                         onClick={handleSwitchToolkit}
@@ -916,18 +916,18 @@ const BatchDepictionView = () => {
                       >
                         Hydrogen Display
                       </label>
-                      <select
-                        id="hydrogen-display-select"
-                        value={hydrogenDisplay}
-                        onChange={(e) => setHydrogenDisplay(e.target.value)}
-                        className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-                      >
-                        <option value="Smart">Smart</option>
-                        <option value="Provided">Provided</option>
-                        <option value="Minimal">Minimal</option>
-                        <option value="Explicit">Explicit</option>
-                        <option value="Stereo">Stereo</option>
-                      </select>
+                      <Select value={hydrogenDisplay} onValueChange={setHydrogenDisplay}>
+                        <SelectTrigger id="hydrogen-display-select" className="w-full">
+                          <SelectValue placeholder="Select display" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Smart">Smart</SelectItem>
+                          <SelectItem value="Provided">Provided</SelectItem>
+                          <SelectItem value="Minimal">Minimal</SelectItem>
+                          <SelectItem value="Explicit">Explicit</SelectItem>
+                          <SelectItem value="Stereo">Stereo</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   )}
                 </div>
@@ -975,20 +975,20 @@ const BatchDepictionView = () => {
                             >
                               Color Scheme
                             </label>
-                            <select
-                              id="style-select"
-                              value={style}
-                              onChange={(e) => setStyle(e.target.value)}
-                              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-                            >
-                              <option value="cow">Color on White</option>
-                              <option value="cob">Color on Black</option>
-                              <option value="cot">Color on Transparent</option>
-                              <option value="bow">Black on White</option>
-                              <option value="bot">Black on Transparent</option>
-                              <option value="wob">White on Black</option>
-                              <option value="nob">Neon on Black</option>
-                            </select>
+                            <Select value={style} onValueChange={setStyle}>
+                              <SelectTrigger id="style-select" className="w-full">
+                                <SelectValue placeholder="Select style" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="cow">Color on White</SelectItem>
+                                <SelectItem value="cob">Color on Black</SelectItem>
+                                <SelectItem value="cot">Color on Transparent</SelectItem>
+                                <SelectItem value="bow">Black on White</SelectItem>
+                                <SelectItem value="bot">Black on Transparent</SelectItem>
+                                <SelectItem value="wob">White on Black</SelectItem>
+                                <SelectItem value="nob">Neon on Black</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
 
                           {/* Abbreviations */}
@@ -999,17 +999,19 @@ const BatchDepictionView = () => {
                             >
                               Abbreviations
                             </label>
-                            <select
-                              id="abbreviate-select"
-                              value={abbreviate}
-                              onChange={(e) => setAbbreviate(e.target.value)}
-                              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-                            >
-                              <option value="off">None</option>
-                              <option value="groups">Functional Groups (Ph, Me, Et)</option>
-                              <option value="reagents">Reagents (THF, DMF)</option>
-                              <option value="on">Both Groups & Reagents</option>
-                            </select>
+                            <Select value={abbreviate} onValueChange={setAbbreviate}>
+                              <SelectTrigger id="abbreviate-select" className="w-full">
+                                <SelectValue placeholder="Select abbreviation" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="off">None</SelectItem>
+                                <SelectItem value="groups">
+                                  Functional Groups (Ph, Me, Et)
+                                </SelectItem>
+                                <SelectItem value="reagents">Reagents (THF, DMF)</SelectItem>
+                                <SelectItem value="on">Both Groups & Reagents</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
 
                           {/* Annotations */}
@@ -1020,20 +1022,20 @@ const BatchDepictionView = () => {
                             >
                               Annotations
                             </label>
-                            <select
-                              id="annotate-select"
-                              value={annotate}
-                              onChange={(e) => setAnnotate(e.target.value)}
-                              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-                            >
-                              <option value="none">None</option>
-                              <option value="number">Atom Numbers</option>
-                              <option value="cip">CIP Labels (R/S, E/Z)</option>
-                              <option value="mapidx">Atom Mapping</option>
-                              <option value="colmap">Color-Coded Mapping</option>
-                              <option value="bondnumber">Bond Numbers</option>
-                              <option value="atomvalue">Atom Values</option>
-                            </select>
+                            <Select value={annotate} onValueChange={setAnnotate}>
+                              <SelectTrigger id="annotate-select" className="w-full">
+                                <SelectValue placeholder="Select annotation" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">None</SelectItem>
+                                <SelectItem value="number">Atom Numbers</SelectItem>
+                                <SelectItem value="cip">CIP Labels (R/S, E/Z)</SelectItem>
+                                <SelectItem value="mapidx">Atom Mapping</SelectItem>
+                                <SelectItem value="colmap">Color-Coded Mapping</SelectItem>
+                                <SelectItem value="bondnumber">Bond Numbers</SelectItem>
+                                <SelectItem value="atomvalue">Atom Values</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
 
                           {/* Dative Bonds */}
@@ -1044,16 +1046,16 @@ const BatchDepictionView = () => {
                             >
                               Dative Bonds
                             </label>
-                            <select
-                              id="dative-select"
-                              value={dative}
-                              onChange={(e) => setDative(e.target.value)}
-                              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-                            >
-                              <option value="never">Never</option>
-                              <option value="metals">Metal Complexes</option>
-                              <option value="always">Always</option>
-                            </select>
+                            <Select value={dative} onValueChange={setDative}>
+                              <SelectTrigger id="dative-select" className="w-full">
+                                <SelectValue placeholder="Select dative bonds" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="never">Never</SelectItem>
+                                <SelectItem value="metals">Metal Complexes</SelectItem>
+                                <SelectItem value="always">Always</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
 
                           {/* Multicenter Bonds */}
@@ -1064,19 +1066,19 @@ const BatchDepictionView = () => {
                             >
                               Multicenter Bonds
                             </label>
-                            <select
-                              id="multicenter-select"
-                              value={multicenter}
-                              onChange={(e) => setMulticenter(e.target.value)}
-                              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
-                            >
-                              <option value="provided">As Provided</option>
-                              <option value="dative">Dative Arrows</option>
-                              <option value="dashed">Dashed Lines</option>
-                              <option value="dashed_neutral">Dashed (Neutral)</option>
-                              <option value="hidden">Hidden</option>
-                              <option value="hidden_neutral">Hidden (Neutral)</option>
-                            </select>
+                            <Select value={multicenter} onValueChange={setMulticenter}>
+                              <SelectTrigger id="multicenter-select" className="w-full">
+                                <SelectValue placeholder="Select multicenter" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="provided">As Provided</SelectItem>
+                                <SelectItem value="dative">Dative Arrows</SelectItem>
+                                <SelectItem value="dashed">Dashed Lines</SelectItem>
+                                <SelectItem value="dashed_neutral">Dashed (Neutral)</SelectItem>
+                                <SelectItem value="hidden">Hidden</SelectItem>
+                                <SelectItem value="hidden_neutral">Hidden (Neutral)</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
 
                           {/* Zoom */}
@@ -1156,13 +1158,13 @@ const BatchDepictionView = () => {
                   >
                     Highlight Substructure (SMARTS - optional)
                   </label>
-                  <input
+                  <Input
                     id="highlight-input"
                     type="text"
                     value={highlight}
                     onChange={(e) => setHighlight(e.target.value)}
                     placeholder="e.g., c1ccccc1"
-                    className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-xs"
+                    className="w-full"
                   />
                 </div>
 
@@ -1256,15 +1258,18 @@ const BatchDepictionView = () => {
                 {/* Download Format Selector and Button */}
                 <div className="flex items-center shadow-md rounded-lg overflow-hidden px-0.5">
                   {/* Select Styling */}
-                  <select
-                    value={downloadFormat}
-                    onChange={(e) => setDownloadFormat(e.target.value)}
-                    className="h-full px-3 py-2 bg-white dark:bg-gray-700 border-r border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm focus:ring-green-500 focus:border-green-500 transition-all duration-200"
-                    aria-label="Download format"
-                  >
-                    <option value="svg">SVG</option>
-                    <option value="png">PNG</option>
-                  </select>
+                  <Select value={downloadFormat} onValueChange={setDownloadFormat}>
+                    <SelectTrigger
+                      className="h-full border-r text-sm rounded-r-none"
+                      aria-label="Download format"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="svg">SVG</SelectItem>
+                      <SelectItem value="png">PNG</SelectItem>
+                    </SelectContent>
+                  </Select>
                   {/* Download Button with Animation */}
                   <motion.div
                     whileHover={{ scale: 1.02 }}

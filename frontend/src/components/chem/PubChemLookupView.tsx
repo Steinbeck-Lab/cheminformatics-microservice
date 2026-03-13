@@ -106,13 +106,13 @@ const PubChemLookupView = () => {
               Chemical Identifier
             </label>
             <div className="relative">
-              <input
+              <Input
                 id="identifier-input"
                 type="text"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 placeholder="Enter name, CID, InChI, InChIKey, CAS, formula, or SMILES..."
-                className="w-full px-4 py-2 pl-10 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white shadow-xs focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full pl-10"
                 required
               />
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

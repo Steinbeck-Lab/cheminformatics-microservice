@@ -247,7 +247,7 @@ const OCRView = () => {
               </label>
               <div className="relative">
                 <Link className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
-                <input
+                <Input
                   id="image-url"
                   type="url"
                   value={imageUrl}
@@ -259,7 +259,7 @@ const OCRView = () => {
                   }}
                   placeholder="https://example.com/structure.png"
                   disabled={loading}
-                  className="w-full pl-10 pr-4 py-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full pl-10"
                 />
               </div>
             </div>
@@ -307,14 +307,14 @@ const OCRView = () => {
               Reference Name{" "}
               <span className="text-slate-500 dark:text-slate-400 font-normal">(Optional)</span>
             </label>
-            <input
+            <Input
               id="reference"
               type="text"
               value={reference}
               onChange={(e) => setReference(e.target.value)}
               placeholder="e.g., Figure 1A, Compound X"
               disabled={loading}
-              className="w-full px-4 py-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full"
             />
           </div>
 

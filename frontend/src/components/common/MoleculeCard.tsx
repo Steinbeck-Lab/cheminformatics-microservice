@@ -551,13 +551,13 @@ const MoleculeCard = ({
               Automatic copying failed. Please select and copy this text manually:
             </p>
             <div className="mb-4">
-              <input
+              <Input
                 type="text"
                 ref={copyTextRef}
                 value={smiles || ""}
                 readOnly
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-sm font-mono text-sm bg-gray-50 dark:bg-gray-900"
-                onClick={(e) => e.target.select()}
+                className="w-full font-mono text-sm"
+                onClick={(e) => (e.target as HTMLInputElement).select()}
               />
             </div>
             <div className="flex justify-end gap-3">
