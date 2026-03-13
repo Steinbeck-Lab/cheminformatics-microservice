@@ -53,10 +53,10 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Loading & Feedback
 
-- [ ] **LOAD-01**: Skeleton loading states replace full-page spinners during API calls
-- [ ] **LOAD-02**: Toast notification system (Sonner) replaces alert() calls
-- [ ] **LOAD-03**: Per-component error states with clear messages and retry actions
-- [ ] **LOAD-04**: Loading indicators for individual API operations (not full-page)
+- [x] **LOAD-01**: Skeleton loading states replace full-page spinners during API calls
+- [x] **LOAD-02**: Toast notification system (Sonner) replaces alert() calls
+- [x] **LOAD-03**: Per-component error states with clear messages and retry actions
+- [x] **LOAD-04**: Loading indicators for individual API operations (not full-page)
 
 ### Animations & Polish
 
@@ -139,10 +139,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VISUAL-04 | Phase 4.1 | Complete |
 | VISUAL-05 | Phase 4.1 | Complete |
 | VISUAL-06 | Phase 4.1 | Complete |
-| LOAD-01 | Phase 5 | In Progress |
-| LOAD-02 | Phase 5 | In Progress |
-| LOAD-03 | Phase 5 | In Progress |
-| LOAD-04 | Phase 5 | In Progress |
+| LOAD-01 | Phase 5 | Complete |
+| LOAD-02 | Phase 5 | Complete |
+| LOAD-03 | Phase 5 | Complete |
+| LOAD-04 | Phase 5 | Complete |
 | ANIM-01 | Phase 6 | Pending |
 | ANIM-02 | Phase 6 | Pending |
 | ANIM-03 | Phase 6 | Pending |
