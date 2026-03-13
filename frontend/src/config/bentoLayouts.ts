@@ -53,12 +53,12 @@ export const BENTO_LAYOUTS: Record<string, BentoLayoutEntry[]> = {
   ],
   depict: [
     // Hero -- primary tool
-    { id: "structure-explorer", size: "hero" },
+    { id: "structureexplorer", size: "hero" },
     // Medium -- secondary tools
-    { id: "2d-depiction", size: "medium" },
-    { id: "3d-depiction", size: "medium" },
+    { id: "2ddepiction", size: "medium" },
+    { id: "3ddepiction", size: "medium" },
     // Compact -- minor tools
-    { id: "draw-structure", size: "compact" },
+    { id: "structuredraw", size: "compact" },
   ],
   home: [
     // HomePage feature cards -- all medium (editorial grid, no hero distinction)
