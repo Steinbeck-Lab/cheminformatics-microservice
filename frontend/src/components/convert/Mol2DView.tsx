@@ -9,7 +9,7 @@ import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 // Assuming this service is configured correctly
 import { generate2DCoordinates } from "../../services/convertService"; // Assuming this service exists
-import { AlertCircle, Check, Clipboard, Download, FileText } from "lucide-react";
+import { AlertCircle, Check, Clipboard, Download, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -170,8 +170,17 @@ const Mol2DView = () => {
               }`}
               disabled={!smiles.trim() || isLoading}
             >
-              <FileText className="mr-2 h-5 w-5" aria-hidden="true" />
-              {isLoading ? "Generating..." : "Generate 2D Coordinates"}
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <FileText className="mr-2 h-5 w-5" aria-hidden="true" />
+                  Generate 2D Coordinates
+                </>
+              )}
             </Button>
           </div>
         </form>

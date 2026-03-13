@@ -8,7 +8,15 @@ import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 // Assuming this service is configured correctly
 import depictService from "../../services/depictService"; // Assuming this service exists
-import { AlertCircle, ArrowLeftRight, Check, Clipboard, Download, Image } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowLeftRight,
+  Check,
+  Clipboard,
+  Download,
+  Image,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -1230,8 +1238,17 @@ const BatchDepictionView = () => {
                   !inputText.trim() || loading ? "" : "shadow-lg hover:shadow-xl"
                 )}
               >
-                <Image className="mr-2 h-5 w-5" />
-                {loading ? "Generating..." : "Generate Depictions"}
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Image className="mr-2 h-5 w-5" />
+                    Generate Depictions
+                  </>
+                )}
               </Button>
             </motion.div>
 

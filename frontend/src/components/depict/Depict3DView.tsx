@@ -15,6 +15,7 @@ import {
   Download,
   LayoutGrid,
   Palette,
+  Loader2,
   RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -636,8 +637,17 @@ const Depict3DView = ({ isActive = true }) => {
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
-              <Box className="mr-2 h-5 w-5" />
-              {loading ? "Generating..." : "Generate 3D View"}
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Box className="mr-2 h-5 w-5" />
+                  Generate 3D View
+                </>
+              )}
             </Button>
             {/* Screenshot Button */}
             <Button
@@ -689,6 +699,7 @@ const Depict3DView = ({ isActive = true }) => {
             !molData && ( // Show only if input is empty and no data loaded
               <div className="mt-3 text-center">
                 <Button
+                  variant="ghost"
                   type="button"
                   onClick={handleUseExampleMolecule}
                   className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm"
@@ -780,6 +791,7 @@ const Depict3DView = ({ isActive = true }) => {
               </h3>
               <div className="flex space-x-2">
                 <Button
+                  variant="ghost"
                   onClick={handleCopy}
                   className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
                     copied
@@ -792,6 +804,7 @@ const Depict3DView = ({ isActive = true }) => {
                   {copied ? <Check className="h-5 w-5" /> : <Clipboard className="h-5 w-5" />}
                 </Button>
                 <Button
+                  variant="ghost"
                   onClick={downloadMolblock}
                   className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500"
                   title="Download Molblock (.mol)"

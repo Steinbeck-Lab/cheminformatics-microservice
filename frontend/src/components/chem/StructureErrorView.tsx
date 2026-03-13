@@ -142,8 +142,17 @@ const StructureErrorView = () => {
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
-              <ShieldCheck className="mr-2 h-5 w-5" aria-hidden="true" />
-              {loading ? "Checking..." : "Check Structure"}
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Checking...
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="mr-2 h-5 w-5" aria-hidden="true" />
+                  Check Structure
+                </>
+              )}
             </Button>
           </div>
         </form>

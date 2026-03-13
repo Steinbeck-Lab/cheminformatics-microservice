@@ -9,7 +9,7 @@ import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 // Assuming this service is configured correctly
 import { generate3DCoordinates } from "../../services/convertService"; // Assuming this service exists
-import { AlertCircle, Box, Check, Clipboard, Download } from "lucide-react";
+import { AlertCircle, Box, Check, Clipboard, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -174,8 +174,17 @@ const Mol3DView = () => {
               }`}
               disabled={!smiles.trim() || isLoading}
             >
-              <Box className="mr-2 h-5 w-5" aria-hidden="true" />
-              {isLoading ? "Generating..." : "Generate 3D Coordinates"}
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Box className="mr-2 h-5 w-5" aria-hidden="true" />
+                  Generate 3D Coordinates
+                </>
+              )}
             </Button>
           </div>
         </form>

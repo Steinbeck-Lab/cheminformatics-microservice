@@ -209,8 +209,17 @@ const DescriptorsView = () => {
                   : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
               }`}
             >
-              <Calculator className="mr-2 h-5 w-5" aria-hidden="true" />
-              {loading ? "Calculating..." : "Calculate Descriptors"}
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Calculating...
+                </>
+              ) : (
+                <>
+                  <Calculator className="mr-2 h-5 w-5" aria-hidden="true" />
+                  Calculate Descriptors
+                </>
+              )}
             </Button>
           </div>
         </form>

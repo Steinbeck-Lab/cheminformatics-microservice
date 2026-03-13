@@ -11,7 +11,18 @@ import { lookupPubChem } from "../../services/chemService";
 // Import visualization components
 import MoleculeDepiction2D from "./MoleculeDepiction2D";
 import MoleculeDepiction3D from "./MoleculeDepiction3D";
-import { AlertCircle, Atom, BarChart3, Box, Check, Circle, Copy, Info, Search } from "lucide-react";
+import {
+  AlertCircle,
+  Atom,
+  BarChart3,
+  Box,
+  Check,
+  Circle,
+  Copy,
+  Info,
+  Loader2,
+  Search,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -227,8 +238,17 @@ const StructureVisualizerView = () => {
                       : "bg-linear-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 transform hover:-translate-y-1"
                   }`}
                 >
-                  <Search className="mr-2 h-5 w-5" />
-                  {loading ? "Searching..." : "Search & Visualize"}
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Searching...
+                    </>
+                  ) : (
+                    <>
+                      <Search className="mr-2 h-5 w-5" />
+                      Search & Visualize
+                    </>
+                  )}
                   {!loading && !identifier.trim() ? null : (
                     <span className="absolute inset-0 overflow-hidden rounded-lg">
                       <span className="absolute inset-0 rounded-lg bg-linear-to-r from-blue-400 to-indigo-500 opacity-0 transition-opacity hover:opacity-20"></span>

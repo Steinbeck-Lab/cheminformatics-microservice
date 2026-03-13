@@ -370,8 +370,17 @@ const TanimotoView = () => {
                 : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs" // Enabled state
             }`}
           >
-            <Calculator className="mr-2 h-5 w-5" />
-            {loading ? "Calculating..." : "Calculate Similarity"}
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Calculating...
+              </>
+            ) : (
+              <>
+                <Calculator className="mr-2 h-5 w-5" />
+                Calculate Similarity
+              </>
+            )}
           </Button>
         </div>
       </div>

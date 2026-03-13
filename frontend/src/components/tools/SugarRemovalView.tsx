@@ -27,6 +27,7 @@ import {
   Lightbulb,
   RefreshCw,
   Search,
+  Loader2,
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -1136,18 +1137,25 @@ const SugarRemovalView = () => {
                   : "bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
           }`}
         >
-          {operationMode === "detect" && <Search className="h-6 w-6" />}
-          {operationMode === "remove" && <Trash2 className="h-6 w-6" />}
-          {operationMode === "extract" && <FlaskConical className="h-6 w-6" />}
-          <span>
-            {isLoading
-              ? "Processing..."
-              : operationMode === "detect"
-                ? "Detect Sugars"
-                : operationMode === "remove"
-                  ? "Remove Sugars"
-                  : "Extract Aglycone & Sugars"}
-          </span>
+          {isLoading ? (
+            <>
+              <Loader2 className="h-6 w-6 animate-spin" />
+              <span>Processing...</span>
+            </>
+          ) : (
+            <>
+              {operationMode === "detect" && <Search className="h-6 w-6" />}
+              {operationMode === "remove" && <Trash2 className="h-6 w-6" />}
+              {operationMode === "extract" && <FlaskConical className="h-6 w-6" />}
+              <span>
+                {operationMode === "detect"
+                  ? "Detect Sugars"
+                  : operationMode === "remove"
+                    ? "Remove Sugars"
+                    : "Extract Aglycone & Sugars"}
+              </span>
+            </>
+          )}
         </Button>
       </div>
 

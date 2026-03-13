@@ -15,6 +15,7 @@ import {
   Download,
   FlaskConical,
   Info,
+  Loader2,
   XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -183,8 +184,17 @@ const StructureGenView = () => {
               disabled={!formula || isLoading}
               className="px-4 py-2 rounded-md font-medium bg-sky-600 hover:bg-sky-700 text-white dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center"
             >
-              <FlaskConical className="mr-2 h-5 w-5" />
-              {isLoading ? "Generating..." : "Generate Structures"}
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <FlaskConical className="mr-2 h-5 w-5" />
+                  Generate Structures
+                </>
+              )}
             </Button>
 
             {/* Show selection buttons only when structures are present */}
