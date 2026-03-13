@@ -46,7 +46,7 @@ const ThemeToggle = ({
 }) => (
   <motion.button
     onClick={toggleDarkMode}
-    className={`relative flex items-center w-[52px] h-[28px] rounded-full p-[3px] cursor-pointer overflow-hidden ring-1 ring-inset transition-colors duration-500 ${
+    className={`relative flex items-center w-[52px] h-[28px] rounded-full p-[3px] cursor-pointer overflow-hidden ring-1 ring-inset transition-colors duration-500 clay-interactive ${
       isDarkMode
         ? "bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-800 ring-indigo-400/20"
         : "bg-gradient-to-r from-sky-300 via-sky-200 to-amber-200 ring-amber-300/30"
@@ -163,7 +163,9 @@ const Header = () => {
         pointerEvents: isVisible ? "auto" : "none",
       }}
     >
-      <div className="w-full lg:w-3/4 mx-auto rounded-full border transition-all duration-300 backdrop-blur-md bg-white/70 dark:bg-slate-900/70 shadow-md shadow-slate-900/[0.03] dark:shadow-black/10 border-slate-200/50 dark:border-slate-700/40">
+      <div
+        className={`w-full lg:w-3/4 mx-auto rounded-full transition-all duration-300 shadow-md shadow-slate-900/[0.03] dark:shadow-black/10 glass-bold glass-refraction-hover`}
+      >
         <div className="relative flex items-center justify-between h-14 px-4 sm:px-5 lg:px-6">
           {/* Logo and title */}
           <motion.div
@@ -230,7 +232,7 @@ const Header = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="rounded-full h-8 w-8 text-slate-600 hover:text-sky-600 hover:bg-slate-200/70 dark:text-slate-300 dark:hover:text-sky-300 dark:hover:bg-slate-700/70 focus:outline-hidden"
+                    className="rounded-full h-8 w-8 text-slate-600 hover:text-sky-600 hover:bg-slate-200/70 dark:text-slate-300 dark:hover:text-sky-300 dark:hover:bg-slate-700/70 focus:outline-hidden clay-interactive"
                     aria-label="Toggle mobile menu"
                   >
                     <Menu className="h-5 w-5" />

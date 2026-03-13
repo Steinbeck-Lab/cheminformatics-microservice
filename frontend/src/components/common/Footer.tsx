@@ -181,7 +181,7 @@ const Footer = () => {
   return (
     <motion.footer
       ref={footerRef}
-      className="relative overflow-hidden bg-linear-to-b from-slate-100 via-white to-slate-100 dark:from-gray-950 dark:via-slate-900 dark:to-gray-950 py-4 sm:py-6 mt-auto border-t border-slate-200 dark:border-slate-800"
+      className="relative overflow-hidden glass-bold py-4 sm:py-6 mt-auto"
       variants={footerVariant}
       initial="hidden"
       animate={controls}
@@ -189,8 +189,7 @@ const Footer = () => {
       {/* Animated background particles */}
       <Particles />
 
-      {/* Glass morphism overlay for depth */}
-      <div className="absolute inset-0 bg-white/30 dark:bg-black/20 backdrop-blur-[2px] z-0"></div>
+      {/* glass-bold on the footer container handles the frosted glass effect */}
 
       {/* Decorative molecule SVG in background - hidden on small screens for better performance */}
       <div className="absolute -right-16 -bottom-16 opacity-3 dark:opacity-8 pointer-events-none scale-75 hidden sm:block">
@@ -325,7 +324,7 @@ const Footer = () => {
               {/* Terms of Service Link - Simplified */}
               <Link
                 to="/terms"
-                className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-gray-800 rounded-md text-xs font-medium text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-300 transition-colors border border-slate-200 dark:border-slate-700"
+                className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-gray-800 rounded-md text-xs font-medium text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-300 transition-colors border border-slate-200 dark:border-slate-700 clay-interactive"
               >
                 <FileCheck className="h-3 w-3 text-slate-500 dark:text-slate-400" />
                 <span>Terms of Service</span>
@@ -334,7 +333,7 @@ const Footer = () => {
               {/* Privacy Policy Link - Simplified */}
               <Link
                 to="/privacy"
-                className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-gray-800 rounded-md text-xs font-medium text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-300 transition-colors border border-slate-200 dark:border-slate-700"
+                className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-gray-800 rounded-md text-xs font-medium text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-300 transition-colors border border-slate-200 dark:border-slate-700 clay-interactive"
               >
                 <Shield className="h-3 w-3 text-slate-500 dark:text-slate-400" />
                 <span>Privacy Policy</span>
@@ -357,7 +356,7 @@ const Footer = () => {
                 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <Card className="group h-full p-0 py-0 gap-0 rounded-lg border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm transition-all duration-300 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-500">
+                <Card className="group h-full p-0 py-0 gap-0 rounded-lg glass-bold transition-all duration-300 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-500">
                   <a
                     href={link.href}
                     target="_blank"
