@@ -1,5 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import { motion, LayoutGroup } from "motion/react";
 import {
   Camera,
   FlaskConical,
@@ -10,131 +11,126 @@ import {
   Users,
 } from "lucide-react";
 
-// Add CSS for the strobing animation
-const StrobingIcon = ({ icon: Icon, className }) => {
-  return (
-    <div className="relative">
-      <Icon className={`${className} animate-usergroup-strobe`} aria-hidden="true" />
-    </div>
-  );
-};
-
 // Navigation links configuration
 const navLinks = [
-  {
-    to: "/home",
-    label: "Home",
-    icon: House,
-    exact: true,
-  },
-  {
-    to: "/chem",
-    label: "Chemical Analysis",
-    icon: FlaskConical,
-  },
-  {
-    to: "/convert",
-    label: "Format Conversion",
-    icon: RefreshCw,
-  },
-  {
-    to: "/depict",
-    label: "Depiction",
-    icon: LineChart,
-  },
-  {
-    to: "/tools",
-    label: "Tools",
-    icon: SlidersHorizontal,
-  },
-  {
-    to: "/ocsr",
-    label: "OCSR",
-    icon: Camera,
-  },
-  {
-    to: "/about",
-    label: "About",
-    icon: Users,
-    animated: true, // Flag to identify this icon for animation
-  },
+  { to: "/home", label: "Home", icon: House, exact: true },
+  { to: "/chem", label: "Chemical Analysis", icon: FlaskConical },
+  { to: "/convert", label: "Format Conversion", icon: RefreshCw },
+  { to: "/depict", label: "Depiction", icon: LineChart },
+  { to: "/tools", label: "Tools", icon: SlidersHorizontal },
+  { to: "/ocsr", label: "OCSR", icon: Camera },
+  { to: "/about", label: "About", icon: Users },
 ];
 
-const Navigation = ({ isMobile = false, closeMenu = () => {} }) => {
-  // CSS classes for different states of the navigation links
-  const getLinkClasses = ({ isActive }) => {
-    // Base classes for layout, padding, font, and transitions
-    const baseClasses = `flex items-center rounded-md text-sm font-medium transition-all duration-200 ease-in-out group ${
-      isMobile ? "py-2 px-3 text-base" : "px-3 py-2" // Slightly larger text/padding for mobile clarity
-    }`;
+// Smooth spring for icon hover/tap
+const iconSpring = { type: "spring", stiffness: 400, damping: 17 };
 
-    // Classes for the ACTIVE link state (Light & Dark)
-    const activeClasses = isActive
-      ? "bg-sky-100 dark:bg-slate-700 text-sky-700 dark:text-white shadow-inner dark:shadow-none" // Example using theme colors
-      : // Classes for the INACTIVE link state (Light & Dark)
-        "text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 hover:text-slate-900 dark:hover:text-white";
+// Icon animation variants — propagated from parent whileHover/whileTap
+const iconVariants = {
+  idle: { scale: 1, rotate: 0 },
+  hover: { scale: 1.18, rotate: 8, transition: iconSpring },
+  tap: { scale: 0.88, rotate: -4, transition: { duration: 0.1 } },
+};
 
-    return `${baseClasses} ${activeClasses}`;
-  };
+const Navigation = ({
+  isMobile = false,
+  closeMenu = () => {},
+}: {
+  isMobile?: boolean;
+  closeMenu?: () => void;
+}) => {
+  // --- Mobile layout ---
+  if (isMobile) {
+    return (
+      <nav className="flex flex-col space-y-1">
+        {navLinks.map((link) => {
+          const Icon = link.icon;
+          return (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              onClick={closeMenu}
+              end={link.exact}
+              className={({ isActive }) =>
+                `flex items-center py-2.5 px-3 text-base font-medium rounded-lg transition-colors ${
+                  isActive
+                    ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900"
+                    : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                }`
+              }
+            >
+              <Icon className="shrink-0 h-5 w-5 mr-3" aria-hidden="true" />
+              <span>{link.label}</span>
+            </NavLink>
+          );
+        })}
+      </nav>
+    );
+  }
 
-  // Add the animation keyframes to the document
-  React.useEffect(() => {
-    // Create a style element for our custom animations
-    const style = document.createElement("style");
-    style.innerHTML = `
-      @keyframes usergroup-strobe {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-      }
-      
-      @keyframes usergroup-shake {
-        0%, 92%, 100% { transform: translateX(0); }
-        94% { transform: translateX(-1px) rotate(-0.5deg); }
-        96% { transform: translateX(1px) rotate(0.5deg); }
-        98% { transform: translateX(-1px); }
-      }
-      
-      .animate-usergroup-strobe {
-        animation: usergroup-strobe 3s ease-in-out infinite, usergroup-shake 17s ease-in-out infinite;
-      }
-    `;
-    // Append the style to the head
-    document.head.appendChild(style);
-
-    // Clean up on unmount
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
-
+  // --- Desktop layout with animated active pill ---
   return (
-    // Adjusted spacing for desktop
-    <nav
-      className={`${isMobile ? "flex flex-col space-y-1" : "flex items-center space-x-1 lg:space-x-2"}`}
-    >
-      {navLinks.map((link) => {
-        const Icon = link.icon; // Get the icon component
-        const iconClassName = `shrink-0 h-5 w-5 ${isMobile ? "mr-3" : "mr-1.5"}`;
+    <LayoutGroup id="desktopNav">
+      <nav className="flex items-center gap-0.5 lg:gap-1">
+        {navLinks.map((link) => {
+          const Icon = link.icon;
+          return (
+            <NavLink key={link.to} to={link.to} end={link.exact} className="relative outline-none">
+              {({ isActive }) => (
+                <motion.div
+                  className={`relative flex items-center px-2.5 lg:px-3 py-1.5 text-sm font-medium rounded-full cursor-pointer select-none ${
+                    isActive
+                      ? "text-white dark:text-slate-900"
+                      : "text-slate-600 dark:text-slate-400"
+                  }`}
+                  whileHover="hover"
+                  whileTap="tap"
+                  initial="idle"
+                  animate="idle"
+                >
+                  {/* Animated active pill background */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeNavPill"
+                      className="absolute inset-0 bg-slate-900 dark:bg-slate-200 rounded-full shadow-sm"
+                      transition={{
+                        type: "spring",
+                        stiffness: 350,
+                        damping: 30,
+                      }}
+                    />
+                  )}
 
-        return (
-          <NavLink
-            key={link.to}
-            to={link.to}
-            className={getLinkClasses}
-            onClick={isMobile ? closeMenu : undefined}
-            end={link.exact} // Use end prop from config
-          >
-            {/* Render the animated StrobingIcon component for UserGroup icon, regular Icon for others */}
-            {link.animated ? (
-              <StrobingIcon icon={Icon} className={iconClassName} />
-            ) : (
-              <Icon className={iconClassName} aria-hidden="true" />
-            )}
-            <span>{link.label}</span>
-          </NavLink>
-        );
-      })}
-    </nav>
+                  {/* Hover highlight for inactive items */}
+                  {!isActive && (
+                    <motion.div
+                      className="absolute inset-0 rounded-full bg-slate-200/0 dark:bg-slate-700/0"
+                      variants={{
+                        idle: {
+                          backgroundColor: "rgba(0,0,0,0)",
+                        },
+                        hover: {
+                          backgroundColor: "rgba(148,163,184,0.15)",
+                        },
+                      }}
+                      transition={{ duration: 0.2 }}
+                    />
+                  )}
+
+                  {/* Icon with hover/tap animation */}
+                  <motion.span className="relative z-10 shrink-0 mr-1.5" variants={iconVariants}>
+                    <Icon className="h-4 w-4" aria-hidden="true" />
+                  </motion.span>
+
+                  {/* Label */}
+                  <span className="relative z-10 whitespace-nowrap">{link.label}</span>
+                </motion.div>
+              )}
+            </NavLink>
+          );
+        })}
+      </nav>
+    </LayoutGroup>
   );
 };
 export default Navigation;

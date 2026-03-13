@@ -7,7 +7,7 @@ import { Menu, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
-// --- Enhanced Animation Variants ---
+// --- Animation Variants ---
 const headerVariants = {
   hidden: { opacity: 0, y: -20 },
   visible: {
@@ -15,7 +15,7 @@ const headerVariants = {
     y: 0,
     transition: {
       duration: 0.7,
-      ease: [0.22, 1, 0.36, 1], // Custom cubic-bezier for smoother animation
+      ease: [0.22, 1, 0.36, 1],
       when: "beforeChildren",
       staggerChildren: 0.1,
     },
@@ -23,25 +23,19 @@ const headerVariants = {
 };
 
 const headerContentVariants = {
-  hidden: { opacity: 0, y: -15, scale: 0.95 },
+  hidden: { opacity: 0, y: -10, scale: 0.97 },
   visible: (i = 1) => ({
     opacity: 1,
     y: 0,
     scale: 1,
     transition: {
-      duration: 0.6,
+      duration: 0.5,
       delay: 0.05 * i,
       ease: [0.2, 0.65, 0.3, 0.9],
-      scale: {
-        type: "spring",
-        stiffness: 400,
-        damping: 25,
-      },
     },
   }),
 };
 
-// Spring transition for the pill toggle
 const pillSwitchTransition = {
   type: "spring",
   stiffness: 600,
@@ -56,13 +50,16 @@ const ThemeToggle = ({
   isDarkMode: boolean;
   toggleDarkMode: () => void;
 }) => (
-  <div
+  <motion.div
     className={`relative flex items-center w-[62px] h-8 rounded-full p-1 cursor-pointer transition-all duration-300 ease-in-out ${
       isDarkMode
         ? "bg-linear-to-r from-slate-800 to-slate-700 hover:shadow-inner hover:shadow-slate-900"
         : "bg-linear-to-r from-sky-100 to-indigo-100 hover:shadow-md hover:shadow-indigo-200/50"
     }`}
     onClick={toggleDarkMode}
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+    transition={{ type: "spring", stiffness: 400, damping: 20 }}
     aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
     role="switch"
     aria-checked={isDarkMode}
@@ -90,7 +87,7 @@ const ThemeToggle = ({
         className={`h-4 w-4 transition-colors ${isDarkMode ? "text-yellow-300" : "text-slate-400"}`}
       />
     </div>
-  </div>
+  </motion.div>
 );
 
 // --- Component ---
@@ -105,36 +102,34 @@ const Header = () => {
     setIsSheetOpen(false);
   }, [location]);
 
-  // Check scroll position for glass effect intensity
+  // Track scroll for glass intensity
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Use higher quality logo URLs
   const logoDark =
     "https://raw.githubusercontent.com/Steinbeck-Lab/cheminformatics-microservice/main/public/img/logo_small_inverted.png";
   const logoLight =
     "https://raw.githubusercontent.com/Steinbeck-Lab/cheminformatics-microservice/main/public/img/logo_small.png";
 
-  // Calculate header background classes based on scroll state using dark: variant
-  const headerBgClasses = isScrolled
-    ? "backdrop-blur-lg bg-white dark:bg-slate-900/90 shadow-lg shadow-slate-200/50 dark:shadow-slate-900/30"
-    : "backdrop-blur-sm bg-white dark:bg-slate-900/80 shadow-md shadow-slate-200/30 dark:shadow-slate-900/20";
+  // Floating pill glass effect — intensifies on scroll
+  const pillClasses = isScrolled
+    ? "backdrop-blur-xl bg-white/80 dark:bg-slate-900/85 shadow-lg shadow-slate-900/5 dark:shadow-black/20 border-white/60 dark:border-slate-700/50"
+    : "backdrop-blur-md bg-white/60 dark:bg-slate-900/60 shadow-md shadow-slate-900/[0.03] dark:shadow-black/10 border-white/40 dark:border-slate-700/30";
 
   return (
     <motion.header
-      className={`sticky top-0 z-50 border-b transition-all duration-300 ${headerBgClasses} border-slate-200/70 dark:border-slate-800/40`}
+      className="sticky top-0 z-50 w-full px-3 sm:px-4 pt-3 pb-1"
       variants={headerVariants}
       initial="hidden"
       animate="visible"
     >
-      <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center h-16 justify-between md:justify-center">
+      <div
+        className={`max-w-6xl mx-auto rounded-2xl border transition-all duration-300 ${pillClasses}`}
+      >
+        <div className="flex items-center h-14 px-4 sm:px-5 justify-between">
           {/* Logo and title */}
           <motion.div
             className="shrink-0 flex items-center"
@@ -143,65 +138,61 @@ const Header = () => {
           >
             <Link to="/" className="flex items-center group" aria-label="Homepage">
               <motion.div
-                className="overflow-hidden rounded-md mr-3"
+                className="overflow-hidden rounded-md mr-2.5"
                 whileHover={{
-                  scale: 1.08,
-                  rotate: [0, 2, 0, -2, 0],
-                  transition: { rotate: { repeat: Infinity, duration: 1.5 } },
+                  scale: 1.1,
+                  rotate: [0, 3, -3, 0],
                 }}
+                whileTap={{ scale: 0.92 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >
-                <motion.img
+                <img
                   src={isDarkMode ? logoDark : logoLight}
                   alt="Cheminformatics Microservice Logo"
                   className="h-9 w-auto p-0.5"
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.5 }}
                 />
               </motion.div>
 
               <div className="flex flex-col justify-center">
-                <motion.span
-                  className="font-bold text-lg sm:text-xl leading-tight bg-linear-to-r from-sky-600 to-indigo-600 dark:from-sky-300 dark:to-blue-400 text-transparent bg-clip-text"
-                  whileHover={{ scale: 1.03 }}
-                >
+                <span className="font-bold text-lg sm:text-xl leading-tight bg-linear-to-r from-sky-600 to-indigo-600 dark:from-sky-300 dark:to-blue-400 text-transparent bg-clip-text">
                   Cheminformatics
-                </motion.span>
-                <motion.span
-                  className="hidden md:inline text-[11px] leading-tight -mt-0.5 transition-colors text-indigo-500 group-hover:text-indigo-700 dark:text-sky-300 dark:group-hover:text-sky-200"
-                  initial={{ y: 5, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2, duration: 0.4 }}
-                >
+                </span>
+                <span className="hidden md:inline text-[11px] leading-tight -mt-0.5 text-indigo-500 dark:text-sky-300">
                   Microservices
-                </motion.span>
+                </span>
               </div>
             </Link>
           </motion.div>
 
+          {/* Separator — logo / nav */}
+          <div className="hidden md:block h-8 w-px bg-slate-300/70 dark:bg-slate-600/50 mx-4 lg:mx-5 shrink-0" />
+
           {/* Desktop Navigation */}
           <motion.div
-            className="hidden md:flex items-center ml-6 lg:ml-10"
+            className="hidden md:flex items-center flex-1 min-w-0 justify-center"
             variants={headerContentVariants}
             custom={1}
           >
             <Navigation />
           </motion.div>
 
+          {/* Separator — nav / toggle */}
+          <div className="hidden md:block h-8 w-px bg-slate-300/70 dark:bg-slate-600/50 mx-4 lg:mx-5 shrink-0" />
+
           {/* Desktop Theme Toggle */}
           <motion.div
-            className="hidden md:flex items-center ml-6 lg:ml-10"
+            className="hidden md:flex items-center shrink-0"
             variants={headerContentVariants}
             custom={2}
           >
             <ThemeToggle isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
           </motion.div>
 
-          {/* Mobile menu button - Sheet trigger */}
+          {/* Mobile menu button */}
           <div className="flex items-center md:hidden">
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
               <SheetTrigger asChild>
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}>
                   <Button
                     variant="ghost"
                     size="icon"
