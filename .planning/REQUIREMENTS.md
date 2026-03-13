@@ -60,12 +60,12 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Animations & Polish
 
-- [ ] **ANIM-01**: Smooth page transitions when navigating between routes
-- [ ] **ANIM-02**: Micro-interactions on buttons (press scale, hover glow/lift)
-- [ ] **ANIM-03**: Focus ring animations on interactive elements
-- [ ] **ANIM-04**: View transitions when switching tabs within tool pages
-- [ ] **ANIM-05**: Staggered list animations for results and data displays
-- [ ] **ANIM-06**: Layout animations on content state changes (expand/collapse, show/hide)
+- [x] **ANIM-01**: Smooth page transitions when navigating between routes
+- [x] **ANIM-02**: Micro-interactions on buttons (press scale, hover glow/lift)
+- [x] **ANIM-03**: Focus ring animations on interactive elements
+- [x] **ANIM-04**: View transitions when switching tabs within tool pages
+- [x] **ANIM-05**: Staggered list animations for results and data displays
+- [x] **ANIM-06**: Layout animations on content state changes (expand/collapse, show/hide)
 
 ### Power User Features
 
@@ -143,12 +143,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LOAD-02 | Phase 5 | Complete |
 | LOAD-03 | Phase 5 | Complete |
 | LOAD-04 | Phase 5 | Complete |
-| ANIM-01 | Phase 6 | Pending |
-| ANIM-02 | Phase 6 | Pending |
-| ANIM-03 | Phase 6 | Pending |
-| ANIM-04 | Phase 6 | Pending |
-| ANIM-05 | Phase 6 | Pending |
-| ANIM-06 | Phase 6 | Pending |
+| ANIM-01 | Phase 6 | Complete |
+| ANIM-02 | Phase 6 | Complete |
+| ANIM-03 | Phase 6 | Complete |
+| ANIM-04 | Phase 6 | Complete |
+| ANIM-05 | Phase 6 | Complete |
+| ANIM-06 | Phase 6 | Complete |
 | POWER-01 | Phase 6 | Pending |
 | POWER-02 | Phase 6 | Pending |
 | POWER-03 | Phase 6 | Pending |
