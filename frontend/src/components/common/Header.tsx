@@ -154,7 +154,7 @@ const Header = () => {
 
   return (
     <motion.header
-      className="fixed top-0 left-0 right-0 z-50 px-3 sm:px-4 pt-2"
+      className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8 pt-2"
       variants={headerVariants}
       initial="hidden"
       animate="visible"
@@ -163,7 +163,7 @@ const Header = () => {
         pointerEvents: isVisible ? "auto" : "none",
       }}
     >
-      <div className="max-w-7xl mx-auto rounded-full border transition-all duration-300 backdrop-blur-md bg-white/70 dark:bg-slate-900/70 shadow-md shadow-slate-900/[0.03] dark:shadow-black/10 border-slate-200/50 dark:border-slate-700/40">
+      <div className="w-full lg:w-3/4 mx-auto rounded-full border transition-all duration-300 backdrop-blur-md bg-white/70 dark:bg-slate-900/70 shadow-md shadow-slate-900/[0.03] dark:shadow-black/10 border-slate-200/50 dark:border-slate-700/40">
         <div className="relative flex items-center justify-between h-14 px-4 sm:px-5 lg:px-6">
           {/* Logo and title */}
           <motion.div
@@ -197,6 +197,9 @@ const Header = () => {
                 </span>
               </div>
             </Link>
+
+            {/* Separator: logo | nav */}
+            <div className="hidden lg:block ml-4 w-px h-6 bg-slate-300 dark:bg-slate-600" />
           </motion.div>
 
           {/* Desktop Navigation — absolutely centered in pill */}

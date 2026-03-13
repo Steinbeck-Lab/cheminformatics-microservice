@@ -610,7 +610,7 @@ const AboutPage = () => {
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 text-center">
               Related Projects
             </h2>
-            <div className="text-center">
+            <div className="flex flex-wrap justify-center gap-4">
               <motion.div variants={buttonVariant} whileHover="hover" className="inline-block">
                 <Button
                   asChild
@@ -621,6 +621,30 @@ const AboutPage = () => {
                     <Atom className="mr-3 h-5 w-5" />
                     <span className="text-lg">Natural Products Online</span>
                     <ExternalLink className="ml-3 h-5 w-5" />
+                  </a>
+                </Button>
+              </motion.div>
+              <motion.div variants={buttonVariant} whileHover="hover" className="inline-block">
+                <Button
+                  asChild
+                  size="lg"
+                  className="h-auto inline-flex items-center justify-center px-8 py-4 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 font-semibold rounded-lg shadow-lg text-lg border border-slate-200 dark:border-slate-700"
+                >
+                  <a
+                    href="https://chemaudit.naturalproducts.net/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <img
+                      src="https://raw.githubusercontent.com/Kohulan/ChemAudit/main/docs/assets/logo.png"
+                      alt=""
+                      className="mr-3 h-6 w-auto"
+                    />
+                    <span className="text-lg">
+                      <span className="text-orange-600">Chem</span>
+                      <span className="text-slate-900 dark:text-white">Audit</span>
+                    </span>
+                    <ExternalLink className="ml-3 h-5 w-5 text-slate-500" />
                   </a>
                 </Button>
               </motion.div>
@@ -822,7 +846,7 @@ const AboutPage = () => {
                 </h2>
               </div>
               <p className="text-slate-700 dark:text-slate-300 mb-6 leading-relaxed">
-                Cheminformatics Microservice and{" "}
+                Cheminformatics Microservice,{" "}
                 <a
                   href="https://naturalproducts.net"
                   target="_blank"
@@ -830,6 +854,15 @@ const AboutPage = () => {
                   className="text-blue-600 dark:text-blue-400 hover:underline"
                 >
                   Natural Products Online
+                </a>
+                , and{" "}
+                <a
+                  href="https://chemaudit.naturalproducts.net/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  ChemAudit
                 </a>{" "}
                 are developed and maintained by the{" "}
                 <a
