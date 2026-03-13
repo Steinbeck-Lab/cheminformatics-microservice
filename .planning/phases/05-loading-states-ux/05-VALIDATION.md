@@ -38,26 +38,27 @@ created: 2026-03-13
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 05-01-01 | 01 | 1 | LOAD-01 | unit | `cd frontend && npx vitest run src/__tests__/components/glass-skeleton.test.tsx -t "shimmer"` | ❌ W0 | ⬜ pending |
-| 05-01-02 | 01 | 1 | LOAD-02 | unit | `cd frontend && npx vitest run src/__tests__/components/sonner.test.tsx` | ❌ W0 | ⬜ pending |
-| 05-01-03 | 01 | 1 | LOAD-03 | unit | `cd frontend && npx vitest run src/__tests__/components/glass-error-card.test.tsx` | ❌ W0 | ⬜ pending |
-| 05-01-04 | 01 | 1 | LOAD-04 | unit | `cd frontend && npx vitest run src/__tests__/components/tool-loading.test.tsx` | ❌ W0 | ⬜ pending |
-| 05-02-01 | 02 | 1 | UX-01 | manual-only | Manual viewport testing at 375px/768px | N/A | ⬜ pending |
-| 05-02-02 | 02 | 1 | UX-02 | unit | `cd frontend && npx vitest run src/__tests__/App.test.tsx -t "lazy"` | ❌ W0 | ⬜ pending |
-| 05-02-03 | 02 | 1 | UX-03 | unit | `cd frontend && npx vitest run src/__tests__/components/navigation.test.tsx` | ❌ W0 | ⬜ pending |
-| 05-02-04 | 02 | 1 | UX-04 | smoke | `cd frontend && npm run build 2>&1 \| grep -c "dist/assets/"` | N/A | ⬜ pending |
+| 05-01-01 | 01 | 1 | LOAD-01 | unit | `cd frontend && npx vitest run src/__tests__/components/glass-skeleton.test.tsx -t "shimmer"` | W0 | pending |
+| 05-01-02 | 01 | 1 | LOAD-02 | unit | `cd frontend && npx vitest run src/__tests__/components/sonner.test.tsx` | W0 | pending |
+| 05-01-03 | 01 | 1 | LOAD-03 | unit | `cd frontend && npx vitest run src/__tests__/components/glass-error-card.test.tsx` | W0 | pending |
+| 05-01-04 | 01 | 1 | LOAD-04 | unit | `cd frontend && npx vitest run src/__tests__/components/tool-loading.test.tsx` | W0 | pending |
+| 05-03-01 | 03 | 2 | UX-01 | manual-only | Manual viewport testing at 375px/768px | N/A | pending |
+| 05-03-02 | 03 | 2 | UX-02 | unit | `cd frontend && npx vitest run src/__tests__/App.test.tsx -t "lazy"` | W0 (created in Plan 03 Task 2) | pending |
+| 05-03-03 | 03 | 2 | UX-03 | unit | `cd frontend && npx vitest run src/__tests__/components/navigation.test.tsx` | W0 (created in Plan 03 Task 2) | pending |
+| 05-03-04 | 03 | 2 | UX-04 | smoke | `cd frontend && npm run build 2>&1 \| grep -c "dist/assets/"` | N/A | pending |
 
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+*Status: pending / green / red / flaky*
 
 ---
 
 ## Wave 0 Requirements
 
-- [ ] `src/__tests__/components/glass-skeleton.test.tsx` — stubs for LOAD-01
-- [ ] `src/__tests__/components/sonner.test.tsx` — stubs for LOAD-02
-- [ ] `src/__tests__/components/glass-error-card.test.tsx` — stubs for LOAD-03
-- [ ] `src/__tests__/components/tool-loading.test.tsx` — stubs for LOAD-04
-- [ ] `src/__tests__/components/navigation.test.tsx` — stubs for UX-03
+- [ ] `src/__tests__/components/glass-skeleton.test.tsx` — stubs for LOAD-01 (Plan 01 Task 2)
+- [ ] `src/__tests__/components/sonner.test.tsx` — stubs for LOAD-02 (Plan 01 Task 2)
+- [ ] `src/__tests__/components/glass-error-card.test.tsx` — stubs for LOAD-03 (Plan 01 Task 2)
+- [ ] `src/__tests__/components/tool-loading.test.tsx` — stubs for LOAD-04 (Plan 01 Task 2)
+- [ ] `src/__tests__/components/navigation.test.tsx` — stubs for UX-03 (Plan 03 Task 2)
+- [ ] `src/__tests__/App.test.tsx` — lazy-loading assertion for UX-02 (Plan 03 Task 2)
 
 ---
 
