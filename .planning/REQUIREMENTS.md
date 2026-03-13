@@ -42,6 +42,15 @@ Requirements for this milestone. Each maps to roadmap phases.
 - [x] **THEME-04**: CSS variable-based theming using shadcn/ui approach
 - [x] **THEME-05**: All pages and components render correctly in both light and dark modes
 
+### Visual Design System
+
+- [x] **VISUAL-01**: Glassmorphism + liquid glass fusion aesthetic applied to cards, containers, and panels across all pages
+- [x] **VISUAL-02**: Bento grid layouts for tool pages (replacing uniform grids with varied, editorial-style layouts)
+- [x] **VISUAL-03**: Animated molecule structure cards with hover shimmer, glow effects, and expand/collapse
+- [x] **VISUAL-04**: Resizable input/output panels with draggable divider on wide screens
+- [x] **VISUAL-05**: Result comparison mode for side-by-side molecule analysis
+- [x] **VISUAL-06**: Claymorphism accents blended with glass effects for depth and tactile feel
+
 ### Loading & Feedback
 
 - [ ] **LOAD-01**: Skeleton loading states replace full-page spinners during API calls
@@ -124,6 +133,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | THEME-03 | Phase 4 | Complete |
 | THEME-04 | Phase 4 | Complete |
 | THEME-05 | Phase 4 | Complete |
+| VISUAL-01 | Phase 4.1 | Complete |
+| VISUAL-02 | Phase 4.1 | Complete |
+| VISUAL-03 | Phase 4.1 | Complete |
+| VISUAL-04 | Phase 4.1 | Complete |
+| VISUAL-05 | Phase 4.1 | Complete |
+| VISUAL-06 | Phase 4.1 | Complete |
 | LOAD-01 | Phase 5 | Pending |
 | LOAD-02 | Phase 5 | Pending |
 | LOAD-03 | Phase 5 | Pending |
@@ -143,8 +158,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UX-04 | Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 40 total
-- Mapped to phases: 40
+- v1 requirements: 46 total
+- Mapped to phases: 46
 - Unmapped: 0
 
 ---
