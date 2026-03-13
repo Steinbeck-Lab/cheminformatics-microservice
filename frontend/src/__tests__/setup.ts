@@ -19,6 +19,20 @@ if (typeof window.matchMedia !== "function") {
   });
 }
 
+// jsdom does not implement ResizeObserver -- provide a default mock (needed by cmdk)
+if (typeof globalThis.ResizeObserver === "undefined") {
+  globalThis.ResizeObserver = class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  } as unknown as typeof globalThis.ResizeObserver;
+}
+
+// jsdom does not implement Element.scrollIntoView -- provide a noop (needed by cmdk)
+if (typeof Element.prototype.scrollIntoView !== "function") {
+  Element.prototype.scrollIntoView = () => {};
+}
+
 afterEach(() => {
   cleanup();
 });
