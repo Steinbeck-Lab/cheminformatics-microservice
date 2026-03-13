@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: React 19 + TypeScript 5** - Upgrade React 18 to 19, TypeScript 4.9 to 5.x, verify framer-motion compatibility (completed 2026-03-12)
 - [x] **Phase 3: Tailwind v4 Migration** - Upgrade Tailwind CSS v3 to v4 with CSS-first config and class rename resolution (completed 2026-03-12)
 - [ ] **Phase 4: Component System + Dark Mode** - Integrate shadcn/ui components across all pages with CSS variable theming and dark mode (gap closure in progress)
-- [ ] **Phase 5: Loading States + UX** - Add skeleton loaders, toast notifications, error states, responsive improvements, and performance optimization (gap closure in progress)
+- [x] **Phase 5: Loading States + UX** - Add skeleton loaders, toast notifications, error states, responsive improvements, and performance optimization (gap closure in progress) (completed 2026-03-13)
 - [ ] **Phase 6: Animations + Power Features** - Polish with smooth transitions, micro-interactions, command palette, and inline SMILES preview
 
 ## Phase Details
@@ -155,5 +155,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 4.1 -> 5 -> 6
 | 3. Tailwind v4 Migration | 2/2 | Complete   | 2026-03-12 |
 | 4. Component System + Dark Mode | 4/5 | Gap closure | 2026-03-13 |
 | 4.1 Visual Design System | 7/7 | Complete | 2026-03-13 |
-| 5. Loading States + UX | 3/4 | Gap closure | - |
+| 5. Loading States + UX | 4/4 | Complete   | 2026-03-13 |
 | 6. Animations + Power Features | 0/3 | Not started | - |
