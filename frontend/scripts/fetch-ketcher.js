@@ -72,8 +72,7 @@ function isAllowedRedirect(url) {
   }
 }
 
-function download(url, redirectCount) {
-  if (redirectCount === undefined) redirectCount = 0;
+function download(url, redirectCount = 0) {
   if (redirectCount > MAX_REDIRECTS) {
     return Promise.reject(new Error("Too many redirects"));
   }
@@ -89,7 +88,7 @@ function download(url, redirectCount) {
             res.statusCode < 400 &&
             res.headers.location
           ) {
-            var redirectUrl = res.headers.location;
+            const redirectUrl = res.headers.location;
             if (!isAllowedRedirect(redirectUrl)) {
               reject(
                 new Error(
@@ -118,16 +117,16 @@ function download(url, redirectCount) {
             return;
           }
 
-          var contentLength = parseInt(res.headers["content-length"], 10);
-          var downloaded = 0;
-          var chunks = [];
-          var lastPercent = -1;
+          const contentLength = parseInt(res.headers["content-length"], 10);
+          let downloaded = 0;
+          const chunks = [];
+          let lastPercent = -1;
 
           res.on("data", function (chunk) {
             chunks.push(chunk);
             downloaded += chunk.length;
             if (contentLength) {
-              var percent = Math.floor((downloaded / contentLength) * 100);
+              const percent = Math.floor((downloaded / contentLength) * 100);
               if (percent !== lastPercent && percent % 10 === 0) {
                 process.stdout.write("  " + percent + "%\r");
                 lastPercent = percent;
@@ -147,7 +146,7 @@ function download(url, redirectCount) {
 
 function verifyIntegrity(buffer, expectedHash) {
   if (!expectedHash) return;
-  var actualHash = crypto.createHash("sha256").update(buffer).digest("hex");
+  const actualHash = crypto.createHash("sha256").update(buffer).digest("hex");
   if (actualHash !== expectedHash) {
     throw new Error(
       "Integrity check failed.\n" +
@@ -160,34 +159,33 @@ function verifyIntegrity(buffer, expectedHash) {
 }
 
 function verifyExtraction() {
-  var required = [
+  const required = [
     path.join(STANDALONE_DIR, "index.html"),
     path.join(STANDALONE_DIR, "static"),
   ];
-  for (var i = 0; i < required.length; i++) {
-    if (!fs.existsSync(required[i])) {
-      throw new Error("Verification failed: " + required[i] + " not found");
+  for (const entry of required) {
+    if (!fs.existsSync(entry)) {
+      throw new Error("Verification failed: " + entry + " not found");
     }
   }
   // Verify no path traversal: all extracted files must be within STANDALONE_DIR
-  var realDir = fs.realpathSync(STANDALONE_DIR);
-  var walk = function (dir) {
-    var items = fs.readdirSync(dir, { withFileTypes: true });
-    for (var i = 0; i < items.length; i++) {
-      var fullPath = fs.realpathSync(path.join(dir, items[i].name));
+  const realDir = fs.realpathSync(STANDALONE_DIR);
+  const walk = function (dir) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const fullPath = fs.realpathSync(path.join(dir, entry.name));
       if (!fullPath.startsWith(realDir + path.sep) && fullPath !== realDir) {
         throw new Error("Path traversal detected: " + fullPath);
       }
-      if (items[i].isDirectory()) walk(fullPath);
+      if (entry.isDirectory()) walk(fullPath);
     }
   };
   walk(realDir);
 }
 
 async function main() {
-  var config = getVersion();
-  var version = config.version;
-  var sha256 = config.sha256;
+  const config = getVersion();
+  const version = config.version;
+  const sha256 = config.sha256;
 
   if (isAlreadyPresent(version)) {
     console.log(
@@ -196,7 +194,7 @@ async function main() {
     return;
   }
 
-  var url =
+  const url =
     "https://github.com/epam/ketcher/releases/download/v" +
     version +
     "/ketcher-standalone-" +
@@ -205,7 +203,7 @@ async function main() {
   console.log("Downloading Ketcher v" + version + "...");
   console.log("  URL: " + url);
 
-  var zipBuffer = await download(url);
+  const zipBuffer = await download(url);
   console.log(
     "Downloaded " + (zipBuffer.length / 1024 / 1024).toFixed(1) + " MB",
   );
@@ -220,7 +218,7 @@ async function main() {
   fs.mkdirSync(STANDALONE_DIR, { recursive: true });
 
   // Write zip to temp file with unique name
-  var zipPath = path.join(
+  const zipPath = path.join(
     ROOT,
     ".ketcher-download-" + crypto.randomBytes(8).toString("hex") + ".zip",
   );
@@ -248,17 +246,16 @@ async function main() {
   fs.unlinkSync(zipPath);
 
   // The zip may extract into a subdirectory — flatten if needed
-  var entries = fs.readdirSync(STANDALONE_DIR);
+  const entries = fs.readdirSync(STANDALONE_DIR);
   if (
     entries.length === 1 &&
     fs.statSync(path.join(STANDALONE_DIR, entries[0])).isDirectory()
   ) {
-    var subdir = path.join(STANDALONE_DIR, entries[0]);
-    var items = fs.readdirSync(subdir);
-    for (var i = 0; i < items.length; i++) {
+    const subdir = path.join(STANDALONE_DIR, entries[0]);
+    for (const item of fs.readdirSync(subdir)) {
       fs.renameSync(
-        path.join(subdir, items[i]),
-        path.join(STANDALONE_DIR, items[i]),
+        path.join(subdir, item),
+        path.join(STANDALONE_DIR, item),
       );
     }
     fs.rmdirSync(subdir);
@@ -269,7 +266,7 @@ async function main() {
 
   // Print SHA-256 for first-time setup (when no hash is configured)
   if (!sha256) {
-    var hash = crypto.createHash("sha256").update(zipBuffer).digest("hex");
+    const hash = crypto.createHash("sha256").update(zipBuffer).digest("hex");
     console.log("Ketcher v" + version + " installed to public/standalone/");
     console.log(
       "  TIP: Add SHA-256 to package.json for integrity verification:",
