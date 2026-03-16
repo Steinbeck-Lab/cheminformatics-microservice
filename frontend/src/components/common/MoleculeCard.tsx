@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAppContext } from "../../context/AppContext"; // Assuming context provides addRecentMolecule
 import { AlertCircle, CheckCircle, ChevronDown, Clipboard, Download, Info, X } from "lucide-react";
 import { toast } from "sonner";
@@ -137,7 +137,7 @@ const MoleculeCard = ({
   };
 
   // Auto-select text in copy modal when it appears
-  React.useEffect(() => {
+  useEffect(() => {
     if (showCopyModal && copyTextRef.current) {
       setTimeout(() => {
         copyTextRef.current.select();

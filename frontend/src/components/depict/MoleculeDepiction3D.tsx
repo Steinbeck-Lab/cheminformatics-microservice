@@ -1,10 +1,9 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 // Assuming this service is configured correctly
 import convertService from "../../services/convertService";
 import { AlertCircle, Camera, Download, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,

@@ -1,5 +1,5 @@
 // Description: This component provides a user interface for filtering chemical compounds based on various medicinal chemistry rules and properties. It allows users to input SMILES strings, apply filters, and view results in a table format. The component is designed to be responsive and theme-aware, adapting to light and dark modes.
-import React, { useState } from "react";
+import { useState } from "react";
 import { LayoutGroup, motion } from "motion/react";
 // Import HiOutlineExclamationCircle along with other icons
 import { useAppContext } from "../../context/AppContext"; // Assuming this provides theme-aware context if needed
@@ -22,7 +22,6 @@ import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,

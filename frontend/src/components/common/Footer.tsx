@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { motion, useAnimation, useInView } from "motion/react";
 import { useAppContext } from "../../context/AppContext";
 import { Link } from "react-router-dom";
@@ -106,14 +106,10 @@ const Particles = () => {
 
     animate();
 
-    const handleResize = () => {
-      updateCanvasSize();
-    };
-
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", updateCanvasSize);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", updateCanvasSize);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);

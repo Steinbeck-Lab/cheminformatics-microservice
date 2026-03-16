@@ -1,5 +1,5 @@
 // Description: This component allows users to generate 2D depictions of multiple molecules from SMILES strings.
-import React, { useState } from "react"; // Removed useEffect
+import { useState } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";

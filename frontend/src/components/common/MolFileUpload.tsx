@@ -1,9 +1,8 @@
 // Description: A reusable React component for uploading and converting MOL/SDF files to SMILES
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import convertService from "../../services/convertService";
 import { AlertCircle, CheckCircle, FileText, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 
 /**

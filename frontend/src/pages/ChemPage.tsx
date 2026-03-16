@@ -4,7 +4,7 @@
  * Reverted from bento grid back to sidebar-tab navigation per user feedback.
  * Uses GradientMesh for background and glass-bold for glass surfaces.
  */
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 import { useParams, useNavigate } from "react-router-dom";
 

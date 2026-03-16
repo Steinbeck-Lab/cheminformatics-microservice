@@ -182,7 +182,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
     setT15(false);
     setPolymers(false);
     setNPZz(false);
-    setMolecularInorganics(inchiVersion === "Latest-MoIn" ? true : false);
+    setMolecularInorganics(inchiVersion === "Latest-MoIn");
     setSUU(false);
     setSLUUD(false);
     setNEWPSOFF(false);

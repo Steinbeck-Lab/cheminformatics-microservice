@@ -1,5 +1,5 @@
 // Description: This component combines PubChem lookup with 2D and 3D visualization
-import React, { useState } from "react";
+import { useState } from "react";
 import SMILESDisplay from "../common/SMILESDisplay";
 import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
 import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
@@ -24,7 +24,6 @@ import {
   Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,

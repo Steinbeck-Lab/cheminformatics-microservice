@@ -1,10 +1,9 @@
 // Description: A React component for inputting SMILES notation with example and recent molecule dropdowns.
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 // Import necessary icons
 import { useAppContext } from "../../context/AppContext"; // Assuming context provides recentMolecules
 import { AlertCircle, Clipboard, Clock, Lightbulb, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { SMILESPreview } from "./SMILESPreview";
@@ -133,10 +132,11 @@ const PasteModal = ({ isOpen, onClose, onPaste }) => {
   );
 };
 
-// Add custom styles for animations
-if (typeof document !== "undefined") {
+// Inject fadeIn keyframe animation (idempotent -- safe with HMR)
+const FADE_IN_STYLE_ID = "smilesinput-fadein";
+if (typeof document !== "undefined" && !document.getElementById(FADE_IN_STYLE_ID)) {
   const styleSheet = document.createElement("style");
-  styleSheet.type = "text/css";
+  styleSheet.id = FADE_IN_STYLE_ID;
   styleSheet.textContent = `
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }

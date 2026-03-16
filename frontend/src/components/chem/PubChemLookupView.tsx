@@ -1,5 +1,5 @@
 // Description: This component provides an interface to lookup chemical structures by name, formula, or identifiers using the PubChem database
-import React, { useState } from "react";
+import { useState } from "react";
 import MoleculeCard from "../common/MoleculeCard";
 import SMILESDisplay from "../common/SMILESDisplay";
 import { useAppContext } from "../../context/AppContext"; // For adding to recent molecules
@@ -12,7 +12,6 @@ import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 
 const PubChemLookupView = () => {

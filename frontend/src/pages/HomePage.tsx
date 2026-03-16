@@ -5,7 +5,7 @@
  * Wide-screen optimised: hero fills the viewport, content uses max-w-7xl.
  * 3D molecule renders on desktop only; mobile gets the GradientMesh fallback.
  */
-import React, { useState, lazy, Suspense } from "react";
+import { useState, lazy, Suspense, type ReactNode, type MouseEvent } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { useAppContext } from "../context/AppContext";
@@ -109,13 +109,13 @@ const TiltCard = ({
   className = "",
   tiltIntensity = 7,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
   tiltIntensity?: number;
 }) => {
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
 
-  const onMouseMove = (e: React.MouseEvent) => {
+  const onMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     if ("ontouchstart" in window && e.nativeEvent instanceof TouchEvent) return;
     const card = e.currentTarget;
     const { width, height, left, top } = card.getBoundingClientRect();

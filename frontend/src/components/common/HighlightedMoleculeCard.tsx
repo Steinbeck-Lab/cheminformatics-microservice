@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import { useAppContext } from "../../context/AppContext";
 import { CheckCircle, ChevronDown, Clipboard, Download, X } from "lucide-react";
 import { toast } from "sonner";
@@ -188,31 +188,15 @@ const HighlightedMoleculeCard = ({
 
     // Add highlighting based on available data (use anchor atoms + SMARTS pattern for precision)
     if (highlightInfo.atomIds && highlightInfo.atomIds.length > 0 && highlightInfo.pattern) {
-      // Combined approach: Use both anchor atoms and SMARTS pattern
       params.set("atomIds", highlightInfo.atomIds.join(","));
       params.set("highlight", highlightInfo.pattern);
-      console.log(
-        "🎯 Using combined highlighting - atomIds:",
-        highlightInfo.atomIds,
-        "pattern:",
-        highlightInfo.pattern
-      );
     } else if (highlightInfo.atomIds && highlightInfo.atomIds.length > 0) {
-      // Use specific atom indices for precise highlighting
       params.set("atomIds", highlightInfo.atomIds.join(","));
-      console.log("🎯 Using atomIds highlighting:", highlightInfo.atomIds);
     } else if (highlightInfo.pattern) {
-      // Fallback to SMARTS pattern highlighting
       params.set("highlight", highlightInfo.pattern);
-      console.log("🎯 Using SMARTS pattern highlighting:", highlightInfo.pattern);
-    } else {
-      console.log("🎯 No highlighting applied");
     }
 
-    const finalUrl = `${baseUrl}/latest/depict/2D?${params.toString()}`;
-    console.log("🖼️ Generated image URL:", finalUrl);
-
-    return finalUrl;
+    return `${baseUrl}/latest/depict/2D?${params.toString()}`;
   }, [smiles, highlightInfo, baseUrl]);
 
   // Copy functionality
@@ -273,7 +257,7 @@ const HighlightedMoleculeCard = ({
   };
 
   // Auto-select text in copy modal
-  React.useEffect(() => {
+  useEffect(() => {
     if (showCopyModal && copyTextRef.current) {
       setTimeout(() => {
         copyTextRef.current.select();

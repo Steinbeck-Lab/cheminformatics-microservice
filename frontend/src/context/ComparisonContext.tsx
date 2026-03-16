@@ -6,7 +6,7 @@
  *
  * Uses React Context (not zustand) since the state is limited to max 2 items.
  */
-import React, { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
 
 /** A molecule added to the comparison tray. */
 export interface ComparisonMolecule {
@@ -46,7 +46,7 @@ export const useComparison = (): ComparisonContextValue => {
 const MAX_MOLECULES = 2;
 
 /** Provider component for molecule comparison state. */
-export const ComparisonProvider = ({ children }: { children: React.ReactNode }) => {
+export const ComparisonProvider = ({ children }: { children: ReactNode }) => {
   const [molecules, setMolecules] = useState<ComparisonMolecule[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isComparing, setIsComparing] = useState(false);

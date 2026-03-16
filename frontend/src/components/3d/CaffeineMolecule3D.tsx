@@ -6,7 +6,7 @@
  * Light mode: muted slate/blue wireframe, very understated.
  * No orbit rings, minimal particles — molecule is the focus.
  */
-import React, { useRef, useMemo, useEffect, useState, useCallback } from "react";
+import { useRef, useMemo, useEffect, useState, useCallback } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
@@ -279,7 +279,7 @@ const useDarkMode = () => {
 // ---------------------------------------------------------------------------
 // Export
 // ---------------------------------------------------------------------------
-export const CaffeineMolecule3D: React.FC<{ className?: string }> = ({ className = "" }) => {
+export const CaffeineMolecule3D = ({ className = "" }: { className?: string }) => {
   const isMobile = useIsMobile();
   const reduced = useReducedMotion();
   const dark = useDarkMode();

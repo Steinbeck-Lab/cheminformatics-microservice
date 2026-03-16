@@ -1,5 +1,5 @@
 // Description: This component allows users to input a SMILES string and generate 2D coordinates in MOL format using different cheminformatics toolkits. It includes error handling, loading states, and options for copying and downloading the generated molblock.
-import React, { useState } from "react";
+import { useState } from "react";
 // Ensure all used icons are imported
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
@@ -11,7 +11,6 @@ import { getErrorMessage } from "@/lib/error-messages";
 import { generate2DCoordinates } from "../../services/convertService"; // Assuming this service exists
 import { AlertCircle, Check, Clipboard, Download, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,

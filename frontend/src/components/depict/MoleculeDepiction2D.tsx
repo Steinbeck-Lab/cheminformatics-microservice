@@ -1,11 +1,10 @@
 // Description: A component for 2D molecule depiction
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 // Assuming this service is configured correctly
 import depictService from "../../services/depictService";
 import { Download, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,

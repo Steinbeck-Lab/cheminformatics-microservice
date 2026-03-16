@@ -1,5 +1,5 @@
 // src/App.js
-import React, { lazy, Suspense } from "react";
+import { lazy, Suspense } from "react";
 import {
   createBrowserRouter,
   RouterProvider,

@@ -5,18 +5,10 @@
  * Hidden on non-tool pages (home, about, ocsr, privacy, terms) and on mobile (<768px).
  * Tool name cross-fades at ~150ms when switching tabs.
  */
-import React from "react";
 import { useLocation, useParams, Link } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { ChevronRight } from "lucide-react";
 import { tools, getSectionByPath } from "@/data/navigationRegistry";
-
-// Route param names vary by page
-interface RouteParams {
-  toolId?: string;
-  convertId?: string;
-  depictId?: string;
-}
 
 // Tool pages where breadcrumbs should appear
 const TOOL_ROUTES = ["/chem", "/convert", "/depict", "/tools"];

@@ -1,5 +1,5 @@
 // Description: Tanimoto similarity calculator component
-import React, { useState } from "react";
+import { useState } from "react";
 // Ensure all used icons are imported
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";

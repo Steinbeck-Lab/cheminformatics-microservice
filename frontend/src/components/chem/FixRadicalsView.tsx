@@ -1,5 +1,5 @@
 // Description: This component allows users to input a SMILES string containing radicals and fix them using CDK. It displays the original structure, fixed structure, and statistics about the radicals.
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import DOMPurify from "dompurify";
 import SMILESInput from "../common/SMILESInput";
 import { fixRadicals } from "../../services/chemService";
@@ -18,7 +18,6 @@ import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { AddToCompareButton } from "../common/AddToCompareButton";
 
 const FixRadicalsView = () => {

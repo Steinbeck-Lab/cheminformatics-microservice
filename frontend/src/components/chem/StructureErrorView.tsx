@@ -1,5 +1,5 @@
 // Description: This component provides a user interface for validating and standardizing chemical structures using SMILES notation. It includes input handling, error checking, and displays results with appropriate messaging and styling for both light and dark themes.
-import React, { useState } from "react";
+import { useState } from "react";
 // Ensure all used icons are imported
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
@@ -11,7 +11,6 @@ import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 
 const StructureErrorView = () => {

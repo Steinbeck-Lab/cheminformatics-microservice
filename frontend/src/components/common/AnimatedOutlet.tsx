@@ -4,7 +4,7 @@
  * Uses AnimatePresence mode="sync" for overlap transitions per user decision.
  * Exiting page uses absolute positioning to prevent vertical stacking during overlap.
  */
-import React from "react";
+import { cloneElement } from "react";
 import { useOutlet, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
 
@@ -41,7 +41,7 @@ export function AnimatedOutlet() {
             transition={pageTransition}
             style={{ width: "100%" }}
           >
-            {React.cloneElement(element, { key: pageKey })}
+            {cloneElement(element, { key: pageKey })}
           </motion.div>
         )}
       </AnimatePresence>

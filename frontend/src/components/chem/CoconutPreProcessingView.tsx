@@ -1,5 +1,5 @@
 // Description: This component handles the COCONUT pre-processing view, including SMILES input, processing options, and displaying results.
-import React, { useState } from "react"; // Removed useEffect, useCallback
+import { useState } from "react";
 // Ensure all used icons are imported, including HiOutlineExclamationCircle for errors
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
@@ -10,7 +10,6 @@ import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { AddToCompareButton } from "../common/AddToCompareButton";
 import { Input } from "@/components/ui/input";
 

@@ -1,5 +1,5 @@
 // Description: Production-grade Sugar Detection component with comprehensive detection, removal, and extraction capabilities
-import React, { useState } from "react";
+import { useState } from "react";
 import SMILESInput from "../common/SMILESInput";
 import MolFileUpload from "../common/MolFileUpload";
 import MoleculeCard from "../common/MoleculeCard";
@@ -31,7 +31,6 @@ import {
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,

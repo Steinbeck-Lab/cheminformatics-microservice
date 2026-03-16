@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Atom, Code, Database, ExternalLink, FileText, FlaskConical, Network } from "lucide-react";
 import { Button } from "@/components/ui/button";

@@ -1,5 +1,5 @@
 // Description: This component allows users to input a SMILES string and detects functional groups using the Ertl algorithm.
-import React, { useState } from "react";
+import { useState } from "react";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
 import HighlightedMoleculeCard from "../common/HighlightedMoleculeCard";
@@ -11,7 +11,6 @@ import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { AddToCompareButton } from "../common/AddToCompareButton";
 
 const ErtlFunctionalGroupView = () => {

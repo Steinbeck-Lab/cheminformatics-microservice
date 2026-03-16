@@ -4,7 +4,7 @@
  * Searches across pages, tools, example molecules, and recent molecules.
  * Uses cmdk (via shadcn Command) for fuzzy search and keyboard navigation.
  */
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   CommandDialog,

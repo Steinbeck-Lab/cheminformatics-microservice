@@ -1,5 +1,5 @@
 // Description: StructureGenView component for generating chemical structures from molecular formulas.
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import MoleculeCard from "../common/MoleculeCard";
 import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
@@ -19,7 +19,6 @@ import {
   XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 
 // --- Animation Variants ---

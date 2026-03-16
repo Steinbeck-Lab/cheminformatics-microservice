@@ -1,9 +1,8 @@
 // Description: A React component to display SMILES strings with options to copy to clipboard and download as a MOL file.
-import React, { useState } from "react";
+import { useState } from "react";
 import { generate2DCoordinates } from "../../services/convertService";
 import { Check, Clipboard, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
   const [copied, setCopied] = useState(false);

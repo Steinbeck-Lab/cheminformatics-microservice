@@ -1,12 +1,11 @@
 // Description: Enhanced OCRView component with production-ready UX/UI
-import React, { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { motion, AnimatePresence } from "motion/react";
 import MoleculeCard from "../common/MoleculeCard";
 import ocsrService from "../../services/ocsrService";
 import { AlertCircle, CheckCircle, Image, Link, RefreshCw, Upload, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 
 const OCRView = () => {

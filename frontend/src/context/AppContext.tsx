@@ -1,5 +1,5 @@
 // Description: This file contains the context provider for the application, managing global state such as theme, recent molecules, API settings, and loading/error states.
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import type { RecentMolecule, ApiConfig, AppContextValue } from "../types/molecule";
 
 // Create the context
@@ -15,7 +15,7 @@ export const useAppContext = (): AppContextValue => {
 };
 
 // Provider component
-export const AppProvider = ({ children }: { children: React.ReactNode }) => {
+export const AppProvider = ({ children }: { children: ReactNode }) => {
   // Theme state (dark/light) -- default false; FOUC script handles initial render,
   // and the mount useEffect below will set the correct value from localStorage or system preference.
   const [isDarkMode, setIsDarkMode] = useState(false);

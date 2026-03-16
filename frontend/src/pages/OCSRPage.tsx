@@ -1,5 +1,4 @@
 // Description: This page implements the Optical Chemical Structure Recognition (OCSR) tool using DECIMER.
-import React from "react";
 import { motion } from "motion/react";
 import OCRView from "../components/ocsr/OCRView"; // Assuming path is correct
 import { ExternalLink, FileSearch } from "lucide-react";

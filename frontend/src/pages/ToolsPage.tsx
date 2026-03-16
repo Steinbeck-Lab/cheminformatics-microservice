@@ -4,7 +4,7 @@
  * Reverted from bento grid back to tab navigation per user feedback.
  * Uses GradientMesh for background and glass-bold for glass surfaces.
  */
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 import SugarRemovalView from "../components/tools/SugarRemovalView";
