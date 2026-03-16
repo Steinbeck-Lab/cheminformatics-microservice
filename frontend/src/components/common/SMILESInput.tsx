@@ -6,7 +6,6 @@ import { AlertCircle, Clipboard, Clock, Lightbulb, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { SMILESPreview } from "./SMILESPreview";
 
 // Example molecules data (static, moved outside component)
 const EXAMPLE_MOLECULES = [
@@ -297,9 +296,6 @@ const SMILESInput = ({
           </Button>
         )}
       </div>
-
-      {/* Inline 2D structure preview */}
-      <SMILESPreview smiles={value} />
 
       {/* Paste Error Display */}
       {pasteError && (
