@@ -4,6 +4,7 @@
  * Downloads Ketcher standalone from GitHub releases.
  *
  * Version is pinned in package.json under "ketcher.version".
+ * Optional SHA-256 hash in "ketcher.sha256" for integrity verification.
  * Runs automatically via npm postinstall hook.
  *
  * Usage:
@@ -11,8 +12,8 @@
  *   node scripts/fetch-ketcher.js --force  # re-downloads regardless
  */
 
+const crypto = require("crypto");
 const https = require("https");
-const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
@@ -22,6 +23,12 @@ const STANDALONE_DIR = path.join(ROOT, "public", "standalone");
 const VERSION_FILE = path.join(STANDALONE_DIR, ".ketcher-version");
 const FORCE = process.argv.includes("--force");
 const MAX_REDIRECTS = 5;
+
+// Only follow redirects to these domains (GitHub CDN)
+const ALLOWED_REDIRECT_DOMAINS = [
+  "github.com",
+  "githubusercontent.com",
+];
 
 function getVersion() {
   const pkgPath = path.join(ROOT, "package.json");
@@ -34,7 +41,16 @@ function getVersion() {
     );
     process.exit(1);
   }
-  return version;
+  // Validate semver format to prevent URL manipulation
+  if (!/^\d+\.\d+\.\d+(-[\w.]+)?$/.test(version)) {
+    console.error(
+      'Error: Invalid version format "' +
+        version +
+        '". Expected semver (e.g., "3.12.0").',
+    );
+    process.exit(1);
+  }
+  return { version: version, sha256: (pkg.ketcher && pkg.ketcher.sha256) || null };
 }
 
 function isAlreadyPresent(version) {
@@ -44,6 +60,18 @@ function isAlreadyPresent(version) {
   return current === version;
 }
 
+function isAllowedRedirect(url) {
+  if (!url.startsWith("https://")) return false;
+  try {
+    const hostname = new URL(url).hostname;
+    return ALLOWED_REDIRECT_DOMAINS.some(function (domain) {
+      return hostname === domain || hostname.endsWith("." + domain);
+    });
+  } catch {
+    return false;
+  }
+}
+
 function download(url, redirectCount) {
   if (redirectCount === undefined) redirectCount = 0;
   if (redirectCount > MAX_REDIRECTS) {
@@ -51,8 +79,7 @@ function download(url, redirectCount) {
   }
 
   return new Promise(function (resolve, reject) {
-    var client = url.startsWith("https") ? https : http;
-    client
+    https
       .get(
         url,
         { headers: { "User-Agent": "cheminformatics-microservice" } },
@@ -62,7 +89,16 @@ function download(url, redirectCount) {
             res.statusCode < 400 &&
             res.headers.location
           ) {
-            download(res.headers.location, redirectCount + 1)
+            var redirectUrl = res.headers.location;
+            if (!isAllowedRedirect(redirectUrl)) {
+              reject(
+                new Error(
+                  "Refusing redirect to untrusted URL: " + redirectUrl,
+                ),
+              );
+              return;
+            }
+            download(redirectUrl, redirectCount + 1)
               .then(resolve)
               .catch(reject);
             return;
@@ -109,7 +145,21 @@ function download(url, redirectCount) {
   });
 }
 
-function verify() {
+function verifyIntegrity(buffer, expectedHash) {
+  if (!expectedHash) return;
+  var actualHash = crypto.createHash("sha256").update(buffer).digest("hex");
+  if (actualHash !== expectedHash) {
+    throw new Error(
+      "Integrity check failed.\n" +
+        "  Expected SHA-256: " + expectedHash + "\n" +
+        "  Actual SHA-256:   " + actualHash + "\n" +
+        "Update ketcher.sha256 in package.json if this is a new version.",
+    );
+  }
+  console.log("Integrity check passed (SHA-256).");
+}
+
+function verifyExtraction() {
   var required = [
     path.join(STANDALONE_DIR, "index.html"),
     path.join(STANDALONE_DIR, "static"),
@@ -119,10 +169,25 @@ function verify() {
       throw new Error("Verification failed: " + required[i] + " not found");
     }
   }
+  // Verify no path traversal: all extracted files must be within STANDALONE_DIR
+  var realDir = fs.realpathSync(STANDALONE_DIR);
+  var walk = function (dir) {
+    var items = fs.readdirSync(dir, { withFileTypes: true });
+    for (var i = 0; i < items.length; i++) {
+      var fullPath = fs.realpathSync(path.join(dir, items[i].name));
+      if (!fullPath.startsWith(realDir + path.sep) && fullPath !== realDir) {
+        throw new Error("Path traversal detected: " + fullPath);
+      }
+      if (items[i].isDirectory()) walk(fullPath);
+    }
+  };
+  walk(realDir);
 }
 
 async function main() {
-  var version = getVersion();
+  var config = getVersion();
+  var version = config.version;
+  var sha256 = config.sha256;
 
   if (isAlreadyPresent(version)) {
     console.log(
@@ -145,14 +210,20 @@ async function main() {
     "Downloaded " + (zipBuffer.length / 1024 / 1024).toFixed(1) + " MB",
   );
 
+  // Verify integrity if SHA-256 is configured
+  verifyIntegrity(zipBuffer, sha256);
+
   // Clean existing standalone directory
   if (fs.existsSync(STANDALONE_DIR)) {
     fs.rmSync(STANDALONE_DIR, { recursive: true, force: true });
   }
   fs.mkdirSync(STANDALONE_DIR, { recursive: true });
 
-  // Write zip to temp file
-  var zipPath = path.join(ROOT, ".ketcher-download.zip");
+  // Write zip to temp file with unique name
+  var zipPath = path.join(
+    ROOT,
+    ".ketcher-download-" + crypto.randomBytes(8).toString("hex") + ".zip",
+  );
   fs.writeFileSync(zipPath, zipBuffer);
 
   // Extract using unzip (available on macOS, Linux, CI runners)
@@ -193,9 +264,20 @@ async function main() {
     fs.rmdirSync(subdir);
   }
 
-  verify();
+  verifyExtraction();
   fs.writeFileSync(VERSION_FILE, version);
-  console.log("Ketcher v" + version + " installed to public/standalone/");
+
+  // Print SHA-256 for first-time setup (when no hash is configured)
+  if (!sha256) {
+    var hash = crypto.createHash("sha256").update(zipBuffer).digest("hex");
+    console.log("Ketcher v" + version + " installed to public/standalone/");
+    console.log(
+      "  TIP: Add SHA-256 to package.json for integrity verification:",
+    );
+    console.log('  "ketcher": { "version": "' + version + '", "sha256": "' + hash + '" }');
+  } else {
+    console.log("Ketcher v" + version + " installed to public/standalone/");
+  }
 }
 
 main().catch(function (err) {

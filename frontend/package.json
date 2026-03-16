@@ -4,7 +4,8 @@
   "private": true,
   "description": "A modern UI for the Cheminformatics Microservice API",
   "ketcher": {
-    "version": "3.12.0"
+    "version": "3.12.0",
+    "sha256": "9f63565505b46a72b1c55cdde0551caf33542052774214a4d12cce61dd806762"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",

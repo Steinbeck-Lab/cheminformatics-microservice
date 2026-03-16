@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePreventIframeScrollJack } from "@/hooks/usePreventIframeScrollJack";
 
 // Import utility functions
@@ -27,7 +27,6 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -246,6 +245,7 @@ const RInChIView = () => {
   useEffect(() => {
     const handleMessage = (event) => {
       // Only accept messages from our iframe
+      if (event.origin !== window.location.origin) return;
       if (ketcherFrame.current && event.source === ketcherFrame.current.contentWindow) {
         const { id, type, status, data, error } = event.data;
 
@@ -298,7 +298,7 @@ const RInChIView = () => {
       const message = { id, type, payload };
 
       try {
-        ketcherFrame.current.contentWindow.postMessage(message, "*");
+        ketcherFrame.current.contentWindow.postMessage(message, window.location.origin);
       } catch (err) {
         delete messageHandlers.current[id];
         reject(new Error(`Failed to send message: ${err.message}`));
@@ -384,7 +384,7 @@ const RInChIView = () => {
           const checkKetcher = () => {
             if (window.ketcher) {
               // Notify parent that Ketcher is ready
-              window.parent.postMessage({ type: 'ketcher-ready' }, '*');
+              window.parent.postMessage({ type: 'ketcher-ready' }, window.location.origin);
             } else {
               // Check again in 100ms
               setTimeout(checkKetcher, 100);
@@ -397,8 +397,12 @@ const RInChIView = () => {
 
         // Add script to iframe
         iframeDocument.head.appendChild(script);
-      } catch {
-        // Cross-origin or iframe not ready — silently skip
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "SecurityError") {
+          console.debug("Ketcher iframe cross-origin, using postMessage mode");
+        } else {
+          console.error("Failed to inject Ketcher communication script:", err);
+        }
       }
     };
 

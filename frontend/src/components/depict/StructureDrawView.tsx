@@ -1,26 +1,22 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AlertCircle, Check, ClipboardCopy, Info, Pencil, RefreshCw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { usePreventIframeScrollJack } from "@/hooks/usePreventIframeScrollJack";
 
-// Add custom styles for animations
-const styles = `
+// Inject fadeIn keyframe animation (idempotent — safe with HMR)
+const FADE_IN_STYLE_ID = "structuredraw-fadein";
+if (typeof document !== "undefined" && !document.getElementById(FADE_IN_STYLE_ID)) {
+  const styleSheet = document.createElement("style");
+  styleSheet.id = FADE_IN_STYLE_ID;
+  styleSheet.textContent = `
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-out forwards;
-}
-`;
-
-// Add the styles to the document
-if (typeof document !== "undefined") {
-  const styleSheet = document.createElement("style");
-  styleSheet.type = "text/css";
-  styleSheet.innerText = styles;
+}`;
   document.head.appendChild(styleSheet);
 }
 
@@ -78,6 +74,7 @@ const StructureDrawView = () => {
     // Message handler for communications from the iframe
     const handleMessage = (event) => {
       // Only accept messages from our iframe
+      if (event.origin !== window.location.origin) return;
       if (ketcherFrame.current && event.source === ketcherFrame.current.contentWindow) {
         const { id, type, status, data, error } = event.data;
 
@@ -130,7 +127,7 @@ const StructureDrawView = () => {
       const message = { id, type, payload };
 
       try {
-        ketcherFrame.current.contentWindow.postMessage(message, "*");
+        ketcherFrame.current.contentWindow.postMessage(message, window.location.origin);
       } catch (err) {
         delete messageHandlers.current[id];
         reject(new Error(`Failed to send message: ${err.message}`));
@@ -215,7 +212,7 @@ const StructureDrawView = () => {
           // Wait for Ketcher to initialize and then notify parent
           const checkKetcher = () => {
             if (window.ketcher) {
-              window.parent.postMessage({ type: 'ketcher-ready' }, '*');
+              window.parent.postMessage({ type: 'ketcher-ready' }, window.location.origin);
             } else {
               setTimeout(checkKetcher, 100);
             }
@@ -225,8 +222,12 @@ const StructureDrawView = () => {
         `;
 
         iframeDocument.head.appendChild(script);
-      } catch {
-        // Cross-origin or iframe not ready — silently skip
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "SecurityError") {
+          console.debug("Ketcher iframe cross-origin, using postMessage mode");
+        } else {
+          console.error("Failed to inject Ketcher communication script:", err);
+        }
       }
     };
 
@@ -473,7 +474,9 @@ const StructureDrawView = () => {
                     : "bg-linear-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800"
                 }`}
               >
-                {isLoading ? "Loading..." : !isEditorReady ? "Initializing..." : "Load Structure"}
+                {isLoading && "Loading..."}
+                {!isLoading && !isEditorReady && "Initializing..."}
+                {!isLoading && isEditorReady && "Load Structure"}
               </Button>
             </div>
 
