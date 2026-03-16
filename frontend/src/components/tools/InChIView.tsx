@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { usePreventIframeScrollJack } from "@/hooks/usePreventIframeScrollJack";
+import { useKetcherEditor } from "@/hooks/useKetcherEditor";
 
 // Import utility functions
 import {
@@ -740,24 +740,19 @@ const InChIView = () => {
   const [activeInputType, setActiveInputType] = useState("structure"); // 'structure', 'smiles', 'molfile', 'inchi'
 
   const [isLoading, setIsLoading] = useState(false);
-  const [isEditorReady, setIsEditorReady] = useState(false);
   const [error, setError] = useState(null);
   const [copySuccess, setCopySuccess] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [copyModalText, setCopyModalText] = useState("");
   const [inchiModuleLoaded, setInchiModuleLoaded] = useState(false);
-  const [retryAttempt, setRetryAttempt] = useState(0);
   const [autoGenerate, setAutoGenerate] = useState(false);
 
   // Refs
-  const ketcherFrame = useRef(null);
   const copyTextRef = useRef(null);
   const fileInputRef = useRef(null);
-  const messageHandlers = useRef({});
-  const messageId = useRef(0);
   const previousOptionsRef = useRef("");
 
-  usePreventIframeScrollJack(ketcherFrame);
+  const { ketcherFrame, isEditorReady, executeCommand, resetEditor } = useKetcherEditor();
 
   // Reset error when needed
   useEffect(() => {
@@ -770,67 +765,6 @@ const InChIView = () => {
       copyTextRef.current.select();
     }
   }, [showCopyModal]);
-
-  // Function to send messages to the iframe and wait for response
-  const sendMessage = useCallback((type, payload = {}) => {
-    return new Promise((resolve, reject) => {
-      if (!ketcherFrame.current || !ketcherFrame.current.contentWindow) {
-        reject(new Error("Ketcher frame not available"));
-        return;
-      }
-
-      // Generate unique ID for this message
-      const id = messageId.current++;
-
-      // Store promise handlers
-      messageHandlers.current[id] = { resolve, reject };
-
-      // Send message to iframe
-      const message = { id, type, payload };
-
-      try {
-        ketcherFrame.current.contentWindow.postMessage(message, window.location.origin);
-      } catch (err) {
-        delete messageHandlers.current[id];
-        reject(new Error(`Failed to send message: ${err.message}`));
-      }
-
-      // Set timeout to reject if no response
-      setTimeout(() => {
-        if (messageHandlers.current[id]) {
-          delete messageHandlers.current[id];
-          reject(new Error("Timeout waiting for response"));
-        }
-      }, 10000); // 10 second timeout
-    });
-  }, []);
-
-  // Function to communicate with ketcher through both direct access and messaging
-  const executeKetcherCommand = useCallback(
-    async (command, args = []) => {
-      // First try direct access method
-      try {
-        if (ketcherFrame.current && ketcherFrame.current.contentWindow.ketcher) {
-          const ketcher = ketcherFrame.current.contentWindow.ketcher;
-          if (typeof ketcher[command] === "function") {
-            return await ketcher[command](...args);
-          }
-        }
-      } catch (directError) {
-        console.debug(`Direct Ketcher access failed for ${command}`, directError);
-        // Fall through to postMessage method
-      }
-
-      // Fall back to message passing
-      try {
-        return await sendMessage("ketcher-command", { command, args });
-      } catch (msgError) {
-        console.error(`Message passing failed for ${command}`, msgError);
-        throw new Error(`Failed to execute ${command}: ${msgError.message}`);
-      }
-    },
-    [sendMessage]
-  );
 
   // Generate InChIKey from InChI
   const generateInChIKeyFromInChI = useCallback(
@@ -951,7 +885,7 @@ const InChIView = () => {
 
     try {
       // Get molfile from Ketcher
-      const molfile = await executeKetcherCommand("getMolfile");
+      const molfile = await executeCommand("getMolfile");
 
       if (!molfile || molfile.trim() === "") {
         setError("No structure drawn. Please draw a molecule first.");
@@ -977,46 +911,7 @@ const InChIView = () => {
       setError(`Failed to generate InChI: ${err.message}`);
       setIsLoading(false);
     }
-  }, [isEditorReady, inchiModuleLoaded, executeKetcherCommand, generateInChIFromMolfile]);
-
-  // Set up message communication with the Ketcher iframe
-  useEffect(() => {
-    const handleMessage = (event) => {
-      // Only accept messages from our iframe
-      if (event.origin !== window.location.origin) return;
-      if (ketcherFrame.current && event.source === ketcherFrame.current.contentWindow) {
-        const { id, type, status, data, error } = event.data;
-
-        // Handle response to our message
-        if (id && messageHandlers.current[id]) {
-          const handler = messageHandlers.current[id];
-
-          if (status === "success") {
-            handler.resolve(data);
-          } else if (status === "error") {
-            handler.reject(new Error(error || "Unknown error"));
-          }
-
-          // Remove the handler after it's been used
-          delete messageHandlers.current[id];
-        }
-
-        // Handle initialization message
-        if (type === "ketcher-ready") {
-          setIsEditorReady(true);
-        }
-      }
-    };
-
-    // Add listener for messages
-    window.addEventListener("message", handleMessage);
-
-    // Clean up on unmount
-    return () => {
-      window.removeEventListener("message", handleMessage);
-      messageHandlers.current = {};
-    };
-  }, []);
+  }, [isEditorReady, inchiModuleLoaded, executeCommand, generateInChIFromMolfile]);
 
   // Log option changes and auto-generate if enabled
   useEffect(() => {
@@ -1047,111 +942,6 @@ const InChIView = () => {
       previousOptionsRef.current = options;
     }
   }, [options, autoGenerate, isEditorReady, molfileContent, generateInChI]);
-
-  // Initialize Ketcher iframe communication
-  const initializeKetcher = useCallback(() => {
-    // Function to inject communication script into iframe
-    const injectCommunicationScript = () => {
-      try {
-        if (!ketcherFrame.current || !ketcherFrame.current.contentWindow) {
-          return;
-        }
-        const iframeWindow = ketcherFrame.current.contentWindow;
-        const iframeDocument = iframeWindow.document;
-
-        // Create a script element
-        const script = iframeDocument.createElement("script");
-        script.textContent = `
-          // Set up message handler in the Ketcher iframe
-          window.addEventListener('message', async function(event) {
-            // Check source
-            if (event.source !== window.parent) return;
-
-            const { id, type, payload } = event.data;
-
-            // Handle command execution
-            if (type === 'ketcher-command') {
-              try {
-                const { command, args } = payload;
-
-                if (!window.ketcher) {
-                  throw new Error('Ketcher not initialized');
-                }
-
-                if (typeof window.ketcher[command] !== 'function') {
-                  throw new Error(\`Command \${command} not available\`);
-                }
-
-                const result = await window.ketcher[command](...(args || []));
-                event.source.postMessage({ id, status: 'success', data: result }, event.origin);
-              } catch (error) {
-                event.source.postMessage({ id, status: 'error', error: error.message }, event.origin);
-              }
-            }
-          });
-
-          // Wait for Ketcher to initialize and then notify parent
-          const checkKetcher = () => {
-            if (window.ketcher) {
-              window.parent.postMessage({ type: 'ketcher-ready' }, window.location.origin);
-            } else {
-              setTimeout(checkKetcher, 100);
-            }
-          };
-
-          checkKetcher();
-        `;
-
-        iframeDocument.head.appendChild(script);
-      } catch (err) {
-        if (err instanceof DOMException && err.name === "SecurityError") {
-          console.debug("Ketcher iframe cross-origin, using postMessage mode");
-        } else {
-          console.error("Failed to inject Ketcher communication script:", err);
-        }
-      }
-    };
-
-    // Wait for iframe to load, then inject script
-    if (ketcherFrame.current) {
-      ketcherFrame.current.onload = () => {
-        setTimeout(injectCommunicationScript, 500);
-      };
-    }
-  }, []);
-
-  // Use a more targeted approach for handling scrolling
-  useEffect(() => {
-    // Only focus on preventing initial load scroll, not restricting user scrolling
-    let initialLoadComplete = false;
-
-    const handleScroll = () => {
-      // Only interfere with scrolling during the initial load
-      if (!initialLoadComplete) {
-        requestAnimationFrame(() => {
-          // This is a gentle approach - it prevents jumps during loading
-          // but doesn't continuously force the position
-        });
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    // After a short delay, allow normal scrolling
-    const timeout = setTimeout(() => {
-      initialLoadComplete = true;
-    }, 1500); // 1.5 seconds should be enough for initial load
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      clearTimeout(timeout);
-    };
-  }, []);
-
-  // Re-initialize when retry attempt changes without scrolling
-  useEffect(() => {
-    initializeKetcher();
-  }, [retryAttempt, initializeKetcher]);
 
   // Enhanced copyToClipboard function with multiple fallback methods
   const copyToClipboard = async (text = null, type = "inchi") => {
@@ -1224,23 +1014,15 @@ const InChIView = () => {
     const checkModuleStatus = async () => {
       try {
         setInchiModuleLoaded(false);
-
-        // Try to load the module for the current version
-        await loadInchiModule(inchiVersion)
-          .then(() => {
-            setInchiModuleLoaded(true);
-          })
-          .catch((err) => {
-            console.error(`Failed to load InChI module ${inchiVersion}:`, err);
-            setError(
-              `Failed to load InChI module ${inchiVersion}. Please check your network connection.`
-            );
-          });
+        await loadInchiModule(inchiVersion);
+        setInchiModuleLoaded(true);
       } catch (err) {
-        console.error("Error checking InChI module status:", err);
+        console.error(`Failed to load InChI module ${inchiVersion}:`, err);
+        setError(
+          `Failed to load InChI module ${inchiVersion}. Please check your network connection.`
+        );
       }
     };
-
     checkModuleStatus();
   }, [inchiVersion]);
 
@@ -1275,7 +1057,7 @@ const InChIView = () => {
 
       if (result.molfile) {
         // Load the molfile into Ketcher
-        await executeKetcherCommand("setMolecule", [result.molfile]);
+        await executeCommand("setMolecule", [result.molfile]);
 
         // Store the molfile content
         setMolfileContent(result.molfile);
@@ -1295,7 +1077,7 @@ const InChIView = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [inputInchi, isEditorReady, inchiVersion, executeKetcherCommand, generateInChIKeyFromInChI]);
+  }, [inputInchi, isEditorReady, inchiVersion, executeCommand, generateInChIKeyFromInChI]);
 
   // Load SMILES into Ketcher
   const loadSmiles = useCallback(async () => {
@@ -1321,10 +1103,10 @@ const InChIView = () => {
     try {
       // Load SMILES into Ketcher
       // Note: SMILES conversion is handled by Ketcher, not by InChI module
-      await executeKetcherCommand("setMolecule", [inputSmiles]);
+      await executeCommand("setMolecule", [inputSmiles]);
 
       // Get molfile from Ketcher
-      const molfile = await executeKetcherCommand("getMolfile");
+      const molfile = await executeCommand("getMolfile");
 
       // Store the molfile content
       setMolfileContent(molfile);
@@ -1341,7 +1123,7 @@ const InChIView = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [inputSmiles, isEditorReady, executeKetcherCommand, autoGenerate, generateInChIFromMolfile]);
+  }, [inputSmiles, isEditorReady, executeCommand, autoGenerate, generateInChIFromMolfile]);
 
   // Load molfile or AuxInfo into Ketcher
   const loadMolfile = useCallback(async () => {
@@ -1374,7 +1156,7 @@ const InChIView = () => {
           const result = await convertAuxinfoToMolfile(molfileContent, 0, 0, inchiVersion);
 
           if (result.molfile) {
-            await executeKetcherCommand("setMolecule", [result.molfile]);
+            await executeCommand("setMolecule", [result.molfile]);
             setMolfileContent(result.molfile);
             setLogMessage(`AuxInfo converted to structure successfully.\n${result.message || ""}`);
 
@@ -1392,7 +1174,7 @@ const InChIView = () => {
       // Check if input is a molfile
       else if (molfileContent.includes("V2000") || molfileContent.includes("V3000")) {
         // Handle molfile
-        await executeKetcherCommand("setMolecule", [molfileContent]);
+        await executeCommand("setMolecule", [molfileContent]);
         setLogMessage("Molfile loaded successfully. Use 'Generate InChI' to create InChI.");
 
         // Auto-generate InChI if enabled
@@ -1412,7 +1194,7 @@ const InChIView = () => {
     molfileContent,
     isEditorReady,
     inchiVersion,
-    executeKetcherCommand,
+    executeCommand,
     autoGenerate,
     generateInChIFromMolfile,
   ]);
@@ -1431,10 +1213,9 @@ const InChIView = () => {
 
   // Function to retry initialization
   const handleRetryInit = useCallback(() => {
-    setIsEditorReady(false);
+    resetEditor();
     setError(null);
-    setRetryAttempt((prev) => prev + 1);
-  }, []);
+  }, [resetEditor]);
 
   // Clear the editor
   const clearEditor = useCallback(async () => {
@@ -1444,7 +1225,7 @@ const InChIView = () => {
     }
 
     try {
-      await executeKetcherCommand("setMolecule", [""]);
+      await executeCommand("setMolecule", [""]);
       setInchi("");
       setAuxInfo("");
       setInchiKey("");
@@ -1454,7 +1235,7 @@ const InChIView = () => {
       console.error("Failed to clear editor:", err);
       setError("Failed to clear the editor");
     }
-  }, [isEditorReady, executeKetcherCommand]);
+  }, [isEditorReady, executeCommand]);
 
   // Handle auto-generate toggle
   const toggleAutoGenerate = useCallback(() => {

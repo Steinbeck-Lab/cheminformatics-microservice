@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { AlertCircle, Check, ClipboardCopy, Info, Pencil, RefreshCw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { usePreventIframeScrollJack } from "@/hooks/usePreventIframeScrollJack";
+import { useKetcherEditor } from "@/hooks/useKetcherEditor";
 
 // Inject fadeIn keyframe animation (idempotent — safe with HMR)
 const FADE_IN_STYLE_ID = "structuredraw-fadein";
@@ -28,14 +28,9 @@ const StructureDrawView = () => {
   const [copyModalText, setCopyModalText] = useState("");
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isEditorReady, setIsEditorReady] = useState(false);
-  const [retryAttempt, setRetryAttempt] = useState(0);
-  const ketcherFrame = useRef(null);
   const copyTextRef = useRef(null);
-  const messageHandlers = useRef({});
-  const messageId = useRef(0);
 
-  usePreventIframeScrollJack(ketcherFrame);
+  const { ketcherFrame, isEditorReady, executeCommand, resetEditor } = useKetcherEditor();
 
   // Examples of common molecules
   const examples = [
@@ -68,181 +63,6 @@ const StructureDrawView = () => {
       copyTextRef.current.select();
     }
   }, [showCopyModal]);
-
-  // Set up message communication with the iframe
-  useEffect(() => {
-    // Message handler for communications from the iframe
-    const handleMessage = (event) => {
-      // Only accept messages from our iframe
-      if (event.origin !== window.location.origin) return;
-      if (ketcherFrame.current && event.source === ketcherFrame.current.contentWindow) {
-        const { id, type, status, data, error } = event.data;
-
-        // Handle response to our message
-        if (id && messageHandlers.current[id]) {
-          const handler = messageHandlers.current[id];
-
-          if (status === "success") {
-            handler.resolve(data);
-          } else if (status === "error") {
-            handler.reject(new Error(error || "Unknown error"));
-          }
-
-          // Remove the handler after it's been used
-          delete messageHandlers.current[id];
-        }
-
-        // Handle initialization message
-        if (type === "ketcher-ready") {
-          setIsEditorReady(true);
-        }
-      }
-    };
-
-    // Add listener for messages
-    window.addEventListener("message", handleMessage);
-
-    // Clean up on unmount
-    return () => {
-      window.removeEventListener("message", handleMessage);
-      messageHandlers.current = {};
-    };
-  }, []);
-
-  // Function to send messages to the iframe and wait for response
-  const sendMessage = (type, payload = {}) => {
-    return new Promise((resolve, reject) => {
-      if (!ketcherFrame.current || !ketcherFrame.current.contentWindow) {
-        reject(new Error("Ketcher frame not available"));
-        return;
-      }
-
-      // Generate unique ID for this message
-      const id = messageId.current++;
-
-      // Store promise handlers
-      messageHandlers.current[id] = { resolve, reject };
-
-      // Send message to iframe
-      const message = { id, type, payload };
-
-      try {
-        ketcherFrame.current.contentWindow.postMessage(message, window.location.origin);
-      } catch (err) {
-        delete messageHandlers.current[id];
-        reject(new Error(`Failed to send message: ${err.message}`));
-      }
-
-      // Set timeout to reject if no response
-      setTimeout(() => {
-        if (messageHandlers.current[id]) {
-          delete messageHandlers.current[id];
-          reject(new Error("Timeout waiting for response"));
-        }
-      }, 10000); // 10 second timeout
-    });
-  };
-
-  // Function to communicate with ketcher through both direct access and messaging
-  const executeKetcherCommand = async (command, args = []) => {
-    // First try direct access method
-    try {
-      if (ketcherFrame.current && ketcherFrame.current.contentWindow.ketcher) {
-        const ketcher = ketcherFrame.current.contentWindow.ketcher;
-        if (typeof ketcher[command] === "function") {
-          return await ketcher[command](...args);
-        }
-      }
-    } catch (directError) {
-      console.debug(`Direct Ketcher access failed for ${command}`, directError);
-      // Fall through to postMessage method
-    }
-
-    // Fall back to message passing
-    try {
-      return await sendMessage("ketcher-command", { command, args });
-    } catch (msgError) {
-      console.error(`Message passing failed for ${command}`, msgError);
-      throw new Error(`Failed to execute ${command}: ${msgError.message}`);
-    }
-  };
-
-  // Initialize Ketcher iframe communication
-  const initializeKetcher = () => {
-    // Function to inject communication script into iframe
-    const injectCommunicationScript = () => {
-      try {
-        if (!ketcherFrame.current || !ketcherFrame.current.contentWindow) {
-          return;
-        }
-        const iframeWindow = ketcherFrame.current.contentWindow;
-        const iframeDocument = iframeWindow.document;
-
-        // Create a script element
-        const script = iframeDocument.createElement("script");
-        script.textContent = `
-          // Set up message handler in the Ketcher iframe
-          window.addEventListener('message', async function(event) {
-            // Check source
-            if (event.source !== window.parent) return;
-
-            const { id, type, payload } = event.data;
-
-            // Handle command execution
-            if (type === 'ketcher-command') {
-              try {
-                const { command, args } = payload;
-
-                if (!window.ketcher) {
-                  throw new Error('Ketcher not initialized');
-                }
-
-                if (typeof window.ketcher[command] !== 'function') {
-                  throw new Error(\`Command \${command} not available\`);
-                }
-
-                const result = await window.ketcher[command](...(args || []));
-                event.source.postMessage({ id, status: 'success', data: result }, event.origin);
-              } catch (error) {
-                event.source.postMessage({ id, status: 'error', error: error.message }, event.origin);
-              }
-            }
-          });
-
-          // Wait for Ketcher to initialize and then notify parent
-          const checkKetcher = () => {
-            if (window.ketcher) {
-              window.parent.postMessage({ type: 'ketcher-ready' }, window.location.origin);
-            } else {
-              setTimeout(checkKetcher, 100);
-            }
-          };
-
-          checkKetcher();
-        `;
-
-        iframeDocument.head.appendChild(script);
-      } catch (err) {
-        if (err instanceof DOMException && err.name === "SecurityError") {
-          console.debug("Ketcher iframe cross-origin, using postMessage mode");
-        } else {
-          console.error("Failed to inject Ketcher communication script:", err);
-        }
-      }
-    };
-
-    // Wait for iframe to load, then inject script
-    if (ketcherFrame.current) {
-      ketcherFrame.current.onload = () => {
-        setTimeout(injectCommunicationScript, 500);
-      };
-    }
-  };
-
-  // Re-initialize when retry attempt changes
-  useEffect(() => {
-    initializeKetcher();
-  }, [retryAttempt]);
 
   // Enhanced copyToClipboard function with multiple fallback methods
   const copyToClipboard = async (text = null) => {
@@ -313,7 +133,7 @@ const StructureDrawView = () => {
 
     try {
       // Use the command execution function
-      await executeKetcherCommand("setMolecule", [inputSmiles]);
+      await executeCommand("setMolecule", [inputSmiles]);
       setSmiles(inputSmiles);
     } catch (err) {
       console.error("Failed to load SMILES:", err);
@@ -335,7 +155,7 @@ const StructureDrawView = () => {
 
     try {
       // Use the command execution function
-      const newSmiles = await executeKetcherCommand("getSmiles");
+      const newSmiles = await executeCommand("getSmiles");
 
       if (!newSmiles || newSmiles === "") {
         setError("No structure drawn. Please draw a molecule first.");
@@ -363,7 +183,7 @@ const StructureDrawView = () => {
 
     try {
       // Use the command execution function
-      await executeKetcherCommand("setMolecule", [""]);
+      await executeCommand("setMolecule", [""]);
       setSmiles("");
     } catch (err) {
       console.error("Failed to clear editor:", err);
@@ -377,9 +197,8 @@ const StructureDrawView = () => {
 
   // Function to retry initialization
   const handleRetryInit = () => {
-    setIsEditorReady(false);
+    resetEditor();
     setError(null);
-    setRetryAttempt((prev) => prev + 1);
   };
 
   return (

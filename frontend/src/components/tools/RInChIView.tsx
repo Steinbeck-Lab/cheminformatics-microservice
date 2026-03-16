@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { usePreventIframeScrollJack } from "@/hooks/usePreventIframeScrollJack";
+import { useKetcherEditor } from "@/hooks/useKetcherEditor";
 
 // Import utility functions
 import {
@@ -212,22 +212,17 @@ const RInChIView = () => {
   const [activeInputType, setActiveInputType] = useState("reaction"); // 'reaction', 'rxnfile', 'rinchi', 'rinchi-to-file'
 
   const [isLoading, setIsLoading] = useState(false);
-  const [isEditorReady, setIsEditorReady] = useState(false);
   const [error, setError] = useState(null);
   const [copySuccess, setCopySuccess] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [copyModalText, setCopyModalText] = useState("");
   const [rinchiModuleLoaded, setRinchiModuleLoaded] = useState(false);
-  const [retryAttempt, setRetryAttempt] = useState(0);
 
   // Refs
-  const ketcherFrame = useRef(null);
   const copyTextRef = useRef(null);
   const fileInputRef = useRef(null);
-  const messageHandlers = useRef({});
-  const messageId = useRef(0);
 
-  usePreventIframeScrollJack(ketcherFrame);
+  const { ketcherFrame, isEditorReady, executeCommand, resetEditor } = useKetcherEditor();
 
   // Reset error when needed
   useEffect(() => {
@@ -240,185 +235,6 @@ const RInChIView = () => {
       copyTextRef.current.select();
     }
   }, [showCopyModal]);
-
-  // Set up message communication with the Ketcher iframe
-  useEffect(() => {
-    const handleMessage = (event) => {
-      // Only accept messages from our iframe
-      if (event.origin !== window.location.origin) return;
-      if (ketcherFrame.current && event.source === ketcherFrame.current.contentWindow) {
-        const { id, type, status, data, error } = event.data;
-
-        // Handle response to our message
-        if (id && messageHandlers.current[id]) {
-          const handler = messageHandlers.current[id];
-
-          if (status === "success") {
-            handler.resolve(data);
-          } else if (status === "error") {
-            handler.reject(new Error(error || "Unknown error"));
-          }
-
-          // Remove the handler after it's been used
-          delete messageHandlers.current[id];
-        }
-
-        // Handle initialization message
-        if (type === "ketcher-ready") {
-          setIsEditorReady(true);
-        }
-      }
-    };
-
-    // Add listener for messages
-    window.addEventListener("message", handleMessage);
-
-    // Clean up on unmount
-    return () => {
-      window.removeEventListener("message", handleMessage);
-      messageHandlers.current = {};
-    };
-  }, []);
-
-  // Function to send messages to the iframe and wait for response
-  const sendMessage = (type, payload = {}) => {
-    return new Promise((resolve, reject) => {
-      if (!ketcherFrame.current || !ketcherFrame.current.contentWindow) {
-        reject(new Error("Ketcher frame not available"));
-        return;
-      }
-
-      // Generate unique ID for this message
-      const id = messageId.current++;
-
-      // Store promise handlers
-      messageHandlers.current[id] = { resolve, reject };
-
-      // Send message to iframe
-      const message = { id, type, payload };
-
-      try {
-        ketcherFrame.current.contentWindow.postMessage(message, window.location.origin);
-      } catch (err) {
-        delete messageHandlers.current[id];
-        reject(new Error(`Failed to send message: ${err.message}`));
-      }
-
-      // Set timeout to reject if no response
-      setTimeout(() => {
-        if (messageHandlers.current[id]) {
-          delete messageHandlers.current[id];
-          reject(new Error("Timeout waiting for response"));
-        }
-      }, 10000); // 10 second timeout
-    });
-  };
-
-  // Function to communicate with ketcher through both direct access and messaging
-  const executeKetcherCommand = async (command, args = []) => {
-    // First try direct access method
-    try {
-      if (ketcherFrame.current && ketcherFrame.current.contentWindow.ketcher) {
-        const ketcher = ketcherFrame.current.contentWindow.ketcher;
-        if (typeof ketcher[command] === "function") {
-          return await ketcher[command](...args);
-        }
-      }
-    } catch (directError) {
-      console.debug(`Direct Ketcher access failed for ${command}`, directError);
-      // Fall through to postMessage method
-    }
-
-    // Fall back to message passing
-    try {
-      return await sendMessage("ketcher-command", { command, args });
-    } catch (msgError) {
-      console.error(`Message passing failed for ${command}`, msgError);
-      throw new Error(`Failed to execute ${command}: ${msgError.message}`);
-    }
-  };
-
-  // Initialize Ketcher iframe communication
-  const initializeKetcher = () => {
-    // Function to inject communication script into iframe
-    const injectCommunicationScript = () => {
-      try {
-        if (!ketcherFrame.current || !ketcherFrame.current.contentWindow) {
-          return;
-        }
-        const iframeWindow = ketcherFrame.current.contentWindow;
-        const iframeDocument = iframeWindow.document;
-
-        // Create a script element
-        const script = iframeDocument.createElement("script");
-        script.textContent = `
-          // Set up message handler in the Ketcher iframe
-          window.addEventListener('message', async function(event) {
-            // Check source
-            if (event.source !== window.parent) return;
-            
-            const { id, type, payload } = event.data;
-            
-            // Handle command execution
-            if (type === 'ketcher-command') {
-              try {
-                const { command, args } = payload;
-                
-                if (!window.ketcher) {
-                  throw new Error('Ketcher not initialized');
-                }
-                
-                if (typeof window.ketcher[command] !== 'function') {
-                  throw new Error(\`Command \${command} not available\`);
-                }
-                
-                const result = await window.ketcher[command](...(args || []));
-                event.source.postMessage({ id, status: 'success', data: result }, event.origin);
-              } catch (error) {
-                event.source.postMessage({ id, status: 'error', error: error.message }, event.origin);
-              }
-            }
-          });
-          
-          // Wait for Ketcher to initialize and then notify parent
-          const checkKetcher = () => {
-            if (window.ketcher) {
-              // Notify parent that Ketcher is ready
-              window.parent.postMessage({ type: 'ketcher-ready' }, window.location.origin);
-            } else {
-              // Check again in 100ms
-              setTimeout(checkKetcher, 100);
-            }
-          };
-          
-          // Start checking for ketcher
-          checkKetcher();
-        `;
-
-        // Add script to iframe
-        iframeDocument.head.appendChild(script);
-      } catch (err) {
-        if (err instanceof DOMException && err.name === "SecurityError") {
-          console.debug("Ketcher iframe cross-origin, using postMessage mode");
-        } else {
-          console.error("Failed to inject Ketcher communication script:", err);
-        }
-      }
-    };
-
-    // Wait for iframe to load, then inject script
-    if (ketcherFrame.current) {
-      // Clear any previous onload
-      ketcherFrame.current.onload = () => {
-        setTimeout(injectCommunicationScript, 500);
-      };
-    }
-  };
-
-  // Re-initialize when retry attempt changes
-  useEffect(() => {
-    initializeKetcher();
-  }, [retryAttempt]);
 
   // Enhanced copyToClipboard function with multiple fallback methods
   const copyToClipboard = async (text = null, type = "rinchi") => {
@@ -502,23 +318,15 @@ const RInChIView = () => {
     const checkModuleStatus = async () => {
       try {
         setRinchiModuleLoaded(false);
-
-        // Try to load the module for the current version
-        await loadRinchiModule(rinchiVersion)
-          .then(() => {
-            setRinchiModuleLoaded(true);
-          })
-          .catch((err) => {
-            console.error(`Failed to load RInChI module ${rinchiVersion}:`, err);
-            setError(
-              `Failed to load RInChI module ${rinchiVersion}. Please check your network connection.`
-            );
-          });
+        await loadRinchiModule(rinchiVersion);
+        setRinchiModuleLoaded(true);
       } catch (err) {
-        console.error("Error checking RInChI module status:", err);
+        console.error(`Failed to load RInChI module ${rinchiVersion}:`, err);
+        setError(
+          `Failed to load RInChI module ${rinchiVersion}. Please check your network connection.`
+        );
       }
     };
-
     checkModuleStatus();
   }, [rinchiVersion]);
 
@@ -532,11 +340,11 @@ const RInChIView = () => {
           return ketcher.containsReaction();
         }
       } catch (e) {
-        // If direct access fails, try another approach
+        console.debug("Direct Ketcher access failed in checkForReaction:", e);
       }
 
       // Alternative: try to get the RXN file and check if it has reaction components
-      const rxnFile = await executeKetcherCommand("getRxn");
+      const rxnFile = await executeCommand("getRxn");
       return rxnFile && (rxnFile.includes("$RXN") || rxnFile.includes("$RDFILE"));
     } catch (err) {
       console.error("Error checking for reaction:", err);
@@ -549,7 +357,7 @@ const RInChIView = () => {
     try {
       // This is a simplistic check - in a real implementation you would need more
       // complex logic to detect the arrow type
-      const rxnFile = await executeKetcherCommand("getRxn");
+      const rxnFile = await executeCommand("getRxn");
       return rxnFile && rxnFile.includes("EQUILIBRIUM");
     } catch (err) {
       console.error("Error checking for equilibrium arrow:", err);
@@ -594,7 +402,7 @@ const RInChIView = () => {
       }
 
       // Get RXN file from Ketcher
-      const rxnFile = await executeKetcherCommand("getRxn");
+      const rxnFile = await executeCommand("getRxn");
 
       if (!rxnFile || rxnFile.trim() === "") {
         const errorMsg =
@@ -731,7 +539,7 @@ const RInChIView = () => {
       // If editor is ready, also load the reaction in Ketcher
       if (isEditorReady) {
         try {
-          await executeKetcherCommand("setMolecule", [rxnfileContent]);
+          await executeCommand("setMolecule", [rxnfileContent]);
           setLogMessage((prevLog) => `Reaction loaded in editor.\n${prevLog}`);
         } catch (ketcherErr) {
           console.error("Failed to load reaction in Ketcher:", ketcherErr);
@@ -838,7 +646,7 @@ const RInChIView = () => {
       }
 
       // Load the RXN file into Ketcher
-      await executeKetcherCommand("setMolecule", [result.fileText]);
+      await executeCommand("setMolecule", [result.fileText]);
 
       // Update state
       setRinchi(inputRinchi);
@@ -926,7 +734,7 @@ const RInChIView = () => {
     }
 
     try {
-      await executeKetcherCommand("setMolecule", [""]);
+      await executeCommand("setMolecule", [""]);
       setRinchi("");
       setRauxInfo("");
       setLongRinchiKey("");
@@ -942,9 +750,8 @@ const RInChIView = () => {
 
   // Function to retry initialization
   const handleRetryInit = () => {
-    setIsEditorReady(false);
+    resetEditor();
     setError(null);
-    setRetryAttempt((prev) => prev + 1);
   };
 
   // Examples of common reactions with their RInChI
