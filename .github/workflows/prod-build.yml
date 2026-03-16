@@ -88,7 +88,7 @@ jobs:
           file: ./frontend/Dockerfile
           push: true
           build-args: |
-            REACT_APP_API_URL=https://api.naturalproducts.net/latest
+            VITE_API_URL=https://api.naturalproducts.net/latest
           tags: |
             ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:app-${{ github.event.release.tag_name }}
             ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:app
