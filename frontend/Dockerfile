@@ -4,8 +4,9 @@ FROM node:24-alpine AS build
 # Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Copy package.json, package-lock.json, and scripts (needed by postinstall)
 COPY package*.json ./
+COPY scripts/ ./scripts/
 
 # Install dependencies (HUSKY=0 skips git hooks setup in Docker)
 ENV HUSKY=0

@@ -34,3 +34,6 @@ stats.html
 *.njsproj
 *.sln
 *.sw?
+
+# Ketcher standalone (downloaded by scripts/fetch-ketcher.js)
+/public/standalone/
