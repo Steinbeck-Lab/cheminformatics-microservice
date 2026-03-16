@@ -10,7 +10,6 @@ import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
-import { AddToCompareButton } from "../common/AddToCompareButton";
 import { Input } from "@/components/ui/input";
 
 const CoconutPreProcessingView = () => {
@@ -395,13 +394,6 @@ const CoconutPreProcessingView = () => {
                 COCONUT Pre-processing Results
               </h3>
             </div>
-            {smiles.trim() && (
-              <AddToCompareButton
-                smiles={smiles.trim()}
-                title="COCONUT molecule"
-                sourceToolId="coconut"
-              />
-            )}
           </div>
           {/* Render Tabs and Content */}
           {renderResults(preprocessData)}

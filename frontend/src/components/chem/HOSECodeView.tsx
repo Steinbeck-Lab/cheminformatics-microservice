@@ -10,7 +10,6 @@ import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
-import { AddToCompareButton } from "../common/AddToCompareButton";
 import {
   Select,
   SelectContent,
@@ -212,13 +211,6 @@ const HOSECodeView = () => {
               </span>
             </h3>
             <div className="flex items-center gap-2">
-              {smiles.trim() && (
-                <AddToCompareButton
-                  smiles={smiles.trim()}
-                  title="HOSE code molecule"
-                  sourceToolId="hosecodes"
-                />
-              )}
               {/* Copy Button */}
               <Button
                 variant="ghost"

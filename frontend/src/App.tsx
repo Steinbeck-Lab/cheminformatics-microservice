@@ -8,11 +8,8 @@ import {
   useLocation,
 } from "react-router-dom";
 import { AppProvider } from "./context/AppContext";
-import { ComparisonProvider } from "./context/ComparisonContext";
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
-import { ComparisonTray } from "./components/common/ComparisonTray";
-import { ComparisonView } from "./components/common/ComparisonView";
 import { RouteLoadingFallback } from "./components/feedback/RouteLoadingFallback";
 import { AnimatedOutlet } from "./components/common/AnimatedOutlet";
 import { Toaster } from "./components/ui/sonner";
@@ -61,8 +58,6 @@ const Layout = () => {
         </Suspense>
       </main>
       <Footer />
-      <ComparisonTray />
-      <ComparisonView />
       <Toaster />
       <CommandPalette />
     </div>
@@ -120,14 +115,12 @@ const router = createBrowserRouter(
 function App() {
   return (
     <AppProvider>
-      <ComparisonProvider>
-        <RouterProvider
-          router={router}
-          future={{
-            v7_startTransition: true,
-          }}
-        />
-      </ComparisonProvider>
+      <RouterProvider
+        router={router}
+        future={{
+          v7_startTransition: true,
+        }}
+      />
     </AppProvider>
   );
 }
