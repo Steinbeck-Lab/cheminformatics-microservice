@@ -12,7 +12,6 @@ import Depict2DMultiView from "../components/depict/Depict2DMultiView";
 import StructureVisualizerView from "../components/depict/StructureVisualizerView";
 import StructureDrawView from "../components/depict/StructureDrawView";
 import { Box, ChevronDown, LayoutGrid, Pencil, Search } from "lucide-react";
-import { GradientMesh } from "@/components/common/GradientMesh";
 
 // Tab data
 const tabs = [
@@ -47,10 +46,6 @@ const tabs = [
 ];
 
 // --- Animation Variants ---
-const pageVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.6, ease: "easeInOut" } },
-};
 const headerContainerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -140,16 +135,9 @@ const DepictPage = () => {
   };
 
   return (
-    <motion.div
-      className="relative min-h-screen"
-      variants={pageVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <GradientMesh page="depict" />
-
+    <div className="relative min-h-screen">
       {/* Content Area */}
-      <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 z-10">
+      <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6 z-10">
         <div className="w-full lg:w-3/4 mx-auto">
           {/* Page Header */}
           <motion.div
@@ -336,7 +324,6 @@ const DepictPage = () => {
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeTabId}
-                  layout
                   initial="hidden"
                   animate="visible"
                   exit="exit"
@@ -352,7 +339,7 @@ const DepictPage = () => {
           </motion.div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 export default DepictPage;

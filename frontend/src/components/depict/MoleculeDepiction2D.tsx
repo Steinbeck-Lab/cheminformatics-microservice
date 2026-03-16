@@ -112,6 +112,7 @@ const MoleculeDepiction2D = ({
 
         {/* Download Button */}
         <Button
+          variant="ghost"
           onClick={handleDownload}
           disabled={!imageUrl}
           className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500"
@@ -220,6 +221,7 @@ const MoleculeDepiction2D = ({
 
           {/* Refresh Button */}
           <Button
+            variant="ghost"
             onClick={handleRefresh}
             className="ml-auto p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500"
             title="Reset to original view"

@@ -207,6 +207,7 @@ const MolFileUpload = ({
             <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
           </div>
           <Button
+            variant="ghost"
             onClick={() => setError(null)}
             className="ml-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
           >
@@ -232,6 +233,7 @@ const MolFileUpload = ({
               </div>
             </div>
             <Button
+              variant="ghost"
               onClick={handleClear}
               className="ml-2 text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
               title="Clear and upload new file"

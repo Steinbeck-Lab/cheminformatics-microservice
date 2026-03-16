@@ -21,7 +21,6 @@ import {
   Wrench,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { GradientMesh } from "@/components/common/GradientMesh";
 
 // Lazy-load 3D scene (heavy — Three.js bundle)
 const CaffeineMolecule3D = lazy(() => import("@/components/3d/CaffeineMolecule3D"));
@@ -154,9 +153,6 @@ const HomePage = () => {
 
   return (
     <div className="relative min-h-screen w-full text-slate-900 dark:text-slate-100 font-sans overflow-x-hidden isolate">
-      {/* Gradient mesh — visible on mobile, sits behind 3D on desktop */}
-      <GradientMesh page="home" />
-
       {/* 3D Caffeine molecule background — desktop only (hidden <768px for GPU perf) */}
       <div className="hidden md:block">
         <Suspense fallback={null}>

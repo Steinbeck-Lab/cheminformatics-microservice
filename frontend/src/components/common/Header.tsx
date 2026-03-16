@@ -204,15 +204,13 @@ const Header = () => {
             <div className="hidden lg:block ml-4 w-px h-6 bg-slate-300 dark:bg-slate-600" />
           </motion.div>
 
-          {/* Desktop Navigation — absolutely centered in pill */}
+          {/* Desktop Navigation */}
           <motion.div
-            className="hidden lg:flex items-center justify-center absolute inset-0 pointer-events-none"
+            className="hidden lg:flex items-center justify-center flex-1 min-w-0 mx-4"
             variants={headerContentVariants}
             custom={1}
           >
-            <div className="pointer-events-auto">
-              <Navigation />
-            </div>
+            <Navigation />
           </motion.div>
 
           {/* Desktop Theme Toggle */}

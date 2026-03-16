@@ -285,11 +285,12 @@ const OCRView = () => {
                   />
                   <div className="absolute top-2 right-2">
                     <Button
+                      variant="destructive"
                       onClick={(e) => {
                         e.stopPropagation();
                         clearAll();
                       }}
-                      className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-lg transition-colors"
+                      className="p-2 rounded-lg"
                       title="Remove image"
                     >
                       <XCircle className="h-5 w-5" />
@@ -328,10 +329,11 @@ const OCRView = () => {
                 Hand-Drawn Model
               </span>
               <Button
+                variant="ghost"
                 type="button"
                 onClick={() => setHandDrawn(!handDrawn)}
                 disabled={loading}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`relative inline-flex h-6 w-11 items-center rounded-full p-0 ${
                   handDrawn ? "bg-green-600 dark:bg-green-500" : "bg-slate-300 dark:bg-slate-600"
                 }`}
                 role="switch"

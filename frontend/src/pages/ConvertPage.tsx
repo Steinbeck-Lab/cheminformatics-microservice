@@ -11,7 +11,6 @@ import FormatConversionView from "../components/convert/FormatConversionView";
 import Mol2DView from "../components/convert/Mol2DView";
 import Mol3DView from "../components/convert/Mol3DView";
 import { Box, ChevronDown, Copy, LayoutGrid } from "lucide-react";
-import { GradientMesh } from "@/components/common/GradientMesh";
 
 // Tab data with icons and descriptions
 const tabs = [
@@ -39,10 +38,6 @@ const tabs = [
 ];
 
 // --- Animation Variants ---
-const pageVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.6, ease: "easeInOut" } },
-};
 const headerContainerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -130,16 +125,9 @@ const ConvertPage = () => {
   };
 
   return (
-    <motion.div
-      className="relative min-h-screen"
-      variants={pageVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <GradientMesh page="convert" />
-
+    <div className="relative min-h-screen">
       {/* Content Area */}
-      <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 z-10">
+      <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6 z-10">
         <div className="w-full lg:w-3/4 mx-auto">
           {/* Page Header */}
           <motion.div
@@ -326,7 +314,6 @@ const ConvertPage = () => {
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeTabId}
-                  layout
                   initial="hidden"
                   animate="visible"
                   exit="exit"
@@ -340,7 +327,7 @@ const ConvertPage = () => {
           </motion.div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 export default ConvertPage;

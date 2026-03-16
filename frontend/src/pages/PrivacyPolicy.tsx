@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { Link } from "react-router-dom";
-import { GradientMesh } from "@/components/common/GradientMesh";
 
 // Animation Variants
 const pageVariants = {
@@ -46,9 +45,6 @@ const PrivacyPolicy = () => {
       initial="hidden"
       animate="visible"
     >
-      {/* Gradient Mesh Background (neutral gray) */}
-      <GradientMesh page="privacy" />
-
       {/* Content Area */}
       <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 z-10 grow">
         <div className="w-full max-w-4xl mx-auto">

@@ -12,7 +12,6 @@ import StructureGenView from "../components/tools/StructureGenView";
 import InChIView from "../components/tools/InChIView";
 import RInChIView from "../components/tools/RInChIView";
 import { ArrowLeftRight, Box, ChevronDown, FileText, Puzzle } from "lucide-react";
-import { GradientMesh } from "@/components/common/GradientMesh";
 
 // Tab data with icons and descriptions
 const tabs = [
@@ -50,10 +49,6 @@ const tabs = [
 ];
 
 // --- Animation Variants ---
-const pageVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.6, ease: "easeInOut" } },
-};
 const headerContainerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -143,16 +138,9 @@ const ToolsPage = () => {
   };
 
   return (
-    <motion.div
-      className="relative min-h-screen"
-      variants={pageVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <GradientMesh page="tools" />
-
+    <div className="relative min-h-screen">
       {/* Content Area */}
-      <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 z-10">
+      <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6 z-10">
         <div className="w-full lg:w-3/4 mx-auto">
           {/* Page Header */}
           <motion.div
@@ -340,7 +328,6 @@ const ToolsPage = () => {
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeTabId}
-                  layout
                   initial="hidden"
                   animate="visible"
                   exit="exit"
@@ -354,7 +341,7 @@ const ToolsPage = () => {
           </motion.div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 export default ToolsPage;

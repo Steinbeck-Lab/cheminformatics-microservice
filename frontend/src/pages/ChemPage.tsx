@@ -43,7 +43,6 @@ import {
   Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { GradientMesh } from "@/components/common/GradientMesh";
 
 // Define tab data with icons, categories, and components
 const tabs = [
@@ -179,10 +178,6 @@ const categories: Record<string, { name: string; color: string }> = {
 const categoryOrder = ["structure", "search", "analysis", "comparison", "validation", "advanced"];
 
 // --- Animation Variants ---
-const pageVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.5 } },
-};
 const contentVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { duration: 0.15 } },
@@ -269,14 +264,7 @@ const ChemPage = () => {
   };
 
   return (
-    <motion.div
-      className="relative min-h-screen"
-      variants={pageVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <GradientMesh page="chem" />
-
+    <div className="relative min-h-screen">
       {/* Mobile toggle button */}
       <motion.div className="md:hidden fixed top-20 left-4 z-[60]" whileTap={{ scale: 0.95 }}>
         <Button
@@ -313,7 +301,7 @@ const ChemPage = () => {
       </motion.div>
 
       {/* Main Layout Container */}
-      <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 z-10">
+      <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6 z-10">
         <div className="w-full lg:w-3/4 mx-auto">
           <motion.div
             className="mb-8 md:mb-10 text-center mx-auto"
@@ -482,7 +470,6 @@ const ChemPage = () => {
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeTabId}
-                  layout
                   className="glass-bold rounded-xl shadow-lg overflow-hidden min-h-[calc(100vh-12rem)]"
                   initial="hidden"
                   animate="visible"
@@ -518,7 +505,7 @@ const ChemPage = () => {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 export default ChemPage;

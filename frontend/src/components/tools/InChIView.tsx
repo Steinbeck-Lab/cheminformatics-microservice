@@ -40,12 +40,12 @@ import { Textarea } from "@/components/ui/textarea";
 
 // Tooltip component for InChI options
 const OptionTooltip = ({ content }) => (
-  <div className="group relative inline-block">
+  <span className="group relative inline-block">
     <HelpCircle className="h-4 w-4 ml-1 text-gray-500 dark:text-gray-400 inline-block align-text-bottom cursor-help" />
-    <div className="absolute z-10 opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-opacity duration-300 w-64 bg-white dark:bg-gray-800 p-2 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-300 -mt-1 left-6">
+    <span className="absolute z-10 opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-opacity duration-300 w-64 bg-white dark:bg-gray-800 p-2 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-300 -mt-1 left-6 block">
       {content}
-    </div>
-  </div>
+    </span>
+  </span>
 );
 
 // InChI options component
@@ -207,6 +207,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
           <h2 className="text-lg font-bold text-gray-800 dark:text-white">InChI Options</h2>
         </div>
         <Button
+          variant="ghost"
           onClick={resetOptions}
           className="text-sm flex items-center text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
         >
@@ -421,6 +422,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
               <OptionTooltip content="Configure which types of tautomerism are considered when generating InChI" />
             </p>
             <Button
+              variant="ghost"
               onClick={() => setShowTautomerism(!showTautomerism)}
               className="text-sm text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
             >
@@ -697,8 +699,9 @@ const ResultBlock = ({ title, value, onCopy, copyState, icon }) => {
         </h3>
         {value && (
           <Button
+            variant="ghost"
             onClick={onCopy}
-            className="inline-flex items-center px-2 py-1 text-xs text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 rounded-sm hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors duration-200"
+            className="inline-flex items-center px-2 py-1 text-xs text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 rounded-sm hover:bg-green-200 dark:hover:bg-green-800/50"
           >
             {copyState ? (
               <>
@@ -841,8 +844,6 @@ const InChIView = () => {
       }
 
       try {
-        console.log("Generating InChIKey from InChI:", inchiString.substring(0, 40) + "...");
-
         const result = await generateInchiKey(inchiString, inchiVersion);
 
         if (!result) {
@@ -888,8 +889,6 @@ const InChIView = () => {
         if (!inchiModuleLoaded) {
           throw new Error("InChI module not loaded. Please wait or refresh the page.");
         }
-
-        console.log("Converting molfile to InChI with options:", options, "version:", inchiVersion);
 
         // Convert molfile to InChI
         const result = await convertMolfileToInchi(molfile, options, inchiVersion);
@@ -1001,7 +1000,6 @@ const InChIView = () => {
 
         // Handle initialization message
         if (type === "ketcher-ready") {
-          console.log("Ketcher ready message received");
           setIsEditorReady(true);
         }
       }
@@ -1052,6 +1050,9 @@ const InChIView = () => {
     // Function to inject communication script into iframe
     const injectCommunicationScript = () => {
       try {
+        if (!ketcherFrame.current || !ketcherFrame.current.contentWindow) {
+          return;
+        }
         const iframeWindow = ketcherFrame.current.contentWindow;
         const iframeDocument = iframeWindow.document;
 
@@ -1062,22 +1063,22 @@ const InChIView = () => {
           window.addEventListener('message', async function(event) {
             // Check source
             if (event.source !== window.parent) return;
-            
+
             const { id, type, payload } = event.data;
-            
+
             // Handle command execution
             if (type === 'ketcher-command') {
               try {
                 const { command, args } = payload;
-                
+
                 if (!window.ketcher) {
                   throw new Error('Ketcher not initialized');
                 }
-                
+
                 if (typeof window.ketcher[command] !== 'function') {
                   throw new Error(\`Command \${command} not available\`);
                 }
-                
+
                 const result = await window.ketcher[command](...(args || []));
                 event.source.postMessage({ id, status: 'success', data: result }, event.origin);
               } catch (error) {
@@ -1085,37 +1086,28 @@ const InChIView = () => {
               }
             }
           });
-          
+
           // Wait for Ketcher to initialize and then notify parent
           const checkKetcher = () => {
             if (window.ketcher) {
-              // Notify parent that Ketcher is ready
               window.parent.postMessage({ type: 'ketcher-ready' }, '*');
-              console.log('Ketcher ready, notified parent');
             } else {
-              // Check again in 100ms
               setTimeout(checkKetcher, 100);
             }
           };
-          
-          // Start checking for ketcher
+
           checkKetcher();
         `;
 
-        // Add script to iframe
         iframeDocument.head.appendChild(script);
-        console.log("Communication script injected into iframe");
-      } catch (error) {
-        console.error("Failed to inject communication script:", error);
+      } catch {
+        // Cross-origin or iframe not ready — silently skip
       }
     };
 
     // Wait for iframe to load, then inject script
     if (ketcherFrame.current) {
-      // Clear any previous onload
       ketcherFrame.current.onload = () => {
-        console.log("Ketcher iframe loaded, injecting script");
-        // Let the iframe load completely before injecting
         setTimeout(injectCommunicationScript, 500);
       };
     }
@@ -1230,7 +1222,6 @@ const InChIView = () => {
         await loadInchiModule(inchiVersion)
           .then(() => {
             setInchiModuleLoaded(true);
-            console.log(`InChI module ${inchiVersion} loaded successfully`);
           })
           .catch((err) => {
             console.error(`Failed to load InChI module ${inchiVersion}:`, err);
@@ -1278,7 +1269,6 @@ const InChIView = () => {
       if (result.molfile) {
         // Load the molfile into Ketcher
         await executeKetcherCommand("setMolecule", [result.molfile]);
-        console.log("InChI loaded successfully");
 
         // Store the molfile content
         setMolfileContent(result.molfile);
@@ -1453,7 +1443,6 @@ const InChIView = () => {
       setInchiKey("");
       setMolfileContent("");
       setLogMessage("Editor cleared");
-      console.log("Editor cleared successfully");
     } catch (err) {
       console.error("Failed to clear editor:", err);
       setError("Failed to clear the editor");
@@ -1516,6 +1505,7 @@ const InChIView = () => {
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">Copy Text</h3>
               <Button
+                variant="ghost"
                 onClick={() => setShowCopyModal(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
@@ -1537,8 +1527,9 @@ const InChIView = () => {
             </div>
             <div className="flex justify-end gap-3">
               <Button
+                variant="secondary"
                 onClick={() => setShowCopyModal(false)}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
+                className="px-4 py-2 rounded-sm"
               >
                 Close
               </Button>
@@ -1571,6 +1562,7 @@ const InChIView = () => {
               {/* Auto-generate toggle */}
               <div className="flex items-center">
                 <Button
+                  variant="ghost"
                   onClick={toggleAutoGenerate}
                   className={`flex items-center text-sm font-medium ${
                     autoGenerate
@@ -1593,13 +1585,10 @@ const InChIView = () => {
 
             <div className="space-y-4">
               <Button
+                variant="outline"
                 onClick={clearEditor}
                 disabled={isLoading || !isEditorReady}
-                className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center ${
-                  isLoading || !isEditorReady
-                    ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
-                }`}
+                className="w-full px-4 py-2 rounded-lg text-sm font-medium flex items-center justify-center"
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Clear Editor
@@ -1633,7 +1622,8 @@ const InChIView = () => {
             <div className="mb-4">
               <div className="flex flex-wrap border-b border-gray-200 dark:border-gray-700">
                 <Button
-                  className={`px-3 py-2 text-xs font-medium ${
+                  variant="ghost"
+                  className={`px-3 py-2 text-xs font-medium rounded-none ${
                     activeInputType === "structure"
                       ? "text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400"
                       : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-600"
@@ -1644,7 +1634,8 @@ const InChIView = () => {
                   Draw
                 </Button>
                 <Button
-                  className={`px-3 py-2 text-xs font-medium ${
+                  variant="ghost"
+                  className={`px-3 py-2 text-xs font-medium rounded-none ${
                     activeInputType === "smiles"
                       ? "text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400"
                       : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-600"
@@ -1655,7 +1646,8 @@ const InChIView = () => {
                   SMILES
                 </Button>
                 <Button
-                  className={`px-3 py-2 text-xs font-medium ${
+                  variant="ghost"
+                  className={`px-3 py-2 text-xs font-medium rounded-none ${
                     activeInputType === "molfile"
                       ? "text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400"
                       : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-600"
@@ -1666,7 +1658,8 @@ const InChIView = () => {
                   Mol/Aux
                 </Button>
                 <Button
-                  className={`px-3 py-2 text-xs font-medium ${
+                  variant="ghost"
+                  className={`px-3 py-2 text-xs font-medium rounded-none ${
                     activeInputType === "inchi"
                       ? "text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400"
                       : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-600"
@@ -1719,9 +1712,10 @@ const InChIView = () => {
                   <div className="flex flex-wrap gap-2">
                     {examples.map((example, index) => (
                       <Button
+                        variant="outline"
                         key={index}
                         onClick={() => setInputSmiles(example.smiles)}
-                        className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-xs text-xs font-medium rounded-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 transition-all duration-200"
+                        className="px-3 py-1.5 text-xs font-medium rounded-full"
                         title={`${example.name}: ${example.description}`}
                       >
                         {example.name}
@@ -1970,10 +1964,6 @@ const InChIView = () => {
               title="Ketcher Editor"
               className="w-full h-full"
               frameBorder="0"
-              onLoad={(e) => {
-                // Don't prevent default - just let communication script be injected
-                console.log("Ketcher iframe loaded");
-              }}
             />
           </div>
 

@@ -5,7 +5,6 @@ import OCRView from "../components/ocsr/OCRView"; // Assuming path is correct
 import { ExternalLink, FileSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { GradientMesh } from "@/components/common/GradientMesh";
 
 // --- Animation Variants (Consistent with other pages) ---
 const pageVariants = {
@@ -54,8 +53,6 @@ const OCSRPage = () => {
       initial="hidden"
       animate="visible"
     >
-      {/* Gradient Mesh Background (emerald-cyan) */}
-      <GradientMesh page="ocsr" />
       {/* Content Area - Outer padding container */}
       <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 z-10">
         {/* Inner wrapper for width constraint (lg:w-3/4) */}

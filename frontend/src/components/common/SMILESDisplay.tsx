@@ -56,6 +56,7 @@ const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
         </label>
         <div className="flex space-x-2">
           <Button
+            variant="ghost"
             onClick={handleCopy}
             disabled={!smiles}
             className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 ${
@@ -73,6 +74,7 @@ const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
           </Button>
           {showDownload && (
             <Button
+              variant="ghost"
               onClick={handleDownload}
               disabled={downloading || !smiles}
               className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 ${

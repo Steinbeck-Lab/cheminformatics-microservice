@@ -39,12 +39,12 @@ import { Textarea } from "@/components/ui/textarea";
 
 // Tooltip component for RInChI options
 const OptionTooltip = ({ content }) => (
-  <div className="group relative inline-block">
+  <span className="group relative inline-block">
     <HelpCircle className="h-4 w-4 ml-1 text-gray-500 dark:text-gray-400 inline-block align-text-bottom cursor-help" />
-    <div className="absolute z-10 opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-opacity duration-300 w-64 bg-white dark:bg-gray-800 p-2 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-300 -mt-1 left-6">
+    <span className="absolute z-10 opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-opacity duration-300 w-64 bg-white dark:bg-gray-800 p-2 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-300 -mt-1 left-6 block">
       {content}
-    </div>
-  </div>
+    </span>
+  </span>
 );
 
 // RInChI options component
@@ -165,6 +165,7 @@ const ResultBlock = ({ title, value, onCopy, copyState, icon, collapsible = fals
         </h3>
         {value && (
           <Button
+            variant="ghost"
             onClick={onCopy}
             className="inline-flex items-center px-2 py-1 text-xs text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-900/30 rounded-sm hover:bg-indigo-200 dark:hover:bg-indigo-800/50"
           >
@@ -261,7 +262,6 @@ const RInChIView = () => {
 
         // Handle initialization message
         if (type === "ketcher-ready") {
-          console.log("Ketcher ready message received");
           setIsEditorReady(true);
         }
       }
@@ -340,6 +340,9 @@ const RInChIView = () => {
     // Function to inject communication script into iframe
     const injectCommunicationScript = () => {
       try {
+        if (!ketcherFrame.current || !ketcherFrame.current.contentWindow) {
+          return;
+        }
         const iframeWindow = ketcherFrame.current.contentWindow;
         const iframeDocument = iframeWindow.document;
 
@@ -379,7 +382,6 @@ const RInChIView = () => {
             if (window.ketcher) {
               // Notify parent that Ketcher is ready
               window.parent.postMessage({ type: 'ketcher-ready' }, '*');
-              console.log('Ketcher ready, notified parent');
             } else {
               // Check again in 100ms
               setTimeout(checkKetcher, 100);
@@ -392,9 +394,8 @@ const RInChIView = () => {
 
         // Add script to iframe
         iframeDocument.head.appendChild(script);
-        console.log("Communication script injected into iframe");
-      } catch (error) {
-        console.error("Failed to inject communication script:", error);
+      } catch {
+        // Cross-origin or iframe not ready — silently skip
       }
     };
 
@@ -402,8 +403,6 @@ const RInChIView = () => {
     if (ketcherFrame.current) {
       // Clear any previous onload
       ketcherFrame.current.onload = () => {
-        console.log("Ketcher iframe loaded, injecting script");
-        // Let the iframe load completely before injecting
         setTimeout(injectCommunicationScript, 500);
       };
     }
@@ -501,7 +500,6 @@ const RInChIView = () => {
         await loadRinchiModule(rinchiVersion)
           .then(() => {
             setRinchiModuleLoaded(true);
-            console.log(`RInChI module ${rinchiVersion} loaded successfully`);
           })
           .catch((err) => {
             console.error(`Failed to load RInChI module ${rinchiVersion}:`, err);
@@ -929,7 +927,6 @@ const RInChIView = () => {
       setWebRinchiKey("");
       setRxnfileContent("");
       setLogMessage("Editor cleared");
-      console.log("Editor cleared successfully");
     } catch (err) {
       console.error("Failed to clear editor:", err);
       setError("Failed to clear the editor");
@@ -974,6 +971,7 @@ const RInChIView = () => {
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">Copy Text</h3>
               <Button
+                variant="ghost"
                 onClick={() => setShowCopyModal(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
@@ -995,6 +993,7 @@ const RInChIView = () => {
             </div>
             <div className="flex justify-end gap-3">
               <Button
+                variant="secondary"
                 onClick={() => setShowCopyModal(false)}
                 className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
               >
@@ -1071,7 +1070,8 @@ const RInChIView = () => {
             <div className="mb-4">
               <div className="flex flex-wrap border-b border-gray-200 dark:border-gray-700">
                 <Button
-                  className={`px-4 py-2 text-sm font-medium ${
+                  variant="ghost"
+                  className={`px-4 py-2 text-sm font-medium rounded-none ${
                     activeInputType === "reaction"
                       ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400"
                       : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-600"
@@ -1081,7 +1081,8 @@ const RInChIView = () => {
                   Draw
                 </Button>
                 <Button
-                  className={`px-4 py-2 text-sm font-medium ${
+                  variant="ghost"
+                  className={`px-4 py-2 text-sm font-medium rounded-none ${
                     activeInputType === "rxnfile"
                       ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400"
                       : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-600"
@@ -1091,7 +1092,8 @@ const RInChIView = () => {
                   RXN/RD File
                 </Button>
                 <Button
-                  className={`px-4 py-2 text-sm font-medium ${
+                  variant="ghost"
+                  className={`px-4 py-2 text-sm font-medium rounded-none ${
                     activeInputType === "rinchi"
                       ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400"
                       : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-600"
@@ -1101,7 +1103,8 @@ const RInChIView = () => {
                   RInChI
                 </Button>
                 <Button
-                  className={`px-4 py-2 text-sm font-medium ${
+                  variant="ghost"
+                  className={`px-4 py-2 text-sm font-medium rounded-none ${
                     activeInputType === "rinchi-to-file"
                       ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400"
                       : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-600"
@@ -1230,6 +1233,7 @@ const RInChIView = () => {
                   <div className="flex flex-wrap gap-2">
                     {examples.map((example, index) => (
                       <Button
+                        variant="outline"
                         key={index}
                         onClick={() => setInputRinchi(example.rinchi)}
                         className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-xs text-xs font-medium rounded-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition-all duration-200"
@@ -1303,6 +1307,7 @@ const RInChIView = () => {
                   <div className="flex flex-wrap gap-2">
                     {examples.map((example, index) => (
                       <Button
+                        variant="outline"
                         key={index}
                         onClick={() => setInputRinchi(example.rinchi)}
                         className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-xs text-xs font-medium rounded-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition-all duration-200"
@@ -1445,10 +1450,6 @@ const RInChIView = () => {
                 title="Ketcher Editor"
                 className="w-full h-full"
                 frameBorder="0"
-                onLoad={(e) => {
-                  // Don't prevent default - just let communication script be injected
-                  console.log("Ketcher iframe loaded");
-                }}
               />
             </div>
           )}

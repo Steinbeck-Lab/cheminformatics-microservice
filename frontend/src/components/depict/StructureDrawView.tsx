@@ -94,7 +94,6 @@ const StructureDrawView = () => {
 
         // Handle initialization message
         if (type === "ketcher-ready") {
-          console.log("Ketcher ready message received");
           setIsEditorReady(true);
         }
       }
@@ -173,6 +172,9 @@ const StructureDrawView = () => {
     // Function to inject communication script into iframe
     const injectCommunicationScript = () => {
       try {
+        if (!ketcherFrame.current || !ketcherFrame.current.contentWindow) {
+          return;
+        }
         const iframeWindow = ketcherFrame.current.contentWindow;
         const iframeDocument = iframeWindow.document;
 
@@ -183,22 +185,22 @@ const StructureDrawView = () => {
           window.addEventListener('message', async function(event) {
             // Check source
             if (event.source !== window.parent) return;
-            
+
             const { id, type, payload } = event.data;
-            
+
             // Handle command execution
             if (type === 'ketcher-command') {
               try {
                 const { command, args } = payload;
-                
+
                 if (!window.ketcher) {
                   throw new Error('Ketcher not initialized');
                 }
-                
+
                 if (typeof window.ketcher[command] !== 'function') {
                   throw new Error(\`Command \${command} not available\`);
                 }
-                
+
                 const result = await window.ketcher[command](...(args || []));
                 event.source.postMessage({ id, status: 'success', data: result }, event.origin);
               } catch (error) {
@@ -206,37 +208,28 @@ const StructureDrawView = () => {
               }
             }
           });
-          
+
           // Wait for Ketcher to initialize and then notify parent
           const checkKetcher = () => {
             if (window.ketcher) {
-              // Notify parent that Ketcher is ready
               window.parent.postMessage({ type: 'ketcher-ready' }, '*');
-              console.log('Ketcher ready, notified parent');
             } else {
-              // Check again in 100ms
               setTimeout(checkKetcher, 100);
             }
           };
-          
-          // Start checking for ketcher
+
           checkKetcher();
         `;
 
-        // Add script to iframe
         iframeDocument.head.appendChild(script);
-        console.log("Communication script injected into iframe");
-      } catch (error) {
-        console.error("Failed to inject communication script:", error);
+      } catch {
+        // Cross-origin or iframe not ready — silently skip
       }
     };
 
     // Wait for iframe to load, then inject script
     if (ketcherFrame.current) {
-      // Clear any previous onload
       ketcherFrame.current.onload = () => {
-        console.log("Ketcher iframe loaded, injecting script");
-        // Let the iframe load completely before injecting
         setTimeout(injectCommunicationScript, 500);
       };
     }
@@ -317,7 +310,6 @@ const StructureDrawView = () => {
     try {
       // Use the command execution function
       await executeKetcherCommand("setMolecule", [inputSmiles]);
-      console.log("SMILES loaded successfully");
       setSmiles(inputSmiles);
     } catch (err) {
       console.error("Failed to load SMILES:", err);
@@ -348,7 +340,6 @@ const StructureDrawView = () => {
       }
 
       setSmiles(newSmiles);
-      console.log("Generated SMILES:", newSmiles);
       return newSmiles;
     } catch (err) {
       console.error("Failed to generate SMILES:", err);
@@ -370,7 +361,6 @@ const StructureDrawView = () => {
       // Use the command execution function
       await executeKetcherCommand("setMolecule", [""]);
       setSmiles("");
-      console.log("Editor cleared successfully");
     } catch (err) {
       console.error("Failed to clear editor:", err);
       setError("Failed to clear the editor");
@@ -407,6 +397,7 @@ const StructureDrawView = () => {
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">Copy SMILES</h3>
               <Button
+                variant="ghost"
                 onClick={() => setShowCopyModal(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
@@ -428,6 +419,7 @@ const StructureDrawView = () => {
             </div>
             <div className="flex justify-end gap-3">
               <Button
+                variant="secondary"
                 onClick={() => setShowCopyModal(false)}
                 className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
               >
@@ -490,6 +482,7 @@ const StructureDrawView = () => {
               <div className="flex flex-wrap gap-2">
                 {examples.map((example, index) => (
                   <Button
+                    variant="outline"
                     key={index}
                     onClick={() => handleUseExample(example.value)}
                     className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-xs text-xs font-medium rounded-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition-all duration-200"

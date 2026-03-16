@@ -18,12 +18,18 @@ export function AnimatedOutlet() {
   const location = useLocation();
   const element = useOutlet();
 
+  // Key on the base route segment so tab-internal navigation
+  // (e.g. /chem/stereoisomers → /chem/descriptors) does NOT
+  // trigger a page transition — only true page switches do.
+  const segments = location.pathname.split("/").filter(Boolean);
+  const pageKey = segments[0] || "/";
+
   return (
     <div style={{ position: "relative" }}>
       <AnimatePresence mode="sync">
         {element && (
           <motion.div
-            key={location.pathname}
+            key={pageKey}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{
@@ -35,7 +41,7 @@ export function AnimatedOutlet() {
             transition={pageTransition}
             style={{ width: "100%" }}
           >
-            {React.cloneElement(element, { key: location.pathname })}
+            {React.cloneElement(element, { key: pageKey })}
           </motion.div>
         )}
       </AnimatePresence>

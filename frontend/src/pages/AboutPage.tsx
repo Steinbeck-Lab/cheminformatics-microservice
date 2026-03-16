@@ -3,7 +3,6 @@ import { motion } from "motion/react";
 import { Atom, Code, Database, ExternalLink, FileText, FlaskConical, Network } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { GradientMesh } from "@/components/common/GradientMesh";
 
 // Sophisticated Animation Variants
 const pageVariants = {
@@ -162,9 +161,6 @@ const AboutPage = () => {
       initial="hidden"
       animate="visible"
     >
-      {/* Gradient Mesh Background (slate-blue) */}
-      <GradientMesh page="about" />
-
       {/* Content Area */}
       <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 pb-0 z-10 grow">
         <div className="w-full max-w-6xl mx-auto">

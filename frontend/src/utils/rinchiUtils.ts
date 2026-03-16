@@ -87,9 +87,6 @@ export const loadRinchiModule = async (version) => {
           window[versionConfig.moduleName]()
             .then((module) => {
               moduleInstances[version] = module;
-              console.log(
-                `RInChI module ${version} loaded successfully from ${versionConfig.scriptSrc}`
-              );
               resolve(module);
             })
             .catch((err) => {

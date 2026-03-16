@@ -5,6 +5,7 @@ import {
   RouterProvider,
   createRoutesFromElements,
   Route,
+  useLocation,
 } from "react-router-dom";
 import { AppProvider } from "./context/AppContext";
 import { ComparisonProvider } from "./context/ComparisonContext";
@@ -16,7 +17,8 @@ import { RouteLoadingFallback } from "./components/feedback/RouteLoadingFallback
 import { AnimatedOutlet } from "./components/common/AnimatedOutlet";
 import { Toaster } from "./components/ui/sonner";
 import { CommandPalette } from "./components/common/CommandPalette";
-import { Breadcrumbs } from "./components/common/Breadcrumbs";
+import { GradientMesh } from "./components/common/GradientMesh";
+import type { GradientPageKey } from "./config/gradients";
 
 // Lazy-loaded pages (route-level code splitting)
 const HomePage = lazy(() => import("./pages/HomePage"));
@@ -29,23 +31,43 @@ const AboutPage = lazy(() => import("./pages/AboutPage"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 
+// Map route segments to gradient page keys
+const ROUTE_TO_GRADIENT: Record<string, GradientPageKey> = {
+  "": "depict",
+  home: "home",
+  chem: "chem",
+  convert: "convert",
+  depict: "depict",
+  tools: "tools",
+  ocsr: "ocsr",
+  about: "about",
+  terms: "terms",
+  privacy: "privacy",
+};
+
 // Layout component with header/footer
-const Layout = () => (
-  <div className="flex flex-col min-h-screen bg-background text-foreground">
-    <Header />
-    <main className="grow">
-      <Breadcrumbs />
-      <Suspense fallback={<RouteLoadingFallback />}>
-        <AnimatedOutlet />
-      </Suspense>
-    </main>
-    <Footer />
-    <ComparisonTray />
-    <ComparisonView />
-    <Toaster />
-    <CommandPalette />
-  </div>
-);
+const Layout = () => {
+  const location = useLocation();
+  const segment = location.pathname.split("/").filter(Boolean)[0] || "";
+  const gradientPage = ROUTE_TO_GRADIENT[segment] || "home";
+
+  return (
+    <div className="flex flex-col min-h-screen bg-background text-foreground relative">
+      <GradientMesh page={gradientPage} />
+      <Header />
+      <main className="grow pt-20">
+        <Suspense fallback={<RouteLoadingFallback />}>
+          <AnimatedOutlet />
+        </Suspense>
+      </main>
+      <Footer />
+      <ComparisonTray />
+      <ComparisonView />
+      <Toaster />
+      <CommandPalette />
+    </div>
+  );
+};
 
 // NotFound component
 const NotFoundPage = () => (
@@ -86,8 +108,11 @@ const router = createBrowserRouter(
   ),
   {
     future: {
-      v7_startTransition: true,
+      v7_fetcherPersist: true,
+      v7_normalizeFormMethod: true,
+      v7_partialHydration: true,
       v7_relativeSplatPath: true,
+      v7_skipActionErrorRevalidation: true,
     },
   }
 );
@@ -96,7 +121,12 @@ function App() {
   return (
     <AppProvider>
       <ComparisonProvider>
-        <RouterProvider router={router} />
+        <RouterProvider
+          router={router}
+          future={{
+            v7_startTransition: true,
+          }}
+        />
       </ComparisonProvider>
     </AppProvider>
   );

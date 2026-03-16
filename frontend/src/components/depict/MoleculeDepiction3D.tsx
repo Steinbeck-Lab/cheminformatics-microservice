@@ -468,6 +468,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
         {/* Action buttons */}
         <div className="flex items-center space-x-1">
           <Button
+            variant="ghost"
             onClick={handleTakeScreenshot}
             disabled={!viewerInitialized || !molData}
             className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -477,6 +478,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
           </Button>
 
           <Button
+            variant="ghost"
             onClick={handleResetView}
             disabled={!viewerInitialized || !molData}
             className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
