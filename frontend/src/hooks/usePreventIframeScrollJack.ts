@@ -42,7 +42,7 @@ export function usePreventIframeScrollJack(iframeRef: RefObject<HTMLIFrameElemen
       });
       window.addEventListener("keydown", markUserScroll, { once: true });
 
-      // Stop guarding after Ketcher's init window (~3s after iframe load)
+      // Stop guarding after Ketcher's init window (~5s after iframe load)
       timer = setTimeout(stopGuard, 5000);
     };
 

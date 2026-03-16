@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
 import Navigation from "./Navigation";
@@ -123,6 +123,12 @@ const ThemeToggle = ({
   </motion.button>
 );
 
+// --- Logo URLs (static, no need to re-create on each render) ---
+const LOGO_DARK =
+  "https://raw.githubusercontent.com/Steinbeck-Lab/cheminformatics-microservice/main/public/img/logo_small_inverted.png";
+const LOGO_LIGHT =
+  "https://raw.githubusercontent.com/Steinbeck-Lab/cheminformatics-microservice/main/public/img/logo_small.png";
+
 // --- Component ---
 const Header = () => {
   const { isDarkMode, toggleDarkMode } = useAppContext();
@@ -136,7 +142,6 @@ const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      // Fade out over the first 200px of scroll
       const opacity = Math.max(0, 1 - window.scrollY / 200);
       setScrollOpacity(opacity);
     };
@@ -144,12 +149,6 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const logoDark =
-    "https://raw.githubusercontent.com/Steinbeck-Lab/cheminformatics-microservice/main/public/img/logo_small_inverted.png";
-  const logoLight =
-    "https://raw.githubusercontent.com/Steinbeck-Lab/cheminformatics-microservice/main/public/img/logo_small.png";
-
-  // Header fades out as user scrolls, reappears at top
   const isVisible = scrollOpacity > 0.05;
 
   return (
@@ -163,9 +162,7 @@ const Header = () => {
         pointerEvents: isVisible ? "auto" : "none",
       }}
     >
-      <div
-        className={`w-full lg:w-[92%] xl:w-5/6 2xl:w-[82%] mx-auto rounded-full transition-all duration-300 shadow-md shadow-slate-900/[0.03] dark:shadow-black/10 glass-bold`}
-      >
+      <div className="w-full lg:w-[92%] xl:w-5/6 2xl:w-[82%] mx-auto rounded-full transition-all duration-300 shadow-md shadow-slate-900/[0.03] dark:shadow-black/10 glass-bold">
         <div className="relative flex items-center justify-between h-14 px-4 sm:px-5 lg:px-6">
           {/* Logo and title */}
           <motion.div
@@ -184,7 +181,7 @@ const Header = () => {
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >
                 <img
-                  src={isDarkMode ? logoDark : logoLight}
+                  src={isDarkMode ? LOGO_DARK : LOGO_LIGHT}
                   alt="Cheminformatics Microservice Logo"
                   className="h-8 w-auto"
                 />
