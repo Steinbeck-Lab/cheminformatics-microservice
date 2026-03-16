@@ -18,7 +18,6 @@ import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
-import { AddToCompareButton } from "../common/AddToCompareButton";
 
 const FixRadicalsView = () => {
   const [smiles, setSmiles] = useState("");
@@ -295,13 +294,6 @@ const FixRadicalsView = () => {
               </h3>
 
               <div className="flex items-center gap-2">
-                {result?.fixed_smiles && (
-                  <AddToCompareButton
-                    smiles={result.fixed_smiles}
-                    title="Fixed molecule"
-                    sourceToolId="fixradicals"
-                  />
-                )}
                 {/* Copy Fixed SMILES Button */}
                 <Button
                   onClick={handleCopySmiles}

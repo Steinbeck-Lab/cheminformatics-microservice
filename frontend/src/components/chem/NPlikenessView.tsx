@@ -10,7 +10,6 @@ import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
-import { AddToCompareButton } from "../common/AddToCompareButton";
 
 const NPlikenessView = () => {
   const [smiles, setSmiles] = useState("");
@@ -144,16 +143,6 @@ const NPlikenessView = () => {
               NP-likeness Results
             </h3>
             <div className="flex items-center gap-2">
-              {smiles.trim() && (
-                <AddToCompareButton
-                  smiles={smiles.trim()}
-                  title="NP-likeness molecule"
-                  descriptors={
-                    typeof npScore === "number" ? { npLikenessScore: npScore } : undefined
-                  }
-                  sourceToolId="nplikeness"
-                />
-              )}
               {/* Info Button (Consider adding tooltip/modal functionality) */}
               <Button
                 variant="ghost"

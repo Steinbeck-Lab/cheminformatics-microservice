@@ -11,7 +11,6 @@ import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
-import { AddToCompareButton } from "../common/AddToCompareButton";
 
 const ErtlFunctionalGroupView = () => {
   const [smiles, setSmiles] = useState("");
@@ -163,13 +162,6 @@ const ErtlFunctionalGroupView = () => {
                   ? "No Functional Groups Found"
                   : `Found ${functionalGroups.length} Functional Group${functionalGroups.length !== 1 ? "s" : ""}`}
               </h3>
-              {smiles.trim() && (
-                <AddToCompareButton
-                  smiles={smiles.trim()}
-                  title="Functional groups molecule"
-                  sourceToolId="functional-groups"
-                />
-              )}
             </div>
 
             {/* Grid for Molecule Card and List */}
