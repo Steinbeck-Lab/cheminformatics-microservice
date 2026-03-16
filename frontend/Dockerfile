@@ -1,21 +1,23 @@
 # Stage 1: Build the React application
-FROM node:18-alpine AS build
+FROM node:24-alpine AS build
 
 # Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Copy package.json, package-lock.json, and scripts (needed by postinstall)
 COPY package*.json ./
+COPY scripts/ ./scripts/
 
-# Install dependencies
+# Install dependencies (HUSKY=0 skips git hooks setup in Docker)
+ENV HUSKY=0
 RUN npm ci --silent
 
 # Copy source code
 COPY . .
 
-# Set any build arguments with defaults
-ARG REACT_APP_API_URL=http://localhost:8000/latest
-ENV REACT_APP_API_URL=$REACT_APP_API_URL
+# Set build arguments with defaults
+ARG VITE_API_URL=http://localhost:8000/latest
+ENV VITE_API_URL=$VITE_API_URL
 
 # Build the application
 RUN npm run build
@@ -24,7 +26,7 @@ RUN npm run build
 FROM nginx:alpine
 
 # Copy the build output from the previous stage
-COPY --from=build /app/build /usr/share/nginx/html
+COPY --from=build /app/dist /usr/share/nginx/html
 
 # Create a custom nginx config for React Router support
 RUN echo 'server { \
@@ -32,11 +34,9 @@ RUN echo 'server { \
     server_name localhost; \
     root /usr/share/nginx/html; \
     index index.html; \
-    # Handle React Router \
     location / { \
         try_files $uri $uri/ /index.html; \
     } \
-    # Cache static assets \
     location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ { \
         expires 1y; \
         add_header Cache-Control "public, max-age=31536000, immutable"; \
