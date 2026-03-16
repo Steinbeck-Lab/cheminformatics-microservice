@@ -149,8 +149,6 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const isVisible = scrollOpacity > 0.05;
-
   return (
     <motion.header
       className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8 pt-2"
@@ -159,7 +157,13 @@ const Header = () => {
       animate="visible"
       style={{
         opacity: scrollOpacity,
-        pointerEvents: isVisible ? "auto" : "none",
+        transition: "opacity 0.2s ease",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.opacity = "1";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.opacity = String(scrollOpacity);
       }}
     >
       <div className="w-full lg:w-[92%] xl:w-5/6 2xl:w-[82%] mx-auto rounded-full transition-all duration-300 shadow-md shadow-slate-900/[0.03] dark:shadow-black/10 glass-bold">
