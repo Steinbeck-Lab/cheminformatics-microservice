@@ -125,10 +125,10 @@ const Navigation = ({
                     <Icon className="h-4 w-4" aria-hidden="true" />
                   </motion.span>
 
-                  {/* Label — short at lg, full at xl */}
+                  {/* Label — short at lg/xl, full at 2xl */}
                   <span className="relative z-10 whitespace-nowrap">
-                    <span className="xl:hidden">{link.shortLabel}</span>
-                    <span className="hidden xl:inline">{link.label}</span>
+                    <span className="2xl:hidden">{link.shortLabel}</span>
+                    <span className="hidden 2xl:inline">{link.label}</span>
                   </span>
                 </motion.div>
               )}

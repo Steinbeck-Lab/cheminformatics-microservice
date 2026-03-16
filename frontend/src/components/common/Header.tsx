@@ -164,7 +164,7 @@ const Header = () => {
       }}
     >
       <div
-        className={`w-full lg:w-3/4 mx-auto rounded-full transition-all duration-300 shadow-md shadow-slate-900/[0.03] dark:shadow-black/10 glass-bold`}
+        className={`w-full lg:w-[92%] xl:w-5/6 2xl:w-[82%] mx-auto rounded-full transition-all duration-300 shadow-md shadow-slate-900/[0.03] dark:shadow-black/10 glass-bold`}
       >
         <div className="relative flex items-center justify-between h-14 px-4 sm:px-5 lg:px-6">
           {/* Logo and title */}
@@ -190,11 +190,11 @@ const Header = () => {
                 />
               </motion.div>
 
-              <div className="flex flex-col justify-center">
+              <div className="hidden 2xl:flex flex-col justify-center">
                 <span className="font-bold text-base sm:text-lg leading-tight bg-linear-to-r from-sky-600 to-indigo-600 dark:from-sky-300 dark:to-blue-400 text-transparent bg-clip-text">
                   Cheminformatics
                 </span>
-                <span className="hidden xl:inline text-[10px] leading-tight -mt-0.5 text-indigo-500 dark:text-sky-300">
+                <span className="hidden 2xl:inline text-[10px] leading-tight -mt-0.5 text-indigo-500 dark:text-sky-300">
                   Microservices
                 </span>
               </div>
