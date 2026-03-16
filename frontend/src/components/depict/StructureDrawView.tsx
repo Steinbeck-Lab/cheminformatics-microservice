@@ -3,6 +3,7 @@ import { AlertCircle, Check, ClipboardCopy, Info, Pencil, RefreshCw, X } from "l
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
+import { usePreventIframeScrollJack } from "@/hooks/usePreventIframeScrollJack";
 
 // Add custom styles for animations
 const styles = `
@@ -37,6 +38,8 @@ const StructureDrawView = () => {
   const copyTextRef = useRef(null);
   const messageHandlers = useRef({});
   const messageId = useRef(0);
+
+  usePreventIframeScrollJack(ketcherFrame);
 
   // Examples of common molecules
   const examples = [

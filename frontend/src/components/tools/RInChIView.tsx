@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { usePreventIframeScrollJack } from "@/hooks/usePreventIframeScrollJack";
 
 // Import utility functions
 import {
@@ -226,6 +227,8 @@ const RInChIView = () => {
   const fileInputRef = useRef(null);
   const messageHandlers = useRef({});
   const messageId = useRef(0);
+
+  usePreventIframeScrollJack(ketcherFrame);
 
   // Reset error when needed
   useEffect(() => {
