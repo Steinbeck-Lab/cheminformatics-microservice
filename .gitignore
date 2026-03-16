@@ -141,3 +141,6 @@ docs/_build/
 
 #grafana
 grafana_data/
+
+#gsd
+.planning/

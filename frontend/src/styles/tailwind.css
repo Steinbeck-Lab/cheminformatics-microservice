@@ -1,81 +1,164 @@
 /* src/styles/tailwind.css */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
 
-/* Define CSS Variables for theming */
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ===== shadcn/ui CSS Variables (OKLCH) ===== */
+:root {
+  --radius: 0.625rem;
+  /* Light mode: sky/slate palette */
+  --background: oklch(0.9688 0.0035 264.54); /* slate-100 */
+  --foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
+  --card: oklch(1 0 0); /* white */
+  --card-foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
+  --popover: oklch(1 0 0); /* white */
+  --popover-foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
+  --primary: oklch(0.5459 0.1522 241.22); /* sky-600 */
+  --primary-foreground: oklch(1 0 0); /* white */
+  --secondary: oklch(0.9282 0.0069 264.53); /* slate-200 */
+  --secondary-foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
+  --muted: oklch(0.9282 0.0069 264.53); /* slate-200 */
+  --muted-foreground: oklch(0.5542 0.0255 264.36); /* slate-500 */
+  --accent: oklch(0.9282 0.0069 264.53); /* slate-200 */
+  --accent-foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
+  --destructive: oklch(0.5774 0.2157 27.33); /* red-600 */
+  --border: oklch(0.8694 0.0106 264.53); /* slate-300 */
+  --input: oklch(0.8694 0.0106 264.53); /* slate-300 */
+  --ring: oklch(0.5459 0.1522 241.22); /* sky-600 */
+  --chart-1: oklch(0.6469 0.1651 231.11); /* sky-500 */
+  --chart-2: oklch(0.5826 0.1556 254.62); /* indigo-500 */
+  --chart-3: oklch(0.6275 0.1454 292.79); /* purple-500 */
+  --chart-4: oklch(0.6382 0.1773 25.72); /* orange-500 */
+  --chart-5: oklch(0.723 0.1907 149.58); /* green-500 */
+  --sidebar-background: oklch(0.9688 0.0035 264.54); /* slate-100 */
+  --sidebar-foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
+  --sidebar-primary: oklch(0.5459 0.1522 241.22); /* sky-600 */
+  --sidebar-primary-foreground: oklch(1 0 0); /* white */
+  --sidebar-accent: oklch(0.9282 0.0069 264.53); /* slate-200 */
+  --sidebar-accent-foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
+  --sidebar-border: oklch(0.8694 0.0106 264.53); /* slate-300 */
+  --sidebar-ring: oklch(0.5459 0.1522 241.22); /* sky-600 */
+}
+
+.dark {
+  /* Dark mode: sky/slate palette with custom gray-950 background */
+  --background: oklch(0.16 0.02 250); /* #0f1521 custom gray-950 */
+  --foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
+  --card: oklch(0.2955 0.0301 265.75); /* slate-800 */
+  --card-foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
+  --popover: oklch(0.2955 0.0301 265.75); /* slate-800 */
+  --popover-foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
+  --primary: oklch(0.7461 0.1248 241.02); /* sky-400 */
+  --primary-foreground: oklch(0.16 0.02 250); /* gray-950 */
+  --secondary: oklch(0.3937 0.0278 265.75); /* slate-700 */
+  --secondary-foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
+  --muted: oklch(0.3937 0.0278 265.75); /* slate-700 */
+  --muted-foreground: oklch(0.7041 0.0177 264.53); /* slate-400 */
+  --accent: oklch(0.3937 0.0278 265.75); /* slate-700 */
+  --accent-foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
+  --destructive: oklch(0.5774 0.2157 27.33); /* red-600 */
+  --border: oklch(0.3937 0.0278 265.75); /* slate-700 */
+  --input: oklch(0.3937 0.0278 265.75); /* slate-700 */
+  --ring: oklch(0.7461 0.1248 241.02); /* sky-400 */
+  --chart-1: oklch(0.7461 0.1248 241.02); /* sky-400 */
+  --chart-2: oklch(0.7187 0.1686 254.62); /* indigo-400 */
+  --chart-3: oklch(0.7141 0.1648 292.79); /* purple-400 */
+  --chart-4: oklch(0.7483 0.183 55.93); /* amber-400 */
+  --chart-5: oklch(0.7926 0.1947 149.58); /* green-400 */
+  --sidebar-background: oklch(0.16 0.02 250); /* custom gray-950 */
+  --sidebar-foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
+  --sidebar-primary: oklch(0.7461 0.1248 241.02); /* sky-400 */
+  --sidebar-primary-foreground: oklch(0.16 0.02 250); /* gray-950 */
+  --sidebar-accent: oklch(0.3937 0.0278 265.75); /* slate-700 */
+  --sidebar-accent-foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
+  --sidebar-border: oklch(0.3937 0.0278 265.75); /* slate-700 */
+  --sidebar-ring: oklch(0.7461 0.1248 241.02); /* sky-400 */
+}
+
+/* ===== Map CSS variables to Tailwind utilities via @theme ===== */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar-background: var(--sidebar-background);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@theme {
+  /* Custom color shades (non-default) */
+  --color-gray-750: #2b3544;
+  --color-gray-850: #1a2231;
+  --color-gray-950: #0f1521; /* Keep: different from v4 default #030712 */
+
+  --color-blue-350: #7dabf8;
+  --color-blue-450: #4f85e6;
+  --color-blue-550: #3a72d6;
+  --color-blue-650: #2a5db8;
+  --color-blue-750: #214a98;
+  --color-blue-850: #183878;
+
+  /* Font stacks */
+  --font-sans:
+    "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-mono:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+
+  /* Custom animations (from old tailwind.config.js) */
+  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-pulse-fast: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-bounce-slow: bounce 2s infinite;
+  --animate-shimmer: shimmer 2s ease-in-out infinite;
+}
+
+/* ===== Base Styles ===== */
 @layer base {
-  :root {
-    /* Light Mode Colors (Default) */
-    --bg-primary: theme("colors.slate.100");
-    --bg-secondary: theme("colors.white");
-    --text-primary: theme("colors.slate.900");
-    --text-secondary: theme("colors.slate.600");
-    --text-accent: theme("colors.sky.700");
-    --text-accent-hover: theme("colors.sky.800");
-    --border-primary: theme("colors.slate.300");
-    --border-secondary: theme("colors.slate.200");
-    --link-primary: theme("colors.sky.600");
-    --link-hover: theme("colors.sky.700");
-    --input-bg: theme("colors.white");
-    --input-border: theme("colors.slate.300");
-    --input-text: theme("colors.slate.900");
-    --input-focus-ring: theme("colors.sky.500");
-    --placeholder-color: theme("colors.slate.400");
-    --shadow-color-rgb: 0, 0, 0; /* For light mode shadows */
-
-    /* Pattern definitions for backgrounds */
-    --dots-pattern: url("data:image/svg+xml,%3Csvg width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1' fill='%23000' opacity='0.07'/%3E%3C/svg%3E");
-    --grid-pattern: url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0z' fill='none'/%3E%3Cpath d='M0 0h1v40H0zM39 0h1v40h-1zM0 0h40v1H0zM0 39h40v1H0z' fill='%23000' opacity='0.1'/%3E%3C/svg%3E");
-    --mesh-pattern:
-      radial-gradient(at 40% 20%, rgba(0, 163, 255, 0.1) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
-      radial-gradient(at 0% 50%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
-      radial-gradient(at 80% 50%, rgba(0, 163, 255, 0.1) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
-      radial-gradient(at 80% 100%, rgba(0, 163, 255, 0.1) 0px, transparent 50%),
-      radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.1) 0px, transparent 50%);
-    --noise-pattern: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.1'/%3E%3C/svg%3E");
+  /* Preserve v3 border color default */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--border);
   }
 
-  .dark {
-    /* Dark Mode Colors */
-    --bg-primary: theme("colors.gray.950");
-    --bg-secondary: theme("colors.slate.800");
-    --text-primary: theme("colors.slate.100");
-    --text-secondary: theme("colors.slate.300");
-    --text-accent: theme("colors.sky.400");
-    --text-accent-hover: theme("colors.sky.300");
-    --border-primary: theme("colors.slate.700");
-    --border-secondary: theme("colors.slate.800"); /* Darker secondary border */
-    --link-primary: theme("colors.sky.400");
-    --link-hover: theme("colors.sky.300");
-    --input-bg: theme("colors.slate.800");
-    --input-border: theme("colors.slate.700");
-    --input-text: theme("colors.white");
-    --input-focus-ring: theme("colors.sky.400");
-    --placeholder-color: theme("colors.slate.500");
-    --shadow-color-rgb: 255, 255, 255; /* For dark mode subtle glows/shadows if needed */
-
-    /* Dark mode pattern definitions */
-    --dots-pattern: url("data:image/svg+xml,%3Csvg width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1' fill='%23fff' opacity='0.07'/%3E%3C/svg%3E");
-    --grid-pattern: url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0z' fill='none'/%3E%3Cpath d='M0 0h1v40H0zM39 0h1v40h-1zM0 0h40v1H0zM0 39h40v1H0z' fill='%23fff' opacity='0.1'/%3E%3C/svg%3E");
-    --mesh-pattern:
-      radial-gradient(at 40% 20%, rgba(0, 163, 255, 0.2) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, rgba(59, 130, 246, 0.2) 0px, transparent 50%),
-      radial-gradient(at 0% 50%, rgba(59, 130, 246, 0.2) 0px, transparent 50%),
-      radial-gradient(at 80% 50%, rgba(0, 163, 255, 0.2) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
-      radial-gradient(at 80% 100%, rgba(0, 163, 255, 0.2) 0px, transparent 50%),
-      radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.2) 0px, transparent 50%);
-    --noise-pattern: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.2'/%3E%3C/svg%3E");
-  }
-
-  /* Base element styling using CSS Variables */
+  /* Base element styling */
   body {
-    @apply min-h-screen antialiased;
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
+    @apply bg-background text-foreground min-h-screen antialiased;
     font-family:
       "Inter",
       system-ui,
@@ -92,183 +175,235 @@
   h4,
   h5,
   h6 {
-    @apply font-semibold;
-    color: var(--text-primary);
+    @apply font-semibold text-foreground;
   }
 
-  /* Form elements using CSS Variables */
+  /* Links */
+  a {
+    @apply text-primary hover:underline decoration-transparent hover:decoration-current underline-offset-4 transition-all duration-200;
+  }
+
+  /* Fixed header clearance — absolute backgrounds fill from container
+     top (unaffected by padding), content pushed below header */
+  main > * {
+    padding-top: 4.5rem; /* 72px: h-14 + pt-2 + breathing room */
+  }
+
+  /* Scoped transition to interactive elements (was global * selector) */
+  a,
+  button,
   input,
   select,
-  textarea {
-    @apply rounded-md px-3 py-2 border transition-colors duration-200;
-    background-color: var(--input-bg);
-    border-color: var(--input-border);
-    color: var(--input-text);
-    @apply placeholder-[var(--placeholder-color)];
-  }
-  input:focus,
-  select:focus,
-  textarea:focus {
-    @apply outline-none ring-2 border-transparent;
-    border-color: var(--input-focus-ring);
-    --tw-ring-color: var(--input-focus-ring);
-    --tw-ring-opacity: 0.5;
-  }
-
-  /* Links using CSS Variables */
-  a {
-    color: var(--link-primary);
-    @apply hover:underline decoration-transparent hover:decoration-current underline-offset-4 transition-all duration-200;
-  }
-  a:hover {
-    color: var(--link-hover);
-  }
-
-  /* Ensure smooth color transitions */
-  * {
-    @apply transition-colors duration-200 ease-in-out;
+  textarea,
+  [role="button"] {
+    transition-property:
+      color, background-color, border-color, outline-color, text-decoration-color, fill, stroke;
+    transition-duration: 200ms;
+    transition-timing-function: ease-in-out;
   }
 }
 
-/* Custom components using CSS Variables and dark: modifier */
+/* ===== Custom Utilities (survive past Phase 4) ===== */
+@utility glass {
+  background-color: rgb(255 255 255 / 0.7);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgb(203 213 225 / 0.5);
+
+  &:where(.dark, .dark *) {
+    background-color: rgb(30 41 59 / 0.7);
+    backdrop-filter: blur(24px);
+    border-color: rgb(51 65 85 / 0.5);
+  }
+}
+
+/* Bold glassmorphism -- the primary glass surface */
+@utility glass-bold {
+  background-color: rgb(255 255 255 / 0.1);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgb(255 255 255 / 0.3);
+  box-shadow: inset 0 1px 1px 0 rgb(255 255 255 / 0.15);
+
+  &:where(.dark, .dark *) {
+    background-color: rgb(30 41 59 / 0.2);
+    border-color: rgb(148 163 184 / 0.15);
+    box-shadow: inset 0 1px 1px 0 rgb(255 255 255 / 0.05);
+  }
+}
+
+/* Mobile-optimized glass (reduced blur for GPU perf) */
+@utility glass-mobile {
+  background-color: rgb(255 255 255 / 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgb(255 255 255 / 0.2);
+
+  &:where(.dark, .dark *) {
+    background-color: rgb(30 41 59 / 0.2);
+    border-color: rgb(148 163 184 / 0.1);
+  }
+}
+
+/* Claymorphism for interactive elements (raised, tactile feel) */
+@utility clay-interactive {
+  border-radius: 16px;
+  box-shadow:
+    inset 0 -3px 6px 0 rgb(0 0 0 / 0.06),
+    inset 0 2px 4px 0 rgb(255 255 255 / 0.4),
+    0 8px 20px -4px rgb(0 0 0 / 0.12),
+    0 2px 4px 0 rgb(0 0 0 / 0.04);
+
+  &:where(.dark, .dark *) {
+    box-shadow:
+      inset 0 -3px 6px 0 rgb(0 0 0 / 0.2),
+      inset 0 2px 4px 0 rgb(255 255 255 / 0.08),
+      0 8px 20px -4px rgb(0 0 0 / 0.4),
+      0 2px 4px 0 rgb(0 0 0 / 0.15);
+  }
+}
+
+/* Claymorphism button shadow (no border-radius — buttons control their own) */
+@utility clay-btn {
+  box-shadow:
+    inset 0 -3px 6px 0 rgb(0 0 0 / 0.08),
+    inset 0 2px 3px 0 rgb(255 255 255 / 0.4),
+    0 6px 16px -4px rgb(0 0 0 / 0.12),
+    0 2px 4px 0 rgb(0 0 0 / 0.04);
+
+  &:where(.dark, .dark *) {
+    box-shadow:
+      inset 0 -3px 6px 0 rgb(0 0 0 / 0.2),
+      inset 0 2px 3px 0 rgb(255 255 255 / 0.08),
+      0 6px 16px -4px rgb(0 0 0 / 0.35),
+      0 2px 4px 0 rgb(0 0 0 / 0.15);
+  }
+}
+
+/* Clay button pressed state (inverted shadows for pressed-in appearance) */
+@utility clay-pressed {
+  box-shadow:
+    inset 0 2px 6px 0 rgb(0 0 0 / 0.1),
+    inset 0 -1px 2px 0 rgb(255 255 255 / 0.2),
+    0 2px 4px -2px rgb(0 0 0 / 0.06);
+
+  &:where(.dark, .dark *) {
+    box-shadow:
+      inset 0 2px 6px 0 rgb(0 0 0 / 0.3),
+      inset 0 -1px 2px 0 rgb(255 255 255 / 0.04),
+      0 2px 4px -2px rgb(0 0 0 / 0.2);
+  }
+}
+
+/* Button hover lift with glow (ANIM-02) */
+@utility btn-hover-lift {
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 4px 12px -2px oklch(from var(--primary) l c h / 0.2),
+      inset 0 -3px 6px 0 rgb(0 0 0 / 0.08),
+      inset 0 2px 3px 0 rgb(255 255 255 / 0.4),
+      0 6px 16px -4px rgb(0 0 0 / 0.12);
+  }
+
+  &:where(.dark, .dark *):hover {
+    box-shadow:
+      0 4px 12px -2px oklch(from var(--primary) l c h / 0.3),
+      inset 0 -3px 6px 0 rgb(0 0 0 / 0.2),
+      inset 0 2px 3px 0 rgb(255 255 255 / 0.08),
+      0 6px 16px -4px rgb(0 0 0 / 0.35);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.97);
+    transition:
+      transform 100ms ease,
+      box-shadow 100ms ease;
+  }
+}
+
+/* Focus ring animation (ANIM-03) */
+@utility focus-ring-animate {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition:
+    outline-color 200ms ease,
+    outline-offset 200ms ease;
+
+  &:focus-visible {
+    outline-color: var(--ring);
+    outline-offset: 3px;
+  }
+}
+
+@utility text-gradient {
+  color: transparent;
+  background-clip: text;
+  background-image: linear-gradient(to right, var(--color-sky-600), var(--color-indigo-600));
+
+  &:where(.dark, .dark *) {
+    background-image: linear-gradient(to right, var(--color-sky-400), var(--color-cyan-400));
+  }
+}
+
+@utility bg-gradient-radial {
+  background-image: radial-gradient(var(--tw-gradient-stops));
+}
+
+@utility transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ===== Theme Toggle Button ===== */
 @layer components {
-  .btn {
-    @apply px-4 py-2 rounded-md font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
-    @apply focus:ring-offset-[var(--bg-primary)];
-  }
-
-  .btn-primary {
-    @apply btn bg-sky-600 hover:bg-sky-700 text-white focus:ring-sky-500;
-    @apply dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-500;
-  }
-
-  .btn-secondary {
-    @apply btn bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 focus:ring-slate-400;
-    @apply dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white dark:border-slate-600 dark:focus:ring-slate-500;
-  }
-
-  .btn-danger {
-    @apply btn bg-red-600 hover:bg-red-700 text-white focus:ring-red-500;
-  }
-
-  .card {
-    @apply bg-[var(--bg-secondary)] border rounded-lg shadow-md dark:shadow-xl overflow-hidden;
-    @apply dark:bg-slate-800/80 dark:border-slate-700/80;
-    border-color: var(--border-primary);
-  }
-
-  .card-header {
-    @apply p-4 border-b font-semibold;
-    background-color: color-mix(in srgb, var(--bg-secondary) 95%, black 5%);
-    border-color: var(--border-primary);
-    @apply dark:bg-slate-900/50 dark:border-slate-700;
-  }
-
-  .card-body {
-    @apply p-4;
-  }
-
-  .card-footer {
-    @apply p-4 border-t text-sm;
-    background-color: color-mix(in srgb, var(--bg-secondary) 95%, black 5%);
-    border-color: var(--border-primary);
-    color: var(--text-secondary);
-    @apply dark:bg-slate-900/50 dark:border-slate-700 dark:text-slate-400;
-  }
-
-  /* Form group */
-  .form-group {
-    @apply mb-4;
-  }
-
-  .form-label {
-    @apply block text-sm font-medium mb-1;
-    color: var(--text-secondary);
-  }
-
-  /* Pattern components for backgrounds */
-  .dots-bg {
-    background-image: var(--dots-pattern);
-    background-size: 20px 20px;
-  }
-
-  .grid-bg {
-    background-image: var(--grid-pattern);
-    background-size: 40px 40px;
-  }
-
-  .mesh-bg {
-    background-image: var(--mesh-pattern);
-    background-size: 200% 200%;
-    animation: mesh-gradient-move 15s ease infinite;
-  }
-
-  .noise-bg {
-    background-image: var(--noise-pattern);
-  }
-
-  /* .form-control uses base input styles */
-}
-
-/* Custom utilities using CSS Variables and dark: modifier */
-@layer utilities {
-  /* Glass effect - Adaptive */
-  .glass {
-    /* Light mode */
-    @apply bg-white/70 backdrop-blur-lg border border-slate-300/50;
-    /* Dark mode */
-    @apply dark:bg-slate-800/70 dark:backdrop-blur-xl dark:border-slate-700/50; /* Matched definition from previous Header component */
-  }
-
-  /* Gradient text - Adaptive */
-  .text-gradient {
-    /* Light mode */
-    @apply text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-indigo-600;
-    /* Dark mode */
-    @apply dark:from-sky-400 dark:to-cyan-400; /* Matched definition from previous Header component */
-  }
-
-  /* Subtle pulse animation for theme toggle button */
-  @keyframes subtle-pulse {
-    0%,
-    100% {
-      box-shadow: 0 0 0 0 rgba(var(--tw-ring-color), 0.3);
-    }
-    50% {
-      box-shadow: 0 0 0 5px rgba(var(--tw-ring-color), 0);
-    }
-  }
-
-  /* Apply pulse on hover to the theme toggle */
   .theme-toggle-button:hover {
-    /* Define --tw-ring-color based on theme */
-    --tw-ring-color: theme("colors.sky.500"); /* Light mode */
+    --pulse-color: var(--color-sky-500);
     animation: subtle-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
   .dark .theme-toggle-button:hover {
-    --tw-ring-color: theme("colors.sky.400"); /* Dark mode */
+    --pulse-color: var(--color-sky-400);
   }
+}
 
-  /* Animation for mesh gradients */
-  @keyframes mesh-gradient-move {
-    0% {
-      background-position: 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%;
-    }
-    100% {
-      background-position: 0% 50%;
-    }
+/* ===== Keyframes ===== */
+@keyframes subtle-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--pulse-color) 30%, transparent);
   }
-
-  /* Define radial gradient utility */
-  .bg-gradient-radial {
-    background-image: radial-gradient(var(--tw-gradient-stops));
+  50% {
+    box-shadow: 0 0 0 5px color-mix(in oklch, var(--pulse-color) 0%, transparent);
   }
+}
 
-  /* Transform style utility for 3D effects */
-  .transform-style-3d {
-    transform-style: preserve-3d;
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes mesh-gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
