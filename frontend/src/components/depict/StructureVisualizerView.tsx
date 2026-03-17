@@ -167,7 +167,7 @@ const StructureVisualizerView = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-4 md:p-6 bg-white dark:bg-gray-900 min-h-screen">
+    <div className="flex flex-col gap-6 p-4 md:p-6 bg-white dark:bg-gray-900">
       {/* Header with animated background */}
 
       {/* Main content area */}
@@ -175,7 +175,7 @@ const StructureVisualizerView = () => {
         {/* Search panel - left side on larger screens */}
         <div className="xl:col-span-4 xl:row-span-2 flex flex-col gap-4">
           {/* Search Card */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 backdrop-blur-sm grow">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 backdrop-blur-sm">
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <div className="flex items-center justify-between mb-2">

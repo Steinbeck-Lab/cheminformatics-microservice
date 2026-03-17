@@ -1,17 +1,15 @@
 /**
  * AnimatedOutlet -- wraps React Router's Outlet with page transition animations.
  *
- * Uses AnimatePresence mode="sync" for overlap transitions per user decision.
- * Exiting page uses absolute positioning to prevent vertical stacking during overlap.
+ * Uses AnimatePresence mode="wait" with a fast opacity crossfade.
  */
 import { cloneElement } from "react";
 import { useOutlet, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
 
 const pageTransition = {
-  type: "spring" as const,
-  stiffness: 100,
-  damping: 20,
+  duration: 0.25,
+  ease: [0.25, 0.1, 0.25, 1] as const,
 };
 
 export function AnimatedOutlet() {
@@ -25,26 +23,18 @@ export function AnimatedOutlet() {
   const pageKey = segments[0] || "/";
 
   return (
-    <div style={{ position: "relative" }}>
-      <AnimatePresence mode="sync">
-        {element && (
-          <motion.div
-            key={pageKey}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{
-              opacity: 0,
-              y: -8,
-              position: "absolute" as never,
-              width: "100%",
-            }}
-            transition={pageTransition}
-            style={{ width: "100%" }}
-          >
-            {cloneElement(element, { key: pageKey })}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+    <AnimatePresence mode="wait">
+      {element && (
+        <motion.div
+          key={pageKey}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={pageTransition}
+        >
+          {cloneElement(element, { key: pageKey })}
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

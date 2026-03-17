@@ -133,21 +133,11 @@ const LOGO_LIGHT =
 const Header = () => {
   const { isDarkMode, toggleDarkMode } = useAppContext();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [scrollOpacity, setScrollOpacity] = useState(1);
   const location = useLocation();
 
   useEffect(() => {
     setIsSheetOpen(false);
   }, [location]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const opacity = Math.max(0, 1 - window.scrollY / 200);
-      setScrollOpacity(opacity);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
     <motion.header
@@ -155,18 +145,8 @@ const Header = () => {
       variants={headerVariants}
       initial="hidden"
       animate="visible"
-      style={{
-        opacity: scrollOpacity,
-        transition: "opacity 0.2s ease",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.opacity = "1";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.opacity = String(scrollOpacity);
-      }}
     >
-      <div className="w-full lg:w-[92%] xl:w-5/6 2xl:w-[82%] mx-auto rounded-full transition-all duration-300 shadow-md shadow-slate-900/[0.03] dark:shadow-black/10 glass-bold">
+      <div className="w-full lg:w-3/4 mx-auto rounded-full transition-all duration-300 shadow-md shadow-slate-900/[0.03] dark:shadow-black/10 glass-bold">
         <div className="relative flex items-center justify-between h-14 px-4 sm:px-5 lg:px-6">
           {/* Logo and title */}
           <motion.div
