@@ -32,6 +32,9 @@ RUN apt-get update && \
 
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk/
 
+ARG RELEASE_VERSION=1.0
+ENV RELEASE_VERSION=${RELEASE_VERSION}
+
 # Combine conda and pip operations to reduce layers
 WORKDIR /code
 COPY requirements.txt .
