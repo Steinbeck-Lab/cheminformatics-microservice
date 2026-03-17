@@ -1,4 +1,4 @@
-FROM continuumio/miniconda3:latest AS cheminf-python-ms
+FROM continuumio/miniconda3:24.11.1-0 AS cheminf-python-ms
 
 ENV PYTHON_VERSION=3.11 \
     INCLUDE_OCSR=true \
