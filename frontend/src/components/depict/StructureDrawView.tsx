@@ -202,7 +202,7 @@ const StructureDrawView = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-4 md:p-6 bg-white dark:bg-gray-900 min-h-screen">
+    <div className="flex flex-col gap-6 p-4 md:p-6 bg-white dark:bg-gray-900">
       {/* Header with animated background */}
       <div className="bg-linear-to-r from-blue-600 to-purple-700 dark:from-blue-700 dark:to-purple-900 rounded-xl shadow-xl overflow-hidden relative">
         {/* Animated background elements */}
