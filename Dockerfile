@@ -16,7 +16,7 @@ RUN apt-get update && \
         wget \
         # OpenCV runtime dependencies (needed for OCSR/DECIMER)
         libgl1 \
-        libglib2.0-0t64 \
+        libglib2.0-0 \
         libsm6 \
         libxext6 \
         libxrender1 && \
