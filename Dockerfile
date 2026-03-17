@@ -13,8 +13,13 @@ RUN apt-get update && \
         openjdk-17-jre-headless \
         curl \
         build-essential \
-        gcc \
-        wget && \
+        wget \
+        # OpenCV runtime dependencies (needed for OCSR/DECIMER)
+        libgl1 \
+        libglib2.0-0t64 \
+        libsm6 \
+        libxext6 \
+        libxrender1 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     # Create arch-independent JAVA_HOME symlink
