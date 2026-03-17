@@ -1,10 +1,9 @@
-FROM continuumio/miniconda3:24.1.2-0 AS cheminf-python-ms
+FROM continuumio/miniconda3:24.11.1-0 AS cheminf-python-ms
 
 # ---------- build-time proxy args ----------
 
 ENV PYTHON_VERSION=3.11 \
     INCLUDE_OCSR=false \
-    JAVA_HOME=/usr/lib/jvm/java-11-openjdk-arm64/ \
     WORKERS=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -23,18 +22,21 @@ ENV PYTHON_VERSION=3.11 \
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         software-properties-common \
-        openjdk-11-jre \
+        openjdk-17-jre-headless \
         curl \
         build-essential \
-        gcc \
         wget && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
+    # Create arch-independent JAVA_HOME symlink
+    ln -sf /usr/lib/jvm/java-17-openjdk-$(dpkg --print-architecture) /usr/lib/jvm/java-17-openjdk && \
     wget "https://github.com/StructureGenerator/surge/releases/download/v2.0/surge-linux-x86_64.tar.gz" && \
     tar xzf surge-linux-x86_64.tar.gz && \
     mv surge /usr/bin/surge && \
     chmod +x /usr/bin/surge && \
     rm surge-linux-x86_64.tar.gz
+
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk/
 
 WORKDIR /code
 COPY requirements_lite.txt .

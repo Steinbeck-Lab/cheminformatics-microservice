@@ -1,11 +1,8 @@
-FROM continuumio/miniconda3:24.1.2-0 AS cheminf-python-ms
+FROM continuumio/miniconda3:24.11.1-0 AS cheminf-python-ms
 
 ENV PYTHON_VERSION=3.11 \
     INCLUDE_OCSR=true \
-    JAVA_HOME=/usr/lib/jvm/java-11-openjdk-arm64/ \
-    # Add default number of workers
     WORKERS=2 \
-    # Add other Python configurations
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
@@ -13,18 +10,27 @@ ENV PYTHON_VERSION=3.11 \
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         software-properties-common \
-        openjdk-11-jre \
+        openjdk-17-jre-headless \
         curl \
         build-essential \
-        gcc \
-        wget && \
+        wget \
+        # OpenCV runtime dependencies (needed for OCSR/DECIMER)
+        libgl1 \
+        libglib2.0-0 \
+        libsm6 \
+        libxext6 \
+        libxrender1 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
+    # Create arch-independent JAVA_HOME symlink
+    ln -sf /usr/lib/jvm/java-17-openjdk-$(dpkg --print-architecture) /usr/lib/jvm/java-17-openjdk && \
     wget "https://github.com/StructureGenerator/surge/releases/download/v2.0/surge-linux-x86_64.tar.gz" && \
     tar xzf surge-linux-x86_64.tar.gz && \
     mv surge /usr/bin/surge && \
     chmod +x /usr/bin/surge && \
     rm surge-linux-x86_64.tar.gz
+
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk/
 
 # Combine conda and pip operations to reduce layers
 WORKDIR /code

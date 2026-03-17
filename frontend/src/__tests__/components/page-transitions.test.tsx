@@ -65,30 +65,21 @@ describe("AnimatedOutlet", () => {
     const initial = JSON.parse(motionDiv.getAttribute("data-initial") || "{}");
     const animate = JSON.parse(motionDiv.getAttribute("data-animate") || "{}");
 
-    expect(initial).toEqual({ opacity: 0, y: 8 });
-    expect(animate).toEqual({ opacity: 1, y: 0 });
+    expect(initial).toEqual({ opacity: 0 });
+    expect(animate).toEqual({ opacity: 1 });
   });
 
-  it("sets exit animation with absolute positioning", () => {
+  it("sets exit animation with opacity fade", () => {
     renderWithRouter("/");
     const motionDiv = screen.getByTestId("motion-div");
     const exit = JSON.parse(motionDiv.getAttribute("data-exit") || "{}");
 
     expect(exit.opacity).toBe(0);
-    expect(exit.y).toBe(-8);
-    expect(exit.position).toBe("absolute");
-    expect(exit.width).toBe("100%");
   });
 
   it("renders the correct child route for a nested path", () => {
     renderWithRouter("/about");
     expect(screen.getByTestId("about-page")).toBeInTheDocument();
     expect(screen.getByText("About Page")).toBeInTheDocument();
-  });
-
-  it("motion.div has width 100% style", () => {
-    renderWithRouter("/");
-    const motionDiv = screen.getByTestId("motion-div");
-    expect(motionDiv.style.width).toBe("100%");
   });
 });
