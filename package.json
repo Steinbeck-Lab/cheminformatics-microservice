@@ -3,6 +3,9 @@
     "husky": "^9.1.7",
     "vitepress": "^1.6.4"
   },
+  "overrides": {
+    "vite": "^6.4.2"
+  },
   "scripts": {
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
