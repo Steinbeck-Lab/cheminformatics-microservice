@@ -70,3 +70,84 @@ def parse_SMILES(smiles: str, framework: str = "rdkit", standardize: bool = Fals
             return Chem.MolFromMolBlock(mol_str)
     except Exception:
         raise InvalidInputException(name="smiles", value=smiles)
+
+
+def _is_plausible_atom_row(line: str) -> bool:
+    """Return True if *line* looks like a valid XYZ atom row.
+
+    A plausible row, after stripping, has at least 4 whitespace-separated
+    tokens where the first token starts with an ASCII letter (element symbol)
+    and tokens 2-4 are parseable as floats (the x, y, z coordinates).
+    """
+    parts = line.strip().split()
+    if len(parts) < 4:
+        return False
+    if not parts[0][0].isascii() or not parts[0][0].isalpha():
+        return False
+    try:
+        float(parts[1])
+        float(parts[2])
+        float(parts[3])
+    except ValueError:
+        return False
+    return True
+
+
+def split_xyz_frames(xyz_data: str) -> list[str]:
+    """Split a multi-frame XYZ string into a list of single-frame XYZ strings.
+
+    XYZ format: each record is ``<atom_count>\\n<comment>\\n<atom_count atom rows>``.
+    A multi-record file simply concatenates these blocks.
+
+    The splitter is permissive:
+
+    * Accepts CRLF or LF line endings (output is always LF).
+    * Recovers the next valid frame after a truncated or garbage block by
+      advancing one line at a time rather than aborting the whole parse.
+    * Validates each candidate atom row before accepting a block, so a fake
+      ``atom_count`` cannot greedily consume real lines from the next frame.
+    * Drops zero-atom frames (degenerate).
+    * Normalizes the count line (strips surrounding whitespace).
+    * Each emitted frame is itself a valid XYZ string ending in ``\\n``.
+
+    Args:
+        xyz_data: Raw text, possibly containing multiple concatenated XYZ records.
+
+    Returns:
+        A list of self-contained single-frame XYZ strings. Empty list if the
+        input contains no recognizable frames.
+    """
+    if not xyz_data or not xyz_data.strip():
+        return []
+
+    lines = xyz_data.replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    frames: list[str] = []
+    i = 0
+    n = len(lines)
+    while i < n:
+        token = lines[i].strip()
+        if not token.isdecimal():
+            i += 1
+            continue
+        atom_count = int(token)
+        if atom_count == 0:
+            # Skip the count line + the comment line; emit nothing.
+            i += 2
+            continue
+        # Need atom_count + 2 (count + comment + atoms) lines starting at i.
+        end = i + 2 + atom_count
+        if end > n:
+            # Truncated frame: advance by one line and keep scanning.
+            i += 1
+            continue
+        # Validate every candidate atom row before accepting the block.
+        atom_rows = lines[i + 2 : end]
+        if not all(_is_plausible_atom_row(row) for row in atom_rows):
+            i += 1
+            continue
+        # Normalize the count line; keep all other lines verbatim.
+        block_lines = [lines[i].strip()] + lines[i + 1 : end]
+        # Each emitted frame ends in exactly one newline.
+        frames.append("\n".join(block_lines) + "\n")
+        i = end
+    return frames
