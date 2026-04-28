@@ -37,6 +37,7 @@ from app.schemas.converters_schema import TwoDCoordinatesResponse
 from app.schemas.converters_schema import GenerateSMARTSResponse
 from app.schemas.converters_schema import MolToSMILESResponse
 from app.schemas.converters_schema import CDXToMolResponse
+from app.schemas.converters_schema import XYZConversionResponse
 
 # Module imports
 from app.modules.toolkits.cdk_wrapper import get_canonical_SMILES
@@ -49,7 +50,9 @@ from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.openbabel_wrapper import get_ob_canonical_SMILES
 from app.modules.toolkits.openbabel_wrapper import get_ob_InChI
 from app.modules.toolkits.openbabel_wrapper import get_ob_mol
+from app.modules.toolkits.openbabel_wrapper import get_ob_xyz_conversions
 from app.modules.toolkits.rdkit_wrapper import convert_cdx_to_mol
+from app.modules.toolkits.rdkit_wrapper import convert_xyz_to_mol
 from app.modules.toolkits.rdkit_wrapper import get_2d_mol
 from app.modules.toolkits.rdkit_wrapper import get_3d_conformers
 from app.modules.toolkits.rdkit_wrapper import get_rdkit_CXSMILES
@@ -1167,3 +1170,168 @@ def cdx_to_mol(
         ) from exc
 
     return CDXToMolResponse(molblock=molblock)
+
+
+_XYZ_EXAMPLE_WATER = (
+    "3\n"
+    "water\n"
+    "O    0.0000    0.0000    0.0000\n"
+    "H    0.7572    0.5860    0.0000\n"
+    "H   -0.7572    0.5860    0.0000\n"
+)
+_XYZ_EXAMPLE_ACETATE = (
+    "7\n"
+    "acetate (charge -1)\n"
+    "C   -1.0000    0.0000    0.0000\n"
+    "C    0.5000    0.0000    0.0000\n"
+    "O    1.1500    1.0600    0.0000\n"
+    "O    1.1500   -1.0600    0.0000\n"
+    "H   -1.3500   -0.5000    0.8700\n"
+    "H   -1.3500   -0.5000   -0.8700\n"
+    "H   -1.3500    1.0000    0.0000\n"
+)
+
+
+@router.post(
+    "/xyz",
+    summary="Convert an XYZ-coordinate block into SMILES, InChI, InChIKey, MOL, and SDF",
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": XYZConversionResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
+)
+@limiter.limit("20/minute")
+def xyz_to_formats(
+    request: Request,
+    data: str = Body(
+        ...,
+        title="XYZ block",
+        description=(
+            "Plain-text XYZ coordinates: line 1 = atom count, line 2 = comment, "
+            "remaining lines = `element x y z`. Both Unix and Windows line endings "
+            "are accepted."
+        ),
+        media_type="text/plain",
+        openapi_examples={
+            "water": {"summary": "Water (neutral)", "value": _XYZ_EXAMPLE_WATER},
+            "acetate": {
+                "summary": "Acetate (charge -1)",
+                "value": _XYZ_EXAMPLE_ACETATE,
+            },
+        },
+    ),
+    charge: int = Query(
+        default=0,
+        description=(
+            "Net molecular charge. Required for non-neutral species "
+            "(e.g. -1 for acetate). RDKit only."
+        ),
+        ge=-10,
+        le=10,
+    ),
+    use_huckel: bool = Query(
+        default=False,
+        description=(
+            "Use extended Hückel theory for bond perception (more accurate "
+            "for unusual valences, slower). RDKit only; ignored otherwise."
+        ),
+    ),
+    toolkit: Literal["rdkit", "openbabel"] = Query(
+        default="rdkit",
+        description=(
+            "Cheminformatics toolkit. RDKit uses the xyz2mol algorithm with "
+            "explicit charge support. OpenBabel uses distance-based bond "
+            "perception and is charge-unaware (best for neutral species). "
+            "CDK is not supported because its core distribution lacks "
+            "XYZ→bond perception."
+        ),
+    ),
+) -> XYZConversionResponse:
+    """Convert an XYZ block into multiple chemical formats.
+
+    XYZ files store only element symbols and 3D coordinates -- no bonds.
+    This endpoint perceives connectivity and bond orders from the geometry,
+    then emits SMILES, InChI, InChIKey, a V2000 MOL block (carrying the
+    original 3D coordinates), and an SDF record.
+
+    Parameters:
+    - **data** (str, body): XYZ block. Must include the atom-count and
+      comment header lines.
+    - **charge** (int, optional): Net charge. Defaults to ``0``. RDKit only.
+    - **use_huckel** (bool, optional): Use extended Hückel theory for bond
+      perception. Defaults to ``False``. RDKit only.
+    - **toolkit** (str, optional): ``rdkit`` (default) or ``openbabel``.
+
+    Returns:
+    - XYZConversionResponse: ``canonicalsmiles``, ``inchi``, ``inchikey``,
+      ``molblock``, and ``sdf``.
+
+    Raises:
+    - HTTPException 400: Empty body.
+    - HTTPException 422: XYZ block cannot be parsed or bond perception
+      fails (e.g. wrong charge for the geometry, unknown elements).
+    """
+    if not data or not data.strip():
+        raise HTTPException(status_code=400, detail="Empty XYZ block provided")
+
+    xyz_data = data.replace("\r\n", "\n").replace("\r", "\n")
+
+    if toolkit == "rdkit":
+        try:
+            mol = convert_xyz_to_mol(
+                xyz_data,
+                charge=charge,
+                use_huckel=use_huckel,
+            )
+        except ValueError as exc:
+            logger.warning("Invalid XYZ input (rdkit): %s", exc)
+            raise HTTPException(
+                status_code=422,
+                detail="Invalid XYZ block or bond perception failed",
+            ) from exc
+        except Exception as exc:
+            logger.exception("Error converting XYZ via RDKit")
+            raise HTTPException(
+                status_code=422,
+                detail="Error converting XYZ block",
+            ) from exc
+
+        try:
+            molblock = Chem.MolToMolBlock(mol)
+            canonicalsmiles = Chem.MolToSmiles(mol, kekuleSmiles=True)
+            inchi = Chem.inchi.MolToInchi(mol)
+            inchikey = Chem.inchi.MolToInchiKey(mol)
+        except Exception as exc:
+            logger.exception("Error serializing XYZ-derived molecule")
+            raise HTTPException(
+                status_code=422,
+                detail="Error serializing molecule",
+            ) from exc
+    else:  # openbabel
+        try:
+            ob_results = get_ob_xyz_conversions(xyz_data)
+        except Exception as exc:
+            logger.exception("Error converting XYZ via OpenBabel")
+            raise HTTPException(
+                status_code=422,
+                detail="Invalid XYZ block",
+            ) from exc
+        molblock = ob_results["molblock"]
+        canonicalsmiles = ob_results["canonicalsmiles"]
+        inchi = ob_results["inchi"]
+        inchikey = ob_results["inchikey"]
+
+    sdf = molblock.rstrip() + "\n$$$$\n"
+
+    return XYZConversionResponse(
+        canonicalsmiles=canonicalsmiles,
+        inchi=inchi,
+        inchikey=inchikey,
+        molblock=molblock,
+        sdf=sdf,
+    )

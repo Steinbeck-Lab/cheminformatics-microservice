@@ -50,6 +50,20 @@ export interface CdxConversionResult {
   molblock: string;
 }
 
+export interface XYZConversionResult {
+  canonicalsmiles: string;
+  inchi: string;
+  inchikey: string;
+  molblock: string;
+  sdf: string;
+}
+
+export interface XYZConversionOptions {
+  charge?: number;
+  useHueckel?: boolean;
+  toolkit?: "rdkit" | "openbabel";
+}
+
 // --- Depict Service Types ---
 
 export interface DepictionOptions {

@@ -12,11 +12,11 @@
     "@react-three/fiber": "^9.5.0",
     "@react-three/postprocessing": "^3.0.4",
     "@tailwindcss/forms": "^0.5.11",
-    "axios": "^1.15.0",
+    "axios": "^1.15.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "dompurify": "^3.3.1",
+    "dompurify": "^3.4.1",
     "jszip": "^3.10.1",
     "lucide-react": "^0.577.0",
     "motion": "^12.36.0",
@@ -74,8 +74,9 @@
     ]
   },
   "overrides": {
-    "hono": "^4.12.12",
-    "@hono/node-server": "^1.19.13"
+    "hono": "^4.12.15",
+    "@hono/node-server": "^1.19.13",
+    "follow-redirects": "^1.16.0"
   },
   "scripts": {
     "dev": "vite",

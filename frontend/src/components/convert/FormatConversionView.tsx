@@ -39,6 +39,7 @@ const INPUT_FORMAT_OPTIONS = [
   { id: "selfies", label: "SELFIES" },
   { id: "molsdf", label: "MOL/SDF Block" },
   { id: "cdx", label: "ChemDraw CDX/CDXML" },
+  { id: "xyz", label: "XYZ Coordinates" },
 ];
 
 // Output format options configuration
@@ -55,7 +56,11 @@ const OUTPUT_FORMAT_OPTIONS = [
   { id: "selfies", label: "SELFIES", method: "generateSELFIES" },
   { id: "smarts", label: "SMARTS", method: "generateSMARTS" },
   { id: "mol", label: "MOL Block", method: null },
+  { id: "sdf", label: "SDF", method: null },
 ];
+
+// Output formats reachable from XYZ input.
+const XYZ_OUTPUT_FORMAT_IDS = new Set(["canonicalsmiles", "inchi", "inchikey", "mol", "sdf"]);
 
 // Toolkit options configuration
 const TOOLKIT_OPTIONS = [
@@ -113,6 +118,11 @@ const FormatConversionView = () => {
   const [cdxFile, setCdxFile] = useState(null);
   const [cdxFilename, setCdxFilename] = useState("");
   const cdxFileInputRef = useRef(null);
+  // State for XYZ file upload + bond-perception parameters
+  const [xyzFilename, setXyzFilename] = useState("");
+  const [xyzCharge, setXyzCharge] = useState(0);
+  const [xyzUseHueckel, setXyzUseHueckel] = useState(false);
+  const xyzFileInputRef = useRef(null);
 
   // Helper function to ensure molblock is in proper format for backend
   const formatMolblockForBackend = (molblock) => {
@@ -243,6 +253,34 @@ const FormatConversionView = () => {
     }
   };
 
+  // Handle XYZ file selection — read as text and place in the input textarea.
+  const handleXyzFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setError(null);
+    if (!file.name.toLowerCase().endsWith(".xyz")) {
+      setError("Please upload a valid .xyz file.");
+      return;
+    }
+    setXyzFilename(file.name);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target.result;
+      setInput(typeof content === "string" ? content : "");
+    };
+    reader.onerror = () => setError("Failed to read the uploaded XYZ file.");
+    reader.readAsText(file);
+  };
+
+  // Clear uploaded XYZ file
+  const handleClearXyzFile = () => {
+    setXyzFilename("");
+    setInput("");
+    if (xyzFileInputRef.current) {
+      xyzFileInputRef.current.value = "";
+    }
+  };
+
   // When input format changes, automatically update output format if needed
   const handleInputFormatChange = (format) => {
     setInputFormat(format);
@@ -256,12 +294,20 @@ const FormatConversionView = () => {
     if (format !== "cdx") {
       handleClearCdxFile();
     }
+    // Clear XYZ file when switching away from xyz
+    if (format !== "xyz") {
+      handleClearXyzFile();
+    }
 
     // Lock output format based on input type
     if (format === "iupac" || format === "selfies" || format === "molsdf") {
       setOutputFormat("smiles");
     } else if (format === "cdx") {
       setOutputFormat("mol");
+    } else if (format === "xyz") {
+      // XYZ: default to canonical SMILES; cap toolkit to rdkit/openbabel.
+      setOutputFormat("canonicalsmiles");
+      if (toolkit === "cdk") setToolkit("rdkit");
     }
   };
 
@@ -321,8 +367,39 @@ const FormatConversionView = () => {
       let convertedResult;
       let smilesForDisplay = "";
 
-      // CDX/CDXML → MOL Block
-      if (inputFormat === "cdx") {
+      // XYZ → SMILES / Canonical SMILES / InChI / InChIKey / MOL / SDF
+      if (inputFormat === "xyz") {
+        const xyzToolkit = toolkit === "cdk" ? "rdkit" : (toolkit as "rdkit" | "openbabel");
+        const xyzResult = await convertService.convertXYZ(trimmedInput, {
+          charge: xyzCharge,
+          useHueckel: xyzUseHueckel,
+          toolkit: xyzToolkit,
+        });
+        smilesForDisplay = xyzResult.canonicalsmiles;
+        switch (outputFormat) {
+          case "smiles":
+          case "canonicalsmiles":
+            convertedResult = xyzResult.canonicalsmiles;
+            break;
+          case "inchi":
+            convertedResult = xyzResult.inchi;
+            break;
+          case "inchikey":
+            convertedResult = xyzResult.inchikey;
+            break;
+          case "mol":
+            convertedResult = xyzResult.molblock;
+            break;
+          case "sdf":
+            convertedResult = xyzResult.sdf;
+            break;
+          default:
+            throw new Error(
+              `Unsupported output format for XYZ input: ${outputFormat}. Use SMILES, InChI, InChIKey, MOL, or SDF.`
+            );
+        }
+      } else if (inputFormat === "cdx") {
+        // CDX/CDXML → MOL Block
         const molblock = await convertService.convertCDXToMol(cdxFile);
         convertedResult = molblock;
         try {
@@ -473,7 +550,7 @@ const FormatConversionView = () => {
 
   // Determine if toolkit selection should be shown based on input/output format
   const showToolkitSelection =
-    (inputFormat === "smiles" || inputFormat === "molsdf") &&
+    (inputFormat === "smiles" || inputFormat === "molsdf" || inputFormat === "xyz") &&
     outputFormat !== "selfies" &&
     outputFormat !== "smarts" &&
     inputFormat !== "cdx";
@@ -548,7 +625,127 @@ const FormatConversionView = () => {
 
           {/* Input Field */}
           <div>
-            {inputFormat === "cdx" ? (
+            {inputFormat === "xyz" ? (
+              <>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  XYZ File Upload
+                </label>
+                <label
+                  htmlFor="xyz-file-upload"
+                  className="group relative flex items-center justify-center px-6 py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all duration-300 bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 hover:shadow-md"
+                >
+                  <input
+                    ref={xyzFileInputRef}
+                    id="xyz-file-upload"
+                    type="file"
+                    accept=".xyz,text/plain"
+                    onChange={handleXyzFileUpload}
+                    className="hidden"
+                  />
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg group-hover:bg-blue-200 dark:group-hover:bg-blue-800/40 transition-colors duration-300">
+                      <Upload className="h-6 w-6 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-300" />
+                    </div>
+                    <div className="text-left">
+                      <span className="block text-sm font-semibold text-gray-800 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
+                        {xyzFilename || "Choose XYZ File"}
+                      </span>
+                      <span className="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                        Plain-text XYZ coordinates (atom count, comment, then `element x y z`)
+                      </span>
+                    </div>
+                  </div>
+                </label>
+                {xyzFilename && (
+                  <div className="mt-3 flex items-center justify-between p-3 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg shadow-xs">
+                    <div className="flex items-center space-x-2 flex-1 min-w-0">
+                      <div className="p-1.5 bg-blue-100 dark:bg-blue-800/40 rounded-md">
+                        <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <span className="text-sm font-medium text-blue-900 dark:text-blue-100 truncate">
+                        {xyzFilename}
+                      </span>
+                      <span className="text-xs text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-800/40 px-2 py-0.5 rounded-full">
+                        Loaded
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      type="button"
+                      onClick={handleClearXyzFile}
+                      className="ml-3 px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-300 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 border-blue-300 dark:border-blue-700 rounded-md"
+                    >
+                      Clear
+                    </Button>
+                  </div>
+                )}
+                <p className="mt-2 mb-3 text-xs text-center text-gray-500 dark:text-gray-400 font-medium">
+                  Or paste XYZ content below
+                </p>
+                <Textarea
+                  id="xyz-input"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={
+                    "Paste XYZ block here...\n\nExample (water):\n3\nwater\nO    0.0000    0.0000    0.0000\nH    0.7572    0.5860    0.0000\nH   -0.7572    0.5860    0.0000"
+                  }
+                  rows={10}
+                  required
+                  className="font-mono text-sm"
+                />
+                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label
+                      htmlFor="xyz-charge"
+                      className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1"
+                    >
+                      Net Charge
+                    </label>
+                    <Input
+                      id="xyz-charge"
+                      type="number"
+                      min={-10}
+                      max={10}
+                      step={1}
+                      value={xyzCharge}
+                      onChange={(e) => {
+                        const v = parseInt(e.target.value, 10);
+                        setXyzCharge(Number.isFinite(v) ? v : 0);
+                      }}
+                      disabled={toolkit === "openbabel"}
+                      className="w-full"
+                    />
+                    <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">
+                      e.g. -1 for acetate. Used by RDKit (xyz2mol). OpenBabel ignores charge.
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Bond Perception
+                    </label>
+                    <label className="inline-flex items-center gap-2 mt-1.5">
+                      <input
+                        type="checkbox"
+                        checked={xyzUseHueckel}
+                        onChange={(e) => setXyzUseHueckel(e.target.checked)}
+                        disabled={toolkit === "openbabel"}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">
+                        Use extended Hückel (RDKit only)
+                      </span>
+                    </label>
+                    <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">
+                      Slower; better for unusual valences.
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  Bond orders are perceived from 3D coordinates. CDK is not supported (its core
+                  distribution lacks XYZ→bond perception).
+                </p>
+              </>
+            ) : inputFormat === "cdx" ? (
               <>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   ChemDraw File Upload
@@ -745,19 +942,26 @@ const FormatConversionView = () => {
             <Select
               value={outputFormat}
               onValueChange={handleOutputFormatChange}
-              disabled={inputFormat !== "smiles"}
+              disabled={inputFormat !== "smiles" && inputFormat !== "xyz"}
             >
               <SelectTrigger
                 id="output-format-select"
                 className={cn(
                   "w-full",
-                  inputFormat !== "smiles" && "opacity-50 cursor-not-allowed"
+                  inputFormat !== "smiles" &&
+                    inputFormat !== "xyz" &&
+                    "opacity-50 cursor-not-allowed"
                 )}
               >
                 <SelectValue placeholder="Select output format" />
               </SelectTrigger>
               <SelectContent>
-                {OUTPUT_FORMAT_OPTIONS.map((option) => (
+                {OUTPUT_FORMAT_OPTIONS.filter((option) => {
+                  if (inputFormat === "xyz") return XYZ_OUTPUT_FORMAT_IDS.has(option.id);
+                  // SDF output is only meaningful for XYZ input today.
+                  if (option.id === "sdf") return false;
+                  return true;
+                }).map((option) => (
                   <SelectItem key={option.id} value={option.id}>
                     {option.label}
                   </SelectItem>
@@ -806,6 +1010,10 @@ const FormatConversionView = () => {
                     // MOL/SDF only supports CDK and RDKit
                     if (inputFormat === "molsdf") {
                       return option.id === "cdk" || option.id === "rdkit";
+                    }
+                    // XYZ supports RDKit (xyz2mol) and OpenBabel; CDK lacks bond perception.
+                    if (inputFormat === "xyz") {
+                      return option.id === "rdkit" || option.id === "openbabel";
                     }
                     return true;
                   }).map((option) => (
