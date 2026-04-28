@@ -323,29 +323,29 @@ const OCRView = () => {
           {/* Controls */}
           <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
             {/* Hand-Drawn Toggle */}
-            <div className="flex items-center gap-3">
+            <label className="flex items-center gap-3 cursor-pointer select-none">
               <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                 Hand-Drawn Model
               </span>
-              <Button
-                variant="ghost"
+              <button
                 type="button"
                 onClick={() => setHandDrawn(!handDrawn)}
                 disabled={loading}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full p-0 ${
-                  handDrawn ? "bg-green-600 dark:bg-green-500" : "bg-slate-300 dark:bg-slate-600"
-                }`}
                 role="switch"
                 aria-checked={handDrawn}
                 aria-label="Toggle hand-drawn model"
+                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-800 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  handDrawn ? "bg-green-600 dark:bg-green-500" : "bg-slate-300 dark:bg-slate-600"
+                }`}
               >
                 <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform duration-200 ${
+                  aria-hidden="true"
+                  className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-md ring-0 transition-transform duration-200 ${
                     handDrawn ? "translate-x-6" : "translate-x-1"
                   }`}
                 />
-              </Button>
-            </div>
+              </button>
+            </label>
 
             <div className="flex-1" />
 
