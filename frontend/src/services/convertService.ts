@@ -1,7 +1,12 @@
 // This module provides functions to convert chemical representations using a REST API.
 import api from "./api";
 import { AxiosError } from "axios";
-import type { MultipleFormatsResult, CdxConversionResult } from "../types/api";
+import type {
+  MultipleFormatsResult,
+  CdxConversionResult,
+  XYZConversionResult,
+  XYZConversionOptions,
+} from "../types/api";
 
 const CONVERT_URL = "/convert";
 
@@ -238,6 +243,54 @@ export const convertCDXToMol = async (file: File): Promise<string> => {
   }
 };
 
+/**
+ * Convert an XYZ-coordinate block to SMILES, InChI, InChIKey, MOL, and SDF.
+ *
+ * Uses the RDKit xyz2mol algorithm by default (charge-aware bond perception).
+ * Pass ``toolkit: "openbabel"`` for the distance-based fallback (best for
+ * neutral species — OpenBabel ignores ``charge`` and ``useHueckel``).
+ */
+export const convertXYZ = async (
+  xyz: string,
+  options: XYZConversionOptions = {}
+): Promise<XYZConversionResult> => {
+  const { charge = 0, useHueckel = false, toolkit = "rdkit" } = options;
+
+  const baseURL = api.defaults.baseURL;
+  const params = new URLSearchParams({
+    charge: String(charge),
+    use_huckel: String(useHueckel),
+    toolkit,
+  });
+
+  try {
+    const response = await fetch(`${baseURL}${CONVERT_URL}/xyz?${params.toString()}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        Accept: "application/json",
+      },
+      body: xyz,
+    });
+
+    if (!response.ok) {
+      let detail = `Error ${response.status}: ${response.statusText}`;
+      try {
+        const errorData = (await response.json()) as { detail?: string };
+        if (errorData.detail) detail = errorData.detail;
+      } catch (_jsonError) {
+        // Response was not JSON; fall back to status text.
+      }
+      throw new Error(detail);
+    }
+
+    return (await response.json()) as XYZConversionResult;
+  } catch (error) {
+    if (error instanceof Error) throw error;
+    throw new Error("Failed to convert XYZ block: Unknown error");
+  }
+};
+
 // Assemble all functions into a service object
 const convertService = {
   generate2DCoordinates,
@@ -252,6 +305,7 @@ const convertService = {
   molblockToSMILES,
   generateMultipleFormats,
   convertCDXToMol,
+  convertXYZ,
 };
 
 export default convertService;
