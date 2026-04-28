@@ -1038,37 +1038,29 @@ def convert_xyz_to_mol(
     embed_chiral: bool = True,
     use_huckel: bool = False,
     cov_factor: float = 1.3,
-) -> Chem.Mol:
-    """Parse an XYZ block and assign connectivity + bond orders via xyz2mol.
+) -> tuple[Chem.Mol, str]:
+    """Parse an XYZ block and assign bonds via a two-tier RDKit pipeline.
 
-    Reads coordinates with ``Chem.MolFromXYZBlock`` (which yields a Mol with
-    only atoms and a 3D conformer, no bonds), copies it via ``Chem.Mol(raw)``
-    so the original is preserved, then runs ``rdDetermineBonds.DetermineBonds``
-    to perceive connectivity *and* bond orders in a single charge-aware pass.
+    Tier 1: ``rdDetermineBonds.DetermineBonds`` (xyz2mol) -- full bond-order
+        perception, charge-aware. Works for organic/main-group molecules.
+    Tier 2 (only if Tier 1 raises): ``rdDetermineBonds.DetermineConnectivity``
+        -- VdW connect-the-dots, all bonds order 1, but works for any element
+        including transition metals. Information-poor but accurate-by-construction.
 
     Args:
-        xyz_data (str): Plain-text XYZ block (atom count, comment line, then
-            ``element x y z`` rows). Must include the header lines.
-        charge (int): Net molecular charge. Required for non-neutral species.
-            Defaults to 0.
-        allow_charged_fragments (bool): If True, place formal charges on
-            atoms; if False, assign radical electrons instead. Defaults to
-            True (matches xyz2mol's default behavior).
-        embed_chiral (bool): Embed chirality information from 3D coords.
-            Defaults to True.
-        use_huckel (bool): Use extended Hückel theory for bond perception
-            instead of the van der Waals method. More accurate for
-            unusual valences but slower. Defaults to False.
-        cov_factor (float): Multiplier on covalent radii for VdW
-            connect-the-dots. Defaults to 1.3.
+        xyz_data: Plain-text XYZ block including the count + comment header.
+        charge: Net molecular charge (Tier 1 only). Defaults to 0.
+        allow_charged_fragments: xyz2mol option (Tier 1 only). Defaults to True.
+        embed_chiral: xyz2mol option (Tier 1 only). Defaults to True.
+        use_huckel: Use extended Huckel theory in Tier 1. Defaults to False.
+        cov_factor: Covalent-radius multiplier (both tiers). Defaults to 1.3.
 
     Returns:
-        Chem.Mol: RDKit molecule with 3D conformer and perceived bonds.
+        A tuple ``(mol, method)`` where ``method`` is one of
+        ``"bond_orders"`` (Tier 1) or ``"connectivity_only"`` (Tier 2).
 
     Raises:
-        ValueError: If the XYZ block cannot be parsed or bond perception
-            fails (malformed input, unknown elements, geometry that cannot
-            be reconciled with the requested charge).
+        ValueError: If the XYZ block cannot be parsed, or if both tiers fail.
     """
     if not xyz_data or not xyz_data.strip():
         raise ValueError("Empty XYZ data.")
@@ -1076,12 +1068,12 @@ def convert_xyz_to_mol(
     raw_mol = Chem.MolFromXYZBlock(xyz_data)
     if raw_mol is None:
         raise ValueError("Failed to parse XYZ block.")
-
     if raw_mol.GetNumAtoms() == 0:
         raise ValueError("XYZ block contains no atoms.")
 
-    mol = Chem.Mol(raw_mol)
+    # Tier 1: full bond-order perception via xyz2mol.
     try:
+        mol = Chem.Mol(raw_mol)
         rdDetermineBonds.DetermineBonds(
             mol,
             charge=charge,
@@ -1090,7 +1082,16 @@ def convert_xyz_to_mol(
             useHueckel=use_huckel,
             covFactor=cov_factor,
         )
-    except (ValueError, RuntimeError) as exc:
-        raise ValueError(f"Bond perception failed: {exc}") from exc
+        return mol, "bond_orders"
+    except (ValueError, RuntimeError) as tier1_exc:
+        tier1_err = str(tier1_exc)
 
-    return mol
+    # Tier 2: connectivity-only (VdW connect-the-dots). Works for any element.
+    try:
+        mol = Chem.Mol(raw_mol)
+        rdDetermineBonds.DetermineConnectivity(mol, covFactor=cov_factor)
+        return mol, "connectivity_only"
+    except (ValueError, RuntimeError) as tier2_exc:
+        raise ValueError(
+            f"Bond perception failed (tier 1: {tier1_err}; tier 2: {tier2_exc})"
+        ) from tier2_exc

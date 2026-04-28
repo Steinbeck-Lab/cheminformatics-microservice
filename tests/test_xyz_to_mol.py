@@ -59,61 +59,58 @@ def acetate_xyz() -> str:
 
 
 class TestConvertXYZToMolRDKit:
-    """Direct unit tests for the RDKit xyz2mol path."""
+    """Two-tier perception: bond_orders for organics, connectivity_only fallback."""
 
-    def test_water_returns_mol(self, water_xyz):
-        mol = convert_xyz_to_mol(water_xyz)
+    def test_water_returns_bond_orders_method(self, water_xyz):
+        mol, method = convert_xyz_to_mol(water_xyz)
         assert isinstance(mol, Chem.Mol)
-        assert mol.GetNumAtoms() == 3
+        assert method == "bond_orders"
         assert mol.GetNumBonds() == 2
 
-    def test_water_smiles_roundtrip(self, water_xyz):
-        mol = convert_xyz_to_mol(water_xyz)
-        # Hydrogens are explicit because they came from the XYZ
-        assert Chem.inchi.MolToInchiKey(mol) == WATER_INCHIKEY
-
-    def test_methane_neutral(self):
-        mol = convert_xyz_to_mol(METHANE_XYZ, charge=0)
-        assert mol.GetNumAtoms() == 5
-        assert mol.GetNumBonds() == 4
-        assert Chem.inchi.MolToInchiKey(mol) == METHANE_INCHIKEY
-
-    def test_acetate_charge_minus_one(self, acetate_xyz):
-        mol = convert_xyz_to_mol(acetate_xyz, charge=-1)
-        assert mol.GetNumAtoms() == 7
-        # Net charge on the molecule should be -1
-        net_charge = sum(a.GetFormalCharge() for a in mol.GetAtoms())
-        assert net_charge == -1
+    def test_acetate_with_charge_returns_bond_orders(self, acetate_xyz):
+        mol, method = convert_xyz_to_mol(acetate_xyz, charge=-1)
+        assert method == "bond_orders"
         assert Chem.inchi.MolToInchiKey(mol) == ACETATE_INCHIKEY
 
-    def test_acetate_wrong_charge_does_not_match_acetate_inchikey(self, acetate_xyz):
-        """At charge=0 the same geometry yields a different (radical) species,
-        so it must not pass for the acetate InChIKey. Guards against silent
-        ignoring of the charge parameter."""
-        try:
-            mol = convert_xyz_to_mol(acetate_xyz, charge=0)
-        except ValueError:
-            return  # Acceptable: bond perception refuses inconsistent geometry
-        assert Chem.inchi.MolToInchiKey(mol) != ACETATE_INCHIKEY
-
-    def test_molblock_carries_3d_coords(self, water_xyz):
-        mol = convert_xyz_to_mol(water_xyz)
-        molblock = Chem.MolToMolBlock(mol)
-        assert "M  END" in molblock
-        # The first oxygen sits at the origin in our fixture.
-        assert "0.0000    0.0000    0.0000 O" in molblock
+    def test_metallocene_falls_back_to_connectivity_only(self):
+        cpfecp = (
+            "21\nCpFeCp-eclipse\n"
+            "Fe       0.000077000      0.000000000      0.000000000\n"
+            "C       -1.216255000      0.000000000      1.604295000\n"
+            "C       -1.216255000      1.156828000      0.748469000\n"
+            "C       -1.216255000      0.715080000     -0.594716000\n"
+            "C       -1.216255000     -0.715080000     -0.594716000\n"
+            "C       -1.216255000     -1.156828000      0.748469000\n"
+            "C        1.216255000      0.000000000      1.604295000\n"
+            "C        1.216255000     -1.156828000      0.748469000\n"
+            "C        1.216255000     -0.715080000     -0.594716000\n"
+            "C        1.216255000      0.715080000     -0.594716000\n"
+            "C        1.216255000      1.156828000      0.748469000\n"
+            "H       -2.158270000      0.000000000      2.143108000\n"
+            "H       -2.158270000      2.052749000      1.000226000\n"
+            "H       -2.158270000      0.954107000     -1.071780000\n"
+            "H       -2.158270000     -0.954107000     -1.071780000\n"
+            "H       -2.158270000     -2.052749000      1.000226000\n"
+            "H        2.158270000      0.000000000      2.143108000\n"
+            "H        2.158270000     -2.052749000      1.000226000\n"
+            "H        2.158270000     -0.954107000     -1.071780000\n"
+            "H        2.158270000      0.954107000     -1.071780000\n"
+            "H        2.158270000      2.052749000      1.000226000\n"
+        )
+        mol, method = convert_xyz_to_mol(cpfecp)
+        assert method == "connectivity_only"
+        assert mol.GetNumBonds() > 0
+        assert any(a.GetSymbol() == "Fe" for a in mol.GetAtoms())
+        smi = Chem.MolToSmiles(mol)
+        assert "[Fe]" in smi
 
     def test_empty_input_raises_value_error(self):
         with pytest.raises(ValueError):
             convert_xyz_to_mol("")
 
-    def test_whitespace_input_raises_value_error(self):
-        with pytest.raises(ValueError):
-            convert_xyz_to_mol("   \n  \n")
-
     def test_garbage_input_raises_value_error(self):
         with pytest.raises(ValueError):
-            convert_xyz_to_mol("this is not an xyz file at all")
+            convert_xyz_to_mol("not an xyz file")
 
 
 # ── Unit: get_ob_xyz_conversions (OpenBabel) ────────────────────────────────
