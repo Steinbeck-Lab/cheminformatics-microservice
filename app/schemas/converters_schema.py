@@ -421,6 +421,63 @@ class BatchConversionResponse(BaseModel):
     )
 
 
+class XYZConversionResponse(BaseModel):
+    """Represents the result of converting an XYZ-coordinate block.
+
+    Properties:
+    - canonicalsmiles (str): Canonical SMILES with bond orders perceived from 3D.
+    - inchi (str): InChI string.
+    - inchikey (str): InChIKey.
+    - molblock (str): V2000 MOL block carrying the original 3D coordinates and
+      perceived bonds. Suitable for downstream tools that consume MDL Molfile.
+    - sdf (str): The same MOL block followed by an SDF terminator (``$$$$``)
+      so it can be saved directly as a one-record .sdf file.
+    """
+
+    canonicalsmiles: str = Field(
+        ...,
+        description="Canonical SMILES derived from the perceived bonds.",
+    )
+    inchi: str = Field(
+        ...,
+        description="InChI string derived from the perceived bonds.",
+    )
+    inchikey: str = Field(
+        ...,
+        description="InChIKey derived from the perceived bonds.",
+    )
+    molblock: str = Field(
+        ...,
+        description="V2000 MOL block with 3D coordinates and perceived bonds.",
+    )
+    sdf: str = Field(
+        ...,
+        description="MOL block with the SDF record terminator ($$$$).",
+    )
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "input": (
+                        "7\nacetate\nC -1.000  0.000  0.000\nC  0.500  0.000  0.000\n"
+                        "O  1.150  1.060  0.000\nO  1.150 -1.060  0.000\n"
+                        "H -1.350 -0.500  0.870\nH -1.350 -0.500 -0.870\nH -1.350  1.000  0.000\n"
+                    ),
+                    "message": "Success",
+                    "output": {
+                        "canonicalsmiles": "CC(=O)[O-]",
+                        "inchi": "InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)/p-1",
+                        "inchikey": "QTBSBXVTEAMEQO-UHFFFAOYSA-M",
+                        "molblock": "...V2000 MOL block with 3D coords...",
+                        "sdf": "...MOL block + $$$$",
+                    },
+                },
+            ],
+        }
+    }
+
+
 class CDXToMolResponse(BaseModel):
     """Represents a response containing a MOL block parsed from a .cdx file.
 

@@ -14,6 +14,7 @@ from rdkit.Chem import Descriptors
 from rdkit.Chem import Lipinski
 from rdkit.Chem import MACCSkeys
 from rdkit.Chem import QED
+from rdkit.Chem import rdDetermineBonds
 from rdkit.Chem import rdFingerprintGenerator
 from rdkit.Chem import rdMolDescriptors
 from rdkit.Chem import rdmolops
@@ -1027,4 +1028,69 @@ def ensure_2d(mol: Chem.Mol) -> Chem.Mol:
             pos = conf.GetAtomPosition(i)
             conf.SetAtomPosition(i, (pos.x, pos.y, 0.0))
         conf.Set3D(False)
+    return mol
+
+
+def convert_xyz_to_mol(
+    xyz_data: str,
+    charge: int = 0,
+    allow_charged_fragments: bool = True,
+    embed_chiral: bool = True,
+    use_huckel: bool = False,
+    cov_factor: float = 1.3,
+) -> Chem.Mol:
+    """Parse an XYZ block and assign connectivity + bond orders via xyz2mol.
+
+    Reads coordinates with ``Chem.MolFromXYZBlock`` (which yields a Mol with
+    only atoms and a 3D conformer, no bonds), copies it via ``Chem.Mol(raw)``
+    so the original is preserved, then runs ``rdDetermineBonds.DetermineBonds``
+    to perceive connectivity *and* bond orders in a single charge-aware pass.
+
+    Args:
+        xyz_data (str): Plain-text XYZ block (atom count, comment line, then
+            ``element x y z`` rows). Must include the header lines.
+        charge (int): Net molecular charge. Required for non-neutral species.
+            Defaults to 0.
+        allow_charged_fragments (bool): If True, place formal charges on
+            atoms; if False, assign radical electrons instead. Defaults to
+            True (matches xyz2mol's default behavior).
+        embed_chiral (bool): Embed chirality information from 3D coords.
+            Defaults to True.
+        use_huckel (bool): Use extended Hückel theory for bond perception
+            instead of the van der Waals method. More accurate for
+            unusual valences but slower. Defaults to False.
+        cov_factor (float): Multiplier on covalent radii for VdW
+            connect-the-dots. Defaults to 1.3.
+
+    Returns:
+        Chem.Mol: RDKit molecule with 3D conformer and perceived bonds.
+
+    Raises:
+        ValueError: If the XYZ block cannot be parsed or bond perception
+            fails (malformed input, unknown elements, geometry that cannot
+            be reconciled with the requested charge).
+    """
+    if not xyz_data or not xyz_data.strip():
+        raise ValueError("Empty XYZ data.")
+
+    raw_mol = Chem.MolFromXYZBlock(xyz_data)
+    if raw_mol is None:
+        raise ValueError("Failed to parse XYZ block.")
+
+    if raw_mol.GetNumAtoms() == 0:
+        raise ValueError("XYZ block contains no atoms.")
+
+    mol = Chem.Mol(raw_mol)
+    try:
+        rdDetermineBonds.DetermineBonds(
+            mol,
+            charge=charge,
+            allowChargedFragments=allow_charged_fragments,
+            embedChiral=embed_chiral,
+            useHueckel=use_huckel,
+            covFactor=cov_factor,
+        )
+    except (ValueError, RuntimeError) as exc:
+        raise ValueError(f"Bond perception failed: {exc}") from exc
+
     return mol
