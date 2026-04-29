@@ -50,12 +50,32 @@ export interface CdxConversionResult {
   molblock: string;
 }
 
-export interface XYZConversionResult {
+export interface XYZStructureResult {
+  index: number;
+  title: string;
+  success: boolean;
+  error: string | null;
   canonicalsmiles: string;
   inchi: string;
   inchikey: string;
   molblock: string;
+  method: "" | "bond_orders" | "connectivity_only";
+  bond_orders_perceived: boolean;
+  warnings: string[];
+}
+
+export interface XYZConversionSummary {
+  total: number;
+  successful: number;
+  failed: number;
+  bond_orders_count: number;
+  connectivity_only_count: number;
+}
+
+export interface XYZBatchConversionResult {
+  structures: XYZStructureResult[];
   sdf: string;
+  summary: XYZConversionSummary;
 }
 
 export interface XYZConversionOptions {

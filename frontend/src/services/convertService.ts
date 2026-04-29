@@ -4,7 +4,7 @@ import { AxiosError } from "axios";
 import type {
   MultipleFormatsResult,
   CdxConversionResult,
-  XYZConversionResult,
+  XYZBatchConversionResult,
   XYZConversionOptions,
 } from "../types/api";
 
@@ -253,7 +253,7 @@ export const convertCDXToMol = async (file: File): Promise<string> => {
 export const convertXYZ = async (
   xyz: string,
   options: XYZConversionOptions = {}
-): Promise<XYZConversionResult> => {
+): Promise<XYZBatchConversionResult> => {
   const { charge = 0, useHueckel = false, toolkit = "rdkit" } = options;
 
   const baseURL = api.defaults.baseURL;
@@ -284,7 +284,7 @@ export const convertXYZ = async (
       throw new Error(detail);
     }
 
-    return (await response.json()) as XYZConversionResult;
+    return (await response.json()) as XYZBatchConversionResult;
   } catch (error) {
     if (error instanceof Error) throw error;
     throw new Error("Failed to convert XYZ block: Unknown error");
