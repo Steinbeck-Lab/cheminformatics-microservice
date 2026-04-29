@@ -10,6 +10,8 @@ import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 // Assuming this service is configured correctly
 import convertService from "../../services/convertService";
+import XYZGridResult from "./XYZGridResult";
+import type { XYZBatchConversionResult } from "@/types/api";
 import {
   AlertCircle,
   ArrowLeftRight,
@@ -123,6 +125,7 @@ const FormatConversionView = () => {
   const [xyzCharge, setXyzCharge] = useState(0);
   const [xyzUseHueckel, setXyzUseHueckel] = useState(false);
   const xyzFileInputRef = useRef(null);
+  const [xyzBatchResult, setXyzBatchResult] = useState<XYZBatchConversionResult | null>(null);
 
   // Helper function to ensure molblock is in proper format for backend
   const formatMolblockForBackend = (molblock) => {
@@ -276,6 +279,7 @@ const FormatConversionView = () => {
   const handleClearXyzFile = () => {
     setXyzFilename("");
     setInput("");
+    setXyzBatchResult(null);
     if (xyzFileInputRef.current) {
       xyzFileInputRef.current.value = "";
     }
@@ -370,33 +374,47 @@ const FormatConversionView = () => {
       // XYZ → SMILES / Canonical SMILES / InChI / InChIKey / MOL / SDF
       if (inputFormat === "xyz") {
         const xyzToolkit = toolkit === "cdk" ? "rdkit" : (toolkit as "rdkit" | "openbabel");
-        const xyzResult = await convertService.convertXYZ(trimmedInput, {
+        const batch = await convertService.convertXYZ(trimmedInput, {
           charge: xyzCharge,
           useHueckel: xyzUseHueckel,
           toolkit: xyzToolkit,
         });
-        smilesForDisplay = xyzResult.canonicalsmiles;
+
+        setXyzBatchResult(batch);
+
+        // Multi-frame: the grid renders everything; suppress the single-result panel.
+        if (batch.summary.total > 1) {
+          setResult("");
+          setSmilesForStructure("");
+          setShowStructure(false);
+          return;
+        }
+
+        // Single-frame path: pick the chosen output and reuse the existing UX.
+        const only = batch.structures[0];
+        if (!only.success) {
+          throw new Error(only.error || "XYZ conversion failed");
+        }
+        smilesForDisplay = only.canonicalsmiles;
         switch (outputFormat) {
           case "smiles":
           case "canonicalsmiles":
-            convertedResult = xyzResult.canonicalsmiles;
+            convertedResult = only.canonicalsmiles;
             break;
           case "inchi":
-            convertedResult = xyzResult.inchi;
+            convertedResult = only.inchi;
             break;
           case "inchikey":
-            convertedResult = xyzResult.inchikey;
+            convertedResult = only.inchikey;
             break;
           case "mol":
-            convertedResult = xyzResult.molblock;
+            convertedResult = only.molblock;
             break;
           case "sdf":
-            convertedResult = xyzResult.sdf;
+            convertedResult = batch.sdf;
             break;
           default:
-            throw new Error(
-              `Unsupported output format for XYZ input: ${outputFormat}. Use SMILES, InChI, InChIKey, MOL, or SDF.`
-            );
+            throw new Error(`Unsupported output format for XYZ input: ${outputFormat}.`);
         }
       } else if (inputFormat === "cdx") {
         // CDX/CDXML → MOL Block
@@ -1077,6 +1095,11 @@ const FormatConversionView = () => {
             document.getElementById("smiles-input")?.focus();
           }}
         />
+      )}
+
+      {/* XYZ Multi-frame Grid */}
+      {xyzBatchResult && xyzBatchResult.summary.total > 1 && !loading && (
+        <XYZGridResult result={xyzBatchResult} />
       )}
 
       {/* Results Display Section */}
