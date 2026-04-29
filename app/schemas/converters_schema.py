@@ -421,58 +421,117 @@ class BatchConversionResponse(BaseModel):
     )
 
 
-class XYZConversionResponse(BaseModel):
-    """Represents the result of converting an XYZ-coordinate block.
+class XYZStructureResult(BaseModel):
+    """Single-structure result inside an XYZ batch conversion response."""
 
-    Properties:
-    - canonicalsmiles (str): Canonical SMILES with bond orders perceived from 3D.
-    - inchi (str): InChI string.
-    - inchikey (str): InChIKey.
-    - molblock (str): V2000 MOL block carrying the original 3D coordinates and
-      perceived bonds. Suitable for downstream tools that consume MDL Molfile.
-    - sdf (str): The same MOL block followed by an SDF terminator (``$$$$``)
-      so it can be saved directly as a one-record .sdf file.
+    index: int = Field(..., description="Zero-based index of the frame in the input.")
+    title: str = Field(
+        default="",
+        description="Comment line from the XYZ frame (often the molecule name).",
+    )
+    success: bool = Field(
+        ...,
+        description="True if perception succeeded for this frame.",
+    )
+    error: str | None = Field(
+        default=None,
+        description="Error message when success is False; null otherwise.",
+    )
+    canonicalsmiles: str = Field(
+        default="",
+        description="Canonical SMILES (empty when the frame failed).",
+    )
+    inchi: str = Field(default="", description="InChI string.")
+    inchikey: str = Field(default="", description="InChIKey.")
+    molblock: str = Field(
+        default="",
+        description="V2000 MOL block carrying the original 3D coordinates.",
+    )
+    method: str = Field(
+        default="",
+        description=(
+            "How bonds were perceived: 'bond_orders' (xyz2mol full pipeline) or "
+            "'connectivity_only' (VdW connect-the-dots fallback used when Tier 1 "
+            "rejects unusual valences such as transition metals). Empty when the "
+            "frame failed."
+        ),
+    )
+    bond_orders_perceived: bool = Field(
+        default=False,
+        description=(
+            "True only when bond orders were perceived. False for "
+            "connectivity-only fallback or failed frames."
+        ),
+    )
+    warnings: list[str] = Field(
+        default_factory=list,
+        description="Non-fatal diagnostics emitted while processing this frame.",
+    )
+
+
+class XYZConversionSummary(BaseModel):
+    total: int
+    successful: int
+    failed: int
+    bond_orders_count: int
+    connectivity_only_count: int
+
+
+class XYZBatchConversionResponse(BaseModel):
+    """Batch result for the XYZ-to-formats conversion endpoint.
+
+    The ``structures`` list always has at least one entry on success; a single-
+    frame XYZ input yields a list of length 1. The ``sdf`` field is the
+    concatenation of every successful frame's MOL block followed by ``$$$$``
+    (multi-record SDF, ready to save as ``.sdf``).
     """
 
-    canonicalsmiles: str = Field(
-        ...,
-        description="Canonical SMILES derived from the perceived bonds.",
-    )
-    inchi: str = Field(
-        ...,
-        description="InChI string derived from the perceived bonds.",
-    )
-    inchikey: str = Field(
-        ...,
-        description="InChIKey derived from the perceived bonds.",
-    )
-    molblock: str = Field(
-        ...,
-        description="V2000 MOL block with 3D coordinates and perceived bonds.",
+    structures: list[XYZStructureResult] = Field(
+        ..., description="Per-frame conversion results, in input order."
     )
     sdf: str = Field(
         ...,
-        description="MOL block with the SDF record terminator ($$$$).",
+        description=(
+            "Multi-record SDF containing only successful frames. Empty when "
+            "every frame failed."
+        ),
+    )
+    summary: XYZConversionSummary = Field(
+        ..., description="Aggregate counts across all frames."
     )
 
     model_config = {
         "json_schema_extra": {
             "examples": [
                 {
-                    "input": (
-                        "7\nacetate\nC -1.000  0.000  0.000\nC  0.500  0.000  0.000\n"
-                        "O  1.150  1.060  0.000\nO  1.150 -1.060  0.000\n"
-                        "H -1.350 -0.500  0.870\nH -1.350 -0.500 -0.870\nH -1.350  1.000  0.000\n"
-                    ),
+                    "input": "3\nwater\nO 0 0 0\nH 1 0 0\nH -1 0 0\n",
                     "message": "Success",
                     "output": {
-                        "canonicalsmiles": "CC(=O)[O-]",
-                        "inchi": "InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)/p-1",
-                        "inchikey": "QTBSBXVTEAMEQO-UHFFFAOYSA-M",
-                        "molblock": "...V2000 MOL block with 3D coords...",
-                        "sdf": "...MOL block + $$$$",
+                        "structures": [
+                            {
+                                "index": 0,
+                                "title": "water",
+                                "success": True,
+                                "error": None,
+                                "canonicalsmiles": "[H]O[H]",
+                                "inchi": "InChI=1S/H2O/h1H2",
+                                "inchikey": "XLYOFNOQVPJJNP-UHFFFAOYSA-N",
+                                "molblock": "...V2000 MOL block...",
+                                "method": "bond_orders",
+                                "bond_orders_perceived": True,
+                                "warnings": [],
+                            }
+                        ],
+                        "sdf": "...M  END\n$$$$\n",
+                        "summary": {
+                            "total": 1,
+                            "successful": 1,
+                            "failed": 0,
+                            "bond_orders_count": 1,
+                            "connectivity_only_count": 0,
+                        },
                     },
-                },
+                }
             ],
         }
     }

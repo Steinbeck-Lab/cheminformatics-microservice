@@ -37,7 +37,9 @@ from app.schemas.converters_schema import TwoDCoordinatesResponse
 from app.schemas.converters_schema import GenerateSMARTSResponse
 from app.schemas.converters_schema import MolToSMILESResponse
 from app.schemas.converters_schema import CDXToMolResponse
-from app.schemas.converters_schema import XYZConversionResponse
+from app.schemas.converters_schema import XYZBatchConversionResponse
+from app.schemas.converters_schema import XYZConversionSummary
+from app.schemas.converters_schema import XYZStructureResult
 
 # Module imports
 from app.modules.toolkits.cdk_wrapper import get_canonical_SMILES
@@ -47,6 +49,7 @@ from app.modules.toolkits.cdk_wrapper import get_CXSMILES
 from app.modules.toolkits.cdk_wrapper import get_InChI
 from app.modules.toolkits.cdk_wrapper import get_smiles_opsin
 from app.modules.toolkits.helpers import parse_input
+from app.modules.toolkits.helpers import split_xyz_frames
 from app.modules.toolkits.openbabel_wrapper import get_ob_canonical_SMILES
 from app.modules.toolkits.openbabel_wrapper import get_ob_InChI
 from app.modules.toolkits.openbabel_wrapper import get_ob_mol
@@ -1191,17 +1194,112 @@ _XYZ_EXAMPLE_ACETATE = (
     "H   -1.3500    1.0000    0.0000\n"
 )
 
+# Defense-in-depth caps. The reverse proxy and rate limiter are upstream;
+# these protect the Python worker from pathological single requests.
+_XYZ_MAX_FRAMES = 50
+_XYZ_MAX_BODY_BYTES = 5 * 1024 * 1024  # 5 MB plain text
+
+
+def _serialize_xyz_mol(mol: Chem.Mol, title: str) -> dict:
+    """Compute SMILES/InChI/InChIKey/MOL for a perceived XYZ-derived Mol.
+
+    Returns a dict shaped for ``XYZStructureResult`` fields. Any post-perception
+    InChI failure is recorded as a warning rather than failing the frame.
+    """
+    if title:
+        mol.SetProp("_Name", title)
+    warnings: list[str] = []
+    try:
+        canonical = Chem.MolToSmiles(mol, kekuleSmiles=True)
+    except Exception as exc:
+        canonical = ""
+        warnings.append(f"SMILES serialization failed: {exc}")
+    try:
+        inchi = Chem.inchi.MolToInchi(mol) or ""
+    except Exception as exc:
+        inchi = ""
+        warnings.append(f"InChI computation failed: {exc}")
+    try:
+        inchikey = Chem.inchi.MolToInchiKey(mol) or ""
+    except Exception as exc:
+        inchikey = ""
+        warnings.append(f"InChIKey computation failed: {exc}")
+    try:
+        molblock = Chem.MolToMolBlock(mol)
+    except Exception as exc:
+        molblock = ""
+        warnings.append(f"MOL block serialization failed: {exc}")
+    return {
+        "canonicalsmiles": canonical,
+        "inchi": inchi,
+        "inchikey": inchikey,
+        "molblock": molblock,
+        "warnings": warnings,
+    }
+
+
+def _process_frame_rdkit(
+    frame_xyz: str, charge: int, use_huckel: bool
+) -> tuple[dict, str | None]:
+    """Run the RDKit two-tier pipeline on a single frame."""
+    try:
+        mol, method = convert_xyz_to_mol(
+            frame_xyz, charge=charge, use_huckel=use_huckel
+        )
+    except ValueError as exc:
+        return {}, str(exc)
+    title = frame_xyz.splitlines()[1].strip() if len(frame_xyz.splitlines()) > 1 else ""
+    serialized = _serialize_xyz_mol(mol, title)
+    serialized.update(
+        {
+            "title": title,
+            "method": method,
+            "bond_orders_perceived": method == "bond_orders",
+        }
+    )
+    if method == "connectivity_only":
+        serialized["warnings"].insert(
+            0,
+            "RDKit DetermineBonds failed; fell back to connectivity-only perception",
+        )
+    return serialized, None
+
+
+def _process_frame_openbabel(frame_xyz: str) -> tuple[dict, str | None]:
+    """Run the OpenBabel single-pass perception on a single frame."""
+    try:
+        ob = get_ob_xyz_conversions(frame_xyz)
+    except Exception as exc:
+        return {}, str(exc)
+    title = frame_xyz.splitlines()[1].strip() if len(frame_xyz.splitlines()) > 1 else ""
+    return (
+        {
+            "title": title,
+            "canonicalsmiles": ob.get("canonicalsmiles", ""),
+            "inchi": ob.get("inchi", ""),
+            "inchikey": ob.get("inchikey", ""),
+            "molblock": ob.get("molblock", ""),
+            "method": "bond_orders",
+            "bond_orders_perceived": True,
+            "warnings": [],
+        },
+        None,
+    )
+
 
 @router.post(
     "/xyz",
-    summary="Convert an XYZ-coordinate block into SMILES, InChI, InChIKey, MOL, and SDF",
+    summary=(
+        "Convert one or more XYZ frames to SMILES, InChI, InChIKey, MOL, and SDF"
+    ),
     responses={
         200: {
-            "description": "Successful response",
-            "model": XYZConversionResponse,
+            "description": "Successful response (per-frame status inside)",
+            "model": XYZBatchConversionResponse,
         },
         400: {"description": "Bad Request", "model": BadRequestModel},
         404: {"description": "Not Found", "model": NotFoundModel},
+        413: {"description": "Payload Too Large"},
         422: {"description": "Unprocessable Entity", "model": ErrorResponse},
     },
 )
@@ -1210,26 +1308,31 @@ def xyz_to_formats(
     request: Request,
     data: str = Body(
         ...,
-        title="XYZ block",
+        title="XYZ block(s)",
         description=(
-            "Plain-text XYZ coordinates: line 1 = atom count, line 2 = comment, "
-            "remaining lines = `element x y z`. Both Unix and Windows line endings "
-            "are accepted."
+            "Plain-text XYZ coordinates. Single-frame: line 1 = atom count, "
+            "line 2 = comment, remaining lines = `element x y z`. Multi-frame: "
+            "concatenate any number of single-frame blocks. Both Unix and "
+            "Windows line endings are accepted."
         ),
         media_type="text/plain",
         openapi_examples={
-            "water": {"summary": "Water (neutral)", "value": _XYZ_EXAMPLE_WATER},
+            "water": {"summary": "Water (single frame)", "value": _XYZ_EXAMPLE_WATER},
             "acetate": {
-                "summary": "Acetate (charge -1)",
+                "summary": "Acetate (charge -1, single frame)",
                 "value": _XYZ_EXAMPLE_ACETATE,
+            },
+            "multi": {
+                "summary": "Two-frame example",
+                "value": _XYZ_EXAMPLE_WATER + _XYZ_EXAMPLE_ACETATE,
             },
         },
     ),
     charge: int = Query(
         default=0,
         description=(
-            "Net molecular charge. Required for non-neutral species "
-            "(e.g. -1 for acetate). RDKit only."
+            "Net molecular charge applied to every frame. Required for "
+            "non-neutral species (e.g. -1 for acetate). RDKit only."
         ),
         ge=-10,
         le=10,
@@ -1237,101 +1340,118 @@ def xyz_to_formats(
     use_huckel: bool = Query(
         default=False,
         description=(
-            "Use extended Hückel theory for bond perception (more accurate "
-            "for unusual valences, slower). RDKit only; ignored otherwise."
+            "Use extended Huckel theory for bond perception (more accurate "
+            "for unusual valences, slower). Applies to every frame. "
+            "RDKit only; ignored when toolkit is openbabel."
         ),
     ),
     toolkit: Literal["rdkit", "openbabel"] = Query(
         default="rdkit",
         description=(
             "Cheminformatics toolkit. RDKit uses the xyz2mol algorithm with "
-            "explicit charge support. OpenBabel uses distance-based bond "
-            "perception and is charge-unaware (best for neutral species). "
-            "CDK is not supported because its core distribution lacks "
-            "XYZ→bond perception."
+            "explicit charge support and a connectivity-only fallback for "
+            "elements outside its valence table (e.g. transition metals). "
+            "OpenBabel uses distance-based bond perception and is "
+            "charge-unaware (best for neutral species). CDK is not supported "
+            "because its core distribution lacks XYZ-to-bond perception."
         ),
     ),
-) -> XYZConversionResponse:
-    """Convert an XYZ block into multiple chemical formats.
+) -> XYZBatchConversionResponse:
+    """Convert one or more XYZ frames to multiple chemical formats.
 
-    XYZ files store only element symbols and 3D coordinates -- no bonds.
-    This endpoint perceives connectivity and bond orders from the geometry,
-    then emits SMILES, InChI, InChIKey, a V2000 MOL block (carrying the
-    original 3D coordinates), and an SDF record.
-
-    Parameters:
-    - **data** (str, body): XYZ block. Must include the atom-count and
-      comment header lines.
-    - **charge** (int, optional): Net charge. Defaults to ``0``. RDKit only.
-    - **use_huckel** (bool, optional): Use extended Hückel theory for bond
-      perception. Defaults to ``False``. RDKit only.
-    - **toolkit** (str, optional): ``rdkit`` (default) or ``openbabel``.
-
-    Returns:
-    - XYZConversionResponse: ``canonicalsmiles``, ``inchi``, ``inchikey``,
-      ``molblock``, and ``sdf``.
-
-    Raises:
-    - HTTPException 400: Empty body.
-    - HTTPException 422: XYZ block cannot be parsed or bond perception
-      fails (e.g. wrong charge for the geometry, unknown elements).
+    Returns a list of per-frame results with per-frame ``success`` flags.
+    A bad frame does not fail the whole request unless every frame fails.
     """
     if not data or not data.strip():
         raise HTTPException(status_code=400, detail="Empty XYZ block provided")
 
-    xyz_data = data.replace("\r\n", "\n").replace("\r", "\n")
+    if len(data.encode("utf-8")) > _XYZ_MAX_BODY_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail=f"XYZ payload exceeds {_XYZ_MAX_BODY_BYTES // (1024 * 1024)} MB limit",
+        )
 
-    if toolkit == "rdkit":
-        try:
-            mol = convert_xyz_to_mol(
-                xyz_data,
-                charge=charge,
-                use_huckel=use_huckel,
+    frames = split_xyz_frames(data)
+    if not frames:
+        raise HTTPException(
+            status_code=422,
+            detail="Invalid XYZ block (no frames detected)",
+        )
+    if len(frames) > _XYZ_MAX_FRAMES:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Frame count exceeds limit ({_XYZ_MAX_FRAMES})",
+        )
+
+    structures: list[XYZStructureResult] = []
+    sdf_chunks: list[str] = []
+    bond_orders_count = 0
+    connectivity_only_count = 0
+    successful = 0
+    failed = 0
+    first_error: str | None = None
+
+    for index, frame in enumerate(frames):
+        if toolkit == "rdkit":
+            payload, err = _process_frame_rdkit(frame, charge, use_huckel)
+        else:
+            payload, err = _process_frame_openbabel(frame)
+
+        if err:
+            failed += 1
+            if first_error is None:
+                first_error = err
+            title_line = frame.splitlines()[1].strip() if len(frame.splitlines()) > 1 else ""
+            structures.append(
+                XYZStructureResult(
+                    index=index,
+                    title=title_line,
+                    success=False,
+                    error=err,
+                )
             )
-        except ValueError as exc:
-            logger.warning("Invalid XYZ input (rdkit): %s", exc)
-            raise HTTPException(
-                status_code=422,
-                detail="Invalid XYZ block or bond perception failed",
-            ) from exc
-        except Exception as exc:
-            logger.exception("Error converting XYZ via RDKit")
-            raise HTTPException(
-                status_code=422,
-                detail="Error converting XYZ block",
-            ) from exc
+            continue
 
-        try:
-            molblock = Chem.MolToMolBlock(mol)
-            canonicalsmiles = Chem.MolToSmiles(mol, kekuleSmiles=True)
-            inchi = Chem.inchi.MolToInchi(mol)
-            inchikey = Chem.inchi.MolToInchiKey(mol)
-        except Exception as exc:
-            logger.exception("Error serializing XYZ-derived molecule")
-            raise HTTPException(
-                status_code=422,
-                detail="Error serializing molecule",
-            ) from exc
-    else:  # openbabel
-        try:
-            ob_results = get_ob_xyz_conversions(xyz_data)
-        except Exception as exc:
-            logger.exception("Error converting XYZ via OpenBabel")
-            raise HTTPException(
-                status_code=422,
-                detail="Invalid XYZ block",
-            ) from exc
-        molblock = ob_results["molblock"]
-        canonicalsmiles = ob_results["canonicalsmiles"]
-        inchi = ob_results["inchi"]
-        inchikey = ob_results["inchikey"]
+        successful += 1
+        if payload["method"] == "bond_orders":
+            bond_orders_count += 1
+        elif payload["method"] == "connectivity_only":
+            connectivity_only_count += 1
 
-    sdf = molblock.rstrip() + "\n$$$$\n"
+        if payload["molblock"]:
+            sdf_chunks.append(payload["molblock"].rstrip() + "\n$$$$\n")
 
-    return XYZConversionResponse(
-        canonicalsmiles=canonicalsmiles,
-        inchi=inchi,
-        inchikey=inchikey,
-        molblock=molblock,
-        sdf=sdf,
+        structures.append(
+            XYZStructureResult(
+                index=index,
+                title=payload["title"],
+                success=True,
+                error=None,
+                canonicalsmiles=payload["canonicalsmiles"],
+                inchi=payload["inchi"],
+                inchikey=payload["inchikey"],
+                molblock=payload["molblock"],
+                method=payload["method"],
+                bond_orders_perceived=payload["bond_orders_perceived"],
+                warnings=payload["warnings"],
+            )
+        )
+
+    if successful == 0:
+        logger.warning("XYZ batch had no successful frames; first error: %s", first_error)
+        raise HTTPException(
+            status_code=422,
+            detail=f"All frames failed perception: {first_error}",
+        )
+
+    return XYZBatchConversionResponse(
+        structures=structures,
+        sdf="".join(sdf_chunks),
+        summary=XYZConversionSummary(
+            total=len(frames),
+            successful=successful,
+            failed=failed,
+            bond_orders_count=bond_orders_count,
+            connectivity_only_count=connectivity_only_count,
+        ),
     )
