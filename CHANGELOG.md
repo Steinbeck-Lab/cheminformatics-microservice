@@ -1,5 +1,26 @@
 # Changelog
 
+## [3.10.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.9.0...v3.10.0) (2026-04-29)
+
+
+### Features
+
+* bake RELEASE_VERSION into Docker image at build time ([9cc018d](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/9cc018d49cffebfe327428342d63ea1c56a6d1eb))
+* **convert:** add XYZ to SMILES/InChI/InChIKey/MOL/SDF conversion ([9629b58](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/9629b5806bc7bd997ba5ef416f288cce922b9c6e))
+* **convert:** batch XYZ endpoint with per-frame error isolation ([c0d1482](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/c0d1482431a232c1a6bef60225f783f0541d2447))
+* **convert:** render XYZ grid for multi-frame results ([d204972](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d204972bf90f4456f4f767ee401d3ee860092b28))
+* **convert:** XYZGridResult component for multi-frame XYZ output ([38a305c](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/38a305c0c37f3c268bdb3baa6aa1c3d299e1427a))
+* **toolkits:** add split_xyz_frames helper for multi-frame XYZ ([6e62adc](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/6e62adc4f366c976d372a805c3f1b003a1c57b4a))
+
+
+### Bug Fixes
+
+* **ops:** remove redundant CMS_INTERNAL_AUTH_TOKEN interpolation ([b07fa27](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/b07fa27f9be349760b1e73ad915828cab1d932a7))
+* **security:** patch all frontend dependency vulnerabilities ([808cd77](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/808cd770bcc826ea8e26341dfec6cb88ade7c1dc))
+* **security:** patch all open dependabot vulnerabilities ([b8da29d](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/b8da29dd51b7b8e2e28f7ed8f7651202bb7d4493))
+* **security:** patch vite path traversal vulnerability in docs dependencies ([01dce73](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/01dce73d0a4c9675fd3bd410696ddae5d63655cb))
+* **ui:** correct Hand-Drawn Model toggle layout on OCSR page ([f22f7d8](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/f22f7d847fd23fdee492847d01a92c43840585ad))
+
 ## [3.9.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.8.2...v3.9.0) (2026-03-17)
 
 
