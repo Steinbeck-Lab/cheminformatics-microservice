@@ -27,7 +27,7 @@
     "react-dropzone": "^14.2.3",
     "react-error-boundary": "^6.1.1",
     "react-resizable-panels": "^2.1.7",
-    "react-router-dom": "^6.30.3",
+    "react-router-dom": "^6.30.4",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",
     "three": "^0.183.2",
