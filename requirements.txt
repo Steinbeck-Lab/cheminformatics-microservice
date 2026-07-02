@@ -1,8 +1,14 @@
 chembl_structure_pipeline
 efficientnet
-fastapi>=0.110.3
+# Cap fastapi <0.129 and pin starlette <1.0: the unmaintained fastapi-versioning
+# 0.10.0 crashes iterating routes on Starlette 1.0's _IncludedRouter objects
+# (AttributeError: '_IncludedRouter' object has no attribute 'endpoint') when
+# app/main.py builds VersionedFastAPI. Remove the caps only once versioning is
+# replaced/patched to skip non-APIRoute entries.
+fastapi>=0.110.3,<0.129
 fastapi-pagination==0.10.0
 fastapi-versioning>=0.10.0
+starlette<1.0
 HOSE_code_generator @ git+https://github.com/Ratsemaat/HOSE_code_generator
 httpx>=0.24.1
 IPython
