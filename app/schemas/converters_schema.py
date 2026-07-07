@@ -357,21 +357,37 @@ class GenerateFormatsResponse(BaseModel):
     }
 
 
+class DetectFormatResponse(BaseModel):
+    """Response for format auto-detection."""
+
+    detected_format: str = Field(
+        ...,
+        description="Detected input format (smiles, inchi, selfies, iupac, molblock, xyz).",
+    )
+    confidence: str = Field(
+        ...,
+        description="Detection confidence: high, medium, or low.",
+    )
+
+
 class ConversionInput(BaseModel):
     """Represents a single input for chemical structure conversion.
 
     Properties:
     - value (str): The chemical structure to convert
-    - input_format (str): The format of the input structure
+    - input_format (str, optional): The format of the input structure; auto-detected when omitted
     """
 
     value: str = Field(
         ..., description="The chemical structure to convert (e.g., SMILES, InChI)"
     )
-    input_format: str = Field(
-        ...,
-        description="Format of the input (e.g., smiles, inchi, iupac, selfies)",
-        examples=["smiles", "inchi", "iupac", "selfies"],
+    input_format: str | None = Field(
+        default=None,
+        description=(
+            "Format of the input (e.g., smiles, inchi, iupac, selfies, molblock, xyz). "
+            "When omitted, the format is auto-detected from the value."
+        ),
+        examples=["smiles", "inchi", "iupac", "selfies", "molblock", "xyz"],
     )
 
 

@@ -1019,8 +1019,8 @@ def test_batch_missing_value_or_format():
 
 
 def test_batch_missing_input_format():
-    """Test batch with missing input_format (lines 959-960)."""
-    body = {"inputs": [{"value": "CCO", "input_format": ""}]}
+    """Missing input_format auto-detects from value."""
+    body = {"inputs": [{"value": "CCO"}]}
     response = client.post(
         "/latest/convert/batch?output_format=smiles&toolkit=cdk",
         json=body,
@@ -1028,7 +1028,46 @@ def test_batch_missing_input_format():
     )
     assert response.status_code == 200
     data = response.json()
-    assert data["summary"]["failed"] == 1
+    assert data["summary"]["successful"] == 1
+    assert data["results"][0]["output"] == "CCO"
+
+
+def test_batch_auto_detect_inchi():
+    """Batch auto-detects InChI when input_format is omitted."""
+    body = {
+        "inputs": [{"value": "InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3"}]
+    }
+    response = client.post(
+        "/latest/convert/batch?output_format=canonicalsmiles&toolkit=rdkit",
+        json=body,
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["summary"]["successful"] == 1
+
+
+def test_detect_format_inchi():
+    response = client.get(
+        "/latest/convert/detect-format",
+        params={"input": "InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3"},
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["detected_format"] == "inchi"
+    assert data["confidence"] == "high"
+
+
+def test_detect_format_smiles():
+    response = client.get(
+        "/latest/convert/detect-format",
+        params={"input": "CCO"},
+        headers=AUTH_HEADERS,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["detected_format"] == "smiles"
 
 
 def test_batch_iupac_input():

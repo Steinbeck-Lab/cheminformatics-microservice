@@ -14,7 +14,9 @@ from fastapi.templating import Jinja2Templates
 
 from app.modules.depiction import get_rdkit_depiction
 from app.modules.depiction_enhanced import get_cdk_depiction
-from app.modules.toolkits.helpers import parse_input
+from app.routers.params import AUTO_DETECT_PARAM
+from app.modules.toolkits.helpers import parse_structure_query
+from app.modules.toolkits.helpers import resolve_input_smiles
 from app.modules.toolkits.openbabel_wrapper import get_ob_mol
 from app.modules.toolkits.rdkit_wrapper import get_3d_conformers
 from app.schemas import HealthCheck
@@ -153,6 +155,7 @@ def depict_2d_molecule(
             "'Smart' (intelligent H placement, recommended for chiral molecules)."
         ),
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """Generates a 2D depiction of a molecule using CDK or RDKit with the given.
 
@@ -216,7 +219,7 @@ def depict_2d_molecule(
                 get_cdk_depiction as get_cdk_depiction_basic,
             )
 
-            mol = parse_input(smiles, "cdk", False)
+            mol = parse_structure_query(smiles, "cdk", auto_detect)
             depiction = get_cdk_depiction_basic(
                 mol,
                 [width, height],
@@ -229,7 +232,7 @@ def depict_2d_molecule(
                 hydrogen_display=hydrogen_display,
             )
         elif toolkit == "rdkit":
-            mol = parse_input(smiles, "rdkit", False)
+            mol = parse_structure_query(smiles, "rdkit", auto_detect)
             depiction = get_rdkit_depiction(
                 mol,
                 [width, height],
@@ -286,6 +289,7 @@ def depict_3d_molecule(
         default="openbabel",
         description="Cheminformatics toolkit used in the backend",
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """Generate 3D depictions of molecules using OpenBabel or RDKit.
 
@@ -307,12 +311,13 @@ def depict_3d_molecule(
     """
     try:
         if toolkit == "openbabel":
+            resolved_smiles = resolve_input_smiles(smiles, auto_detect)
             content = {
                 "request": request,
-                "molecule": get_ob_mol(smiles, threeD=True, depict=True),
+                "molecule": get_ob_mol(resolved_smiles, threeD=True, depict=True),
             }
         elif toolkit == "rdkit":
-            mol = parse_input(smiles, "rdkit", False)
+            mol = parse_structure_query(smiles, "rdkit", auto_detect)
             content = {"request": request, "molecule": get_3d_conformers(mol)}
         else:
             raise HTTPException(
@@ -573,6 +578,7 @@ def depict_2d_molecule_enhanced(
         title="Apply MDL HILITE",
         description="Whether to apply MDL V3000 HILITE highlighting from molecule properties.",
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """Generate advanced 2D molecular depictions with comprehensive customization options.
 
@@ -691,7 +697,7 @@ def depict_2d_molecule_enhanced(
         # Generate depiction using CDK (only toolkit supported for enhanced features)
         # CDK's SmilesParser automatically handles CXSMILES (e.g., "CCO |ha:0,1|")
         # The highlighting is extracted internally via extract_cxsmiles_highlighting()
-        mol = parse_input(smiles, "cdk", False)
+        mol = parse_structure_query(smiles, "cdk", auto_detect)
         if title:
             try:
                 from jpype import JClass
