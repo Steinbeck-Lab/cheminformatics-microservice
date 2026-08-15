@@ -1,5 +1,5 @@
 // Description: This component handles the format conversion between different chemical notations.
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 // Ensure all used icons are imported
 // Assuming these components are correctly implemented and styled for dark/light mode
 import SMILESInput from "../common/SMILESInput";
@@ -74,8 +74,8 @@ const TOOLKIT_OPTIONS = [
 // Converter options for IUPAC
 const IUPAC_CONVERTER_OPTIONS = [{ id: "opsin", label: "OPSIN" }];
 
-// Detect whether input text is SMILES, SELFIES, or IUPAC name
-const detectInputFormat = (text) => {
+// Detect whether input text is SMILES, SELFIES, or IUPAC name (local fallback)
+const detectInputFormatLocal = (text) => {
   const trimmed = text.trim();
   if (!trimmed) return null;
 
@@ -99,6 +99,13 @@ const detectInputFormat = (text) => {
   return "iupac";
 };
 
+const mapBackendDetectedFormat = (format) => {
+  if (format === "molblock") return "molsdf";
+  if (format === "xyz") return "xyz";
+  if (format === "inchi") return "smiles";
+  return format;
+};
+
 const FormatConversionView = () => {
   const [input, setInput] = useState("");
   const [inputFormat, setInputFormat] = useState("smiles");
@@ -110,6 +117,15 @@ const FormatConversionView = () => {
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
   const [autoDetected, setAutoDetected] = useState(false);
+  const detectTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (detectTimeoutRef.current) {
+        clearTimeout(detectTimeoutRef.current);
+      }
+    };
+  }, []);
   // State for molecular structure display
   const [smilesForStructure, setSmilesForStructure] = useState("");
   const [showStructure, setShowStructure] = useState(false);
@@ -315,25 +331,50 @@ const FormatConversionView = () => {
     }
   };
 
+  const applyDetectedFormat = (detected) => {
+    if (!detected) {
+      setAutoDetected(false);
+      return;
+    }
+    const mapped = mapBackendDetectedFormat(detected);
+    if (mapped && mapped !== inputFormat) {
+      setInputFormat(mapped);
+      setAutoDetected(true);
+      if (mapped === "iupac" || mapped === "selfies") {
+        setOutputFormat("smiles");
+      } else if (mapped === "smiles") {
+        setOutputFormat("canonicalsmiles");
+      } else if (mapped === "molsdf") {
+        setOutputFormat("smiles");
+      } else if (mapped === "xyz") {
+        setOutputFormat("canonicalsmiles");
+        if (toolkit === "cdk") setToolkit("rdkit");
+      }
+    }
+  };
+
   // Handle text input changes with auto-format detection
   const handleInputChange = (value) => {
     setInput(value);
     if (inputFormat === "molsdf") return;
 
-    const detected = detectInputFormat(value);
     if (!value.trim()) {
       setAutoDetected(false);
       return;
     }
-    if (detected && detected !== inputFormat) {
-      setInputFormat(detected);
-      setAutoDetected(true);
-      if (detected === "iupac" || detected === "selfies") {
-        setOutputFormat("smiles");
-      } else if (detected === "smiles") {
-        setOutputFormat("canonicalsmiles");
-      }
+
+    if (detectTimeoutRef.current) {
+      clearTimeout(detectTimeoutRef.current);
     }
+
+    detectTimeoutRef.current = setTimeout(async () => {
+      try {
+        const { detected_format } = await convertService.detectInputFormat(value);
+        applyDetectedFormat(detected_format);
+      } catch {
+        applyDetectedFormat(detectInputFormatLocal(value));
+      }
+    }, 300);
   };
 
   // When output format changes, we may need to adjust toolkit availability
@@ -370,6 +411,7 @@ const FormatConversionView = () => {
     try {
       let convertedResult;
       let smilesForDisplay = "";
+      const convertOptions = { autoDetect: autoDetected };
 
       // XYZ → SMILES / Canonical SMILES / InChI / InChIKey / MOL / SDF
       if (inputFormat === "xyz") {
@@ -438,7 +480,11 @@ const FormatConversionView = () => {
             convertedResult = smiles;
           } else if (outputFormat === "mol") {
             // MOL Block output: generate 2D coordinates from SMILES
-            convertedResult = await convertService.generate2DCoordinates(smiles, toolkit);
+            convertedResult = await convertService.generate2DCoordinates(
+              smiles,
+              toolkit,
+              convertOptions
+            );
           } else {
             // Otherwise, convert SMILES to the target format
             const formatOption = OUTPUT_FORMAT_OPTIONS.find((option) => option.id === outputFormat);
@@ -452,7 +498,7 @@ const FormatConversionView = () => {
             }
 
             // Convert the SMILES to the target format
-            convertedResult = await method(smiles, toolkit);
+            convertedResult = await method(smiles, toolkit, convertOptions);
           }
         } else if (inputFormat !== "cdx") {
           // First convert IUPAC or SELFIES to SMILES
@@ -470,7 +516,11 @@ const FormatConversionView = () => {
             convertedResult = smiles;
           } else if (outputFormat === "mol") {
             // MOL Block output: generate 2D coordinates from SMILES
-            convertedResult = await convertService.generate2DCoordinates(smiles, toolkit);
+            convertedResult = await convertService.generate2DCoordinates(
+              smiles,
+              toolkit,
+              convertOptions
+            );
           } else {
             // Otherwise, convert SMILES to the target format
             const formatOption = OUTPUT_FORMAT_OPTIONS.find((option) => option.id === outputFormat);
@@ -484,7 +534,7 @@ const FormatConversionView = () => {
             }
 
             // Convert the SMILES to the target format
-            convertedResult = await method(smiles, toolkit);
+            convertedResult = await method(smiles, toolkit, convertOptions);
           }
         }
       } else {
@@ -497,7 +547,11 @@ const FormatConversionView = () => {
           convertedResult = trimmedInput;
         } else if (outputFormat === "mol") {
           // MOL Block output: generate 2D coordinates from SMILES
-          convertedResult = await convertService.generate2DCoordinates(trimmedInput, toolkit);
+          convertedResult = await convertService.generate2DCoordinates(
+            trimmedInput,
+            toolkit,
+            convertOptions
+          );
         } else {
           const formatOption = OUTPUT_FORMAT_OPTIONS.find((option) => option.id === outputFormat);
           if (!formatOption || !formatOption.method) {
@@ -509,7 +563,7 @@ const FormatConversionView = () => {
             throw new Error(`Conversion function not available for format: ${outputFormat}`);
           }
 
-          convertedResult = await method(trimmedInput, toolkit);
+          convertedResult = await method(trimmedInput, toolkit, convertOptions);
         }
       }
 

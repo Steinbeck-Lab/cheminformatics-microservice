@@ -42,6 +42,11 @@ export interface CoconutPreprocessingResult {
 
 // --- Convert Service Types ---
 
+export interface DetectFormatResult {
+  detected_format: string;
+  confidence: "high" | "medium" | "low";
+}
+
 export interface MultipleFormatsResult {
   [format: string]: string;
 }

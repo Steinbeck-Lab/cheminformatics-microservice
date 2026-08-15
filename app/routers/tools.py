@@ -7,7 +7,8 @@ from fastapi import HTTPException
 from fastapi import Query
 from fastapi import status
 
-from app.modules.toolkits.helpers import parse_input
+from app.routers.params import AUTO_DETECT_PARAM
+from app.modules.toolkits.helpers import parse_structure_query
 from app.modules.tools.sugar_removal import extract_aglycone_and_sugars
 from app.modules.tools.sugar_removal import get_aglycone_and_sugar_indices
 from app.modules.tools.sugar_removal import get_sugar_info
@@ -216,6 +217,7 @@ def get_sugar_info_endpoint(
         title="Detect Keto Sugars",
         description="Whether circular sugars with keto groups should be detected. Default is False.",
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """
     Get the information whether a given molecule contains circular or linear sugar moieties. The presence of sugars is determnined using the Sugar Removal Utility.
@@ -239,7 +241,7 @@ def get_sugar_info_endpoint(
     - str: A message indicating the type of sugars present in the molecule, either "The molecule contains Linear and Circular sugars", "The molecule contains only Linear sugar", "The molecule contains only Circular sugar", or "The molecule contains no sugar".
     """
     try:
-        mol = parse_input(smiles, "cdk", False)
+        mol = parse_structure_query(smiles, "cdk", auto_detect)
         _has_linear_sugar, _has_circular_sugars = get_sugar_info(
             molecule=mol,
             gly_bond=gly_bond,
@@ -338,6 +340,7 @@ def remove_linear_sugars_endpoint(
         title="Mark Attachment Points",
         description="Whether to mark the attachment points of removed sugars with a dummy atom. Default is False.",
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """
     Remove linear sugar moieties from a given molecule using the Sugar Removal Utility and return the aglycone SMILES string or a message indicating that no linear sugars were found.
@@ -357,7 +360,7 @@ def remove_linear_sugars_endpoint(
     - str: The aglycone SMILES string or "No Linear sugar found".
     """
     try:
-        mol = parse_input(smiles, "cdk", False)
+        mol = parse_structure_query(smiles, "cdk", auto_detect)
         _removed_smiles = remove_linear_sugars(
             molecule=mol,
             only_terminal=only_terminal,
@@ -461,6 +464,7 @@ def remove_circular_sugars_endpoint(
         title="Mark Attachment Points",
         description="Whether to mark the attachment points of removed sugars with a dummy atom. Default is False.",
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """
     Remove circular sugar moieties from a given molecule using the Sugar Removal Utility and return the aglycone SMILES string or a message indicating that no circular sugars were found.
@@ -481,7 +485,7 @@ def remove_circular_sugars_endpoint(
     - str: The aglycone SMILES string or "No Circular sugar found".
     """
     try:
-        mol = parse_input(smiles, "cdk", False)
+        mol = parse_structure_query(smiles, "cdk", auto_detect)
         removed_smiles = remove_circular_sugars(
             molecule=mol,
             gly_bond=gly_bond,
@@ -612,6 +616,7 @@ def remove_linear_and_circular_sugars_endpoint(
         title="Mark Attachment Points",
         description="Whether to mark the attachment points of removed sugars with a dummy atom. Default is False.",
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """
     Remove circular and linear sugar moieties from a given molecule using the Sugar Removal Utility and return the aglycone SMILES string or a message indicating that no sugars were found.
@@ -636,7 +641,7 @@ def remove_linear_and_circular_sugars_endpoint(
     - str: The aglycone SMILES string or "No Linear or Circular sugars found".
     """
     try:
-        mol = parse_input(smiles, "cdk", False)
+        mol = parse_structure_query(smiles, "cdk", auto_detect)
         _removed_smiles = remove_linear_and_circular_sugars(
             molecule=mol,
             gly_bond=gly_bond,
@@ -790,6 +795,7 @@ def extract_aglycone_and_sugars_endpoint(
         title="Limit Post-processing by Size",
         description="Whether the post-processing of extracted sugar moieties should be limited to structures bigger than a defined size (see preservation mode (threshold)) to preserve smaller modifications. Default is False.",
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """
     Extracts the aglycone and sugar moieties from a given molecule using the Sugar Detection Utility and returns their SMILES strings as a printed list.
@@ -818,7 +824,7 @@ def extract_aglycone_and_sugars_endpoint(
     - list: The SMILES representations of the aglycone and sugars. The first one is always the aglycone. The list has a variable length dependening on how many sugar moieties were found.
     """
     try:
-        mol = parse_input(smiles, "cdk", False)
+        mol = parse_structure_query(smiles, "cdk", auto_detect)
         _aglycone_and_sugars_tuple = extract_aglycone_and_sugars(
             molecule=mol,
             extract_circular_sugars=extract_circular_sugars,
@@ -974,6 +980,7 @@ def get_aglycone_and_sugar_indices_endpoint(
         title="Limit Post-processing by Size",
         description="Whether the post-processing of extracted sugar moieties should be limited to structures bigger than a defined size (see preservation mode (threshold)) to preserve smaller modifications. Default is False.",
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """
     Extracts the aglycone and sugar moieties from a given molecule using the Sugar Detection Utility and returns their atom indices as a printed list of indices lists.
@@ -1002,7 +1009,7 @@ def get_aglycone_and_sugar_indices_endpoint(
     - list: The atom indices of the aglycone and sugars. The first set of indices is always the aglycone. The list has a variable length dependening on how many sugar moieties were found.
     """
     try:
-        mol = parse_input(smiles, "cdk", False)
+        mol = parse_structure_query(smiles, "cdk", auto_detect)
         _aglycone_and_sugar_indices_list = get_aglycone_and_sugar_indices(
             molecule=mol,
             extract_circular_sugars=extract_circular_sugars,
