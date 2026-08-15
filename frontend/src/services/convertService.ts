@@ -6,17 +6,39 @@ import type {
   CdxConversionResult,
   XYZBatchConversionResult,
   XYZConversionOptions,
+  DetectFormatResult,
 } from "../types/api";
 
 const CONVERT_URL = "/convert";
 
 /**
+ * Detect the chemical structure format of an input string.
+ */
+export const detectInputFormat = async (input: string): Promise<DetectFormatResult> => {
+  const response = await api.get<DetectFormatResult>(`${CONVERT_URL}/detect-format`, {
+    params: { input },
+  });
+  return response.data;
+};
+
+type ConvertParams = {
+  autoDetect?: boolean;
+};
+
+const withAutoDetect = (params: Record<string, unknown>, autoDetect?: boolean) =>
+  autoDetect ? { ...params, auto_detect: true } : params;
+
+/**
  * Generate 2D coordinates for a molecule
  */
-export const generate2DCoordinates = async (smiles: string, toolkit = "cdk"): Promise<string> => {
+export const generate2DCoordinates = async (
+  smiles: string,
+  toolkit = "cdk",
+  options: ConvertParams = {}
+): Promise<string> => {
   try {
     const response = await api.get<string>(`${CONVERT_URL}/mol2D`, {
-      params: { smiles, toolkit },
+      params: withAutoDetect({ smiles, toolkit }, options.autoDetect),
       responseType: "text",
     });
     return response.data;
@@ -31,11 +53,12 @@ export const generate2DCoordinates = async (smiles: string, toolkit = "cdk"): Pr
  */
 export const generate3DCoordinates = async (
   smiles: string,
-  toolkit = "openbabel"
+  toolkit = "openbabel",
+  options: ConvertParams = {}
 ): Promise<string> => {
   try {
     const response = await api.get<string>(`${CONVERT_URL}/mol3D`, {
-      params: { smiles, toolkit },
+      params: withAutoDetect({ smiles, toolkit }, options.autoDetect),
       responseType: "text",
     });
     return response.data;
@@ -68,10 +91,14 @@ export const generateSMILES = async (
 /**
  * Generate canonical SMILES
  */
-export const generateCanonicalSMILES = async (smiles: string, toolkit = "cdk"): Promise<string> => {
+export const generateCanonicalSMILES = async (
+  smiles: string,
+  toolkit = "cdk",
+  options: ConvertParams = {}
+): Promise<string> => {
   try {
     const response = await api.get<string>(`${CONVERT_URL}/canonicalsmiles`, {
-      params: { smiles, toolkit },
+      params: withAutoDetect({ smiles, toolkit }, options.autoDetect),
       responseType: "text",
     });
     return response.data;
@@ -84,10 +111,14 @@ export const generateCanonicalSMILES = async (smiles: string, toolkit = "cdk"): 
 /**
  * Generate CXSMILES (ChemAxon Extended SMILES)
  */
-export const generateCXSMILES = async (smiles: string, toolkit = "cdk"): Promise<string> => {
+export const generateCXSMILES = async (
+  smiles: string,
+  toolkit = "cdk",
+  options: ConvertParams = {}
+): Promise<string> => {
   try {
     const response = await api.get<string>(`${CONVERT_URL}/cxsmiles`, {
-      params: { smiles, toolkit },
+      params: withAutoDetect({ smiles, toolkit }, options.autoDetect),
       responseType: "text",
     });
     return response.data;
@@ -100,10 +131,14 @@ export const generateCXSMILES = async (smiles: string, toolkit = "cdk"): Promise
 /**
  * Generate InChI (IUPAC International Chemical Identifier)
  */
-export const generateInChI = async (smiles: string, toolkit = "cdk"): Promise<string> => {
+export const generateInChI = async (
+  smiles: string,
+  toolkit = "cdk",
+  options: ConvertParams = {}
+): Promise<string> => {
   try {
     const response = await api.get<string>(`${CONVERT_URL}/inchi`, {
-      params: { smiles, toolkit },
+      params: withAutoDetect({ smiles, toolkit }, options.autoDetect),
       responseType: "text",
     });
     return response.data;
@@ -116,10 +151,14 @@ export const generateInChI = async (smiles: string, toolkit = "cdk"): Promise<st
 /**
  * Generate InChI Key
  */
-export const generateInChIKey = async (smiles: string, toolkit = "cdk"): Promise<string> => {
+export const generateInChIKey = async (
+  smiles: string,
+  toolkit = "cdk",
+  options: ConvertParams = {}
+): Promise<string> => {
   try {
     const response = await api.get<string>(`${CONVERT_URL}/inchikey`, {
-      params: { smiles, toolkit },
+      params: withAutoDetect({ smiles, toolkit }, options.autoDetect),
       responseType: "text",
     });
     return response.data;
@@ -132,10 +171,13 @@ export const generateInChIKey = async (smiles: string, toolkit = "cdk"): Promise
 /**
  * Generate SELFIES (Self-Referencing Embedded Strings)
  */
-export const generateSELFIES = async (smiles: string): Promise<string> => {
+export const generateSELFIES = async (
+  smiles: string,
+  options: ConvertParams = {}
+): Promise<string> => {
   try {
     const response = await api.get<string>(`${CONVERT_URL}/selfies`, {
-      params: { smiles },
+      params: withAutoDetect({ smiles }, options.autoDetect),
       responseType: "text",
     });
     return response.data;
@@ -148,10 +190,14 @@ export const generateSELFIES = async (smiles: string): Promise<string> => {
 /**
  * Generate SMARTS pattern
  */
-export const generateSMARTS = async (smiles: string, toolkit = "rdkit"): Promise<string> => {
+export const generateSMARTS = async (
+  smiles: string,
+  toolkit = "rdkit",
+  options: ConvertParams = {}
+): Promise<string> => {
   try {
     const response = await api.get<string>(`${CONVERT_URL}/smarts`, {
-      params: { smiles, toolkit },
+      params: withAutoDetect({ smiles, toolkit }, options.autoDetect),
       responseType: "text",
     });
     return response.data;
@@ -210,11 +256,12 @@ export const molblockToSMILES = async (molblock: string, toolkit = "cdk"): Promi
  */
 export const generateMultipleFormats = async (
   smiles: string,
-  toolkit = "cdk"
+  toolkit = "cdk",
+  options: ConvertParams = {}
 ): Promise<MultipleFormatsResult> => {
   try {
     const response = await api.get<MultipleFormatsResult>(`${CONVERT_URL}/formats`, {
-      params: { smiles, toolkit },
+      params: withAutoDetect({ smiles, toolkit }, options.autoDetect),
     });
     return response.data;
   } catch (error) {
@@ -293,6 +340,7 @@ export const convertXYZ = async (
 
 // Assemble all functions into a service object
 const convertService = {
+  detectInputFormat,
   generate2DCoordinates,
   generate3DCoordinates,
   generateSMILES,

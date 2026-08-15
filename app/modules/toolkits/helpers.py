@@ -1,30 +1,250 @@
 from __future__ import annotations
 
+import re
+
+import selfies as sf
 from chembl_structure_pipeline import standardizer
 from rdkit import Chem
 
 from app.exception_handlers import InvalidInputException
 from app.modules.toolkits.cdk_wrapper import get_CDK_IAtomContainer
+from app.modules.toolkits.cdk_wrapper import get_CDK_IAtomContainer_from_molblock
 from app.modules.toolkits.cdk_wrapper import get_CDK_SDG_mol
+from app.modules.toolkits.cdk_wrapper import get_canonical_SMILES
+from app.modules.toolkits.cdk_wrapper import get_smiles_opsin
 from app.modules.toolkits.openbabel_wrapper import get_ob_mol
+from app.modules.toolkits.rdkit_wrapper import convert_xyz_to_mol
+
+STRUCTURE_INPUT_FORMATS = frozenset(
+    {"smiles", "inchi", "selfies", "iupac", "molblock", "xyz"}
+)
+_SUPPORTED_INPUT_FORMATS = STRUCTURE_INPUT_FORMATS | {"auto"}
+
+_SELFIES_RE = re.compile(r"^(\[[\w@=#+\-/\\%;.,^*]+\])+$")
+_MOLBLOCK_COUNTS_RE = re.compile(r"\n\d+\s+\d+\s")
 
 
-def parse_input(input: str, framework: str = "rdkit", standardize: bool = False):
+def _normalize_format_name(fmt: str) -> str:
+    return fmt.strip().lower()
+
+
+def _clean_molblock(data: str) -> str:
+    """Trim an SDF multi-record delimiter and trailing whitespace.
+
+    Leading whitespace is preserved on purpose: the V2000 header is
+    position-fixed (title / program / comment / counts line), and molblocks
+    legitimately start with a blank title line. Stripping it shifts every
+    header line up by one and corrupts the counts line RDKit expects on
+    line 4.
+    """
+    if "$$$$" in data:
+        data = data.split("$$$$", 1)[0]
+    return data.rstrip()
+
+
+def _looks_like_inchi(text: str) -> bool:
+    return text.strip().startswith("InChI=")
+
+
+def _looks_like_selfies(text: str) -> bool:
+    return bool(_SELFIES_RE.match(text.strip()))
+
+
+def _looks_like_molblock(text: str) -> bool:
+    return "M  END" in text or bool(_MOLBLOCK_COUNTS_RE.search(text))
+
+
+def _looks_like_xyz(text: str) -> bool:
+    return bool(split_xyz_frames(text))
+
+
+def _looks_like_iupac(text: str) -> bool:
+    trimmed = text.strip()
+    if not trimmed:
+        return False
+    return bool(
+        re.match(r"^[a-z0-9][a-z0-9 ,\-().]*$", trimmed)
+        and not re.search(r"[a-z]\d", trimmed)
+        and not re.search(r"\d[a-z]", trimmed)
+    )
+
+
+def _can_parse_as_smiles(text: str) -> bool:
+    normalized = text.replace(" ", "+")
+    if Chem.MolFromSmiles(normalized):
+        return True
+    try:
+        return get_CDK_IAtomContainer(normalized) is not None
+    except Exception:
+        return False
+
+
+def _detect_with_confidence(text: str) -> tuple[str, str]:
+    """Return ``(detected_format, confidence)`` for a structure string."""
+    if not text or not text.strip():
+        raise InvalidInputException(name="input", value=text or "")
+
+    trimmed = text.strip()
+
+    if _looks_like_inchi(trimmed):
+        return "inchi", "high"
+    if _looks_like_selfies(trimmed):
+        return "selfies", "high"
+    if _looks_like_molblock(text):
+        return "molblock", "high"
+    if _looks_like_xyz(text):
+        return "xyz", "high"
+    if _can_parse_as_smiles(trimmed):
+        return "smiles", "medium"
+    if _looks_like_iupac(trimmed):
+        return "iupac", "low"
+    return "iupac", "low"
+
+
+def detect_input_format(text: str) -> str:
+    """Detect the chemical structure format of *text*.
+
+    Detection order: InChI, SELFIES, molblock, XYZ, SMILES (try-parse), IUPAC.
+    """
+    detected_format, _ = _detect_with_confidence(text)
+    return detected_format
+
+
+def detect_input_format_with_confidence(text: str) -> tuple[str, str]:
+    """Return ``(detected_format, confidence)`` where confidence is high/medium/low."""
+    return _detect_with_confidence(text)
+
+
+def input_to_smiles(value: str, input_format: str) -> str:
+    """Convert structure *value* in *input_format* to a SMILES string."""
+    fmt = _normalize_format_name(input_format)
+    if fmt == "auto":
+        fmt = detect_input_format(value)
+
+    if fmt == "smiles":
+        return value
+    if fmt == "iupac":
+        smiles = get_smiles_opsin(value)
+        if not smiles:
+            raise ValueError(f"Failed to convert IUPAC name '{value}' to SMILES")
+        return smiles
+    if fmt == "selfies":
+        smiles = sf.decoder(value)
+        if not smiles:
+            raise ValueError(f"Failed to decode SELFIES '{value}' to SMILES")
+        return smiles
+    if fmt == "inchi":
+        mol = Chem.inchi.MolFromInchi(value)
+        if not mol:
+            raise ValueError(f"Failed to convert InChI '{value}' to molecule")
+        return Chem.MolToSmiles(mol)
+    if fmt == "molblock":
+        cleaned = _clean_molblock(value)
+        mol = Chem.MolFromMolBlock(cleaned)
+        if mol:
+            return Chem.MolToSmiles(mol)
+        mol_container = get_CDK_IAtomContainer_from_molblock(cleaned)
+        if mol_container is None:
+            raise ValueError("Failed to parse molblock")
+        smiles = get_canonical_SMILES(mol_container)
+        if not smiles:
+            raise ValueError("Failed to parse molblock")
+        return str(smiles)
+    if fmt == "xyz":
+        frames = split_xyz_frames(value)
+        if not frames:
+            raise ValueError("Failed to parse XYZ")
+        mol, _ = convert_xyz_to_mol(frames[0])
+        return Chem.MolToSmiles(mol)
+
+    raise ValueError(f"Unsupported input format: {input_format}")
+
+
+def resolve_input_smiles(value: str, auto_detect: bool = False) -> str:
+    """Return SMILES for *value*, auto-detecting format when requested."""
+    if auto_detect:
+        return input_to_smiles(value, "auto")
+    return value
+
+
+def parse_structure_query(
+    smiles: str,
+    framework: str = "rdkit",
+    auto_detect: bool = False,
+    standardize: bool = False,
+):
+    """Parse a structure query parameter, optionally auto-detecting its format."""
+    input_format = "auto" if auto_detect else "smiles"
+    return parse_input(smiles, framework, standardize, input_format=input_format)
+
+
+_NATIVE_RDKIT_FORMATS = frozenset({"inchi", "molblock", "xyz"})
+
+
+def _native_rdkit_mol(value: str, fmt: str):
+    """Return a native RDKit Mol for *value* in *fmt*, or ``None``.
+
+    Used by :func:`parse_input` to avoid a lossy SMILES-string round trip
+    for formats RDKit can parse directly (e.g. explicit hydrogens written
+    out as separate atoms in XYZ/molblock input would otherwise be folded
+    back into implicit Hs when the intermediate SMILES is re-parsed).
+    Returning ``None`` tells the caller to fall back to the
+    ``input_to_smiles`` + ``parse_SMILES`` pipeline instead (e.g. for a
+    molblock RDKit can't read but CDK can).
+    """
+    try:
+        if fmt == "inchi":
+            return Chem.inchi.MolFromInchi(value, removeHs=False)
+        if fmt == "molblock":
+            return Chem.MolFromMolBlock(_clean_molblock(value), removeHs=False)
+        if fmt == "xyz":
+            frames = split_xyz_frames(value)
+            if not frames:
+                return None
+            mol, _ = convert_xyz_to_mol(frames[0])
+            return mol
+    except (ValueError, RuntimeError):
+        return None
+    return None
+
+
+def parse_input(
+    input: str,
+    framework: str = "rdkit",
+    standardize: bool = False,
+    input_format: str = "smiles",
+):
     """Parse and check if the input is valid.
 
     Args:
         input (str): Input string.
+        framework (str): Toolkit framework (rdkit, cdk, openbabel).
+        standardize (bool): Whether to standardize via ChEMBL pipeline.
+        input_format (str): Input format or ``auto`` to detect.
 
     Returns:
         Mol or None: Valid molecule object or None if an error occurs.
-            If an error occurs during SMILES parsing, an error message is returned.
     """
+    fmt = _normalize_format_name(input_format)
+    if fmt == "auto":
+        fmt = detect_input_format(input)
+    elif fmt not in _SUPPORTED_INPUT_FORMATS - {"auto"}:
+        raise ValueError(f"Unsupported input format: {input_format}")
 
-    # auto detect the format
-    format = "SMILES"
-
-    if format == "SMILES":
+    if fmt == "smiles":
         return parse_SMILES(input, framework, standardize)
+
+    if framework == "rdkit" and fmt in _NATIVE_RDKIT_FORMATS:
+        mol = _native_rdkit_mol(input, fmt)
+        if mol is not None:
+            if standardize:
+                mol_block = Chem.MolToMolBlock(mol)
+                standardized_mol = standardizer.standardize_molblock(mol_block)
+                mol = Chem.MolFromMolBlock(standardized_mol)
+            return mol
+
+    smiles = input_to_smiles(input, fmt)
+    return parse_SMILES(smiles, framework, standardize)
 
 
 def parse_SMILES(smiles: str, framework: str = "rdkit", standardize: bool = False):

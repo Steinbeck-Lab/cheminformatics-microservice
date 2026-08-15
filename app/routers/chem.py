@@ -32,7 +32,10 @@ from app.modules.fix_radicals import fixradicals
 from app.modules.npscorer import get_np_score
 from app.modules.toolkits.cdk_wrapper import get_CDK_HOSE_codes
 from app.modules.toolkits.cdk_wrapper import get_tanimoto_similarity_CDK
+from app.routers.params import AUTO_DETECT_PARAM
 from app.modules.toolkits.helpers import parse_input
+from app.modules.toolkits.helpers import parse_structure_query
+from app.modules.toolkits.helpers import resolve_input_smiles
 from app.modules.toolkits.rdkit_wrapper import check_RO5_violations
 from app.modules.toolkits.rdkit_wrapper import check_RO5_violations_detailed
 from app.modules.toolkits.rdkit_wrapper import get_ertl_functional_groups
@@ -147,6 +150,7 @@ def get_stereoisomers(
             },
         },
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """For a given SMILES string this function enumerates all possible.
 
@@ -161,7 +165,7 @@ def get_stereoisomers(
     Raises:
     - ValueError: If the SMILES string is not provided or is invalid.
     """
-    mol = parse_input(smiles, "rdkit", False)
+    mol = parse_structure_query(smiles, "rdkit", auto_detect)
     if mol:
         isomers = tuple(EnumerateStereoisomers(mol))
         smilesArray = []
@@ -207,6 +211,7 @@ def get_descriptors(
         default="rdkit",
         description="Cheminformatics toolkit used in the backend",
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """Generates standard descriptors for the input molecule (SMILES).
 
@@ -224,7 +229,8 @@ def get_descriptors(
     Raises:
     - None
     """
-    data = get_COCONUT_descriptors(smiles, toolkit)
+    resolved_smiles = resolve_input_smiles(smiles, auto_detect)
+    data = get_COCONUT_descriptors(resolved_smiles, toolkit)
     if format == "html":
         if toolkit == "all":
             headers = [
@@ -375,6 +381,7 @@ def hose_codes(
         title="ringsize",
         description="Determines whether to include information about ring sizes",
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """Generates HOSE codes for a given SMILES string.
 
@@ -394,10 +401,10 @@ def hose_codes(
     - ValueError: If the SMILES string is not provided or is invalid.
     """
     if toolkit == "cdk":
-        mol = parse_input(smiles, "cdk", False)
+        mol = parse_structure_query(smiles, "cdk", auto_detect)
         hose_codes = get_CDK_HOSE_codes(mol, spheres, ringsize)
     elif toolkit == "rdkit":
-        mol = parse_input(smiles, "rdkit", False)
+        mol = parse_structure_query(smiles, "rdkit", auto_detect)
         hose_codes = get_rdkit_HOSE_codes(mol, spheres)
 
     if hose_codes:
@@ -533,6 +540,7 @@ def check_errors(
         title="Fix",
         description="Flag indicating whether to fix the issues by standardizing the SMILES.",
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """Check a given SMILES string and the represented structure for issues and.
 
@@ -559,6 +567,7 @@ def check_errors(
     - If the SMILES string contains spaces, they will be replaced with "+" characters before processing.
     - If the SMILES string cannot be read, the function returns the string "Error reading SMILES string, check again."
     """
+    smiles = resolve_input_smiles(smiles, auto_detect)
     mol = Chem.MolFromSmiles(smiles, sanitize=False)
     if mol:
         mol_block = Chem.MolToMolBlock(mol)
@@ -621,6 +630,7 @@ def np_likeness_score(
             },
         },
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """Calculates the natural product likeness score based on the RDKit.
 
@@ -635,7 +645,7 @@ def np_likeness_score(
     Raises:
     - ValueError: If the SMILES string is not provided or is invalid.
     """
-    mol = parse_input(smiles, "rdkit", False)
+    mol = parse_structure_query(smiles, "rdkit", auto_detect)
     try:
         np_score = get_np_score(mol)
         if np_score:
@@ -807,6 +817,7 @@ def coconut_preprocessing(
         title="descriptors",
         description="Flag indicating whether to generate COCONUT descriptors for a given molecule",
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """Generates an Input JSON file with information on different molecular.
 
@@ -823,7 +834,8 @@ def coconut_preprocessing(
     - HTTPException: If there is an error reading the SMILES string.
     """
     try:
-        data = get_COCONUT_preprocessing(smiles, _3d_mol, descriptors)
+        resolved_smiles = resolve_input_smiles(smiles, auto_detect)
+        data = get_COCONUT_preprocessing(resolved_smiles, _3d_mol, descriptors)
         if data:
             return data
         else:
@@ -870,6 +882,7 @@ async def classyfire_classify(
             },
         },
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """Generate ClassyFire-based classifications using SMILES as input.
 
@@ -886,9 +899,9 @@ async def classyfire_classify(
     - ClassyFire is a chemical taxonomy classification tool that predicts the chemical class and subclass of a compound based on its structural features.
     - This service pings the http://classyfire.wishartlab.com server for information retrieval.
     """
-    mol = parse_input(smiles, "rdkit", False)
-    if mol:
-        classification_data = await classify(smiles)
+    resolved_smiles = resolve_input_smiles(smiles, auto_detect)
+    if resolved_smiles:
+        classification_data = await classify(resolved_smiles)
         if classification_data:
             return classification_data
 
@@ -1354,6 +1367,7 @@ def get_functional_groups(
             },
         },
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """For a given SMILES string this function generates a list of identified.
 
@@ -1368,7 +1382,7 @@ def get_functional_groups(
     Raises:
     - ValueError: If the SMILES string is not provided or is invalid.
     """
-    mol = parse_input(smiles, "rdkit", False)
+    mol = parse_structure_query(smiles, "rdkit", auto_detect)
     if mol:
         try:
             f_groups = get_ertl_functional_groups(mol)
@@ -1412,8 +1426,9 @@ def get_standardized_tautomer_smiles(
             },
         },
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
-    mol = parse_input(smiles, "rdkit", False)
+    mol = parse_structure_query(smiles, "rdkit", auto_detect)
     if mol:
         standardized_smiles = get_standardized_tautomer(mol)
         return standardized_smiles
@@ -1452,6 +1467,7 @@ def fix_radicals_endpoint(
             },
         },
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """Fix radicals (single electrons) in molecules using CDK.
 
@@ -1502,7 +1518,7 @@ def fix_radicals_endpoint(
 
     try:
         # Parse input using CDK (required for radical perception)
-        mol = parse_input(smiles, "cdk", False)
+        mol = parse_structure_query(smiles, "cdk", auto_detect)
         if mol is None:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,

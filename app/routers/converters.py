@@ -25,6 +25,7 @@ from app.schemas import HealthCheck
 from app.schemas.error import BadRequestModel
 from app.schemas.error import ErrorResponse
 from app.schemas.error import NotFoundModel
+from app.schemas.converters_schema import DetectFormatResponse
 from app.schemas.converters_schema import GenerateCanonicalResponse
 from app.schemas.converters_schema import GenerateCXSMILESResponse
 from app.schemas.converters_schema import GenerateFormatsResponse
@@ -48,7 +49,14 @@ from app.modules.toolkits.cdk_wrapper import get_CDK_IAtomContainer_from_molbloc
 from app.modules.toolkits.cdk_wrapper import get_CXSMILES
 from app.modules.toolkits.cdk_wrapper import get_InChI
 from app.modules.toolkits.cdk_wrapper import get_smiles_opsin
+from app.routers.params import AUTO_DETECT_PARAM
+from app.modules.toolkits.helpers import STRUCTURE_INPUT_FORMATS
+from app.modules.toolkits.helpers import detect_input_format
+from app.modules.toolkits.helpers import detect_input_format_with_confidence
+from app.modules.toolkits.helpers import input_to_smiles
 from app.modules.toolkits.helpers import parse_input
+from app.modules.toolkits.helpers import parse_structure_query
+from app.modules.toolkits.helpers import resolve_input_smiles
 from app.modules.toolkits.helpers import split_xyz_frames
 from app.modules.toolkits.openbabel_wrapper import get_ob_canonical_SMILES
 from app.modules.toolkits.openbabel_wrapper import get_ob_InChI
@@ -99,6 +107,35 @@ def get_health() -> HealthCheck:
 
 
 @router.get(
+    "/detect-format",
+    summary="Auto-detect the format of a chemical structure string",
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": DetectFormatResponse,
+        },
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
+)
+@limiter.limit("20/minute")
+def detect_format(
+    request: Request,
+    input: str = Query(
+        ...,
+        title="Structure input",
+        max_length=5000,
+        description="Chemical structure string to inspect (SMILES, InChI, molblock, etc.)",
+    ),
+) -> DetectFormatResponse:
+    """Detect the chemical structure format of the provided input string."""
+    detected_format, confidence = detect_input_format_with_confidence(input)
+    return DetectFormatResponse(
+        detected_format=detected_format,
+        confidence=confidence,
+    )
+
+
+@router.get(
     "/mol2D",
     summary="Generates 2D Coordinates for the input molecules",
     responses={
@@ -133,6 +170,7 @@ def create2d_coordinates(
         default="cdk",
         description="Cheminformatics toolkit used in the backend",
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """Generates 2D Coordinates using the CDK Structure diagram.
 
@@ -150,22 +188,23 @@ def create2d_coordinates(
     - ValueError: If the SMILES string is not provided or is invalid.
     """
     if toolkit == "cdk":
-        mol = parse_input(smiles, "cdk", False)
+        mol = parse_structure_query(smiles, "cdk", auto_detect)
         return Response(
             content=get_CDK_SDG_mol(mol).replace("$$$$\n", ""),
             media_type="text/plain",
         )
     elif toolkit == "rdkit":
-        mol = parse_input(smiles, "rdkit", False)
+        mol = parse_structure_query(smiles, "rdkit", auto_detect)
         return Response(
             content=get_2d_mol(mol),
             media_type="text/plain",
         )
     else:
-        mol = parse_input(smiles, "rdkit", False)
+        mol = parse_structure_query(smiles, "rdkit", auto_detect)
         if mol:
+            resolved_smiles = resolve_input_smiles(smiles, auto_detect)
             return Response(
-                content=get_ob_mol(smiles),
+                content=get_ob_mol(resolved_smiles),
                 media_type="text/plain",
             )
 
@@ -205,6 +244,7 @@ def create3d_coordinates(
         default="openbabel",
         description="Cheminformatics toolkit used in the backend",
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """Generates a random 3D conformer from SMILES using the specified molecule.
 
@@ -223,16 +263,17 @@ def create3d_coordinates(
     """
 
     if toolkit == "rdkit":
-        mol = parse_input(smiles, "rdkit", False)
+        mol = parse_structure_query(smiles, "rdkit", auto_detect)
         return Response(
             content=get_3d_conformers(mol, depict=False),
             media_type="text/plain",
         )
     elif toolkit == "openbabel":
-        mol = parse_input(smiles, "rdkit", False)
+        mol = parse_structure_query(smiles, "rdkit", auto_detect)
         if mol:
+            resolved_smiles = resolve_input_smiles(smiles, auto_detect)
             return Response(
-                content=get_ob_mol(smiles, threeD=True),
+                content=get_ob_mol(resolved_smiles, threeD=True),
                 media_type="text/plain",
             )
 
@@ -350,6 +391,7 @@ def smiles_canonicalise(
         default="cdk",
         description="Cheminformatics toolkit used in the backend",
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """Canonicalizes a given SMILES string according to the allowed toolkits.
 
@@ -365,14 +407,15 @@ def smiles_canonicalise(
     - ValueError: If the SMILES string is empty or contains invalid characters.
     - ValueError: If an unsupported toolkit option is provided.
     """
+    resolved_smiles = resolve_input_smiles(smiles, auto_detect)
     if toolkit == "cdk":
-        mol = parse_input(smiles, "cdk", False)
+        mol = parse_structure_query(smiles, "cdk", auto_detect)
         return str(get_canonical_SMILES(mol))
     elif toolkit == "rdkit":
-        mol = parse_input(smiles, "rdkit", False)
+        mol = parse_structure_query(smiles, "rdkit", auto_detect)
         return str(Chem.MolToSmiles(mol, kekuleSmiles=True))
     elif toolkit == "openbabel":
-        smiles = get_ob_canonical_SMILES(smiles)
+        smiles = get_ob_canonical_SMILES(resolved_smiles)
         return smiles
 
 
@@ -409,6 +452,7 @@ def smiles_to_cxsmiles(
         default="cdk",
         description="Cheminformatics toolkit used in the backend",
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """Convert SMILES to CXSMILES.
 
@@ -431,12 +475,12 @@ def smiles_to_cxsmiles(
     - CXSMILES is a Chemaxon Extended SMILES which is used for storing special features of the molecules after the SMILES string.
     """
     if toolkit == "cdk":
-        mol = parse_input(smiles, "cdk", False)
+        mol = parse_structure_query(smiles, "cdk", auto_detect)
         cxsmiles = get_CXSMILES(mol)
         if cxsmiles:
             return str(cxsmiles)
     else:
-        mol = parse_input(smiles, "rdkit", False)
+        mol = parse_structure_query(smiles, "rdkit", auto_detect)
         cxsmiles = get_rdkit_CXSMILES(mol)
         if cxsmiles:
             return str(cxsmiles)
@@ -475,6 +519,7 @@ def smiles_to_inchi(
         default="cdk",
         description="Cheminformatics toolkit used in the backend",
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """Convert SMILES to InChI.
 
@@ -490,19 +535,20 @@ def smiles_to_inchi(
     - ValueError: If the SMILES string is empty or contains invalid characters.
     - ValueError: If an unsupported toolkit option is provided.
     """
+    resolved_smiles = resolve_input_smiles(smiles, auto_detect)
     if toolkit == "cdk":
-        mol = parse_input(smiles, "cdk", False)
+        mol = parse_structure_query(smiles, "cdk", auto_detect)
         inchi = get_InChI(mol)
         if inchi:
             return str(inchi)
     elif toolkit == "rdkit":
-        mol = parse_input(smiles, "rdkit", False)
+        mol = parse_structure_query(smiles, "rdkit", auto_detect)
         if mol:
             inchi = Chem.inchi.MolToInchi(mol)
             if inchi:
                 return str(inchi)
     elif toolkit == "openbabel":
-        inchi = get_ob_InChI(smiles)
+        inchi = get_ob_InChI(resolved_smiles)
         if inchi:
             return str(inchi)
 
@@ -540,6 +586,7 @@ def smiles_to_inchikey(
         default="cdk",
         description="Cheminformatics toolkit used in the backend",
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """Convert SMILES to InChI-Key.
 
@@ -555,20 +602,21 @@ def smiles_to_inchikey(
     - ValueError: If the SMILES string is empty or contains invalid characters.
     - ValueError: If an unsupported toolkit option is provided.
     """
+    resolved_smiles = resolve_input_smiles(smiles, auto_detect)
     if toolkit == "cdk":
-        mol = parse_input(smiles, "cdk", False)
+        mol = parse_structure_query(smiles, "cdk", auto_detect)
         inchikey = get_InChI(mol, InChIKey=True)
         if inchikey:
             return str(inchikey)
 
     elif toolkit == "rdkit":
-        mol = parse_input(smiles, "rdkit", False)
+        mol = parse_structure_query(smiles, "rdkit", auto_detect)
         if mol:
             inchikey = Chem.inchi.MolToInchiKey(mol)
             if inchikey:
                 return str(inchikey)
     elif toolkit == "openbabel":
-        inchikey = get_ob_InChI(smiles, InChIKey=True)
+        inchikey = get_ob_InChI(resolved_smiles, InChIKey=True)
         if inchikey:
             return str(inchikey)
 
@@ -602,6 +650,7 @@ def encode_selfies(
             },
         },
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """Generates SELFIES string for a given SMILES string.
 
@@ -618,7 +667,8 @@ def encode_selfies(
     - ValueError: If the SMILES string is empty or contains invalid characters.
     """
     try:
-        selfies_e = sf.encoder(smiles)
+        resolved_smiles = resolve_input_smiles(smiles, auto_detect)
+        selfies_e = sf.encoder(resolved_smiles)
         if selfies_e:
             return str(selfies_e)
         else:
@@ -666,6 +716,7 @@ def smiles_convert_to_formats(
         default="cdk",
         description="Cheminformatics toolkit used in the backend",
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
     """Convert SMILES to various molecular formats using different toolkits.
 
@@ -689,9 +740,10 @@ def smiles_convert_to_formats(
     - ValueError: If an unsupported toolkit option is provided.
     """
     try:
+        resolved_smiles = resolve_input_smiles(smiles, auto_detect)
         if toolkit == "cdk":
             response = {}
-            mol = parse_input(smiles, "cdk", False)
+            mol = parse_structure_query(smiles, "cdk", auto_detect)
             response["mol"] = get_CDK_SDG_mol(mol).replace("$$$$\n", "")
             response["canonicalsmiles"] = str(get_canonical_SMILES(mol))
             response["inchi"] = str(get_InChI(mol))
@@ -699,7 +751,7 @@ def smiles_convert_to_formats(
             return response
 
         elif toolkit == "rdkit":
-            mol = parse_input(smiles, "rdkit", False)
+            mol = parse_structure_query(smiles, "rdkit", auto_detect)
             if mol:
                 response = {}
                 response["mol"] = Chem.MolToMolBlock(mol)
@@ -712,10 +764,10 @@ def smiles_convert_to_formats(
                 return response
         elif toolkit == "openbabel":
             response = {}
-            response["mol"] = get_ob_mol(smiles)
-            response["canonicalsmiles"] = get_ob_canonical_SMILES(smiles)
-            response["inchi"] = get_ob_InChI(smiles)
-            response["inchikey"] = get_ob_InChI(smiles, InChIKey=True)
+            response["mol"] = get_ob_mol(resolved_smiles)
+            response["canonicalsmiles"] = get_ob_canonical_SMILES(resolved_smiles)
+            response["inchi"] = get_ob_InChI(resolved_smiles)
+            response["inchikey"] = get_ob_InChI(resolved_smiles, InChIKey=True)
             return response
         else:
             raise HTTPException(
@@ -765,10 +817,11 @@ def smiles_to_smarts(
         default="rdkit",
         description="Cheminformatics toolkit used in the backend",
     ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
 ):
 
     if toolkit == "rdkit":
-        mol = parse_input(smiles, "rdkit", False)
+        mol = parse_structure_query(smiles, "rdkit", auto_detect)
         if mol:
             smarts = Chem.MolToSmarts(mol)
             if smarts:
@@ -960,32 +1013,18 @@ def batch_convert(
         try:
             # Extract values from the input dictionary
             value = input_item.get("value", "")
-            input_format = input_item.get("input_format", "")
+            input_format = input_item.get("input_format") or ""
 
-            if not value or not input_format:
-                raise ValueError("Missing required fields: value or input_format")
+            if not value:
+                raise ValueError("Missing required field: value")
 
-            # First convert input to SMILES if it's not already in SMILES format
-            smiles = value
+            if not input_format:
+                input_format = detect_input_format(value)
 
-            if input_format.lower() == "iupac":
-                smiles = get_smiles_opsin(value)
-                if not smiles:
-                    raise ValueError(
-                        f"Failed to convert IUPAC name '{value}' to SMILES"
-                    )
-            elif input_format.lower() == "selfies":
-                smiles = sf.decoder(value)
-                if not smiles:
-                    raise ValueError(f"Failed to decode SELFIES '{value}' to SMILES")
-            elif input_format.lower() == "inchi":
-                # Use RDKit to convert InChI to SMILES
-                mol = Chem.inchi.MolFromInchi(value)
-                if not mol:
-                    raise ValueError(f"Failed to convert InChI '{value}' to molecule")
-                smiles = Chem.MolToSmiles(mol)
-            elif input_format.lower() != "smiles":
+            if input_format.lower() not in STRUCTURE_INPUT_FORMATS:
                 raise ValueError(f"Unsupported input format: {input_format}")
+
+            smiles = input_to_smiles(value, input_format)
 
             # Now convert SMILES to the desired output format
             output_value = ""

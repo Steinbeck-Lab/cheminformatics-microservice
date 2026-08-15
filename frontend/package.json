@@ -16,7 +16,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "dompurify": "^3.4.11",
+    "dompurify": "^3.4.13",
     "jszip": "^3.10.1",
     "lucide-react": "^0.577.0",
     "motion": "^12.36.0",
@@ -27,7 +27,7 @@
     "react-dropzone": "^14.2.3",
     "react-error-boundary": "^6.1.1",
     "react-resizable-panels": "^2.1.7",
-    "react-router-dom": "^6.30.4",
+    "react-router-dom": "^7.18.2",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",
     "three": "^0.183.2",
@@ -74,14 +74,19 @@
     ]
   },
   "overrides": {
-    "hono": "^4.12.25",
-    "@hono/node-server": "^1.19.13",
+    "hono": "^4.12.34",
+    "@hono/node-server": "^1.19.15",
     "follow-redirects": "^1.16.0",
     "@babel/core": "^7.29.6",
     "form-data": "^4.0.6",
     "qs": "^6.15.2",
-    "fast-uri": "^3.1.2",
-    "ip-address": "^10.1.1"
+    "fast-uri": "^3.1.5",
+    "ip-address": "^10.3.1",
+    "js-yaml": "^4.3.1",
+    "postcss": "^8.5.23",
+    "minimatch@3.1.5": {
+      "brace-expansion": "^1.1.16"
+    }
   },
   "scripts": {
     "dev": "vite",
