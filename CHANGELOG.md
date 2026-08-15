@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.11.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.10.0...v3.11.0) (2026-08-15)
+
+
+### Features
+
+* **api:** add opt-in structure auto-detect across endpoints ([b72fcb0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/b72fcb02e006cde58914d6283dd7a936ca913033)), closes [#384](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/384)
+* **frontend:** use backend format detection in convert view ([476afc5](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/476afc50c8c92e6b7999022d02b448fee6791d04))
+* **toolkits:** add structure format auto-detection and parsing ([2a8c298](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/2a8c2986ff64879b78cf7865592c9b2b181fb259))
+
+
+### Bug Fixes
+
+* **deps:** cap fastapi &lt;0.129 and pin starlette <1.0 ([d5f3bea](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d5f3bea1891d0a4ce3a2e57213258aec5081b788))
+* **deps:** patch all open npm security advisories ([75bc898](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/75bc89850d0a6077ffd10383f121b0a048a3b6be))
+* **deps:** patch open npm security advisories in frontend ([696fdcf](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/696fdcfe28be2ab7f20b88f612cac9618f9e1f24))
+* **toolkits:** preserve explicit atoms and molblock header on auto-detect ([589e52f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/589e52f0ba1c830bbc88d863f8b9aadb1a499bb0))
+* update endpoint for lite version ([#778](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/778)) ([2d0eed4](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/2d0eed4d94216593483505aed08cafc89e4b968d))
+
 ## [3.10.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.9.0...v3.10.0) (2026-04-29)
 
 
