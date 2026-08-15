@@ -9,7 +9,7 @@ from app.modules.toolkits.helpers import parse_input
 from app.modules.toolkits.helpers import parse_structure_query
 
 CAFFEINE_SMILES = "CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
-CAFFEINE_INCHI = "InChI=1S/C8H10N4O2/c1-3(9-6)10-5-4(8(13)12)11(2)7(5)14/h3H,1-2H3,(H,9,10,12,13,14)"
+CAFFEINE_INCHI = "InChI=1S/C8H10N4O2/c1-10-4-9-6-5(10)7(13)12(3)8(14)11(6)2/h4H,1-3H3"
 CAFFEINE_SELFIES = "[C][N][C][=N][C][=C][Ring1][Branch1][C][=Branch1][C][=O][N][Branch1][=Branch2][C][=Branch1][C][=O][N][Ring1][Branch2][C][C]"
 ETHANOL_SELFIES = "[C][C][O]"
 WATER_XYZ = (

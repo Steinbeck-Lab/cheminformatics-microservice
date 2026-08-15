@@ -29,9 +29,17 @@ def _normalize_format_name(fmt: str) -> str:
 
 
 def _clean_molblock(data: str) -> str:
+    """Trim an SDF multi-record delimiter and trailing whitespace.
+
+    Leading whitespace is preserved on purpose: the V2000 header is
+    position-fixed (title / program / comment / counts line), and molblocks
+    legitimately start with a blank title line. Stripping it shifts every
+    header line up by one and corrupts the counts line RDKit expects on
+    line 4.
+    """
     if "$$$$" in data:
-        return data.split("$$$$")[0].strip()
-    return data.strip()
+        data = data.split("$$$$", 1)[0]
+    return data.rstrip()
 
 
 def _looks_like_inchi(text: str) -> bool:
@@ -170,6 +178,36 @@ def parse_structure_query(
     return parse_input(smiles, framework, standardize, input_format=input_format)
 
 
+_NATIVE_RDKIT_FORMATS = frozenset({"inchi", "molblock", "xyz"})
+
+
+def _native_rdkit_mol(value: str, fmt: str):
+    """Return a native RDKit Mol for *value* in *fmt*, or ``None``.
+
+    Used by :func:`parse_input` to avoid a lossy SMILES-string round trip
+    for formats RDKit can parse directly (e.g. explicit hydrogens written
+    out as separate atoms in XYZ/molblock input would otherwise be folded
+    back into implicit Hs when the intermediate SMILES is re-parsed).
+    Returning ``None`` tells the caller to fall back to the
+    ``input_to_smiles`` + ``parse_SMILES`` pipeline instead (e.g. for a
+    molblock RDKit can't read but CDK can).
+    """
+    try:
+        if fmt == "inchi":
+            return Chem.inchi.MolFromInchi(value, removeHs=False)
+        if fmt == "molblock":
+            return Chem.MolFromMolBlock(_clean_molblock(value), removeHs=False)
+        if fmt == "xyz":
+            frames = split_xyz_frames(value)
+            if not frames:
+                return None
+            mol, _ = convert_xyz_to_mol(frames[0])
+            return mol
+    except (ValueError, RuntimeError):
+        return None
+    return None
+
+
 def parse_input(
     input: str,
     framework: str = "rdkit",
@@ -195,6 +233,15 @@ def parse_input(
 
     if fmt == "smiles":
         return parse_SMILES(input, framework, standardize)
+
+    if framework == "rdkit" and fmt in _NATIVE_RDKIT_FORMATS:
+        mol = _native_rdkit_mol(input, fmt)
+        if mol is not None:
+            if standardize:
+                mol_block = Chem.MolToMolBlock(mol)
+                standardized_mol = standardizer.standardize_molblock(mol_block)
+                mol = Chem.MolFromMolBlock(standardized_mol)
+            return mol
 
     smiles = input_to_smiles(input, fmt)
     return parse_SMILES(smiles, framework, standardize)
