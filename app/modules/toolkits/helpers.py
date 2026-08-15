@@ -240,7 +240,7 @@ def parse_input(
             if standardize:
                 mol_block = Chem.MolToMolBlock(mol)
                 standardized_mol = standardizer.standardize_molblock(mol_block)
-                mol = Chem.MolFromMolBlock(standardized_mol)
+                mol = Chem.MolFromMolBlock(standardized_mol, removeHs=False)
             return mol
 
     smiles = input_to_smiles(input, fmt)
