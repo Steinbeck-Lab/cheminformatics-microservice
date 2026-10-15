@@ -1,5 +1,5 @@
 // Description: This component allows users to generate 2D depictions of multiple molecules from SMILES strings.
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
@@ -257,11 +257,18 @@ const BatchDepictionView = () => {
   // --- Removed useEffect hook for automatic regeneration on option changes ---
 
   // Handle rotation change for a specific molecule
+  // One pending re-render per molecule, so a slider drag sends one request instead of one per degree
+  const rotationTimers = useRef({});
+
   const handleRotationChange = (id, value) => {
     const rotation = Number(value);
     // Update rotation state for the specific molecule
     setRotations((prev) => ({ ...prev, [id]: rotation }));
+    clearTimeout(rotationTimers.current[id]);
+    rotationTimers.current[id] = setTimeout(() => applyRotation(id, rotation), 200);
+  };
 
+  const applyRotation = (id, rotation) => {
     // Update the image URL immediately for this molecule
     setDepictions((currentDepictions) =>
       currentDepictions.map((dep) => {

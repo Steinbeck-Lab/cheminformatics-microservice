@@ -23,6 +23,12 @@ const MoleculeDepiction2D = ({
   const [error, setError] = useState(null);
   const [imageUrl, setImageUrl] = useState("");
   const [rotation, setRotation] = useState(0);
+  // The slider label follows `rotation` live; the image only re-renders once dragging pauses
+  const [renderedRotation, setRenderedRotation] = useState(0);
+  useEffect(() => {
+    const timer = setTimeout(() => setRenderedRotation(rotation), 200);
+    return () => clearTimeout(timer);
+  }, [rotation]);
   const [useUnicolor, setUseUnicolor] = useState(false);
   const [showCIP, setShowCIP] = useState(initialShowCIP);
   const [hydrogenDisplay, setHydrogenDisplay] = useState("Smart");
@@ -44,7 +50,7 @@ const MoleculeDepiction2D = ({
         toolkit,
         width: imageWidth,
         height: imageHeight,
-        rotate: rotation,
+        rotate: renderedRotation,
         CIP: showCIP,
         unicolor: useUnicolor,
         hydrogen_display: toolkit === "cdk" ? hydrogenDisplay : undefined,
@@ -58,7 +64,7 @@ const MoleculeDepiction2D = ({
       console.error("Error generating 2D depiction:", err);
       setError(`Failed to generate 2D depiction: ${err.message}`);
     }
-  }, [smiles, toolkit, rotation, useUnicolor, showCIP, hydrogenDisplay]);
+  }, [smiles, toolkit, renderedRotation, useUnicolor, showCIP, hydrogenDisplay]);
 
   // Generate depiction when props or settings change
   useEffect(() => {
