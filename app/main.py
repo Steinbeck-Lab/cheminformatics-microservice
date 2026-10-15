@@ -101,13 +101,7 @@ async def add_cors_headers(request, call_next):
     return response
 
 
-# register exception handlers
-for sub_app in app.routes:
-    if hasattr(sub_app.app, "add_exception_handler"):
-        sub_app.app.add_exception_handler(
-            InvalidInputException,
-            input_exception_handler,
-        )
+app.add_exception_handler(InvalidInputException, input_exception_handler)
 
 
 @app.get("/", include_in_schema=False)

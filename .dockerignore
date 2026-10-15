@@ -1,0 +1,15 @@
+.git
+.env
+.env.*
+.venv
+venv
+**/__pycache__
+**/*.pyc
+.pytest_cache
+.cache
+node_modules
+frontend/node_modules
+uploads
+prometheus_data
+grafana_data
+docs/_build
