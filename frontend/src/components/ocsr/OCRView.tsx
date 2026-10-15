@@ -218,7 +218,7 @@ const OCRView = () => {
                   </>
                 ) : isDragActive ? (
                   <>
-                    <Upload className="h-12 w-12 text-blue-600 dark:text-blue-400 animate-bounce" />
+                    <Upload className="h-12 w-12 text-blue-600 dark:text-blue-400 scale-110 transition-transform duration-200" />
                     <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
                       Drop your image here
                     </p>
@@ -417,15 +417,15 @@ const OCRView = () => {
               >
                 <div className="flex gap-1">
                   <span
-                    className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce"
+                    className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-pulse"
                     style={{ animationDelay: "0ms" }}
                   />
                   <span
-                    className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce"
+                    className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-pulse"
                     style={{ animationDelay: "150ms" }}
                   />
                   <span
-                    className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce"
+                    className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-pulse"
                     style={{ animationDelay: "300ms" }}
                   />
                 </div>
