@@ -46,7 +46,7 @@ const ThemeToggle = ({
 }) => (
   <motion.button
     onClick={toggleDarkMode}
-    className={`relative flex items-center w-[52px] h-[28px] rounded-full p-[3px] cursor-pointer overflow-hidden ring-1 ring-inset transition-colors duration-500 clay-interactive ${
+    className={`relative touch-target flex items-center w-[52px] h-[28px] rounded-full p-[3px] cursor-pointer overflow-hidden ring-1 ring-inset transition-colors duration-500 clay-interactive ${
       isDarkMode
         ? "bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-800 ring-indigo-400/20"
         : "bg-gradient-to-r from-sky-300 via-sky-200 to-amber-200 ring-amber-300/30"
@@ -163,6 +163,7 @@ const Header = () => {
                 }}
                 whileTap={{ scale: 0.92 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                tabIndex={-1}
               >
                 <img
                   src={isDarkMode ? LOGO_DARK : LOGO_LIGHT}
@@ -207,7 +208,7 @@ const Header = () => {
           <div className="flex items-center lg:hidden ml-auto">
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
               <SheetTrigger asChild>
-                <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}>
+                <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }} tabIndex={-1}>
                   <Button
                     variant="ghost"
                     size="icon"

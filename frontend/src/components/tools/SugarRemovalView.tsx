@@ -293,11 +293,15 @@ const SugarRemovalView = () => {
     const value = options[key];
     const defaultValue = DEFAULT_OPTIONS[key];
     const isModified = value !== defaultValue;
+    const fieldId = `sugar-option-${key}`;
 
     return (
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label
+            htmlFor={fieldId}
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             {label}
             {isModified && (
               <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">(Modified)</span>
@@ -314,6 +318,7 @@ const SugarRemovalView = () => {
                 : "text-gray-400 dark:text-gray-600 cursor-not-allowed"
             }`}
             title="Reset to default"
+            aria-label={`Reset ${label} to default`}
           >
             <RefreshCw className="h-4 w-4" />
           </Button>
@@ -322,6 +327,7 @@ const SugarRemovalView = () => {
         {type === "boolean" ? (
           <div className="flex items-center">
             <input
+              id={fieldId}
               type="checkbox"
               checked={value}
               onChange={(e) => updateOption(key, e.target.checked)}
@@ -333,6 +339,7 @@ const SugarRemovalView = () => {
           <div className="space-y-1">
             <div className="relative group">
               <Input
+                id={fieldId}
                 type="number"
                 value={value}
                 onChange={(e) => updateOption(key, parseFloat(e.target.value))}
@@ -400,7 +407,7 @@ const SugarRemovalView = () => {
         ) : type === "select" ? (
           <div className="space-y-1">
             <Select value={String(value)} onValueChange={(v) => updateOption(key, parseInt(v))}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger id={fieldId} className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -494,7 +501,7 @@ const SugarRemovalView = () => {
                       Too sweet: cheminformatics for deglycosylation in natural products.
                     </em>
                     <br />
-                    <span className="text-gray-500 dark:text-gray-500">
+                    <span className="text-gray-500 dark:text-gray-400">
                       J Cheminform 12, 67 (2020).
                     </span>
                   </p>
@@ -631,6 +638,7 @@ const SugarRemovalView = () => {
             >
               <input
                 type="radio"
+                name="sugar-operation-mode"
                 value="detect"
                 checked={operationMode === "detect"}
                 onChange={(e) => setOperationMode(e.target.value)}
@@ -656,6 +664,7 @@ const SugarRemovalView = () => {
             >
               <input
                 type="radio"
+                name="sugar-operation-mode"
                 value="remove"
                 checked={operationMode === "remove"}
                 onChange={(e) => setOperationMode(e.target.value)}
@@ -681,6 +690,7 @@ const SugarRemovalView = () => {
             >
               <input
                 type="radio"
+                name="sugar-operation-mode"
                 value="extract"
                 checked={operationMode === "extract"}
                 onChange={(e) => setOperationMode(e.target.value)}
@@ -1191,7 +1201,7 @@ const SugarRemovalView = () => {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                     Highlight Sugar Type
                   </label>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <Button
                       variant="ghost"
                       onClick={() => setHighlightMode("circular")}

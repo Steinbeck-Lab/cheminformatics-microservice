@@ -16,9 +16,13 @@ export const useAppContext = (): AppContextValue => {
 
 // Provider component
 export const AppProvider = ({ children }: { children: ReactNode }) => {
-  // Theme state (dark/light) -- default false; FOUC script handles initial render,
-  // and the mount useEffect below will set the correct value from localStorage or system preference.
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  // Theme state (dark/light). Read it on the first render, with the same rule as the
+  // FOUC script in index.html, so the first paint never flips the theme.
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedDarkMode = localStorage.getItem("darkMode");
+    if (savedDarkMode !== null) return savedDarkMode === "true";
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  });
 
   // History of recent molecules
   const [recentMolecules, setRecentMolecules] = useState<RecentMolecule[]>([]);
@@ -63,17 +67,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setApiConfig((prev) => ({ ...prev, ...newConfig }));
   };
 
-  // Initialize theme from localStorage on mount, with system preference fallback
   useEffect(() => {
-    const savedDarkMode = localStorage.getItem("darkMode");
-    if (savedDarkMode !== null) {
-      setIsDarkMode(savedDarkMode === "true");
-    } else {
-      // No saved preference -- detect system preference
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      setIsDarkMode(prefersDark);
-    }
-
     // Load recent molecules from localStorage, filtering out entries older than 24h
     const savedMolecules = localStorage.getItem("recentMolecules");
     if (savedMolecules) {

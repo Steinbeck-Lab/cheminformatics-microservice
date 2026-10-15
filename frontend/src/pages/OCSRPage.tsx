@@ -118,9 +118,9 @@ const OCSRPage = () => {
             <motion.div variants={headerItemVariants}>
               <Card className="glass-bold rounded-lg shadow-md py-0 gap-0">
                 <CardContent className="p-5">
-                  <h3 className="text-lg font-semibold text-blue-600 dark:text-blue-400 mb-2">
+                  <h2 className="text-lg font-semibold text-blue-600 dark:text-blue-400 mb-2">
                     What is DECIMER?
-                  </h3>
+                  </h2>
                   <p className="text-muted-foreground mb-3">
                     DECIMER (Deep lEarning for Chemical IMagE Recognition) is an advanced deep
                     learning model developed by the Steinbeck Lab for extracting chemical structures
@@ -137,9 +137,9 @@ const OCSRPage = () => {
             <motion.div variants={headerItemVariants}>
               <Card className="glass-bold rounded-lg shadow-md py-0 gap-0">
                 <CardContent className="p-5">
-                  <h3 className="text-lg font-semibold text-purple-600 dark:text-purple-400 mb-2">
+                  <h2 className="text-lg font-semibold text-purple-600 dark:text-purple-400 mb-2">
                     What is MARCUS?
-                  </h3>
+                  </h2>
                   <p className="text-muted-foreground mb-3">
                     MARCUS (Molecular Annotation and Recognition for Curating Unravelled Structures)
                     is an integrated web-based platform designed for natural product literature

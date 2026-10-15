@@ -27,6 +27,7 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -185,7 +186,7 @@ const ResultBlock = ({ title, value, onCopy, copyState, icon, collapsible = fals
       </div>
       {(!isCollapsed || !collapsible) && (
         <div className="font-mono text-sm overflow-x-auto bg-gray-50 dark:bg-gray-900 p-3 rounded-sm border border-gray-200 dark:border-gray-700 break-all max-h-24 overflow-y-auto">
-          {value || <span className="text-gray-400 dark:text-gray-500">No data generated yet</span>}
+          {value || <span className="text-gray-500 dark:text-gray-400">No data generated yet</span>}
         </div>
       )}
     </div>
@@ -779,44 +780,48 @@ const RInChIView = () => {
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6 bg-linear-to-br from-indigo-50 to-blue-100 dark:from-gray-900 dark:to-slate-900 min-h-screen">
       {/* Copy Modal - For fallback copying */}
-      {showCopyModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fadeIn">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">Copy Text</h3>
-              <Button
-                variant="ghost"
-                onClick={() => setShowCopyModal(false)}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-            <p className="mb-4 text-gray-700 dark:text-gray-300">
-              Automatic copying failed. Please select and copy this text manually:
-            </p>
-            <div className="mb-4">
-              <Input
-                type="text"
-                ref={copyTextRef}
-                value={copyModalText}
-                readOnly
-                className="w-full font-mono text-sm"
-                onClick={(e) => (e.target as HTMLInputElement).select()}
-              />
-            </div>
-            <div className="flex justify-end gap-3">
-              <Button
-                variant="secondary"
-                onClick={() => setShowCopyModal(false)}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
-              >
-                Close
-              </Button>
-            </div>
+      <Dialog open={showCopyModal} onOpenChange={setShowCopyModal}>
+        <DialogContent
+          showCloseButton={false}
+          className="block gap-0 border-0 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full"
+        >
+          <div className="flex justify-between items-center mb-4">
+            <DialogTitle className="text-lg font-bold text-gray-900 dark:text-white">
+              Copy Text
+            </DialogTitle>
+            <Button
+              variant="ghost"
+              onClick={() => setShowCopyModal(false)}
+              aria-label="Close"
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              <X className="w-5 h-5" />
+            </Button>
           </div>
-        </div>
-      )}
+          <p className="mb-4 text-gray-700 dark:text-gray-300">
+            Automatic copying failed. Please select and copy this text manually:
+          </p>
+          <div className="mb-4">
+            <Input
+              type="text"
+              ref={copyTextRef}
+              value={copyModalText}
+              readOnly
+              className="w-full font-mono text-sm"
+              onClick={(e) => (e.target as HTMLInputElement).select()}
+            />
+          </div>
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="secondary"
+              onClick={() => setShowCopyModal(false)}
+              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
+            >
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Main content area */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -1254,10 +1259,7 @@ const RInChIView = () => {
 
           {/* Ketcher Editor Container (only show when needed) */}
           {activeInputType !== "rinchi-to-file" && (
-            <div
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
-              style={{ height: "900px" }}
-            >
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden h-[75dvh] min-h-[480px] md:h-[900px]">
               <iframe
                 ref={ketcherFrame}
                 src="/standalone/index.html"

@@ -182,12 +182,30 @@ function verifyExtraction() {
   walk(realDir);
 }
 
+// The app only embeds standalone/index.html. The release also ships popup,
+// closable and duo builds (about 24 MB each) that nothing loads, so drop them
+// to keep the Docker image and deploy small.
+const UNUSED_ENTRIES = ["popup", "closable", "duo"];
+
+function pruneUnusedEntries() {
+  const jsDir = path.join(STANDALONE_DIR, "static", "js");
+  for (const name of UNUSED_ENTRIES) {
+    const html = path.join(STANDALONE_DIR, name + ".html");
+    if (fs.existsSync(html)) fs.unlinkSync(html);
+    if (!fs.existsSync(jsDir)) continue;
+    for (const file of fs.readdirSync(jsDir)) {
+      if (file.startsWith(name + ".")) fs.unlinkSync(path.join(jsDir, file));
+    }
+  }
+}
+
 async function main() {
   const config = getVersion();
   const version = config.version;
   const sha256 = config.sha256;
 
   if (isAlreadyPresent(version)) {
+    pruneUnusedEntries();
     console.log(
       "Ketcher v" + version + " already present, skipping download.",
     );
@@ -262,6 +280,7 @@ async function main() {
   }
 
   verifyExtraction();
+  pruneUnusedEntries();
   fs.writeFileSync(VERSION_FILE, version);
 
   // Print SHA-256 for first-time setup (when no hash is configured)

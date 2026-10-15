@@ -212,3 +212,30 @@
 .stagger-children > *:nth-child(10) {
   animation-delay: 1s;
 }
+
+/* Reduced motion: stop decorative loops and turn slides into a short fade.
+   Spinners and colour/opacity state changes stay, so feedback is still visible. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-orbit-1,
+  .animate-orbit-2,
+  .animate-orbit-3,
+  .animate-orbit-4,
+  .animate-pulse-bond,
+  .animate-rotate,
+  .animate-scale,
+  .animate-bounce,
+  .animate-bounce-slow,
+  .animate-pulse-slow,
+  .animate-pulse-fast,
+  .animate-shimmer,
+  .theme-toggle-button:hover {
+    animation: none;
+  }
+
+  .animate-slide-in-right,
+  .animate-slide-in-left,
+  .animate-slide-in-top,
+  .animate-slide-in-bottom {
+    animation: fadeIn 0.2s ease-out;
+  }
+}
