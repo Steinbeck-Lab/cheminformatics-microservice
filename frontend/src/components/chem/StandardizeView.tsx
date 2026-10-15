@@ -494,7 +494,7 @@ M  END`}
                     <Button
                       variant="ghost"
                       onClick={() => handleCopy(standardizedData.canonical_smiles, "smiles")}
-                      className="ml-auto p-1 text-gray-400 hover:text-gray-700 dark:hover:text-white shrink-0"
+                      className="ml-auto p-1 text-gray-500 hover:text-gray-700 dark:hover:text-white shrink-0"
                       title="Copy SMILES"
                     >
                       <Clipboard className="h-5 w-5" />
@@ -513,7 +513,7 @@ M  END`}
                     <Button
                       variant="ghost"
                       onClick={() => handleCopy(standardizedData.inchi, "inchi")}
-                      className="ml-auto p-1 text-gray-400 hover:text-gray-700 dark:hover:text-white shrink-0"
+                      className="ml-auto p-1 text-gray-500 hover:text-gray-700 dark:hover:text-white shrink-0"
                       title="Copy InChI"
                     >
                       <Clipboard className="h-5 w-5" />
@@ -532,7 +532,7 @@ M  END`}
                     <Button
                       variant="ghost"
                       onClick={() => handleCopy(standardizedData.inchikey, "inchikey")}
-                      className="ml-auto p-1 text-gray-400 hover:text-gray-700 dark:hover:text-white shrink-0"
+                      className="ml-auto p-1 text-gray-500 hover:text-gray-700 dark:hover:text-white shrink-0"
                       title="Copy InChI Key"
                     >
                       <Clipboard className="h-5 w-5" />

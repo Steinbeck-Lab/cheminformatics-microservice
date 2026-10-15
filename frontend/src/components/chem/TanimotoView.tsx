@@ -236,6 +236,7 @@ const TanimotoView = () => {
           <SMILESInput
             value={smiles1}
             onChange={setSmiles1}
+            id="smiles-input-1"
             label="Molecule 1 SMILES"
             required={true}
             // Pass theme props if needed
@@ -246,6 +247,7 @@ const TanimotoView = () => {
           <SMILESInput
             value={smiles2}
             onChange={setSmiles2}
+            id="smiles-input-2"
             label="Molecule 2 SMILES"
             required={true}
             // Pass theme props if needed
@@ -350,7 +352,7 @@ const TanimotoView = () => {
               </Select>
               {/* Info text for disabled state */}
               {fingerprinter !== "ECFP" && fingerprinter !== "MAPC" && (
-                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Radius only applies to ECFP/MAPC.
                 </p>
               )}
@@ -394,7 +396,7 @@ const TanimotoView = () => {
           message={error}
           onRetry={() => {
             setError(null);
-            document.getElementById("smiles-input")?.focus();
+            document.getElementById("smiles-input-1")?.focus();
           }}
         />
       )}
@@ -419,7 +421,7 @@ const TanimotoView = () => {
                 {getSimilarityDescription(result)}
               </div>
               {/* Calculation Details */}
-              <div className="text-gray-500 dark:text-gray-500 text-xs mt-2">
+              <div className="text-gray-500 dark:text-gray-400 text-xs mt-2">
                 Using {fingerprinter} fingerprints ({toolkit.toUpperCase()})
                 {(fingerprinter === "ECFP" || fingerprinter === "MAPC") &&
                   ` - Radius: ${radius}, Bits: ${nBits}`}

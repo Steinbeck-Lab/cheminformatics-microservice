@@ -206,21 +206,22 @@
 /* ===== Custom Utilities (survive past Phase 4) ===== */
 @utility glass {
   background-color: rgb(255 255 255 / 0.7);
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(12px);
   border: 1px solid rgb(203 213 225 / 0.5);
 
   &:where(.dark, .dark *) {
     background-color: rgb(30 41 59 / 0.7);
-    backdrop-filter: blur(24px);
+    backdrop-filter: blur(12px);
     border-color: rgb(51 65 85 / 0.5);
   }
 }
 
-/* Bold glassmorphism -- the primary glass surface */
+/* Bold glassmorphism -- the primary glass surface. Blur capped at 12px: it sits on the
+   fixed header and ~30 panels, and larger radii cost scroll frames on low-end GPUs. */
 @utility glass-bold {
   background-color: rgb(255 255 255 / 0.1);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgb(255 255 255 / 0.3);
   box-shadow: inset 0 1px 1px 0 rgb(255 255 255 / 0.15);
 
@@ -295,6 +296,22 @@
 }
 
 /* Button hover lift with glow (ANIM-02) */
+/* Grow the tap area to 44x44 on touch screens without changing the layout.
+   The element needs a positioning context (Button sets "relative"). */
+@utility touch-target {
+  @media (pointer: coarse) {
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: max(100%, 44px);
+      height: max(100%, 44px);
+      transform: translate(-50%, -50%);
+    }
+  }
+}
+
 @utility btn-hover-lift {
   transition:
     transform 200ms ease,
@@ -396,14 +413,19 @@
   }
 }
 
-@keyframes mesh-gradient-move {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+/* ===== Keyboard focus =====
+   Unlayered on purpose: it beats every utility, so a caller's `outline-none` or
+   `focus:outline-hidden` can no longer hide the focus ring from keyboard users.
+   Text fields keep their own focus ring (shadcn Input/Textarea/Select). */
+:where(
+  a[href],
+  button,
+  summary,
+  [role="button"],
+  [role="tab"],
+  [role="switch"],
+  [role="menuitem"]
+):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }

@@ -207,7 +207,7 @@ const Footer = () => {
             y2="70"
             stroke="currentColor"
             strokeWidth="2"
-            className="text-gray-400"
+            className="text-gray-500"
           />
           <line
             x1="100"
@@ -216,7 +216,7 @@ const Footer = () => {
             y2="130"
             stroke="currentColor"
             strokeWidth="2"
-            className="text-gray-400"
+            className="text-gray-500"
           />
           <line
             x1="100"
@@ -225,7 +225,7 @@ const Footer = () => {
             y2="140"
             stroke="currentColor"
             strokeWidth="2"
-            className="text-gray-400"
+            className="text-gray-500"
           />
         </svg>
       </div>
@@ -351,6 +351,7 @@ const Footer = () => {
                   boxShadow: "0 10px 25px -5px rgba(59, 130, 246, 0.15)",
                 }}
                 whileTap={{ scale: 0.98 }}
+                tabIndex={-1}
               >
                 <Card className="group h-full p-0 py-0 gap-0 rounded-lg glass-bold transition-all duration-300 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-500">
                   <a
