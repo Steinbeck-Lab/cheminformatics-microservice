@@ -4,6 +4,7 @@ import { CheckCircle, ChevronDown, Clipboard, Download, X } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 
@@ -396,7 +397,7 @@ const HighlightedMoleculeCard = ({
               }}
             />
           ) : (
-            <div className="text-center text-gray-400 dark:text-gray-500 text-xs p-4">
+            <div className="text-center text-gray-500 dark:text-gray-400 text-xs p-4">
               No structure to display.
             </div>
           )}
@@ -513,44 +514,48 @@ const HighlightedMoleculeCard = ({
       </div>
 
       {/* Manual Copy Modal */}
-      {showCopyModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">Copy SMILES</h3>
-              <Button
-                variant="ghost"
-                onClick={() => setShowCopyModal(false)}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-            <p className="mb-4 text-gray-700 dark:text-gray-300">
-              Automatic copying failed. Please select and copy this text manually:
-            </p>
-            <div className="mb-4">
-              <Input
-                type="text"
-                ref={copyTextRef}
-                value={smiles || ""}
-                readOnly
-                className="w-full font-mono text-sm"
-                onClick={(e) => (e.target as HTMLInputElement).select()}
-              />
-            </div>
-            <div className="flex justify-end gap-3">
-              <Button
-                variant="secondary"
-                onClick={() => setShowCopyModal(false)}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
-              >
-                Close
-              </Button>
-            </div>
+      <Dialog open={showCopyModal} onOpenChange={setShowCopyModal}>
+        <DialogContent
+          showCloseButton={false}
+          className="block gap-0 border-0 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full"
+        >
+          <div className="flex justify-between items-center mb-4">
+            <DialogTitle className="text-lg font-bold text-gray-900 dark:text-white">
+              Copy SMILES
+            </DialogTitle>
+            <Button
+              variant="ghost"
+              onClick={() => setShowCopyModal(false)}
+              aria-label="Close"
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              <X className="w-5 h-5" />
+            </Button>
           </div>
-        </div>
-      )}
+          <p className="mb-4 text-gray-700 dark:text-gray-300">
+            Automatic copying failed. Please select and copy this text manually:
+          </p>
+          <div className="mb-4">
+            <Input
+              type="text"
+              ref={copyTextRef}
+              value={smiles || ""}
+              readOnly
+              className="w-full font-mono text-sm"
+              onClick={(e) => (e.target as HTMLInputElement).select()}
+            />
+          </div>
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="secondary"
+              onClick={() => setShowCopyModal(false)}
+              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
+            >
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

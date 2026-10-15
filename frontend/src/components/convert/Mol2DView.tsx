@@ -267,7 +267,7 @@ const Mol2DView = () => {
         // Initial state card styling
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
           <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-            <FileText className="h-12 w-12 mx-auto mb-3 text-gray-400 dark:text-gray-500" />
+            <FileText className="h-12 w-12 mx-auto mb-3 text-gray-500 dark:text-gray-400" />
             <p>
               Enter a SMILES string and select a toolkit to generate 2D coordinates in MOL format.
             </p>

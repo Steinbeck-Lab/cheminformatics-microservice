@@ -5,7 +5,14 @@
  * Wide-screen optimised: hero fills the viewport, content uses max-w-7xl.
  * 3D molecule renders on desktop only; mobile gets the GradientMesh fallback.
  */
-import { useState, lazy, Suspense, type ReactNode, type MouseEvent } from "react";
+import {
+  useState,
+  lazy,
+  Suspense,
+  useSyncExternalStore,
+  type ReactNode,
+  type MouseEvent,
+} from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { useAppContext } from "../context/AppContext";
@@ -24,6 +31,21 @@ import { Card } from "@/components/ui/card";
 
 // Lazy-load 3D scene (heavy — Three.js bundle)
 const CaffeineMolecule3D = lazy(() => import("@/components/3d/CaffeineMolecule3D"));
+
+// Read synchronously so the 3D chunk (~1 MB) is never requested on phones
+// or when the user asks for reduced motion. CSS `hidden` alone still mounts it.
+const SHOW_3D_QUERY = "(min-width: 768px) and (prefers-reduced-motion: no-preference)";
+const subscribe3D = (onChange: () => void) => {
+  const mq = window.matchMedia(SHOW_3D_QUERY);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+};
+const useShow3D = () =>
+  useSyncExternalStore(
+    subscribe3D,
+    () => window.matchMedia(SHOW_3D_QUERY).matches,
+    () => false
+  );
 
 // --- Feature Configuration ---
 const features = [
@@ -149,16 +171,17 @@ const TiltCard = ({
 
 // --- HomePage Component ---
 const HomePage = () => {
+  const show3D = useShow3D();
   const { recentMolecules } = useAppContext();
 
   return (
     <div className="relative min-h-screen w-full text-slate-900 dark:text-slate-100 font-sans overflow-x-hidden isolate">
       {/* 3D Caffeine molecule background — desktop only (hidden <768px for GPU perf) */}
-      <div className="hidden md:block">
+      {show3D && (
         <Suspense fallback={null}>
           <CaffeineMolecule3D />
         </Suspense>
-      </div>
+      )}
 
       {/* ============================================================ */}
       {/* HERO SECTION — Full viewport, glass card centered             */}

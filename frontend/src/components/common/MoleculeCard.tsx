@@ -4,6 +4,7 @@ import { AlertCircle, CheckCircle, ChevronDown, Clipboard, Download, Info, X } f
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 // Default fallback SVG with a neutral gray fill color (#888888)
@@ -453,7 +454,7 @@ const MoleculeCard = ({
             />
           ) : (
             // Placeholder if no SMILES is provided
-            <div className="text-center text-gray-400 dark:text-gray-500 text-xs p-4">
+            <div className="text-center text-gray-500 dark:text-gray-400 text-xs p-4">
               No structure to display.
             </div>
           )}
@@ -641,168 +642,175 @@ const MoleculeCard = ({
       </div>
 
       {/* Manual Copy Modal (Shown when automatic copy fails) */}
-      {showCopyModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">Copy SMILES</h3>
-              <Button
-                variant="ghost"
-                onClick={() => setShowCopyModal(false)}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-            <p className="mb-4 text-gray-700 dark:text-gray-300">
-              Automatic copying failed. Please select and copy this text manually:
-            </p>
-            <div className="mb-4">
-              <Input
-                type="text"
-                ref={copyTextRef}
-                value={smiles || ""}
-                readOnly
-                className="w-full font-mono text-sm"
-                onClick={(e) => (e.target as HTMLInputElement).select()}
-              />
-            </div>
-            <div className="flex justify-end gap-3">
-              <Button
-                variant="secondary"
-                onClick={() => setShowCopyModal(false)}
-                className="px-4 py-2 rounded-sm"
-              >
-                Close
-              </Button>
-            </div>
+      <Dialog open={showCopyModal} onOpenChange={setShowCopyModal}>
+        <DialogContent
+          showCloseButton={false}
+          className="block gap-0 border-0 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full"
+        >
+          <div className="flex justify-between items-center mb-4">
+            <DialogTitle className="text-lg font-bold text-gray-900 dark:text-white">
+              Copy SMILES
+            </DialogTitle>
+            <Button
+              variant="ghost"
+              onClick={() => setShowCopyModal(false)}
+              aria-label="Close"
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              <X className="w-5 h-5" />
+            </Button>
           </div>
-        </div>
-      )}
+          <p className="mb-4 text-gray-700 dark:text-gray-300">
+            Automatic copying failed. Please select and copy this text manually:
+          </p>
+          <div className="mb-4">
+            <Input
+              type="text"
+              ref={copyTextRef}
+              value={smiles || ""}
+              readOnly
+              className="w-full font-mono text-sm"
+              onClick={(e) => (e.target as HTMLInputElement).select()}
+            />
+          </div>
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="secondary"
+              onClick={() => setShowCopyModal(false)}
+              className="px-4 py-2 rounded-sm"
+            >
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Molecule Details Modal */}
-      {showDetailsModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                {title !== "Molecule" ? title : "Molecule Details"}
-              </h3>
-              <Button
-                variant="ghost"
-                onClick={() => setShowDetailsModal(false)}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
+      <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
+        <DialogContent
+          showCloseButton={false}
+          className="block gap-0 border-0 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        >
+          <div className="flex justify-between items-center mb-4">
+            <DialogTitle className="text-lg font-bold text-gray-900 dark:text-white">
+              {title !== "Molecule" ? title : "Molecule Details"}
+            </DialogTitle>
+            <Button
+              variant="ghost"
+              onClick={() => setShowDetailsModal(false)}
+              aria-label="Close"
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
 
-            {/* Loading state */}
-            {isLoadingDetails && (
-              <div className="py-8 text-center">
-                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-500 border-r-transparent"></div>
-                <p className="mt-4 text-gray-600 dark:text-gray-400">
-                  Loading molecule information...
+          {/* Loading state */}
+          {isLoadingDetails && (
+            <div className="py-8 text-center">
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-500 border-r-transparent"></div>
+              <p className="mt-4 text-gray-600 dark:text-gray-400">
+                Loading molecule information...
+              </p>
+            </div>
+          )}
+
+          {/* Error state */}
+          {!isLoadingDetails && moleculeDetails?.error && (
+            <div className="py-4">
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4 mb-4">
+                <p className="text-red-700 dark:text-red-400">
+                  Could not fetch complete molecule details. Showing limited information.
                 </p>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Error state */}
-            {!isLoadingDetails && moleculeDetails?.error && (
-              <div className="py-4">
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4 mb-4">
-                  <p className="text-red-700 dark:text-red-400">
-                    Could not fetch complete molecule details. Showing limited information.
-                  </p>
+          {/* Content when details are loaded */}
+          {!isLoadingDetails && moleculeDetails && (
+            <div className="space-y-4">
+              {/* Structure visualization */}
+              <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    Structure visualization
+                  </span>
+                </div>
+                <div className="flex justify-center">
+                  <img
+                    src={imageUrl}
+                    alt={`Chemical structure of ${title}`}
+                    className="max-h-64 max-w-full object-contain"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = FALLBACK_SVG_BASE64;
+                    }}
+                  />
                 </div>
               </div>
-            )}
 
-            {/* Content when details are loaded */}
-            {!isLoadingDetails && moleculeDetails && (
-              <div className="space-y-4">
-                {/* Structure visualization */}
-                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      Structure visualization
-                    </span>
-                  </div>
-                  <div className="flex justify-center">
-                    <img
-                      src={imageUrl}
-                      alt={`Chemical structure of ${title}`}
-                      className="max-h-64 max-w-full object-contain"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = FALLBACK_SVG_BASE64;
-                      }}
-                    />
+              {/* Basic Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* SMILES */}
+                <div className="bg-gray-50 dark:bg-gray-900 rounded-md p-3">
+                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    SMILES
+                  </h4>
+                  <div className="font-mono text-xs break-all text-gray-800 dark:text-gray-200 p-2 bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700">
+                    {smiles || "N/A"}
                   </div>
                 </div>
 
-                {/* Basic Information */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* SMILES */}
+                {/* Identification */}
+                {moleculeDetails.inchi && (
                   <div className="bg-gray-50 dark:bg-gray-900 rounded-md p-3">
                     <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      SMILES
+                      InChI
                     </h4>
-                    <div className="font-mono text-xs break-all text-gray-800 dark:text-gray-200 p-2 bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700">
-                      {smiles || "N/A"}
+                    <div className="font-mono text-xs overflow-x-auto whitespace-nowrap text-gray-800 dark:text-gray-200 p-2 bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700">
+                      {moleculeDetails.inchi || "N/A"}
                     </div>
                   </div>
-
-                  {/* Identification */}
-                  {moleculeDetails.inchi && (
-                    <div className="bg-gray-50 dark:bg-gray-900 rounded-md p-3">
-                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        InChI
-                      </h4>
-                      <div className="font-mono text-xs overflow-x-auto whitespace-nowrap text-gray-800 dark:text-gray-200 p-2 bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700">
-                        {moleculeDetails.inchi || "N/A"}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Physical Properties */}
-                {renderPropertySection(
-                  "Physical Properties",
-                  moleculeDetails.physicalProperties || {}
                 )}
+              </div>
 
-                {/* Atom Counts */}
-                {renderPropertySection("Atom Count", moleculeDetails.atomCounts || {})}
+              {/* Physical Properties */}
+              {renderPropertySection(
+                "Physical Properties",
+                moleculeDetails.physicalProperties || {}
+              )}
 
-                {/* Drug-likeness Properties */}
-                {moleculeDetails.drugLikeProperties &&
-                  renderPropertySection("Drug-likeness Properties", {
-                    // Only include key drug-likeness properties
-                    hydrogenBondAcceptors: moleculeDetails.drugLikeProperties.hydrogenBondAcceptors,
-                    hydrogenBondDonors: moleculeDetails.drugLikeProperties.hydrogenBondDonors,
-                    lipinskiViolations: moleculeDetails.drugLikeProperties.lipinskiViolations,
-                    qedDrugLikeliness: moleculeDetails.drugLikeProperties.qedDrugLikeliness,
-                    npLikeness: moleculeDetails.drugLikeProperties.npLikeness,
-                  })}
+              {/* Atom Counts */}
+              {renderPropertySection("Atom Count", moleculeDetails.atomCounts || {})}
 
-                {/* QED Score Visualization */}
-                {moleculeDetails.drugLikeProperties?.qedDrugLikeliness !== undefined && (
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      QED Score
-                    </h4>
-                    <div className="bg-gray-50 dark:bg-gray-900 rounded-md p-3">
-                      <div className="mb-2 text-sm text-gray-600 dark:text-gray-400">
-                        Quantitative Estimate of Drug-likeness (0-1, higher is better)
-                      </div>
-                      {/* QED Score progress bar */}
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
-                        <div
-                          className="bg-blue-600 dark:bg-blue-500 h-4 rounded-full"
-                          style={{
-                            width: `${(moleculeDetails.drugLikeProperties.qedDrugLikeliness * 100).toFixed(0)}%`,
-                            background: `linear-gradient(90deg, 
+              {/* Drug-likeness Properties */}
+              {moleculeDetails.drugLikeProperties &&
+                renderPropertySection("Drug-likeness Properties", {
+                  // Only include key drug-likeness properties
+                  hydrogenBondAcceptors: moleculeDetails.drugLikeProperties.hydrogenBondAcceptors,
+                  hydrogenBondDonors: moleculeDetails.drugLikeProperties.hydrogenBondDonors,
+                  lipinskiViolations: moleculeDetails.drugLikeProperties.lipinskiViolations,
+                  qedDrugLikeliness: moleculeDetails.drugLikeProperties.qedDrugLikeliness,
+                  npLikeness: moleculeDetails.drugLikeProperties.npLikeness,
+                })}
+
+              {/* QED Score Visualization */}
+              {moleculeDetails.drugLikeProperties?.qedDrugLikeliness !== undefined && (
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    QED Score
+                  </h4>
+                  <div className="bg-gray-50 dark:bg-gray-900 rounded-md p-3">
+                    <div className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+                      Quantitative Estimate of Drug-likeness (0-1, higher is better)
+                    </div>
+                    {/* QED Score progress bar */}
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
+                      <div
+                        className="bg-blue-600 dark:bg-blue-500 h-4 rounded-full"
+                        style={{
+                          width: `${(moleculeDetails.drugLikeProperties.qedDrugLikeliness * 100).toFixed(0)}%`,
+                          background: `linear-gradient(90deg, 
                               ${
                                 moleculeDetails.drugLikeProperties.qedDrugLikeliness < 0.3
                                   ? "#EF4444"
@@ -817,140 +825,139 @@ const MoleculeCard = ({
                                     ? "#FBBF24"
                                     : "#34D399"
                               } 100%)`,
-                          }}
-                        />
-                      </div>
-                      <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
-                        <span>0.0</span>
-                        <span className="font-medium text-blue-600 dark:text-blue-400">
-                          {moleculeDetails.drugLikeProperties.qedDrugLikeliness.toFixed(2)}
-                        </span>
-                        <span>1.0</span>
-                      </div>
+                        }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
+                      <span>0.0</span>
+                      <span className="font-medium text-blue-600 dark:text-blue-400">
+                        {moleculeDetails.drugLikeProperties.qedDrugLikeliness.toFixed(2)}
+                      </span>
+                      <span>1.0</span>
                     </div>
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Identifiers from RDKit */}
-                {(moleculeDetails.inchi || moleculeDetails.inchiKey) && (
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Chemical Identifiers
-                    </h4>
-                    <div className="bg-gray-50 dark:bg-gray-900 rounded-md p-3 space-y-3">
-                      {/* InChI */}
-                      {moleculeDetails.inchi && (
-                        <div className="overflow-hidden text-sm">
-                          <div className="font-medium text-gray-600 dark:text-gray-400 mb-1">
-                            InChI
-                          </div>
-                          <div className="font-mono text-xs break-all bg-white dark:bg-gray-800 p-2 rounded-sm border border-gray-200 dark:border-gray-700">
-                            {moleculeDetails.inchi}
-                          </div>
+              {/* Identifiers from RDKit */}
+              {(moleculeDetails.inchi || moleculeDetails.inchiKey) && (
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Chemical Identifiers
+                  </h4>
+                  <div className="bg-gray-50 dark:bg-gray-900 rounded-md p-3 space-y-3">
+                    {/* InChI */}
+                    {moleculeDetails.inchi && (
+                      <div className="overflow-hidden text-sm">
+                        <div className="font-medium text-gray-600 dark:text-gray-400 mb-1">
+                          InChI
                         </div>
-                      )}
-
-                      {/* InChI Key */}
-                      {moleculeDetails.inchiKey && (
-                        <div className="overflow-hidden text-sm">
-                          <div className="font-medium text-gray-600 dark:text-gray-400 mb-1">
-                            InChI Key
-                          </div>
-                          <div className="font-mono text-xs bg-white dark:bg-gray-800 p-2 rounded-sm border border-gray-200 dark:border-gray-700">
-                            {moleculeDetails.inchiKey}
-                          </div>
+                        <div className="font-mono text-xs break-all bg-white dark:bg-gray-800 p-2 rounded-sm border border-gray-200 dark:border-gray-700">
+                          {moleculeDetails.inchi}
                         </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Molecular Formula */}
-                {moleculeDetails.molecularFormula && (
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Molecular Formula
-                    </h4>
-                    <div className="bg-gray-50 dark:bg-gray-900 rounded-md p-3">
-                      <div className="font-mono text-lg text-center text-gray-800 dark:text-gray-200 p-2">
-                        {moleculeDetails.molecularFormula}
                       </div>
-                    </div>
-                  </div>
-                )}
+                    )}
 
-                {/* Fallback information if API call failed */}
-                {moleculeDetails.error && (
+                    {/* InChI Key */}
+                    {moleculeDetails.inchiKey && (
+                      <div className="overflow-hidden text-sm">
+                        <div className="font-medium text-gray-600 dark:text-gray-400 mb-1">
+                          InChI Key
+                        </div>
+                        <div className="font-mono text-xs bg-white dark:bg-gray-800 p-2 rounded-sm border border-gray-200 dark:border-gray-700">
+                          {moleculeDetails.inchiKey}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Molecular Formula */}
+              {moleculeDetails.molecularFormula && (
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Molecular Formula
+                  </h4>
                   <div className="bg-gray-50 dark:bg-gray-900 rounded-md p-3">
-                    <div className="flex items-center mb-2">
-                      <AlertCircle className="h-5 w-5 text-orange-500 dark:text-orange-400 mr-2" />
-                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Estimated Information
-                      </h4>
-                    </div>
-                    <div className="space-y-2">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Unable to fetch complete molecule data. These values are rough estimates
-                        parsed from the SMILES string:
-                      </p>
-                      <ul className="list-disc pl-5 text-sm text-gray-700 dark:text-gray-300">
-                        {Object.entries(moleculeDetails.estimatedProperties || {}).map(
-                          ([key, value]) => (
-                            <li key={key}>
-                              <span className="font-medium">
-                                {key.replace(/([A-Z])/g, " $1").trim()}:
-                              </span>{" "}
-                              {value}
-                            </li>
-                          )
-                        )}
-                      </ul>
-                    </div>
-                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                      <Button
-                        variant="ghost"
-                        onClick={handleShowDetails} // Re-attempt fetch
-                        className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center"
-                      >
-                        <svg
-                          className="h-4 w-4 mr-1"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                          />
-                        </svg>
-                        Retry fetching details
-                      </Button>
+                    <div className="font-mono text-lg text-center text-gray-800 dark:text-gray-200 p-2">
+                      {moleculeDetails.molecularFormula}
                     </div>
                   </div>
-                )}
-              </div>
-            )}
+                </div>
+              )}
 
-            {/* Action buttons */}
-            <div className="mt-6 flex justify-end gap-3">
-              {/* Download button in modal */}
-              <Button onClick={handleDownload} className="px-4 py-2 rounded-sm">
-                Download Structure
-              </Button>
-
-              <Button
-                variant="secondary"
-                onClick={() => setShowDetailsModal(false)}
-                className="px-4 py-2 rounded-sm"
-              >
-                Close
-              </Button>
+              {/* Fallback information if API call failed */}
+              {moleculeDetails.error && (
+                <div className="bg-gray-50 dark:bg-gray-900 rounded-md p-3">
+                  <div className="flex items-center mb-2">
+                    <AlertCircle className="h-5 w-5 text-orange-500 dark:text-orange-400 mr-2" />
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Estimated Information
+                    </h4>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Unable to fetch complete molecule data. These values are rough estimates
+                      parsed from the SMILES string:
+                    </p>
+                    <ul className="list-disc pl-5 text-sm text-gray-700 dark:text-gray-300">
+                      {Object.entries(moleculeDetails.estimatedProperties || {}).map(
+                        ([key, value]) => (
+                          <li key={key}>
+                            <span className="font-medium">
+                              {key.replace(/([A-Z])/g, " $1").trim()}:
+                            </span>{" "}
+                            {value}
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <Button
+                      variant="ghost"
+                      onClick={handleShowDetails} // Re-attempt fetch
+                      className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center"
+                    >
+                      <svg
+                        className="h-4 w-4 mr-1"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                        />
+                      </svg>
+                      Retry fetching details
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
+          )}
+
+          {/* Action buttons */}
+          <div className="mt-6 flex justify-end gap-3">
+            {/* Download button in modal */}
+            <Button onClick={handleDownload} className="px-4 py-2 rounded-sm">
+              Download Structure
+            </Button>
+
+            <Button
+              variant="secondary"
+              onClick={() => setShowDetailsModal(false)}
+              className="px-4 py-2 rounded-sm"
+            >
+              Close
+            </Button>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

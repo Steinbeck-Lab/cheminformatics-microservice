@@ -229,7 +229,7 @@ const ClassyfireView = () => {
             {/* Classify Tab Button */}
             <Button
               variant="ghost"
-              className={`h-auto px-4 py-2 font-medium text-sm rounded-none focus:outline-hidden transition-colors duration-150 ${
+              className={`h-auto px-4 py-2 font-medium text-sm rounded-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring transition-colors duration-150 ${
                 activeTab === "classify"
                   ? "text-sky-700 dark:text-sky-400 border-b-2 border-sky-600 dark:border-sky-400"
                   : "bg-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white hover:border-b-2 hover:border-slate-300 dark:hover:border-slate-500"
@@ -242,7 +242,7 @@ const ClassyfireView = () => {
             {/* Check Job ID Tab Button */}
             <Button
               variant="ghost"
-              className={`h-auto px-4 py-2 font-medium text-sm rounded-none focus:outline-hidden transition-colors duration-150 ${
+              className={`h-auto px-4 py-2 font-medium text-sm rounded-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring transition-colors duration-150 ${
                 activeTab === "jobid"
                   ? "text-sky-700 dark:text-sky-400 border-b-2 border-sky-600 dark:border-sky-400"
                   : "bg-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white hover:border-b-2 hover:border-slate-300 dark:hover:border-slate-500"
@@ -554,7 +554,7 @@ const ClassyfireView = () => {
                                   {/* Separator */}
                                   {idx < entity.ancestors.length - 1 && (
                                     <span
-                                      className="text-gray-400 dark:text-gray-500 mx-1"
+                                      className="text-gray-500 dark:text-gray-400 mx-1"
                                       aria-hidden="true"
                                     >
                                       &gt;

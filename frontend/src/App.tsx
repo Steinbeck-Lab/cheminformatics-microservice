@@ -50,9 +50,15 @@ const Layout = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground relative">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-100 focus:rounded-lg focus:bg-background focus:px-4 focus:py-2 focus:text-foreground focus:shadow-lg focus:outline-2 focus:outline-ring"
+      >
+        Skip to content
+      </a>
       <GradientMesh page={gradientPage} />
       <Header />
-      <main className="grow pt-20">
+      <main id="main-content" tabIndex={-1} className="grow pt-20 focus:outline-none">
         <Suspense fallback={<RouteLoadingFallback />}>
           <AnimatedOutlet />
         </Suspense>
@@ -67,8 +73,8 @@ const Layout = () => {
 // NotFound component
 const NotFoundPage = () => (
   <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-    <h1 className="text-4xl font-bold text-white mb-4">Page Not Found</h1>
-    <p className="text-xl text-gray-400 mb-8">
+    <h1 className="text-4xl font-bold text-foreground mb-4">Page Not Found</h1>
+    <p className="text-xl text-muted-foreground mb-8">
       The page you're looking for doesn't exist or has been moved.
     </p>
     <a

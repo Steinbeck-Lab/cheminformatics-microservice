@@ -342,6 +342,8 @@ const FixRadicalsView = () => {
                   <div className="bg-white dark:bg-gray-900 rounded-lg border-2 border-gray-200 dark:border-gray-700 p-4 mb-3">
                     {originalDepiction ? (
                       <div
+                        role="img"
+                        aria-label="Original structure, with radicals"
                         className="w-full h-80 flex items-center justify-center [&>svg]:max-w-full [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:h-auto"
                         dangerouslySetInnerHTML={{
                           __html: DOMPurify.sanitize(originalDepiction, {
@@ -379,6 +381,8 @@ const FixRadicalsView = () => {
                   <div className="bg-white dark:bg-gray-900 rounded-lg border-2 border-green-200 dark:border-green-700 p-4 mb-3">
                     {fixedDepiction ? (
                       <div
+                        role="img"
+                        aria-label="Fixed structure"
                         className="w-full h-80 flex items-center justify-center [&>svg]:max-w-full [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:h-auto"
                         dangerouslySetInnerHTML={{
                           __html: DOMPurify.sanitize(fixedDepiction, {

@@ -163,7 +163,7 @@ const ConvertPage = () => {
               <div className="block md:hidden">
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="flex items-center justify-between w-full py-3 px-4 text-left focus:outline-hidden"
+                  className="flex items-center justify-between w-full py-3 px-4 text-left focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
                   aria-expanded={isMobileMenuOpen}
                 >
                   <div className="flex items-center">
@@ -220,7 +220,11 @@ const ConvertPage = () => {
 
               {/* Desktop Tab Navigation (Horizontal Tabs) */}
               <div className="hidden md:block">
-                <div className="flex justify-center overflow-x-auto flex-nowrap scrollbar-hide py-3 px-4 space-x-3">
+                <div
+                  className="flex justify-center overflow-x-auto flex-nowrap scrollbar-hide py-3 px-4 space-x-3"
+                  role="tablist"
+                  aria-label="Conversion tools"
+                >
                   <LayoutGroup id="convert-tabs">
                     {tabs.map((tab) => {
                       const isActive = activeTabId === tab.id;
@@ -293,9 +297,9 @@ const ConvertPage = () => {
 
                   <div className="relative p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4">
                     <div className="space-y-1 text-center md:text-left max-w-3xl">
-                      <h1 className="text-xl md:text-3xl font-bold leading-tight text-white dark:text-slate-50">
+                      <h2 className="text-xl md:text-3xl font-bold leading-tight text-white dark:text-slate-50">
                         {activeTab.name}
-                      </h1>
+                      </h2>
                       <p className="text-teal-50 dark:text-cyan-100 text-xs md:text-base opacity-90">
                         {activeTab.description}
                       </p>

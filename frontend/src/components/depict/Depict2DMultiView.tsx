@@ -1,5 +1,5 @@
 // Description: This component allows users to generate 2D depictions of multiple molecules from SMILES strings.
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 // Assuming these components are correctly implemented and styled for dark/light mode
 import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
@@ -63,16 +63,18 @@ const toggleSpring = {
 const ToggleSwitch = ({ id, checked, onChange, label, disabled = false }) => {
   return (
     <div className="flex items-center space-x-3 py-1 px-0.5">
-      <div
-        className={`relative flex items-center w-12 h-6 rounded-full p-0.5 cursor-pointer transition-all duration-300 ease-in-out ${
+      <button
+        type="button"
+        id={id}
+        disabled={disabled}
+        className={`relative touch-target flex shrink-0 items-center w-12 h-6 rounded-full p-0.5 cursor-pointer transition-all duration-300 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
           checked
             ? "bg-linear-to-r from-blue-600 via-blue-500 to-indigo-500 border-2 border-cyan-400 dark:border-cyan-300"
             : "bg-linear-to-r from-gray-300 via-gray-350 to-gray-400 dark:from-gray-600 dark:via-gray-650 dark:to-gray-700"
         } ${disabled ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}`}
-        onClick={() => !disabled && onChange(!checked)}
+        onClick={() => onChange(!checked)}
         role="switch"
         aria-checked={checked}
-        aria-label={label}
       >
         <LayoutGroup>
           <motion.div
@@ -90,17 +92,16 @@ const ToggleSwitch = ({ id, checked, onChange, label, disabled = false }) => {
             }}
           />
         </LayoutGroup>
-      </div>
+      </button>
       <label
         htmlFor={id}
         className={`text-sm font-medium select-none transition-colors duration-200 ${
           disabled
-            ? "text-gray-400 dark:text-gray-500"
+            ? "text-gray-500 dark:text-gray-400"
             : checked
               ? "text-blue-700 dark:text-blue-400 cursor-pointer"
               : "text-gray-700 dark:text-gray-300 cursor-pointer hover:text-gray-900 dark:hover:text-gray-100"
         }`}
-        onClick={() => !disabled && onChange(!checked)}
       >
         {label}
       </label>
@@ -256,11 +257,18 @@ const BatchDepictionView = () => {
   // --- Removed useEffect hook for automatic regeneration on option changes ---
 
   // Handle rotation change for a specific molecule
+  // One pending re-render per molecule, so a slider drag sends one request instead of one per degree
+  const rotationTimers = useRef({});
+
   const handleRotationChange = (id, value) => {
     const rotation = Number(value);
     // Update rotation state for the specific molecule
     setRotations((prev) => ({ ...prev, [id]: rotation }));
+    clearTimeout(rotationTimers.current[id]);
+    rotationTimers.current[id] = setTimeout(() => applyRotation(id, rotation), 200);
+  };
 
+  const applyRotation = (id, rotation) => {
     // Update the image URL immediately for this molecule
     setDepictions((currentDepictions) =>
       currentDepictions.map((dep) => {
@@ -833,7 +841,11 @@ const BatchDepictionView = () => {
                       Width (px)
                     </label>
                     <div className="flex items-center space-x-2">
-                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        tabIndex={-1}
+                      >
                         <Button
                           type="button"
                           variant="outline"
@@ -857,7 +869,11 @@ const BatchDepictionView = () => {
                         step={10}
                         className="flex-1 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
-                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        tabIndex={-1}
+                      >
                         <Button
                           type="button"
                           variant="outline"
@@ -881,7 +897,11 @@ const BatchDepictionView = () => {
                       Height (px)
                     </label>
                     <div className="flex items-center space-x-2">
-                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        tabIndex={-1}
+                      >
                         <Button
                           type="button"
                           variant="outline"
@@ -905,7 +925,11 @@ const BatchDepictionView = () => {
                         step={10}
                         className="flex-1 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
-                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        tabIndex={-1}
+                      >
                         <Button
                           type="button"
                           variant="outline"
@@ -1229,6 +1253,7 @@ const BatchDepictionView = () => {
               whileHover={!inputText.trim() || loading ? {} : { scale: 1.02, y: -1 }}
               whileTap={!inputText.trim() || loading ? {} : { scale: 0.98 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              tabIndex={-1}
             >
               <Button
                 type="submit"
@@ -1261,6 +1286,7 @@ const BatchDepictionView = () => {
                 whileHover={{ scale: 1.02, y: -1 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                tabIndex={-1}
               >
                 <Button
                   variant="secondary"
@@ -1297,6 +1323,7 @@ const BatchDepictionView = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    tabIndex={-1}
                   >
                     <Button
                       type="button"
@@ -1315,6 +1342,7 @@ const BatchDepictionView = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  tabIndex={-1}
                 >
                   <Button
                     type="button"
@@ -1455,7 +1483,7 @@ const BatchDepictionView = () => {
                     aria-label={`Rotation for ${depiction.title}`}
                   />
                   {/* Slider Labels */}
-                  <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-1">
+                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
                     <span>0°</span>
                     <span>359°</span>
                   </div>
@@ -1468,6 +1496,7 @@ const BatchDepictionView = () => {
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    tabIndex={-1}
                   >
                     <Button
                       variant="ghost"
@@ -1487,6 +1516,7 @@ const BatchDepictionView = () => {
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    tabIndex={-1}
                   >
                     <Button
                       variant="ghost"
@@ -1539,7 +1569,7 @@ const BatchDepictionView = () => {
       {!depictions.length && !loading && !error && (
         // Initial state card styling
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg flex flex-col items-center justify-center text-center min-h-[300px] border border-gray-200 dark:border-gray-700">
-          <Image className="h-16 w-16 text-gray-400 dark:text-gray-600 mb-4" />
+          <Image className="h-16 w-16 text-gray-500 dark:text-gray-600 mb-4" />
           <p className="text-gray-500 dark:text-gray-400">
             Enter SMILES or CXSMILES strings (one per line, optionally with titles) and click
             "Generate Depictions".
