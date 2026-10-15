@@ -19,6 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      # Skip OCSR: importing DECIMER downloads its models, which took over an hour in CI
+      INCLUDE_OCSR: "false"
     strategy:
       matrix:
         python-version: ["3.10"]
@@ -44,8 +46,6 @@ jobs:
         python -m pip install --upgrade pip
         pip3 install --upgrade setuptools pip
         pip3 install --no-cache-dir -r requirements.txt
-        pip install git+https://github.com/Kohulan/DECIMER-Image-Segmentation.git --no-deps
-        pip3 install --no-deps decimer
         pip install flake8 pytest
         pip install pytest-cov
         wget "https://github.com/StructureGenerator/surge/releases/download/v2.0/surge-linux-x86_64.tar.gz"
