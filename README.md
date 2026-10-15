@@ -145,7 +145,7 @@ For detailed instructions, please refer to:
 - [Kubernetes Cluster Deployment Guide](https://docs.api.naturalproducts.net/cluster-deployment.html)
 - [Standalone Installation Guide](https://docs.api.naturalproducts.net/standalone.html)
 
-## MCP Server
+## 🤖 MCP Server
 
 Cheminformatics Microservice also supports the Model Context Protocol (MCP),
 enabling AI agents to discover and invoke its REST operations as tools for
