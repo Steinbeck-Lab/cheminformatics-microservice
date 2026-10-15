@@ -200,7 +200,10 @@ const MolFileUpload = ({
 
       {/* Error Display */}
       {error && !loading && (
-        <div className="flex items-start p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+        <div
+          role="alert"
+          className="flex items-start p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
+        >
           <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
           <div className="ml-3 flex-1">
             <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
@@ -208,6 +211,7 @@ const MolFileUpload = ({
           <Button
             variant="ghost"
             onClick={() => setError(null)}
+            aria-label="Dismiss error"
             className="ml-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
           >
             <X className="h-4 w-4" />

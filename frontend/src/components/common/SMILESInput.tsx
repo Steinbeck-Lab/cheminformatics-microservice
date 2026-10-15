@@ -6,6 +6,7 @@ import { AlertCircle, Clipboard, Clock, Lightbulb, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 // Example molecules data (static, moved outside component)
 const EXAMPLE_MOLECULES = [
@@ -43,24 +44,30 @@ const EXAMPLE_MOLECULES = [
 
 // Dropdown List Item Component (for cleaner code)
 const DropdownItem = ({ molecule, onClick }) => (
-  <li
-    className="px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer rounded-md mx-1"
-    onClick={() => onClick(molecule.smiles)}
-    role="menuitem"
-    tabIndex={-1} // Can be focused programmatically if needed
-  >
-    <p
-      className="font-medium text-sm text-gray-800 dark:text-gray-100 truncate"
-      title={molecule.name || `SMILES: ${molecule.smiles}`}
+  <li className="mx-1">
+    <button
+      type="button"
+      className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 focus-visible:bg-gray-100 dark:focus-visible:bg-gray-700 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring cursor-pointer rounded-md"
+      onClick={() => onClick(molecule.smiles)}
     >
-      {molecule.name || "Recent Molecule"}
-    </p>
-    <p className="text-xs text-gray-500 dark:text-gray-400 truncate" title={molecule.smiles}>
-      {molecule.smiles}
-    </p>
-    {molecule.description && (
-      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{molecule.description}</p>
-    )}
+      <span
+        className="block font-medium text-sm text-gray-800 dark:text-gray-100 truncate"
+        title={molecule.name || `SMILES: ${molecule.smiles}`}
+      >
+        {molecule.name || "Recent Molecule"}
+      </span>
+      <span
+        className="block text-xs text-gray-500 dark:text-gray-400 truncate"
+        title={molecule.smiles}
+      >
+        {molecule.smiles}
+      </span>
+      {molecule.description && (
+        <span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">
+          {molecule.description}
+        </span>
+      )}
+    </button>
   </li>
 );
 
@@ -69,22 +76,21 @@ const PasteModal = ({ isOpen, onClose, onPaste }) => {
   const [text, setText] = useState("");
   const textareaRef = useRef(null);
 
-  useEffect(() => {
-    if (isOpen && textareaRef.current) {
-      textareaRef.current.focus();
-    }
-  }, [isOpen]);
-
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full animate-fadeIn">
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent
+        showCloseButton={false}
+        className="block gap-0 border-0 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full"
+        onOpenAutoFocus={(e) => {
+          e.preventDefault();
+          textareaRef.current?.focus();
+        }}
+      >
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center">
+          <DialogTitle className="text-lg font-bold text-gray-900 dark:text-white flex items-center">
             <Clipboard className="h-5 w-5 mr-2 text-indigo-500 dark:text-indigo-400" />
             Paste SMILES
-          </h3>
+          </DialogTitle>
           <Button
             variant="ghost"
             onClick={onClose}
@@ -104,7 +110,7 @@ const PasteModal = ({ isOpen, onClose, onPaste }) => {
             onChange={(e) => setText(e.target.value)}
             className="w-full font-mono text-sm h-24"
             placeholder="Paste SMILES here..."
-            autoFocus
+            aria-label="SMILES string"
           />
         </div>
         <div className="flex justify-end gap-3">
@@ -126,8 +132,8 @@ const PasteModal = ({ isOpen, onClose, onPaste }) => {
             Use SMILES
           </Button>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
@@ -156,6 +162,7 @@ const SMILESInput = ({
   showRecent = true,
   label = "SMILES",
   required = false,
+  id: inputId = "smiles-input",
 }) => {
   const [showExampleList, setShowExampleList] = useState(false);
   const [showRecentList, setShowRecentList] = useState(false);
@@ -184,6 +191,13 @@ const SMILESInput = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const closeListsOnEscape = (e) => {
+    if (e.key === "Escape") {
+      setShowExampleList(false);
+      setShowRecentList(false);
+    }
+  };
 
   const handleClear = () => {
     onChange("");
@@ -262,7 +276,7 @@ const SMILESInput = ({
       {/* Label */}
       {label && (
         <label
-          htmlFor="smiles-input"
+          htmlFor={inputId}
           className="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
           {label} {required && <span className="text-red-500 dark:text-red-400">*</span>}
@@ -272,7 +286,7 @@ const SMILESInput = ({
       {/* Input field with Clear button */}
       <div className="relative">
         <Input
-          id="smiles-input"
+          id={inputId}
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -289,7 +303,7 @@ const SMILESInput = ({
             type="button" // Prevent form submission
             onClick={handleClear}
             // Button styling
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 rounded-r-md"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 rounded-r-md"
             aria-label="Clear input"
           >
             <X className="h-5 w-5" />
@@ -321,16 +335,15 @@ const SMILESInput = ({
 
         {/* Examples button and dropdown */}
         {showExamples && (
-          <div className="relative" ref={examplesRef}>
+          <div className="relative" ref={examplesRef} onKeyDown={closeListsOnEscape}>
             <Button
               type="button"
               onClick={() => {
                 setShowExampleList(!showExampleList);
                 setShowRecentList(false); // Close other dropdown
               }}
-              aria-haspopup="true"
               aria-expanded={showExampleList}
-              aria-controls="examples-dropdown"
+              aria-controls={`${inputId}-examples`}
               // Button styling
               className="inline-flex items-center px-2.5 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 text-xs font-medium shadow-xs transition-colors duration-150 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
             >
@@ -341,14 +354,11 @@ const SMILESInput = ({
             {/* Examples Dropdown */}
             {showExampleList && (
               <div
-                id="examples-dropdown"
+                id={`${inputId}-examples`}
                 // Dropdown styling
                 className="absolute z-20 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-hidden"
-                role="menu"
-                aria-orientation="vertical"
-                aria-labelledby="examples-button" // Needs id on button
               >
-                <ul className="py-1 max-h-64 overflow-y-auto" role="none">
+                <ul className="py-1 max-h-64 overflow-y-auto">
                   {EXAMPLE_MOLECULES.map((molecule, index) => (
                     <DropdownItem key={index} molecule={molecule} onClick={handleExampleClick} />
                   ))}
@@ -360,16 +370,15 @@ const SMILESInput = ({
 
         {/* Recent molecules button and dropdown */}
         {showRecent && recentMolecules.length > 0 && (
-          <div className="relative" ref={recentRef}>
+          <div className="relative" ref={recentRef} onKeyDown={closeListsOnEscape}>
             <Button
               type="button"
               onClick={() => {
                 setShowRecentList(!showRecentList);
                 setShowExampleList(false); // Close other dropdown
               }}
-              aria-haspopup="true"
               aria-expanded={showRecentList}
-              aria-controls="recent-dropdown"
+              aria-controls={`${inputId}-recent`}
               // Button styling
               className="inline-flex items-center px-2.5 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 text-xs font-medium shadow-xs transition-colors duration-150 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
             >
@@ -380,14 +389,11 @@ const SMILESInput = ({
             {/* Recent Dropdown */}
             {showRecentList && (
               <div
-                id="recent-dropdown"
+                id={`${inputId}-recent`}
                 // Dropdown styling
                 className="absolute z-20 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-hidden"
-                role="menu"
-                aria-orientation="vertical"
-                aria-labelledby="recent-button" // Needs id on button
               >
-                <ul className="py-1 max-h-64 overflow-y-auto" role="none">
+                <ul className="py-1 max-h-64 overflow-y-auto">
                   {recentMolecules.map((molecule, index) => (
                     <DropdownItem
                       key={molecule.timestamp || index}

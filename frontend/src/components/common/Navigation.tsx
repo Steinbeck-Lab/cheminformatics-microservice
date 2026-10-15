@@ -74,7 +74,12 @@ const Navigation = ({
         {navLinks.map((link) => {
           const Icon = link.icon;
           return (
-            <NavLink key={link.to} to={link.to} end={link.exact} className="relative outline-none">
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end={link.exact}
+              className="relative rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            >
               {({ isActive }) => (
                 <motion.div
                   className={`relative flex items-center px-2.5 xl:px-3 py-1.5 text-sm font-medium rounded-full cursor-pointer select-none ${

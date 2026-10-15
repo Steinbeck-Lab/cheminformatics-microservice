@@ -63,16 +63,18 @@ const toggleSpring = {
 const ToggleSwitch = ({ id, checked, onChange, label, disabled = false }) => {
   return (
     <div className="flex items-center space-x-3 py-1 px-0.5">
-      <div
-        className={`relative flex items-center w-12 h-6 rounded-full p-0.5 cursor-pointer transition-all duration-300 ease-in-out ${
+      <button
+        type="button"
+        id={id}
+        disabled={disabled}
+        className={`relative flex shrink-0 items-center w-12 h-6 rounded-full p-0.5 cursor-pointer transition-all duration-300 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
           checked
             ? "bg-linear-to-r from-blue-600 via-blue-500 to-indigo-500 border-2 border-cyan-400 dark:border-cyan-300"
             : "bg-linear-to-r from-gray-300 via-gray-350 to-gray-400 dark:from-gray-600 dark:via-gray-650 dark:to-gray-700"
         } ${disabled ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}`}
-        onClick={() => !disabled && onChange(!checked)}
+        onClick={() => onChange(!checked)}
         role="switch"
         aria-checked={checked}
-        aria-label={label}
       >
         <LayoutGroup>
           <motion.div
@@ -90,17 +92,16 @@ const ToggleSwitch = ({ id, checked, onChange, label, disabled = false }) => {
             }}
           />
         </LayoutGroup>
-      </div>
+      </button>
       <label
         htmlFor={id}
         className={`text-sm font-medium select-none transition-colors duration-200 ${
           disabled
-            ? "text-gray-400 dark:text-gray-500"
+            ? "text-gray-500 dark:text-gray-400"
             : checked
               ? "text-blue-700 dark:text-blue-400 cursor-pointer"
               : "text-gray-700 dark:text-gray-300 cursor-pointer hover:text-gray-900 dark:hover:text-gray-100"
         }`}
-        onClick={() => !disabled && onChange(!checked)}
       >
         {label}
       </label>
@@ -1455,7 +1456,7 @@ const BatchDepictionView = () => {
                     aria-label={`Rotation for ${depiction.title}`}
                   />
                   {/* Slider Labels */}
-                  <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-1">
+                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
                     <span>0°</span>
                     <span>359°</span>
                   </div>
@@ -1539,7 +1540,7 @@ const BatchDepictionView = () => {
       {!depictions.length && !loading && !error && (
         // Initial state card styling
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg flex flex-col items-center justify-center text-center min-h-[300px] border border-gray-200 dark:border-gray-700">
-          <Image className="h-16 w-16 text-gray-400 dark:text-gray-600 mb-4" />
+          <Image className="h-16 w-16 text-gray-500 dark:text-gray-600 mb-4" />
           <p className="text-gray-500 dark:text-gray-400">
             Enter SMILES or CXSMILES strings (one per line, optionally with titles) and click
             "Generate Depictions".

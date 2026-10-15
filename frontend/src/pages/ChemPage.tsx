@@ -484,9 +484,9 @@ const ChemPage = () => {
                           className={`h-6 w-6 sm:h-7 sm:w-7 mr-3 sm:mr-4 shrink-0 mt-0.5 sm:mt-0 ${getCategoryColorClass(activeTab.category, "text")}`}
                         />
                         <div>
-                          <h1 className="text-xl sm:text-2xl font-bold text-foreground">
+                          <h2 className="text-xl sm:text-2xl font-bold text-foreground">
                             {activeTab.name}
-                          </h1>
+                          </h2>
                           <p className="text-sm text-muted-foreground mt-1">
                             {activeTab.description}
                           </p>

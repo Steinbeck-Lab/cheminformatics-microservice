@@ -207,7 +207,7 @@ const Footer = () => {
             y2="70"
             stroke="currentColor"
             strokeWidth="2"
-            className="text-gray-400"
+            className="text-gray-500"
           />
           <line
             x1="100"
@@ -216,7 +216,7 @@ const Footer = () => {
             y2="130"
             stroke="currentColor"
             strokeWidth="2"
-            className="text-gray-400"
+            className="text-gray-500"
           />
           <line
             x1="100"
@@ -225,7 +225,7 @@ const Footer = () => {
             y2="140"
             stroke="currentColor"
             strokeWidth="2"
-            className="text-gray-400"
+            className="text-gray-500"
           />
         </svg>
       </div>
