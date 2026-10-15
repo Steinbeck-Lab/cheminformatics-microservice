@@ -536,6 +536,7 @@ def test_tanimoto_similarity_invalid_smiles():
 
 
 # Tests for ClassyFire classification success path
+@pytest.mark.skip(reason="Calls the live ClassyFire service, which is slow and often down")
 def test_classyfire_classification_success(test_smiles):
     """Test ClassyFire classification endpoint."""
     response = client.get(f"/latest/chem/classyfire/classify?smiles={test_smiles}")
@@ -555,6 +556,7 @@ def test_classyfire_result_without_jobid():
     assert response.status_code in [404, 422]
 
 
+@pytest.mark.skip(reason="Calls the live ClassyFire service, which is slow and often down")
 def test_classyfire_result_with_invalid_jobid():
     """Test ClassyFire result endpoint with invalid job ID."""
     response = client.get("/latest/chem/classyfire/invalid_job_12345/result")
@@ -1353,6 +1355,7 @@ class TestCOCONUTPreprocessingEdgeCases:
         assert response.status_code in [200, 422]
 
 
+@pytest.mark.skip(reason="Calls the live ClassyFire service, which is slow and often down")
 class TestClassyFireEdgeCases:
     """Test ClassyFire edge cases (lines 932, 940)."""
 

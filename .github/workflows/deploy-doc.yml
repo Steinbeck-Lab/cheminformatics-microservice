@@ -5,11 +5,11 @@ on:
   workflow_dispatch: {}
   push:
     branches:
-      - main
+      - development
     paths:
-      - 'docs/**'
-      - 'package*.json'
-      - '.github/workflows/deploy-doc.yml'
+      - "docs/**"
+      - "package*.json"
+      - ".github/workflows/deploy-doc.yml"
 
 jobs:
   deploy:
