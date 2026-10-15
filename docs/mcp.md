@@ -67,8 +67,9 @@ Streamable HTTP or stdio.
 | `GET /openapi.json`   | REST OpenAPI schema                                                            |
 | `GET /health`         | Application health check                                                       |
 
-Configure an SSE-capable MCP client with `http://SERVER_ADDRESS:8002/mcp`,
-replacing `SERVER_ADDRESS` with the deployment's reachable IP address or hostname.
+Configure an SSE-capable MCP client with `https://mcp.naturalproducts.net:8002/mcp`
+once DNS and TLS are configured. HTTPS requires a valid certificate and a
+TLS-enabled listener on port 8002; DNS mapping alone does not enable it.
 Client configuration formats vary; select the SSE transport explicitly where
 required. Clients supporting only Streamable HTTP cannot use this adapter as-is.
 
@@ -88,13 +89,11 @@ MCP discovery, tool calls, and returning results to the model.
 From the computer running your agent:
 
 ```bash
-curl --fail http://SERVER_ADDRESS:8002/health
+curl --fail https://mcp.naturalproducts.net:8002/health
 ```
 
-Replace `SERVER_ADDRESS` with your server's IP address or hostname. For example,
-the deployment at `10.232.56.9` uses `http://10.232.56.9:8002/mcp`.
-Addresses in the `10.x.x.x` range are private; your computer needs access through
-the same network, VPN, or suitable routing.
+The planned hostname is `mcp.naturalproducts.net`. This example will work after
+its DNS record and TLS listener are configured and your computer can reach port 8002.
 
 ### 2. Add the server to your agent
 
@@ -104,18 +103,18 @@ In an agent with a remote MCP connection form, enter:
 | -------------- | -------------------------------- |
 | Name           | `cheminformatics`                |
 | Transport      | `SSE`                            |
-| Server URL     | `http://SERVER_ADDRESS:8002/mcp` |
+| Server URL     | `https://mcp.naturalproducts.net:8002/mcp` |
 | Authentication | None in the current deployment   |
 
 For example, in **VS Code with GitHub Copilot agent mode**, add this workspace
-configuration to `.vscode/mcp.json`, replacing the address:
+configuration to `.vscode/mcp.json`:
 
 ```json
 {
   "servers": {
     "cheminformatics": {
       "type": "sse",
-      "url": "http://SERVER_ADDRESS:8002/mcp"
+      "url": "https://mcp.naturalproducts.net:8002/mcp"
     }
   }
 }
