@@ -25,6 +25,9 @@ docker run -d -p 8080:80 --name [image-name] nfdi4chem/cheminformatics-microserv
 
 ## Docker Compose
 
+For the MCP-enabled lite service, tool discovery, and AI-client integration, see
+the [MCP guide](./mcp.md).
+
 [Docker Compose](https://docs.docker.com/get-started/08_using_compose/) is a handy tool that allows you to define and manage multi-container applications. By creating a YAML file to define the services, you can use a simple command to start or stop everything at once.
 Check out https://docs.docker.com/get-started/08_using_compose/ for more information.
 
