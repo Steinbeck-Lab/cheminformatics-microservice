@@ -46,6 +46,8 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
+    // Node 25+ ships a global localStorage that shadows jsdom's and lacks its methods
+    execArgv: ["--no-experimental-webstorage"],
     setupFiles: "./src/__tests__/setup.ts",
     css: true,
     alias: {
