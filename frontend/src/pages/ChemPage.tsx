@@ -266,7 +266,11 @@ const ChemPage = () => {
   return (
     <div className="relative min-h-screen">
       {/* Mobile toggle button */}
-      <motion.div className="md:hidden fixed top-20 left-4 z-[60]" whileTap={{ scale: 0.95 }}>
+      <motion.div
+        className="md:hidden fixed top-20 left-4 z-[60]"
+        whileTap={{ scale: 0.95 }}
+        tabIndex={-1}
+      >
         <Button
           variant="ghost"
           size="icon"

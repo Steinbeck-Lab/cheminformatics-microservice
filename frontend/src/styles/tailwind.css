@@ -296,6 +296,22 @@
 }
 
 /* Button hover lift with glow (ANIM-02) */
+/* Grow the tap area to 44x44 on touch screens without changing the layout.
+   The element needs a positioning context (Button sets "relative"). */
+@utility touch-target {
+  @media (pointer: coarse) {
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: max(100%, 44px);
+      height: max(100%, 44px);
+      transform: translate(-50%, -50%);
+    }
+  }
+}
+
 @utility btn-hover-lift {
   transition:
     transform 200ms ease,
@@ -395,4 +411,21 @@
   100% {
     transform: translateX(100%);
   }
+}
+
+/* ===== Keyboard focus =====
+   Unlayered on purpose: it beats every utility, so a caller's `outline-none` or
+   `focus:outline-hidden` can no longer hide the focus ring from keyboard users.
+   Text fields keep their own focus ring (shadcn Input/Textarea/Select). */
+:where(
+  a[href],
+  button,
+  summary,
+  [role="button"],
+  [role="tab"],
+  [role="switch"],
+  [role="menuitem"]
+):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }

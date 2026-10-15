@@ -1201,7 +1201,7 @@ const SugarRemovalView = () => {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                     Highlight Sugar Type
                   </label>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <Button
                       variant="ghost"
                       onClick={() => setHighlightMode("circular")}

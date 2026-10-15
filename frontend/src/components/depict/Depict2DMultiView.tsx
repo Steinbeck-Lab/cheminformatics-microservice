@@ -67,7 +67,7 @@ const ToggleSwitch = ({ id, checked, onChange, label, disabled = false }) => {
         type="button"
         id={id}
         disabled={disabled}
-        className={`relative flex shrink-0 items-center w-12 h-6 rounded-full p-0.5 cursor-pointer transition-all duration-300 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
+        className={`relative touch-target flex shrink-0 items-center w-12 h-6 rounded-full p-0.5 cursor-pointer transition-all duration-300 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
           checked
             ? "bg-linear-to-r from-blue-600 via-blue-500 to-indigo-500 border-2 border-cyan-400 dark:border-cyan-300"
             : "bg-linear-to-r from-gray-300 via-gray-350 to-gray-400 dark:from-gray-600 dark:via-gray-650 dark:to-gray-700"
@@ -841,7 +841,11 @@ const BatchDepictionView = () => {
                       Width (px)
                     </label>
                     <div className="flex items-center space-x-2">
-                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        tabIndex={-1}
+                      >
                         <Button
                           type="button"
                           variant="outline"
@@ -865,7 +869,11 @@ const BatchDepictionView = () => {
                         step={10}
                         className="flex-1 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
-                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        tabIndex={-1}
+                      >
                         <Button
                           type="button"
                           variant="outline"
@@ -889,7 +897,11 @@ const BatchDepictionView = () => {
                       Height (px)
                     </label>
                     <div className="flex items-center space-x-2">
-                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        tabIndex={-1}
+                      >
                         <Button
                           type="button"
                           variant="outline"
@@ -913,7 +925,11 @@ const BatchDepictionView = () => {
                         step={10}
                         className="flex-1 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
-                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        tabIndex={-1}
+                      >
                         <Button
                           type="button"
                           variant="outline"
@@ -1237,6 +1253,7 @@ const BatchDepictionView = () => {
               whileHover={!inputText.trim() || loading ? {} : { scale: 1.02, y: -1 }}
               whileTap={!inputText.trim() || loading ? {} : { scale: 0.98 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              tabIndex={-1}
             >
               <Button
                 type="submit"
@@ -1269,6 +1286,7 @@ const BatchDepictionView = () => {
                 whileHover={{ scale: 1.02, y: -1 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                tabIndex={-1}
               >
                 <Button
                   variant="secondary"
@@ -1305,6 +1323,7 @@ const BatchDepictionView = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    tabIndex={-1}
                   >
                     <Button
                       type="button"
@@ -1323,6 +1342,7 @@ const BatchDepictionView = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  tabIndex={-1}
                 >
                   <Button
                     type="button"
@@ -1476,6 +1496,7 @@ const BatchDepictionView = () => {
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    tabIndex={-1}
                   >
                     <Button
                       variant="ghost"
@@ -1495,6 +1516,7 @@ const BatchDepictionView = () => {
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    tabIndex={-1}
                   >
                     <Button
                       variant="ghost"

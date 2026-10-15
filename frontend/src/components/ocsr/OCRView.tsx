@@ -334,7 +334,7 @@ const OCRView = () => {
                 role="switch"
                 aria-checked={handDrawn}
                 aria-label="Toggle hand-drawn model"
-                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-800 disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`relative touch-target inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-800 disabled:opacity-50 disabled:cursor-not-allowed ${
                   handDrawn ? "bg-green-600 dark:bg-green-500" : "bg-slate-300 dark:bg-slate-600"
                 }`}
               >

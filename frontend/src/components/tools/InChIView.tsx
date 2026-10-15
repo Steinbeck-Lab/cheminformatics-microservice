@@ -1750,10 +1750,7 @@ const InChIView = () => {
           )}
 
           {/* Ketcher Editor Container */}
-          <div
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-2xl"
-            style={{ height: "900px" }}
-          >
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden h-[75dvh] min-h-[480px] md:h-[900px] transition-all duration-300 hover:shadow-2xl">
             <iframe
               ref={ketcherFrame}
               src="/standalone/index.html"

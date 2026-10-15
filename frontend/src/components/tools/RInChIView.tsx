@@ -1259,10 +1259,7 @@ const RInChIView = () => {
 
           {/* Ketcher Editor Container (only show when needed) */}
           {activeInputType !== "rinchi-to-file" && (
-            <div
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
-              style={{ height: "900px" }}
-            >
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden h-[75dvh] min-h-[480px] md:h-[900px]">
               <iframe
                 ref={ketcherFrame}
                 src="/standalone/index.html"

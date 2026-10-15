@@ -91,6 +91,8 @@ const Navigation = ({
                   whileTap="tap"
                   initial="idle"
                   animate="idle"
+                  // motion makes whileTap elements focusable; the NavLink is already the tab stop
+                  tabIndex={-1}
                 >
                   {/* Animated active pill background */}
                   {isActive && (
