@@ -1,4 +1,5 @@
 chembl_structure_pipeline
+docling
 fastapi>=0.110.3
 fastapi-pagination==0.10.0
 fastapi-versioning>=0.10.0
@@ -13,12 +14,13 @@ pandas
 pre-commit
 prometheus-fastapi-instrumentator
 pystow>=0.4.9
+PyPDF2
 python-multipart
 selfies>=2.1.1
-tensorflow==2.12.0
 unicodedata2==15.0.0
 websockets==10.4
 mapchiral
+mcp>=1.8.1,<2
 slowapi
 imantics==0.1.12
 rdkit
