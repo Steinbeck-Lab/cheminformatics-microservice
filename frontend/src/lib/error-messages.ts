@@ -4,7 +4,7 @@ type DomainMessages = {
   timeout?: string;
 };
 
-const ERROR_MESSAGES: Record<string, DomainMessages> = {
+const ERROR_MESSAGES: Record<string, DomainMessages> & { network: DomainMessages } = {
   chem: {
     default: "Could not analyze this molecule. Please check the input and try again.",
     parse: "The molecule could not be parsed. Verify the SMILES or structure input.",
@@ -77,4 +77,14 @@ export function getErrorMessage(domain: string, error: unknown): string {
   }
 
   return messages.default;
+}
+
+/** The message of a thrown Error; for anything else, `fallback` if given, else `String(err)`. */
+export function errorText(err: unknown, fallback?: string): string {
+  return err instanceof Error ? err.message : (fallback ?? String(err));
+}
+
+/** An Error reading "<label>: <message>", for a service call that failed. */
+export function failed(label: string, err: unknown): Error {
+  return new Error(`${label}: ${errorText(err, "Unknown error")}`);
 }

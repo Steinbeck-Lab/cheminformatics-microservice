@@ -1,26 +1,36 @@
 // Description: A component for 2D molecule depiction
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useId } from "react";
 
-// Assuming this service is configured correctly
 import depictService from "../../services/depictService";
-import { Download, RefreshCw } from "lucide-react";
+import { errorText } from "@/lib/error-messages";
+import { AlertCircle, Download, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
+import { RotationSlider, Select, Switch } from "@/components/common/porcelain-ui";
+
+const H_DISPLAY_OPTIONS: [string, string][] = [
+  ["Smart", "Smart"],
+  ["Provided", "Provided"],
+  ["Minimal", "Minimal"],
+  ["Explicit", "Explicit"],
+  ["Stereo", "Stereo"],
+];
+
+interface MoleculeDepiction2DProps {
+  smiles: string;
+  title?: string;
+  toolkit?: string;
+  showCIP?: boolean;
+}
 
 const MoleculeDepiction2D = ({
   smiles,
   title,
   toolkit = "rdkit",
   showCIP: initialShowCIP = false,
-}) => {
-  const [error, setError] = useState(null);
+}: MoleculeDepiction2DProps) => {
+  const uid = useId();
+  const rotationId = `${uid}-rotation`;
+  const [error, setError] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState("");
   const [rotation, setRotation] = useState(0);
   // The slider label follows `rotation` live; the image only re-renders once dragging pauses
@@ -45,7 +55,6 @@ const MoleculeDepiction2D = ({
     }
 
     try {
-      // Prepare options
       const options = {
         toolkit,
         width: imageWidth,
@@ -56,13 +65,12 @@ const MoleculeDepiction2D = ({
         hydrogen_display: toolkit === "cdk" ? hydrogenDisplay : undefined,
       };
 
-      // Get the URL
       const url = depictService.get2DDepictionUrl(smiles, options);
       setImageUrl(url);
       setError(null);
     } catch (err) {
       console.error("Error generating 2D depiction:", err);
-      setError(`Failed to generate 2D depiction: ${err.message}`);
+      setError(`Failed to generate 2D depiction: ${errorText(err)}`);
     }
   }, [smiles, toolkit, renderedRotation, useUnicolor, showCIP, hydrogenDisplay]);
 
@@ -73,32 +81,20 @@ const MoleculeDepiction2D = ({
     }
   }, [smiles, generateDepiction]);
 
-  // Handle rotation change
-  const handleRotationChange = (e) => {
-    setRotation(Number(e.target.value));
-  };
-
-  // Handle refresh button click - reset to original settings
+  // Reset every option to the value the component started with
   const handleRefresh = () => {
-    // Reset all settings to their initial values
     setRotation(0);
     setUseUnicolor(false);
-    setShowCIP(false);
+    setShowCIP(initialShowCIP);
     setHydrogenDisplay("Smart");
-    // The image will update due to dependency changes
   };
 
-  // Handle download
   const handleDownload = () => {
     if (!imageUrl) return;
 
-    // Determine file extension based on current URL
     const extension = imageUrl.includes("format=png") ? "png" : "svg";
-
-    // Create filename from title or SMILES
     const filenameSafe = (title || "molecule").replace(/[^a-z0-9]/gi, "_").toLowerCase();
 
-    // Create the download link
     const a = document.createElement("a");
     a.href = imageUrl;
     a.download = `${filenameSafe}_2d.${extension}`;
@@ -108,132 +104,78 @@ const MoleculeDepiction2D = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden h-full flex flex-col">
-      {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-linear-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-750">
-        <h3 className="font-medium text-gray-800 dark:text-white text-sm sm:text-base truncate">
+    <div className="grid h-full content-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--inset)] p-3">
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="m-0 truncate text-sm font-semibold text-[var(--head)]">
           {title || "2D Structure"}
         </h3>
-
-        {/* Download Button */}
         <Button
           variant="ghost"
+          size="icon-sm"
           onClick={handleDownload}
           disabled={!imageUrl}
-          className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500"
           title="Download 2D structure"
+          aria-label="Download 2D structure"
         >
-          <Download className="h-5 w-5" />
+          <Download aria-hidden="true" />
         </Button>
       </div>
 
-      {/* Image Display */}
-      <div
-        className="p-4 bg-white grow flex items-center justify-center"
-        style={{ minHeight: "350px" }}
-      >
+      <div className="pc-stage h-[300px] sm:h-[350px]">
         {imageUrl ? (
           <img
             src={imageUrl}
             alt={title || "2D Molecular Structure"}
-            className="max-w-full max-h-full object-contain"
+            width={imageWidth}
+            height={imageHeight}
             onError={() => setError("Failed to load 2D depiction")}
           />
         ) : (
-          <div className="text-center text-gray-500 dark:text-gray-400">
-            {error || "Loading depiction..."}
-          </div>
+          <p className="pc-stage-empty">{error || "Loading depiction..."}</p>
         )}
       </div>
+      {imageUrl && error && (
+        <p className="pc-err on m-0" role="alert">
+          <AlertCircle className="pc-i size-4 shrink-0" aria-hidden="true" />
+          <span>{error}</span>
+        </p>
+      )}
 
-      {/* Controls */}
-      <div className="px-4 py-3 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
-        <div className="flex flex-wrap gap-4">
-          {/* Rotation Slider */}
-          <div className="flex-1 min-w-[120px]">
-            <label
-              htmlFor="rotation-slider"
-              className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
-            >
-              Rotate: {rotation}°
-            </label>
-            <input
-              id="rotation-slider"
-              type="range"
-              value={rotation}
-              onChange={handleRotationChange}
-              min="0"
-              max="359"
-              step="1"
-              className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500 dark:accent-blue-400"
+      <RotationSlider
+        id={rotationId}
+        label="Rotation"
+        value={rotation}
+        onChange={setRotation}
+        className="mt-0 [&_.pc-i]:size-4"
+      />
+
+      <div className="grid gap-x-6 sm:grid-cols-2">
+        <Switch label="Black & White" checked={useUnicolor} onChange={setUseUnicolor} />
+        <Switch label="Show R/S, E/Z" checked={showCIP} onChange={setShowCIP} />
+      </div>
+
+      <div className="pc-row items-end justify-between">
+        {toolkit === "cdk" ? (
+          <div className="min-w-[140px]">
+            <Select
+              label="H display"
+              value={hydrogenDisplay}
+              options={H_DISPLAY_OPTIONS}
+              onChange={setHydrogenDisplay}
             />
           </div>
-
-          {/* Unicolor Toggle */}
-          <div className="flex items-center">
-            <input
-              id="unicolor-toggle"
-              type="checkbox"
-              checked={useUnicolor}
-              onChange={(e) => setUseUnicolor(e.target.checked)}
-              className="h-4 w-4 rounded-sm border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-xs focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
-            />
-            <label
-              htmlFor="unicolor-toggle"
-              className="ml-2 text-xs text-gray-700 dark:text-gray-300"
-            >
-              Black & White
-            </label>
-          </div>
-
-          {/* CIP Stereo Toggle */}
-          <div className="flex items-center">
-            <input
-              id="cip-toggle"
-              type="checkbox"
-              checked={showCIP}
-              onChange={(e) => setShowCIP(e.target.checked)}
-              className="h-4 w-4 rounded-sm border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-xs focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
-            />
-            <label htmlFor="cip-toggle" className="ml-2 text-xs text-gray-700 dark:text-gray-300">
-              Show R/S, E/Z
-            </label>
-          </div>
-
-          {/* Hydrogen Display Dropdown (CDK only) */}
-          {toolkit === "cdk" && (
-            <div className="flex items-center">
-              <label
-                htmlFor="hydrogen-display"
-                className="mr-2 text-xs text-gray-700 dark:text-gray-300"
-              >
-                H Display:
-              </label>
-              <Select value={hydrogenDisplay} onValueChange={setHydrogenDisplay}>
-                <SelectTrigger id="hydrogen-display" className="text-xs h-7 w-[100px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Smart">Smart</SelectItem>
-                  <SelectItem value="Provided">Provided</SelectItem>
-                  <SelectItem value="Minimal">Minimal</SelectItem>
-                  <SelectItem value="Explicit">Explicit</SelectItem>
-                  <SelectItem value="Stereo">Stereo</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          {/* Refresh Button */}
-          <Button
-            variant="ghost"
-            onClick={handleRefresh}
-            className="ml-auto p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500"
-            title="Reset to original view"
-          >
-            <RefreshCw className="h-5 w-5" />
-          </Button>
-        </div>
+        ) : (
+          <span />
+        )}
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={handleRefresh}
+          title="Reset to original view"
+          aria-label="Reset to original view"
+        >
+          <RefreshCw aria-hidden="true" />
+        </Button>
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ interface EmptyStateProps {
   className?: string;
 }
 
+/** Dashed empty panel, the component form of .pc-empty. */
 export function EmptyState({
   message = "Enter input above and submit to see results",
   icon,
@@ -15,12 +16,10 @@ export function EmptyState({
   return (
     <div
       data-testid="empty-state"
-      className={cn("glass-bold rounded-xl p-8 text-center", className)}
+      className={cn("pc-empty grid justify-items-center gap-2", className)}
     >
-      <div className="flex flex-col items-center gap-3">
-        {icon ?? <Beaker className="h-12 w-12 text-muted-foreground" />}
-        <p className="text-sm text-muted-foreground">{message}</p>
-      </div>
+      {icon ?? <Beaker className="size-6 text-muted-foreground" aria-hidden="true" />}
+      <p className="m-0">{message}</p>
     </div>
   );
 }

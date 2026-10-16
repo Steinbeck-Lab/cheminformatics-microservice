@@ -1,4 +1,5 @@
 // This file contains functions to interact with the tools API for chemical structure generation, sugar detection, and filtering.
+import { failed } from "@/lib/error-messages";
 import api from "./api";
 import type {
   SugarRemovalOptions,
@@ -20,8 +21,7 @@ export const generateStructures = async (molecularFormula: string): Promise<stri
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to generate structures: ${message}`);
+    throw failed("Failed to generate structures", error);
   }
 };
 
@@ -48,8 +48,7 @@ export const getSugarInfo = async (
     const response = await api.get<string>(`${TOOLS_URL}/sugars-info`, { params });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to get sugar information: ${message}`);
+    throw failed("Failed to get sugar information", error);
   }
 };
 
@@ -82,8 +81,7 @@ export const removeLinearSugars = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to remove linear sugars: ${message}`);
+    throw failed("Failed to remove linear sugars", error);
   }
 };
 
@@ -112,8 +110,7 @@ export const removeCircularSugars = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to remove circular sugars: ${message}`);
+    throw failed("Failed to remove circular sugars", error);
   }
 };
 
@@ -144,8 +141,7 @@ export const removeAllSugars = async (
     const response = await api.get<string>(`${TOOLS_URL}/remove-sugars`, { params });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to remove all sugars: ${message}`);
+    throw failed("Failed to remove all sugars", error);
   }
 };
 
@@ -182,8 +178,7 @@ export const extractAglyconeAndSugars = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to extract aglycone and sugars: ${message}`);
+    throw failed("Failed to extract aglycone and sugars", error);
   }
 };
 
@@ -206,8 +201,7 @@ export const removeSugars = async (
         return await removeAllSugars(smiles, options);
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to remove sugars: ${message}`);
+    throw failed("Failed to remove sugars", error);
   }
 };
 
@@ -244,8 +238,7 @@ export const getAglyconeAndSugarIndices = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to get aglycone and sugar indices: ${message}`);
+    throw failed("Failed to get aglycone and sugar indices", error);
   }
 };
 
@@ -287,8 +280,7 @@ export const applyChemicalFilters = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to apply chemical filters: ${message}`);
+    throw failed("Failed to apply chemical filters", error);
   }
 };
 
@@ -333,8 +325,7 @@ export const applyChemicalFiltersDetailed = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to apply detailed chemical filters: ${message}`);
+    throw failed("Failed to apply detailed chemical filters", error);
   }
 };
 
@@ -350,8 +341,7 @@ export const standardizeMolecule = async (molblock: string): Promise<Standardize
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to standardize molecule: ${message}`);
+    throw failed("Failed to standardize molecule", error);
   }
 };
 
@@ -365,8 +355,7 @@ export const classifyMolecule = async (smiles: string): Promise<ClassyFireResult
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to classify molecule: ${message}`);
+    throw failed("Failed to classify molecule", error);
   }
 };
 
@@ -378,8 +367,7 @@ export const getClassificationResults = async (jobId: string): Promise<ClassyFir
     const response = await api.get<ClassyFireResult>(`/chem/classyfire/${jobId}/result`);
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to get classification results: ${message}`);
+    throw failed("Failed to get classification results", error);
   }
 };
 

@@ -98,7 +98,7 @@ describe("XYZGridResult", () => {
     await user.click(btn);
     const calls = (URL.createObjectURL as unknown as ReturnType<typeof vi.fn>).mock.calls;
     expect(calls).toHaveLength(1);
-    expect(calls[0][0]).toBeInstanceOf(Blob);
+    expect(calls[0]![0]).toBeInstanceOf(Blob);
   });
 
   it("displays summary line", () => {

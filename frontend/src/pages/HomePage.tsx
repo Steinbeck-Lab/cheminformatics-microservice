@@ -1,440 +1,159 @@
-/**
- * HomePage — Immersive hero with 3D caffeine molecule background,
- * glassmorphism card, and claymorphism buttons.
- *
- * Wide-screen optimised: hero fills the viewport, content uses max-w-7xl.
- * 3D molecule renders on desktop only; mobile gets the GradientMesh fallback.
- */
-import {
-  useState,
-  lazy,
-  Suspense,
-  useSyncExternalStore,
-  type ReactNode,
-  type MouseEvent,
-} from "react";
+import { lazy, Suspense, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "motion/react";
-import { useAppContext } from "../context/AppContext";
-import MoleculeCard from "../components/common/MoleculeCard";
 import {
-  ArrowLeftRight,
-  ArrowRight,
   BookOpen,
   Camera,
-  Code,
-  Eye,
   FlaskConical,
-  Wrench,
+  LineChart,
+  Play,
+  RefreshCw,
+  SlidersHorizontal,
 } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { get2DDepictionUrlEnhanced } from "@/services/depictService";
+import { QuietBoundary } from "@/components/common/QuietBoundary";
+// three.js loads only with the home page
+const Molecule3D = lazy(() => import("@/components/common/Molecule3D"));
 
-// Lazy-load 3D scene (heavy — Three.js bundle)
-const CaffeineMolecule3D = lazy(() => import("@/components/3d/CaffeineMolecule3D"));
+interface Mol {
+  name: string;
+  smiles: string;
+}
 
-// Read synchronously so the 3D chunk (~1 MB) is never requested on phones
-// or when the user asks for reduced motion. CSS `hidden` alone still mounts it.
-const SHOW_3D_QUERY = "(min-width: 768px) and (prefers-reduced-motion: no-preference)";
-const subscribe3D = (onChange: () => void) => {
-  const mq = window.matchMedia(SHOW_3D_QUERY);
-  mq.addEventListener("change", onChange);
-  return () => mq.removeEventListener("change", onChange);
-};
-const useShow3D = () =>
-  useSyncExternalStore(
-    subscribe3D,
-    () => window.matchMedia(SHOW_3D_QUERY).matches,
-    () => false
-  );
-
-// --- Feature Configuration ---
-const features = [
-  {
-    title: "Chemical Analysis",
-    description:
-      "Analyze molecules with descriptors, stereoisomer generation, and similarity calculations.",
-    icon: FlaskConical,
-    link: "/chem",
-  },
-  {
-    title: "Format Conversion",
-    description:
-      "Convert between different chemical file formats (SMILES, InChI, 2D/3D coordinates).",
-    icon: ArrowLeftRight,
-    link: "/convert",
-  },
-  {
-    title: "Visualization",
-    description: "Generate customizable 2D and 3D visualizations of chemical structures.",
-    icon: Eye,
-    link: "/depict",
-  },
-  {
-    title: "Structure Tools",
-    description: "Specialized tools for structure generation, sugar removal, and more.",
-    icon: Wrench,
-    link: "/tools",
-  },
-  {
-    title: "OCSR",
-    description: "Optical Chemical Structure Recognition to extract structures from images.",
-    icon: Camera,
-    link: "/ocsr",
-  },
+const MOLS: Mol[] = [
+  { name: "Caffeine", smiles: "CN1C=NC2=C1C(=O)N(C(=O)N2C)C" },
+  { name: "Artemisinin", smiles: "CC1CCC2C(C(=O)OC3C24C1CCC(O3)(OO4)C)C" },
+  { name: "Quercetin", smiles: "O=C1C(O)=C(Oc2cc(O)cc(O)c12)c1ccc(O)c(O)c1" },
+  { name: "Morphine", smiles: "CN1CCC23C4C1CC5=C2C(=C(C=C5)O)OC3C(C=C4)O" },
+  { name: "Penicillin G", smiles: "CC1(C)SC2C(NC(=O)Cc3ccccc3)C(=O)N2C1C(=O)O" },
+  { name: "Salicin", smiles: "OCC1OC(Oc2ccccc2CO)C(O)C(O)C1O" },
+  { name: "Capsaicin", smiles: "COc1cc(CNC(=O)CCCC/C=C/C(C)C)ccc1O" },
+  { name: "Nicotine", smiles: "CN1CCCC1c1cccnc1" },
+  { name: "Vanillin", smiles: "O=Cc1ccc(O)c(OC)c1" },
+  { name: "Serotonin", smiles: "NCCc1c[nH]c2ccc(O)cc12" },
+  { name: "Coumarin", smiles: "O=c1ccc2ccccc2o1" },
+  { name: "Menthol", smiles: "CC(C)C1CCC(C)CC1O" },
+  { name: "Strychnine", smiles: "O=C1CC2OCC=C3CN4CCC56C4CC3C2C6N1c1ccccc15" },
+  { name: "Resveratrol", smiles: "Oc1ccc(/C=C/c2cc(O)cc(O)c2)cc1" },
 ];
 
-// --- Animation Variants ---
-const heroTextVariants = {
-  hidden: { opacity: 0, y: -20 },
-  visible: (i = 1) => ({
-    opacity: 1,
-    y: 0,
-    transition: { type: "spring", stiffness: 100, damping: 20, delay: i * 0.07 },
-  }),
-};
+const PICK = MOLS.slice(0, 5);
+const RING = MOLS.slice(5, 13);
+const RING_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315];
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.15 },
-  },
-};
+const SECTIONS = [
+  { to: "/chem", name: "Analysis", icon: FlaskConical },
+  { to: "/convert", name: "Convert", icon: RefreshCw },
+  { to: "/depict", name: "Depict", icon: LineChart },
+  { to: "/tools", name: "Tools", icon: SlidersHorizontal },
+  { to: "/ocsr", name: "OCSR", icon: Camera },
+];
 
-const itemVariants = {
-  hidden: { y: 25, opacity: 0, scale: 0.97 },
-  visible: {
-    y: 0,
-    opacity: 1,
-    scale: 1,
-    transition: { type: "spring", stiffness: 100, damping: 20 },
-  },
-};
+const draw = (smiles: string, size = 220) =>
+  get2DDepictionUrlEnhanced(smiles, { width: size, height: size, CIP: false });
+const depictHref = (smiles: string) => `/depict/2ddepiction?smiles=${encodeURIComponent(smiles)}`;
+const ext = { target: "_blank", rel: "noopener noreferrer" } as const;
+const NewTab = () => <span className="sr-only"> (opens in a new tab)</span>;
 
-const sectionFadeIn = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 20 } },
-};
-
-const ribbonContentVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i = 1) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.7, delay: i * 0.1, ease: [0.2, 0.65, 0.3, 0.9] },
-  }),
-};
-
-// --- Tilt Card (for feature cards) ---
-const TiltCard = ({
-  children,
-  className = "",
-  tiltIntensity = 7,
-}: {
-  children: ReactNode;
-  className?: string;
-  tiltIntensity?: number;
-}) => {
-  const [rotate, setRotate] = useState({ x: 0, y: 0 });
-
-  const onMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    if ("ontouchstart" in window && e.nativeEvent instanceof TouchEvent) return;
-    const card = e.currentTarget;
-    const { width, height, left, top } = card.getBoundingClientRect();
-    const x = e.clientX - left;
-    const y = e.clientY - top;
-    const rotateX = (y / height - 0.5) * -tiltIntensity;
-    const rotateY = (x / width - 0.5) * tiltIntensity;
-    setRotate({ x: rotateX, y: rotateY });
-  };
-
-  const onMouseLeave = () => setRotate({ x: 0, y: 0 });
-
-  return (
-    <motion.div
-      className={`transform-style-3d transition-transform duration-700 ease-out ${className}`}
-      style={{
-        transform: `perspective(1800px) rotateX(${rotate.x}deg) rotateY(${rotate.y}deg)`,
-        willChange: "transform",
-      }}
-      onMouseMove={onMouseMove}
-      onMouseLeave={onMouseLeave}
-      whileHover={{
-        scale: 1.035,
-        transition: { type: "spring", stiffness: 200, damping: 20 },
-      }}
-    >
-      {children}
-    </motion.div>
-  );
-};
-
-// --- HomePage Component ---
+/** Home: the molecule in a glass lens, 2D drawings around it, then a belt, the sections and the proof. */
 const HomePage = () => {
-  const show3D = useShow3D();
-  const { recentMolecules } = useAppContext();
+  const [mol, setMol] = useState<Mol>(MOLS[0]!); // a fixed, non-empty list;
 
   return (
-    <div className="relative min-h-screen w-full text-slate-900 dark:text-slate-100 font-sans overflow-x-hidden isolate">
-      {/* 3D Caffeine molecule background — desktop only (hidden <768px for GPU perf) */}
-      {show3D && (
-        <Suspense fallback={null}>
-          <CaffeineMolecule3D />
-        </Suspense>
-      )}
-
-      {/* ============================================================ */}
-      {/* HERO SECTION — Full viewport, glass card centered             */}
-      {/* ============================================================ */}
-      <div className="relative z-10 flex items-center justify-center min-h-[92vh] w-full px-4 sm:px-6 lg:px-8">
-        <motion.section
-          className="w-full max-w-[90rem] mx-auto text-center"
-          initial="hidden"
-          animate="visible"
-        >
-          {/* Glass hero card */}
-          <div className="glass-bold rounded-3xl p-8 sm:p-12 md:p-16 lg:p-20 xl:p-24 shadow-2xl">
-            {/* Headline */}
-            <motion.h1
-              variants={heroTextVariants}
-              custom={0}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold text-slate-900 dark:text-white mb-5 sm:mb-6 leading-[1.08] tracking-tighter"
+    <div className="pc-home">
+      <section className="pc-wrap pc-hero pc-hero-lens" aria-labelledby="home-h">
+        <div className="pc-hero-copy">
+          <h1 id="home-h">
+            Open tools. <span>Seamless access.</span>
+          </h1>
+          <p className="pc-hero-lead">Visualize, analyze, transform. One open API.</p>
+          <div className="pc-row pc-hero-cta">
+            <Link className="clay clay-primary" to="/depict">
+              <Play className="pc-i" aria-hidden="true" />
+              Start with Depict
+            </Link>
+            <a
+              className="clay clay-outline"
+              href="https://api.naturalproducts.net/latest/docs"
+              {...ext}
             >
-              Seamless Access to{" "}
-              <motion.span
-                variants={heroTextVariants}
-                custom={1}
-                className="text-transparent bg-clip-text bg-linear-to-r from-sky-600 via-cyan-500 to-indigo-600 dark:from-sky-400 dark:via-cyan-400 dark:to-emerald-400"
-              >
-                Open Cheminformatics Tools
-              </motion.span>
-            </motion.h1>
-
-            {/* Sub-headline */}
-            <motion.p
-              variants={heroTextVariants}
-              custom={2}
-              className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto mb-10 sm:mb-12 leading-relaxed"
-            >
-              Visualize, analyze, and manipulate chemical structures seamlessly using the powerful
-              Cheminformatics Microservice API.
-            </motion.p>
-
-            {/* CTA Buttons — claymorphism */}
-            <motion.div
-              variants={heroTextVariants}
-              custom={3}
-              className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4 md:gap-6"
-            >
-              {/* Primary CTA — claymorphism */}
-              <Link
-                to="/depict"
-                className="group w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 sm:px-10 sm:py-4 text-base sm:text-lg font-semibold text-white bg-linear-to-br from-sky-500 to-cyan-500 dark:from-blue-500 dark:to-cyan-400 rounded-2xl border-0 cursor-pointer transition-all duration-300 hover:scale-[1.04] active:scale-[0.97] no-underline"
-                style={{
-                  boxShadow:
-                    "inset 0 -4px 8px 0 rgba(0,0,0,0.15), inset 0 2px 4px 0 rgba(255,255,255,0.35), 0 10px 24px -6px rgba(14,165,233,0.4), 0 4px 8px 0 rgba(0,0,0,0.08)",
-                }}
-              >
-                Get Started{" "}
-                <ArrowRight className="ml-2.5 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1.5" />
-              </Link>
-
-              {/* Secondary: Guides — claymorphism */}
-              <a
-                href="https://docs.api.naturalproducts.net/introduction.html"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 sm:px-10 sm:py-4 text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-200 bg-white/80 dark:bg-slate-800/60 backdrop-blur-md rounded-2xl border-0 cursor-pointer transition-all duration-300 hover:scale-[1.04] active:scale-[0.97] no-underline"
-                style={{
-                  boxShadow:
-                    "inset 0 -4px 8px 0 rgba(0,0,0,0.08), inset 0 2px 4px 0 rgba(255,255,255,0.5), 0 10px 24px -6px rgba(0,0,0,0.15), 0 4px 8px 0 rgba(0,0,0,0.06)",
-                }}
-              >
-                <Code className="mr-2 h-5 w-5 text-green-600 dark:text-green-400" /> Guides
-              </a>
-
-              {/* Secondary: API Docs — claymorphism */}
-              <a
-                href="https://api.naturalproducts.net/latest/docs"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 sm:px-10 sm:py-4 text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-200 bg-white/80 dark:bg-slate-800/60 backdrop-blur-md rounded-2xl border-0 cursor-pointer transition-all duration-300 hover:scale-[1.04] active:scale-[0.97] no-underline"
-                style={{
-                  boxShadow:
-                    "inset 0 -4px 8px 0 rgba(0,0,0,0.08), inset 0 2px 4px 0 rgba(255,255,255,0.5), 0 10px 24px -6px rgba(0,0,0,0.15), 0 4px 8px 0 rgba(0,0,0,0.06)",
-                }}
-              >
-                <BookOpen className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" /> API Docs
-              </a>
-            </motion.div>
+              <BookOpen className="pc-i" aria-hidden="true" />
+              API docs
+              <NewTab />
+            </a>
           </div>
-        </motion.section>
-      </div>
-
-      {/* ============================================================ */}
-      {/* BELOW THE FOLD — Feature cards, recent molecules, ribbon     */}
-      {/* ============================================================ */}
-      <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 pb-12 md:pb-16 z-10">
-        <div className="max-w-[90rem] mx-auto">
-          {/* --- Feature Cards --- */}
-          <motion.section
-            className="mb-16 md:mb-24"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
-          >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-12 md:mb-16 tracking-tight text-slate-900 dark:text-white">
-              Core
-              <span className="text-transparent bg-clip-text bg-linear-to-r from-sky-600 to-indigo-600 dark:from-blue-400 dark:to-cyan-400">
-                {" "}
-                Capabilities
-              </span>
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
-              {features.map((feature, index) => {
-                const Icon = feature.icon;
-                return (
-                  <motion.div key={index} variants={itemVariants}>
-                    <TiltCard tiltIntensity={5}>
-                      <Link to={feature.link} className="block h-full">
-                        <Card className="glass-bold clay-interactive rounded-2xl p-6 sm:p-8 h-full flex flex-col hover:-translate-y-1 transition-transform duration-200 border-0 gap-0 cursor-pointer">
-                          <div className="mb-5 flex items-center justify-center h-14 w-14 rounded-2xl bg-linear-to-br from-slate-100 to-sky-100 dark:from-blue-700/60 dark:to-cyan-700/60 shadow-md">
-                            <Icon className="h-7 w-7 text-sky-700 dark:text-sky-200" />
-                          </div>
-                          <h3 className="text-lg sm:text-xl font-semibold text-slate-800 dark:text-white mb-2">
-                            {feature.title}
-                          </h3>
-                          <p className="text-sm text-slate-600 dark:text-slate-300 grow mb-4 leading-relaxed">
-                            {feature.description}
-                          </p>
-                          <div className="mt-auto flex items-center text-sky-700 dark:text-sky-400 font-medium text-sm group">
-                            <span>Learn more</span>
-                            <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
-                          </div>
-                        </Card>
-                      </Link>
-                    </TiltCard>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </motion.section>
-
-          {/* --- Recent Molecules --- */}
-          {recentMolecules && recentMolecules.length > 0 && (
-            <motion.section
-              className="mb-16 md:mb-24"
-              variants={sectionFadeIn}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.15 }}
-            >
-              <div className="glass-bold rounded-3xl p-6 sm:p-8 md:p-10">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-3 sm:gap-6">
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
-                    Recently Viewed
-                  </h2>
-                  <Link
-                    to="/chem"
-                    className="text-sky-700 dark:text-sky-400 hover:text-indigo-700 dark:hover:text-cyan-200 shrink-0 flex items-center font-medium transition-colors duration-300 group text-sm"
-                  >
-                    <span>View all</span>
-                    <ArrowRight className="ml-1.5 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                  </Link>
-                </div>
-                <motion.div
-                  className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
-                  variants={containerVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, amount: 0.2 }}
-                >
-                  {recentMolecules.slice(0, 3).map((molecule, index) => (
-                    <motion.div key={index} variants={itemVariants}>
-                      <Card className="relative bg-white/80 dark:bg-slate-800/70 backdrop-blur-lg rounded-2xl shadow-lg dark:shadow-xl border-slate-200 dark:border-slate-700/80 overflow-hidden transition-all duration-300 hover:border-slate-300 dark:hover:border-slate-600 p-1 py-0 gap-0">
-                        <MoleculeCard
-                          smiles={molecule.smiles}
-                          title={molecule.name || `Molecule ${index + 1}`}
-                          size="sm"
-                          className="p-4 text-slate-800 dark:text-white bg-transparent"
-                        />
-                      </Card>
-                    </motion.div>
-                  ))}
-                </motion.div>
-              </div>
-            </motion.section>
-          )}
         </div>
-      </div>
 
-      {/* --- API Ribbon Section --- */}
-      <motion.section
-        className="relative bg-linear-to-r from-sky-100 via-indigo-100 to-fuchsia-100 dark:from-gray-900 dark:via-indigo-950/80 dark:to-fuchsia-950/70 py-12 sm:py-16 md:py-20"
-        variants={sectionFadeIn}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-      >
-        <div className="max-w-5xl mx-auto flex flex-col lg:flex-row items-center text-center lg:text-left px-4 sm:px-6 lg:px-8">
-          <motion.div
-            className="mb-8 sm:mb-10 lg:mb-0 lg:mr-10 shrink-0 text-sky-600 dark:text-blue-500/90"
-            variants={ribbonContentVariants}
-            custom={0}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.5 }}
-            animate={{ rotate: 360 }}
-            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          >
-            <svg
-              className="h-28 w-28 sm:h-32 sm:w-32 md:h-36 md:w-36 mx-auto lg:mx-0 opacity-90 drop-shadow-lg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
-            </svg>
-          </motion.div>
-          <motion.div
-            className="grow min-w-0"
-            variants={ribbonContentVariants}
-            custom={1}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-          >
-            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-5 tracking-tight whitespace-nowrap">
-              Designed for Chemists. Fueled by Open-Source.
-            </h3>
-            <p className="text-base md:text-lg text-slate-700 dark:text-slate-300 leading-relaxed">
-              Built upon the open-source Cheminformatics Microservice API developed by the{" "}
-              <a
-                href="https://cheminf.uni-jena.de"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sky-700 dark:text-sky-300 hover:text-indigo-700 dark:hover:text-cyan-300 font-medium transition-colors duration-300 whitespace-nowrap"
+        <div className="pc-lens-stage">
+          <span className="pc-lens-aura" aria-hidden="true" />
+          <span className="pc-lens-ring pc-lens-ring-out" aria-hidden="true" />
+          <span className="pc-lens-ring" aria-hidden="true" />
+          <ul className="pc-orbit" aria-label="2D drawings">
+            {RING.map((m, i) => (
+              <li key={m.name} style={{ "--a": `${RING_ANGLES[i]}deg` } as React.CSSProperties}>
+                <Link to={depictHref(m.smiles)} className="pc-orbit-chip">
+                  <img src={draw(m.smiles, 200)} alt="" width={200} height={200} />
+                  <span>{m.name}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="pc-lens">
+            <div className="pc-lens-3d" role="img" aria-label={`${mol.name} in 3D`}>
+              <QuietBoundary>
+                <Suspense fallback={null}>
+                  <Molecule3D smiles={mol.smiles} className="pc-lens-canvas" />
+                </Suspense>
+              </QuietBoundary>
+            </div>
+          </div>
+          <div className="pc-row pc-hero-pick" role="group" aria-label="Choose a molecule">
+            {PICK.map((m) => (
+              <button
+                key={m.name}
+                type="button"
+                className="clay clay-outline pc-chip"
+                aria-pressed={m.smiles === mol.smiles}
+                onClick={() => setMol(m)}
               >
+                {m.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="pc-wrap pc-home-body">
+        <nav className="pc-sections-bar glass" aria-label="Sections">
+          {SECTIONS.map(({ to, name, icon: Icon }) => (
+            <Link key={to} to={to}>
+              <Icon className="pc-i" aria-hidden="true" />
+              {name}
+            </Link>
+          ))}
+        </nav>
+
+        <section className="pc-band glass" aria-labelledby="band-h">
+          <svg className="pc-band-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+          </svg>
+          <div>
+            <h2 id="band-h">Designed for Chemists. Fueled by Open-Source.</h2>
+            <p>
+              Built on the open-source Cheminformatics Microservice API by the{" "}
+              <a href="https://cheminf.uni-jena.de" {...ext}>
                 Steinbeck Lab
+                <NewTab />
               </a>{" "}
-              at the{" "}
-              <a
-                href="https://www.uni-jena.de/en"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sky-700 dark:text-sky-300 hover:text-indigo-700 dark:hover:text-cyan-300 font-medium transition-colors duration-300 whitespace-nowrap"
-              >
+              at{" "}
+              <a href="https://www.uni-jena.de/en" {...ext}>
                 Friedrich Schiller University Jena
+                <NewTab />
               </a>
               .
             </p>
-          </motion.div>
-        </div>
-      </motion.section>
+          </div>
+        </section>
+      </div>
     </div>
   );
 };

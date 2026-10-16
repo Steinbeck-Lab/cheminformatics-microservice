@@ -1,71 +1,154 @@
-// Description: This component provides a user interface for filtering chemical compounds based on various medicinal chemistry rules and properties. It allows users to input SMILES strings, apply filters, and view results in a table format. The component is designed to be responsive and theme-aware, adapting to light and dark modes.
-import { useState } from "react";
-import { LayoutGroup, motion } from "motion/react";
-// Import HiOutlineExclamationCircle along with other icons
-import { useAppContext } from "../../context/AppContext"; // Assuming this provides theme-aware context if needed
-import api from "../../services/api"; // Assuming api service is configured
+import { useState, type FormEvent } from "react";
+import { Check, FileDown, Filter, FlaskConical, Loader2, X } from "lucide-react";
+import { useAppContext } from "../../context/AppContext";
+import api from "../../services/api";
 import { applyChemicalFiltersDetailed } from "../../services/toolsService";
-import {
-  AlertCircle,
-  ArrowLeftRight,
-  Check,
-  Clipboard,
-  FileDown,
-  Filter,
-  FlaskConical,
-  Info,
-  X,
-  Loader2,
-} from "lucide-react";
 import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
 import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
-import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Cell, CopyButton, Select, Seg, Switch } from "@/components/common/porcelain-ui";
+import { useRevealOnResult } from "@/hooks/useRevealOnResult";
 
+type BoolFilter = "pains" | "lipinski" | "veber" | "reos" | "ghose" | "ruleofthree";
+type RangeFilter = "qedscore" | "sascore" | "nplikeness";
+type FilterOptions = Record<BoolFilter, boolean> & Record<RangeFilter, string>;
+type Operator = "AND" | "OR";
+
+interface FilterDetail {
+  passes: boolean;
+  details?: string;
+  violations?: string[];
+  properties?: Record<string, unknown>;
+}
+interface DetailedResult {
+  smiles: string;
+  valid: boolean;
+  error?: string;
+  overall_pass?: boolean;
+  filters: Record<string, FilterDetail>;
+}
+interface DetailedResults {
+  total_molecules?: number;
+  passing_molecules?: number;
+  filter_operator?: string;
+  results: DetailedResult[];
+}
+
+/** Table columns, in the order the backend returns them. */
+const filterColumns: { key: BoolFilter | RangeFilter; label: string }[] = [
+  { key: "pains", label: "PAINS" },
+  { key: "lipinski", label: "Lipinski" },
+  { key: "veber", label: "Veber" },
+  { key: "reos", label: "REOS" },
+  { key: "ghose", label: "Ghose" },
+  { key: "ruleofthree", label: "Rule of 3" },
+  { key: "qedscore", label: "QED" },
+  { key: "sascore", label: "SA Score" },
+  { key: "nplikeness", label: "NP-like" },
+];
+
+const RULES: { key: BoolFilter; label: string; hint: string }[] = [
+  {
+    key: "pains",
+    label: "PAINS",
+    hint: "Pan-assay interference compounds; a match is undesirable",
+  },
+  {
+    key: "lipinski",
+    label: "Lipinski",
+    hint: "Rule of 5: weight, logP, H-bond donors and acceptors",
+  },
+  {
+    key: "veber",
+    label: "Veber",
+    hint: "Oral bioavailability: rotatable bonds, polar surface area",
+  },
+  { key: "reos", label: "REOS", hint: "Rapid elimination of swill: lead-like properties" },
+  { key: "ghose", label: "Ghose", hint: "logP, molecular weight and number of atoms" },
+  { key: "ruleofthree", label: "Rule of 3", hint: "Criteria for fragment-based drug discovery" },
+];
+
+const RANGES: { key: RangeFilter; label: string; options: [string, string][] }[] = [
+  {
+    key: "qedscore",
+    label: "QED drug-likeness (0-1)",
+    options: [
+      ["0-1", "0-1 (All)"],
+      ["0-0.3", "0-0.3 (Low)"],
+      ["0.3-0.6", "0.3-0.6 (Medium)"],
+      ["0.6-1", "0.6-1 (High)"],
+    ],
+  },
+  {
+    key: "sascore",
+    label: "Synthetic accessibility (1-10)",
+    options: [
+      ["1-10", "1-10 (All)"],
+      ["1-4", "1-4 (Easy synthesis)"],
+      ["4-7", "4-7 (Moderate synthesis)"],
+      ["7-10", "7-10 (Difficult synthesis)"],
+    ],
+  },
+  {
+    key: "nplikeness",
+    label: "NP-likeness score (-5 to 5)",
+    options: [
+      ["-5-5", "-5 to 5 (All)"],
+      ["-5-0", "-5 to 0 (Synthetic-like)"],
+      ["0-2", "0 to 2 (Moderate NP-like)"],
+      ["2-5", "2 to 5 (High NP-like)"],
+    ],
+  },
+];
+
+const EXAMPLES = [
+  "CC1=CC=C(C=C1)C(=O)NC=CC(=O)O", // Acetaminophen
+  "CN1C=NC2=C1C(=O)N(C(=O)N2C)C", // Caffeine
+  "CC(=O)OC1=CC=CC=C1C(=O)O", // Aspirin
+  "COC1=CC=C(CCN(C)C)C=C1", // Metoclopramide
+  "CC(C)CC1=CC=C(C=C1)C(C)C(=O)O", // Ibuprofen
+  "CCN(CC)CCOC(=O)C1=CC=CC=C1N", // Procaine
+].join("\n");
+
+const th =
+  "px-3 py-2 text-xs font-medium tracking-wider whitespace-nowrap text-muted-foreground uppercase";
+
+/** Pass/fail tag in the detailed view. */
+const PassTag = ({ pass, children }: { pass?: boolean; children: string }) => (
+  <span className={`pc-tag ${pass ? "text-primary" : "text-madder-ink"}`}>{children}</span>
+);
+
+/** Chemical filters: screen a list of molecules against medicinal-chemistry rules and scores. */
 const AllFiltersView = () => {
   const [smilesInput, setSmilesInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [results, setResults] = useState([]);
-  const [detailedResults, setDetailedResults] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [results, setResults] = useState<string[]>([]);
+  const [detailedResults, setDetailedResults] = useState<DetailedResults | null>(null);
   const [showDetailedView, setShowDetailedView] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [filterOperator, setFilterOperator] = useState("OR"); // Default to OR logic
-  const [showInfoModal, setShowInfoModal] = useState(false); // State for showing info modal
-  const { addRecentMolecule } = useAppContext(); // Assuming context provides this function
+  const [filterOperator, setFilterOperator] = useState<Operator>("OR");
+  const [ran, setRan] = useState(false);
+  const { addRecentMolecule } = useAppContext();
 
-  // Filter options state
-  const [filterOptions, setFilterOptions] = useState({
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     pains: true,
     lipinski: true,
     veber: true,
     reos: true,
     ghose: true,
     ruleofthree: true,
-    // Note: The API likely expects boolean for checkboxes,
-    // and specific string formats or numbers for ranges.
-    // These initial values might need adjustment based on API requirements.
-    qedscore: "0-1", // Example range string
-    sascore: "1-10", // Example range string (Corrected typical range)
-    nplikeness: "-5-5", // Example range string
+    qedscore: "0-1",
+    sascore: "1-10",
+    nplikeness: "-5-5",
   });
 
-  // Function to apply filters via API
-  const applyFilters = async (e, overrideOperator = null, explicitOptions = null) => {
-    // If called from an event, prevent default behavior
-    if (e && e.preventDefault) {
-      e.preventDefault();
-    }
+  const applyFilters = async (
+    e?: FormEvent | null,
+    overrideOperator: Operator | null = null,
+    explicitOptions: FilterOptions | null = null
+  ) => {
+    e?.preventDefault();
 
     const trimmedInput = smilesInput.trim();
     if (!trimmedInput) {
@@ -75,8 +158,9 @@ const AllFiltersView = () => {
 
     setLoading(true);
     setError(null);
-    setResults([]); // Clear previous results
-    setDetailedResults(null); // Clear previous detailed results
+    setResults([]);
+    setDetailedResults(null);
+    setRan(true);
 
     const optionsForApi = explicitOptions || filterOptions;
 
@@ -90,35 +174,25 @@ const AllFiltersView = () => {
       console.log(`Filter operator: ${apiParams.filterOperator}`);
       console.log(`Detailed view: ${showDetailedView}`);
 
-      let responseData = null;
+      let responseData: string[] = [];
 
       if (showDetailedView) {
-        // Use detailed endpoint
-        const detailedData = await applyChemicalFiltersDetailed(trimmedInput, apiParams);
+        const detailedData = (await applyChemicalFiltersDetailed(
+          trimmedInput,
+          apiParams
+        )) as DetailedResults;
         console.log("Received detailed filter results:", detailedData);
         setDetailedResults(detailedData);
 
-        // Also set simple results for backward compatibility
+        // Also set simple results for the table
         const simpleResults = detailedData.results.map((result) => {
-          if (!result.valid) {
-            return `${result.smiles} : ERROR`;
-          }
-
-          // Build simple result format
-          const filterResults = [];
-          Object.keys(result.filters).forEach((filterKey) => {
-            const filterResult = result.filters[filterKey];
-            filterResults.push(filterResult.passes ? "T" : "F");
-          });
-
+          if (!result.valid) return `${result.smiles} : ERROR`;
+          const filterResults = Object.values(result.filters).map((f) => (f.passes ? "T" : "F"));
           return `${result.smiles} : ${filterResults.join(", ")}`;
         });
         setResults(simpleResults);
-
-        // Set responseData for recent molecules logic
         responseData = simpleResults;
       } else {
-        // Use original endpoint
         const response = await api.post("/chem/all_filters", trimmedInput, {
           params: apiParams,
           headers: {
@@ -135,168 +209,100 @@ const AllFiltersView = () => {
           console.warn("Received non-array response:", response.data);
           setResults([]);
           setError("Received unexpected data format from the server.");
-          responseData = [];
         }
       }
 
-      // Add molecules to recent list (only if results were successful)
-      if (Array.isArray(responseData) && responseData.length > 0) {
-        const smilesList = trimmedInput.split(/[\n\s,;]+/).filter((s) => s.trim()); // Split by various delimiters
-        smilesList.forEach((smiles) => {
-          const trimmedSmiles = smiles.trim();
-          if (trimmedSmiles) {
-            // Extract just the SMILES part if input format includes names/IDs
-            const smilesOnly = trimmedSmiles.split(/[\s:]+/)[0];
-            addRecentMolecule({
-              smiles: smilesOnly,
-              name: `Filtered Molecule (${new Date().toLocaleTimeString()})`, // Add a generic name/timestamp
-              timestamp: new Date().toISOString(),
-            });
-          }
-        });
+      // Add molecules to the recent list
+      if (responseData.length > 0) {
+        trimmedInput
+          .split(/[\n\s,;]+/)
+          .filter((s) => s.trim())
+          .forEach((smiles) => {
+            const smilesOnly = smiles.trim().split(/[\s:]+/)[0];
+            if (smilesOnly) {
+              addRecentMolecule({
+                smiles: smilesOnly,
+                name: `Filtered Molecule (${new Date().toLocaleTimeString()})`,
+                timestamp: new Date().toISOString(),
+              });
+            }
+          });
       }
     } catch (err) {
       console.error("Filter API error:", err);
       setError(getErrorMessage("chem", err));
-      setResults([]); // Clear results on error
+      setResults([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle changes to filter options (generic) and auto-apply filters
-  const handleFilterChange = (name, value) => {
-    const newFilterOptions = {
-      ...filterOptions,
-      [name]: value,
-    };
+  // Change one filter option and re-apply when there is input
+  const handleFilterChange = <K extends keyof FilterOptions>(name: K, value: FilterOptions[K]) => {
+    const newFilterOptions = { ...filterOptions, [name]: value };
     setFilterOptions(newFilterOptions);
-
-    // Auto-apply filters if there's input and we're not already loading
     if (smilesInput.trim() && !loading) {
-      // Small delay to ensure state updates before applying filters
-      // Pass the newFilterOptions directly to applyFilters
       setTimeout(() => {
         applyFilters(null, null, newFilterOptions);
       }, 50);
     }
   };
 
-  // Handle checkbox change specifically
-  const handleCheckboxChange = (e) => {
-    const { name, checked } = e.target;
-    handleFilterChange(name, checked);
-  };
-
-  // Handle select/range input change specifically
-  const handleSelectChange = (e) => {
-    const { name, value } = e.target;
-    handleFilterChange(name, value);
-  };
-
-  // Handle filter operator change - now automatically applies filters
-  const handleFilterOperatorChange = (newOperator) => {
-    // Update filter operator first
+  // Change AND/OR logic and re-apply when there is input
+  const handleFilterOperatorChange = (newOperator: Operator) => {
     setFilterOperator(newOperator);
-
-    // Only apply filters automatically if there's already input present
     if (smilesInput.trim()) {
-      // Using async function to ensure state is updated before applying filters
       const updateAndApplyFilters = async () => {
-        // Wait for state update to complete
         await new Promise((resolve) => setTimeout(resolve, 10));
-        // Explicitly call applyFilters with the new operator value
         applyFilters(null, newOperator);
       };
-
       updateAndApplyFilters();
     }
   };
 
-  // Copy results to clipboard
-  const copyToClipboard = () => {
-    if (results.length === 0 || !navigator.clipboard) return;
-
-    const text = results.join("\n"); // Join results array into a string
-    navigator.clipboard
-      .writeText(text)
-      .then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000); // Reset copied state
-      })
-      .catch((err) => {
-        console.error("Failed to copy results:", err);
-        setError("Failed to copy results to clipboard.");
-      });
-  };
-
-  // Download results as a text file
   const downloadResults = () => {
     if (results.length === 0) return;
-
     const text = results.join("\n");
-    const blob = new Blob([text], { type: "text/plain;charset=utf-8" }); // Specify charset
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "filtered_molecules_results.txt"; // More descriptive filename
-    document.body.appendChild(a); // Append to body
-    a.click(); // Trigger download
-    document.body.removeChild(a); // Clean up
-    URL.revokeObjectURL(url); // Release object URL
+    a.download = "filtered_molecules_results.txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
-  // Parse and format the filter result string for display in the table
-  // This function dynamically maps results based on which filters are enabled
-  const parseFilterResult = (resultString) => {
+  // "CCO : T, F, T, T, F, T, 0.5, 3.2, 1.1" -> SMILES plus one value per column
+  const parseFilterResult = (resultString: string) => {
+    const resultArray: (boolean | string)[] = Array(9).fill("N/A");
     if (typeof resultString !== "string" || !resultString.includes(":")) {
       console.warn("Parsing unexpected result format:", resultString);
-      return {
-        smiles: resultString || "Invalid Data",
-        results: Array(9).fill("N/A"),
-      };
+      return { smiles: resultString || "Invalid Data", results: resultArray };
     }
 
-    // Example format: "CCO : T, F, T, T, F, T, 0.5, 3.2, 1.1"
     const parts = resultString.split(" : ");
-    const smiles = parts[0].trim();
-    const filterDataString = parts[1] || "";
+    const smiles = (parts[0] ?? "").trim();
+    const filterValues = (parts[1] || "").split(",").map((item) => item.trim());
 
-    // Split the filter data part by comma and trim whitespace
-    const filterValues = filterDataString.split(",").map((item) => item.trim());
-
-    // Define the order of boolean filters in the API response
-    // This is the fixed order the backend returns when all filters are enabled
-    const booleanFilterOrder = ["pains", "lipinski", "veber", "reos", "ghose", "ruleofthree"];
-
-    // Create a result array with all filters (enabled and disabled)
-    const resultArray = Array(9).fill("N/A");
-
-    // Track which index we're at in the API response
+    // The six rule filters come first, only for the enabled ones; the three scores follow.
     let currentValueIndex = 0;
-
-    // First handle boolean filters (first 6)
-    booleanFilterOrder.forEach((filterKey, columnIndex) => {
-      if (filterOptions[filterKey]) {
-        // If this filter is enabled, get its value from the API response
+    RULES.forEach(({ key }, columnIndex) => {
+      if (filterOptions[key]) {
         if (currentValueIndex < filterValues.length) {
-          resultArray[columnIndex] = filterValues[currentValueIndex].toUpperCase() === "T";
+          resultArray[columnIndex] = (filterValues[currentValueIndex] ?? "").toUpperCase() === "T";
           currentValueIndex++;
         } else {
-          resultArray[columnIndex] = false; // Default to false if not enough values
+          resultArray[columnIndex] = false;
         }
       } else {
-        // Filter is disabled
         resultArray[columnIndex] = "disabled";
       }
     });
-
-    // Then handle numeric filters (last 3)
-    // These should always be present in the API response after the boolean filters
-    ["qedscore", "sascore", "nplikeness"].forEach((filterKey, index) => {
-      const columnIndex = index + 6; // Start from index 6
+    [0, 1, 2].forEach((index) => {
       if (currentValueIndex < filterValues.length) {
-        resultArray[columnIndex] = filterValues[currentValueIndex];
+        resultArray[index + 6] = filterValues[currentValueIndex] ?? "N/A";
         currentValueIndex++;
       }
     });
@@ -305,544 +311,220 @@ const AllFiltersView = () => {
     return { smiles, results: resultArray };
   };
 
-  // Function to load example molecules
-  const loadExampleMolecules = () => {
-    // A set of common, diverse, and representative drug-like molecules
-    const exampleSmiles = [
-      "CC1=CC=C(C=C1)C(=O)NC=CC(=O)O", // Acetaminophen
-      "CN1C=NC2=C1C(=O)N(C(=O)N2C)C", // Caffeine
-      "CC(=O)OC1=CC=CC=C1C(=O)O", // Aspirin
-      "COC1=CC=C(CCN(C)C)C=C1", // Metoclopramide
-      "CC(C)CC1=CC=C(C=C1)C(C)C(=O)O", // Ibuprofen
-      "CCN(CC)CCOC(=O)C1=CC=CC=C1N", // Procaine
-    ].join("\n");
+  const hasResults = !loading && results.length > 0;
 
-    setSmilesInput(exampleSmiles);
-  };
-
-  // Define column headers - makes the table more maintainable
-  const filterColumns = [
-    { key: "pains", label: "PAINS" },
-    { key: "lipinski", label: "Lipinski" },
-    { key: "veber", label: "Veber" },
-    { key: "reos", label: "REOS" },
-    { key: "ghose", label: "Ghose" },
-    { key: "ruleofthree", label: "Rule of 3" },
-    { key: "qedscore", label: "QED" }, // Shortened label
-    { key: "sascore", label: "SA Score" },
-    { key: "nplikeness", label: "NP-like" }, // Shortened label
-  ];
-
-  // Filter information content
-  const filterInfoContent = (
-    <div className="space-y-2">
-      <p className="text-sm text-gray-600 dark:text-gray-400">
-        <strong>PAINS</strong>: Pan-Assay Interference compounds - structures known to interfere
-        with biochemical assays. Finding a PAINS match is <em>undesirable</em> for drug development.
-      </p>
-      <p className="text-sm text-gray-600 dark:text-gray-400">
-        <strong>Lipinski Rule of 5</strong>: Evaluates drug-likeness based on molecular weight,
-        logP, H-bond donors/acceptors. Shows specific violations when detailed mode is enabled.
-      </p>
-      <p className="text-sm text-gray-600 dark:text-gray-400">
-        <strong>Veber</strong>: Filters for oral bioavailability based on rotatable bonds and polar
-        surface area
-      </p>
-      <p className="text-sm text-gray-600 dark:text-gray-400">
-        <strong>REOS</strong>: Rapid Elimination Of Swill - property filters for lead-like compounds
-      </p>
-      <p className="text-sm text-gray-600 dark:text-gray-400">
-        <strong>Ghose</strong>: Filters based on logP, molecular weight, and number of atoms
-      </p>
-      <p className="text-sm text-gray-600 dark:text-gray-400">
-        <strong>Rule of 3</strong>: Criteria for fragment-based drug discovery
-      </p>
-      <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-sm">
-        <p className="text-sm text-green-800 dark:text-green-200 font-medium mb-1">
-          💡 New: Detailed View Mode
-        </p>
-        <p className="text-xs text-green-700 dark:text-green-300">
-          Enable "Show detailed violation information" to see exactly which properties failed and by
-          how much, plus specific PAINS substructure families when matched.
-        </p>
-      </div>
-      <p className="mt-4 text-sm text-gray-600 dark:text-gray-400 border-t border-blue-100 dark:border-blue-800 pt-4">
-        <strong>Filter Match Logic</strong>: Choose how filters are combined - "Match All Filters"
-        requires molecules to pass all selected filters (AND logic), while "Match Any Filter"
-        includes molecules that pass at least one filter (OR logic).
-      </p>
-    </div>
-  );
+  useRevealOnResult("af-results", loading, ran, !!error);
 
   return (
-    // Main container with spacing
-    <div className="space-y-6 p-4 md:p-6">
-      {/* Input and Filters Card */}
-      <div className="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-lg shadow-md dark:shadow-lg">
-        {/* Card Header */}
-        <div className="flex justify-between items-start mb-4">
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-blue-400">
-            Chemical Filters
-          </h2>
-          {/* Info button - now opens the modal */}
-          <Button
-            variant="ghost"
-            className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full focus:outline-hidden focus:ring-2 focus:ring-blue-500"
-            title="Information about filters"
-            onClick={() => setShowInfoModal(true)}
-          >
-            <Info className="h-5 w-5" aria-hidden="true" />
-          </Button>
-        </div>
-
-        {/* Form for input and filter options */}
-        <form onSubmit={applyFilters} className="space-y-6">
-          {/* SMILES Input Area */}
-          <div>
-            <label
-              htmlFor="smilesInputArea"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >
-              Molecule List (SMILES)
-            </label>
-            <Textarea
-              id="smilesInputArea"
-              value={smilesInput}
-              onChange={(e) => setSmilesInput(e.target.value)}
-              placeholder="Enter SMILES strings, one per line or separated by space/comma/semicolon..."
-              className="h-32"
-              required
-              aria-required="true"
-            />
-            <div className="flex items-center justify-between mt-1">
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Enter one or more SMILES strings. Separate multiple entries with new lines, spaces,
-                commas, or semicolons.
+    <div className="pc-bento">
+      <div className="pc-col pc-t-input">
+        <Cell id="af-input" title="Structure input" className="">
+          <form onSubmit={applyFilters} className="pc-tool-form">
+            <div className="grid gap-2">
+              <label htmlFor="smilesInputArea" className="pc-lbl">
+                Molecule list (SMILES)
+              </label>
+              <textarea
+                id="smilesInputArea"
+                className="pc-well resize-y"
+                rows={6}
+                value={smilesInput}
+                onChange={(e) => setSmilesInput(e.target.value)}
+                placeholder="Enter SMILES strings, one per line or separated by space/comma/semicolon..."
+                spellCheck={false}
+                autoComplete="off"
+                required
+                aria-required="true"
+              />
+              <p className="pc-note">
+                One or more SMILES, separated by new lines, spaces, commas or semicolons.
               </p>
-              <Button
-                variant="ghost"
-                type="button"
-                onClick={loadExampleMolecules}
-                className="px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-sm hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors duration-150 flex items-center"
-              >
-                <FlaskConical className="mr-1 h-3.5 w-3.5" />
-                Load Examples
+            </div>
+            <div className="pc-row pc-actions">
+              <Button type="submit" disabled={loading || !smilesInput.trim()}>
+                {loading ? <Loader2 className="animate-spin" /> : <Filter />}
+                {loading ? "Applying filters…" : "Apply filters"}
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setSmilesInput(EXAMPLES)}>
+                <FlaskConical />
+                Load examples
               </Button>
             </div>
-          </div>
+          </form>
+        </Cell>
 
-          {/* Filter Options Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-200 dark:border-gray-700 pt-6">
-            {/* Checkbox Filters */}
-            <div className="space-y-4">
-              <h3 className="text-md font-medium text-gray-800 dark:text-gray-200">
-                Rule-Based Filters
-              </h3>
-              <div className="space-y-3">
-                {/* Dynamically create checkboxes */}
-                {filterColumns.slice(0, 6).map((filter) => (
-                  <div key={filter.key} className="flex items-center">
-                    <input
-                      id={filter.key}
-                      name={filter.key}
-                      type="checkbox"
-                      checked={filterOptions[filter.key]}
-                      onChange={handleCheckboxChange}
-                      className="h-4 w-4 rounded-sm bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-offset-gray-800 shadow-xs"
-                    />
-                    <label
-                      htmlFor={filter.key}
-                      className="ml-3 block text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      {filter.label}
-                    </label>
-                  </div>
-                ))}
-              </div>
+        <Cell id="af-about" title="About chemical filters" className="">
+          <p className="pc-tool-note">
+            Filters a list of molecules with medicinal-chemistry and drug-likeness rules. Detailed
+            mode shows which properties failed and by how much, plus matched PAINS substructure
+            families.
+          </p>
+          <dl className="pc-defs">
+            <div>
+              <dt>Match all (AND)</dt>
+              <dd>A molecule must pass every selected filter.</dd>
             </div>
-
-            {/* Score Range Filters */}
-            <div className="space-y-4">
-              <h3 className="text-md font-medium text-gray-800 dark:text-gray-200">
-                Score Filters
-              </h3>
-              {/* QED Score */}
-              <div>
-                <label
-                  htmlFor="qedscore"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  QED Druglikeness (0-1)
-                </label>
-                <Select
-                  value={filterOptions.qedscore}
-                  onValueChange={(v) => handleFilterChange("qedscore", v)}
-                >
-                  <SelectTrigger id="qedscore" className="w-full">
-                    <SelectValue placeholder="Select range" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0-1">0-1 (All)</SelectItem>
-                    <SelectItem value="0-0.3">0-0.3 (Low)</SelectItem>
-                    <SelectItem value="0.3-0.6">0.3-0.6 (Medium)</SelectItem>
-                    <SelectItem value="0.6-1">0.6-1 (High)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              {/* SA Score */}
-              <div>
-                <label
-                  htmlFor="sascore"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  Synthetic Accessibility (1-10) {/* Corrected range usually 1-10 */}
-                </label>
-                <Select
-                  value={filterOptions.sascore}
-                  onValueChange={(v) => handleFilterChange("sascore", v)}
-                >
-                  <SelectTrigger id="sascore" className="w-full">
-                    <SelectValue placeholder="Select range" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1-10">1-10 (All)</SelectItem>
-                    <SelectItem value="1-4">1-4 (Easy synthesis)</SelectItem>
-                    <SelectItem value="4-7">4-7 (Moderate synthesis)</SelectItem>
-                    <SelectItem value="7-10">7-10 (Difficult synthesis)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              {/* NP-likeness Score */}
-              <div>
-                <label
-                  htmlFor="nplikeness"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  NP-likeness Score (-5 to 5)
-                </label>
-                <Select
-                  value={filterOptions.nplikeness}
-                  onValueChange={(v) => handleFilterChange("nplikeness", v)}
-                >
-                  <SelectTrigger id="nplikeness" className="w-full">
-                    <SelectValue placeholder="Select range" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="-5-5">-5 to 5 (All)</SelectItem>
-                    <SelectItem value="-5-0">-5 to 0 (Synthetic-like)</SelectItem>
-                    <SelectItem value="0-2">0 to 2 (Moderate NP-like)</SelectItem>
-                    <SelectItem value="2-5">2 to 5 (High NP-like)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div>
+              <dt>Match any (OR)</dt>
+              <dd>A molecule must pass at least one selected filter.</dd>
             </div>
-          </div>
-
-          {/* Filter Operator Toggle */}
-          <div className="pt-4 pb-2 border-t border-gray-200 dark:border-gray-700">
-            <div className="flex flex-col space-y-4">
-              {/* Filter Logic */}
-              <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
-                  <ArrowLeftRight className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
-                  Filter Match Logic:
-                </label>
-                <LayoutGroup id="filterOperatorToggle">
-                  <div className="relative flex p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                    {["AND", "OR"].map((op) => (
-                      <button
-                        key={op}
-                        type="button"
-                        onClick={() => handleFilterOperatorChange(op)}
-                        className={`relative z-10 px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-sky-500 ${
-                          filterOperator === op
-                            ? "text-sky-700 dark:text-sky-400"
-                            : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
-                        }`}
-                      >
-                        {filterOperator === op && (
-                          <motion.div
-                            layoutId="filterOpPill"
-                            className="absolute inset-0 bg-white dark:bg-slate-600 rounded-md shadow-xs -z-10"
-                            transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                          />
-                        )}
-                        {op === "AND" ? "Match All Filters (AND)" : "Match Any Filter (OR)"}
-                      </button>
-                    ))}
-                  </div>
-                </LayoutGroup>
-              </div>
-
-              {/* Detailed View Toggle */}
-              <div className="flex items-center space-x-3">
-                <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
-                  <Info className="mr-2 h-5 w-5 text-green-600 dark:text-green-400" />
-                  Result Detail Level:
-                </label>
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={showDetailedView}
-                    onChange={(e) => setShowDetailedView(e.target.checked)}
-                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-700"
-                  />
-                  <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                    Show detailed violation information
-                    <span className="block text-xs text-gray-500 dark:text-gray-400">
-                      Display specific property values and PAINS substructure details
-                    </span>
-                  </span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="pt-4">
-            <Button
-              type="submit"
-              disabled={loading || !smilesInput.trim()}
-              className={`w-full md:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
-                !smilesInput.trim() || loading
-                  ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
-              }`}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Applying Filters...
-                </>
-              ) : (
-                <>
-                  <Filter className="mr-2 h-5 w-5" aria-hidden="true" />
-                  Apply Filters
-                </>
-              )}
-            </Button>
-          </div>
-        </form>
+          </dl>
+        </Cell>
       </div>
 
-      {/* Information Modal */}
-      {showInfoModal && (
-        <div
-          className="fixed inset-0 z-50 overflow-y-auto"
-          aria-labelledby="modal-title"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            {/* Background overlay */}
-            <div
-              className="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/75 transition-opacity"
-              aria-hidden="true"
-              onClick={() => setShowInfoModal(false)}
-            ></div>
-
-            {/* Modal panel */}
-            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-              <div className="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div className="sm:flex sm:items-start">
-                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3
-                        className="text-lg leading-6 font-medium text-blue-800 dark:text-blue-300"
-                        id="modal-title"
-                      >
-                        About Chemical Filters
-                      </h3>
-                      <Button
-                        variant="ghost"
-                        type="button"
-                        className="bg-white dark:bg-gray-800 rounded-md text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                        onClick={() => setShowInfoModal(false)}
-                      >
-                        <span className="sr-only">Close</span>
-                        <X className="h-6 w-6" aria-hidden="true" />
-                      </Button>
-                    </div>
-                    <div className="mt-2">
-                      <p className="text-gray-700 dark:text-gray-300 mb-4">
-                        This tool allows you to filter a list of molecules based on various
-                        medicinal chemistry and drug-like property filters.
-                      </p>
-                      {/* Reused filter information content */}
-                      {filterInfoContent}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <Button
-                  variant="secondary"
-                  type="button"
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-xs px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={() => setShowInfoModal(false)}
-                >
-                  Close
-                </Button>
-              </div>
+      <Cell id="af-opts" title="Options" className="pc-t-side">
+        <div className="grid gap-6">
+          <div className="pc-opt-group">
+            <span className="pc-lbl">Rule-based filters</span>
+            <div className="pc-opt-list">
+              {RULES.map((rule) => (
+                <Switch
+                  key={rule.key}
+                  checked={filterOptions[rule.key]}
+                  onChange={(v) => handleFilterChange(rule.key, v)}
+                  label={rule.label}
+                  hint={rule.hint}
+                />
+              ))}
             </div>
           </div>
-        </div>
-      )}
 
-      {/* Loading Indicator */}
-      {loading && results.length === 0 && <ToolSkeleton variant="descriptors" />}
+          <div className="pc-opt-group">
+            <span className="pc-lbl">Score filters</span>
+            <div className="pc-tool-form">
+              {RANGES.map((range) => (
+                <Select
+                  key={range.key}
+                  label={range.label}
+                  value={filterOptions[range.key]}
+                  options={range.options}
+                  onChange={(v) => handleFilterChange(range.key, v)}
+                />
+              ))}
+            </div>
+          </div>
 
-      {/* Error Message */}
-      {error && !loading && (
-        <GlassErrorCard
-          message={error}
-          onRetry={() => {
-            setError(null);
-            document.getElementById("smiles-input")?.focus();
-          }}
-        />
-      )}
-
-      {/* No Results Message - Display when a filter operation was performed but returned no results */}
-      {!loading && !error && smilesInput.trim() && results.length === 0 && (
-        <div
-          className="p-4 rounded-md bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-200 border border-yellow-300 dark:border-yellow-700 flex items-start shadow-sm"
-          role="alert"
-        >
-          <AlertCircle
-            className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-yellow-500 dark:text-yellow-400"
-            aria-hidden="true"
-          />
-          <div>
-            <h4 className="font-medium">No Molecules Matched Your Filters</h4>
-            <p className="text-sm">
-              None of the provided molecules passed the selected filter criteria. Try changing your
-              filter settings or switch between AND/OR logic.
-            </p>
+          <div className="pc-opt-group">
+            <span className="pc-lbl" id="af-logic">
+              Filter match logic
+            </span>
+            <Seg
+              labelId="af-logic"
+              full
+              value={filterOperator}
+              onChange={handleFilterOperatorChange}
+              options={[
+                { value: "AND", label: "Match all (AND)" },
+                { value: "OR", label: "Match any (OR)" },
+              ]}
+            />
+            <span className="pc-lbl">Result detail</span>
+            <Switch
+              checked={showDetailedView}
+              onChange={setShowDetailedView}
+              label="Show detailed violation information"
+              hint="Property values and PAINS substructure details"
+            />
           </div>
         </div>
-      )}
+      </Cell>
 
-      {/* Results Table Section */}
-      {/* Show only if not loading and results array has items */}
-      {!loading && results.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-lg shadow-md dark:shadow-lg">
-          {/* Results Header with Actions */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-              Filter Results{" "}
-              <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
-                ({results.length} molecules passing selected criteria)
+      <Cell
+        id="af-results"
+        title={hasResults ? "Filter results" : "Results"}
+        className="pc-t-wide"
+        meta={
+          hasResults && (
+            <div className="pc-row">
+              <span className="pc-tag">
+                {results.length} molecule{results.length === 1 ? "" : "s"}
               </span>
-            </h3>
-            {/* Action Buttons */}
-            <div className="flex space-x-2 shrink-0">
-              <Button
-                variant="ghost"
-                onClick={copyToClipboard}
-                className={`px-3 py-1.5 text-sm rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
-                  copied
-                    ? "bg-green-100 dark:bg-green-700 text-green-700 dark:text-green-200"
-                    : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600"
-                }`}
-                title="Copy results list to clipboard"
-              >
-                <Clipboard className={`mr-1.5 h-4 w-4 ${copied ? "" : ""}`} aria-hidden="true" />
-                {copied ? "Copied!" : "Copy"}
-              </Button>
-              <Button
-                onClick={downloadResults}
-                className="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500"
-                title="Download results as a text file"
-              >
-                <FileDown className="mr-1.5 h-4 w-4" aria-hidden="true" />
+              <CopyButton text={results.join("\n")} label="Copy" />
+              <Button variant="outline" onClick={downloadResults}>
+                <FileDown />
                 Download
               </Button>
             </div>
-          </div>
-
-          {/* Results Table */}
-          <div className="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-md">
+          )
+        }
+      >
+        {loading && <ToolSkeleton variant="descriptors" />}
+        {error && !loading && (
+          <GlassErrorCard
+            message={error}
+            onRetry={() => {
+              setError(null);
+              document.getElementById("smilesInputArea")?.focus();
+            }}
+          />
+        )}
+        {!ran && !loading && !error && (
+          <p className="pc-empty">Enter SMILES strings to screen them against the filters.</p>
+        )}
+        {ran && !loading && !error && results.length === 0 && (
+          <p className="pc-empty">
+            No molecules passed the selected filters; try other settings or switch AND/OR logic.
+          </p>
+        )}
+        {hasResults && (
+          <div className="overflow-x-auto rounded-xl border border-border">
             <table className="w-full min-w-[800px] border-collapse">
-              {" "}
-              {/* min-w ensures table scrolls */}
-              <thead className="bg-gray-50 dark:bg-gray-700">
+              <thead className="bg-muted">
                 <tr>
-                  {/* Fixed Columns */}
                   <th
                     scope="col"
-                    className="sticky left-0 z-10 bg-gray-50 dark:bg-gray-700 px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 border-r border-gray-200 dark:border-gray-600"
+                    className={`${th} sticky left-0 z-10 border-r border-border bg-muted text-left`}
                   >
                     #
                   </th>
                   <th
                     scope="col"
-                    className="sticky left-[calc(var(--spacing-12))] z-10 bg-gray-50 dark:bg-gray-700 px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 border-r border-gray-200 dark:border-gray-600"
+                    className={`${th} sticky left-[calc(var(--spacing-12))] z-10 border-r border-border bg-muted text-left`}
                   >
                     SMILES
                   </th>
-                  {/* Dynamic Filter Columns */}
                   {filterColumns.map((col) => (
-                    <th
-                      key={col.key}
-                      scope="col"
-                      className="px-3 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 whitespace-nowrap"
-                    >
+                    <th key={col.key} scope="col" className={`${th} text-center`}>
                       {col.label}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="divide-y divide-border">
                 {results.map((resultString, index) => {
                   const { smiles, results: filterValues } = parseFilterResult(resultString);
                   return (
-                    <tr
-                      key={index}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150"
-                    >
-                      {/* Row Number (Sticky) */}
-                      <td className="sticky left-0 z-10 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-500 dark:text-gray-400 border-r border-gray-200 dark:border-gray-600">
+                    <tr key={index} className="transition-colors hover:bg-muted">
+                      <td className="sticky left-0 z-10 border-r border-border bg-card px-3 py-2 font-mono text-sm text-muted-foreground tabular-nums">
                         {index + 1}
                       </td>
-                      {/* SMILES String (Sticky) */}
-                      <td className="sticky left-[calc(var(--spacing-12))] z-10 bg-white dark:bg-gray-800 px-4 py-2 text-sm text-blue-600 dark:text-blue-300 font-mono whitespace-nowrap border-r border-gray-200 dark:border-gray-600">
+                      <td className="sticky left-[calc(var(--spacing-12))] z-10 border-r border-border bg-card px-4 py-2 font-mono text-sm whitespace-nowrap text-foreground">
                         {smiles}
                       </td>
-                      {/* Filter Results */}
                       {filterValues.map((value, filterIndex) => {
-                        // Determine if this is a disabled filter based on filterOptions
                         const isDisabled =
-                          filterIndex < 6 && !filterOptions[filterColumns[filterIndex].key];
-
+                          !!RULES[filterIndex] && !filterOptions[RULES[filterIndex]!.key];
                         return (
                           <td
                             key={filterIndex}
-                            className={`px-3 py-2 text-center text-sm ${
-                              isDisabled ? "bg-gray-50 dark:bg-gray-900/20" : ""
-                            }`}
+                            className={`px-3 py-2 text-center text-sm ${isDisabled ? "bg-muted" : ""}`}
                           >
                             {value === "disabled" || isDisabled ? (
-                              <span className="text-gray-500 dark:text-gray-400 italic">
-                                Disabled
-                              </span>
+                              <span className="text-muted-foreground">Disabled</span>
                             ) : typeof value === "boolean" ? (
                               value ? (
                                 <Check
-                                  className="h-5 w-5 text-green-500 dark:text-green-400 inline-block"
-                                  title="Pass"
+                                  className="inline-block size-5 text-primary"
                                   aria-label="Pass"
                                 />
                               ) : (
                                 <X
-                                  className="h-5 w-5 text-red-500 dark:text-red-400 inline-block"
-                                  title="Fail"
+                                  className="inline-block size-5 text-madder-ink"
                                   aria-label="Fail"
                                 />
                               )
                             ) : (
-                              // Display scores/other values
-                              <span className="text-gray-700 dark:text-gray-300">
+                              <span className="font-mono text-foreground tabular-nums">
                                 {value === "N/A" ? "-" : value}
                               </span>
                             )}
@@ -855,107 +537,79 @@ const AllFiltersView = () => {
               </tbody>
             </table>
           </div>
-        </div>
-      )}
+        )}
+      </Cell>
 
-      {/* Detailed Results Section */}
       {!loading && showDetailedView && detailedResults && (
-        <div className="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-lg shadow-md dark:shadow-lg">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-              Detailed Filter Results
-              <span className="text-sm font-normal text-gray-500 dark:text-gray-400 block">
-                {detailedResults.passing_molecules} of {detailedResults.total_molecules} molecules
-                passed filters ({detailedResults.filter_operator} logic)
-              </span>
-            </h3>
-          </div>
-
-          <div className="space-y-4">
+        <Cell
+          id="af-detail"
+          title="Detailed filter results"
+          className="pc-t-wide"
+          meta={
+            <span className="pc-tag">
+              {detailedResults.passing_molecules} of {detailedResults.total_molecules} passed (
+              {detailedResults.filter_operator} logic)
+            </span>
+          }
+        >
+          <div className="pc-tool-form">
             {detailedResults.results.map((result, index) => (
-              <div
-                key={index}
-                className="border border-gray-200 dark:border-gray-700 rounded-lg p-4"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3">
-                  <div className="flex items-center space-x-3">
-                    <span className="font-mono text-sm text-blue-600 dark:text-blue-300">
-                      {result.smiles}
-                    </span>
-                    <span
-                      className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        result.overall_pass
-                          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                          : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
-                      }`}
-                    >
-                      {result.overall_pass ? "PASS" : "FAIL"}
-                    </span>
-                  </div>
+              <div key={index} className="grid gap-3 rounded-xl border border-border p-4">
+                <div className="pc-row">
+                  <span className="font-mono text-sm break-all text-foreground">
+                    {result.smiles}
+                  </span>
+                  <PassTag pass={result.overall_pass}>
+                    {result.overall_pass ? "PASS" : "FAIL"}
+                  </PassTag>
                 </div>
 
                 {!result.valid ? (
-                  <div className="text-red-600 dark:text-red-400 text-sm">
-                    Error: {result.error}
-                  </div>
+                  <p className="text-sm text-madder-ink">Error: {result.error}</p>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid gap-3 md:grid-cols-2">
                     {Object.entries(result.filters).map(([filterName, filterResult]) => (
                       <div
                         key={filterName}
-                        className="border border-gray-100 dark:border-gray-600 rounded-sm p-3"
+                        className="grid gap-2 rounded-xl border border-border p-3"
                       >
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-medium text-sm text-gray-900 dark:text-white capitalize">
+                        <div className="flex items-center justify-between gap-2">
+                          <h3 className="text-sm font-medium text-foreground capitalize">
                             {filterName.replace(/_/g, " ")}
-                          </h4>
-                          <span
-                            className={`px-2 py-1 text-xs font-medium rounded ${
-                              filterResult.passes
-                                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-                                : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
-                            }`}
-                          >
+                          </h3>
+                          <PassTag pass={filterResult.passes}>
                             {filterResult.passes ? "Pass" : "Fail"}
-                          </span>
+                          </PassTag>
                         </div>
-
-                        <div className="text-xs text-gray-600 dark:text-gray-400">
-                          {filterResult.details}
-                        </div>
+                        <p className="pc-note">{filterResult.details}</p>
 
                         {filterResult.violations && filterResult.violations.length > 0 && (
-                          <div className="mt-2">
-                            <div className="text-xs font-medium text-red-700 dark:text-red-300 mb-1">
-                              Violations:
-                            </div>
-                            <ul className="text-xs text-red-600 dark:text-red-400 space-y-1">
+                          <div className="text-xs text-madder-ink">
+                            <p className="mb-1 font-medium">Violations</p>
+                            <ul className="list-disc space-y-1 pl-4">
                               {filterResult.violations.map((violation, i) => (
-                                <li key={i} className="flex items-start">
-                                  <span className="mr-1">•</span>
-                                  <span>{violation}</span>
-                                </li>
+                                <li key={i}>{violation}</li>
                               ))}
                             </ul>
                           </div>
                         )}
 
                         {filterResult.properties && (
-                          <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                            <details className="cursor-pointer">
-                              <summary className="hover:text-gray-700 dark:hover:text-gray-300">
-                                View properties
-                              </summary>
-                              <div className="mt-1 pl-2 border-l-2 border-gray-200 dark:border-gray-600">
-                                {Object.entries(filterResult.properties).map(([prop, value]) => (
-                                  <div key={prop} className="flex justify-between">
-                                    <span>{prop.replace(/_/g, " ")}:</span>
-                                    <span className="font-mono">{value}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </details>
-                          </div>
+                          <details className="text-xs text-muted-foreground">
+                            <summary className="cursor-pointer hover:text-foreground">
+                              View properties
+                            </summary>
+                            <dl className="mt-1 grid gap-0.5 border-l-2 border-border pl-2">
+                              {Object.entries(filterResult.properties).map(([prop, value]) => (
+                                <div key={prop} className="flex justify-between gap-2">
+                                  <dt>{prop.replace(/_/g, " ")}</dt>
+                                  <dd className="font-mono text-foreground tabular-nums">
+                                    {String(value)}
+                                  </dd>
+                                </div>
+                              ))}
+                            </dl>
+                          </details>
                         )}
                       </div>
                     ))}
@@ -964,27 +618,10 @@ const AllFiltersView = () => {
               </div>
             ))}
           </div>
-        </div>
-      )}
-
-      {/* About Chemical Filters Info Box - Always visible */}
-      {!loading && !error && (
-        <div
-          className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 shadow-sm"
-          role="complementary"
-        >
-          <h3 className="text-lg font-medium text-blue-800 dark:text-blue-300 mb-3">
-            About Chemical Filters
-          </h3>
-          <p className="text-gray-700 dark:text-gray-300 mb-4">
-            This tool allows you to filter a list of molecules based on various medicinal chemistry
-            and drug-like property filters.
-          </p>
-          {/* Reused filter information content */}
-          {filterInfoContent}
-        </div>
+        </Cell>
       )}
     </div>
   );
 };
+
 export default AllFiltersView;

@@ -1,49 +1,35 @@
-// Description: 3D visualization component using $3Dmol.js
-// This component allows users to input SMILES strings, generate 3D structures, and visualize them.
-import { useState, useRef, useEffect, useCallback } from "react";
-// Ensure all used icons are imported
-// Assuming these components are correctly implemented and styled for dark/light mode
+// 3D depiction: SMILES to a 3D molblock, shown in an interactive $3Dmol.js viewer.
+import { useState, useRef, useEffect, useCallback, type FormEvent } from "react";
 import SMILESInput from "../common/SMILESInput";
-// Assuming this service is configured correctly
-import convertService from "../../services/convertService"; // Assuming this service exists
-import {
-  AlertCircle,
-  Box,
-  Camera,
-  Check,
-  Clipboard,
-  Download,
-  LayoutGrid,
-  Palette,
-  Loader2,
-  RefreshCw,
-} from "lucide-react";
+import convertService from "../../services/convertService";
+import { Box, Camera, Check, Clipboard, Download, Loader2, LocateFixed } from "lucide-react";
+import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
+import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
+import { Cell, Seg, Select, Switch } from "@/components/common/porcelain-ui";
+import { useRevealOnResult } from "@/hooks/useRevealOnResult";
+import { errorText } from "@/lib/error-messages";
 
-// Visualization styles configuration
-const VISUALIZATION_STYLES = [
-  { id: "stick", label: "Stick" },
-  { id: "line", label: "Line" },
-  { id: "sphere", label: "Sphere" },
+type Style3D = "stick" | "line" | "sphere";
+type Toolkit3D = "openbabel" | "rdkit";
+
+// Visualization styles
+const VISUALIZATION_STYLES: { value: Style3D; label: string }[] = [
+  { value: "stick", label: "Stick" },
+  { value: "line", label: "Line" },
+  { value: "sphere", label: "Sphere" },
 ];
 
-// Background colors configuration (hex values used by $3Dmol)
+// Background colours (hex values passed to $3Dmol). The dark presets are the Porcelain
+// dark-mode --card (#242125) and --background (#171517) values in tailwind.css.
 const BACKGROUND_COLORS = [
   { id: "black", label: "Black", value: "#000000" },
   { id: "white", label: "White", value: "#ffffff" },
-  { id: "gray", label: "Dark Gray", value: "#2d3748" }, // Adjusted label for clarity
-  { id: "blue", label: "Dark Blue", value: "#1a202c" },
+  { id: "gray", label: "Dark Gray", value: "#242125" },
+  { id: "blue", label: "Charcoal", value: "#171517" },
 ];
 
-// Color schemes configuration (keys match $3Dmol options)
+// Colour schemes (keys match $3Dmol options)
 const COLOR_SCHEMES = [
   { id: "default", label: "Element (Default)" }, // Maps to undefined in $3Dmol style
   { id: "cyanCarbon", label: "Cyan Carbon" },
@@ -54,41 +40,39 @@ const COLOR_SCHEMES = [
   { id: "spectrum", label: "Rainbow Spectrum" },
 ];
 
-// Toolkit options configuration for 3D generation
-const TOOLKIT_OPTIONS_3D = [
-  { id: "openbabel", label: "Open Babel" },
-  { id: "rdkit", label: "RDKit" },
-  // Add other toolkits your service supports for 3D generation
+// Toolkits for 3D generation
+const TOOLKIT_OPTIONS_3D: { value: Toolkit3D; label: string }[] = [
+  { value: "openbabel", label: "Open Babel" },
+  { value: "rdkit", label: "RDKit" },
 ];
 
 // Example molecule SMILES
 const EXAMPLE_MOLECULE = "CC1(C)OC2COC3(COS(N)(=O)=O)OC(C)(C)OC3C2O1"; // Example: (+)-Camphorsultam
 
-const Depict3DView = ({ isActive = true }) => {
-  // isActive prop might control if viewer should mount/render
+const Depict3DView = ({ isActive = true }: { isActive?: boolean }) => {
+  // isActive controls whether the viewer mounts
   const [smiles, setSmiles] = useState("");
   const [loading, setLoading] = useState(false); // For API calls
-  const [error, setError] = useState(null);
-  const [toolkit, setToolkit] = useState("openbabel"); // Default toolkit for 3D
-  const [style, setStyle] = useState("stick");
-  const [backgroundColor, setBackgroundColor] = useState("white"); // Default bg color ID
+  const [error, setError] = useState<string | null>(null);
+  const [toolkit, setToolkit] = useState<Toolkit3D>("openbabel");
+  const [style, setStyle] = useState<Style3D>("stick");
+  const [backgroundColor, setBackgroundColor] = useState("white"); // Background colour id
   const [colorScheme, setColorScheme] = useState("default");
   const [showLabels, setShowLabels] = useState(false);
   const [spin, setSpin] = useState(false);
-  const [molData, setMolData] = useState(null); // Stores the 3D molblock string
-  const [viewerInitialized, setViewerInitialized] = useState(false); // Tracks if $3Dmol viewer is ready
-  const [viewerMounted, setViewerMounted] = useState(false); // Tracks if component/container is mounted
-  const [copied, setCopied] = useState(false); // State for copy button feedback
+  const [molData, setMolData] = useState<string | null>(null); // The 3D molblock
+  const [viewerInitialized, setViewerInitialized] = useState(false); // $3Dmol viewer is ready
+  const [viewerMounted, setViewerMounted] = useState(false); // Container is mounted
+  const [copied, setCopied] = useState(false);
 
-  // Refs for the viewer instance and its container
-  const viewerRef = useRef(null); // Stores the $3Dmol viewer instance
-  const containerRef = useRef(null); // Ref to the div where the viewer will be mounted
-  const modelRef = useRef(null); // Stores the $3Dmol model instance
-  const mountTimerRef = useRef(null); // Timer ref for delayed mounting
+  const viewerRef = useRef<Viewer3D | null>(null); // The $3Dmol viewer instance
+  const containerRef = useRef<HTMLDivElement | null>(null); // Where the viewer mounts
+  const modelRef = useRef<Model3D | null>(null); // The $3Dmol model instance
+  const mountTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null); // Delayed mounting
 
-  // Generate 3D structure from SMILES using the selected toolkit
+  // Generate a 3D structure from SMILES with the selected toolkit
   const generateStructure = useCallback(
-    async (smilesStr) => {
+    async (smilesStr: string) => {
       if (!smilesStr) return;
       if (!convertService || typeof convertService.generate3DCoordinates !== "function") {
         console.error("convertService.generate3DCoordinates is not available.");
@@ -107,7 +91,7 @@ const Depict3DView = ({ isActive = true }) => {
         }
       } catch (err) {
         console.error("Error generating 3D structure:", err);
-        setError(`Error generating 3D structure: ${err.message || "Unknown error"}`);
+        setError(`Error generating 3D structure: ${errorText(err) || "Unknown error"}`);
         setMolData(null);
       } finally {
         setLoading(false);
@@ -116,8 +100,7 @@ const Depict3DView = ({ isActive = true }) => {
     [toolkit]
   );
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e?: FormEvent) => {
     if (e) e.preventDefault();
     const trimmedSmiles = smiles.trim();
     if (trimmedSmiles) {
@@ -127,7 +110,7 @@ const Depict3DView = ({ isActive = true }) => {
     }
   };
 
-  // Destroy and cleanup the $3Dmol viewer instance
+  // Destroy and clean up the $3Dmol viewer instance
   const destroyViewer = useCallback(() => {
     if (viewerRef.current) {
       try {
@@ -146,7 +129,8 @@ const Depict3DView = ({ isActive = true }) => {
 
   // Create a new $3Dmol viewer instance
   const createViewer = useCallback(() => {
-    if (!containerRef.current || !window.$3Dmol) return null;
+    const lib = window.$3Dmol;
+    if (!containerRef.current || !lib) return null;
     const containerWidth = containerRef.current.clientWidth;
     const containerHeight = containerRef.current.clientHeight;
     if (containerWidth <= 0 || containerHeight <= 0) return null;
@@ -154,41 +138,37 @@ const Depict3DView = ({ isActive = true }) => {
       const bgColorHex =
         BACKGROUND_COLORS.find((c) => c.id === backgroundColor)?.value || "#000000";
       destroyViewer();
-      const viewer = window.$3Dmol.createViewer(containerRef.current, {
+      const viewer = lib.createViewer(containerRef.current, {
         backgroundColor: bgColorHex,
         width: "100%",
         height: "100%",
         antialias: true,
-        defaultcolors: window.$3Dmol.elementColors.rasmol,
+        defaultcolors: lib.elementColors.rasmol,
       });
       if (!viewer) throw new Error("$3Dmol.createViewer returned null or undefined.");
       viewer.resize();
       return viewer;
     } catch (err) {
       console.error("Failed to create $3Dmol viewer:", err);
-      setError(`Failed to initialize 3D viewer: ${err.message}`);
+      setError(`Failed to initialize 3D viewer: ${errorText(err)}`);
       return null;
     }
   }, [backgroundColor, destroyViewer]);
 
-  // --- Apply visual style settings (LABEL LOGIC MODIFIED HERE) ---
+  // Apply the visual style settings
   const applyStyle = useCallback(() => {
-    // Ensure viewer and model references are valid
     if (!viewerRef.current || !modelRef.current) return false;
     const viewer = viewerRef.current;
 
     try {
       // Reset existing styles and labels before applying new ones
-      viewer.setStyle({}, {}); // Clear previous styles for the model
-      viewer.removeAllLabels(); // Remove all existing labels
+      viewer.setStyle({}, {});
+      viewer.removeAllLabels();
 
-      // Determine the color scheme for the molecule visualization
-      // Use undefined for the default element-based coloring in $3Dmol
+      // undefined keeps $3Dmol's default element colouring
       const styleColorScheme = colorScheme === "default" ? undefined : colorScheme;
-      // Base configuration for styles, including the selected color scheme
       const styleConfig = { colorscheme: styleColorScheme };
 
-      // Apply the selected visualization style (stick, line, sphere)
       switch (style) {
         case "stick":
           viewer.setStyle({}, { stick: { radius: 0.15, ...styleConfig } });
@@ -199,47 +179,24 @@ const Depict3DView = ({ isActive = true }) => {
         case "sphere":
           viewer.setStyle({}, { sphere: { scale: 0.3, ...styleConfig } });
           break;
-        default: // Default to stick style if selection is somehow invalid
+        default:
           viewer.setStyle({}, { stick: { ...styleConfig } });
       }
 
-      // --- MODIFIED LABEL LOGIC ---
-      // Add atom labels if the 'showLabels' option is enabled and a model exists
+      // Atom labels for non-hydrogen atoms
       if (showLabels && modelRef.current) {
         try {
           const model = modelRef.current;
-          // Ensure the model has atoms data
           const atoms = model.atoms || [];
 
-          // Detect if dark mode is active to choose the appropriate label color
-          // This assumes a standard 'dark' class on the <html> element
-          const isDarkMode =
-            typeof window !== "undefined" && document.documentElement.classList.contains("dark");
+          // Label colour chosen for contrast with the viewer background (white is the only light one)
+          const labelFontColor = backgroundColor === "white" ? "#000000" : "white";
 
-          // Set label font color: white for dark mode, a very dark gray for light mode for better contrast
-          // Determine label font color based on background color for optimal contrast
-          let labelFontColor;
-          switch (backgroundColor) {
-            case "white":
-              labelFontColor = "#000000"; // Dark text on white background
-              break;
-            case "black":
-            case "gray":
-            case "blue":
-              labelFontColor = "white"; // White text on dark backgrounds
-              break;
-            default:
-              // Fallback to dark mode detection
-              labelFontColor = isDarkMode ? "white" : "#1f2937";
-          }
-
-          // Define a small offset to position labels slightly away from the atom center
+          // Small offset so labels sit beside the atom centre
           const labelOffset = { x: 0.1, y: 0.1, z: 0 };
 
-          // Iterate through each atom in the model
           for (let i = 0; i < atoms.length; i++) {
             const atom = atoms[i];
-            // Add label only for non-Hydrogen atoms with valid coordinates
             if (
               atom &&
               atom.elem &&
@@ -249,42 +206,36 @@ const Depict3DView = ({ isActive = true }) => {
               typeof atom.z === "number"
             ) {
               viewer.addLabel(atom.elem, {
-                // Add the element symbol as the label text
                 position: {
-                  // Position the label near the atom with the offset
                   x: atom.x + labelOffset.x,
                   y: atom.y + labelOffset.y,
                   z: atom.z + labelOffset.z,
                 },
-                useScreen: false, // Position label in 3D space (relative to atom)
-                fontColor: labelFontColor, // Apply the theme-aware font color
-                fontSize: 14, // Set the font size
+                useScreen: false,
+                fontColor: labelFontColor,
+                fontSize: 14,
                 showBackground: false,
                 borderThickness: 1.0,
-                borderColor: "cyan", // Set border color to cyan
-                alignment: "center", // Center the label text horizontally
+                borderColor: "cyan",
+                alignment: "center",
               });
             }
           }
         } catch (labelError) {
-          // Log a warning if adding labels fails, but don't block rendering
+          // Labels failing must not block rendering
           console.warn("Could not add atom labels:", labelError);
         }
       }
-      // --- END MODIFIED LABEL LOGIC ---
 
-      // Apply spin animation if enabled
       viewer.spin(spin);
-      // Render the changes in the viewer
       viewer.render();
-      return true; // Indicate success
+      return true;
     } catch (e) {
-      // Catch and log errors during style application
       console.error("Error applying style:", e);
-      setError(`Failed to apply style: ${e.message}`);
-      return false; // Indicate failure
+      setError(`Failed to apply style: ${errorText(e)}`);
+      return false;
     }
-  }, [style, colorScheme, showLabels, spin, backgroundColor]); // Dependencies for the useCallback hook
+  }, [style, colorScheme, showLabels, spin, backgroundColor]);
 
   // Render the molecule data in the viewer
   const renderMolecule = useCallback(() => {
@@ -307,7 +258,7 @@ const Depict3DView = ({ isActive = true }) => {
       }
     } catch (e) {
       console.error("Error rendering molecule:", e);
-      setError(`Failed to render molecule: ${e.message}. Try reinitializing or refreshing.`);
+      setError(`Failed to render molecule: ${errorText(e)}. Try reinitializing or refreshing.`);
       destroyViewer();
     }
   }, [molData, applyStyle, destroyViewer]);
@@ -327,7 +278,7 @@ const Depict3DView = ({ isActive = true }) => {
     }
   }, [createViewer, molData, renderMolecule, viewerInitialized]);
 
-  // Effect to mount/initialize the viewer
+  // Mount and initialize the viewer
   useEffect(() => {
     if (isActive && !viewerMounted && containerRef.current) {
       mountTimerRef.current = setTimeout(() => {
@@ -340,7 +291,7 @@ const Depict3DView = ({ isActive = true }) => {
     };
   }, [isActive, viewerMounted, initializeViewer]);
 
-  // Effect to re-render when molData changes
+  // Re-render when the molecule data changes
   useEffect(() => {
     if (molData && viewerInitialized) renderMolecule();
     else if (!molData && viewerRef.current) {
@@ -350,12 +301,12 @@ const Depict3DView = ({ isActive = true }) => {
     }
   }, [molData, viewerInitialized, renderMolecule]);
 
-  // Effect to apply style changes
+  // Apply style changes
   useEffect(() => {
     if (viewerInitialized && viewerRef.current && modelRef.current) applyStyle();
   }, [style, colorScheme, showLabels, spin, viewerInitialized, applyStyle]);
 
-  // Effect for background color changes
+  // Background colour changes
   useEffect(() => {
     if (viewerRef.current && viewerInitialized) {
       try {
@@ -369,14 +320,14 @@ const Depict3DView = ({ isActive = true }) => {
     }
   }, [backgroundColor, viewerInitialized]);
 
-  // Effect for component unmount cleanup
+  // Clean up on unmount
   useEffect(() => {
     return () => {
       destroyViewer();
     };
   }, [destroyViewer]);
 
-  // Effect for window resize
+  // Window resize
   useEffect(() => {
     const handleResize = () => {
       if (viewerRef.current && containerRef.current && viewerInitialized) {
@@ -392,13 +343,12 @@ const Depict3DView = ({ isActive = true }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, [viewerInitialized]);
 
-  // Handler to use the example molecule
   const handleUseExampleMolecule = () => {
     setSmiles(EXAMPLE_MOLECULE);
     generateStructure(EXAMPLE_MOLECULE);
   };
 
-  // Handler to take a screenshot
+  // Save the current view as a PNG
   const handleTakeScreenshot = () => {
     if (!viewerRef.current || !viewerInitialized) {
       setError("Viewer not ready.");
@@ -419,51 +369,40 @@ const Depict3DView = ({ isActive = true }) => {
     }
   };
 
-  // Handler to reset the camera view
+  // Reset the camera view
   const handleResetView = () => {
     if (!viewerRef.current || !viewerInitialized || !modelRef.current) return;
     try {
-      // Stop spinning if active
       if (spin) {
         viewerRef.current.spin(false);
       }
-
-      // Make sure we have a valid model before resetting
       if (viewerRef.current.getModel() && modelRef.current) {
-        // Reset the view more safely
+        // Identity matrix
         viewerRef.current.setView(
           new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]),
           100
-        ); // Use identity matrix
+        );
       }
-
-      // Center the molecule
       viewerRef.current.zoomTo();
-
-      // Re-apply spin if needed
       if (spin) {
         viewerRef.current.spin(spin);
       }
-
-      // Render the updated view
       viewerRef.current.render();
     } catch (e) {
       console.error("Error resetting view:", e);
-      setError(`Failed to reset view: ${e.message}`);
+      setError(`Failed to reset view: ${errorText(e)}`);
     }
   };
 
-  // Handler to attempt reinitialization if viewer failed
+  // Try the viewer again after a failed start. Unmounting is enough: the mount effect
+  // schedules a fresh initialization. (Setting `viewerMounted` back to true here as well
+  // cancelled that scheduled initialization, so the retry never did anything.)
   const handleReinitialize = () => {
     setError(null);
     setViewerMounted(false);
     destroyViewer();
-    setTimeout(() => {
-      setViewerMounted(true);
-    }, 100);
   };
 
-  // Handle copying the molblock to clipboard
   const handleCopy = () => {
     if (!molData || !navigator.clipboard) return;
     navigator.clipboard
@@ -478,7 +417,7 @@ const Depict3DView = ({ isActive = true }) => {
       });
   };
 
-  // Handle downloading the molblock as a .mol file
+  // Download the molblock as a .mol file
   const downloadMolblock = () => {
     if (!molData) return;
     try {
@@ -502,381 +441,194 @@ const Depict3DView = ({ isActive = true }) => {
     }
   };
 
+  const viewerBusy = loading || !molData || !viewerInitialized;
+  const done = !!molData && !loading && !error;
+
+  useRevealOnResult("d3d-viewer", loading, !!molData, !!error);
+
   return (
-    // Main container
-    <div className="space-y-6 p-4 md:p-6">
-      {/* Input and Options Card */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
-        {/* Title */}
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-blue-400 mb-4">
-          3D Coordinate Generation & Visualization
-        </h2>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* SMILES Input */}
+    <div className="pc-bento">
+      <Cell id="d3d-input" title="Structure input" className="pc-t-input">
+        <form onSubmit={handleSubmit} className="pc-tool-form">
           <SMILESInput value={smiles} onChange={setSmiles} label="Input SMILES" required />
-
-          {/* Options Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-            {/* Toolkit Selection */}
-            <div>
-              <label
-                htmlFor="toolkit-select-3d"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Toolkit (for 3D generation)
-              </label>
-              <Select value={toolkit} onValueChange={setToolkit}>
-                <SelectTrigger id="toolkit-select-3d" className="w-full">
-                  <SelectValue placeholder="Select toolkit" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TOOLKIT_OPTIONS_3D.map((option) => (
-                    <SelectItem key={option.id} value={option.id}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            {/* Visualization Style */}
-            <div>
-              <label
-                htmlFor="style-select"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Visualization Style
-              </label>
-              <Select value={style} onValueChange={setStyle}>
-                <SelectTrigger id="style-select" className="w-full">
-                  <SelectValue placeholder="Select style" />
-                </SelectTrigger>
-                <SelectContent>
-                  {VISUALIZATION_STYLES.map((visualStyle) => (
-                    <SelectItem key={visualStyle.id} value={visualStyle.id}>
-                      {visualStyle.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            {/* Background Color */}
-            <div>
-              <label
-                htmlFor="bg-color-select"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Background Color
-              </label>
-              <Select value={backgroundColor} onValueChange={setBackgroundColor}>
-                <SelectTrigger id="bg-color-select" className="w-full">
-                  <SelectValue placeholder="Select background" />
-                </SelectTrigger>
-                <SelectContent>
-                  {BACKGROUND_COLORS.map((color) => (
-                    <SelectItem key={color.id} value={color.id}>
-                      {color.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            {/* Color Scheme */}
-            <div>
-              <label
-                htmlFor="color-scheme-select"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Color Scheme
-              </label>
-              <Select value={colorScheme} onValueChange={setColorScheme}>
-                <SelectTrigger id="color-scheme-select" className="w-full">
-                  <SelectValue placeholder="Select color scheme" />
-                </SelectTrigger>
-                <SelectContent>
-                  {COLOR_SCHEMES.map((scheme) => (
-                    <SelectItem key={scheme.id} value={scheme.id}>
-                      {scheme.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Checkbox Options */}
-          <div className="flex flex-wrap gap-x-6 gap-y-2 pt-2">
-            <div className="flex items-center">
-              <input
-                id="show-labels"
-                type="checkbox"
-                checked={showLabels}
-                onChange={(e) => setShowLabels(e.target.checked)}
-                className="h-4 w-4 rounded-sm border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-xs focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
-              />
-              <label
-                htmlFor="show-labels"
-                className="ml-2 text-sm text-gray-700 dark:text-gray-300"
-              >
-                Show atom labels (non-H)
-              </label>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-            {/* Generate Button */}
-            <Button
-              type="submit"
-              disabled={!smiles.trim() || loading}
-              className={`px-5 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
-                !smiles.trim() || loading
-                  ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
-              }`}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Box className="mr-2 h-5 w-5" />
-                  Generate 3D View
-                </>
-              )}
+          <div className="pc-row pc-actions">
+            <Button type="submit" disabled={!smiles.trim() || loading}>
+              {loading ? <Loader2 className="animate-spin" /> : <Box />}
+              {loading ? "Generating…" : "Generate 3D view"}
             </Button>
-            {/* Screenshot Button */}
+            {!smiles && !molData && (
+              <Button variant="outline" type="button" onClick={handleUseExampleMolecule}>
+                Use example molecule
+              </Button>
+            )}
+          </div>
+        </form>
+      </Cell>
+
+      <Cell id="d3d-opts" title="Options" className="pc-t-side">
+        <div className="pc-tool-form">
+          <div className="pc-opt-group">
+            <span className="pc-lbl" id="d3d-toolkit">
+              Toolkit <small>For 3D generation</small>
+            </span>
+            <Seg
+              labelId="d3d-toolkit"
+              full
+              value={toolkit}
+              onChange={setToolkit}
+              options={TOOLKIT_OPTIONS_3D}
+            />
+          </div>
+          <div className="pc-opt-group">
+            <span className="pc-lbl" id="d3d-style">
+              Style
+            </span>
+            <Seg
+              labelId="d3d-style"
+              full
+              value={style}
+              onChange={setStyle}
+              options={VISUALIZATION_STYLES}
+            />
+          </div>
+          <div className="pc-field-row">
+            <Select
+              label="Background"
+              value={backgroundColor}
+              onChange={setBackgroundColor}
+              options={BACKGROUND_COLORS.map((c) => [c.id, c.label])}
+            />
+            <Select
+              label="Colour scheme"
+              value={colorScheme}
+              onChange={setColorScheme}
+              options={COLOR_SCHEMES.map((c) => [c.id, c.label])}
+            />
+          </div>
+          <div className="pc-opt-list">
+            <Switch
+              checked={showLabels}
+              onChange={setShowLabels}
+              label="Atom labels"
+              hint="Non-hydrogen atoms"
+            />
+            <Switch
+              checked={spin}
+              onChange={setSpin}
+              label="Spin"
+              hint="Rotate the model continuously"
+              disabled={viewerBusy}
+            />
+          </div>
+          <p className="pc-tool-note">
+            Generates a 3D conformer from SMILES and shows it in an interactive 3Dmol.js viewer.
+          </p>
+        </div>
+      </Cell>
+
+      <Cell
+        id="d3d-viewer"
+        title="3D viewer"
+        className="pc-t-input"
+        meta={
+          <>
             <Button
+              variant="outline"
+              size="sm"
               type="button"
               onClick={handleTakeScreenshot}
-              disabled={loading || !molData || !viewerInitialized}
-              className={`px-4 py-2 rounded-lg font-medium flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 ${
-                loading || !molData || !viewerInitialized
-                  ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                  : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 shadow-xs"
-              }`}
+              disabled={viewerBusy}
             >
-              <Camera className="mr-2 h-5 w-5" />
+              <Camera />
               Screenshot
             </Button>
-            {/* Spin Toggle Button */}
             <Button
-              type="button"
-              onClick={() => setSpin(!spin)}
-              disabled={loading || !molData || !viewerInitialized}
-              className={`px-4 py-2 rounded-lg font-medium flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 ${
-                loading || !molData || !viewerInitialized
-                  ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                  : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 shadow-xs"
-              }`}
-            >
-              <RefreshCw className="mr-2 h-5 w-5" />
-              {spin ? "Stop Rotation" : "Rotate"}
-            </Button>
-            {/* Reset View Button */}
-            <Button
+              variant="outline"
+              size="sm"
               type="button"
               onClick={handleResetView}
-              disabled={loading || !molData || !viewerInitialized}
-              className={`px-4 py-2 rounded-lg font-medium flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 ${
-                loading || !molData || !viewerInitialized
-                  ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                  : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 shadow-xs"
-              }`}
+              disabled={viewerBusy}
             >
-              <Palette className="mr-2 h-5 w-5" />{" "}
-              {/* Using ColorSwatch as placeholder for reset */}
-              Reset View
+              <LocateFixed />
+              Reset view
             </Button>
-          </div>
-
-          {/* Use Example Button */}
-          {!smiles &&
-            !molData && ( // Show only if input is empty and no data loaded
-              <div className="mt-3 text-center">
-                <Button
-                  variant="ghost"
-                  type="button"
-                  onClick={handleUseExampleMolecule}
-                  className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm"
-                >
-                  Use example molecule?
-                </Button>
-              </div>
-            )}
-
-          {/* Error Display with Retry */}
-          {error && !loading && (
-            <div
-              className="p-4 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700 rounded-lg mt-4 shadow-xs flex justify-between items-start"
-              role="alert"
-            >
-              <div className="flex items-start">
-                <AlertCircle
-                  className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
-                  aria-hidden="true"
-                />
-                <span>{error}</span>
-              </div>
-              {/* Show retry button only if viewer initialization failed */}
-              {error.includes("initialize") && (
-                <Button
-                  type="button"
-                  onClick={handleReinitialize}
-                  className="ml-4 px-2 py-1 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 rounded-sm text-white text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-red-900 focus:ring-red-500"
-                >
-                  Retry Init
-                </Button>
-              )}
-            </div>
-          )}
-        </form>
-      </div>
-
-      {/* Loading state for API call (distinct from viewer init) */}
-      {loading && (
-        <div className="flex justify-center items-center p-4 bg-blue-50 dark:bg-gray-700 rounded-lg border border-blue-200 dark:border-gray-600 shadow-xs">
-          <div className="animate-spin h-5 w-5 border-2 border-blue-500 dark:border-blue-400 border-t-transparent rounded-full mr-3"></div>
-          <span className="text-blue-700 dark:text-blue-300">Generating 3D structure...</span>
-        </div>
-      )}
-
-      {/* NEW: Side-by-side container for 3D viewer and molblock */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 3D Viewer Container - modified height */}
+          </>
+        }
+      >
         <div
-          className="relative rounded-lg shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700"
+          className="relative h-[500px] overflow-hidden rounded-xl border border-border"
           style={{
             backgroundColor:
               BACKGROUND_COLORS.find((c) => c.id === backgroundColor)?.value || "#000000",
           }}
         >
-          {/* Container for $3Dmol.js - reduced height */}
           <div
-            className="w-full h-[500px] relative"
+            className="relative h-full w-full"
             ref={containerRef}
             data-testid="molecule-3d-container"
           >
             {/* $3Dmol viewer mounts here */}
           </div>
-
-          {/* Loading/Initialization Overlay - unchanged */}
           {isActive && (!viewerInitialized || !viewerMounted) && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-200/80 dark:bg-black/80 backdrop-blur-sm z-10">
-              {/* Themed overlay content box */}
-              <div className="text-center p-6 rounded-lg bg-white/70 dark:bg-gray-800/80 shadow-lg border border-gray-300 dark:border-gray-700">
-                {/* Spinner */}
-                <div className="animate-spin mb-4 h-10 w-10 border-4 border-blue-500 dark:border-blue-400 border-t-transparent rounded-full mx-auto"></div>
-                <p className="text-gray-700 dark:text-white text-lg font-medium">
-                  Initializing 3D viewer...
-                </p>
-                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-                  Please wait a moment
-                </p>
-              </div>
+            <div className="absolute inset-0 z-10 grid place-items-center bg-card/80 backdrop-blur-sm">
+              <p className="m-0 grid justify-items-center gap-2 text-center text-foreground">
+                <Loader2 className="size-8 animate-spin text-primary" aria-hidden="true" />
+                <span className="font-medium">Initializing 3D viewer…</span>
+                <span className="text-sm text-muted-foreground">Please wait a moment</span>
+              </p>
             </div>
           )}
         </div>
+        <p className="pc-note">
+          Drag to rotate, scroll or pinch to zoom, right-drag or two-finger drag to pan.
+          Double-click or Reset view to recentre.
+        </p>
+      </Cell>
 
-        {/* Molblock Display Section - moved to be side-by-side on larger screens */}
-        {molData && !loading && !error ? (
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
-            <div className="flex justify-between items-center mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Generated 3D Molblock
-              </h3>
-              <div className="flex space-x-2">
-                <Button
-                  variant="ghost"
-                  onClick={handleCopy}
-                  className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
-                    copied
-                      ? "text-green-500 dark:text-green-500"
-                      : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-                  }`}
-                  title={copied ? "Copied!" : "Copy Molblock"}
-                  aria-label={copied ? "Molblock Copied" : "Copy Molblock"}
-                >
-                  {copied ? <Check className="h-5 w-5" /> : <Clipboard className="h-5 w-5" />}
-                </Button>
-                <Button
-                  variant="ghost"
-                  onClick={downloadMolblock}
-                  className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500"
-                  title="Download Molblock (.mol)"
-                  aria-label="Download Molblock"
-                >
-                  <Download className="h-5 w-5" />
-                </Button>
-              </div>
+      <Cell
+        id="d3d-results"
+        title={done ? "3D molblock" : "Results"}
+        className="pc-t-side"
+        meta={
+          done && (
+            <div className="pc-row">
+              <Button variant="outline" onClick={handleCopy}>
+                {copied ? <Check /> : <Clipboard />}
+                {copied ? "Copied" : "Copy molblock"}
+              </Button>
+              <Button variant="outline" onClick={downloadMolblock}>
+                <Download />
+                Download (.mol)
+              </Button>
             </div>
-            <div className="mt-2 p-3 bg-gray-100 dark:bg-gray-900 rounded-lg font-mono text-xs overflow-auto max-h-[500px] border border-gray-200 dark:border-gray-700 shadow-xs">
-              <pre className="whitespace-pre text-gray-700 dark:text-gray-300">{molData}</pre>
-            </div>
-          </div>
-        ) : (
-          // Empty placeholder div to maintain grid layout when molblock isn't shown
-          <div className="hidden lg:block"></div>
-        )}
-      </div>
-      {/* Method and Disclaimer Section */}
-      {molData && !loading && (
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 text-sm shadow-xs">
-          <div className="flex items-start space-x-3">
-            <AlertCircle
-              className="h-5 w-5 text-yellow-600 dark:text-yellow-400 shrink-0 mt-0.5"
-              aria-hidden="true"
-            />
-            <div>
-              <h4 className="font-semibold text-yellow-800 dark:text-yellow-300">
-                Important Note on 3D Structure
-              </h4>
-              <p className="mt-1 text-gray-700 dark:text-gray-300">
-                This 3D structure is computationally generated using{" "}
-                {toolkit === "rdkit" ? "RDKit (ETKDG/MMFF94)" : "OpenBabel (MMFF94)"}
-                and may not represent the actual molecular conformation found in nature or
-                experimental conditions. For accurate structural information, refer to experimental
-                data from X-ray crystallography, NMR studies, or high-level quantum-chemical
-                calculations.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Interaction Instructions */}
-      {/* Themed instructions box */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm shadow-sm">
-        <div className="flex items-start space-x-3">
-          <LayoutGrid
-            className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"
-            aria-hidden="true"
+          )
+        }
+      >
+        {loading && <ToolSkeleton variant="conversion" />}
+        {error && !loading && (
+          <GlassErrorCard
+            message={error}
+            onRetry={error.includes("initialize") ? handleReinitialize : () => setError(null)}
           />
-          <div>
-            <h4 className="font-semibold text-blue-800 dark:text-blue-300">
-              Interacting with the 3D View
-            </h4>
-            <ul className="mt-2 space-y-1 list-disc list-inside text-gray-700 dark:text-gray-300">
-              <li>
-                <strong>Rotate:</strong> Click & drag
-              </li>
-              <li>
-                <strong>Zoom:</strong> Scroll wheel / Pinch gesture
-              </li>
-              <li>
-                <strong>Pan:</strong> Right-click drag / Two-finger drag
-              </li>
-              <li>
-                <strong>Reset View:</strong> Double-click / Reset View button
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
+        )}
+        {!molData && !loading && !error && (
+          <p className="pc-empty">Enter a SMILES string to generate and view its 3D structure.</p>
+        )}
+        {done && (
+          <pre className="max-h-[500px] overflow-auto rounded-xl border border-border bg-muted p-3 font-mono text-xs whitespace-pre text-foreground">
+            {molData}
+          </pre>
+        )}
+        {molData && !loading && (
+          <p className="pc-note">
+            Computed with {toolkit === "rdkit" ? "RDKit (ETKDG/MMFF94)" : "OpenBabel (MMFF94)"}; it
+            may differ from the conformation found in nature or in experiments. For accurate
+            structures use X-ray, NMR or high-level quantum-chemical data.
+          </p>
+        )}
+      </Cell>
     </div>
   );
 };
+
 export default Depict3DView;

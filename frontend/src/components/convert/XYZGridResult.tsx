@@ -56,15 +56,15 @@ const XYZGridResult = ({ result }: XYZGridResultProps) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-        <div data-testid="xyz-summary" className="text-sm text-gray-700 dark:text-gray-200">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-primary/8 border border-primary/30 rounded-lg">
+        <div data-testid="xyz-summary" className="text-sm text-foreground ">
           <span className="font-semibold">{summary.successful}</span> of {summary.total} structures
           succeeded
           {summary.connectivity_only_count > 0 && (
             <>
               {" "}
               &middot;{" "}
-              <span className="text-amber-700 dark:text-amber-300">
+              <span className="text-saffron-ink ">
                 {summary.connectivity_only_count} connectivity-only
               </span>
             </>
@@ -72,8 +72,7 @@ const XYZGridResult = ({ result }: XYZGridResultProps) => {
           {summary.failed > 0 && (
             <>
               {" "}
-              &middot;{" "}
-              <span className="text-red-700 dark:text-red-300">{summary.failed} failed</span>
+              &middot; <span className="text-madder-ink ">{summary.failed} failed</span>
             </>
           )}
         </div>
@@ -123,26 +122,26 @@ const XYZGridCard = ({ structure }: XYZGridCardProps) => {
 
   if (!structure.success) {
     return (
-      <div className="flex flex-col gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-        <div className="flex items-center gap-2 text-sm font-semibold text-red-900 dark:text-red-100">
+      <div className="flex flex-col gap-2 p-3 bg-destructive/8 border border-destructive/30 rounded-lg">
+        <div className="flex items-center gap-2 text-sm font-semibold text-madder-ink ">
           <AlertTriangle className="h-4 w-4" />
           {structure.title || `Frame ${structure.index}`}
         </div>
-        <div className="text-xs text-red-800 dark:text-red-200 break-words">{structure.error}</div>
+        <div className="text-xs text-madder-ink break-words">{structure.error}</div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-2 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+    <div className="flex flex-col gap-2 p-3 bg-card border border-border rounded-lg">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+        <span className="text-sm font-semibold text-foreground truncate">
           {structure.title || `Frame ${structure.index}`}
         </span>
         {structure.method === "connectivity_only" && (
           <span
             title="Bond orders could not be perceived; only connectivity. Common for transition metals."
-            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200"
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-saffron/8 text-saffron-ink "
           >
             <Info className="h-3 w-3" />
             connectivity-only
@@ -150,7 +149,7 @@ const XYZGridCard = ({ structure }: XYZGridCardProps) => {
         )}
       </div>
 
-      <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+      <div className="border border-border rounded-md overflow-hidden">
         <MoleculeDepiction2D
           smiles={structure.canonicalsmiles}
           title={structure.title}
@@ -160,7 +159,7 @@ const XYZGridCard = ({ structure }: XYZGridCardProps) => {
       </div>
 
       <div className="flex items-center gap-2">
-        <code className="flex-1 px-2 py-1 bg-gray-100 dark:bg-gray-900 rounded text-xs font-mono break-all text-gray-700 dark:text-gray-300">
+        <code className="flex-1 px-2 py-1 bg-muted rounded text-xs font-mono break-all text-foreground ">
           {structure.canonicalsmiles}
         </code>
         <Button
@@ -173,7 +172,7 @@ const XYZGridCard = ({ structure }: XYZGridCardProps) => {
         </Button>
       </div>
 
-      <details className="text-xs text-gray-600 dark:text-gray-400">
+      <details className="text-xs text-muted-foreground ">
         <summary className="cursor-pointer select-none">More</summary>
         <div className="mt-2 space-y-1 break-all">
           <div>
@@ -183,7 +182,7 @@ const XYZGridCard = ({ structure }: XYZGridCardProps) => {
             <span className="font-semibold">InChIKey:</span> {structure.inchikey}
           </div>
           {structure.warnings.length > 0 && (
-            <ul className="list-disc list-inside text-amber-700 dark:text-amber-300">
+            <ul className="list-disc list-inside text-saffron-ink ">
               {structure.warnings.map((w, i) => (
                 <li key={i}>{w}</li>
               ))}

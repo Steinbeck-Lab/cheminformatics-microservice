@@ -4,6 +4,16 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import tailwindcss from "@tailwindcss/vite";
 
+const VENDOR_REACT = new Set([
+  "react",
+  "react-dom",
+  "scheduler",
+  "react-router",
+  "react-router-dom",
+]);
+const VENDOR_MOTION = new Set(["motion", "framer-motion", "motion-dom", "motion-utils"]);
+const VENDOR_UI = new Set(["lucide-react", "class-variance-authority", "clsx", "tailwind-merge"]);
+
 export default defineConfig({
   plugins: [
     tailwindcss(),
@@ -24,7 +34,9 @@ export default defineConfig({
         changeOrigin: true,
       },
       "/latest": {
-        target: "http://localhost:8000",
+        // VITE_PROXY_TARGET=https://dev.api.naturalproducts.net lets a local UI use the dev API
+        // without CORS (pair it with VITE_API_URL=/latest)
+        target: process.env.VITE_PROXY_TARGET || "http://localhost:8000",
         changeOrigin: true,
       },
     },
@@ -35,10 +47,14 @@ export default defineConfig({
     outDir: "dist",
     rollupOptions: {
       output: {
-        manualChunks: {
-          "vendor-react": ["react", "react-dom", "react-router-dom"],
-          "vendor-motion": ["motion"],
-          "vendor-ui": ["lucide-react", "class-variance-authority", "clsx", "tailwind-merge"],
+        // by node_modules path, so deep imports (react-dom/client, motion/react) join their group
+        manualChunks(id) {
+          const pkg = id.match(/.*node_modules\/((?:@[^/]+\/)?[^/]+)\//)?.[1];
+          if (!pkg) return undefined;
+          if (VENDOR_REACT.has(pkg)) return "vendor-react";
+          if (VENDOR_MOTION.has(pkg)) return "vendor-motion";
+          if (VENDOR_UI.has(pkg)) return "vendor-ui";
+          return undefined;
         },
       },
     },

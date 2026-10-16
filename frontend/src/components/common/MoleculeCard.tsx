@@ -1,15 +1,48 @@
-import { useState, useRef, useEffect } from "react";
-import { useAppContext } from "../../context/AppContext"; // Assuming context provides addRecentMolecule
-import { AlertCircle, CheckCircle, ChevronDown, Clipboard, Download, Info, X } from "lucide-react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  type KeyboardEvent,
+  type MouseEvent,
+  type SyntheticEvent,
+} from "react";
+import { useAppContext } from "../../context/AppContext";
+import { AlertCircle, Check, ChevronDown, Copy, Download, Info, RefreshCw, X } from "lucide-react";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { errorText } from "@/lib/error-messages";
 import { Input } from "@/components/ui/input";
-// Default fallback SVG with a neutral gray fill color (#888888)
+
+// Fallback shown on the white stage when the depiction fails: "Error loading structure" in #4a4650
 const FALLBACK_SVG_BASE64 =
-  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGV4dCB4PSI1MCIgeT0iNTAiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiM4ODg4ODg4Ij5FcnJvciBsb2FkaW5nIHN0cnVjdHVyZTwvdGV4dD48L3N2Zz4=";
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGV4dCB4PSI1MCIgeT0iNTAiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiM0YTQ2NTAiPkVycm9yIGxvYWRpbmcgc3RydWN0dXJlPC90ZXh0Pjwvc3ZnPg==";
+
+type PropertyMap = Record<string, string | number | boolean | null | undefined>;
+
+interface MoleculeDetails {
+  smiles: string;
+  physicalProperties?: PropertyMap;
+  atomCounts?: PropertyMap;
+  drugLikeProperties?: PropertyMap;
+  molecularFormula?: string;
+  inchi?: string;
+  inchiKey?: string;
+  estimatedProperties?: Record<string, number>;
+  error?: string;
+}
+
+// Swap a broken depiction for the fallback once; a second failure is left alone.
+const showFallback = (e: SyntheticEvent<HTMLImageElement>, pad = false) => {
+  const img = e.currentTarget;
+  if (img.src === FALLBACK_SVG_BASE64) return;
+  img.src = FALLBACK_SVG_BASE64;
+  if (pad) img.classList.add("p-4");
+};
+
+const panel = "rounded-xl border border-[var(--line)] bg-[var(--inset)] p-3";
+const sectionTitle = "m-0 mb-2 text-sm font-semibold text-[var(--head)]";
 
 const MoleculeCard = ({
   smiles,
@@ -19,38 +52,27 @@ const MoleculeCard = ({
   size = "xl", // sm, md, lg, xl
   onClick = null, // Optional click handler for the whole card
   isExpandable = false, // Enable expand/collapse for additional molecule details
+}: {
+  smiles: string;
+  title?: string;
+  description?: string;
+  showActions?: boolean;
+  size?: "sm" | "md" | "lg" | "xl";
+  onClick?: ((smiles: string) => void) | null;
+  isExpandable?: boolean;
 }) => {
   const [copied, setCopied] = useState(false);
   const [showFullSmiles, setShowFullSmiles] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [moleculeDetails, setMoleculeDetails] = useState(null);
+  const [moleculeDetails, setMoleculeDetails] = useState<MoleculeDetails | null>(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const copyTextRef = useRef(null);
+  const copyTextRef = useRef<HTMLInputElement>(null);
 
-  // --- Context Handling ---
-  const appContext = useAppContext();
-  // Declare addRecentMolecule once with let, provide default no-op function
-  let addRecentMolecule = () => {
-    // console.warn("MoleculeCard: addRecentMolecule context function not available or not used.");
-  };
+  const { addRecentMolecule } = useAppContext();
 
-  if (!appContext) {
-    console.error("MoleculeCard: AppContext is not available.");
-    // addRecentMolecule remains the default no-op function
-  } else {
-    // Assign the function from context if it exists
-    if (typeof appContext.addRecentMolecule === "function") {
-      addRecentMolecule = appContext.addRecentMolecule;
-    } else {
-      console.warn("MoleculeCard: addRecentMolecule function not found in AppContext.");
-      // addRecentMolecule remains the default no-op function
-    }
-  }
-  // --- End Context Handling ---
-
-  // Configuration for image container height based on size prop
+  // Height of the depiction stage for each size
   const sizeClasses = {
     sm: "h-32",
     md: "h-48",
@@ -61,12 +83,12 @@ const MoleculeCard = ({
   const baseUrl = (
     import.meta.env.VITE_API_URL || "https://dev.api.naturalproducts.net/latest"
   ).replace(/\/latest$/, "");
-  const imageUrl = smiles // Only generate URL if SMILES is valid
-    ? `${baseUrl}/latest/depict/2D?smiles=${encodeURIComponent(smiles)}&width=512&height=512&toolkit=cdk` // Reverted to original structure
-    : FALLBACK_SVG_BASE64; // Use fallback if no SMILES provided initially
+  const imageUrl = smiles
+    ? `${baseUrl}/latest/depict/2D?smiles=${encodeURIComponent(smiles)}&width=512&height=512&toolkit=cdk`
+    : FALLBACK_SVG_BASE64;
 
-  // Enhanced handleCopy function with multiple fallback methods for production environments
-  const handleCopy = (e) => {
+  // Copy with the Clipboard API, then execCommand, then a manual-copy dialog
+  const handleCopy = (e: MouseEvent) => {
     e.stopPropagation(); // Prevent card click if clicking button
 
     const smilesToCopy = typeof smiles === "string" ? smiles : "";
@@ -75,9 +97,7 @@ const MoleculeCard = ({
       return;
     }
 
-    // Try multiple clipboard copy methods in sequence
     try {
-      // Method 1: Use the Clipboard API (modern browsers)
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard
           .writeText(smilesToCopy)
@@ -92,11 +112,9 @@ const MoleculeCard = ({
         return;
       }
 
-      // If Clipboard API not available, try fallback immediately
       fallbackCopy();
     } catch (err) {
       console.error("Copy failed with all methods:", err);
-      // Show manual copy modal as last resort
       setShowCopyModal(true);
     }
   };
@@ -104,17 +122,12 @@ const MoleculeCard = ({
   // Fallback copy method using execCommand
   const fallbackCopy = () => {
     try {
-      // Method 2: Use execCommand (older browsers)
       const textArea = document.createElement("textarea");
       textArea.value = typeof smiles === "string" ? smiles : "";
-
-      // Make the textarea out of viewport
       textArea.style.position = "fixed";
       textArea.style.left = "-999999px";
       textArea.style.top = "-999999px";
       document.body.appendChild(textArea);
-
-      // Select and copy
       textArea.focus();
       textArea.select();
 
@@ -130,29 +143,25 @@ const MoleculeCard = ({
       }
     } catch (err) {
       console.debug("Fallback copy failed:", err);
-      // Show manual copy modal as last resort
       setShowCopyModal(true);
     }
   };
 
   // Auto-select text in copy modal when it appears
   useEffect(() => {
-    if (showCopyModal && copyTextRef.current) {
-      setTimeout(() => {
-        copyTextRef.current.select();
-      }, 100);
+    if (showCopyModal) {
+      const timer = setTimeout(() => copyTextRef.current?.select(), 100);
+      return () => clearTimeout(timer);
     }
   }, [showCopyModal]);
 
-  // Handle downloading the structure as Mol
-  const handleDownload = (e) => {
+  // Download the structure as an SDF (molfile) from the mol2D endpoint
+  const handleDownload = (e: MouseEvent) => {
     e.stopPropagation(); // Prevent card click
     if (typeof smiles !== "string" || !smiles.trim()) {
       console.error("Cannot download: Invalid SMILES string provided.");
       return;
     }
-    // Prefer a dedicated mol2D endpoint if available (using the same base URL)
-    // Use the molfile endpoint to download structure as SDF (Mol) format
     const molUrl = `${baseUrl}/latest/convert/mol2D?smiles=${encodeURIComponent(smiles)}&toolkit=cdk`;
 
     fetch(molUrl)
@@ -163,14 +172,11 @@ const MoleculeCard = ({
         return response.text();
       })
       .then((molData) => {
-        // Create blob with correct MIME type for mol/SDF file
         const blob = new Blob([molData], { type: "chemical/x-mdl-molfile" });
         const url = URL.createObjectURL(blob);
 
-        // Create and trigger download link
         const a = document.createElement("a");
         a.href = url;
-        // Use SDF extension for the correct file format
         const filename = `${title.replace(/[^a-z0-9]/gi, "_").toLowerCase() || "molecule"}.sdf`;
         a.download = filename;
         document.body.appendChild(a);
@@ -184,21 +190,19 @@ const MoleculeCard = ({
       });
   };
 
-  // Fetch and display molecule details using the descriptor endpoint
-  const fetchMoleculeDetails = async (smiles) => {
+  // Fetch molecule details from the descriptor endpoint
+  const fetchMoleculeDetails = async (smiles: string) => {
     if (!smiles) return null;
 
     setIsLoadingDetails(true);
 
     try {
-      // Use the descriptors endpoint to fetch molecule properties
       const detailsUrl = `${baseUrl}/latest/chem/descriptors`;
 
-      // Set up the request with proper params
       const params = new URLSearchParams();
       params.append("smiles", smiles);
-      params.append("toolkit", "rdkit"); // Use RDKit
-      params.append("format", "json"); // Request JSON format
+      params.append("toolkit", "rdkit");
+      params.append("format", "json");
 
       const response = await fetch(`${detailsUrl}?${params.toString()}`);
 
@@ -208,8 +212,7 @@ const MoleculeCard = ({
 
       const data = await response.json();
 
-      // Process the descriptors based on the provided caffeine example JSON
-      const processedData = {
+      const processedData: MoleculeDetails = {
         smiles,
         physicalProperties: {
           molecularWeight: data.molecular_weight,
@@ -247,8 +250,8 @@ const MoleculeCard = ({
     } catch (error) {
       console.error("Error fetching molecule descriptors:", error);
 
-      // Create fallback details with SMILES parsing
-      const fallbackDetails = {
+      // Rough estimates parsed from the SMILES string
+      const fallbackDetails: MoleculeDetails = {
         smiles,
         estimatedProperties: {
           heavyAtomCount: (smiles.match(/[A-Z][a-z]?/g) || []).length,
@@ -257,7 +260,7 @@ const MoleculeCard = ({
           nitrogenCount: (smiles.match(/N/g) || []).length,
           ringCount: (smiles.match(/[0-9]/g) || []).length / 2,
         },
-        error: error.message,
+        error: errorText(error),
       };
 
       setMoleculeDetails(fallbackDetails);
@@ -267,8 +270,7 @@ const MoleculeCard = ({
     }
   };
 
-  // Handle showing molecule details
-  const handleShowDetails = async (e) => {
+  const handleShowDetails = async (e: MouseEvent) => {
     e.stopPropagation(); // Prevent card click
 
     if (!smiles) {
@@ -278,43 +280,45 @@ const MoleculeCard = ({
 
     setShowDetailsModal(true);
 
-    // Fetch details if we don't have them yet
     if (!moleculeDetails) {
       await fetchMoleculeDetails(smiles);
     }
   };
 
-  // Handle click on the card itself (if onClick prop is provided)
+  // Click on the card itself (only wired when onClick is provided)
   const handleCardClick = () => {
     if (onClick) {
       onClick(smiles);
     }
     addRecentMolecule({
       smiles,
-      name: title !== "Molecule" ? title : null,
+      name: title !== "Molecule" ? title : undefined,
       timestamp: new Date().toISOString(),
     });
   };
 
+  // Only keys pressed on the card itself, not on the buttons inside it
+  const handleCardKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.target !== e.currentTarget) return;
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleCardClick();
+    }
+  };
+
   // Format SMILES for display (shorten if too long)
   const MAX_SMILES_LENGTH = 35;
-  const formattedSmiles = showFullSmiles
-    ? smiles
-    : smiles && smiles.length > MAX_SMILES_LENGTH
-      ? `${smiles.substring(0, MAX_SMILES_LENGTH)}...`
-      : smiles;
+  const isLong = !!smiles && smiles.length > MAX_SMILES_LENGTH;
+  const formattedSmiles =
+    !showFullSmiles && isLong ? `${smiles.substring(0, MAX_SMILES_LENGTH)}...` : smiles;
 
-  // Render property sections in the details modal with formatted values
-  const renderPropertySection = (sectionTitle, properties) => {
+  const renderPropertySection = (heading: string, properties: PropertyMap) => {
     if (!properties || Object.keys(properties).length === 0) return null;
 
-    // Format values based on property type
-    const formatValue = (key, value) => {
+    const formatValue = (key: string, value: PropertyMap[string]) => {
       if (value === null || value === undefined) return "N/A";
 
-      // Format numbers with appropriate precision
       if (typeof value === "number") {
-        // Different precisions for different property types
         if (key.toLowerCase().includes("weight") || key.toLowerCase().includes("mass")) {
           return value.toFixed(2) + " g/mol";
         } else if (key.toLowerCase().includes("logp")) {
@@ -331,10 +335,8 @@ const MoleculeCard = ({
       return value.toString();
     };
 
-    // Format property name for display
-    const formatPropertyName = (key) => {
-      // Special case handling for common abbreviations
-      const specialCases = {
+    const formatPropertyName = (key: string) => {
+      const specialCases: Record<string, string> = {
         logP: "LogP",
         tpsa: "TPSA",
         hBondDonors: "H-Bond Donors",
@@ -348,30 +350,26 @@ const MoleculeCard = ({
 
       if (specialCases[key]) return specialCases[key];
 
-      // Default formatting: camelCase/PascalCase to Title Case with spaces
+      // camelCase to Title Case with spaces
       return key
-        .replace(/([A-Z])/g, " $1") // Insert space before capital letters
-        .replace(/^./, (str) => str.toUpperCase()) // Capitalize first letter
+        .replace(/([A-Z])/g, " $1")
+        .replace(/^./, (str) => str.toUpperCase())
         .trim();
     };
 
     return (
-      <div className="mb-4">
-        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          {sectionTitle}
-        </h4>
-        <div className="bg-gray-50 dark:bg-gray-900 rounded-md p-3">
+      <div>
+        <h4 className={sectionTitle}>{heading}</h4>
+        <div className={panel}>
           {Object.entries(properties)
-            .filter(([_, value]) => value !== null) // Filter out null values
+            .filter(([, value]) => value !== null)
             .map(([key, value]) => (
               <div
                 key={key}
-                className="flex justify-between py-1 text-sm border-b border-gray-100 dark:border-gray-800 last:border-0"
+                className="flex justify-between gap-3 border-b border-[var(--line)] py-1.5 text-sm last:border-0"
               >
-                <span className="text-gray-600 dark:text-gray-400">{formatPropertyName(key)}</span>
-                <span className="font-mono text-gray-800 dark:text-gray-200">
-                  {formatValue(key, value)}
-                </span>
+                <span className="text-muted-foreground">{formatPropertyName(key)}</span>
+                <span className="font-mono text-foreground">{formatValue(key, value)}</span>
               </div>
             ))}
         </div>
@@ -379,40 +377,41 @@ const MoleculeCard = ({
     );
   };
 
+  const detailRow = (label: string, value: string | number) => (
+    <div className="flex justify-between gap-3">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-mono text-foreground">{value}</span>
+    </div>
+  );
+
+  const phys = moleculeDetails?.physicalProperties;
+  const counts = moleculeDetails?.atomCounts;
+  const drug = moleculeDetails?.drugLikeProperties;
+  const qed = drug?.qedDrugLikeliness;
+
   return (
     <>
       <div
-        // Card container: glass-bold + clay-interactive with hover glow/lift
         className={cn(
-          "glass-bold clay-interactive rounded-2xl overflow-hidden",
-          "hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-200",
-          "group",
+          "grid content-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--inset)] p-3 transition-colors",
           onClick &&
-            "cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+            "cursor-pointer hover:border-primary/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         )}
         onClick={onClick ? handleCardClick : undefined}
-        onKeyPress={
-          onClick
-            ? (e) => {
-                if (e.key === "Enter" || e.key === " ") handleCardClick();
-              }
-            : undefined
-        }
+        onKeyDown={onClick ? handleCardKey : undefined}
         role={onClick ? "button" : "figure"}
         tabIndex={onClick ? 0 : undefined}
         aria-label={title}
       >
-        {/* Title bar */}
-        <div className="px-4 py-2 border-b border-white/10 flex justify-between items-center">
-          {/* Theme-aware title text */}
-          <h3 className="font-medium text-sm text-foreground truncate" title={title}>
+        {/* Title row */}
+        <div className="flex min-h-8 items-center justify-between gap-2">
+          <h3 className="m-0 truncate text-sm font-semibold text-[var(--head)]" title={title}>
             {title}
           </h3>
           {isExpandable && (
             <Button
               variant="ghost"
-              size="icon"
-              className="h-6 w-6 shrink-0"
+              size="icon-sm"
               onClick={(e) => {
                 e.stopPropagation();
                 setExpanded((prev) => !prev);
@@ -422,245 +421,152 @@ const MoleculeCard = ({
                 }
               }}
               aria-label={expanded ? "Collapse details" : "Expand details"}
+              aria-expanded={expanded}
             >
               <ChevronDown
-                className={cn(
-                  "h-4 w-4 transition-transform duration-200",
-                  expanded && "rotate-180"
-                )}
+                aria-hidden="true"
+                className={cn("transition-transform", expanded && "rotate-180")}
               />
             </Button>
           )}
         </div>
 
-        {/* Molecule visualization area */}
-        <div
-          className={`relative p-2 flex justify-center items-center bg-background/30 ${sizeClasses[size] || "h-60"}`}
-        >
-          {smiles ? ( // Only render img tag if smiles is present
+        {/* Depiction on the white stage */}
+        <div className={cn("pc-stage p-2", sizeClasses[size] || "h-60")}>
+          {smiles ? (
             <img
-              key={imageUrl} // Add key to force re-render if URL changes significantly
+              key={imageUrl}
               src={imageUrl}
               alt={`Chemical structure of ${title}`}
-              // Fallback SVG text color is now hardcoded gray
-              className="max-h-full max-w-full object-contain"
-              // Error handler with improved fallback SVG and logging
               onError={(e) => {
                 console.error(`Error loading image for ${title} from ${imageUrl}:`, e);
-                e.target.onerror = null; // Prevent infinite loop if fallback fails
-                e.target.src = FALLBACK_SVG_BASE64;
-                e.target.classList.add("p-4"); // Add padding to fallback text
+                showFallback(e, true);
               }}
             />
           ) : (
-            // Placeholder if no SMILES is provided
-            <div className="text-center text-gray-500 dark:text-gray-400 text-xs p-4">
-              No structure to display.
-            </div>
+            <p className="pc-stage-empty">No structure to display.</p>
           )}
         </div>
 
-        {/* SMILES information section */}
-        <div className="px-4 py-3 border-t border-white/10 text-sm">
-          <div className="flex items-start">
-            {/* Label styling */}
-            <span className="font-medium text-gray-500 dark:text-gray-400 mr-2 shrink-0">
-              SMILES:
-            </span>
-            {/* SMILES text container */}
-            <div className="text-gray-700 dark:text-gray-300 flex-1 min-w-0">
-              {" "}
-              {/* Ensure flex item can shrink */}
-              <div
-                className="inline-block cursor-pointer group/smiles" // Group for hover effect
+        {/* SMILES line */}
+        <div className="grid gap-1 text-sm">
+          <div className="flex items-start gap-2">
+            <span className="shrink-0 text-xs font-semibold text-muted-foreground">SMILES</span>
+            {isLong ? (
+              <button
+                type="button"
+                className="min-w-0 flex-1 cursor-pointer border-0 bg-transparent p-0 text-left text-foreground hover:text-primary"
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevent card click
+                  e.stopPropagation();
                   setShowFullSmiles(!showFullSmiles);
                 }}
+                aria-expanded={showFullSmiles}
                 title={showFullSmiles ? "Click to shorten" : "Click to expand"}
               >
-                {/* SMILES text styling */}
-                <span className="font-mono text-xs break-all group-hover/smiles:text-blue-600 dark:group-hover/smiles:text-blue-400">
-                  {formattedSmiles || "-"} {/* Show dash if smiles is empty */}
+                <span className="pc-mono font-mono text-xs break-all">{formattedSmiles}</span>
+                <span className="ml-1 text-xs font-medium text-primary">
+                  {showFullSmiles ? "less" : "more"}
                 </span>
-                {/* Show more/less indicator */}
-                {smiles && !showFullSmiles && smiles.length > MAX_SMILES_LENGTH && (
-                  <span className="ml-1 text-blue-500 dark:text-blue-400 text-xs font-medium opacity-70 group-hover/smiles:opacity-100">
-                    more
-                  </span>
-                )}
-                {smiles &&
-                  showFullSmiles &&
-                  smiles.length > MAX_SMILES_LENGTH && ( // Only show 'less' if it was actually truncated
-                    <span className="ml-1 text-blue-500 dark:text-blue-400 text-xs font-medium opacity-70 group-hover/smiles:opacity-100">
-                      less
-                    </span>
-                  )}
-              </div>
-            </div>
+              </button>
+            ) : (
+              <span className="pc-mono min-w-0 flex-1 font-mono text-xs break-all text-foreground">
+                {formattedSmiles || "-"}
+              </span>
+            )}
           </div>
 
-          {/* Optional description */}
-          {description && (
-            <div className="mt-1 text-gray-500 dark:text-gray-400 text-xs">{description}</div>
-          )}
+          {description && <p className="pc-note">{description}</p>}
         </div>
 
-        {/* Expandable details section */}
-        <AnimatePresence>
-          {isExpandable && expanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="overflow-hidden"
-            >
-              <div className="px-4 py-3 border-t border-white/10 text-sm space-y-2">
-                {isLoadingDetails && (
-                  <div className="py-4 text-center">
-                    <div className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-solid border-primary border-r-transparent" />
-                    <p className="mt-2 text-xs text-muted-foreground">Loading details...</p>
+        {/* Expandable details */}
+        {isExpandable && expanded && (
+          <div className="grid gap-2 border-t border-[var(--line)] pt-3 text-sm">
+            {isLoadingDetails && <p className="pc-note">Loading details...</p>}
+            {!isLoadingDetails && moleculeDetails && (
+              <>
+                {moleculeDetails.molecularFormula &&
+                  detailRow("Formula", moleculeDetails.molecularFormula)}
+                {phys?.molecularWeight != null &&
+                  detailRow("MW", `${Number(phys.molecularWeight).toFixed(2)} g/mol`)}
+                {phys?.alogp != null && detailRow("ALogP", Number(phys.alogp).toFixed(2))}
+                {counts?.heavyAtomCount != null &&
+                  detailRow("Heavy atoms", String(counts.heavyAtomCount))}
+                {drug?.hydrogenBondDonors != null &&
+                  detailRow(
+                    "HBD / HBA",
+                    `${drug.hydrogenBondDonors} / ${drug.hydrogenBondAcceptors}`
+                  )}
+                <div className="pt-1">
+                  <span className="text-xs text-muted-foreground">SMILES</span>
+                  <div className="pc-mono mt-0.5 rounded-lg border border-[var(--line)] p-1.5 font-mono text-xs break-all text-foreground">
+                    {smiles || "N/A"}
                   </div>
-                )}
-                {!isLoadingDetails && moleculeDetails && (
-                  <>
-                    {moleculeDetails.molecularFormula && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Formula</span>
-                        <span className="font-mono text-foreground">
-                          {moleculeDetails.molecularFormula}
-                        </span>
-                      </div>
-                    )}
-                    {moleculeDetails.physicalProperties?.molecularWeight != null && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">MW</span>
-                        <span className="font-mono text-foreground">
-                          {Number(moleculeDetails.physicalProperties.molecularWeight).toFixed(2)}{" "}
-                          g/mol
-                        </span>
-                      </div>
-                    )}
-                    {moleculeDetails.physicalProperties?.alogp != null && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">ALogP</span>
-                        <span className="font-mono text-foreground">
-                          {Number(moleculeDetails.physicalProperties.alogp).toFixed(2)}
-                        </span>
-                      </div>
-                    )}
-                    {moleculeDetails.atomCounts?.heavyAtomCount != null && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Heavy atoms</span>
-                        <span className="font-mono text-foreground">
-                          {moleculeDetails.atomCounts.heavyAtomCount}
-                        </span>
-                      </div>
-                    )}
-                    {moleculeDetails.drugLikeProperties?.hydrogenBondDonors != null && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">HBD / HBA</span>
-                        <span className="font-mono text-foreground">
-                          {moleculeDetails.drugLikeProperties.hydrogenBondDonors} /{" "}
-                          {moleculeDetails.drugLikeProperties.hydrogenBondAcceptors}
-                        </span>
-                      </div>
-                    )}
-                    <div className="pt-1">
-                      <span className="text-muted-foreground text-xs">SMILES</span>
-                      <div className="font-mono text-xs break-all text-foreground mt-0.5 bg-background/50 rounded p-1.5">
-                        {smiles || "N/A"}
-                      </div>
-                    </div>
-                  </>
-                )}
-                {!isLoadingDetails && moleculeDetails?.error && (
-                  <p className="text-xs text-destructive">Could not load full details.</p>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                </div>
+              </>
+            )}
+            {!isLoadingDetails && moleculeDetails?.error && (
+              <p className="pc-err on m-0">Could not load full details.</p>
+            )}
+          </div>
+        )}
 
-        {/* Action buttons (optional) */}
+        {/* Actions */}
         {showActions && (
-          // Actions bar styling
-          <div className="px-3 py-1.5 border-t border-white/10 flex justify-end space-x-1">
-            {/* Copy Button */}
+          <div className="flex justify-end gap-1 border-t border-[var(--line)] pt-2">
             <Button
               variant="ghost"
+              size="icon-sm"
               onClick={handleCopy}
-              disabled={!smiles} // Disable if no SMILES
-              // Button styling with theme awareness
-              className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
-                !smiles
-                  ? "text-gray-300 dark:text-gray-600 cursor-not-allowed"
-                  : copied
-                    ? "text-green-500 dark:text-green-500"
-                    : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
+              disabled={!smiles}
               title={copied ? "Copied!" : "Copy SMILES to clipboard"}
-              aria-label={copied ? "SMILES Copied" : "Copy SMILES"}
+              aria-label={copied ? "SMILES copied" : "Copy SMILES"}
             >
-              {copied ? <CheckCircle className="h-5 w-5" /> : <Clipboard className="h-5 w-5" />}
+              {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
             </Button>
-
-            {/* Download Button */}
             <Button
               variant="ghost"
+              size="icon-sm"
               onClick={handleDownload}
-              disabled={!smiles} // Disable if no SMILES
-              className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
-                !smiles
-                  ? "text-gray-300 dark:text-gray-600 cursor-not-allowed"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
-              title="Download structure as SVG"
-              aria-label="Download structure as SVG"
+              disabled={!smiles}
+              title="Download structure as SDF"
+              aria-label="Download structure as SDF"
             >
-              <Download className="h-5 w-5" />
+              <Download aria-hidden="true" />
             </Button>
-
-            {/* Info Button (Implemented) */}
             <Button
               variant="ghost"
+              size="icon-sm"
               onClick={handleShowDetails}
-              disabled={!smiles} // Disable if no SMILES
-              className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
-                !smiles
-                  ? "text-gray-300 dark:text-gray-600 cursor-not-allowed"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
+              disabled={!smiles}
               title="View molecule details"
               aria-label="View molecule details"
             >
-              <Info className="h-5 w-5" />
+              <Info aria-hidden="true" />
             </Button>
           </div>
         )}
       </div>
 
-      {/* Manual Copy Modal (Shown when automatic copy fails) */}
+      {/* Manual copy dialog (shown when automatic copy fails) */}
       <Dialog open={showCopyModal} onOpenChange={setShowCopyModal}>
         <DialogContent
           showCloseButton={false}
-          className="block gap-0 border-0 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full"
+          className="block w-full max-w-lg gap-0 rounded-xl border-0 bg-card p-6"
         >
-          <div className="flex justify-between items-center mb-4">
-            <DialogTitle className="text-lg font-bold text-gray-900 dark:text-white">
+          <div className="mb-4 flex items-center justify-between">
+            <DialogTitle className="text-lg font-semibold text-[var(--head)]">
               Copy SMILES
             </DialogTitle>
             <Button
               variant="ghost"
+              size="icon-sm"
               onClick={() => setShowCopyModal(false)}
               aria-label="Close"
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             >
-              <X className="w-5 h-5" />
+              <X aria-hidden="true" />
             </Button>
           </div>
-          <p className="mb-4 text-gray-700 dark:text-gray-300">
+          <p className="mb-4 text-foreground">
             Automatic copying failed. Please select and copy this text manually:
           </p>
           <div className="mb-4">
@@ -674,164 +580,116 @@ const MoleculeCard = ({
             />
           </div>
           <div className="flex justify-end gap-3">
-            <Button
-              variant="secondary"
-              onClick={() => setShowCopyModal(false)}
-              className="px-4 py-2 rounded-sm"
-            >
+            <Button variant="outline" onClick={() => setShowCopyModal(false)}>
               Close
             </Button>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Molecule Details Modal */}
+      {/* Molecule details dialog */}
       <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
         <DialogContent
           showCloseButton={false}
-          className="block gap-0 border-0 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          className="block max-h-[90vh] w-full max-w-2xl gap-0 overflow-y-auto rounded-xl border-0 bg-card p-6"
         >
-          <div className="flex justify-between items-center mb-4">
-            <DialogTitle className="text-lg font-bold text-gray-900 dark:text-white">
+          <div className="mb-4 flex items-center justify-between">
+            <DialogTitle className="text-lg font-semibold text-[var(--head)]">
               {title !== "Molecule" ? title : "Molecule Details"}
             </DialogTitle>
             <Button
               variant="ghost"
+              size="icon-sm"
               onClick={() => setShowDetailsModal(false)}
               aria-label="Close"
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             >
-              <X className="w-5 h-5" />
+              <X aria-hidden="true" />
             </Button>
           </div>
 
-          {/* Loading state */}
           {isLoadingDetails && (
-            <div className="py-8 text-center">
-              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-500 border-r-transparent"></div>
-              <p className="mt-4 text-gray-600 dark:text-gray-400">
-                Loading molecule information...
-              </p>
-            </div>
+            <p className="pc-note py-8 text-center" role="status">
+              Loading molecule information...
+            </p>
           )}
 
-          {/* Error state */}
           {!isLoadingDetails && moleculeDetails?.error && (
-            <div className="py-4">
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4 mb-4">
-                <p className="text-red-700 dark:text-red-400">
-                  Could not fetch complete molecule details. Showing limited information.
-                </p>
-              </div>
-            </div>
+            <p className="pc-err on mb-4" role="alert">
+              <AlertCircle className="pc-i size-4 shrink-0" aria-hidden="true" />
+              <span>Could not fetch complete molecule details. Showing limited information.</span>
+            </p>
           )}
 
-          {/* Content when details are loaded */}
           {!isLoadingDetails && moleculeDetails && (
-            <div className="space-y-4">
-              {/* Structure visualization */}
-              <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    Structure visualization
-                  </span>
-                </div>
-                <div className="flex justify-center">
-                  <img
-                    src={imageUrl}
-                    alt={`Chemical structure of ${title}`}
-                    className="max-h-64 max-w-full object-contain"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = FALLBACK_SVG_BASE64;
-                    }}
-                  />
-                </div>
+            <div className="grid gap-4">
+              <div className="pc-stage h-64 p-2">
+                <img
+                  src={imageUrl}
+                  alt={`Chemical structure of ${title}`}
+                  onError={(e) => showFallback(e)}
+                />
               </div>
 
-              {/* Basic Information */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* SMILES */}
-                <div className="bg-gray-50 dark:bg-gray-900 rounded-md p-3">
-                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    SMILES
-                  </h4>
-                  <div className="font-mono text-xs break-all text-gray-800 dark:text-gray-200 p-2 bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700">
-                    {smiles || "N/A"}
-                  </div>
+              <dl className="pc-ids">
+                <div className="pc-id">
+                  <dt>SMILES</dt>
+                  <dd>{smiles || "N/A"}</dd>
                 </div>
-
-                {/* Identification */}
                 {moleculeDetails.inchi && (
-                  <div className="bg-gray-50 dark:bg-gray-900 rounded-md p-3">
-                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      InChI
-                    </h4>
-                    <div className="font-mono text-xs overflow-x-auto whitespace-nowrap text-gray-800 dark:text-gray-200 p-2 bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700">
-                      {moleculeDetails.inchi || "N/A"}
-                    </div>
+                  <div className="pc-id">
+                    <dt>InChI</dt>
+                    <dd>{moleculeDetails.inchi}</dd>
                   </div>
                 )}
-              </div>
+                {moleculeDetails.inchiKey && (
+                  <div className="pc-id">
+                    <dt>InChI Key</dt>
+                    <dd>{moleculeDetails.inchiKey}</dd>
+                  </div>
+                )}
+                {moleculeDetails.molecularFormula && (
+                  <div className="pc-id">
+                    <dt>Molecular Formula</dt>
+                    <dd className="pc-formula">{moleculeDetails.molecularFormula}</dd>
+                  </div>
+                )}
+              </dl>
 
-              {/* Physical Properties */}
-              {renderPropertySection(
-                "Physical Properties",
-                moleculeDetails.physicalProperties || {}
-              )}
-
-              {/* Atom Counts */}
-              {renderPropertySection("Atom Count", moleculeDetails.atomCounts || {})}
-
-              {/* Drug-likeness Properties */}
-              {moleculeDetails.drugLikeProperties &&
+              {renderPropertySection("Physical Properties", phys || {})}
+              {renderPropertySection("Atom Count", counts || {})}
+              {drug &&
                 renderPropertySection("Drug-likeness Properties", {
-                  // Only include key drug-likeness properties
-                  hydrogenBondAcceptors: moleculeDetails.drugLikeProperties.hydrogenBondAcceptors,
-                  hydrogenBondDonors: moleculeDetails.drugLikeProperties.hydrogenBondDonors,
-                  lipinskiViolations: moleculeDetails.drugLikeProperties.lipinskiViolations,
-                  qedDrugLikeliness: moleculeDetails.drugLikeProperties.qedDrugLikeliness,
-                  npLikeness: moleculeDetails.drugLikeProperties.npLikeness,
+                  hydrogenBondAcceptors: drug.hydrogenBondAcceptors,
+                  hydrogenBondDonors: drug.hydrogenBondDonors,
+                  lipinskiViolations: drug.lipinskiViolations,
+                  qedDrugLikeliness: drug.qedDrugLikeliness,
+                  npLikeness: drug.npLikeness,
                 })}
 
-              {/* QED Score Visualization */}
-              {moleculeDetails.drugLikeProperties?.qedDrugLikeliness !== undefined && (
-                <div className="mb-4">
-                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    QED Score
-                  </h4>
-                  <div className="bg-gray-50 dark:bg-gray-900 rounded-md p-3">
-                    <div className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+              {typeof qed === "number" && (
+                <div>
+                  <h4 className={sectionTitle}>QED Score</h4>
+                  <div className={panel}>
+                    <p className="pc-note mb-2">
                       Quantitative Estimate of Drug-likeness (0-1, higher is better)
-                    </div>
-                    {/* QED Score progress bar */}
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
+                    </p>
+                    <div
+                      className="h-3 w-full overflow-hidden rounded-full bg-[var(--inset-2)]"
+                      role="meter"
+                      aria-label="QED score"
+                      aria-valuemin={0}
+                      aria-valuemax={1}
+                      aria-valuenow={qed}
+                    >
                       <div
-                        className="bg-blue-600 dark:bg-blue-500 h-4 rounded-full"
-                        style={{
-                          width: `${(moleculeDetails.drugLikeProperties.qedDrugLikeliness * 100).toFixed(0)}%`,
-                          background: `linear-gradient(90deg, 
-                              ${
-                                moleculeDetails.drugLikeProperties.qedDrugLikeliness < 0.3
-                                  ? "#EF4444"
-                                  : moleculeDetails.drugLikeProperties.qedDrugLikeliness < 0.6
-                                    ? "#F59E0B"
-                                    : "#10B981"
-                              } 0%, 
-                              ${
-                                moleculeDetails.drugLikeProperties.qedDrugLikeliness < 0.3
-                                  ? "#F87171"
-                                  : moleculeDetails.drugLikeProperties.qedDrugLikeliness < 0.6
-                                    ? "#FBBF24"
-                                    : "#34D399"
-                              } 100%)`,
-                        }}
+                        className="h-full rounded-full bg-primary"
+                        style={{ width: `${(qed * 100).toFixed(0)}%` }}
                       />
                     </div>
-                    <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
+                    <div className="mt-1 flex justify-between text-xs text-muted-foreground">
                       <span>0.0</span>
-                      <span className="font-medium text-blue-600 dark:text-blue-400">
-                        {moleculeDetails.drugLikeProperties.qedDrugLikeliness.toFixed(2)}
+                      <span className="font-mono font-medium text-foreground">
+                        {qed.toFixed(2)}
                       </span>
                       <span>1.0</span>
                     </div>
@@ -839,100 +697,37 @@ const MoleculeCard = ({
                 </div>
               )}
 
-              {/* Identifiers from RDKit */}
-              {(moleculeDetails.inchi || moleculeDetails.inchiKey) && (
-                <div className="mb-4">
-                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Chemical Identifiers
-                  </h4>
-                  <div className="bg-gray-50 dark:bg-gray-900 rounded-md p-3 space-y-3">
-                    {/* InChI */}
-                    {moleculeDetails.inchi && (
-                      <div className="overflow-hidden text-sm">
-                        <div className="font-medium text-gray-600 dark:text-gray-400 mb-1">
-                          InChI
-                        </div>
-                        <div className="font-mono text-xs break-all bg-white dark:bg-gray-800 p-2 rounded-sm border border-gray-200 dark:border-gray-700">
-                          {moleculeDetails.inchi}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* InChI Key */}
-                    {moleculeDetails.inchiKey && (
-                      <div className="overflow-hidden text-sm">
-                        <div className="font-medium text-gray-600 dark:text-gray-400 mb-1">
-                          InChI Key
-                        </div>
-                        <div className="font-mono text-xs bg-white dark:bg-gray-800 p-2 rounded-sm border border-gray-200 dark:border-gray-700">
-                          {moleculeDetails.inchiKey}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Molecular Formula */}
-              {moleculeDetails.molecularFormula && (
-                <div className="mb-4">
-                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Molecular Formula
-                  </h4>
-                  <div className="bg-gray-50 dark:bg-gray-900 rounded-md p-3">
-                    <div className="font-mono text-lg text-center text-gray-800 dark:text-gray-200 p-2">
-                      {moleculeDetails.molecularFormula}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Fallback information if API call failed */}
               {moleculeDetails.error && (
-                <div className="bg-gray-50 dark:bg-gray-900 rounded-md p-3">
-                  <div className="flex items-center mb-2">
-                    <AlertCircle className="h-5 w-5 text-orange-500 dark:text-orange-400 mr-2" />
-                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <div className={panel}>
+                  <div className="mb-2 flex items-center gap-2">
+                    <AlertCircle className="size-5 text-saffron-ink" aria-hidden="true" />
+                    <h4 className="m-0 text-sm font-semibold text-[var(--head)]">
                       Estimated Information
                     </h4>
                   </div>
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Unable to fetch complete molecule data. These values are rough estimates
-                      parsed from the SMILES string:
-                    </p>
-                    <ul className="list-disc pl-5 text-sm text-gray-700 dark:text-gray-300">
-                      {Object.entries(moleculeDetails.estimatedProperties || {}).map(
-                        ([key, value]) => (
-                          <li key={key}>
-                            <span className="font-medium">
-                              {key.replace(/([A-Z])/g, " $1").trim()}:
-                            </span>{" "}
-                            {value}
-                          </li>
-                        )
-                      )}
-                    </ul>
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <p className="pc-note mb-2">
+                    Unable to fetch complete molecule data. These values are rough estimates parsed
+                    from the SMILES string:
+                  </p>
+                  <ul className="list-disc pl-5 text-sm text-foreground">
+                    {Object.entries(moleculeDetails.estimatedProperties || {}).map(
+                      ([key, value]) => (
+                        <li key={key}>
+                          <span className="font-medium">
+                            {key.replace(/([A-Z])/g, " $1").trim()}:
+                          </span>{" "}
+                          {value}
+                        </li>
+                      )
+                    )}
+                  </ul>
+                  <div className="mt-3 border-t border-[var(--line)] pt-3">
                     <Button
-                      variant="ghost"
-                      onClick={handleShowDetails} // Re-attempt fetch
-                      className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fetchMoleculeDetails(smiles)}
                     >
-                      <svg
-                        className="h-4 w-4 mr-1"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                        />
-                      </svg>
+                      <RefreshCw aria-hidden="true" />
                       Retry fetching details
                     </Button>
                   </div>
@@ -941,18 +736,12 @@ const MoleculeCard = ({
             </div>
           )}
 
-          {/* Action buttons */}
           <div className="mt-6 flex justify-end gap-3">
-            {/* Download button in modal */}
-            <Button onClick={handleDownload} className="px-4 py-2 rounded-sm">
+            <Button onClick={handleDownload}>
+              <Download aria-hidden="true" />
               Download Structure
             </Button>
-
-            <Button
-              variant="secondary"
-              onClick={() => setShowDetailsModal(false)}
-              className="px-4 py-2 rounded-sm"
-            >
+            <Button variant="outline" onClick={() => setShowDetailsModal(false)}>
               Close
             </Button>
           </div>

@@ -74,7 +74,12 @@ const skeletonVariants: Record<string, () => React.JSX.Element> = {
 export function ToolSkeleton({ variant = "general", className }: ToolSkeletonProps) {
   const Skeleton = skeletonVariants[variant] ?? GeneralSkeleton;
   return (
-    <div data-testid="tool-skeleton" className={cn("glass-bold rounded-xl p-6", className)}>
+    <div
+      data-testid="tool-skeleton"
+      role="status"
+      aria-label="Loading results"
+      className={cn("py-1", className)}
+    >
       <Skeleton />
     </div>
   );
