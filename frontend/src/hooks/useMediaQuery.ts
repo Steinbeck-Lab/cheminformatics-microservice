@@ -3,14 +3,14 @@ import { useState, useEffect } from "react";
 /**
  * Hook for responsive breakpoint detection using window.matchMedia.
  *
- * Initializes to false and updates after mount to avoid SSR mismatch.
- * Listens for changes and updates the boolean state accordingly.
+ * Starts from the current match (client-only app, no SSR), so the first render is already
+ * right, then listens for changes.
  *
  * @param query - CSS media query string (e.g., '(max-width: 767px)')
  * @returns Whether the media query currently matches
  */
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(false);
+  const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
 
   useEffect(() => {
     const mql = window.matchMedia(query);

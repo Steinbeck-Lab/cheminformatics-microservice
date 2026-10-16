@@ -5,11 +5,19 @@
  * like reaction to RInChI, RInChI to reaction, and generating RInChIKeys.
  */
 
+import { errorText } from "@/lib/error-messages";
+import type {
+  RInChIFileResult,
+  RInChIKeyResult,
+  RInChIResult,
+  RInChIVersionConfig,
+} from "@/types/api";
+
 // Base URL for the GitHub Pages-hosted WASM files
 const RINCHI_BASE_URL = "https://iupac-inchi.github.io/InChI-Web-Demo";
 
 // Configuration for available RInChI modules with remote URLs
-export const RINCHI_VERSIONS = {
+export const RINCHI_VERSIONS: Record<string, RInChIVersionConfig> = {
   1.1: {
     label: "RInChI 1.1-dev with Latest InChI",
     scriptSrc: `${RINCHI_BASE_URL}/rinchi/librinchi-1.1.js`,
@@ -18,16 +26,25 @@ export const RINCHI_VERSIONS = {
   },
 };
 
+/** [version, label] pairs for a version picker. */
+export const VERSION_OPTIONS: [string, string][] = Object.entries(RINCHI_VERSIONS).map(
+  ([value, v]) => [value, v.label]
+);
+
+/** The version marked `default: true`. */
+export const DEFAULT_VERSION =
+  Object.keys(RINCHI_VERSIONS).find((key) => RINCHI_VERSIONS[key]?.default) || "1.1";
+
 // Module references
-const moduleInstances = {};
-const moduleLoadPromises = {};
+const moduleInstances: Record<string, InchiWasmModule> = {};
+const moduleLoadPromises: Record<string, Promise<InchiWasmModule>> = {};
 
 /**
  * Loads a RInChI module from remote URL
  * @param {string} version - Version identifier ("1.1")
  * @returns {Promise<Object>} - Promise that resolves to the module instance
  */
-export const loadRinchiModule = async (version) => {
+export const loadRinchiModule = async (version: string): Promise<InchiWasmModule> => {
   // If we already have a loading promise for this version, return it
   if (moduleLoadPromises[version]) {
     return moduleLoadPromises[version];
@@ -52,8 +69,9 @@ export const loadRinchiModule = async (version) => {
       const existingScript = document.getElementById(`rinchi-script-${version}`);
       if (existingScript) {
         // Script exists, try to initialize the module
-        if (typeof window[versionConfig.moduleName] === "function") {
-          window[versionConfig.moduleName]()
+        const factory = window[versionConfig.moduleName];
+        if (typeof factory === "function") {
+          factory()
             .then((module) => {
               moduleInstances[version] = module;
               console.log(`RInChI module ${version} initialized from existing script`);
@@ -82,9 +100,10 @@ export const loadRinchiModule = async (version) => {
 
       script.onload = () => {
         // Ensure the module function exists
-        if (typeof window[versionConfig.moduleName] === "function") {
+        const factory = window[versionConfig.moduleName];
+        if (typeof factory === "function") {
           // Initialize the module
-          window[versionConfig.moduleName]()
+          factory()
             .then((module) => {
               moduleInstances[version] = module;
               resolve(module);
@@ -127,7 +146,11 @@ export const loadRinchiModule = async (version) => {
  * @param {string} version - RInChI version to use
  * @returns {Promise<Object>} - RInChI result
  */
-export const convertRxnfileToRinchi = async (rxnfile, forceEquilibrium, version) => {
+export const convertRxnfileToRinchi = async (
+  rxnfile: string,
+  forceEquilibrium: boolean,
+  version: string
+): Promise<RInChIResult> => {
   if (!rxnfile || !rxnfile.trim()) {
     return Promise.reject(new Error("No RXN/RD file provided"));
   }
@@ -164,7 +187,7 @@ export const convertRxnfileToRinchi = async (rxnfile, forceEquilibrium, version)
     }
   } catch (err) {
     console.error("Error converting RXN/RD file to RInChI:", err);
-    throw new Error(`Failed to convert reaction to RInChI: ${err.message}`);
+    throw new Error(`Failed to convert reaction to RInChI: ${errorText(err)}`);
   }
 };
 
@@ -175,7 +198,11 @@ export const convertRxnfileToRinchi = async (rxnfile, forceEquilibrium, version)
  * @param {string} version - RInChI version to use
  * @returns {Promise<Object>} - RInChIKey result
  */
-export const generateRinchiKey = async (rinchi, keyType, version) => {
+export const generateRinchiKey = async (
+  rinchi: string,
+  keyType: string,
+  version: string
+): Promise<RInChIKeyResult> => {
   if (!rinchi || !rinchi.trim() || !rinchi.startsWith("RInChI=")) {
     return Promise.reject(new Error("Invalid RInChI provided"));
   }
@@ -211,7 +238,7 @@ export const generateRinchiKey = async (rinchi, keyType, version) => {
     };
   } catch (err) {
     console.error(`Error generating ${keyType}-RInChIKey:`, err);
-    throw new Error(`Failed to generate ${keyType}-RInChIKey: ${err.message}`);
+    throw new Error(`Failed to generate ${keyType}-RInChIKey: ${errorText(err)}`);
   }
 };
 
@@ -223,7 +250,12 @@ export const generateRinchiKey = async (rinchi, keyType, version) => {
  * @param {string} version - RInChI version to use
  * @returns {Promise<Object>} - File result
  */
-export const convertRinchiToFileText = async (rinchi, rauxinfo, format, version) => {
+export const convertRinchiToFileText = async (
+  rinchi: string,
+  rauxinfo: string,
+  format: string,
+  version: string
+): Promise<RInChIFileResult> => {
   if (!rinchi || !rinchi.trim() || !rinchi.startsWith("RInChI=")) {
     return Promise.reject(new Error("Invalid RInChI provided"));
   }
@@ -261,6 +293,6 @@ export const convertRinchiToFileText = async (rinchi, rauxinfo, format, version)
     };
   } catch (err) {
     console.error("Error converting RInChI to file text:", err);
-    throw new Error(`Failed to convert RInChI to ${format} file: ${err.message}`);
+    throw new Error(`Failed to convert RInChI to ${format} file: ${errorText(err)}`);
   }
 };

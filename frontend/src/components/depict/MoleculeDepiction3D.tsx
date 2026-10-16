@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
+import { errorText } from "@/lib/error-messages";
 
 // Visualization styles and configurations
 const VISUALIZATION_STYLES = [
@@ -20,10 +20,11 @@ const VISUALIZATION_STYLES = [
   { id: "sphere", label: "Sphere" },
 ];
 
+// The dark preset is the Porcelain dark-mode --card value (#242125) in tailwind.css.
 const BACKGROUND_COLORS = [
   { id: "white", label: "White", value: "#ffffff" },
   { id: "black", label: "Black", value: "#000000" },
-  { id: "gray", label: "Dark Gray", value: "#2d3748" },
+  { id: "gray", label: "Dark Gray", value: "#242125" },
 ];
 
 const COLOR_SCHEMES = [
@@ -32,29 +33,39 @@ const COLOR_SCHEMES = [
   { id: "greenCarbon", label: "Green Carbon" },
 ];
 
-const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
+interface MoleculeDepiction3DProps {
+  smiles: string;
+  title?: string;
+  toolkit?: string;
+}
+
+const MoleculeDepiction3D = ({
+  smiles,
+  title,
+  toolkit = "openbabel",
+}: MoleculeDepiction3DProps) => {
   // State for 3D viewer
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [style, setStyle] = useState("stick");
   const [backgroundColor, setBackgroundColor] = useState("white");
   const [colorScheme, setColorScheme] = useState("default");
   const [showLabels, setShowLabels] = useState(false);
   const [spin, setSpin] = useState(false);
-  const [molData, setMolData] = useState(null);
+  const [molData, setMolData] = useState<string | null>(null);
   const [viewerInitialized, setViewerInitialized] = useState(false);
   const [viewerMounted, setViewerMounted] = useState(false);
 
   // Refs
-  const viewerRef = useRef(null);
-  const containerRef = useRef(null);
-  const modelRef = useRef(null);
-  const mountTimerRef = useRef(null);
-  const initialViewStateRef = useRef(null); // New ref to store initial view state
+  const viewerRef = useRef<Viewer3D | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const modelRef = useRef<Model3D | null>(null);
+  const mountTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const initialViewStateRef = useRef<number[] | null>(null); // New ref to store initial view state
 
   // Generate 3D structure from SMILES
   const generateStructure = useCallback(
-    async (smilesStr) => {
+    async (smilesStr: string) => {
       if (!smilesStr) return;
       if (!convertService || typeof convertService.generate3DCoordinates !== "function") {
         console.error("convertService.generate3DCoordinates is not available.");
@@ -75,7 +86,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
         }
       } catch (err) {
         console.error("Error generating 3D structure:", err);
-        setError(`Error generating 3D structure: ${err.message || "Unknown error"}`);
+        setError(`Error generating 3D structure: ${errorText(err, "") || "Unknown error"}`);
         setMolData(null);
       } finally {
         setLoading(false);
@@ -129,7 +140,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
       return viewer;
     } catch (err) {
       console.error("Failed to create $3Dmol viewer:", err);
-      setError(`Failed to initialize 3D viewer: ${err.message}`);
+      setError(`Failed to initialize 3D viewer: ${errorText(err)}`);
       return null;
     }
   }, [backgroundColor, destroyViewer]);
@@ -222,7 +233,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
       return true;
     } catch (e) {
       console.error("Error applying style:", e);
-      setError(`Failed to apply style: ${e.message}`);
+      setError(`Failed to apply style: ${errorText(e)}`);
       return false;
     }
   }, [style, colorScheme, showLabels, spin, backgroundColor]);
@@ -263,7 +274,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
       }
     } catch (e) {
       console.error("Error rendering molecule:", e);
-      setError(`Failed to render molecule: ${e.message}. Try refreshing.`);
+      setError(`Failed to render molecule: ${errorText(e)}. Try refreshing.`);
       destroyViewer();
     }
   }, [molData, applyStyle, destroyViewer]);
@@ -457,10 +468,10 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden h-full flex flex-col">
+    <div className="bg-card rounded-lg shadow-md dark:shadow-lg border border-border overflow-hidden h-full flex flex-col">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-linear-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-750">
-        <h3 className="font-medium text-gray-800 dark:text-white text-sm sm:text-base truncate">
+      <div className="px-4 py-3 border-b border-border flex justify-between items-center bg-linear-to-r from-muted to-muted  ">
+        <h3 className="font-medium text-foreground text-sm sm:text-base truncate">
           {title || "3D Structure"}
         </h3>
 
@@ -470,7 +481,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
             variant="ghost"
             onClick={handleTakeScreenshot}
             disabled={!viewerInitialized || !molData}
-            className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-1.5"
             title="Take screenshot"
           >
             <Camera className="h-5 w-5" />
@@ -480,7 +491,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
             variant="ghost"
             onClick={handleResetView}
             disabled={!viewerInitialized || !molData}
-            className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-1.5"
             title="Reset view"
           >
             <RefreshCw className="h-5 w-5" />
@@ -508,37 +519,33 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
 
         {/* Loading overlay */}
         {(!viewerInitialized || !viewerMounted) && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-200/80 dark:bg-black/80 backdrop-blur-sm z-10">
-            <div className="text-center p-6 rounded-lg bg-white/70 dark:bg-gray-800/80 shadow-lg border border-gray-300 dark:border-gray-700">
-              <div className="animate-spin mb-4 h-10 w-10 border-4 border-blue-500 dark:border-blue-400 border-t-transparent rounded-full mx-auto"></div>
-              <p className="text-gray-700 dark:text-white text-lg font-medium">
-                Initializing 3D viewer...
-              </p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-accent/80 backdrop-blur-sm z-10">
+            <div className="text-center p-6 rounded-lg bg-card/70 shadow-lg border border-border ">
+              <div className="animate-spin mb-4 h-10 w-10 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+              <p className="text-foreground text-lg font-medium">Initializing 3D viewer...</p>
             </div>
           </div>
         )}
 
         {/* Loading indicator during generation */}
         {loading && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-200/80 dark:bg-black/80 backdrop-blur-sm z-10">
-            <div className="text-center p-6 rounded-lg bg-white/70 dark:bg-gray-800/80 shadow-lg border border-gray-300 dark:border-gray-700">
-              <div className="animate-spin mb-4 h-10 w-10 border-4 border-blue-500 dark:border-blue-400 border-t-transparent rounded-full mx-auto"></div>
-              <p className="text-gray-700 dark:text-white text-lg font-medium">
-                Generating 3D structure...
-              </p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-accent/80 backdrop-blur-sm z-10">
+            <div className="text-center p-6 rounded-lg bg-card/70 shadow-lg border border-border ">
+              <div className="animate-spin mb-4 h-10 w-10 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+              <p className="text-foreground text-lg font-medium">Generating 3D structure...</p>
             </div>
           </div>
         )}
       </div>
 
       {/* Controls */}
-      <div className="px-4 py-3 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+      <div className="px-4 py-3 bg-muted border-t border-border ">
         <div className="flex flex-wrap gap-4 mb-2">
           {/* Style Select */}
           <div className="flex-1 min-w-[120px]">
             <label
               htmlFor="style-select"
-              className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+              className="block text-xs font-medium text-muted-foreground mb-1"
             >
               Style
             </label>
@@ -560,7 +567,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
           <div className="flex-1 min-w-[120px]">
             <label
               htmlFor="color-scheme-select"
-              className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+              className="block text-xs font-medium text-muted-foreground mb-1"
             >
               Color
             </label>
@@ -582,7 +589,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
           <div className="flex-1 min-w-[120px]">
             <label
               htmlFor="bg-color-select"
-              className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+              className="block text-xs font-medium text-muted-foreground mb-1"
             >
               Background
             </label>
@@ -610,12 +617,9 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
               type="checkbox"
               checked={showLabels}
               onChange={(e) => setShowLabels(e.target.checked)}
-              className="h-3 w-3 rounded-sm border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-xs focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
+              className="h-3 w-3 rounded-sm border-border text-primary shadow-xs focus:ring-ring bg-card "
             />
-            <label
-              htmlFor="show-labels"
-              className="ml-1.5 text-xs text-gray-600 dark:text-gray-400"
-            >
+            <label htmlFor="show-labels" className="ml-1.5 text-xs text-muted-foreground ">
               Labels
             </label>
           </div>
@@ -627,12 +631,9 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
               type="checkbox"
               checked={spin}
               onChange={(e) => setSpin(e.target.checked)}
-              className="h-3 w-3 rounded-sm border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 shadow-xs focus:ring-indigo-500 dark:focus:ring-blue-500 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-700"
+              className="h-3 w-3 rounded-sm border-border text-primary shadow-xs focus:ring-ring bg-card "
             />
-            <label
-              htmlFor="spin-toggle"
-              className="ml-1.5 text-xs text-gray-600 dark:text-gray-400"
-            >
+            <label htmlFor="spin-toggle" className="ml-1.5 text-xs text-muted-foreground ">
               Spin
             </label>
           </div>
@@ -642,7 +643,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
             <Button
               onClick={downloadMolblock}
               disabled={!molData}
-              className="py-1 px-2 rounded-md text-xs bg-green-50 text-green-700 dark:bg-green-900 dark:text-green-200 hover:bg-green-100 dark:hover:bg-green-800 transition-colors focus:outline-hidden focus:ring-1 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed border border-green-200 dark:border-green-800"
+
               title="Download 3D molfile"
             >
               <span className="flex items-center">
@@ -656,10 +657,10 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
 
       {/* Error Display */}
       {error && !loading && (
-        <div className="p-3 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border-t border-red-300 dark:border-red-700 text-xs">
+        <div className="p-3 bg-destructive/8 text-madder-ink border-t border-destructive/30 text-xs">
           <div className="flex items-start">
             <AlertCircle
-              className="h-4 w-4 mr-2 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
+              className="h-4 w-4 mr-2 shrink-0 mt-0.5 text-madder-ink "
               aria-hidden="true"
             />
             <span>{error}</span>
@@ -668,7 +669,7 @@ const MoleculeDepiction3D = ({ smiles, title, toolkit = "openbabel" }) => {
       )}
 
       {/* Instructions */}
-      <div className="px-4 py-2 bg-gray-100 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 text-xs text-gray-500 dark:text-gray-400">
+      <div className="px-4 py-2 bg-muted border-t border-border text-xs text-muted-foreground ">
         <div className="flex items-center">
           <span className="mr-2">Rotate: click & drag</span>
           <span className="mr-2">•</span>

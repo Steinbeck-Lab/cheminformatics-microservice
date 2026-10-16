@@ -59,20 +59,20 @@ describe("AnimatedOutlet", () => {
     expect(screen.getByTestId("home-page")).toBeInTheDocument();
   });
 
-  it("wraps outlet content in a motion.div with correct initial/animate props", () => {
+  it("fades and settles the page in once its code has loaded", () => {
     renderWithRouter("/");
-    const motionDiv = screen.getByTestId("motion-div");
-    const initial = JSON.parse(motionDiv.getAttribute("data-initial") || "{}");
-    const animate = JSON.parse(motionDiv.getAttribute("data-animate") || "{}");
+    const inner = screen.getAllByTestId("motion-div")[1]!;
+    const initial = JSON.parse(inner.getAttribute("data-initial") || "{}");
+    const animate = JSON.parse(inner.getAttribute("data-animate") || "{}");
 
-    expect(initial).toEqual({ opacity: 0 });
-    expect(animate).toEqual({ opacity: 1 });
+    expect(initial).toEqual({ opacity: 0, y: 8 });
+    expect(animate).toEqual({ opacity: 1, y: 0 });
   });
 
-  it("sets exit animation with opacity fade", () => {
+  it("fades the old page out on a section switch", () => {
     renderWithRouter("/");
-    const motionDiv = screen.getByTestId("motion-div");
-    const exit = JSON.parse(motionDiv.getAttribute("data-exit") || "{}");
+    const outer = screen.getAllByTestId("motion-div")[0]!;
+    const exit = JSON.parse(outer.getAttribute("data-exit") || "{}");
 
     expect(exit.opacity).toBe(0);
   });

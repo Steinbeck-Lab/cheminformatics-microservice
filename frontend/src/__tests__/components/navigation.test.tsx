@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within, fireEvent, act } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import {
   createMemoryRouter,
@@ -8,21 +8,13 @@ import {
 } from "react-router-dom";
 import { AppProvider } from "../../context/AppContext";
 import Navigation from "../../components/common/Navigation";
+import Header from "../../components/common/Header";
 
-/**
- * Helpers to render Navigation within a memory router at a given path.
- */
-function renderNavigation({
-  initialPath = "/chem",
-  isMobile = false,
-}: { initialPath?: string; isMobile?: boolean } = {}) {
+function renderAt(element: React.ReactElement, initialPath = "/chem") {
   const router = createMemoryRouter(
-    createRoutesFromElements(
-      <Route path="*" element={<Navigation isMobile={isMobile} closeMenu={() => {}} />} />
-    ),
+    createRoutesFromElements(<Route path="*" element={element} />),
     { initialEntries: [initialPath] }
   );
-
   return render(
     <AppProvider>
       <RouterProvider router={router} />
@@ -30,39 +22,69 @@ function renderNavigation({
   );
 }
 
-describe("Navigation wayfinding", () => {
-  it("active desktop nav link has distinct visual indicator", () => {
-    renderNavigation({ initialPath: "/chem", isMobile: false });
+const SECTIONS = ["Home", "Analysis", "Convert", "Depict", "Tools", "OCSR", "About"];
 
-    // Find the Chemical Analysis link -- the NavLink wraps a motion.div with active styling
-    const chemLink = screen.getByText("Chemical Analysis");
-    // Walk up from the text to find the element with active styling (text-white)
-    const el: HTMLElement | null = chemLink.closest("a");
-    expect(el).toBeTruthy();
-    // Inside the NavLink <a>, there should be a div with "text-white" for the active state
-    const activeDiv = el!.querySelector("[class*='text-white']");
-    expect(activeDiv).toBeTruthy();
+describe("Navigation", () => {
+  it("desktop bar lists the seven sections and marks the current one", () => {
+    renderAt(<Navigation />, "/chem/descriptors");
+    const nav = screen.getByRole("navigation", { name: "Sections" });
+    const links = within(nav).getAllByRole("link");
+    expect(links.map((l) => l.textContent)).toEqual(SECTIONS);
+    expect(within(nav).getByRole("link", { name: "Analysis" })).toHaveAttribute(
+      "aria-current",
+      "page"
+    );
+    expect(within(nav).getByRole("link", { name: "Depict" })).not.toHaveAttribute("aria-current");
   });
 
-  it("mobile nav shows current page highlighted with active styling", () => {
-    renderNavigation({ initialPath: "/chem", isMobile: true });
-
-    // In mobile mode, the full label is shown
-    const chemLink = screen.getByText("Chemical Analysis");
-    // The NavLink should have the active class applied
-    const navLink = chemLink.closest("a");
-    expect(navLink).toBeTruthy();
-    expect(navLink!.className).toMatch(/bg-slate-900/);
-    expect(navLink!.className).toMatch(/font-semibold/);
-    expect(navLink!.className).toMatch(/border-l-4/);
+  it("Home is current only on the home page", () => {
+    renderAt(<Navigation />, "/home");
+    expect(screen.getByRole("link", { name: "Home" })).toHaveAttribute("aria-current", "page");
   });
 
-  it("mobile nav items have minimum 44px tap target", () => {
-    renderNavigation({ initialPath: "/chem", isMobile: true });
+  it("menu variant has its own label and calls closeMenu on click", () => {
+    let closed = 0;
+    renderAt(<Navigation isMobile closeMenu={() => closed++} />, "/convert");
+    const nav = screen.getByRole("navigation", { name: "Sections (menu)" });
+    const convert = within(nav).getByRole("link", { name: "Convert" });
+    expect(convert).toHaveAttribute("aria-current", "page");
+    fireEvent.click(convert);
+    expect(closed).toBe(1);
+  });
+});
 
-    const links = screen.getAllByRole("link");
-    for (const link of links) {
-      expect(link.className).toContain("min-h-[44px]");
-    }
+describe("Header", () => {
+  it("theme switch toggles dark mode", () => {
+    renderAt(<Header />, "/depict");
+    const sw = screen.getAllByRole("switch", { name: "Dark mode" })[0]!;
+    const before = document.documentElement.classList.contains("dark");
+    expect(sw).toHaveAttribute("aria-checked", String(before));
+    fireEvent.click(sw);
+    expect(document.documentElement.classList.contains("dark")).toBe(!before);
+    expect(sw).toHaveAttribute("aria-checked", String(!before));
+  });
+
+  it("turns to clear glass once the page scrolls", () => {
+    const { container } = renderAt(<Header />, "/depict");
+    const header = container.querySelector("header")!;
+    expect(header).not.toHaveClass("scrolled");
+    act(() => {
+      window.scrollY = 200;
+      window.dispatchEvent(new Event("scroll"));
+    });
+    expect(header).toHaveClass("scrolled");
+    act(() => {
+      window.scrollY = 0;
+      window.dispatchEvent(new Event("scroll"));
+    });
+    expect(header).not.toHaveClass("scrolled");
+  });
+
+  it("has a home link with the logo and a menu button for small screens", () => {
+    renderAt(<Header />, "/depict");
+    expect(
+      screen.getByRole("link", { name: /Cheminformatics Microservice, home/ })
+    ).toHaveAttribute("href", "/");
+    expect(screen.getByRole("button", { name: "Open menu" })).toBeInTheDocument();
   });
 });

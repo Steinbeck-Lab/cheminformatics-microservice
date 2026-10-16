@@ -3,11 +3,11 @@ import { render, screen } from "@testing-library/react";
 import { GlassSkeleton } from "@/components/feedback/GlassSkeleton";
 
 describe("GlassSkeleton", () => {
-  it("renders with shimmer animation class", () => {
+  it("carries the silk sheen (its animation is gated on reduced motion in CSS)", () => {
     render(<GlassSkeleton />);
     const skeleton = screen.getByTestId("glass-skeleton");
-    const shimmer = skeleton.querySelector(".animate-shimmer");
-    expect(shimmer).toBeInTheDocument();
+    expect(skeleton.className).toContain("pc-sheen");
+    expect(skeleton.className).not.toContain("animate-pulse");
   });
 
   it("renders text variant by default", () => {

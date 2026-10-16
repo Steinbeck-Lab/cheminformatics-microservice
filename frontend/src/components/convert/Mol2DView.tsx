@@ -1,100 +1,70 @@
-// Description: This component allows users to input a SMILES string and generate 2D coordinates in MOL format using different cheminformatics toolkits. It includes error handling, loading states, and options for copying and downloading the generated molblock.
-import { useState } from "react";
-// Ensure all used icons are imported
-// Assuming these components are correctly implemented and styled for dark/light mode
+import { useState, type FormEvent } from "react";
+import { Download, FileText, Loader2 } from "lucide-react";
 import SMILESInput from "../common/SMILESInput";
+import { generate2DCoordinates } from "../../services/convertService";
 import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
 import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
-import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
-// Assuming this service is configured correctly
-import { generate2DCoordinates } from "../../services/convertService"; // Assuming this service exists
-import { AlertCircle, Check, Clipboard, Download, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Cell, CopyButton, Seg } from "@/components/common/porcelain-ui";
+import { useRevealOnResult } from "@/hooks/useRevealOnResult";
 
-// Toolkit options configuration
-const TOOLKIT_OPTIONS = [
-  { id: "cdk", label: "CDK" },
-  { id: "rdkit", label: "RDKit" },
-  { id: "openbabel", label: "Open Babel" },
+type Toolkit = "cdk" | "rdkit" | "openbabel";
+
+const TOOLKIT_OPTIONS: { value: Toolkit; label: string }[] = [
+  { value: "cdk", label: "CDK" },
+  { value: "rdkit", label: "RDKit" },
+  { value: "openbabel", label: "Open Babel" },
 ];
 
+/** 2D coordinates: a SMILES string to an MDL molfile (V2000) with 2D coordinates. */
 const Mol2DView = () => {
   const [smiles, setSmiles] = useState("");
-  const [toolkit, setToolkit] = useState("cdk"); // Default toolkit
+  const [toolkit, setToolkit] = useState<Toolkit>("cdk");
   const [isLoading, setIsLoading] = useState(false);
-  const [molblock, setMolblock] = useState(null); // Store the resulting molblock string
-  const [error, setError] = useState(null);
-  const [copied, setCopied] = useState(false); // State for copy button feedback
+  const [molblock, setMolblock] = useState<string | null>(null);
+  // The toolkit that produced the shown molblock
+  const [usedToolkit, setUsedToolkit] = useState<Toolkit>("cdk");
+  const [error, setError] = useState<string | null>(null);
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const trimmedSmiles = smiles.trim();
     if (!trimmedSmiles) {
       setError("Please enter a SMILES string.");
-      setMolblock(null); // Clear previous result
+      setMolblock(null);
       return;
     }
 
     setIsLoading(true);
     setError(null);
-    setMolblock(null); // Clear previous result before fetching
+    setMolblock(null);
 
     try {
-      // Call the service function
       const data = await generate2DCoordinates(trimmedSmiles, toolkit);
-      // Ensure result is a non-empty string
       if (typeof data === "string" && data.trim()) {
         setMolblock(data);
+        setUsedToolkit(toolkit);
       } else {
-        // Handle cases where API might return empty or invalid data
         throw new Error("Received empty or invalid Molblock data from the server.");
       }
     } catch (err) {
-      console.error("Molblock generation error:", err); // Log the actual error
+      console.error("Molblock generation error:", err);
       setError(getErrorMessage("convert", err));
-      setMolblock(null); // Ensure molblock is null on error
+      setMolblock(null);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle copying the molblock to clipboard
-  const handleCopy = () => {
-    if (!molblock || !navigator.clipboard) return;
-
-    navigator.clipboard
-      .writeText(molblock)
-      .then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000); // Reset copied state
-      })
-      .catch((err) => {
-        console.error("Failed to copy molblock:", err);
-        setError("Failed to copy Molblock to clipboard."); // Show error to user
-      });
-  };
-
-  // Handle downloading the molblock as a .mol file
+  // Download the molblock as a .mol file named after the SMILES
   const downloadMolblock = () => {
     if (!molblock) return;
-
     try {
-      const blob = new Blob([molblock], {
-        type: "chemical/x-mdl-molfile;charset=utf-8",
-      });
+      const blob = new Blob([molblock], { type: "chemical/x-mdl-molfile;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      // Create a filename from SMILES if possible, otherwise default
       const filenameBase = smiles
         ? smiles.replace(/[^a-z0-9]/gi, "_").substring(0, 30)
         : "molecule";
@@ -102,179 +72,101 @@ const Mol2DView = () => {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      URL.revokeObjectURL(url); // Clean up object URL
+      URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Error creating download link:", err);
       setError("Could not create file for download.");
     }
   };
 
-  return (
-    // Main container
-    <div className="space-y-6 p-4 md:p-6">
-      {/* Input Card */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-blue-400 mb-4">
-          2D Coordinate Generation (Molblock)
-        </h2>
+  const done = !!molblock && !isLoading;
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* SMILES Input Component */}
-          {/* Assuming SMILESInput handles its own dark/light mode */}
+  useRevealOnResult("m2d-results", isLoading, !!molblock, !!error);
+
+  return (
+    <div className="pc-bento">
+      <Cell id="m2d-input" title="Structure input" className="pc-t-input">
+        <form onSubmit={handleSubmit} className="pc-tool-form">
           <SMILESInput
             value={smiles}
             onChange={setSmiles}
             placeholder="Enter SMILES string (e.g., CN1C=NC2=C1C(=O)N(C(=O)N2C)C)"
-            label="Input SMILES"
             required
           />
-
-          {/* Toolkit Selection */}
-          <div>
-            <label
-              htmlFor="toolkit-select-mol2d"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >
-              Cheminformatics Toolkit
-            </label>
-            {/* Select styling */}
-            <Select value={toolkit} onValueChange={setToolkit}>
-              <SelectTrigger id="toolkit-select-mol2d" className="w-full">
-                <SelectValue placeholder="Select toolkit" />
-              </SelectTrigger>
-              <SelectContent>
-                {TOOLKIT_OPTIONS.map((option) => (
-                  <SelectItem key={option.id} value={option.id}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {/* Hint text styling */}
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              Different toolkits may produce different 2D layouts.
-            </p>
-          </div>
-
-          {/* Submit Button */}
-          <div className="pt-2">
-            <Button
-              type="submit"
-              // Button styling
-              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
-                !smiles.trim() || isLoading
-                  ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed" // Disabled state
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs" // Enabled state
-              }`}
-              disabled={!smiles.trim() || isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <FileText className="mr-2 h-5 w-5" aria-hidden="true" />
-                  Generate 2D Coordinates
-                </>
-              )}
+          <div className="pc-row pc-actions">
+            <Button type="submit" disabled={!smiles.trim() || isLoading}>
+              {isLoading ? <Loader2 className="animate-spin" /> : <FileText />}
+              {isLoading ? "Generating…" : "Generate 2D coordinates"}
             </Button>
           </div>
         </form>
-      </div>
+      </Cell>
 
-      {/* Loading State */}
-      {isLoading && !molblock && <ToolSkeleton variant="conversion" />}
+      <Cell id="m2d-opts" title="Options" className="pc-t-side">
+        <div className="pc-tool-form">
+          <div className="pc-opt-group">
+            <span className="pc-lbl" id="m2d-toolkit">
+              Toolkit
+            </span>
+            <Seg
+              labelId="m2d-toolkit"
+              full
+              value={toolkit}
+              onChange={setToolkit}
+              options={TOOLKIT_OPTIONS}
+            />
+            <p className="pc-note">Different toolkits may produce different 2D layouts.</p>
+          </div>
+          <p className="pc-tool-note">
+            Generates 2D coordinates and returns them as an MDL molfile (V2000).
+          </p>
+        </div>
+      </Cell>
 
-      {/* Error Display */}
-      {error && !isLoading && (
-        <GlassErrorCard
-          message={error}
-          onRetry={() => {
-            setError(null);
-            document.getElementById("smiles-input")?.focus();
-          }}
-        />
-      )}
-
-      {/* Results Display Section */}
-      {/* Show only if molblock exists and not loading */}
-      {molblock && !isLoading && (
-        // Results card styling
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
-          {/* Results Header with Action Buttons */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3 border-b border-gray-200 dark:border-gray-700 pb-3">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-blue-100">
-              Molblock (MDL Molfile V2000)
-            </h3>
-            {/* Action Buttons */}
-            <div className="flex space-x-2 shrink-0">
-              {/* Copy Button */}
-              <Button
-                onClick={handleCopy}
-                className={`px-3 py-1.5 text-sm rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
-                  copied
-                    ? "bg-green-100 dark:bg-green-700 text-green-700 dark:text-green-200" // Copied state
-                    : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600" // Default state
-                }`}
-                title="Copy Molblock to clipboard"
-                aria-label={copied ? "Molblock Copied" : "Copy Molblock"}
-              >
-                {copied ? (
-                  <Check className="mr-1.5 h-4 w-4" />
-                ) : (
-                  <Clipboard className="mr-1.5 h-4 w-4" />
-                )}
-                {copied ? "Copied!" : "Copy"}
-              </Button>
-              {/* Download Button */}
-              <Button
-                onClick={downloadMolblock}
-                className="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md flex items-center transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500"
-                title="Download as MOL file"
-                aria-label="Download Molblock as MOL file"
-              >
-                <Download className="mr-1.5 h-4 w-4" />
+      <Cell
+        id="m2d-results"
+        title={done ? "2D molfile" : "Results"}
+        className="pc-t-wide"
+        meta={
+          done &&
+          molblock && (
+            <div className="pc-row">
+              <CopyButton text={molblock} label="Copy molblock" />
+              <Button variant="outline" onClick={downloadMolblock}>
+                <Download />
                 Download (.mol)
               </Button>
             </div>
-          </div>
-
-          {/* Molblock Display Area */}
-          <div className="bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 overflow-auto max-h-96 shadow-xs">
-            {/* Molblock text styling */}
-            <pre className="text-gray-700 dark:text-gray-300 font-mono text-xs sm:text-sm whitespace-pre">
+          )
+        }
+      >
+        {isLoading && <ToolSkeleton variant="conversion" />}
+        {error && !isLoading && (
+          <GlassErrorCard
+            message={error}
+            onRetry={() => {
+              setError(null);
+              document.getElementById("smiles-input")?.focus();
+            }}
+          />
+        )}
+        {!molblock && !isLoading && !error && (
+          <p className="pc-empty">Enter a SMILES string to generate its 2D coordinates.</p>
+        )}
+        {done && molblock && (
+          <div className="grid gap-2">
+            <pre className="max-h-96 overflow-auto rounded-xl border border-border bg-muted p-3 font-mono text-xs whitespace-pre text-foreground">
               {molblock}
             </pre>
-          </div>
-
-          {/* Informational Note */}
-          <div className="mt-4 text-xs text-gray-500 dark:text-gray-400">
-            <p>
-              The MOL V2000 format stores molecular structures including atoms, bonds, and 2D/3D
-              coordinates. Generated using{" "}
-              {TOOLKIT_OPTIONS.find((opt) => opt.id === toolkit)?.label || toolkit}.
+            <p className="pc-note">
+              Generated with{" "}
+              {TOOLKIT_OPTIONS.find((opt) => opt.value === usedToolkit)?.label ?? usedToolkit}.
             </p>
           </div>
-        </div>
-      )}
-
-      {/* Initial State Message */}
-      {/* Show only if no molblock, not loading, and no error */}
-      {!molblock && !isLoading && !error && (
-        // Initial state card styling
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-            <FileText className="h-12 w-12 mx-auto mb-3 text-gray-500 dark:text-gray-400" />
-            <p>
-              Enter a SMILES string and select a toolkit to generate 2D coordinates in MOL format.
-            </p>
-          </div>
-        </div>
-      )}
+        )}
+      </Cell>
     </div>
   );
 };
+
 export default Mol2DView;

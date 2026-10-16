@@ -1,200 +1,96 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type ChangeEvent, type FormEvent } from "react";
 import { useKetcherEditor } from "@/hooks/useKetcherEditor";
-
-// Import utility functions
 import {
-  RINCHI_VERSIONS,
+  DEFAULT_VERSION,
+  VERSION_OPTIONS,
   loadRinchiModule,
   convertRxnfileToRinchi,
   generateRinchiKey,
   convertRinchiToFileText,
-} from "../../utils/rinchiUtils.js";
+} from "@/utils/rinchiUtils";
 import {
-  AlertCircle,
   ArrowLeftRight,
   Check,
   ChevronDown,
   ChevronRight,
   ClipboardCopy,
-  Code,
   FileText,
-  HelpCircle,
-  Info,
-  Maximize2,
-  Pencil,
+  Loader2,
   RefreshCw,
   Upload,
   X,
 } from "lucide-react";
+import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Cell, Seg, Select, Switch } from "@/components/common/porcelain-ui";
+import { useRevealOnResult } from "@/hooks/useRevealOnResult";
+import { errorText } from "@/lib/error-messages";
 
-// Tooltip component for RInChI options
-const OptionTooltip = ({ content }) => (
-  <span className="group relative inline-block">
-    <HelpCircle className="h-4 w-4 ml-1 text-gray-500 dark:text-gray-400 inline-block align-text-bottom cursor-help" />
-    <span className="absolute z-10 opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-opacity duration-300 w-64 bg-white dark:bg-gray-800 p-2 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-300 -mt-1 left-6 block">
-      {content}
-    </span>
-  </span>
-);
+type InputType = "reaction" | "rxnfile" | "rinchi" | "rinchi-to-file";
+type FileFormat = "RXN" | "RD";
+type KeyType = "Long" | "Short" | "Web";
 
-// RInChI options component
-const RInChIOptions = ({
-  onChange,
-  rinchiVersion,
-  setRinchiVersion,
-  forceEquilibrium,
-  setForceEquilibrium,
-  outputFormat,
-  setOutputFormat,
+const INPUT_TYPES: { value: InputType; label: string }[] = [
+  { value: "reaction", label: "Draw" },
+  { value: "rxnfile", label: "RXN/RD file" },
+  { value: "rinchi", label: "RInChI" },
+  { value: "rinchi-to-file", label: "RInChI → file" },
+];
+
+/** One copyable identifier; the RInChIKeys fold away. */
+const ResultRow = ({
+  title,
+  value,
+  onCopy,
+  copyState,
+  collapsible = false,
+}: {
+  title: string;
+  value: string;
+  onCopy: () => void;
+  copyState: boolean;
+  collapsible?: boolean;
 }) => {
-  return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
-      <div className="flex items-center mb-4">
-        <div className="bg-indigo-100 dark:bg-indigo-900/50 p-2 rounded-lg mr-3">
-          <Code className="h-5 w-5 text-indigo-700 dark:text-indigo-400" />
-        </div>
-        <h2 className="text-lg font-bold text-gray-800 dark:text-white">RInChI Options</h2>
-      </div>
-
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          RInChI Version
-        </label>
-        <Select value={rinchiVersion} onValueChange={setRinchiVersion}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select version" />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.entries(RINCHI_VERSIONS).map(([value, version]) => (
-              <SelectItem key={value} value={value}>
-                {version.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-4">
-        <div className="flex items-center">
-          <input
-            id="force-equilibrium"
-            type="checkbox"
-            checked={forceEquilibrium}
-            onChange={(e) => setForceEquilibrium(e.target.checked)}
-            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded-sm"
-          />
-          <label
-            htmlFor="force-equilibrium"
-            className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-          >
-            Force Equilibrium
-          </label>
-          <OptionTooltip content="When checked, the reaction is treated as an equilibrium reaction, regardless of the arrow type used in the drawing." />
-        </div>
-
-        <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
-          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
-            File Format Options
-            <OptionTooltip content="Configure the output format for file conversion" />
-          </p>
-
-          <div className="flex flex-col space-y-2 ml-2">
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                name="outputFormat"
-                value="RXN"
-                checked={outputFormat === "RXN"}
-                onChange={() => setOutputFormat("RXN")}
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
-              />
-              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">RXN File Format</span>
-              <OptionTooltip content="Standard MDL RXN file format for chemical reactions" />
-            </label>
-
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                name="outputFormat"
-                value="RD"
-                checked={outputFormat === "RD"}
-                onChange={() => setOutputFormat("RD")}
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
-              />
-              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">RD File Format</span>
-              <OptionTooltip content="MDL RD file format for reaction data with properties" />
-            </label>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Result block component for displaying RInChI, RInChIKeys, and RAuxInfo
-const ResultBlock = ({ title, value, onCopy, copyState, icon, collapsible = false }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const open = !isCollapsed || !collapsible;
 
   return (
-    <div className="mt-4 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-      <div className="flex justify-between items-center mb-2">
-        <h3
-          className={`text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center ${
-            collapsible ? "cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400" : ""
-          }`}
-          onClick={collapsible ? () => setIsCollapsed(!isCollapsed) : undefined}
-        >
-          {collapsible &&
-            (isCollapsed ? (
-              <ChevronRight className="h-4 w-4 mr-1" />
-            ) : (
-              <ChevronDown className="h-4 w-4 mr-1" />
-            ))}
-          {icon && <span className="mr-2">{icon}</span>}
-          {title}
-        </h3>
-        {value && (
-          <Button
-            variant="ghost"
-            onClick={onCopy}
-            className="inline-flex items-center px-2 py-1 text-xs text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-900/30 rounded-sm hover:bg-indigo-200 dark:hover:bg-indigo-800/50"
+    <div className="pc-id">
+      <dt>
+        {collapsible ? (
+          <button
+            type="button"
+            className="inline-flex cursor-pointer items-center gap-1"
+            aria-expanded={!isCollapsed}
+            onClick={() => setIsCollapsed(!isCollapsed)}
           >
-            {copyState ? (
-              <>
-                <Check className="w-3.5 h-3.5 mr-1" />
-                Copied!
-              </>
-            ) : (
-              <>
-                <ClipboardCopy className="w-3.5 h-3.5 mr-1" />
-                Copy
-              </>
-            )}
-          </Button>
+            {isCollapsed ? <ChevronRight className="size-4" /> : <ChevronDown className="size-4" />}
+            {title}
+          </button>
+        ) : (
+          title
         )}
-      </div>
-      {(!isCollapsed || !collapsible) && (
-        <div className="font-mono text-sm overflow-x-auto bg-gray-50 dark:bg-gray-900 p-3 rounded-sm border border-gray-200 dark:border-gray-700 break-all max-h-24 overflow-y-auto">
-          {value || <span className="text-gray-500 dark:text-gray-400">No data generated yet</span>}
-        </div>
-      )}
+      </dt>
+      <dd>
+        {open && (value || <span className="text-muted-foreground">Not generated</span>)}
+        <Button
+          variant="outline"
+          size="icon-sm"
+          aria-label={`Copy ${title}`}
+          disabled={!value}
+          onClick={onCopy}
+        >
+          {copyState ? <Check /> : <ClipboardCopy />}
+        </Button>
+      </dd>
     </div>
   );
 };
 
+/** RInChI: draw or load a reaction in Ketcher and convert it with the IUPAC RInChI library. */
 const RInChIView = () => {
-  // State variables
   const [rinchi, setRinchi] = useState("");
   const [rauxInfo, setRauxInfo] = useState("");
   const [longRinchiKey, setLongRinchiKey] = useState("");
@@ -206,29 +102,27 @@ const RInChIView = () => {
   const [outputRxnFile, setOutputRxnFile] = useState("");
   const [logMessage, setLogMessage] = useState("");
   const [forceEquilibrium, setForceEquilibrium] = useState(false);
-  const [outputFormat, setOutputFormat] = useState("RXN");
-  const [rinchiVersion, setRinchiVersion] = useState(
-    Object.keys(RINCHI_VERSIONS).find((key) => RINCHI_VERSIONS[key].default) || "1.1"
-  );
-  const [activeInputType, setActiveInputType] = useState("reaction"); // 'reaction', 'rxnfile', 'rinchi', 'rinchi-to-file'
+  const [outputFormat, setOutputFormat] = useState<FileFormat>("RXN");
+  const [rinchiVersion, setRinchiVersion] = useState(DEFAULT_VERSION);
+  const [activeInputType, setActiveInputType] = useState<InputType>("reaction");
 
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [copyModalText, setCopyModalText] = useState("");
   const [rinchiModuleLoaded, setRinchiModuleLoaded] = useState(false);
 
-  // Refs
-  const copyTextRef = useRef(null);
-  const fileInputRef = useRef(null);
+  const copyTextRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { ketcherFrame, isEditorReady, executeCommand, resetEditor } = useKetcherEditor();
 
-  // Reset error when needed
+  // Clear a stale error when the input, version or input method changes.
+  // (`error` used to be a dependency too, which cleared every error the moment it was set.)
   useEffect(() => {
-    if (error) setError(null);
-  }, [inputRinchi, rinchiVersion, activeInputType, error]);
+    setError(null);
+  }, [inputRinchi, rinchiVersion, activeInputType]);
 
   // Auto-select text in copy modal when it appears
   useEffect(() => {
@@ -237,8 +131,8 @@ const RInChIView = () => {
     }
   }, [showCopyModal]);
 
-  // Enhanced copyToClipboard function with multiple fallback methods
-  const copyToClipboard = async (text = null, type = "rinchi") => {
+  // Copy with fallbacks: Clipboard API, execCommand, then a dialog to copy by hand
+  const copyToClipboard = async (text: string | null = null, type = "rinchi") => {
     let textToCopy;
 
     switch (type) {
@@ -271,9 +165,7 @@ const RInChIView = () => {
       return;
     }
 
-    // Try multiple clipboard copy methods in sequence
     try {
-      // Method 1: Use the Clipboard API (modern browsers)
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(textToCopy);
         setCopySuccess(true);
@@ -281,17 +173,12 @@ const RInChIView = () => {
         return;
       }
 
-      // Method 2: Use execCommand (older browsers)
       const textArea = document.createElement("textarea");
       textArea.value = textToCopy;
-
-      // Make the textarea out of viewport
       textArea.style.position = "fixed";
       textArea.style.left = "-999999px";
       textArea.style.top = "-999999px";
       document.body.appendChild(textArea);
-
-      // Select and copy
       textArea.focus();
       textArea.select();
 
@@ -307,14 +194,12 @@ const RInChIView = () => {
       }
     } catch (err) {
       console.error("Failed to copy text:", err);
-
-      // Method 3: Show a modal with text to copy manually
       setCopyModalText(textToCopy);
       setShowCopyModal(true);
     }
   };
 
-  // Check RInChI module status
+  // Load the RInChI module for the selected version
   useEffect(() => {
     const checkModuleStatus = async () => {
       try {
@@ -331,42 +216,140 @@ const RInChIView = () => {
     checkModuleStatus();
   }, [rinchiVersion]);
 
-  // Check if Ketcher has a reaction
+  // Does Ketcher hold a reaction?
   const checkForReaction = async () => {
     try {
-      // First try using the containsReaction method if available
+      // The containsReaction method first, if available
       try {
-        const ketcher = ketcherFrame.current.contentWindow.ketcher;
-        if (ketcher.containsReaction) {
+        const ketcher = (
+          ketcherFrame.current?.contentWindow as
+            (Window & { ketcher?: { containsReaction?: () => boolean } }) | null | undefined
+        )?.ketcher;
+        if (ketcher?.containsReaction) {
           return ketcher.containsReaction();
         }
       } catch (e) {
         console.debug("Direct Ketcher access failed in checkForReaction:", e);
       }
 
-      // Alternative: try to get the RXN file and check if it has reaction components
-      const rxnFile = await executeCommand("getRxn");
-      return rxnFile && (rxnFile.includes("$RXN") || rxnFile.includes("$RDFILE"));
+      // Otherwise: get the RXN file and look for reaction components
+      const rxnFile = (await executeCommand("getRxn")) as string;
+      return !!rxnFile && (rxnFile.includes("$RXN") || rxnFile.includes("$RDFILE"));
     } catch (err) {
       console.error("Error checking for reaction:", err);
       return false;
     }
   };
 
-  // Check if reaction has equilibrium arrow
+  // Does the reaction have an equilibrium arrow? (a simple text check)
   const hasEquilibriumArrow = async () => {
     try {
-      // This is a simplistic check - in a real implementation you would need more
-      // complex logic to detect the arrow type
-      const rxnFile = await executeCommand("getRxn");
-      return rxnFile && rxnFile.includes("EQUILIBRIUM");
+      const rxnFile = (await executeCommand("getRxn")) as string;
+      return !!rxnFile && rxnFile.includes("EQUILIBRIUM");
     } catch (err) {
       console.error("Error checking for equilibrium arrow:", err);
       return false;
     }
   };
 
-  // Generate RInChI from Ketcher
+  // Generate RInChIKey of one type and store it
+  const generateRinchiKeyAndUpdateState = async (rinchiString: string, keyType: KeyType) => {
+    if (!rinchiString) {
+      console.warn(`Cannot generate ${keyType}-RInChIKey: No RInChI provided`);
+      return;
+    }
+
+    if (!rinchiString.startsWith("RInChI=")) {
+      console.warn(`Invalid RInChI format for ${keyType}-RInChIKey generation:`, rinchiString);
+      return;
+    }
+
+    try {
+      const result = await generateRinchiKey(rinchiString, keyType, rinchiVersion);
+
+      if (!result) {
+        console.error(`No result returned from ${keyType}-RInChIKey generation`);
+        return;
+      }
+
+      if (result.return_code !== 0) {
+        console.error(`Failed to generate ${keyType}-RInChIKey:`, result.error);
+        return;
+      }
+
+      const key = result.rinchikey ?? "";
+      switch (keyType) {
+        case "Long":
+          setLongRinchiKey(key);
+          break;
+        case "Short":
+          setShortRinchiKey(key);
+          break;
+        case "Web":
+          setWebRinchiKey(key);
+          break;
+        default:
+          console.warn(`Unknown RInChIKey type: ${keyType}`);
+      }
+
+      return result.rinchikey;
+    } catch (err) {
+      console.error(`Error generating ${keyType}-RInChIKey:`, err);
+      return null;
+    }
+  };
+
+  // Convert a reaction file to RInChI and store the results
+  const convertReactionToRinchiAndWriteResults = async (rxnFile: string, isEquilibrium = false) => {
+    try {
+      if (!rxnFile || rxnFile.trim() === "") {
+        throw new Error("No reaction data provided");
+      }
+
+      if (!rinchiModuleLoaded) {
+        throw new Error("RInChI module not loaded. Please wait or refresh the page.");
+      }
+
+      const result = await convertRxnfileToRinchi(rxnFile, isEquilibrium, rinchiVersion);
+
+      if (!result) {
+        throw new Error("No result returned from conversion function");
+      }
+
+      if (result.return_code !== 0) {
+        throw new Error(result.error || "Failed to generate RInChI");
+      }
+
+      setRinchi(result.rinchi || "");
+      setRauxInfo(result.rauxinfo || "");
+
+      setLogMessage(
+        `RInChI generated successfully${
+          isEquilibrium ? " (equilibrium forced)" : ""
+        }\n${result.error || ""}`
+      );
+
+      if (result.rinchi) {
+        await Promise.all([
+          generateRinchiKeyAndUpdateState(result.rinchi, "Long"),
+          generateRinchiKeyAndUpdateState(result.rinchi, "Short"),
+          generateRinchiKeyAndUpdateState(result.rinchi, "Web"),
+        ]);
+      }
+
+      return result;
+    } catch (err) {
+      console.error("Failed to generate RInChI from reaction:", err);
+      const errorMsg = `Failed to generate RInChI: ${errorText(err)}`;
+      setError(errorMsg);
+      setLogMessage(errorMsg);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Generate RInChI from the reaction in Ketcher
   const generateRInChI = async () => {
     if (!isEditorReady) {
       const errorMsg = "Editor not ready. Please try again in a moment.";
@@ -392,7 +375,6 @@ const RInChIView = () => {
     setWebRinchiKey("");
 
     try {
-      // Check if there's a reaction
       const hasReaction = await checkForReaction();
       if (!hasReaction) {
         const errorMsg = "No reaction found. Please draw a reaction with reactants and products.";
@@ -402,8 +384,7 @@ const RInChIView = () => {
         return;
       }
 
-      // Get RXN file from Ketcher
-      const rxnFile = await executeCommand("getRxn");
+      const rxnFile = (await executeCommand("getRxn")) as string;
 
       if (!rxnFile || rxnFile.trim() === "") {
         const errorMsg =
@@ -414,92 +395,36 @@ const RInChIView = () => {
         return;
       }
 
-      // Save the rxnFile for reference
       setRxnfileContent(rxnFile);
 
-      // Check if reaction has equilibrium arrow (if not forcing equilibrium)
+      // Equilibrium: forced, or read from the arrow
       let isEquilibrium = forceEquilibrium;
       if (!isEquilibrium) {
         isEquilibrium = await hasEquilibriumArrow();
       }
 
-      // Generate RInChI from the RXN file
       await convertReactionToRinchiAndWriteResults(rxnFile, isEquilibrium);
     } catch (err) {
       console.error("Failed to generate RInChI:", err);
-      setLogMessage(`Failed to generate RInChI: ${err.message}`);
-      setError(`Failed to generate RInChI: ${err.message}`);
+      setLogMessage(`Failed to generate RInChI: ${errorText(err)}`);
+      setError(`Failed to generate RInChI: ${errorText(err)}`);
       setIsLoading(false);
     }
   };
 
-  // Convert reaction in Ketcher to RInChI
-  const convertReactionToRinchiAndWriteResults = async (rxnFile, isEquilibrium = false) => {
-    try {
-      if (!rxnFile || rxnFile.trim() === "") {
-        throw new Error("No reaction data provided");
-      }
-
-      if (!rinchiModuleLoaded) {
-        throw new Error("RInChI module not loaded. Please wait or refresh the page.");
-      }
-
-      // Convert RXN to RInChI
-      const result = await convertRxnfileToRinchi(rxnFile, isEquilibrium, rinchiVersion);
-
-      if (!result) {
-        throw new Error("No result returned from conversion function");
-      }
-
-      if (result.return_code !== 0) {
-        throw new Error(result.error || "Failed to generate RInChI");
-      }
-
-      // Update state with results
-      setRinchi(result.rinchi || "");
-      setRauxInfo(result.rauxinfo || "");
-
-      // Update log
-      setLogMessage(
-        `RInChI generated successfully${
-          isEquilibrium ? " (equilibrium forced)" : ""
-        }\n${result.error || ""}`
-      );
-
-      // Generate RInChIKeys
-      if (result.rinchi) {
-        await Promise.all([
-          generateRinchiKeyAndUpdateState(result.rinchi, "Long"),
-          generateRinchiKeyAndUpdateState(result.rinchi, "Short"),
-          generateRinchiKeyAndUpdateState(result.rinchi, "Web"),
-        ]);
-      }
-
-      return result;
-    } catch (err) {
-      console.error("Failed to generate RInChI from reaction:", err);
-      const errorMsg = `Failed to generate RInChI: ${err.message}`;
-      setError(errorMsg);
-      setLogMessage(errorMsg);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Handle file upload for RXN/RD file
-  const handleRxnFileUpload = (event) => {
-    const file = event.target.files[0];
+  // Read an uploaded RXN/RD file into the text field
+  const handleRxnFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      setRxnfileContent(e.target.result);
+      setRxnfileContent(String(e.target?.result ?? ""));
     };
     reader.readAsText(file);
   };
 
-  // Process RXN/RD file
+  // Convert a pasted or uploaded RXN/RD file
   const processRxnFile = async () => {
     if (!rxnfileContent.trim()) {
       const errorMsg = "Please enter or upload a RXN/RD file";
@@ -525,7 +450,6 @@ const RInChIView = () => {
     setWebRinchiKey("");
 
     try {
-      // Validate the file format
       if (!rxnfileContent.includes("$RXN") && !rxnfileContent.includes("$RDFILE")) {
         const errorMsg = "Invalid RXN/RD file format. Please check your input.";
         setError(errorMsg);
@@ -534,76 +458,28 @@ const RInChIView = () => {
         return;
       }
 
-      // Convert to RInChI
       await convertReactionToRinchiAndWriteResults(rxnfileContent, forceEquilibrium);
 
-      // If editor is ready, also load the reaction in Ketcher
+      // Show the reaction in Ketcher too, when the editor is ready
       if (isEditorReady) {
         try {
           await executeCommand("setMolecule", [rxnfileContent]);
           setLogMessage((prevLog) => `Reaction loaded in editor.\n${prevLog}`);
         } catch (ketcherErr) {
+          // Only the drawing failed: keep the result
           console.error("Failed to load reaction in Ketcher:", ketcherErr);
-          // Don't fail the whole process if just the visualization fails
         }
       }
     } catch (err) {
       console.error("Failed to process RXN/RD file:", err);
-      setLogMessage(`Failed to process RXN/RD file: ${err.message}`);
-      setError(`Failed to process RXN/RD file: ${err.message}`);
+      setLogMessage(`Failed to process RXN/RD file: ${errorText(err)}`);
+      setError(`Failed to process RXN/RD file: ${errorText(err)}`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Generate RInChIKey of specific type and update state
-  const generateRinchiKeyAndUpdateState = async (rinchiString, keyType) => {
-    if (!rinchiString) {
-      console.warn(`Cannot generate ${keyType}-RInChIKey: No RInChI provided`);
-      return;
-    }
-
-    if (!rinchiString.startsWith("RInChI=")) {
-      console.warn(`Invalid RInChI format for ${keyType}-RInChIKey generation:`, rinchiString);
-      return;
-    }
-
-    try {
-      const result = await generateRinchiKey(rinchiString, keyType, rinchiVersion);
-
-      if (!result) {
-        console.error(`No result returned from ${keyType}-RInChIKey generation`);
-        return;
-      }
-
-      if (result.return_code !== 0) {
-        console.error(`Failed to generate ${keyType}-RInChIKey:`, result.error);
-        return;
-      }
-
-      // Update the appropriate state based on key type
-      switch (keyType) {
-        case "Long":
-          setLongRinchiKey(result.rinchikey);
-          break;
-        case "Short":
-          setShortRinchiKey(result.rinchikey);
-          break;
-        case "Web":
-          setWebRinchiKey(result.rinchikey);
-          break;
-        default:
-          console.warn(`Unknown RInChIKey type: ${keyType}`);
-      }
-
-      return result.rinchikey;
-    } catch (err) {
-      console.error(`Error generating ${keyType}-RInChIKey:`, err);
-      return null;
-    }
-  };
-
-  // Load RInChI into Ketcher
+  // Load a RInChI into Ketcher
   const loadRInChI = async () => {
     if (!inputRinchi.trim()) {
       setError("Please enter a RInChI string");
@@ -630,7 +506,6 @@ const RInChIView = () => {
     setLogMessage("Converting RInChI to reaction...");
 
     try {
-      // Call convertRinchiToFileText to generate a RXN file
       const result = await convertRinchiToFileText(
         inputRinchi,
         inputRauxInfo || "",
@@ -646,10 +521,8 @@ const RInChIView = () => {
         throw new Error("No reaction data generated from RInChI");
       }
 
-      // Load the RXN file into Ketcher
       await executeCommand("setMolecule", [result.fileText]);
 
-      // Update state
       setRinchi(inputRinchi);
       setRauxInfo(inputRauxInfo || "");
       setRxnfileContent(result.fileText);
@@ -657,7 +530,6 @@ const RInChIView = () => {
         `Reaction loaded from RInChI successfully${result.error ? `\n${result.error}` : ""}`
       );
 
-      // Generate RInChIKeys
       if (inputRinchi) {
         await Promise.all([
           generateRinchiKeyAndUpdateState(inputRinchi, "Long"),
@@ -667,14 +539,14 @@ const RInChIView = () => {
       }
     } catch (err) {
       console.error("Failed to load RInChI:", err);
-      setLogMessage(`Failed to convert RInChI to reaction: ${err.message}`);
-      setError(`Failed to convert RInChI to reaction: ${err.message}`);
+      setLogMessage(`Failed to convert RInChI to reaction: ${errorText(err)}`);
+      setError(`Failed to convert RInChI to reaction: ${errorText(err)}`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Convert RInChI to RXN/RD file
+  // Convert a RInChI to a RXN or RD file
   const convertRInChIToFile = async () => {
     if (!inputRinchi.trim()) {
       setError("Please enter a RInChI string");
@@ -697,7 +569,6 @@ const RInChIView = () => {
     setOutputRxnFile("");
 
     try {
-      // Call convertRinchiToFileText to generate a file
       const result = await convertRinchiToFileText(
         inputRinchi,
         inputRauxInfo || "",
@@ -713,21 +584,19 @@ const RInChIView = () => {
         throw new Error(`No ${outputFormat} file data generated from RInChI`);
       }
 
-      // Update state
       setOutputRxnFile(result.fileText);
       setLogMessage(
         `${outputFormat} file generated successfully${result.error ? `\n${result.error}` : ""}`
       );
     } catch (err) {
       console.error("Failed to convert RInChI to file:", err);
-      setLogMessage(`Failed to convert RInChI to ${outputFormat} file: ${err.message}`);
-      setError(`Failed to convert RInChI to ${outputFormat} file: ${err.message}`);
+      setLogMessage(`Failed to convert RInChI to ${outputFormat} file: ${errorText(err)}`);
+      setError(`Failed to convert RInChI to ${outputFormat} file: ${errorText(err)}`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Clear the editor
   const clearEditor = async () => {
     if (!isEditorReady) {
       console.warn("Editor not ready for clearing");
@@ -749,13 +618,12 @@ const RInChIView = () => {
     }
   };
 
-  // Function to retry initialization
   const handleRetryInit = () => {
     resetEditor();
     setError(null);
   };
 
-  // Examples of common reactions with their RInChI
+  // Common reactions with their RInChI
   const examples = [
     {
       name: "Esterification",
@@ -777,28 +645,96 @@ const RInChIView = () => {
     },
   ];
 
+  // Form submit runs the method's action
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    if (activeInputType === "rxnfile") processRxnFile();
+    else if (activeInputType === "rinchi") loadRInChI();
+    else if (activeInputType === "rinchi-to-file") convertRInChIToFile();
+    else generateRInChI();
+  };
+
+  const toFile = activeInputType === "rinchi-to-file";
+  const ready = isEditorReady && rinchiModuleLoaded;
+  const hasResult = !!(rinchi || rauxInfo || longRinchiKey || shortRinchiKey || webRinchiKey);
+  const hasFile = toFile && !!outputRxnFile;
+  const resultTitle = hasFile ? `${outputFormat} file` : rinchi ? "RInChI" : "Results";
+  const fieldSuffix = toFile ? "file" : "structure";
+
+  const rinchiFields = (
+    <>
+      <div className="grid gap-2">
+        <label htmlFor={`rinchi-input-${fieldSuffix}`} className="pc-lbl">
+          RInChI to convert
+        </label>
+        <textarea
+          id={`rinchi-input-${fieldSuffix}`}
+          className="pc-well resize-y"
+          value={inputRinchi}
+          onChange={(e) => setInputRinchi(e.target.value)}
+          placeholder="e.g., RInChI=1.00.1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)!C2H6O/c1-2-3/h3H,2H2,1H3<>C4H8O2/c1-3-6-4(2)5/h3H2,1-2H3!H2O/h1H2/d+"
+          rows={4}
+          spellCheck={false}
+        />
+      </div>
+      <div className="grid gap-2">
+        <label htmlFor={`rauxinfo-input-${fieldSuffix}`} className="pc-lbl">
+          RAuxInfo (optional)
+        </label>
+        <textarea
+          id={`rauxinfo-input-${fieldSuffix}`}
+          className="pc-well resize-y"
+          value={inputRauxInfo}
+          onChange={(e) => setInputRauxInfo(e.target.value)}
+          placeholder="e.g., RAuxInfo=1.00.1/1/N:1,2,3,4/E:(3,4)/rA:4nCCOO/rB:s1;s2;d2;/rC:-3.8549,-.5552,0;..."
+          rows={3}
+          spellCheck={false}
+        />
+      </div>
+      <div className="pc-smiles-chips">
+        <span className="pc-lbl2" id="rinchi-ex">
+          Examples
+        </span>
+        <div className="pc-row" role="group" aria-labelledby="rinchi-ex">
+          {examples.map((example) => (
+            <button
+              key={example.name}
+              type="button"
+              className="clay clay-outline pc-chip"
+              aria-pressed={inputRinchi === example.rinchi}
+              title={`${example.name}: ${example.description}`}
+              onClick={() => setInputRinchi(example.rinchi)}
+            >
+              {example.name}
+            </button>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+
+  useRevealOnResult("rinchi-results", isLoading, hasResult, hasFile, !!error);
+
   return (
-    <div className="flex flex-col gap-6 p-4 md:p-6 bg-linear-to-br from-indigo-50 to-blue-100 dark:from-gray-900 dark:to-slate-900 min-h-screen">
-      {/* Copy Modal - For fallback copying */}
+    <div className="pc-bento">
+      {/* Fallback dialog for copying by hand */}
       <Dialog open={showCopyModal} onOpenChange={setShowCopyModal}>
         <DialogContent
           showCloseButton={false}
-          className="block gap-0 border-0 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full"
+          className="block w-full max-w-lg gap-0 rounded-xl border-0 bg-card p-6"
         >
-          <div className="flex justify-between items-center mb-4">
-            <DialogTitle className="text-lg font-bold text-gray-900 dark:text-white">
-              Copy Text
-            </DialogTitle>
+          <div className="mb-4 flex items-center justify-between">
+            <DialogTitle className="text-lg font-bold text-foreground">Copy Text</DialogTitle>
             <Button
               variant="ghost"
+              size="icon-sm"
               onClick={() => setShowCopyModal(false)}
               aria-label="Close"
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             >
-              <X className="w-5 h-5" />
+              <X />
             </Button>
           </div>
-          <p className="mb-4 text-gray-700 dark:text-gray-300">
+          <p className="mb-4 text-foreground">
             Automatic copying failed. Please select and copy this text manually:
           </p>
           <div className="mb-4">
@@ -812,551 +748,300 @@ const RInChIView = () => {
             />
           </div>
           <div className="flex justify-end gap-3">
-            <Button
-              variant="secondary"
-              onClick={() => setShowCopyModal(false)}
-              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
-            >
+            <Button variant="outline" onClick={() => setShowCopyModal(false)}>
               Close
             </Button>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Main content area */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left sidebar with controls */}
-        <div className="lg:col-span-3 flex flex-col gap-4">
-          {/* RInChI Options */}
-          <RInChIOptions
-            onChange={() => {}} // RInChI doesn't have many options that affect generation
-            rinchiVersion={rinchiVersion}
-            setRinchiVersion={setRinchiVersion}
-            forceEquilibrium={forceEquilibrium}
-            setForceEquilibrium={setForceEquilibrium}
-            outputFormat={outputFormat}
-            setOutputFormat={setOutputFormat}
-          />
-
-          {/* Global Editor Controls */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
-            <div className="flex items-center mb-4">
-              <div className="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-lg mr-3">
-                <Maximize2 className="h-5 w-5 text-blue-700 dark:text-blue-400" />
-              </div>
-              <h2 className="text-lg font-bold text-gray-800 dark:text-white">Editor Controls</h2>
-            </div>
-
-            <div className="space-y-4">
-              <Button
-                onClick={clearEditor}
-                disabled={isLoading || !isEditorReady}
-                className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center ${
-                  isLoading || !isEditorReady
-                    ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
-                }`}
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Clear Editor
-              </Button>
-
-              <Button
-                onClick={generateRInChI}
-                disabled={isLoading || !isEditorReady || !rinchiModuleLoaded}
-                className={`w-full px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center ${
-                  isLoading || !isEditorReady || !rinchiModuleLoaded
-                    ? "bg-gray-400 dark:bg-gray-600 text-white cursor-not-allowed"
-                    : "bg-linear-to-r from-indigo-600 to-blue-700 hover:from-indigo-700 hover:to-blue-800 text-white"
-                }`}
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                {isLoading ? "Generating..." : "Generate RInChI"}
-              </Button>
-            </div>
+      <Cell id="rinchi-input" title="Reaction input" className="pc-t-input">
+        <form onSubmit={submit} className="pc-tool-form">
+          <div className="pc-opt-group">
+            <span className="pc-lbl" id="rinchi-method">
+              Input method
+            </span>
+            <Seg
+              labelId="rinchi-method"
+              full
+              value={activeInputType}
+              onChange={setActiveInputType}
+              options={INPUT_TYPES}
+            />
           </div>
 
-          {/* Tab-specific controls */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
-            <div className="flex items-center mb-4">
-              <div className="bg-indigo-100 dark:bg-indigo-900/50 p-2 rounded-lg mr-3">
-                <Pencil className="h-5 w-5 text-indigo-700 dark:text-indigo-400" />
-              </div>
-              <h2 className="text-lg font-bold text-gray-800 dark:text-white">Reaction Input</h2>
-            </div>
+          {activeInputType === "reaction" && (
+            <p className="pc-note">
+              Draw reactants on the left, add a reaction arrow from the toolbar and draw products on
+              the right, then generate the RInChI. Turn on Force equilibrium for equilibrium
+              reactions.
+            </p>
+          )}
 
-            {/* Input Type Tabs */}
-            <div className="mb-4">
-              <div className="flex flex-wrap border-b border-gray-200 dark:border-gray-700">
-                <Button
-                  variant="ghost"
-                  className={`px-4 py-2 text-sm font-medium rounded-none ${
-                    activeInputType === "reaction"
-                      ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400"
-                      : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-600"
-                  }`}
-                  onClick={() => setActiveInputType("reaction")}
-                >
-                  Draw
-                </Button>
-                <Button
-                  variant="ghost"
-                  className={`px-4 py-2 text-sm font-medium rounded-none ${
-                    activeInputType === "rxnfile"
-                      ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400"
-                      : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-600"
-                  }`}
-                  onClick={() => setActiveInputType("rxnfile")}
-                >
-                  RXN/RD File
-                </Button>
-                <Button
-                  variant="ghost"
-                  className={`px-4 py-2 text-sm font-medium rounded-none ${
-                    activeInputType === "rinchi"
-                      ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400"
-                      : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-600"
-                  }`}
-                  onClick={() => setActiveInputType("rinchi")}
-                >
-                  RInChI
-                </Button>
-                <Button
-                  variant="ghost"
-                  className={`px-4 py-2 text-sm font-medium rounded-none ${
-                    activeInputType === "rinchi-to-file"
-                      ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400"
-                      : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-600"
-                  }`}
-                  onClick={() => setActiveInputType("rinchi-to-file")}
-                >
-                  RInChI → File
-                </Button>
-              </div>
+          {activeInputType === "rxnfile" && (
+            <div className="grid gap-2">
+              <label htmlFor="rxnfile-input" className="pc-lbl">
+                RXN/RD file content
+              </label>
+              <textarea
+                id="rxnfile-input"
+                className="pc-well resize-y"
+                value={rxnfileContent}
+                onChange={(e) => setRxnfileContent(e.target.value)}
+                placeholder="Paste RXN/RD file content here..."
+                rows={6}
+                spellCheck={false}
+              />
+              <input
+                type="file"
+                id="rxnfile-upload"
+                accept=".rxn,.rd"
+                ref={fileInputRef}
+                onChange={handleRxnFileUpload}
+                className="sr-only"
+                tabIndex={-1}
+                aria-hidden="true"
+              />
             </div>
+          )}
 
-            {/* RXN/RD File Input Option */}
+          {(activeInputType === "rinchi" || toFile) && rinchiFields}
+
+          <div className="pc-row pc-actions">
+            {activeInputType === "reaction" && (
+              <Button type="submit" disabled={isLoading || !isEditorReady || !rinchiModuleLoaded}>
+                {isLoading ? <Loader2 className="animate-spin" /> : <FileText />}
+                {isLoading ? "Generating…" : "Generate RInChI"}
+              </Button>
+            )}
             {activeInputType === "rxnfile" && (
-              <div className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="rxnfile-input"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                  >
-                    Enter RXN/RD File Content
-                  </label>
-                  <Textarea
-                    id="rxnfile-input"
-                    value={rxnfileContent}
-                    onChange={(e) => setRxnfileContent(e.target.value)}
-                    placeholder="Paste RXN/RD file content here..."
-                    rows={6}
-                  />
-                </div>
+              <>
+                <Button
+                  type="submit"
+                  disabled={isLoading || !rxnfileContent.trim() || !rinchiModuleLoaded}
+                >
+                  {isLoading ? <Loader2 className="animate-spin" /> : <FileText />}
+                  {isLoading ? "Processing…" : "Process RXN/RD file"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload />
+                  Upload RXN/RD file
+                </Button>
+              </>
+            )}
+            {activeInputType === "rinchi" && (
+              <Button
+                type="submit"
+                disabled={isLoading || !isEditorReady || !inputRinchi.trim() || !rinchiModuleLoaded}
+              >
+                {isLoading
+                  ? "Converting…"
+                  : !isEditorReady
+                    ? "Initializing…"
+                    : !rinchiModuleLoaded
+                      ? "Loading RInChI module…"
+                      : "Convert to reaction"}
+              </Button>
+            )}
+            {toFile && (
+              <Button
+                type="submit"
+                disabled={isLoading || !inputRinchi.trim() || !rinchiModuleLoaded}
+              >
+                {isLoading ? <Loader2 className="animate-spin" /> : <ArrowLeftRight />}
+                {isLoading
+                  ? "Converting…"
+                  : !rinchiModuleLoaded
+                    ? "Loading RInChI module…"
+                    : `Convert to ${outputFormat} file`}
+              </Button>
+            )}
+            {activeInputType !== "reaction" && !toFile && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={generateRInChI}
+                disabled={isLoading || !isEditorReady || !rinchiModuleLoaded}
+              >
+                <FileText />
+                Generate RInChI
+              </Button>
+            )}
+          </div>
+          {/* The editor is unmounted for RInChI → file, as before. */}
+          {!toFile && (
+            <div className="grid gap-2" role="region" aria-label="Reaction editor">
+              <div className="pc-row">
+                <span className={`pc-tag ${isEditorReady ? "text-primary" : "text-saffron-ink"}`}>
+                  {isEditorReady ? "Editor ready" : "Initializing editor…"}
+                </span>
+                <span
+                  className={`pc-tag ${rinchiModuleLoaded ? "text-primary" : "text-saffron-ink"}`}
+                >
+                  {rinchiModuleLoaded ? "RInChI module ready" : "Loading RInChI module…"}
+                </span>
+                {!ready && (
+                  <Button type="button" size="sm" onClick={handleRetryInit}>
+                    <RefreshCw />
+                    Retry
+                  </Button>
+                )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={clearEditor}
+                  disabled={isLoading || !isEditorReady}
+                >
+                  <RefreshCw />
+                  Clear editor
+                </Button>
+              </div>
+              <div className="h-[75dvh] min-h-[480px] overflow-hidden rounded-xl border border-border bg-card md:h-[800px]">
+                <iframe
+                  ref={ketcherFrame}
+                  src="/standalone/index.html"
+                  title="Ketcher Editor"
+                  className="h-full w-full"
+                  frameBorder="0"
+                />
+              </div>
+            </div>
+          )}
+        </form>
+      </Cell>
 
-                <div className="flex flex-col space-y-3">
-                  <div className="relative">
-                    <input
-                      type="file"
-                      id="rxnfile-upload"
-                      accept=".rxn,.rd"
-                      ref={fileInputRef}
-                      onChange={handleRxnFileUpload}
-                      className="hidden"
-                    />
-                    <label
-                      htmlFor="rxnfile-upload"
-                      className="cursor-pointer flex items-center justify-center w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-300"
-                    >
-                      <Upload className="w-5 h-5 mr-2" />
-                      Upload RXN/RD File
-                    </label>
-                  </div>
+      <div className="pc-col pc-t-side">
+        <Cell id="rinchi-opts" title="Options" className="">
+          <div className="pc-tool-form">
+            <p className="pc-tool-note">
+              The IUPAC RInChI (Reaction InChI) is a text identifier for chemical reactions, built
+              from the InChIs of reactants and products and the direction of the reaction.
+            </p>
+            <Select
+              label="RInChI version"
+              value={rinchiVersion}
+              options={VERSION_OPTIONS}
+              onChange={setRinchiVersion}
+            />
+            <Switch
+              checked={forceEquilibrium}
+              onChange={setForceEquilibrium}
+              label="Force equilibrium"
+              hint="Treat the reaction as an equilibrium, whatever the arrow type"
+            />
+            <div className="pc-opt-group">
+              <span className="pc-lbl" id="rinchi-format">
+                File format
+              </span>
+              <Seg
+                labelId="rinchi-format"
+                full
+                value={outputFormat}
+                onChange={setOutputFormat}
+                options={[
+                  { value: "RXN", label: "RXN" },
+                  { value: "RD", label: "RD" },
+                ]}
+              />
+              <p className="pc-note mt-2">Output format for RInChI to file conversion.</p>
+            </div>
+          </div>
+        </Cell>
 
+        <Cell id="rinchi-results" title={resultTitle} className="">
+          <div className="pc-tool-form">
+            {error && <GlassErrorCard message={error} onRetry={() => setError(null)} />}
+            {!hasResult && !hasFile && !error && (
+              <p className="pc-empty">
+                {toFile
+                  ? "Enter a RInChI to convert it to a reaction file."
+                  : "Draw or load a reaction, then generate its RInChI."}
+              </p>
+            )}
+
+            {hasFile && (
+              <div className="grid gap-2">
+                <span className="pc-lbl">{outputFormat} file output</span>
+                {/* Fixed-width columns: keep every space */}
+                <pre
+                  data-testid="rinchi-file-output"
+                  className="max-h-96 overflow-auto rounded-xl border border-border bg-muted p-3 font-mono text-xs whitespace-pre text-foreground"
+                >
+                  {outputRxnFile}
+                </pre>
+                <div className="pc-row">
                   <Button
-                    onClick={processRxnFile}
-                    disabled={isLoading || !rxnfileContent.trim() || !rinchiModuleLoaded}
-                    className={`relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 ${
-                      isLoading || !rxnfileContent.trim() || !rinchiModuleLoaded
-                        ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                        : "bg-linear-to-r from-indigo-600 to-blue-700 hover:from-indigo-700 hover:to-blue-800"
-                    }`}
+                    variant="outline"
+                    onClick={() => copyToClipboard(outputRxnFile, "rxnfile")}
                   >
-                    <FileText className="mr-2 h-5 w-5" />
-                    {isLoading ? "Processing..." : "Process RXN/RD File"}
+                    {copySuccess ? <Check /> : <ClipboardCopy />}
+                    {`Copy ${outputFormat} file`}
                   </Button>
                 </div>
               </div>
             )}
 
-            {/* RInChI Input Option for conversion to structure */}
-            {activeInputType === "rinchi" && (
-              <div className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="rinchi-input-structure"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                  >
-                    Enter RInChI to Convert
-                  </label>
-                  <Textarea
-                    id="rinchi-input-structure"
-                    value={inputRinchi}
-                    onChange={(e) => setInputRinchi(e.target.value)}
-                    placeholder="e.g., RInChI=1.00.1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)!C2H6O/c1-2-3/h3H,2H2,1H3<>C4H8O2/c1-3-6-4(2)5/h3H2,1-2H3!H2O/h1H2/d+"
-                    rows={4}
+            {hasResult && (
+              <>
+                <dl className="pc-ids">
+                  <ResultRow
+                    title="RInChI"
+                    value={rinchi}
+                    onCopy={() => copyToClipboard(rinchi, "rinchi")}
+                    copyState={copySuccess}
                   />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="rauxinfo-input-structure"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                  >
-                    RAuxInfo (Optional)
-                  </label>
-                  <Textarea
-                    id="rauxinfo-input-structure"
-                    value={inputRauxInfo}
-                    onChange={(e) => setInputRauxInfo(e.target.value)}
-                    placeholder="e.g., RAuxInfo=1.00.1/1/N:1,2,3,4/E:(3,4)/rA:4nCCOO/rB:s1;s2;d2;/rC:-3.8549,-.5552,0;..."
-                    rows={3}
+                  <ResultRow
+                    title="RAuxInfo"
+                    value={rauxInfo}
+                    onCopy={() => copyToClipboard(rauxInfo, "rauxinfo")}
+                    copyState={copySuccess}
                   />
+                </dl>
+                <div className="grid gap-2">
+                  <span className="pc-lbl">RInChIKeys</span>
+                  <dl className="pc-ids">
+                    <ResultRow
+                      title="Long-RInChIKey"
+                      value={longRinchiKey}
+                      onCopy={() => copyToClipboard(longRinchiKey, "longkey")}
+                      copyState={copySuccess}
+                      collapsible
+                    />
+                    <ResultRow
+                      title="Short-RInChIKey"
+                      value={shortRinchiKey}
+                      onCopy={() => copyToClipboard(shortRinchiKey, "shortkey")}
+                      copyState={copySuccess}
+                      collapsible
+                    />
+                    <ResultRow
+                      title="Web-RInChIKey"
+                      value={webRinchiKey}
+                      onCopy={() => copyToClipboard(webRinchiKey, "webkey")}
+                      copyState={copySuccess}
+                      collapsible
+                    />
+                  </dl>
                 </div>
-
-                <Button
-                  onClick={loadRInChI}
-                  disabled={
-                    isLoading || !isEditorReady || !inputRinchi.trim() || !rinchiModuleLoaded
-                  }
-                  className={`w-full relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 ${
-                    isLoading || !isEditorReady || !inputRinchi.trim() || !rinchiModuleLoaded
-                      ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                      : "bg-linear-to-r from-indigo-600 to-blue-700 hover:from-indigo-700 hover:to-blue-800"
-                  }`}
-                >
-                  {isLoading
-                    ? "Converting..."
-                    : !isEditorReady
-                      ? "Initializing..."
-                      : !rinchiModuleLoaded
-                        ? "Loading RInChI Module..."
-                        : "Convert to Reaction"}
-                </Button>
-
-                {/* Quick Examples */}
-                <div className="mt-2">
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Quick Examples:
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {examples.map((example, index) => (
-                      <Button
-                        variant="outline"
-                        key={index}
-                        onClick={() => setInputRinchi(example.rinchi)}
-                        className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-xs text-xs font-medium rounded-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition-all duration-200"
-                        title={`${example.name}: ${example.description}`}
-                      >
-                        {example.name}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              </>
             )}
 
-            {/* RInChI Input Option for conversion to RXN/RD file */}
-            {activeInputType === "rinchi-to-file" && (
-              <div className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="rinchi-input-file"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                  >
-                    Enter RInChI to Convert
-                  </label>
-                  <Textarea
-                    id="rinchi-input-file"
-                    value={inputRinchi}
-                    onChange={(e) => setInputRinchi(e.target.value)}
-                    placeholder="e.g., RInChI=1.00.1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)!C2H6O/c1-2-3/h3H,2H2,1H3<>C4H8O2/c1-3-6-4(2)5/h3H2,1-2H3!H2O/h1H2/d+"
-                    rows={4}
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="rauxinfo-input-file"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                  >
-                    RAuxInfo (Optional)
-                  </label>
-                  <Textarea
-                    id="rauxinfo-input-file"
-                    value={inputRauxInfo}
-                    onChange={(e) => setInputRauxInfo(e.target.value)}
-                    placeholder="e.g., RAuxInfo=1.00.1/1/N:1,2,3,4/E:(3,4)/rA:4nCCOO/rB:s1;s2;d2;/rC:-3.8549,-.5552,0;..."
-                    rows={3}
-                  />
-                </div>
-
-                <Button
-                  onClick={convertRInChIToFile}
-                  disabled={isLoading || !inputRinchi.trim() || !rinchiModuleLoaded}
-                  className={`w-full relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 ${
-                    isLoading || !inputRinchi.trim() || !rinchiModuleLoaded
-                      ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                      : "bg-linear-to-r from-indigo-600 to-blue-700 hover:from-indigo-700 hover:to-blue-800"
-                  }`}
-                >
-                  <ArrowLeftRight className="mr-2 h-5 w-5" />
-                  {isLoading
-                    ? "Converting..."
-                    : !rinchiModuleLoaded
-                      ? "Loading RInChI Module..."
-                      : `Convert to ${outputFormat} File`}
-                </Button>
-
-                {/* Quick Examples */}
-                <div className="mt-2">
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Quick Examples:
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {examples.map((example, index) => (
-                      <Button
-                        variant="outline"
-                        key={index}
-                        onClick={() => setInputRinchi(example.rinchi)}
-                        className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-xs text-xs font-medium rounded-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition-all duration-200"
-                        title={`${example.name}: ${example.description}`}
-                      >
-                        {example.name}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Drawing Instructions */}
-            {activeInputType === "reaction" && (
-              <div className="text-sm text-gray-700 dark:text-gray-300">
-                <p>
-                  Use the Ketcher editor to draw your chemical reaction, then click "Generate
-                  RInChI" to convert it.
-                </p>
-                <ul className="list-disc list-inside mt-2 space-y-1 text-gray-600 dark:text-gray-400">
-                  <li>Draw reactants on the left side</li>
-                  <li>Add reaction arrow from the toolbar</li>
-                  <li>Draw products on the right side</li>
-                  <li>Check "Force Equilibrium" for equilibrium reactions</li>
-                </ul>
-              </div>
-            )}
-          </div>
-
-          {/* Status and Information */}
-          <div
-            className={`px-6 py-4 rounded-xl flex items-center justify-between ${
-              isEditorReady && rinchiModuleLoaded
-                ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/40"
-                : "bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/40"
-            }`}
-          >
-            <div className="flex flex-col space-y-2">
-              <div className="flex items-center">
-                <div
-                  className={`h-3 w-3 rounded-full mr-3 ${
-                    isEditorReady ? "bg-green-500 animate-pulse" : "bg-yellow-500 animate-pulse"
-                  }`}
-                ></div>
-                <span
-                  className={`text-sm font-medium ${
-                    isEditorReady
-                      ? "text-green-800 dark:text-green-300"
-                      : "text-yellow-800 dark:text-yellow-300"
-                  }`}
-                >
-                  {isEditorReady ? "Editor Ready" : "Initializing Editor..."}
-                </span>
-              </div>
-
-              <div className="flex items-center">
-                <div
-                  className={`h-3 w-3 rounded-full mr-3 ${
-                    rinchiModuleLoaded
-                      ? "bg-green-500 animate-pulse"
-                      : "bg-yellow-500 animate-pulse"
-                  }`}
-                ></div>
-                <span
-                  className={`text-sm font-medium ${
-                    rinchiModuleLoaded
-                      ? "text-green-800 dark:text-green-300"
-                      : "text-yellow-800 dark:text-yellow-300"
-                  }`}
-                >
-                  {rinchiModuleLoaded ? "RInChI Module Ready" : "Loading RInChI Module..."}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              {(!isEditorReady || !rinchiModuleLoaded) && (
-                <Button
-                  onClick={handleRetryInit}
-                  className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-200 dark:hover:bg-yellow-900/50 border border-yellow-300 dark:border-yellow-700/50"
-                >
-                  <RefreshCw className="h-4 w-4 mr-1.5" />
-                  Retry
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {/* Information Box */}
-          <div className="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border border-blue-200 dark:border-blue-800/50 rounded-xl p-5 text-sm shadow-lg">
-            <h4 className="font-bold text-blue-800 dark:text-blue-300 mb-3 flex items-center">
-              <Info className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
-              About RInChI
-            </h4>
-            <div className="space-y-3 text-gray-700 dark:text-gray-300">
-              <p>
-                The IUPAC RInChI (Reaction InChI) is a textual identifier for chemical reactions,
-                extending the InChI concept to represent chemical transformations.
-              </p>
-              <div>
-                <h5 className="font-medium mb-1 text-gray-800 dark:text-gray-200">Key Features:</h5>
-                <ul className="list-disc list-inside space-y-1 pl-1 text-gray-600 dark:text-gray-400">
-                  <li>Represents chemical reactions and their directionality</li>
-                  <li>Combines InChI strings of reactants and products</li>
-                  <li>Supports multiple reactants, agents, and products</li>
-                  <li>Includes directionality indicators (forward, reverse, equilibrium)</li>
-                  <li>RInChIKeys allow for easy reaction searching</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Editor Area */}
-        <div className="lg:col-span-9 flex flex-col gap-4">
-          {/* Error Display */}
-          {error && (
-            <div
-              className="p-4 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700/50 flex items-start shadow-lg animate-fadeIn"
-              role="alert"
-            >
-              <AlertCircle
-                className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
-                aria-hidden="true"
-              />
-              <p>{error}</p>
-            </div>
-          )}
-
-          {/* Ketcher Editor Container (only show when needed) */}
-          {activeInputType !== "rinchi-to-file" && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden h-[75dvh] min-h-[480px] md:h-[900px]">
-              <iframe
-                ref={ketcherFrame}
-                src="/standalone/index.html"
-                title="Ketcher Editor"
-                className="w-full h-full"
-                frameBorder="0"
-              />
-            </div>
-          )}
-
-          {/* Results */}
-          <div className="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg">
-            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-3 flex items-center">
-              <FileText className="h-5 w-5 mr-2 text-indigo-500 dark:text-indigo-400" />
-              Results
-            </h3>
-
-            {/* RInChI */}
-            <ResultBlock
-              title="RInChI"
-              value={rinchi}
-              onCopy={() => copyToClipboard(rinchi, "rinchi")}
-              copyState={copySuccess}
-              icon={<Code className="h-4 w-4 text-indigo-600 dark:text-indigo-500" />}
-            />
-
-            {/* RAuxInfo */}
-            <ResultBlock
-              title="RAuxInfo"
-              value={rauxInfo}
-              onCopy={() => copyToClipboard(rauxInfo, "rauxinfo")}
-              copyState={copySuccess}
-              icon={<FileText className="h-4 w-4 text-blue-600 dark:text-blue-500" />}
-            />
-
-            {/* RInChIKeys */}
-            <div className="mt-4">
-              <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center">
-                <Info className="h-4 w-4 mr-2 text-indigo-600 dark:text-indigo-500" />
-                RInChIKeys
-              </h4>
-
-              <div className="space-y-2">
-                {/* Long-RInChIKey */}
-                <ResultBlock
-                  title="Long-RInChIKey"
-                  value={longRinchiKey}
-                  onCopy={() => copyToClipboard(longRinchiKey, "longkey")}
-                  copyState={copySuccess}
-                  collapsible={true}
-                />
-
-                {/* Short-RInChIKey */}
-                <ResultBlock
-                  title="Short-RInChIKey"
-                  value={shortRinchiKey}
-                  onCopy={() => copyToClipboard(shortRinchiKey, "shortkey")}
-                  copyState={copySuccess}
-                  collapsible={true}
-                />
-
-                {/* Web-RInChIKey */}
-                <ResultBlock
-                  title="Web-RInChIKey"
-                  value={webRinchiKey}
-                  onCopy={() => copyToClipboard(webRinchiKey, "webkey")}
-                  copyState={copySuccess}
-                  collapsible={true}
-                />
-              </div>
-            </div>
-
-            {/* Output RXN/RD File */}
-            {activeInputType === "rinchi-to-file" && outputRxnFile && (
-              <ResultBlock
-                title={`${outputFormat} File Output`}
-                value={outputRxnFile}
-                onCopy={() => copyToClipboard(outputRxnFile, "rxnfile")}
-                copyState={copySuccess}
-                icon={<FileText className="h-4 w-4 text-blue-600 dark:text-blue-500" />}
-              />
-            )}
-
-            {/* Log messages */}
-            <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
-                <Info className="h-4 w-4 mr-1 text-gray-600 dark:text-gray-400" />
-                Log
-              </h4>
-              <pre className="text-xs text-gray-600 dark:text-gray-400 font-mono whitespace-pre-wrap max-h-48 overflow-auto">
+            <div className="grid gap-1">
+              <span className="pc-lbl">Log</span>
+              <pre className="max-h-48 overflow-auto rounded-xl border border-border bg-muted p-3 font-mono text-xs whitespace-pre-wrap text-muted-foreground">
                 {logMessage || "No log messages yet."}
               </pre>
             </div>
           </div>
-        </div>
+        </Cell>
       </div>
     </div>
   );
 };
+
 export default RInChIView;

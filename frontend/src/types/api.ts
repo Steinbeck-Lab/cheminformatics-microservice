@@ -191,24 +191,30 @@ export interface ClassyFireResult {
 export interface InChIVersionConfig {
   label: string;
   scriptSrc: string;
-  moduleName: string;
+  /** Name of the Emscripten module factory the script puts on window. */
+  moduleName: `inchiModule${string}`;
   default?: boolean;
 }
 
+/** What the InChI WebAssembly module returns (JSON). */
 export interface InChIResult {
-  [key: string]: unknown;
+  return_code?: number;
+  inchi?: string;
+  auxinfo?: string;
+  inchikey?: string;
+  molfile?: string;
+  message?: string;
 }
 
-export interface InChIKeyResult {
-  [key: string]: unknown;
-}
+export type InChIKeyResult = Pick<InChIResult, "return_code" | "inchikey" | "message">;
 
 // --- RInChI Utils Types ---
 
 export interface RInChIVersionConfig {
   label: string;
   scriptSrc: string;
-  moduleName: string;
+  /** Name of the Emscripten module factory the script puts on window. */
+  moduleName: `rinchiModule${string}`;
   default?: boolean;
 }
 

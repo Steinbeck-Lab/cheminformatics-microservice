@@ -1,6 +1,6 @@
 import React, { lazy, Suspense } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import {
   createMemoryRouter,
   RouterProvider,
@@ -90,7 +90,6 @@ describe("App", () => {
     // Also verify the actual App.tsx source uses React.lazy
     // by importing individual lazy pages and checking they are lazy components
     // (React.lazy returns an object with $$typeof Symbol and _payload)
-    const appSource = AppModule.default.toString();
     // The function exists and is callable
     expect(typeof AppModule.default).toBe("function");
   });

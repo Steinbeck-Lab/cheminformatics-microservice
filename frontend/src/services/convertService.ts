@@ -1,4 +1,5 @@
 // This module provides functions to convert chemical representations using a REST API.
+import { failed } from "@/lib/error-messages";
 import api from "./api";
 import { AxiosError } from "axios";
 import type {
@@ -43,8 +44,7 @@ export const generate2DCoordinates = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to generate 2D coordinates: ${message}`);
+    throw failed("Failed to generate 2D coordinates", error);
   }
 };
 
@@ -63,8 +63,7 @@ export const generate3DCoordinates = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to generate 3D coordinates: ${message}`);
+    throw failed("Failed to generate 3D coordinates", error);
   }
 };
 
@@ -83,8 +82,7 @@ export const generateSMILES = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to generate SMILES: ${message}`);
+    throw failed("Failed to generate SMILES", error);
   }
 };
 
@@ -103,8 +101,7 @@ export const generateCanonicalSMILES = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to generate canonical SMILES: ${message}`);
+    throw failed("Failed to generate canonical SMILES", error);
   }
 };
 
@@ -123,8 +120,7 @@ export const generateCXSMILES = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to generate CXSMILES: ${message}`);
+    throw failed("Failed to generate CXSMILES", error);
   }
 };
 
@@ -143,8 +139,7 @@ export const generateInChI = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to generate InChI: ${message}`);
+    throw failed("Failed to generate InChI", error);
   }
 };
 
@@ -163,8 +158,7 @@ export const generateInChIKey = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to generate InChI Key: ${message}`);
+    throw failed("Failed to generate InChI Key", error);
   }
 };
 
@@ -182,8 +176,7 @@ export const generateSELFIES = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to generate SELFIES: ${message}`);
+    throw failed("Failed to generate SELFIES", error);
   }
 };
 
@@ -202,10 +195,19 @@ export const generateSMARTS = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to generate SMARTS: ${message}`);
+    throw failed("Failed to generate SMARTS", error);
   }
 };
+
+/** The `detail` of a JSON error response; undefined when the body is not JSON. */
+async function detailOf(response: Response): Promise<string | undefined> {
+  try {
+    const errorData = (await response.json()) as { detail?: string };
+    return errorData.detail;
+  } catch {
+    return undefined;
+  }
+}
 
 /**
  * Convert MOL/SDF block to SMILES
@@ -226,14 +228,9 @@ export const molblockToSMILES = async (molblock: string, toolkit = "cdk"): Promi
     });
 
     if (!response.ok) {
-      let errorMsg = `Error ${response.status}: ${response.statusText}`;
-      try {
-        const errorData = (await response.json()) as { detail?: string };
-        errorMsg = errorData.detail || errorMsg;
-      } catch (_jsonError) {
-        // Ignore if response is not JSON
-      }
-      throw new Error(errorMsg);
+      throw new Error(
+        (await detailOf(response)) || `Error ${response.status}: ${response.statusText}`
+      );
     }
 
     // Get the response as text and clean it up
@@ -246,8 +243,7 @@ export const molblockToSMILES = async (molblock: string, toolkit = "cdk"): Promi
 
     return result;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to convert MOL/SDF to SMILES: ${message}`);
+    throw failed("Failed to convert MOL/SDF to SMILES", error);
   }
 };
 
@@ -265,8 +261,7 @@ export const generateMultipleFormats = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to generate multiple formats: ${message}`);
+    throw failed("Failed to generate multiple formats", error);
   }
 };
 
@@ -285,8 +280,7 @@ export const convertCDXToMol = async (file: File): Promise<string> => {
   } catch (error) {
     const axiosError = error as AxiosError<{ detail?: string }>;
     const detail = axiosError.response?.data?.detail;
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(detail || `Failed to convert CDX file: ${message}`);
+    throw detail ? new Error(detail) : failed("Failed to convert CDX file", error);
   }
 };
 
@@ -321,20 +315,15 @@ export const convertXYZ = async (
     });
 
     if (!response.ok) {
-      let detail = `Error ${response.status}: ${response.statusText}`;
-      try {
-        const errorData = (await response.json()) as { detail?: string };
-        if (errorData.detail) detail = errorData.detail;
-      } catch (_jsonError) {
-        // Response was not JSON; fall back to status text.
-      }
-      throw new Error(detail);
+      throw new Error(
+        (await detailOf(response)) || `Error ${response.status}: ${response.statusText}`
+      );
     }
 
     return (await response.json()) as XYZBatchConversionResult;
   } catch (error) {
     if (error instanceof Error) throw error;
-    throw new Error("Failed to convert XYZ block: Unknown error");
+    throw failed("Failed to convert XYZ block", error);
   }
 };
 

@@ -1,278 +1,171 @@
-// Description: This component provides a user interface for validating and standardizing chemical structures using SMILES notation. It includes input handling, error checking, and displays results with appropriate messaging and styling for both light and dark themes.
-import { useState } from "react";
-// Ensure all used icons are imported
-// Assuming these components are correctly implemented and styled for dark/light mode
+import { useState, type FormEvent } from "react";
+import { AlertCircle, Check, Info, Loader2, ShieldCheck } from "lucide-react";
 import SMILESInput from "../common/SMILESInput";
 import MoleculeCard from "../common/MoleculeCard";
-import { checkStructureErrors } from "../../services/chemService"; // Assuming this service exists
-import { AlertCircle, Check, Info, PencilLine, ShieldCheck, Loader2 } from "lucide-react";
+import { checkStructureErrors } from "../../services/chemService";
 import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
 import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
-import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Cell, CopyButton, Switch } from "@/components/common/porcelain-ui";
+import { useRevealOnResult } from "@/hooks/useRevealOnResult";
 
+/** What the /chem/errors endpoint returns (the shared StructureErrorResult type is incomplete). */
+interface CheckResult {
+  original?: { smi?: string; messages?: string[] };
+  standardized?: { smi: string; messages?: string[] };
+}
+
+/** Validation messages: none, the all-clear, or a list of issues. */
+function Messages({ messages }: { messages?: string[] }) {
+  if (!messages || messages.length === 0) {
+    return (
+      <p className="pc-row text-sm text-muted-foreground">
+        <Info className="size-4 shrink-0" aria-hidden="true" />
+        No validation messages reported.
+      </p>
+    );
+  }
+  if (messages.length === 1 && messages[0] === "No Errors Found") {
+    return (
+      <p className="pc-row text-sm font-medium text-primary">
+        <Check className="size-4 shrink-0" aria-hidden="true" />
+        {messages[0]}
+      </p>
+    );
+  }
+  return (
+    <div className="text-sm text-saffron-ink">
+      <p className="pc-row font-medium">
+        <AlertCircle className="size-4 shrink-0" aria-hidden="true" />
+        Structure issues found
+      </p>
+      <ul className="mt-1 list-disc space-y-1 pl-6">
+        {messages.map((msg, index) => (
+          <li key={index}>{msg}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/** Structure check: ChEMBL curation-pipeline validation, with optional standardization. */
 const StructureErrorView = () => {
   const [smiles, setSmiles] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [result, setResult] = useState(null); // Stores { original: { smi, messages }, standardized: { smi, messages } }
-  const [fix, setFix] = useState(true); // Option to attempt fixing issues
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<CheckResult | null>(null);
+  const [fix, setFix] = useState(true);
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const trimmedSmiles = smiles.trim();
     if (!trimmedSmiles) {
       setError("Please enter a SMILES string.");
-      setResult(null); // Clear previous results
+      setResult(null);
       return;
     }
-
     setLoading(true);
     setError(null);
-    setResult(null); // Clear previous results before fetching
-
+    setResult(null);
     try {
-      // Call the service function
       const validationResult = await checkStructureErrors(trimmedSmiles, fix);
-      setResult(validationResult);
-
-      // Optional: Check if standardized structure is same as original even if messages exist
-      // if (fix && validationResult?.standardized?.smi === validationResult?.original?.smi) {
-      //    // Could set an info message here if desired
-      // }
+      setResult(validationResult as unknown as CheckResult);
     } catch (err) {
-      console.error("Structure check error:", err); // Log the error
+      console.error("Structure check error:", err);
       setError(getErrorMessage("chem", err));
-      setResult(null); // Ensure result is null on error
+      setResult(null);
     } finally {
       setLoading(false);
     }
   };
 
-  // Render validation messages with appropriate styling
-  const renderMessages = (messages) => {
-    // Handle null or empty messages array
-    if (!messages || messages.length === 0) {
-      // Optionally return a default "No messages" state or null
-      return (
-        <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xs">
-          <Info className="mr-2 h-5 w-5 shrink-0" />
-          No validation messages reported.
-        </div>
-      );
-    }
+  const done = !!result && !loading;
+  const originalSmiles = result?.original?.smi || smiles;
+  const standardized = fix && done ? result?.standardized : undefined;
 
-    // Handle the specific "No Errors Found" message
-    if (messages.length === 1 && messages[0] === "No Errors Found") {
-      return (
-        // Success message styling
-        <div className="flex items-center text-green-700 dark:text-green-400 font-medium p-3 bg-green-50 dark:bg-green-900/20 border border-green-300 dark:border-green-700 rounded-lg shadow-xs">
-          <Check className="mr-2 h-5 w-5 shrink-0" aria-hidden="true" />
-          {messages[0]}
-        </div>
-      );
-    }
-
-    // Handle actual error/warning messages
-    return (
-      // Warning/Error message styling (using amber for visibility)
-      <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-lg shadow-xs">
-        <h4 className="font-medium text-amber-700 dark:text-amber-300 mb-2 flex items-center">
-          <AlertCircle className="h-5 w-5 mr-2 shrink-0" aria-hidden="true" />
-          Structure Issues Found
-        </h4>
-        <ul className="list-disc list-inside space-y-1 text-sm text-amber-700 dark:text-amber-200 pl-5">
-          {messages.map((msg, index) => (
-            <li key={index}>{msg}</li>
-          ))}
-        </ul>
-      </div>
-    );
-  };
+  useRevealOnResult("se-results", loading, !!result, !!error);
 
   return (
-    // Main container
-    <div className="space-y-6 p-4 md:p-6">
-      {/* Input Card */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-blue-400 mb-4">
-          Structure Validation & Standardization
-        </h2>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* SMILES Input */}
-          <SMILESInput
-            value={smiles}
-            onChange={setSmiles}
-            required
-            // Pass theme props if needed
+    <div className="pc-bento">
+      <Cell id="se-input" title="Structure input" className="pc-t-input">
+        <form onSubmit={handleSubmit} className="pc-tool-form">
+          <SMILESInput value={smiles} onChange={setSmiles} required />
+          <Switch
+            checked={fix}
+            onChange={setFix}
+            label="Fix issues by standardizing"
+            hint="Uses the ChEMBL curation pipeline"
           />
-
-          {/* Fix Option Checkbox */}
-          <div className="flex items-center pt-1">
-            <input
-              id="fix-structure"
-              type="checkbox"
-              checked={fix}
-              onChange={(e) => setFix(e.target.checked)}
-              // Checkbox styling for light/dark mode
-              className="h-4 w-4 rounded-sm bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-offset-gray-800 shadow-xs"
-            />
-            <label
-              htmlFor="fix-structure"
-              className="ml-3 block text-sm text-gray-700 dark:text-gray-300"
-            >
-              Attempt to fix issues by standardizing (using ChEMBL pipeline)
-            </label>
-          </div>
-
-          {/* Submit Button */}
-          <div className="pt-2">
-            <Button
-              type="submit"
-              disabled={!smiles.trim() || loading}
-              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
-                !smiles.trim() || loading
-                  ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
-              }`}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Checking...
-                </>
-              ) : (
-                <>
-                  <ShieldCheck className="mr-2 h-5 w-5" aria-hidden="true" />
-                  Check Structure
-                </>
-              )}
+          <div className="pc-row pc-actions">
+            <Button type="submit" disabled={!smiles.trim() || loading}>
+              {loading ? <Loader2 className="animate-spin" /> : <ShieldCheck />}
+              {loading ? "Checking…" : "Check structure"}
             </Button>
           </div>
         </form>
-      </div>
+      </Cell>
 
-      {/* Loading State */}
-      {loading && !result && <ToolSkeleton variant="molecule" />}
+      <Cell id="se-about" title="About structure checks" className="pc-t-side">
+        <p className="pc-tool-note">
+          Checks a structure for issues such as incorrect valences or invalid aromaticity, using the
+          ChEMBL structure curation pipeline. With fixing on, standardization rules (normalization,
+          aromaticity perception and others) resolve common problems.
+        </p>
+      </Cell>
 
-      {/* Error Display */}
-      {error && !loading && (
-        <GlassErrorCard
-          message={error}
-          onRetry={() => {
-            setError(null);
-            document.getElementById("smiles-input")?.focus();
-          }}
-        />
-      )}
-
-      {/* Results Display Section */}
-      {/* Show only if result object exists and not loading */}
-      {result && !loading && (
-        <div className="space-y-6">
-          {" "}
-          {/* Increased spacing */}
-          {/* Original Structure Section */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Original Structure
-            </h3>
-            <div className="space-y-4">
-              {/* Original SMILES Display */}
-              <div className="flex items-center space-x-3 text-gray-700 dark:text-gray-300">
-                <PencilLine
-                  className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0"
-                  aria-hidden="true"
-                />
-                <span className="font-mono text-sm bg-gray-100 dark:bg-gray-900 px-3 py-1 rounded-sm border border-gray-200 dark:border-gray-700 break-all">
-                  {result.original?.smi || smiles} {/* Show original SMILES from result or input */}
-                </span>
-              </div>
-              {/* Original Structure Messages */}
-              {renderMessages(result.original?.messages)}
-            </div>
-          </div>
-          {/* Standardized Structure Section (if fix was true and data exists) */}
-          {fix && result.standardized && (
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Standardized Structure
-              </h3>
-              <div className="space-y-4">
-                {/* Standardized SMILES Display */}
-                <div className="flex items-center space-x-3 text-gray-700 dark:text-gray-300">
-                  {/* Use check icon if standardized messages indicate no errors */}
-                  {result.standardized.messages?.includes("No Errors Found") ? (
-                    <Check
-                      className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0"
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <PencilLine
-                      className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0"
-                      aria-hidden="true"
-                    />
-                  )}
-                  <span className="font-mono text-sm bg-gray-100 dark:bg-gray-900 px-3 py-1 rounded-sm border border-gray-200 dark:border-gray-700 break-all">
-                    {result.standardized.smi}
-                  </span>
-                </div>
-                {/* Standardized Structure Messages */}
-                {renderMessages(result.standardized.messages)}
-
-                {/* Molecule Card Comparison (only if standardization occurred) */}
-                {/* Ensure MoleculeCard is theme-aware */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700 mt-4">
-                  <MoleculeCard
-                    smiles={result.original?.smi || smiles}
-                    title="Original"
-                    size="sm" // Smaller cards for comparison
-                  />
-                  <MoleculeCard
-                    smiles={result.standardized.smi}
-                    title="Standardized / Fixed"
-                    size="sm"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Initial State / About Box */}
-      {/* Show only if no result, not loading, and no error */}
-      {!result && !loading && !error && (
-        <div
-          className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow-sm"
-          role="complementary"
-        >
-          <Info
-            className="h-6 w-6 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"
-            aria-hidden="true"
+      <Cell id="se-results" title={done ? "Original structure" : "Results"} className="pc-t-wide">
+        {loading && <ToolSkeleton variant="molecule" />}
+        {error && !loading && (
+          <GlassErrorCard
+            message={error}
+            onRetry={() => {
+              setError(null);
+              document.getElementById("smiles-input")?.focus();
+            }}
           />
-          <div>
-            <h3 className="text-lg font-medium text-blue-800 dark:text-blue-300 mb-2">
-              About Structure Validation
-            </h3>
-            <p className="text-gray-700 dark:text-gray-300">
-              This tool checks chemical structures for potential issues (e.g., incorrect valences,
-              invalid aromaticity) using the ChEMBL structure curation pipeline.
-            </p>
-            <p className="mt-2 text-gray-700 dark:text-gray-300">
-              Enable the "Attempt to fix" option to apply standardization rules (normalization,
-              aromaticity perception, etc.) to resolve common problems and generate a standardized
-              representation.
-            </p>
+        )}
+        {!loading && !error && !result && (
+          <p className="pc-empty">Enter a SMILES string to check it for errors.</p>
+        )}
+        {done && (
+          <div className="pc-tool-form">
+            <dl className="pc-ids">
+              <div className="pc-id">
+                <dt>SMILES</dt>
+                <dd>
+                  {originalSmiles}
+                  <CopyButton icon text={originalSmiles} label="Copy original SMILES" />
+                </dd>
+              </div>
+            </dl>
+            <Messages messages={result?.original?.messages} />
           </div>
-        </div>
+        )}
+      </Cell>
+
+      {standardized && (
+        <Cell id="se-fixed" title="Standardized structure" className="pc-t-wide">
+          <div className="pc-tool-form">
+            <dl className="pc-ids">
+              <div className="pc-id">
+                <dt>SMILES</dt>
+                <dd>
+                  {standardized.smi}
+                  <CopyButton icon text={standardized.smi} label="Copy standardized SMILES" />
+                </dd>
+              </div>
+            </dl>
+            <Messages messages={standardized.messages} />
+            <div className="pc-result-grid">
+              <MoleculeCard smiles={originalSmiles} title="Original" size="sm" />
+              <MoleculeCard smiles={standardized.smi} title="Standardized / Fixed" size="sm" />
+            </div>
+          </div>
+        </Cell>
       )}
     </div>
   );
 };
+
 export default StructureErrorView;

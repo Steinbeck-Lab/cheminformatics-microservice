@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback, type RefObject } from "react";
 import { usePreventIframeScrollJack } from "./usePreventIframeScrollJack";
+import { errorText } from "../lib/error-messages";
 
 /**
  * Shared hook for Ketcher editor iframe communication.
@@ -70,7 +71,7 @@ export function useKetcherEditor(): UseKetcherEditorReturn {
       window.removeEventListener("message", handleMessage);
       // Clean up pending handlers
       for (const id of Object.keys(messageHandlers.current)) {
-        clearTimeout(messageHandlers.current[Number(id)].timeoutId);
+        clearTimeout(messageHandlers.current[Number(id)]!.timeoutId);
       }
       messageHandlers.current = {};
     };
@@ -111,9 +112,7 @@ export function useKetcherEditor(): UseKetcherEditorReturn {
       } catch (err) {
         clearTimeout(timeoutId);
         delete messageHandlers.current[id];
-        reject(
-          new Error(`Failed to send message: ${err instanceof Error ? err.message : String(err)}`)
-        );
+        reject(new Error(`Failed to send message: ${errorText(err)}`));
       }
     });
   }, []);

@@ -1,25 +1,18 @@
 // Description: A React component to display SMILES strings with options to copy to clipboard and download as a MOL file.
 import { useState } from "react";
 import { generate2DCoordinates } from "../../services/convertService";
-import { Check, Clipboard, Download } from "lucide-react";
+import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CopyButton } from "@/components/common/porcelain-ui";
 
-const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
-  const [copied, setCopied] = useState(false);
+interface SMILESDisplayProps {
+  smiles?: string | null;
+  label?: string;
+  showDownload?: boolean;
+}
+
+const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }: SMILESDisplayProps) => {
   const [downloading, setDownloading] = useState(false);
-
-  // Handle copy to clipboard
-  const handleCopy = async () => {
-    if (!smiles) return;
-
-    try {
-      await navigator.clipboard.writeText(smiles);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
-    } catch (err) {
-      console.error("Failed to copy text:", err);
-    }
-  };
 
   // Handle download as MOL
   const handleDownload = async () => {
@@ -27,10 +20,8 @@ const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
 
     setDownloading(true);
     try {
-      // Convert SMILES to MOL using the service
       const molData = await generate2DCoordinates(smiles, "rdkit");
 
-      // Create and trigger download
       const blob = new Blob([molData], { type: "chemical/x-mdl-molfile" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -48,49 +39,28 @@ const SMILESDisplay = ({ smiles, label = "SMILES", showDownload = true }) => {
   };
 
   return (
-    <div className="w-full">
-      <div className="flex justify-between items-center mb-1">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          {label}
-        </label>
-        <div className="flex space-x-2">
-          <Button
-            variant="ghost"
-            onClick={handleCopy}
-            disabled={!smiles}
-            className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 ${
-              !smiles
-                ? "text-gray-400 dark:text-gray-600 cursor-not-allowed"
-                : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-            }`}
-            title="Copy SMILES to clipboard"
-          >
-            {copied ? (
-              <Check className="h-5 w-5 text-green-500 dark:text-green-400" />
-            ) : (
-              <Clipboard className="h-5 w-5" />
-            )}
-          </Button>
+    <div className="grid w-full gap-1.5">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[13px] font-semibold text-muted-foreground">{label}</span>
+        <div className="flex gap-1">
+          <CopyButton text={smiles || ""} label="Copy SMILES" icon />
           {showDownload && (
             <Button
               variant="ghost"
+              size="icon-sm"
               onClick={handleDownload}
               disabled={downloading || !smiles}
-              className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 ${
-                downloading || !smiles
-                  ? "text-gray-400 dark:text-gray-600 cursor-not-allowed"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
               title="Download as MOL file"
+              aria-label="Download as MOL file"
             >
-              <Download className="h-5 w-5" />
+              <Download aria-hidden="true" />
             </Button>
           )}
         </div>
       </div>
-      <div className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 font-mono text-sm break-all">
+      <p className="pc-well pc-mono m-0 min-h-0 py-2.5 text-sm break-all">
         {smiles || "No SMILES data available"}
-      </div>
+      </p>
     </div>
   );
 };

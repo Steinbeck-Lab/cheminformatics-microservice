@@ -28,6 +28,8 @@ jobs:
         run: npm run lint
       - name: Prettier
         run: npm run format:check
+      - name: Type check
+        run: npm run typecheck
       - name: Tests
         run: npm run test
       - name: Security audit

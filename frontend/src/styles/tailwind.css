@@ -1,81 +1,172 @@
 /* src/styles/tailwind.css */
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./porcelain.css";
 
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ===== shadcn/ui CSS Variables (OKLCH) ===== */
+/* ===== Porcelain tokens =====
+   Values come from the approved prototype (design/prototype/final.html).
+   Saffron is a fill/stroke only; saffron-toned text uses --saffron-ink. */
 :root {
   --radius: 0.625rem;
-  /* Light mode: sky/slate palette */
-  --background: oklch(0.9688 0.0035 264.54); /* slate-100 */
-  --foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
-  --card: oklch(1 0 0); /* white */
-  --card-foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
-  --popover: oklch(1 0 0); /* white */
-  --popover-foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
-  --primary: oklch(0.5459 0.1522 241.22); /* sky-600 */
-  --primary-foreground: oklch(1 0 0); /* white */
-  --secondary: oklch(0.9282 0.0069 264.53); /* slate-200 */
-  --secondary-foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
-  --muted: oklch(0.9282 0.0069 264.53); /* slate-200 */
-  --muted-foreground: oklch(0.5542 0.0255 264.36); /* slate-500 */
-  --accent: oklch(0.9282 0.0069 264.53); /* slate-200 */
-  --accent-foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
-  --destructive: oklch(0.5774 0.2157 27.33); /* red-600 */
-  --border: oklch(0.8694 0.0106 264.53); /* slate-300 */
-  --input: oklch(0.8694 0.0106 264.53); /* slate-300 */
-  --ring: oklch(0.5459 0.1522 241.22); /* sky-600 */
-  --chart-1: oklch(0.6469 0.1651 231.11); /* sky-500 */
-  --chart-2: oklch(0.5826 0.1556 254.62); /* indigo-500 */
-  --chart-3: oklch(0.6275 0.1454 292.79); /* purple-500 */
-  --chart-4: oklch(0.6382 0.1773 25.72); /* orange-500 */
-  --chart-5: oklch(0.723 0.1907 149.58); /* green-500 */
-  --sidebar-background: oklch(0.9688 0.0035 264.54); /* slate-100 */
-  --sidebar-foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
-  --sidebar-primary: oklch(0.5459 0.1522 241.22); /* sky-600 */
-  --sidebar-primary-foreground: oklch(1 0 0); /* white */
-  --sidebar-accent: oklch(0.9282 0.0069 264.53); /* slate-200 */
-  --sidebar-accent-foreground: oklch(0.2078 0.0397 265.75); /* slate-900 */
-  --sidebar-border: oklch(0.8694 0.0106 264.53); /* slate-300 */
-  --sidebar-ring: oklch(0.5459 0.1522 241.22); /* sky-600 */
+  /* shadcn names, Porcelain values */
+  --background: #f6f4f1;
+  --foreground: #221e26;
+  --card: #fcfbf9;
+  --card-foreground: #221e26;
+  --popover: #fcfbf9;
+  --popover-foreground: #221e26;
+  --primary: #2b2f7f;
+  --primary-foreground: #ffffff;
+  --secondary: #ffffff;
+  --secondary-foreground: #221e26;
+  --muted: color-mix(in srgb, #221e26 5%, transparent);
+  --muted-foreground: #4f4856;
+  --accent: color-mix(in srgb, #221e26 7%, transparent);
+  --accent-foreground: #221e26;
+  --destructive: #b23a65;
+  --destructive-foreground: #ffffff;
+  --border: color-mix(in srgb, #221e26 13%, transparent);
+  --input: color-mix(in srgb, #221e26 21%, transparent);
+  --ring: #2b2f7f;
+  --chart-1: #2b2f7f;
+  --chart-2: #b23a65;
+  --chart-3: #f2b31a;
+  --chart-4: #a39c95;
+  --chart-5: #5b4a72;
+  --sidebar-background: #f6f4f1;
+  --sidebar-foreground: #221e26;
+  --sidebar-primary: #2b2f7f;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: color-mix(in srgb, #221e26 7%, transparent);
+  --sidebar-accent-foreground: #221e26;
+  --sidebar-border: color-mix(in srgb, #221e26 13%, transparent);
+  --sidebar-ring: #2b2f7f;
+
+  /* Porcelain extras */
+  --head: #4a3d5e;
+  --glass-c: #ffffff;
+  --glass-a: 0.66;
+  --glass-solid: #fcfbf9;
+  --shadow: #3b3340;
+  --edge: rgb(255 255 255 / 0.95);
+  --sheen: rgb(255 255 255 / 0.55);
+  --inset: rgb(255 255 255 / 0.58);
+  --inset-2: color-mix(in srgb, #221e26 5%, transparent);
+  --clay-hi: rgb(255 255 255 / 0.95);
+  --s-in: 13%;
+  --s-drop: 34%;
+  --s-near: 12%;
+  --saffron: #f2b31a;
+  --saffron-ink: #8a5a00;
+  --saffron-glow: #f2b31a;
+  --madder: #b23a65;
+  --madder-ink: #b23a65;
+  --danger: #f7e3ea;
+  --danger-ink: #7e2347;
+  --danger-tint: #b23a65;
+  --mauve: #5b4a72;
+  --outline-tint: #b23a65;
+  --blend: multiply;
+  --scrim: rgb(10 8 12 / 0.32); /* dims the page behind dialogs and sheets */
+
+  /* Silk crossings */
+  --silk-n1: #b9b1a8;
+  --silk-n1a: 0.24;
+  --silk-md: #b23a65;
+  --silk-mda: 0.1;
+  --silk-sf: #f2b31a;
+  --silk-sfa: 0.22;
+  --silk-ln: #8c857e;
+  --silk-lna: 0.2;
+  --silk-sln: #f2b31a;
+  --silk-slna: 0.55;
+  --silk-hi: #ffffff;
+
+  /* Derived (shared by both modes) */
+  --glass: color-mix(in srgb, var(--glass-c) calc(var(--glass-a) * 100%), transparent);
+  --rim: color-mix(in srgb, var(--foreground) 9%, transparent);
+  --line: color-mix(in srgb, var(--foreground) 13%, transparent);
+  --line-2: color-mix(in srgb, var(--foreground) 21%, transparent);
+  --saffron-ring: color-mix(in srgb, var(--saffron-ink) 85%, transparent);
+  color-scheme: light;
 }
 
 .dark {
-  /* Dark mode: sky/slate palette with custom gray-950 background */
-  --background: oklch(0.16 0.02 250); /* #0f1521 custom gray-950 */
-  --foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
-  --card: oklch(0.2955 0.0301 265.75); /* slate-800 */
-  --card-foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
-  --popover: oklch(0.2955 0.0301 265.75); /* slate-800 */
-  --popover-foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
-  --primary: oklch(0.7461 0.1248 241.02); /* sky-400 */
-  --primary-foreground: oklch(0.16 0.02 250); /* gray-950 */
-  --secondary: oklch(0.3937 0.0278 265.75); /* slate-700 */
-  --secondary-foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
-  --muted: oklch(0.3937 0.0278 265.75); /* slate-700 */
-  --muted-foreground: oklch(0.7041 0.0177 264.53); /* slate-400 */
-  --accent: oklch(0.3937 0.0278 265.75); /* slate-700 */
-  --accent-foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
-  --destructive: oklch(0.5774 0.2157 27.33); /* red-600 */
-  --border: oklch(0.3937 0.0278 265.75); /* slate-700 */
-  --input: oklch(0.3937 0.0278 265.75); /* slate-700 */
-  --ring: oklch(0.7461 0.1248 241.02); /* sky-400 */
-  --chart-1: oklch(0.7461 0.1248 241.02); /* sky-400 */
-  --chart-2: oklch(0.7187 0.1686 254.62); /* indigo-400 */
-  --chart-3: oklch(0.7141 0.1648 292.79); /* purple-400 */
-  --chart-4: oklch(0.7483 0.183 55.93); /* amber-400 */
-  --chart-5: oklch(0.7926 0.1947 149.58); /* green-400 */
-  --sidebar-background: oklch(0.16 0.02 250); /* custom gray-950 */
-  --sidebar-foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
-  --sidebar-primary: oklch(0.7461 0.1248 241.02); /* sky-400 */
-  --sidebar-primary-foreground: oklch(0.16 0.02 250); /* gray-950 */
-  --sidebar-accent: oklch(0.3937 0.0278 265.75); /* slate-700 */
-  --sidebar-accent-foreground: oklch(0.9688 0.0035 264.54); /* slate-100 */
-  --sidebar-border: oklch(0.3937 0.0278 265.75); /* slate-700 */
-  --sidebar-ring: oklch(0.7461 0.1248 241.02); /* sky-400 */
+  --background: #171517;
+  --foreground: #f2eff3;
+  --card: #242125;
+  --card-foreground: #f2eff3;
+  --popover: #242125;
+  --popover-foreground: #f2eff3;
+  --primary: #aeb1f0;
+  --primary-foreground: #16173a;
+  --secondary: #34303a;
+  --secondary-foreground: #f2eff3;
+  --muted: rgb(0 0 0 / 0.2);
+  --muted-foreground: #c9c3cc;
+  --accent: color-mix(in srgb, #f2eff3 7%, transparent);
+  --accent-foreground: #f2eff3;
+  --destructive: #e06a93;
+  --destructive-foreground: #2a0e19;
+  --border: color-mix(in srgb, #f2eff3 13%, transparent);
+  --input: color-mix(in srgb, #f2eff3 21%, transparent);
+  --ring: #ffc93d;
+  --chart-1: #aeb1f0;
+  --chart-2: #e06a93;
+  --chart-3: #ffc93d;
+  --chart-4: #8e8794;
+  --chart-5: #9c8db5;
+  --sidebar-background: #171517;
+  --sidebar-foreground: #f2eff3;
+  --sidebar-primary: #aeb1f0;
+  --sidebar-primary-foreground: #16173a;
+  --sidebar-accent: color-mix(in srgb, #f2eff3 7%, transparent);
+  --sidebar-accent-foreground: #f2eff3;
+  --sidebar-border: color-mix(in srgb, #f2eff3 13%, transparent);
+  --sidebar-ring: #ffc93d;
+
+  --head: #f2eff3;
+  --glass-c: #252226;
+  --glass-a: 0.58;
+  --glass-solid: #242125;
+  --shadow: #050405;
+  --edge: rgb(255 255 255 / 0.14);
+  --sheen: rgb(255 255 255 / 0.07);
+  --inset: rgb(0 0 0 / 0.22);
+  --inset-2: rgb(0 0 0 / 0.2);
+  --clay-hi: rgb(255 255 255 / 0.16);
+  --s-in: 55%;
+  --s-drop: 75%;
+  --s-near: 45%;
+  --saffron: #f2b31a;
+  --saffron-ink: #ffc93d;
+  --saffron-glow: #ffc93d;
+  --madder: #e06a93;
+  --madder-ink: #f4a3c0;
+  --danger: #43202f;
+  --danger-ink: #ffc2d4;
+  --danger-tint: #050405;
+  --mauve: #9c8db5;
+  --outline-tint: #050405;
+  --blend: screen;
+  --scrim: rgb(5 4 5 / 0.55);
+
+  --silk-n1: #d9d4dd;
+  --silk-n1a: 0.08;
+  --silk-md: #e06a93;
+  --silk-mda: 0.12;
+  --silk-sf: #ffc93d;
+  --silk-sfa: 0.14;
+  --silk-ln: #e8e4ea;
+  --silk-lna: 0.12;
+  --silk-sln: #ffc93d;
+  --silk-slna: 0.4;
+  --silk-hi: #fff4d6;
+  color-scheme: dark;
 }
 
 /* ===== Map CSS variables to Tailwind utilities via @theme ===== */
@@ -95,6 +186,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -111,6 +203,18 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-head: var(--head);
+  --color-inset: var(--inset);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-2);
+  --color-saffron: var(--saffron);
+  --color-saffron-ink: var(--saffron-ink);
+  --color-madder: var(--madder);
+  --color-madder-ink: var(--madder-ink);
+  --color-mauve: var(--mauve);
+  --color-link: var(--link);
+  --color-scrim: var(--scrim);
+  --radius-cell: 22px;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -118,31 +222,14 @@
 }
 
 @theme {
-  /* Custom color shades (non-default) */
-  --color-gray-750: #2b3544;
-  --color-gray-850: #1a2231;
-  --color-gray-950: #0f1521; /* Keep: different from v4 default #030712 */
-
-  --color-blue-350: #7dabf8;
-  --color-blue-450: #4f85e6;
-  --color-blue-550: #3a72d6;
-  --color-blue-650: #2a5db8;
-  --color-blue-750: #214a98;
-  --color-blue-850: #183878;
-
   /* Font stacks */
   --font-sans:
     "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-display: "Antonio Variable", "Arial Narrow", Inter, sans-serif;
   --font-mono:
     "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
-
-  /* Custom animations (from old tailwind.config.js) */
-  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  --animate-pulse-fast: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  --animate-bounce-slow: bounce 2s infinite;
-  --animate-shimmer: shimmer 2s ease-in-out infinite;
 }
 
 /* ===== Base Styles ===== */
@@ -175,18 +262,12 @@
   h4,
   h5,
   h6 {
-    @apply font-semibold text-foreground;
+    @apply font-semibold text-head;
   }
 
   /* Links */
   a {
     @apply text-primary hover:underline decoration-transparent hover:decoration-current underline-offset-4 transition-all duration-200;
-  }
-
-  /* Fixed header clearance — absolute backgrounds fill from container
-     top (unaffected by padding), content pushed below header */
-  main > * {
-    padding-top: 4.5rem; /* 72px: h-14 + pt-2 + breathing room */
   }
 
   /* Scoped transition to interactive elements (was global * selector) */
@@ -204,45 +285,30 @@
 }
 
 /* ===== Custom Utilities (survive past Phase 4) ===== */
+/* Porcelain glass: every panel, cell and the header. Blur stays at 14px (contract: ≤16px). */
 @utility glass {
-  background-color: rgb(255 255 255 / 0.7);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgb(203 213 225 / 0.5);
+  position: relative;
+  background: radial-gradient(70% 90px at 26% 0%, var(--sheen), transparent 72%), var(--glass);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid var(--rim);
+  box-shadow:
+    inset 1px 1px 0 0 var(--edge),
+    0 22px 44px -28px color-mix(in srgb, var(--shadow) 60%, transparent),
+    0 2px 8px -4px color-mix(in srgb, var(--shadow) 20%, transparent);
 
-  &:where(.dark, .dark *) {
-    background-color: rgb(30 41 59 / 0.7);
-    backdrop-filter: blur(12px);
-    border-color: rgb(51 65 85 / 0.5);
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    background: var(--glass-solid);
   }
 }
 
-/* Bold glassmorphism -- the primary glass surface. Blur capped at 12px: it sits on the
-   fixed header and ~30 panels, and larger radii cost scroll frames on low-end GPUs. */
+/* ponytail: old names kept so un-migrated pages get the new glass; drop them as pages move to `glass`. */
 @utility glass-bold {
-  background-color: rgb(255 255 255 / 0.1);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgb(255 255 255 / 0.3);
-  box-shadow: inset 0 1px 1px 0 rgb(255 255 255 / 0.15);
-
-  &:where(.dark, .dark *) {
-    background-color: rgb(30 41 59 / 0.2);
-    border-color: rgb(148 163 184 / 0.15);
-    box-shadow: inset 0 1px 1px 0 rgb(255 255 255 / 0.05);
-  }
+  @apply glass;
 }
 
-/* Mobile-optimized glass (reduced blur for GPU perf) */
 @utility glass-mobile {
-  background-color: rgb(255 255 255 / 0.1);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgb(255 255 255 / 0.2);
-
-  &:where(.dark, .dark *) {
-    background-color: rgb(30 41 59 / 0.2);
-    border-color: rgb(148 163 184 / 0.1);
-  }
+  @apply glass;
 }
 
 /* Claymorphism for interactive elements (raised, tactile feel) */
@@ -263,39 +329,120 @@
   }
 }
 
-/* Claymorphism button shadow (no border-radius — buttons control their own) */
-@utility clay-btn {
+/* Clay: buttons only. A variant sets --c-face (fill), --c-ink (text) and --c-tint (shadow colour).
+   States sit in :where() and only set background-color, so a caller's hover:bg-* or gradient still wins. */
+@utility clay {
+  --c-face: var(--secondary);
+  --c-ink: var(--secondary-foreground);
+  --c-tint: var(--shadow);
+  color: var(--c-ink);
+  background-color: var(--c-face);
+  border: 1px solid color-mix(in srgb, var(--c-tint) 12%, transparent);
   box-shadow:
-    inset 0 -3px 6px 0 rgb(0 0 0 / 0.08),
-    inset 0 2px 3px 0 rgb(255 255 255 / 0.4),
-    0 6px 16px -4px rgb(0 0 0 / 0.12),
-    0 2px 4px 0 rgb(0 0 0 / 0.04);
+    inset 0 1.5px 0 0 var(--clay-hi),
+    inset 0 -3px 6px 0 color-mix(in srgb, var(--c-tint) var(--s-in), transparent),
+    0 8px 16px -8px color-mix(in srgb, var(--c-tint) var(--s-drop), transparent),
+    0 2px 3px 0 color-mix(in srgb, var(--c-tint) var(--s-near), transparent);
+  transition:
+    box-shadow 180ms cubic-bezier(0.2, 0.7, 0.3, 1),
+    background-color 180ms cubic-bezier(0.2, 0.7, 0.3, 1),
+    transform 180ms cubic-bezier(0.2, 0.7, 0.3, 1);
 
-  &:where(.dark, .dark *) {
+  &:where(:hover:not(:disabled)) {
+    background-color: color-mix(in srgb, var(--c-face) 94%, var(--primary));
     box-shadow:
-      inset 0 -3px 6px 0 rgb(0 0 0 / 0.2),
-      inset 0 2px 3px 0 rgb(255 255 255 / 0.08),
-      0 6px 16px -4px rgb(0 0 0 / 0.35),
-      0 2px 4px 0 rgb(0 0 0 / 0.15);
+      inset 0 1.5px 0 0 var(--clay-hi),
+      inset 0 -3px 6px 0 color-mix(in srgb, var(--c-tint) var(--s-in), transparent),
+      0 12px 20px -9px color-mix(in srgb, var(--c-tint) var(--s-drop), transparent),
+      0 3px 5px 0 color-mix(in srgb, var(--c-tint) var(--s-near), transparent);
+  }
+
+  &:where(:active:not(:disabled)) {
+    box-shadow:
+      inset 0 3px 6px 0 color-mix(in srgb, var(--c-tint) calc(var(--s-in) + 10%), transparent),
+      inset 0 -1px 0 0 var(--clay-hi),
+      0 1px 1px 0 color-mix(in srgb, var(--c-tint) var(--s-near), transparent);
+
+    @media (prefers-reduced-motion: no-preference) {
+      transform: translateY(1px);
+    }
+  }
+
+  &:where(:disabled) {
+    color: color-mix(in srgb, var(--muted-foreground) 80%, transparent);
+    background-color: var(--inset-2);
+    border-color: var(--line);
+    box-shadow: inset 0 1px 2px 0 color-mix(in srgb, var(--shadow) 8%, transparent);
   }
 }
 
-/* Clay button pressed state (inverted shadows for pressed-in appearance) */
-@utility clay-pressed {
+/* Indigo primary. Its face is light lavender in dark mode (--primary swaps). */
+@utility clay-primary {
+  --c-face: var(--primary);
+  --c-ink: var(--primary-foreground);
+  --c-tint: var(--primary);
+  font-weight: 600;
+  border-color: color-mix(in srgb, var(--primary) 70%, #000);
   box-shadow:
-    inset 0 2px 6px 0 rgb(0 0 0 / 0.1),
-    inset 0 -1px 2px 0 rgb(255 255 255 / 0.2),
-    0 2px 4px -2px rgb(0 0 0 / 0.06);
+    inset 0 1.5px 0 0 rgb(255 255 255 / 0.32),
+    inset 0 -4px 7px 0 color-mix(in srgb, var(--primary) 55%, #000),
+    0 10px 20px -8px color-mix(in srgb, var(--primary) 65%, transparent),
+    0 2px 4px 0 color-mix(in srgb, var(--shadow) var(--s-near), transparent);
 
-  &:where(.dark, .dark *) {
+  &:where(:hover:not(:disabled)) {
+    background-color: color-mix(in srgb, var(--primary) 88%, #fff);
+  }
+
+  &:where(:active:not(:disabled)) {
     box-shadow:
-      inset 0 2px 6px 0 rgb(0 0 0 / 0.3),
-      inset 0 -1px 2px 0 rgb(255 255 255 / 0.04),
-      0 2px 4px -2px rgb(0 0 0 / 0.2);
+      inset 0 3px 7px 0 color-mix(in srgb, var(--primary) 45%, #000),
+      inset 0 -1px 0 0 rgb(255 255 255 / 0.2);
+  }
+  /* disabled: flat, no rim or halo from the variant (must live here: utilities beat components) */
+  &:where(:disabled) {
+    border-color: var(--line);
+    box-shadow: inset 0 1px 2px 0 color-mix(in srgb, var(--shadow) 8%, transparent);
   }
 }
 
-/* Button hover lift with glow (ANIM-02) */
+/* Madder outline: secondary actions (Paste, Examples, Copy...). White face, madder rim and label,
+   so the button reads as clickable on glass. Hover warms the face with madder. */
+@utility clay-outline {
+  --c-face: var(--secondary);
+  --c-ink: var(--madder-ink);
+  --c-tint: var(--outline-tint);
+  font-weight: 600;
+  border: 1.5px solid color-mix(in srgb, var(--madder) 55%, transparent);
+
+  &:where(:hover:not(:disabled)) {
+    background-color: color-mix(in srgb, var(--secondary) 88%, var(--madder));
+    border-color: var(--madder);
+  }
+  /* disabled: flat, no rim or halo from the variant (must live here: utilities beat components) */
+  &:where(:disabled) {
+    border-color: var(--line);
+    box-shadow: inset 0 1px 2px 0 color-mix(in srgb, var(--shadow) 8%, transparent);
+  }
+}
+
+/* Solid madder: Clear and other destructive actions. */
+@utility clay-danger {
+  --c-face: var(--destructive);
+  --c-ink: var(--destructive-foreground);
+  --c-tint: var(--destructive);
+  font-weight: 600;
+  border-color: color-mix(in srgb, var(--destructive) 70%, #000);
+
+  &:where(:hover:not(:disabled)) {
+    background-color: color-mix(in srgb, var(--destructive) 88%, #000);
+  }
+  /* disabled: flat, no rim or halo from the variant (must live here: utilities beat components) */
+  &:where(:disabled) {
+    border-color: var(--line);
+    box-shadow: inset 0 1px 2px 0 color-mix(in srgb, var(--shadow) 8%, transparent);
+  }
+}
+
 /* Grow the tap area to 44x44 on touch screens without changing the layout.
    The element needs a positioning context (Button sets "relative"). */
 @utility touch-target {
@@ -312,36 +459,6 @@
   }
 }
 
-@utility btn-hover-lift {
-  transition:
-    transform 200ms ease,
-    box-shadow 200ms ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow:
-      0 4px 12px -2px oklch(from var(--primary) l c h / 0.2),
-      inset 0 -3px 6px 0 rgb(0 0 0 / 0.08),
-      inset 0 2px 3px 0 rgb(255 255 255 / 0.4),
-      0 6px 16px -4px rgb(0 0 0 / 0.12);
-  }
-
-  &:where(.dark, .dark *):hover {
-    box-shadow:
-      0 4px 12px -2px oklch(from var(--primary) l c h / 0.3),
-      inset 0 -3px 6px 0 rgb(0 0 0 / 0.2),
-      inset 0 2px 3px 0 rgb(255 255 255 / 0.08),
-      0 6px 16px -4px rgb(0 0 0 / 0.35);
-  }
-
-  &:active {
-    transform: translateY(0) scale(0.97);
-    transition:
-      transform 100ms ease,
-      box-shadow 100ms ease;
-  }
-}
-
 /* Focus ring animation (ANIM-03) */
 @utility focus-ring-animate {
   outline: 2px solid transparent;
@@ -353,16 +470,6 @@
   &:focus-visible {
     outline-color: var(--ring);
     outline-offset: 3px;
-  }
-}
-
-@utility text-gradient {
-  color: transparent;
-  background-clip: text;
-  background-image: linear-gradient(to right, var(--color-sky-600), var(--color-indigo-600));
-
-  &:where(.dark, .dark *) {
-    background-image: linear-gradient(to right, var(--color-sky-400), var(--color-cyan-400));
   }
 }
 
@@ -384,34 +491,84 @@
 
 /* ===== Theme Toggle Button ===== */
 @layer components {
-  .theme-toggle-button:hover {
-    --pulse-color: var(--color-sky-500);
-    animation: subtle-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  /* Silk crossings background (see SilkBackground.tsx). */
+  .silk {
+    position: fixed;
+    inset: 0;
+    z-index: -10;
+    pointer-events: none;
+    overflow: hidden;
+    contain: strict;
   }
-  .dark .theme-toggle-button:hover {
-    --pulse-color: var(--color-sky-400);
+  .silk svg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: block;
+    overflow: visible;
+    mix-blend-mode: var(--blend);
+  }
+  .silk-r1 {
+    fill-opacity: var(--silk-n1a);
+  }
+  .silk-r2 {
+    fill-opacity: var(--silk-mda);
+  }
+  .silk-r3 {
+    fill-opacity: var(--silk-sfa);
+  }
+  /* the sheen gradient: cloth colour with one lighter band */
+  .silk-stop-1 {
+    stop-color: var(--silk-n1);
+  }
+  .silk-stop-2 {
+    stop-color: var(--silk-md);
+  }
+  .silk-stop-3 {
+    stop-color: var(--silk-sf);
+  }
+  .silk-stop-hi {
+    stop-color: var(--silk-hi);
+  }
+  .silk-warp {
+    fill: none;
+    stroke: var(--silk-ln);
+    stroke-opacity: var(--silk-lna);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .silk-g3 .silk-warp {
+    stroke: var(--silk-sln);
+    stroke-opacity: calc(var(--silk-slna) * 0.6);
+  }
+  /* Motion lives only on home and about (SilkBackground live ripple); tool pages keep the
+     silk still, so the glass blur above it is not recomputed every frame. */
+  /* Bento cell label: small uppercase caps with a hairline rule to the right. */
+  .bento-label {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font: 600 11.5px/1.2 var(--font-sans);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--head);
+  }
+  /* every label rule ends in a madder dot */
+  .bento-label::after {
+    content: "";
+    flex: 1;
+    min-width: 16px;
+    height: 5px;
+    background:
+      radial-gradient(circle at calc(100% - 2.5px) 50%, var(--madder) 2.5px, transparent 3px),
+      linear-gradient(var(--line-2), var(--line-2)) 0 50% / calc(100% - 9px) 1px no-repeat;
   }
 }
 
 /* ===== Keyframes ===== */
-@keyframes subtle-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 color-mix(in oklch, var(--pulse-color) 30%, transparent);
-  }
-  50% {
-    box-shadow: 0 0 0 5px color-mix(in oklch, var(--pulse-color) 0%, transparent);
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
 
 /* ===== Keyboard focus =====
    Unlayered on purpose: it beats every utility, so a caller's `outline-none` or

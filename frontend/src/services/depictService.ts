@@ -1,4 +1,5 @@
 // This module provides functions to generate 2D and 3D depictions of molecules
+import { failed } from "@/lib/error-messages";
 import api from "./api";
 import type {
   DepictionOptions,
@@ -96,8 +97,7 @@ export const generate2DDepictionEnhanced = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to generate enhanced 2D depiction: ${message}`);
+    throw failed("Failed to generate enhanced 2D depiction", error);
   }
 };
 
@@ -154,8 +154,7 @@ export const generate2DDepiction = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to generate 2D depiction: ${message}`);
+    throw failed("Failed to generate 2D depiction", error);
   }
 };
 
@@ -173,8 +172,7 @@ export const generate3DDepiction = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to generate 3D depiction: ${message}`);
+    throw failed("Failed to generate 3D depiction", error);
   }
 };
 
@@ -220,7 +218,7 @@ export const get2DDepictionUrlEnhanced = (
   } = options;
 
   const baseUrl = api.defaults.baseURL || "";
-  const url = new URL(`${baseUrl}${DEPICT_URL}/2D_enhanced`);
+  const url = new URL(`${baseUrl}${DEPICT_URL}/2D_enhanced`, window.location.origin);
 
   url.searchParams.append("smiles", smiles);
   url.searchParams.append("width", String(width));
@@ -301,9 +299,9 @@ export const get2DDepictionUrl = (
 
   // Support format parameter in the URL
   if (format && format !== "svg") {
-    url = new URL(`${baseUrl}${DEPICT_URL}/2D/${format}`);
+    url = new URL(`${baseUrl}${DEPICT_URL}/2D/${format}`, window.location.origin);
   } else {
-    url = new URL(`${baseUrl}${DEPICT_URL}/2D`);
+    url = new URL(`${baseUrl}${DEPICT_URL}/2D`, window.location.origin);
   }
 
   url.searchParams.append("smiles", smiles);
@@ -376,7 +374,7 @@ export const get2DDepictionEnhancedUrl = (
   } = options;
 
   const baseUrl = api.defaults.baseURL || "";
-  const url = new URL(`${baseUrl}${DEPICT_URL}/2D_enhanced`);
+  const url = new URL(`${baseUrl}${DEPICT_URL}/2D_enhanced`, window.location.origin);
 
   url.searchParams.append("smiles", smiles);
   url.searchParams.append("width", String(width));
@@ -451,8 +449,7 @@ export const generateBatchDepictions = async (
 
     return results;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to generate batch depictions: ${message}`);
+    throw failed("Failed to generate batch depictions", error);
   }
 };
 
@@ -491,8 +488,7 @@ export const downloadDepictionsAsZip = async (
 
     return await zip.generateAsync({ type: "blob" });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to create ZIP file: ${message}`);
+    throw failed("Failed to create ZIP file", error);
   }
 };
 
@@ -540,8 +536,7 @@ export const generateMultipleDepictions = async (
 
     return Promise.all(promises);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to generate multiple depictions: ${message}`);
+    throw failed("Failed to generate multiple depictions", error);
   }
 };
 

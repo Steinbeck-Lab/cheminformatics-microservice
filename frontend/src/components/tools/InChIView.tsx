@@ -1,56 +1,83 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useKetcherEditor } from "@/hooks/useKetcherEditor";
-
-// Import utility functions
 import {
-  INCHI_VERSIONS,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  type ChangeEvent,
+  type FormEvent,
+  type ReactNode,
+} from "react";
+import { useKetcherEditor } from "@/hooks/useKetcherEditor";
+import {
+  DEFAULT_VERSION,
+  VERSION_OPTIONS,
   loadInchiModule,
   convertMolfileToInchi,
   generateInchiKey,
   convertInchiToMolfile,
   convertAuxinfoToMolfile,
-} from "../../utils/inchiUtils.js";
+} from "@/utils/inchiUtils";
 import {
-  AlertCircle,
   Check,
+  ChevronDown,
+  ChevronUp,
   ClipboardCopy,
-  Code,
   FileText,
-  FlaskConical,
-  HelpCircle,
-  Info,
-  Layout,
-  Pencil,
+  Loader2,
   RefreshCw,
-  SlidersHorizontal,
   Upload,
   X,
-  Zap,
 } from "lucide-react";
+import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Cell, Seg, Select, Switch } from "@/components/common/porcelain-ui";
+import { useRevealOnResult } from "@/hooks/useRevealOnResult";
+import { errorText } from "@/lib/error-messages";
 
-// Tooltip component for InChI options
-const OptionTooltip = ({ content }) => (
-  <span className="group relative inline-block">
-    <HelpCircle className="h-4 w-4 ml-1 text-gray-500 dark:text-gray-400 inline-block align-text-bottom cursor-help" />
-    <span className="absolute z-10 opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-opacity duration-300 w-64 bg-white dark:bg-gray-800 p-2 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-300 -mt-1 left-6 block">
-      {content}
-    </span>
-  </span>
-);
+type InputType = "structure" | "smiles" | "molfile" | "inchi";
 
-// InChI options component
-const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
+const ENHANCED_STEREO = "Dev-EnhancedStereo";
+const POLYMER = "Polymer";
+// Builds whose options include Molecular Inorganics (on by default), per the IUPAC demo.
+const MOIN = new Set(["Latest-MoIn", "Dev-NoMetalH", "Dev-ExplicitZeroValence"]);
+
+/** An empty Ketcher canvas still returns a molfile: header plus a counts line with 0 atoms. */
+function hasAtoms(molfile: string | undefined): boolean {
+  if (!molfile?.trim()) return false;
+  const v2000 = molfile.split(/\r?\n/).find((l) => /V2000\s*$/.test(l));
+  if (v2000) return parseInt(v2000.slice(0, 3), 10) > 0;
+  const v3000 = molfile.match(/M {2}V30 COUNTS (\d+)/);
+  return v3000 ? parseInt(v3000[1]!, 10) > 0 : true;
+}
+
+const STEREO_MODES: [string, string][] = [
+  ["SAbs", "Absolute"],
+  ["SRel", "Relative"],
+  ["SRac", "Racemic"],
+  ["SUCF", "From chiral flag"],
+];
+
+const INPUT_TYPES: { value: InputType; label: string }[] = [
+  { value: "structure", label: "Draw" },
+  { value: "smiles", label: "SMILES" },
+  { value: "molfile", label: "Mol/Aux" },
+  { value: "inchi", label: "InChI" },
+];
+
+/** InChI options: builds the "-Option" string the InChI library expects. */
+const InChIOptions = ({
+  onChange,
+  inchiVersion,
+  setInchiVersion,
+  children,
+}: {
+  onChange: (options: string) => void;
+  inchiVersion: string;
+  setInchiVersion: (version: string) => void;
+  children?: ReactNode;
+}) => {
   const [mobileH, setMobileH] = useState(true);
   const [includeStereo, setIncludeStereo] = useState(true);
   const [stereoMode, setStereoMode] = useState("SAbs");
@@ -59,8 +86,9 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
   const [t15, setT15] = useState(false);
   const [polymers, setPolymers] = useState(false);
   const [NPZz, setNPZz] = useState(false);
-  const [molecularInorganics, setMolecularInorganics] = useState(inchiVersion === "Latest-MoIn");
-  const [showTautomerism, setShowTautomerism] = useState(true); // Add state for tautomerism visibility
+  const [molecularInorganics, setMolecularInorganics] = useState(MOIN.has(inchiVersion));
+  const [enhancedStereo, setEnhancedStereo] = useState(false);
+  const [showTautomerism, setShowTautomerism] = useState(true);
 
   // Additional stereo options
   const [SUU, setSUU] = useState(false);
@@ -80,11 +108,10 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
   const [FoldCRU, setFoldCRU] = useState(false);
   const [NoFrameShift, setNoFrameShift] = useState(false);
 
-  // Generate and propagate options string when settings change
+  // Generate and propagate the options string when settings change
   useEffect(() => {
     const options = [];
 
-    // Add options based on current settings
     if (!mobileH) options.push("FixedH");
     if (!includeStereo) options.push("SNon");
 
@@ -93,7 +120,6 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
       if (stereoMode === "SRac") options.push("SRac");
       if (stereoMode === "SUCF") options.push("SUCF");
 
-      // Additional stereo options
       if (SUU) options.push("SUU");
       if (SLUUD) options.push("SLUUD");
       if (NEWPSOFF) options.push("NEWPSOFF");
@@ -103,7 +129,6 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
     if (ket) options.push("KET");
     if (t15) options.push("15T");
 
-    // Additional tautomer options
     if (PT_06_00) options.push("PT_06_00");
     if (PT_13_00) options.push("PT_13_00");
     if (PT_16_00) options.push("PT_16_00");
@@ -111,11 +136,8 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
     if (PT_22_00) options.push("PT_22_00");
     if (PT_39_00) options.push("PT_39_00");
 
-    // Polymer options
     if (polymers) {
       options.push("Polymers");
-
-      // Detailed polymer options
       if (NoEdits) options.push("NoEdits");
       if (FoldCRU) options.push("FoldCRU");
       if (NoFrameShift) options.push("NoFrameShift");
@@ -123,10 +145,13 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
 
     if (NPZz) options.push("NPZz");
 
-    // molecularInorganics is only available in the Latest-MoIn version
-    if (molecularInorganics && inchiVersion === "Latest-MoIn") options.push("MolecularInorganics");
+    // MolecularInorganics exists in the MoIn-based builds only
+    if (molecularInorganics && MOIN.has(inchiVersion)) options.push("MolecularInorganics");
 
-    // Format the options string as required by the API
+    // EnhancedStereochemistry only exists in the enhanced-stereo build
+    if (enhancedStereo && inchiVersion === ENHANCED_STEREO) options.push("EnhancedStereochemistry");
+
+    // The options string format the API expects
     const optionsString = options.map((opt) => `-${opt}`).join(" ");
     onChange(optionsString);
   }, [
@@ -139,6 +164,7 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
     polymers,
     NPZz,
     molecularInorganics,
+    enhancedStereo,
     SUU,
     SLUUD,
     NEWPSOFF,
@@ -155,16 +181,28 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
     onChange,
   ]);
 
-  // Update MolecularInorganics option when InChI version changes
+  // Version defaults from the IUPAC demo: the polymer build starts with polymer handling and
+  // NPZz on; the MoIn build starts with NPZz on.
   useEffect(() => {
-    if (inchiVersion === "Latest-MoIn") {
-      setMolecularInorganics(true); // Enable MolecularInorganics when switching to Latest-MoIn
+    if (inchiVersion === POLYMER) {
+      setPolymers(true);
+      setNPZz(true);
+    } else if (inchiVersion === "Latest-MoIn") {
+      setNPZz(true);
+    }
+    if (inchiVersion !== ENHANCED_STEREO) setEnhancedStereo(false);
+  }, [inchiVersion]);
+
+  // MolecularInorganics follows the InChI version
+  useEffect(() => {
+    if (MOIN.has(inchiVersion)) {
+      setMolecularInorganics(true);
     } else if (molecularInorganics) {
-      setMolecularInorganics(false); // Disable MolecularInorganics when switching away from Latest-MoIn
+      setMolecularInorganics(false);
     }
   }, [inchiVersion, molecularInorganics]);
 
-  // Update polymer-related options when polymers toggle changes
+  // Polymer details reset when polymers are turned off
   useEffect(() => {
     if (!polymers) {
       setNoEdits(false);
@@ -173,7 +211,6 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
     }
   }, [polymers]);
 
-  // Reset all options to default
   const resetOptions = () => {
     setMobileH(true);
     setIncludeStereo(true);
@@ -181,9 +218,10 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
     setRecMet(false);
     setKet(false);
     setT15(false);
-    setPolymers(false);
-    setNPZz(false);
-    setMolecularInorganics(inchiVersion === "Latest-MoIn");
+    setPolymers(inchiVersion === POLYMER);
+    setNPZz(inchiVersion === POLYMER || inchiVersion === "Latest-MoIn");
+    setMolecularInorganics(MOIN.has(inchiVersion));
+    setEnhancedStereo(false);
     setSUU(false);
     setSLUUD(false);
     setNEWPSOFF(false);
@@ -198,570 +236,231 @@ const InChIOptions = ({ onChange, inchiVersion, setInchiVersion }) => {
     setNoFrameShift(false);
   };
 
+  const isLatest = inchiVersion !== "1.06";
+
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center">
-          <div className="bg-purple-100 dark:bg-purple-900/50 p-2 rounded-lg mr-3">
-            <Code className="h-5 w-5 text-purple-700 dark:text-purple-400" />
-          </div>
-          <h2 className="text-lg font-bold text-gray-800 dark:text-white">InChI Options</h2>
-        </div>
-        <Button
-          variant="ghost"
-          onClick={resetOptions}
-          className="text-sm flex items-center text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
-        >
-          <RefreshCw className="mr-1 h-4 w-4" />
+    <Cell
+      id="inchi-opts"
+      title="Options"
+      className="pc-t-side"
+      meta={
+        <Button variant="ghost" size="sm" onClick={resetOptions}>
+          <RefreshCw />
           Reset
         </Button>
-      </div>
+      }
+    >
+      <div className="pc-tool-form">
+        {children}
+        <Select
+          label="InChI version"
+          value={inchiVersion}
+          options={VERSION_OPTIONS}
+          onChange={setInchiVersion}
+        />
 
-      <div className="mb-4">
-        <label
-          htmlFor="inchi-version"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-        >
-          InChI Version
-        </label>
-        <Select value={inchiVersion} onValueChange={setInchiVersion}>
-          <SelectTrigger id="inchi-version" className="w-full">
-            <SelectValue placeholder="Select version" />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.entries(INCHI_VERSIONS).map(([value, version]) => (
-              <SelectItem key={value} value={value}>
-                {version.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-4">
-        <div className="flex items-center">
-          <input
-            id="mobileH"
-            type="checkbox"
+        <div className="pc-opt-list">
+          <Switch
             checked={mobileH}
-            onChange={(e) => setMobileH(e.target.checked)}
-            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
+            onChange={setMobileH}
+            label="Mobile H perception"
+            hint="Off uses the FixedH option, which perceives fixed H positions"
           />
-          <label htmlFor="mobileH" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-            Mobile H Perception
-          </label>
-          <OptionTooltip content="When checked, use mobile H perception. When unchecked, the FixedH option is used, which perceives fixed H positions." />
-        </div>
-
-        <div>
-          <div className="flex items-center">
-            <input
-              id="includeStereo"
-              type="checkbox"
-              checked={includeStereo}
-              onChange={(e) => setIncludeStereo(e.target.checked)}
-              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
-            />
-            <label
-              htmlFor="includeStereo"
-              className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-            >
-              Include Stereo
-            </label>
-            <OptionTooltip content="Include stereochemical information in the InChI string. When unchecked, the SNon option is used, which ignores stereochemistry." />
-          </div>
-
+          <Switch
+            checked={includeStereo}
+            onChange={setIncludeStereo}
+            label="Include stereo"
+            hint="Off uses the SNon option, which ignores stereochemistry"
+          />
           {includeStereo && (
-            <div className="ml-6 mt-2 grid grid-cols-2 gap-2">
-              <div className="flex items-center">
-                <input
-                  id="stereo-abs"
-                  type="radio"
-                  name="stereoMode"
-                  value="SAbs"
-                  checked={stereoMode === "SAbs"}
-                  onChange={() => setStereoMode("SAbs")}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300"
-                />
-                <label
-                  htmlFor="stereo-abs"
-                  className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                >
-                  Absolute
-                </label>
-                <OptionTooltip content="Use absolute stereochemistry (default option)" />
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  id="stereo-rel"
-                  type="radio"
-                  name="stereoMode"
-                  value="SRel"
-                  checked={stereoMode === "SRel"}
-                  onChange={() => setStereoMode("SRel")}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300"
-                />
-                <label
-                  htmlFor="stereo-rel"
-                  className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                >
-                  Relative
-                </label>
-                <OptionTooltip content="Use relative stereochemistry" />
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  id="stereo-rac"
-                  type="radio"
-                  name="stereoMode"
-                  value="SRac"
-                  checked={stereoMode === "SRac"}
-                  onChange={() => setStereoMode("SRac")}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300"
-                />
-                <label
-                  htmlFor="stereo-rac"
-                  className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                >
-                  Racemic
-                </label>
-                <OptionTooltip content="Use racemic stereochemistry" />
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  id="stereo-ucf"
-                  type="radio"
-                  name="stereoMode"
-                  value="SUCF"
-                  checked={stereoMode === "SUCF"}
-                  onChange={() => setStereoMode("SUCF")}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300"
-                />
-                <label
-                  htmlFor="stereo-ucf"
-                  className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                >
-                  From chiral flag
-                </label>
-                <OptionTooltip content="Use stereochemistry as indicated by the chiral flag in the molfile" />
-              </div>
-
-              {/* Additional stereo options */}
-              <div className="flex items-center col-span-2 mt-1">
-                <input
-                  id="SUU"
-                  type="checkbox"
-                  checked={SUU}
-                  onChange={(e) => setSUU(e.target.checked)}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
-                />
-                <label
-                  htmlFor="SUU"
-                  className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                >
-                  Always include omitted/undefined stereo (SUU)
-                </label>
-                <OptionTooltip content="Include all omitted/undefined stereo centers in the InChI string" />
-              </div>
-
-              <div className="flex items-center col-span-2">
-                <input
-                  id="SLUUD"
-                  type="checkbox"
-                  checked={SLUUD}
-                  onChange={(e) => setSLUUD(e.target.checked)}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
-                />
-                <label
-                  htmlFor="SLUUD"
-                  className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                >
-                  Different marks for unknown/undefined stereo (SLUUD)
-                </label>
-                <OptionTooltip content="Use different marking for unknown and undefined stereogenic centers" />
-              </div>
-
-              <div className="flex items-center col-span-2">
-                <input
-                  id="NEWPSOFF"
-                  type="checkbox"
-                  checked={NEWPSOFF}
-                  onChange={(e) => setNEWPSOFF(e.target.checked)}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
-                />
-                <label
-                  htmlFor="NEWPSOFF"
-                  className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                >
-                  Both ends of wedge point to stereocenters (NEWPSOFF)
-                </label>
-                <OptionTooltip content="Use old stereocenter recognition algorithm: a stereo bond should have the sharp end pointing to a stereocenter" />
-              </div>
+            <div className="grid gap-1 pl-4">
+              <Select
+                label="Stereo"
+                value={stereoMode}
+                options={STEREO_MODES}
+                onChange={setStereoMode}
+              />
+              <Switch
+                checked={SUU}
+                onChange={setSUU}
+                label="Always include omitted/undefined stereo (SUU)"
+              />
+              <Switch
+                checked={SLUUD}
+                onChange={setSLUUD}
+                label="Different marks for unknown/undefined stereo (SLUUD)"
+              />
+              <Switch
+                checked={NEWPSOFF}
+                onChange={setNEWPSOFF}
+                label="Both ends of wedge point to stereocenters (NEWPSOFF)"
+                hint="Old stereocenter recognition: the sharp end points to a stereocenter"
+              />
             </div>
           )}
-        </div>
-
-        <div className="flex items-center">
-          <input
-            id="recmet"
-            type="checkbox"
+          <Switch
             checked={recMet}
-            onChange={(e) => setRecMet(e.target.checked)}
-            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
+            onChange={setRecMet}
+            label="Include bonds to metal"
+            hint="Include metal bonds, which are otherwise disconnected"
           />
-          <label htmlFor="recmet" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-            Include Bonds to Metal
-          </label>
-          <OptionTooltip content="Include metal-bonds in the InChI string, which are otherwise disconnected" />
         </div>
 
-        {/* Tautomerism options section */}
-        <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
-              Tautomerism Options
-              <OptionTooltip content="Configure which types of tautomerism are considered when generating InChI" />
-            </p>
+        <div className="pc-opt-group">
+          <div className="flex items-center justify-between gap-2">
+            <span className="pc-lbl" id="inchi-taut">
+              Tautomerism
+            </span>
             <Button
               variant="ghost"
+              size="sm"
               onClick={() => setShowTautomerism(!showTautomerism)}
-              className="text-sm text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+              aria-expanded={showTautomerism}
+              aria-controls="inchi-taut-list"
             >
+              {showTautomerism ? <ChevronUp /> : <ChevronDown />}
               {showTautomerism ? "Hide" : "Show"}
             </Button>
           </div>
-
           {showTautomerism && (
-            <div className="grid grid-cols-1 gap-2 ml-2">
-              <div className="flex items-center">
-                <input
-                  id="ket"
-                  type="checkbox"
-                  checked={ket}
-                  onChange={(e) => setKet(e.target.checked)}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
-                />
-                <label
-                  htmlFor="ket"
-                  className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                >
-                  Keto-enol Tautomerism (KET)
-                </label>
-                <OptionTooltip content="Include keto-enol tautomerism when generating InChI" />
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  id="15t"
-                  type="checkbox"
-                  checked={t15}
-                  onChange={(e) => setT15(e.target.checked)}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
-                />
-                <label
-                  htmlFor="15t"
-                  className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                >
-                  1,5-tautomerism (15T)
-                </label>
-                <OptionTooltip content="Include 1,5-tautomerism when generating InChI" />
-              </div>
-
-              {/* Additional tautomer options available in 1.07 */}
-              {(inchiVersion === "Latest" || inchiVersion === "Latest-MoIn") && (
+            <div id="inchi-taut-list" className="pc-opt-list" aria-labelledby="inchi-taut">
+              <Switch checked={ket} onChange={setKet} label="Keto-enol tautomerism (KET)" />
+              <Switch checked={t15} onChange={setT15} label="1,5-tautomerism (15T)" />
+              {/* Further tautomer options exist from InChI 1.07 */}
+              {isLatest && (
                 <>
-                  <div className="flex items-center">
-                    <input
-                      id="PT_06_00"
-                      type="checkbox"
-                      checked={PT_06_00}
-                      onChange={(e) => setPT_06_00(e.target.checked)}
-                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
-                    />
-                    <label
-                      htmlFor="PT_06_00"
-                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      1,3 heteroatom H-shift (PT_06_00)
-                    </label>
-                    <OptionTooltip content="Include 1,3 heteroatom H-shift tautomerism" />
-                  </div>
-
-                  <div className="flex items-center">
-                    <input
-                      id="PT_13_00"
-                      type="checkbox"
-                      checked={PT_13_00}
-                      onChange={(e) => setPT_13_00(e.target.checked)}
-                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
-                    />
-                    <label
-                      htmlFor="PT_13_00"
-                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      Keten-inol exchange (PT_13_00)
-                    </label>
-                    <OptionTooltip content="Include keten-inol exchange tautomerism" />
-                  </div>
-
-                  <div className="flex items-center">
-                    <input
-                      id="PT_16_00"
-                      type="checkbox"
-                      checked={PT_16_00}
-                      onChange={(e) => setPT_16_00(e.target.checked)}
-                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
-                    />
-                    <label
-                      htmlFor="PT_16_00"
-                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      Nitroso/oxime (PT_16_00)
-                    </label>
-                    <OptionTooltip content="Include nitroso/oxime tautomerism" />
-                  </div>
-
-                  <div className="flex items-center">
-                    <input
-                      id="PT_18_00"
-                      type="checkbox"
-                      checked={PT_18_00}
-                      onChange={(e) => setPT_18_00(e.target.checked)}
-                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
-                    />
-                    <label
-                      htmlFor="PT_18_00"
-                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      Cyanic/iso-cyanic acids (PT_18_00)
-                    </label>
-                    <OptionTooltip content="Include cyanic/iso-cyanic acids tautomerism" />
-                  </div>
-
-                  <div className="flex items-center">
-                    <input
-                      id="PT_22_00"
-                      type="checkbox"
-                      checked={PT_22_00}
-                      onChange={(e) => setPT_22_00(e.target.checked)}
-                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
-                    />
-                    <label
-                      htmlFor="PT_22_00"
-                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      Imine/imine (PT_22_00)
-                    </label>
-                    <OptionTooltip content="Include imine/imine tautomerism" />
-                  </div>
-
-                  <div className="flex items-center">
-                    <input
-                      id="PT_39_00"
-                      type="checkbox"
-                      checked={PT_39_00}
-                      onChange={(e) => setPT_39_00(e.target.checked)}
-                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
-                    />
-                    <label
-                      htmlFor="PT_39_00"
-                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      Nitrone/azoxy or Behrend rearrangement (PT_39_00)
-                    </label>
-                    <OptionTooltip content="Include nitrone/azoxy or Behrend rearrangement tautomerism" />
-                  </div>
+                  <Switch
+                    checked={PT_06_00}
+                    onChange={setPT_06_00}
+                    label="1,3 heteroatom H-shift (PT_06_00)"
+                  />
+                  <Switch
+                    checked={PT_13_00}
+                    onChange={setPT_13_00}
+                    label="Keten-inol exchange (PT_13_00)"
+                  />
+                  <Switch
+                    checked={PT_16_00}
+                    onChange={setPT_16_00}
+                    label="Nitroso/oxime (PT_16_00)"
+                  />
+                  <Switch
+                    checked={PT_18_00}
+                    onChange={setPT_18_00}
+                    label="Cyanic/iso-cyanic acids (PT_18_00)"
+                  />
+                  <Switch
+                    checked={PT_22_00}
+                    onChange={setPT_22_00}
+                    label="Imine/imine (PT_22_00)"
+                  />
+                  <Switch
+                    checked={PT_39_00}
+                    onChange={setPT_39_00}
+                    label="Nitrone/azoxy or Behrend rearrangement (PT_39_00)"
+                  />
                 </>
               )}
             </div>
           )}
         </div>
 
-        {/* Polymer options section */}
-        <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
-          <div className="flex items-center">
-            <input
-              id="polymers"
-              type="checkbox"
-              checked={polymers}
-              onChange={(e) => setPolymers(e.target.checked)}
-              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
-            />
-            <label
-              htmlFor="polymers"
-              className="ml-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Treat Polymers
-            </label>
-            <OptionTooltip content="Process polymer structures according to InChI polymer extension" />
-          </div>
-
+        <div className="pc-opt-list">
+          <Switch
+            checked={polymers}
+            onChange={setPolymers}
+            label="Treat polymers"
+            hint="Process polymers with the InChI polymer extension"
+          />
           {polymers && (
-            <div className="ml-6 mt-2 space-y-2">
-              <div className="flex items-center">
-                <input
-                  id="NoEdits"
-                  type="checkbox"
-                  checked={NoEdits}
-                  onChange={(e) => setNoEdits(e.target.checked)}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
-                />
-                <label
-                  htmlFor="NoEdits"
-                  className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                >
-                  No pre-edits of original polymer structure
-                </label>
-                <OptionTooltip content="Skip pre-editing of the original polymer structure" />
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  id="FoldCRU"
-                  type="checkbox"
-                  checked={FoldCRU}
-                  onChange={(e) => setFoldCRU(e.target.checked)}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
-                />
-                <label
-                  htmlFor="FoldCRU"
-                  className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                >
-                  Enable CRU folding
-                </label>
-                <OptionTooltip content="Enable Constitutional Repeating Unit (CRU) folding for polymer representation" />
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  id="NoFrameShift"
-                  type="checkbox"
-                  checked={NoFrameShift}
-                  onChange={(e) => setNoFrameShift(e.target.checked)}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
-                />
-                <label
-                  htmlFor="NoFrameShift"
-                  className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                >
-                  Disable CRU frame shift
-                </label>
-                <OptionTooltip content="Disable frame shift for Constitutional Repeating Unit (CRU)" />
-              </div>
+            <div className="grid gap-1 pl-4">
+              <Switch
+                checked={NoEdits}
+                onChange={setNoEdits}
+                label="No pre-edits of original polymer structure"
+              />
+              <Switch
+                checked={FoldCRU}
+                onChange={setFoldCRU}
+                label="Enable CRU folding"
+                hint="Constitutional repeating unit folding"
+              />
+              <Switch
+                checked={NoFrameShift}
+                onChange={setNoFrameShift}
+                label="Disable CRU frame shift"
+              />
             </div>
           )}
-        </div>
-
-        <div className="flex items-center">
-          <input
-            id="npzz"
-            type="checkbox"
+          <Switch
             checked={NPZz}
-            onChange={(e) => setNPZz(e.target.checked)}
-            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
+            onChange={setNPZz}
+            label="Allow non-polymer Zz pseudoatoms"
+            hint="Allow Zz or * (star) pseudoatoms outside the polymer context"
           />
-          <label htmlFor="npzz" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-            Allow non-polymer Zz pseudoatoms
-          </label>
-          <OptionTooltip content="Allow Zz or * (star) pseudoatoms outside the polymer context" />
-        </div>
-
-        {inchiVersion === "Latest-MoIn" && (
-          <div className="flex items-center border-t border-gray-200 dark:border-gray-700 pt-3">
-            <input
-              id="molecularInorganics"
-              type="checkbox"
-              checked={molecularInorganics}
-              onChange={(e) => setMolecularInorganics(e.target.checked)}
-              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
+          {inchiVersion === ENHANCED_STEREO && (
+            <Switch
+              checked={enhancedStereo}
+              onChange={setEnhancedStereo}
+              label="Enhanced stereochemistry"
+              hint="Experimental. Reads the AND/OR stereo groups of a V3000 molfile"
             />
-            <label
-              htmlFor="molecularInorganics"
-              className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-            >
-              Molecular inorganics
-            </label>
-            <OptionTooltip content="Enable support for molecular inorganics (experimental feature in InChI Latest-MoIn)" />
-          </div>
-        )}
+          )}
+          {MOIN.has(inchiVersion) && (
+            <Switch
+              checked={molecularInorganics}
+              onChange={setMolecularInorganics}
+              label="Molecular inorganics"
+              hint="Experimental option of the dev builds"
+            />
+          )}
+        </div>
       </div>
-    </div>
+    </Cell>
   );
 };
 
-// Result block component for displaying InChI, InChIKey, and AuxInfo
-const ResultBlock = ({ title, value, onCopy, copyState, icon }) => {
-  return (
-    <div className="mt-4 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-shadow duration-300">
-      <div className="flex justify-between items-center mb-2">
-        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
-          {icon && <span className="mr-2">{icon}</span>}
-          {title}
-        </h3>
-        {value && (
-          <Button
-            variant="ghost"
-            onClick={onCopy}
-            className="inline-flex items-center px-2 py-1 text-xs text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 rounded-sm hover:bg-green-200 dark:hover:bg-green-800/50"
-          >
-            {copyState ? (
-              <>
-                <Check className="w-3.5 h-3.5 mr-1" />
-                Copied!
-              </>
-            ) : (
-              <>
-                <ClipboardCopy className="w-3.5 h-3.5 mr-1" />
-                Copy
-              </>
-            )}
-          </Button>
-        )}
-      </div>
-      <div className="font-mono text-sm overflow-x-auto bg-gray-50 dark:bg-gray-900 p-3 rounded-sm border border-gray-200 dark:border-gray-700 break-all max-h-24 overflow-y-auto">
-        {value || <span className="text-gray-500 dark:text-gray-400">No data generated yet</span>}
-      </div>
-    </div>
-  );
-};
-
+/** InChI: draw or load a structure in Ketcher and convert it with the IUPAC InChI library. */
 const InChIView = () => {
-  // State variables
   const [inchi, setInchi] = useState("");
   const [auxInfo, setAuxInfo] = useState("");
   const [inchiKey, setInchiKey] = useState("");
   const [inputInchi, setInputInchi] = useState("");
-  const [inputSmiles, setInputSmiles] = useState(""); // Added for SMILES input
+  const [inputSmiles, setInputSmiles] = useState("");
   const [molfileContent, setMolfileContent] = useState("");
   const [logMessage, setLogMessage] = useState("");
   const [options, setOptions] = useState("");
-  const [inchiVersion, setInchiVersion] = useState(
-    Object.keys(INCHI_VERSIONS).find((key) => INCHI_VERSIONS[key].default) || "Latest"
-  );
-  const [activeInputType, setActiveInputType] = useState("structure"); // 'structure', 'smiles', 'molfile', 'inchi'
+  const [inchiVersion, setInchiVersion] = useState(DEFAULT_VERSION);
+  const [activeInputType, setActiveInputType] = useState<InputType>("structure");
 
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [copyModalText, setCopyModalText] = useState("");
   const [inchiModuleLoaded, setInchiModuleLoaded] = useState(false);
   const [autoGenerate, setAutoGenerate] = useState(false);
 
-  // Refs
-  const copyTextRef = useRef(null);
-  const fileInputRef = useRef(null);
+  const copyTextRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const previousOptionsRef = useRef("");
 
   const { ketcherFrame, isEditorReady, executeCommand, resetEditor } = useKetcherEditor();
 
-  // Reset error when needed
+  // Enhanced stereochemistry (AND/OR groups) only survives in V3000; other builds read V2000.
+  const getMolfile = useCallback(
+    (version: string) =>
+      version === ENHANCED_STEREO
+        ? executeCommand("getMolfile", ["v3000"])
+        : executeCommand("getMolfile"),
+    [executeCommand]
+  );
+
+  // Clear a stale error when the input, version or input method changes.
+  // (`error` used to be a dependency too, which cleared every error the moment it was set.)
   useEffect(() => {
-    if (error) setError(null);
-  }, [inputInchi, inputSmiles, inchiVersion, activeInputType, error]);
+    setError(null);
+  }, [inputInchi, inputSmiles, inchiVersion, activeInputType]);
 
   // Auto-select text in copy modal when it appears
   useEffect(() => {
@@ -772,7 +471,7 @@ const InChIView = () => {
 
   // Generate InChIKey from InChI
   const generateInChIKeyFromInChI = useCallback(
-    async (inchiString) => {
+    async (inchiString: string) => {
       if (!inchiString) {
         console.warn("Cannot generate InChIKey: No InChI provided");
         return;
@@ -803,24 +502,24 @@ const InChIView = () => {
 
         setInchiKey(result.inchikey);
 
-        // If there's a message, add it to the log
-        if (result.message) {
-          setLogMessage((prevLog) => (prevLog ? `${prevLog}\n${result.message}` : result.message));
+        const message = result.message;
+        if (message) {
+          setLogMessage((prevLog) => (prevLog ? `${prevLog}\n${message}` : message));
         }
 
         return result.inchikey;
       } catch (err) {
         console.error("Error generating InChIKey:", err);
-        // Don't set an error message for this - it's a secondary operation
+        // A secondary operation: no error message
         return null;
       }
     },
     [inchiVersion]
   );
 
-  // Generate InChI from molfile function
+  // Generate InChI from a molfile
   const generateInChIFromMolfile = useCallback(
-    async (molfile) => {
+    async (molfile: string) => {
       try {
         if (!molfile || molfile.trim() === "") {
           throw new Error("No molecule data provided");
@@ -830,7 +529,6 @@ const InChIView = () => {
           throw new Error("InChI module not loaded. Please wait or refresh the page.");
         }
 
-        // Convert molfile to InChI
         const result = await convertMolfileToInchi(molfile, options, inchiVersion);
 
         if (!result) {
@@ -841,16 +539,13 @@ const InChIView = () => {
           throw new Error(result.message || "Failed to generate InChI");
         }
 
-        // Update state with results
         setInchi(result.inchi || "");
         setAuxInfo(result.auxinfo || "");
 
-        // Append to log, not replace it
         setLogMessage(
           `InChI generated with options: ${options || "none"}\n${result.message || ""}`
         );
 
-        // Generate InChIKey
         if (result.inchi) {
           await generateInChIKeyFromInChI(result.inchi);
         }
@@ -858,8 +553,8 @@ const InChIView = () => {
         return result;
       } catch (err) {
         console.error("Failed to generate InChI from molfile:", err);
-        setLogMessage(`Failed to generate InChI: ${err.message}`);
-        setError(`Failed to generate InChI: ${err.message}`);
+        setLogMessage(`Failed to generate InChI: ${errorText(err)}`);
+        setError(`Failed to generate InChI: ${errorText(err)}`);
         throw err;
       } finally {
         setIsLoading(false);
@@ -868,7 +563,7 @@ const InChIView = () => {
     [inchiModuleLoaded, options, inchiVersion, generateInChIKeyFromInChI]
   );
 
-  // Generate InChI from Ketcher
+  // Generate InChI from the structure in Ketcher
   const generateInChI = useCallback(async () => {
     if (!isEditorReady) {
       setError("Editor not ready. Please try again in a moment.");
@@ -888,67 +583,53 @@ const InChIView = () => {
     setInchiKey("");
 
     try {
-      // Get molfile from Ketcher
-      const molfile = await executeCommand("getMolfile");
+      const molfile = (await getMolfile(inchiVersion)) as string;
 
-      if (!molfile || molfile.trim() === "") {
-        setError("No structure drawn. Please draw a molecule first.");
+      if (!hasAtoms(molfile)) {
+        setError("No structure drawn. Draw a molecule, or load a SMILES first.");
         setIsLoading(false);
         return;
       }
 
-      // Check if it's a reaction (not supported by InChI)
+      // Reactions are not supported by InChI
       if (molfile.includes("$RXN")) {
         setError("Reactions are not supported. Please draw a single molecule.");
         setIsLoading(false);
         return;
       }
 
-      // Save the molfile for reference
       setMolfileContent(molfile);
-
-      // Generate InChI from the molfile
       await generateInChIFromMolfile(molfile);
     } catch (err) {
       console.error("Failed to generate InChI:", err);
-      setLogMessage(`Error: ${err.message}`);
-      setError(`Failed to generate InChI: ${err.message}`);
+      setLogMessage(`Error: ${errorText(err)}`);
+      setError(`Failed to generate InChI: ${errorText(err)}`);
       setIsLoading(false);
     }
-  }, [isEditorReady, inchiModuleLoaded, executeCommand, generateInChIFromMolfile]);
+  }, [isEditorReady, inchiModuleLoaded, getMolfile, inchiVersion, generateInChIFromMolfile]);
 
   // Log option changes and auto-generate if enabled
   useEffect(() => {
-    // Only proceed if options actually changed
     if (options !== previousOptionsRef.current) {
       if (previousOptionsRef.current && options) {
-        // Log the option change
         const optionChangeLog = `InChI options changed: ${options || "none"}`;
+        setLogMessage((prevLog) => (prevLog ? `${optionChangeLog}\n${prevLog}` : optionChangeLog));
 
-        // Only append to existing log, don't replace it completely
-        setLogMessage((prevLog) => {
-          if (prevLog) {
-            return `${optionChangeLog}\n${prevLog}`;
-          }
-          return optionChangeLog;
-        });
-
-        // Auto-generate if enabled and we have a valid structure
+        // Auto-generate if enabled and there is a structure
         if (autoGenerate && isEditorReady && molfileContent) {
-          // Slight delay to allow UI to update first
+          // Slight delay to let the UI update first
           setTimeout(() => {
             generateInChI();
           }, 100);
         }
       }
 
-      // Save current options for next comparison
       previousOptionsRef.current = options;
     }
   }, [options, autoGenerate, isEditorReady, molfileContent, generateInChI]);
 
-  // Enhanced copyToClipboard function with multiple fallback methods
-  const copyToClipboard = async (text = null, type = "inchi") => {
+  // Copy with fallbacks: Clipboard API, execCommand, then a dialog to copy by hand
+  const copyToClipboard = async (text: string | null = null, type = "inchi") => {
     let textToCopy;
 
     switch (type) {
@@ -970,9 +651,7 @@ const InChIView = () => {
       return;
     }
 
-    // Try multiple clipboard copy methods in sequence
     try {
-      // Method 1: Use the Clipboard API (modern browsers)
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(textToCopy);
         setCopySuccess(true);
@@ -980,17 +659,12 @@ const InChIView = () => {
         return;
       }
 
-      // Method 2: Use execCommand (older browsers)
       const textArea = document.createElement("textarea");
       textArea.value = textToCopy;
-
-      // Make the textarea out of viewport
       textArea.style.position = "fixed";
       textArea.style.left = "-999999px";
       textArea.style.top = "-999999px";
       document.body.appendChild(textArea);
-
-      // Select and copy
       textArea.focus();
       textArea.select();
 
@@ -1006,14 +680,12 @@ const InChIView = () => {
       }
     } catch (err) {
       console.error("Failed to copy text:", err);
-
-      // Method 3: Show a modal with text to copy manually
       setCopyModalText(textToCopy);
       setShowCopyModal(true);
     }
   };
 
-  // Check InChI module status
+  // Load the InChI module for the selected version
   useEffect(() => {
     const checkModuleStatus = async () => {
       try {
@@ -1030,7 +702,7 @@ const InChIView = () => {
     checkModuleStatus();
   }, [inchiVersion]);
 
-  // Load InChI into Ketcher
+  // Load an InChI into Ketcher
   const loadInChI = useCallback(async () => {
     if (!inputInchi.trim()) {
       setError("Please enter an InChI string");
@@ -1052,7 +724,6 @@ const InChIView = () => {
     setLogMessage(`Converting InChI to structure...`);
 
     try {
-      // Call the convertInchiToMolfile function
       const result = await convertInchiToMolfile(inputInchi, "", inchiVersion);
 
       if (result.return_code === -1) {
@@ -1060,30 +731,23 @@ const InChIView = () => {
       }
 
       if (result.molfile) {
-        // Load the molfile into Ketcher
         await executeCommand("setMolecule", [result.molfile]);
-
-        // Store the molfile content
         setMolfileContent(result.molfile);
-
-        // Update state
         setInchi(inputInchi);
         setLogMessage(`Structure loaded from InChI successfully.\n${result.message || ""}`);
-
-        // Generate InChIKey
         generateInChIKeyFromInChI(inputInchi);
       } else {
         throw new Error("No structure data generated from InChI");
       }
     } catch (err) {
       console.error("Failed to load InChI:", err);
-      setError(`Failed to convert InChI to structure: ${err.message}`);
+      setError(`Failed to convert InChI to structure: ${errorText(err)}`);
     } finally {
       setIsLoading(false);
     }
   }, [inputInchi, isEditorReady, inchiVersion, executeCommand, generateInChIKeyFromInChI]);
 
-  // Load SMILES into Ketcher
+  // Load a SMILES string into Ketcher
   const loadSmiles = useCallback(async () => {
     if (!inputSmiles.trim()) {
       setError("Please enter a SMILES string");
@@ -1098,38 +762,38 @@ const InChIView = () => {
     setIsLoading(true);
     setError(null);
     setLogMessage("Loading SMILES structure...");
-
-    // Clear previous results when loading new structure
     setInchi("");
     setAuxInfo("");
     setInchiKey("");
 
     try {
-      // Load SMILES into Ketcher
-      // Note: SMILES conversion is handled by Ketcher, not by InChI module
+      // Ketcher parses the SMILES, not the InChI module
       await executeCommand("setMolecule", [inputSmiles]);
-
-      // Get molfile from Ketcher
-      const molfile = await executeCommand("getMolfile");
-
-      // Store the molfile content
+      const molfile = (await getMolfile(inchiVersion)) as string;
       setMolfileContent(molfile);
 
       setLogMessage(`SMILES loaded successfully. Use "Generate InChI" to create InChI.`);
 
-      // Auto-generate InChI if enabled
       if (autoGenerate && molfile) {
         await generateInChIFromMolfile(molfile);
       }
     } catch (err) {
       console.error("Failed to load SMILES:", err);
-      setError(`Failed to load structure from SMILES: ${err.message}`);
+      setError(`Failed to load structure from SMILES: ${errorText(err)}`);
     } finally {
       setIsLoading(false);
     }
-  }, [inputSmiles, isEditorReady, executeCommand, autoGenerate, generateInChIFromMolfile]);
+  }, [
+    inputSmiles,
+    isEditorReady,
+    executeCommand,
+    getMolfile,
+    inchiVersion,
+    autoGenerate,
+    generateInChIFromMolfile,
+  ]);
 
-  // Load molfile or AuxInfo into Ketcher
+  // Load a molfile or AuxInfo into Ketcher
   const loadMolfile = useCallback(async () => {
     if (!molfileContent.trim()) {
       setError("Please enter or upload a molfile or AuxInfo");
@@ -1144,16 +808,12 @@ const InChIView = () => {
     setIsLoading(true);
     setError(null);
     setLogMessage("Processing input...");
-
-    // Clear previous results when loading new structure
     setInchi("");
     setAuxInfo("");
     setInchiKey("");
 
     try {
-      // Check if input is AuxInfo
       if (molfileContent.startsWith("AuxInfo=")) {
-        // Handle AuxInfo
         setLogMessage("Converting AuxInfo to structure...");
 
         try {
@@ -1164,7 +824,6 @@ const InChIView = () => {
             setMolfileContent(result.molfile);
             setLogMessage(`AuxInfo converted to structure successfully.\n${result.message || ""}`);
 
-            // Auto-generate InChI if enabled
             if (autoGenerate && result.molfile) {
               await generateInChIFromMolfile(result.molfile);
             }
@@ -1172,16 +831,12 @@ const InChIView = () => {
             throw new Error("Failed to convert AuxInfo to structure");
           }
         } catch (err) {
-          setError(`AuxInfo conversion error: ${err.message}`);
+          setError(`AuxInfo conversion error: ${errorText(err)}`);
         }
-      }
-      // Check if input is a molfile
-      else if (molfileContent.includes("V2000") || molfileContent.includes("V3000")) {
-        // Handle molfile
+      } else if (molfileContent.includes("V2000") || molfileContent.includes("V3000")) {
         await executeCommand("setMolecule", [molfileContent]);
         setLogMessage("Molfile loaded successfully. Use 'Generate InChI' to create InChI.");
 
-        // Auto-generate InChI if enabled
         if (autoGenerate) {
           await generateInChIFromMolfile(molfileContent);
         }
@@ -1190,7 +845,7 @@ const InChIView = () => {
       }
     } catch (err) {
       console.error("Failed to load input:", err);
-      setError(`Failed to load structure: ${err.message}`);
+      setError(`Failed to load structure: ${errorText(err)}`);
     } finally {
       setIsLoading(false);
     }
@@ -1203,25 +858,23 @@ const InChIView = () => {
     generateInChIFromMolfile,
   ]);
 
-  // Handle file upload for molfile
-  const handleMolfileUpload = useCallback((event) => {
-    const file = event.target.files[0];
+  // Read an uploaded molfile into the text field
+  const handleMolfileUpload = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      setMolfileContent(e.target.result);
+      setMolfileContent(String(e.target?.result ?? ""));
     };
     reader.readAsText(file);
   }, []);
 
-  // Function to retry initialization
   const handleRetryInit = useCallback(() => {
     resetEditor();
     setError(null);
   }, [resetEditor]);
 
-  // Clear the editor
   const clearEditor = useCallback(async () => {
     if (!isEditorReady) {
       console.warn("Editor not ready for clearing");
@@ -1241,7 +894,6 @@ const InChIView = () => {
     }
   }, [isEditorReady, executeCommand]);
 
-  // Handle auto-generate toggle
   const toggleAutoGenerate = useCallback(() => {
     setAutoGenerate((prev) => !prev);
     if (!autoGenerate) {
@@ -1259,7 +911,7 @@ const InChIView = () => {
     }
   }, [autoGenerate]);
 
-  // Examples of common molecules with their InChI and SMILES
+  // Common molecules with their InChI and SMILES
   const examples = [
     {
       name: "Ethanol",
@@ -1288,28 +940,76 @@ const InChIView = () => {
     },
   ];
 
+  const exampleChips = (field: "smiles" | "inchi") => (
+    <div className="pc-smiles-chips">
+      <span className="pc-lbl2" id={`inchi-ex-${field}`}>
+        Examples
+      </span>
+      <div className="pc-row" role="group" aria-labelledby={`inchi-ex-${field}`}>
+        {examples.map((example) => {
+          const value = field === "smiles" ? example.smiles : example.inchi;
+          const current = field === "smiles" ? inputSmiles : inputInchi;
+          return (
+            <button
+              key={example.name}
+              type="button"
+              className="clay clay-outline pc-chip"
+              aria-pressed={current === value}
+              title={`${example.name}: ${example.description}`}
+              onClick={() => (field === "smiles" ? setInputSmiles : setInputInchi)(value)}
+            >
+              {example.name}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  // Form submit runs the method's load action, or generation when drawing
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    if (activeInputType === "smiles") loadSmiles();
+    else if (activeInputType === "molfile") loadMolfile();
+    else if (activeInputType === "inchi") loadInChI();
+    else generateInChI();
+  };
+
+  const ready = isEditorReady && inchiModuleLoaded;
+  const hasResult = !!(inchi || inchiKey || auxInfo);
+  const resultRows: { label: string; value: string; type: string }[] = [
+    { label: "InChI", value: inchi, type: "inchi" },
+    { label: "InChIKey", value: inchiKey, type: "key" },
+    { label: "AuxInfo", value: auxInfo, type: "auxinfo" },
+  ];
+
+  useRevealOnResult(
+    "inchi-results",
+    isLoading && activeInputType === "structure",
+    hasResult,
+    !!error
+  );
+
   return (
-    <div className="flex flex-col gap-6 p-4 md:p-6 bg-linear-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-slate-900 min-h-screen">
-      {/* Copy Modal - For fallback copying */}
+    <div className="pc-bento">
+      {/* Fallback dialog for copying by hand */}
       <Dialog open={showCopyModal} onOpenChange={setShowCopyModal}>
         <DialogContent
           showCloseButton={false}
-          className="block gap-0 border-0 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full"
+          className="block w-full max-w-lg gap-0 rounded-xl border-0 bg-card p-6"
         >
-          <div className="flex justify-between items-center mb-4">
-            <DialogTitle className="text-lg font-bold text-gray-900 dark:text-white">
-              Copy Text
-            </DialogTitle>
+          <div className="mb-4 flex items-center justify-between">
+            <DialogTitle className="text-lg font-bold text-foreground">Copy Text</DialogTitle>
             <Button
               variant="ghost"
+              size="icon-sm"
               onClick={() => setShowCopyModal(false)}
               aria-label="Close"
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             >
-              <X className="w-5 h-5" />
+              <X />
             </Button>
           </div>
-          <p className="mb-4 text-gray-700 dark:text-gray-300">
+          <p className="mb-4 text-foreground">
             Automatic copying failed. Please select and copy this text manually:
           </p>
           <div className="mb-4">
@@ -1323,491 +1023,244 @@ const InChIView = () => {
             />
           </div>
           <div className="flex justify-end gap-3">
-            <Button
-              variant="secondary"
-              onClick={() => setShowCopyModal(false)}
-              className="px-4 py-2 rounded-sm"
-            >
+            <Button variant="outline" onClick={() => setShowCopyModal(false)}>
               Close
             </Button>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Main content area */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left sidebar with controls */}
-        <div className="lg:col-span-3 flex flex-col gap-4">
-          {/* InChI Options */}
-          <InChIOptions
-            onChange={setOptions}
-            inchiVersion={inchiVersion}
-            setInchiVersion={setInchiVersion}
-          />
-
-          {/* Global Editor Controls */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center">
-                <div className="bg-emerald-100 dark:bg-emerald-900/50 p-2 rounded-lg mr-3">
-                  <SlidersHorizontal className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
-                </div>
-                <h2 className="text-lg font-bold text-gray-800 dark:text-white">Editor Controls</h2>
-              </div>
-
-              {/* Auto-generate toggle */}
-              <div className="flex items-center">
-                <Button
-                  variant="ghost"
-                  onClick={toggleAutoGenerate}
-                  className={`flex items-center text-sm font-medium ${
-                    autoGenerate
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-gray-500 dark:text-gray-400"
-                  }`}
-                  title="When enabled, InChI will be generated automatically when options change"
-                >
-                  <Zap
-                    className={`mr-1 h-4 w-4 ${
-                      autoGenerate
-                        ? "text-emerald-500 dark:text-emerald-400"
-                        : "text-gray-500 dark:text-gray-400"
-                    }`}
-                  />
-                  Auto
-                </Button>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <Button
-                variant="outline"
-                onClick={clearEditor}
-                disabled={isLoading || !isEditorReady}
-                className="w-full px-4 py-2 rounded-lg text-sm font-medium flex items-center justify-center"
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Clear Editor
-              </Button>
-
-              <Button
-                onClick={generateInChI}
-                disabled={isLoading || !isEditorReady || !inchiModuleLoaded}
-                className={`w-full px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center ${
-                  isLoading || !isEditorReady || !inchiModuleLoaded
-                    ? "bg-gray-400 dark:bg-gray-600 text-white cursor-not-allowed"
-                    : "bg-linear-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white"
-                }`}
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                {isLoading ? "Generating..." : "Generate InChI"}
-              </Button>
-            </div>
+      <Cell id="inchi-input" title="Structure input" className="pc-t-input">
+        <form onSubmit={submit} className="pc-tool-form">
+          <div className="pc-opt-group">
+            <span className="pc-lbl" id="inchi-method">
+              Input method
+            </span>
+            <Seg
+              labelId="inchi-method"
+              full
+              value={activeInputType}
+              onChange={setActiveInputType}
+              options={INPUT_TYPES}
+            />
           </div>
 
-          {/* Tab-specific controls */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
-            <div className="flex items-center mb-4">
-              <div className="bg-indigo-100 dark:bg-indigo-900/50 p-2 rounded-lg mr-3">
-                <Pencil className="h-5 w-5 text-indigo-700 dark:text-indigo-400" />
-              </div>
-              <h2 className="text-lg font-bold text-gray-800 dark:text-white">Structure Input</h2>
-            </div>
+          {activeInputType === "structure" && (
+            <p className="pc-note">
+              Draw the structure in the editor below, then generate its InChI. Clear the editor at
+              any time to start over.
+            </p>
+          )}
 
-            {/* Input Type Tabs */}
-            <div className="mb-4">
-              <div className="flex flex-wrap border-b border-gray-200 dark:border-gray-700">
-                <Button
-                  variant="ghost"
-                  className={`px-3 py-2 text-xs font-medium rounded-none ${
-                    activeInputType === "structure"
-                      ? "text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400"
-                      : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-600"
-                  }`}
-                  onClick={() => setActiveInputType("structure")}
-                >
-                  <FlaskConical className="inline-block mr-1" />
-                  Draw
-                </Button>
-                <Button
-                  variant="ghost"
-                  className={`px-3 py-2 text-xs font-medium rounded-none ${
-                    activeInputType === "smiles"
-                      ? "text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400"
-                      : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-600"
-                  }`}
-                  onClick={() => setActiveInputType("smiles")}
-                >
-                  <Layout className="inline-block mr-1" />
-                  SMILES
-                </Button>
-                <Button
-                  variant="ghost"
-                  className={`px-3 py-2 text-xs font-medium rounded-none ${
-                    activeInputType === "molfile"
-                      ? "text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400"
-                      : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-600"
-                  }`}
-                  onClick={() => setActiveInputType("molfile")}
-                >
-                  <FileText className="inline-block mr-1" />
-                  Mol/Aux
-                </Button>
-                <Button
-                  variant="ghost"
-                  className={`px-3 py-2 text-xs font-medium rounded-none ${
-                    activeInputType === "inchi"
-                      ? "text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400"
-                      : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-b-2 hover:border-gray-300 dark:hover:border-gray-600"
-                  }`}
-                  onClick={() => setActiveInputType("inchi")}
-                >
-                  <Code className="inline-block mr-1" />
-                  InChI
-                </Button>
-              </div>
-            </div>
-
-            {/* SMILES Input Option */}
-            {activeInputType === "smiles" && (
-              <div className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="smiles-input"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                  >
-                    Enter SMILES to Edit
-                  </label>
-                  <Input
-                    id="smiles-input"
-                    type="text"
-                    value={inputSmiles}
-                    onChange={(e) => setInputSmiles(e.target.value)}
-                    placeholder="e.g., CCO for ethanol"
-                    className="w-full"
-                  />
-                </div>
-
-                <Button
-                  onClick={loadSmiles}
-                  disabled={isLoading || !isEditorReady || !inputSmiles.trim()}
-                  className={`w-full relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-green-500 ${
-                    isLoading || !isEditorReady || !inputSmiles.trim()
-                      ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                      : "bg-linear-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800"
-                  }`}
-                >
-                  {isLoading ? "Loading..." : !isEditorReady ? "Initializing..." : "Load Structure"}
-                </Button>
-
-                {/* Quick Examples */}
-                <div className="mt-2">
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Quick Examples:
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {examples.map((example, index) => (
-                      <Button
-                        variant="outline"
-                        key={index}
-                        onClick={() => setInputSmiles(example.smiles)}
-                        className="px-3 py-1.5 text-xs font-medium rounded-full"
-                        title={`${example.name}: ${example.description}`}
-                      >
-                        {example.name}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Molfile/AuxInfo Input Option */}
-            {activeInputType === "molfile" && (
-              <div className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="molfile-input"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                  >
-                    Enter Molfile or AuxInfo Content
-                  </label>
-                  <Textarea
-                    id="molfile-input"
-                    value={molfileContent}
-                    onChange={(e) => setMolfileContent(e.target.value)}
-                    placeholder="Paste Molfile content here... or AuxInfo=1/0/N:1,2,3/E:(1,2)/rA:3nCCO/rB:s1;s2;/rC:;;;"
-                    rows={6}
-                  />
-                </div>
-
-                <div className="flex flex-col space-y-3">
-                  <div className="relative">
-                    <input
-                      type="file"
-                      id="molfile-upload"
-                      accept=".mol,.sdf,.mdl"
-                      ref={fileInputRef}
-                      onChange={handleMolfileUpload}
-                      className="hidden"
-                    />
-                    <label
-                      htmlFor="molfile-upload"
-                      className="cursor-pointer flex items-center justify-center w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-300"
-                    >
-                      <Upload className="w-5 h-5 mr-2" />
-                      Upload File
-                    </label>
-                  </div>
-
-                  <Button
-                    onClick={loadMolfile}
-                    disabled={isLoading || !isEditorReady || !molfileContent.trim()}
-                    className={`relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-green-500 ${
-                      isLoading || !isEditorReady || !molfileContent.trim()
-                        ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                        : "bg-linear-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800"
-                    }`}
-                  >
-                    <FileText className="mr-2 h-5 w-5" />
-                    {isLoading ? "Loading..." : "Load Structure"}
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* InChI Input Option */}
-            {activeInputType === "inchi" && (
-              <div className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="inchi-input-structure"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                  >
-                    Enter InChI to Convert
-                  </label>
-                  <Textarea
-                    id="inchi-input-structure"
-                    value={inputInchi}
-                    onChange={(e) => setInputInchi(e.target.value)}
-                    placeholder="e.g., InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3"
-                    rows={4}
-                  />
-                </div>
-
-                <Button
-                  onClick={loadInChI}
-                  disabled={isLoading || !isEditorReady || !inputInchi.trim() || !inchiModuleLoaded}
-                  className={`w-full relative overflow-hidden px-4 py-2.5 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-green-500 ${
-                    isLoading || !isEditorReady || !inputInchi.trim() || !inchiModuleLoaded
-                      ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                      : "bg-linear-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800"
-                  }`}
-                >
-                  {isLoading
-                    ? "Loading..."
-                    : !isEditorReady
-                      ? "Initializing..."
-                      : !inchiModuleLoaded
-                        ? "Loading InChI Module..."
-                        : "Convert to Structure"}
-                </Button>
-
-                {/* Quick Examples */}
-                <div className="mt-2">
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Quick Examples:
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {examples.map((example, index) => (
-                      <Button
-                        key={index}
-                        onClick={() => setInputInchi(example.inchi)}
-                        className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-xs text-xs font-medium rounded-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 transition-all duration-200"
-                        title={`${example.name}: ${example.description}`}
-                      >
-                        {example.name}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Drawing Instructions */}
-            {activeInputType === "structure" && (
-              <div className="text-sm text-gray-700 dark:text-gray-300">
-                <p>
-                  Use the Ketcher editor to draw your chemical structure, then click "Generate
-                  InChI" to convert it.
-                </p>
-                <ul className="list-disc list-inside mt-2 space-y-1 text-gray-600 dark:text-gray-400">
-                  <li>Click on atoms and bonds to create your structure</li>
-                  <li>Use the toolbar for advanced drawing options</li>
-                  <li>Clear the editor anytime to start over</li>
-                </ul>
-              </div>
-            )}
-          </div>
-
-          {/* Status and Information */}
-          <div
-            className={`px-6 py-4 rounded-xl flex items-center justify-between ${
-              isEditorReady && inchiModuleLoaded
-                ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/40"
-                : "bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/40"
-            }`}
-          >
-            <div className="flex flex-col space-y-2">
-              <div className="flex items-center">
-                <div
-                  className={`h-3 w-3 rounded-full mr-3 ${
-                    isEditorReady ? "bg-green-500 animate-pulse" : "bg-yellow-500 animate-pulse"
-                  }`}
-                ></div>
-                <span
-                  className={`text-sm font-medium ${
-                    isEditorReady
-                      ? "text-green-800 dark:text-green-300"
-                      : "text-yellow-800 dark:text-yellow-300"
-                  }`}
-                >
-                  {isEditorReady ? "Editor Ready" : "Initializing Editor..."}
-                </span>
-              </div>
-
-              <div className="flex items-center">
-                <div
-                  className={`h-3 w-3 rounded-full mr-3 ${
-                    inchiModuleLoaded ? "bg-green-500 animate-pulse" : "bg-yellow-500 animate-pulse"
-                  }`}
-                ></div>
-                <span
-                  className={`text-sm font-medium ${
-                    inchiModuleLoaded
-                      ? "text-green-800 dark:text-green-300"
-                      : "text-yellow-800 dark:text-yellow-300"
-                  }`}
-                >
-                  {inchiModuleLoaded ? "InChI Module Ready" : "Loading InChI Module..."}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              {(!isEditorReady || !inchiModuleLoaded) && (
-                <Button
-                  onClick={handleRetryInit}
-                  className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-200 dark:hover:bg-yellow-900/50 border border-yellow-300 dark:border-yellow-700/50"
-                >
-                  <RefreshCw className="h-4 w-4 mr-1.5" />
-                  Retry
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {/* Information Box */}
-          <div className="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border border-blue-200 dark:border-blue-800/50 rounded-xl p-5 text-sm shadow-lg">
-            <h4 className="font-bold text-blue-800 dark:text-blue-300 mb-3 flex items-center">
-              <Info className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
-              About InChI
-            </h4>
-            <div className="space-y-3 text-gray-700 dark:text-gray-300">
-              <p>
-                The IUPAC International Chemical Identifier (InChI) is a textual identifier for
-                chemical substances, designed to provide a standard way to encode molecular
-                information.
-              </p>
-              <div>
-                <h5 className="font-medium mb-1 text-gray-800 dark:text-gray-200">Key Features:</h5>
-                <ul className="list-disc list-inside space-y-1 pl-1 text-gray-600 dark:text-gray-400">
-                  <li>Canonical unique representation of chemical structures</li>
-                  <li>Hierarchical, layered information system</li>
-                  <li>Machine-readable and human-readable format</li>
-                  <li>Open-source, non-proprietary standard</li>
-                  <li>Facilitates data exchange between chemical information systems</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Editor Area */}
-        <div className="lg:col-span-9 flex flex-col gap-4">
-          {/* Error Display */}
-          {error && (
-            <div
-              className="p-4 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-200 border border-red-300 dark:border-red-700/50 flex items-start shadow-lg animate-fadeIn"
-              role="alert"
-            >
-              <AlertCircle
-                className="h-5 w-5 mr-3 shrink-0 mt-0.5 text-red-500 dark:text-red-400"
-                aria-hidden="true"
+          {activeInputType === "smiles" && (
+            <div className="grid gap-2">
+              <label htmlFor="smiles-input" className="pc-lbl">
+                SMILES to edit
+              </label>
+              <input
+                id="smiles-input"
+                type="text"
+                className="pc-well"
+                value={inputSmiles}
+                onChange={(e) => setInputSmiles(e.target.value)}
+                placeholder="e.g., CCO for ethanol"
+                spellCheck={false}
+                autoComplete="off"
               />
-              <p>{error}</p>
+              {exampleChips("smiles")}
             </div>
           )}
 
-          {/* Ketcher Editor Container */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden h-[75dvh] min-h-[480px] md:h-[900px] transition-all duration-300 hover:shadow-2xl">
-            <iframe
-              ref={ketcherFrame}
-              src="/standalone/index.html"
-              title="Ketcher Editor"
-              className="w-full h-full"
-              frameBorder="0"
-            />
+          {activeInputType === "molfile" && (
+            <div className="grid gap-2">
+              <label htmlFor="molfile-input" className="pc-lbl">
+                Molfile or AuxInfo
+              </label>
+              <textarea
+                id="molfile-input"
+                className="pc-well resize-y"
+                value={molfileContent}
+                onChange={(e) => setMolfileContent(e.target.value)}
+                placeholder="Paste Molfile content here... or AuxInfo=1/0/N:1,2,3/E:(1,2)/rA:3nCCO/rB:s1;s2;/rC:;;;"
+                rows={6}
+                spellCheck={false}
+              />
+              <input
+                type="file"
+                id="molfile-upload"
+                accept=".mol,.sdf,.mdl"
+                ref={fileInputRef}
+                onChange={handleMolfileUpload}
+                className="sr-only"
+                tabIndex={-1}
+                aria-hidden="true"
+              />
+            </div>
+          )}
+
+          {activeInputType === "inchi" && (
+            <div className="grid gap-2">
+              <label htmlFor="inchi-input-structure" className="pc-lbl">
+                InChI to convert
+              </label>
+              <textarea
+                id="inchi-input-structure"
+                className="pc-well resize-y"
+                value={inputInchi}
+                onChange={(e) => setInputInchi(e.target.value)}
+                placeholder="e.g., InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3"
+                rows={4}
+                spellCheck={false}
+              />
+              {exampleChips("inchi")}
+            </div>
+          )}
+
+          <div className="pc-row pc-actions">
+            <Button
+              type={activeInputType === "structure" ? "submit" : "button"}
+              onClick={activeInputType === "structure" ? undefined : generateInChI}
+              disabled={isLoading || !isEditorReady || !inchiModuleLoaded}
+            >
+              {isLoading ? <Loader2 className="animate-spin" /> : <FileText />}
+              {isLoading ? "Generating…" : "Generate InChI"}
+            </Button>
+            {activeInputType === "smiles" && (
+              <Button
+                type="submit"
+                variant="outline"
+                disabled={isLoading || !isEditorReady || !inputSmiles.trim()}
+              >
+                {isLoading ? "Loading…" : !isEditorReady ? "Initializing…" : "Load structure"}
+              </Button>
+            )}
+            {activeInputType === "molfile" && (
+              <>
+                <Button
+                  type="submit"
+                  variant="outline"
+                  disabled={isLoading || !isEditorReady || !molfileContent.trim()}
+                >
+                  {isLoading ? "Loading…" : "Load structure"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload />
+                  Upload file
+                </Button>
+              </>
+            )}
+            {activeInputType === "inchi" && (
+              <Button
+                type="submit"
+                variant="outline"
+                disabled={isLoading || !isEditorReady || !inputInchi.trim() || !inchiModuleLoaded}
+              >
+                {isLoading
+                  ? "Loading…"
+                  : !isEditorReady
+                    ? "Initializing…"
+                    : !inchiModuleLoaded
+                      ? "Loading InChI module…"
+                      : "Convert to structure"}
+              </Button>
+            )}
           </div>
-
-          {/* Results */}
-          <div className="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg transition-all duration-300 hover:shadow-xl">
-            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-3 flex items-center">
-              <FileText className="h-5 w-5 mr-2 text-green-500 dark:text-green-400" />
-              Results
-            </h3>
-
-            {/* InChI */}
-            <ResultBlock
-              title="InChI"
-              value={inchi}
-              onCopy={() => copyToClipboard(inchi, "inchi")}
-              copyState={copySuccess}
-              icon={<Code className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />}
-            />
-
-            {/* InChIKey */}
-            <ResultBlock
-              title="InChIKey"
-              value={inchiKey}
-              onCopy={() => copyToClipboard(inchiKey, "key")}
-              copyState={copySuccess}
-              icon={<Info className="h-4 w-4 text-purple-600 dark:text-purple-500" />}
-            />
-
-            {/* AuxInfo */}
-            <ResultBlock
-              title="AuxInfo"
-              value={auxInfo}
-              onCopy={() => copyToClipboard(auxInfo, "auxinfo")}
-              copyState={copySuccess}
-              icon={<FileText className="h-4 w-4 text-blue-600 dark:text-blue-500" />}
-            />
-
-            {/* Log messages */}
-            <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-700 transition-colors duration-300">
-              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
-                <Info className="h-4 w-4 mr-1 text-gray-600 dark:text-gray-400" />
-                Log
-              </h4>
-              <pre className="text-xs text-gray-600 dark:text-gray-400 font-mono whitespace-pre-wrap max-h-48 overflow-auto">
-                {logMessage || "No log messages yet."}
-              </pre>
+          <div className="grid gap-2" aria-label="Structure editor" role="region">
+            <div className="pc-row">
+              <span className={`pc-tag ${isEditorReady ? "text-primary" : "text-saffron-ink"}`}>
+                {isEditorReady ? "Editor ready" : "Initializing editor…"}
+              </span>
+              <span className={`pc-tag ${inchiModuleLoaded ? "text-primary" : "text-saffron-ink"}`}>
+                {inchiModuleLoaded ? "InChI module ready" : "Loading InChI module…"}
+              </span>
+              {!ready && (
+                <Button type="button" size="sm" onClick={handleRetryInit}>
+                  <RefreshCw />
+                  Retry
+                </Button>
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={clearEditor}
+                disabled={isLoading || !isEditorReady}
+              >
+                <RefreshCw />
+                Clear editor
+              </Button>
+            </div>
+            <div className="h-[75dvh] min-h-[480px] overflow-hidden rounded-xl border border-border bg-card md:h-[900px]">
+              <iframe
+                ref={ketcherFrame}
+                src="/standalone/index.html"
+                title="Ketcher Editor"
+                className="h-full w-full"
+                frameBorder="0"
+              />
             </div>
           </div>
+        </form>
+      </Cell>
+
+      <InChIOptions
+        onChange={setOptions}
+        inchiVersion={inchiVersion}
+        setInchiVersion={setInchiVersion}
+      >
+        <p className="pc-tool-note">
+          The IUPAC International Chemical Identifier (InChI) is a canonical, layered text
+          identifier for chemical substances.
+        </p>
+        <Switch
+          checked={autoGenerate}
+          onChange={toggleAutoGenerate}
+          label="Auto-generate"
+          hint="Regenerate the InChI when the options change"
+        />
+      </InChIOptions>
+
+      <Cell id="inchi-results" title={inchi ? "InChI" : "Results"} className="pc-t-wide">
+        <div className="pc-tool-form">
+          {error && <GlassErrorCard message={error} onRetry={() => setError(null)} />}
+          {!hasResult && !error && (
+            <p className="pc-empty">Draw or load a structure, then generate its InChI.</p>
+          )}
+          {hasResult && (
+            <dl className="pc-ids">
+              {resultRows.map(({ label, value, type }) => (
+                <div className="pc-id" key={label}>
+                  <dt>{label}</dt>
+                  <dd>
+                    {value || <span className="text-muted-foreground">Not generated</span>}
+                    <Button
+                      variant="outline"
+                      size="icon-sm"
+                      aria-label={`Copy ${label}`}
+                      disabled={!value}
+                      onClick={() => copyToClipboard(value, type)}
+                    >
+                      {copySuccess ? <Check /> : <ClipboardCopy />}
+                    </Button>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          )}
+          <div className="grid gap-1">
+            <span className="pc-lbl">Log</span>
+            <pre className="max-h-48 overflow-auto rounded-xl border border-border bg-muted p-3 font-mono text-xs whitespace-pre-wrap text-muted-foreground">
+              {logMessage || "No log messages yet."}
+            </pre>
+          </div>
         </div>
-      </div>
+      </Cell>
     </div>
   );
 };
+
 export default InChIView;

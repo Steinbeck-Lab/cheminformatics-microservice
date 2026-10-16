@@ -1,4 +1,5 @@
 // OCSR Service using DECIMER
+import { failed } from "@/lib/error-messages";
 import api from "./api";
 import type { OCSRResult } from "../types/api";
 
@@ -24,8 +25,7 @@ export const processImage = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`OCSR processing failed: ${message}`);
+    throw failed("OCSR processing failed", error);
   }
 };
 
@@ -42,8 +42,7 @@ export const processImageUrl = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`OCSR processing failed: ${message}`);
+    throw failed("OCSR processing failed", error);
   }
 };
 

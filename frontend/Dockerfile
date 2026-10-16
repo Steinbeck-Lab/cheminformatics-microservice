@@ -34,6 +34,11 @@ RUN echo 'server { \
     server_name localhost; \
     root /usr/share/nginx/html; \
     index index.html; \
+    gzip on; \
+    gzip_types application/javascript text/css application/json image/svg+xml text/plain application/wasm; \
+    gzip_min_length 1024; \
+    gzip_comp_level 6; \
+    gzip_vary on; \
     location / { \
         try_files $uri $uri/ /index.html; \
     } \

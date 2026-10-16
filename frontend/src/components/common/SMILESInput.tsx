@@ -1,12 +1,12 @@
 // Description: A React component for inputting SMILES notation with example and recent molecule dropdowns.
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 // Import necessary icons
 import { useAppContext } from "../../context/AppContext"; // Assuming context provides recentMolecules
-import { AlertCircle, Clipboard, Clock, Lightbulb, X } from "lucide-react";
+import { Clipboard, Clock, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import type { RecentMolecule } from "@/types/molecule";
 
 // Example molecules data (static, moved outside component)
 const EXAMPLE_MOLECULES = [
@@ -43,66 +43,43 @@ const EXAMPLE_MOLECULES = [
 ];
 
 // Dropdown List Item Component (for cleaner code)
-const DropdownItem = ({ molecule, onClick }) => (
-  <li className="mx-1">
-    <button
-      type="button"
-      className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 focus-visible:bg-gray-100 dark:focus-visible:bg-gray-700 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring cursor-pointer rounded-md"
-      onClick={() => onClick(molecule.smiles)}
-    >
-      <span
-        className="block font-medium text-sm text-gray-800 dark:text-gray-100 truncate"
-        title={molecule.name || `SMILES: ${molecule.smiles}`}
-      >
-        {molecule.name || "Recent Molecule"}
-      </span>
-      <span
-        className="block text-xs text-gray-500 dark:text-gray-400 truncate"
-        title={molecule.smiles}
-      >
-        {molecule.smiles}
-      </span>
-      {molecule.description && (
-        <span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">
-          {molecule.description}
-        </span>
-      )}
-    </button>
-  </li>
-);
+
+interface PasteModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onPaste: (text: string) => void;
+}
 
 // Paste Modal Component
-const PasteModal = ({ isOpen, onClose, onPaste }) => {
+const PasteModal = ({ isOpen, onClose, onPaste }: PasteModalProps) => {
   const [text, setText] = useState("");
-  const textareaRef = useRef(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent
         showCloseButton={false}
-        className="block gap-0 border-0 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full"
+        className="block gap-0 border-0 bg-card p-6 rounded-xl shadow-2xl max-w-lg w-full"
         onOpenAutoFocus={(e) => {
           e.preventDefault();
           textareaRef.current?.focus();
         }}
       >
         <div className="flex justify-between items-center mb-4">
-          <DialogTitle className="text-lg font-bold text-gray-900 dark:text-white flex items-center">
-            <Clipboard className="h-5 w-5 mr-2 text-indigo-500 dark:text-indigo-400" />
+          <DialogTitle className="text-lg font-bold text-foreground flex items-center">
+            <Clipboard className="h-5 w-5 mr-2 text-primary " />
             Paste SMILES
           </DialogTitle>
           <Button
             variant="ghost"
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+
             aria-label="Close"
           >
             <X className="w-5 h-5" />
           </Button>
         </div>
-        <p className="mb-4 text-gray-700 dark:text-gray-300">
-          Please paste your SMILES string in the area below:
-        </p>
+        <p className="mb-4 text-foreground ">Please paste your SMILES string in the area below:</p>
         <div className="mb-4">
           <Textarea
             ref={textareaRef}
@@ -114,11 +91,7 @@ const PasteModal = ({ isOpen, onClose, onPaste }) => {
           />
         </div>
         <div className="flex justify-end gap-3">
-          <Button
-            variant="secondary"
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
-          >
+          <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
           <Button
@@ -126,7 +99,7 @@ const PasteModal = ({ isOpen, onClose, onPaste }) => {
               onPaste(text);
               onClose();
             }}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-sm hover:bg-indigo-700"
+
             disabled={!text.trim()}
           >
             Use SMILES
@@ -137,296 +110,141 @@ const PasteModal = ({ isOpen, onClose, onPaste }) => {
   );
 };
 
-// Inject fadeIn keyframe animation (idempotent -- safe with HMR)
-const FADE_IN_STYLE_ID = "smilesinput-fadein";
-if (typeof document !== "undefined" && !document.getElementById(FADE_IN_STYLE_ID)) {
-  const styleSheet = document.createElement("style");
-  styleSheet.id = FADE_IN_STYLE_ID;
-  styleSheet.textContent = `
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fadeIn {
-      animation: fadeIn 0.3s ease-out forwards;
-    }
-  `;
-  document.head.appendChild(styleSheet);
+interface SMILESInputProps {
+  value: string;
+  onChange: (smiles: string) => void;
+  placeholder?: string;
+  showExamples?: boolean;
+  showRecent?: boolean;
+  label?: string;
+  required?: boolean;
+  id?: string;
 }
 
 const SMILESInput = ({
   value,
   onChange,
-  placeholder = "Enter SMILES notation...",
+  placeholder = "Enter a SMILES string",
   showExamples = true,
   showRecent = true,
   label = "SMILES",
   required = false,
   id: inputId = "smiles-input",
-}) => {
-  const [showExampleList, setShowExampleList] = useState(false);
-  const [showRecentList, setShowRecentList] = useState(false);
+}: SMILESInputProps) => {
   const [showPasteModal, setShowPasteModal] = useState(false);
-  const [pasteError, setPasteError] = useState("");
+  const { recentMolecules = [] } = useAppContext() || {};
 
-  // Refs for detecting outside clicks
-  const examplesRef = useRef(null);
-  const recentRef = useRef(null);
-
-  // Assuming context provides recentMolecules array [{ smiles, name?, timestamp? }]
-  const { recentMolecules = [] } = useAppContext() || {}; // Default to empty array if context missing
-
-  // Close dropdowns if clicked outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (examplesRef.current && !examplesRef.current.contains(event.target)) {
-        setShowExampleList(false);
-      }
-      if (recentRef.current && !recentRef.current.contains(event.target)) {
-        setShowRecentList(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const closeListsOnEscape = (e) => {
-    if (e.key === "Escape") {
-      setShowExampleList(false);
-      setShowRecentList(false);
-    }
-  };
-
-  const handleClear = () => {
-    onChange("");
-    setPasteError("");
-  };
-
-  const handleExampleClick = (smiles) => {
-    onChange(smiles);
-    setShowExampleList(false); // Close dropdown after selection
-    setPasteError("");
-  };
-
-  const handleRecentClick = (smiles) => {
-    onChange(smiles);
-    setShowRecentList(false); // Close dropdown after selection
-    setPasteError("");
-  };
-
-  // Enhanced paste functionality with multiple approaches
+  // Paste: the clipboard API first, then the legacy command, then a dialog to paste into by hand.
   const handlePaste = async () => {
-    setPasteError("");
-
-    // Method 1: Try using navigator.clipboard API
-    if (navigator.clipboard && navigator.clipboard.readText) {
+    if (navigator.clipboard?.readText) {
       try {
         const text = await navigator.clipboard.readText();
-        if (text) {
-          onChange(text);
-          return;
-        }
-      } catch (err) {
-        console.debug("Clipboard readText failed:", err);
-        // Fall through to alternatives
+        if (text) return onChange(text.trim());
+      } catch {
+        // permission refused: try the next way
       }
     }
-
-    // Method 2: Try using document.execCommand
     try {
-      // Create a hidden textarea
-      const textArea = document.createElement("textarea");
-      textArea.style.position = "fixed";
-      textArea.style.top = "-999px";
-      textArea.style.left = "-999px";
-      document.body.appendChild(textArea);
-
-      // Focus and select content (may trigger paste permission in some browsers)
-      textArea.focus();
+      const area = Object.assign(document.createElement("textarea"), {
+        style: "position:fixed;top:-999px;left:-999px",
+      });
+      document.body.appendChild(area);
+      area.focus();
       document.execCommand("paste");
-
-      // Get pasted content
-      const pastedText = textArea.value;
-      document.body.removeChild(textArea);
-
-      if (pastedText) {
-        onChange(pastedText);
-        return;
-      }
-    } catch (err) {
-      console.debug("execCommand paste failed:", err);
-      // Fall through to manual method
+      const pasted = area.value;
+      area.remove();
+      if (pasted) return onChange(pasted.trim());
+    } catch {
+      // fall through to the dialog
     }
-
-    // Method 3: Show modal for manual paste
     setShowPasteModal(true);
   };
 
-  // Handle paste from the modal
-  const handleModalPaste = (text) => {
-    if (text && text.trim()) {
-      onChange(text.trim());
-    }
-  };
+  // A molecule chip: an example or a recent molecule.
+  const chip = (
+    m: Pick<RecentMolecule, "smiles" | "name" | "description">,
+    key: string | number
+  ) => (
+    <button
+      key={key}
+      type="button"
+      className="clay clay-outline pc-chip"
+      aria-pressed={value === m.smiles}
+      title={m.description || m.smiles}
+      onClick={() => onChange(m.smiles)}
+    >
+      {m.name || (m.smiles.length > 14 ? `${m.smiles.slice(0, 14)}…` : m.smiles)}
+    </button>
+  );
 
   return (
-    <div className="space-y-2">
-      {/* Label */}
+    <div className="pc-smiles">
       {label && (
-        <label
-          htmlFor={inputId}
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
-          {label} {required && <span className="text-red-500 dark:text-red-400">*</span>}
+        <label htmlFor={inputId} className="pc-lbl">
+          {label} {required && <span className="text-madder-ink">*</span>}
         </label>
       )}
-
-      {/* Input field with Clear button */}
-      <div className="relative">
-        <Input
+      <div className="pc-smiles-field">
+        <input
           id={inputId}
           type="text"
+          className="pc-well"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full pr-10"
+          spellCheck={false}
+          autoComplete="off"
+          autoCapitalize="off"
           required={required}
           aria-required={required}
         />
-
-        {/* Clear button */}
+        <Button variant="outline" type="button" onClick={handlePaste}>
+          <Clipboard />
+          Paste
+        </Button>
         {value && (
           <Button
-            variant="ghost"
-            type="button" // Prevent form submission
-            onClick={handleClear}
-            // Button styling
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 rounded-r-md"
+            variant="destructive"
+            size="icon"
+            type="button"
+            onClick={() => onChange("")}
             aria-label="Clear input"
           >
-            <X className="h-5 w-5" />
+            <X />
           </Button>
         )}
       </div>
-
-      {/* Paste Error Display */}
-      {pasteError && (
-        <div className="text-sm text-red-600 dark:text-red-400 flex items-start">
-          <AlertCircle className="h-4 w-4 mt-0.5 mr-1" />
-          <span>{pasteError}</span>
+      {showExamples && (
+        <div className="pc-smiles-chips">
+          <span className="pc-lbl2" id={`${inputId}-ex`}>
+            Examples
+          </span>
+          <div className="pc-row" role="group" aria-labelledby={`${inputId}-ex`}>
+            {EXAMPLE_MOLECULES.map((m) => chip(m, m.name))}
+          </div>
         </div>
       )}
-
-      {/* Action Buttons and Dropdowns */}
-      <div className="flex flex-wrap items-center gap-2 text-sm pt-1">
-        {/* Paste from clipboard button */}
-        <Button
-          type="button"
-          onClick={handlePaste}
-          // Button styling
-          className="inline-flex items-center px-2.5 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 text-xs font-medium shadow-xs transition-colors duration-150 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
-          title="Paste from clipboard"
-        >
-          <Clipboard className="mr-1 h-4 w-4" />
-          <span>Paste</span>
-        </Button>
-
-        {/* Examples button and dropdown */}
-        {showExamples && (
-          <div className="relative" ref={examplesRef} onKeyDown={closeListsOnEscape}>
-            <Button
-              type="button"
-              onClick={() => {
-                setShowExampleList(!showExampleList);
-                setShowRecentList(false); // Close other dropdown
-              }}
-              aria-expanded={showExampleList}
-              aria-controls={`${inputId}-examples`}
-              // Button styling
-              className="inline-flex items-center px-2.5 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 text-xs font-medium shadow-xs transition-colors duration-150 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
-            >
-              <Lightbulb className="mr-1 h-4 w-4" />
-              <span>Examples</span>
-            </Button>
-
-            {/* Examples Dropdown */}
-            {showExampleList && (
-              <div
-                id={`${inputId}-examples`}
-                // Dropdown styling
-                className="absolute z-20 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-hidden"
-              >
-                <ul className="py-1 max-h-64 overflow-y-auto">
-                  {EXAMPLE_MOLECULES.map((molecule, index) => (
-                    <DropdownItem key={index} molecule={molecule} onClick={handleExampleClick} />
-                  ))}
-                </ul>
-              </div>
-            )}
+      {showRecent && recentMolecules.length > 0 && (
+        <div className="pc-smiles-chips">
+          <span className="pc-lbl2" id={`${inputId}-recent`}>
+            <Clock className="pc-i" aria-hidden="true" /> Recent
+          </span>
+          <div className="pc-row" role="group" aria-labelledby={`${inputId}-recent`}>
+            {recentMolecules.slice(0, 4).map((m, i) => chip(m, m.timestamp || i))}
           </div>
-        )}
-
-        {/* Recent molecules button and dropdown */}
-        {showRecent && recentMolecules.length > 0 && (
-          <div className="relative" ref={recentRef} onKeyDown={closeListsOnEscape}>
-            <Button
-              type="button"
-              onClick={() => {
-                setShowRecentList(!showRecentList);
-                setShowExampleList(false); // Close other dropdown
-              }}
-              aria-expanded={showRecentList}
-              aria-controls={`${inputId}-recent`}
-              // Button styling
-              className="inline-flex items-center px-2.5 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 text-xs font-medium shadow-xs transition-colors duration-150 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
-            >
-              <Clock className="mr-1 h-4 w-4" /> {/* Replaced SVG */}
-              <span>Recent</span>
-            </Button>
-
-            {/* Recent Dropdown */}
-            {showRecentList && (
-              <div
-                id={`${inputId}-recent`}
-                // Dropdown styling
-                className="absolute z-20 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-hidden"
-              >
-                <ul className="py-1 max-h-64 overflow-y-auto">
-                  {recentMolecules.map((molecule, index) => (
-                    <DropdownItem
-                      key={molecule.timestamp || index}
-                      molecule={molecule}
-                      onClick={handleRecentClick}
-                    />
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Hint text */}
-        <p className="text-xs text-gray-500 dark:text-gray-400 pl-1">
-          Enter a valid SMILES string. If you don't have a SMILES string, use the{" "}
-          <a
-            href="/depict/structureexplorer"
-            className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Structure Explorer
-          </a>{" "}
-          to fetch one.
-        </p>
-      </div>
-
-      {/* Manual Paste Modal */}
+        </div>
+      )}
+      <p className="pc-note">
+        Need a SMILES? Find one in the{" "}
+        <a href="/depict/structureexplorer" className="text-link">
+          Structure Explorer
+        </a>
+        .
+      </p>
       <PasteModal
         isOpen={showPasteModal}
         onClose={() => setShowPasteModal(false)}
-        onPaste={handleModalPaste}
+        onPaste={(text) => text?.trim() && onChange(text.trim())}
       />
     </div>
   );
