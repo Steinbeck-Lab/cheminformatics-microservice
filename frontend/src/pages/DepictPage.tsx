@@ -6,12 +6,6 @@ import { SectionPage, type SectionTool } from "../components/common/SectionPage"
 
 const tools: SectionTool[] = [
   {
-    id: "structureexplorer",
-    name: "Structure Explorer",
-    description: "Find structures by name or identifier and visualize them in 2D and 3D.",
-    component: StructureVisualizerView,
-  },
-  {
     id: "2ddepiction",
     name: "2D Depiction",
     description:
@@ -29,6 +23,12 @@ const tools: SectionTool[] = [
     name: "Draw a Structure",
     description: "Draw and edit chemical structures in the Ketcher editor.",
     component: StructureDrawView,
+  },
+  {
+    id: "structureexplorer",
+    name: "Structure Explorer",
+    description: "Find structures by name or identifier and visualize them in 2D and 3D.",
+    component: StructureVisualizerView,
   },
 ];
 

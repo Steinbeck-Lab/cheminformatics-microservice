@@ -67,7 +67,7 @@ const HomePage = () => {
           </h1>
           <p className="pc-hero-lead">Visualize, analyze, transform. One open API.</p>
           <div className="pc-row pc-hero-cta">
-            <Link className="clay clay-primary" to="/depict">
+            <Link className="clay clay-primary" to="/depict/2ddepiction">
               <Play className="pc-i" aria-hidden="true" />
               Start with Depict
             </Link>
