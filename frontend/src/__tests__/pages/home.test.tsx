@@ -27,7 +27,7 @@ describe("Home page", () => {
     expect(lead.textContent!.trim().split(/\s+/).length).toBeLessThanOrEqual(6);
     expect(screen.getByRole("link", { name: /Start with Depict/ })).toHaveAttribute(
       "href",
-      "/depict"
+      "/depict/2ddepiction"
     );
     expect(screen.getByRole("link", { name: /^API docs/ })).toHaveAttribute(
       "href",
