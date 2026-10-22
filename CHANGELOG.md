@@ -1,5 +1,27 @@
 # Changelog
 
+## [3.12.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.11.0...v3.12.0) (2026-10-22)
+
+
+### Features
+
+* **frontend:** link Start with Depict straight to 2D Depiction ([e2b76bc](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/e2b76bc7f3420f5bcfdd66d9deb1e03a0970d854))
+* **frontend:** open Depict on 2D Depiction, move Structure Explorer last ([f598dca](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/f598dca8d18674223aa960406fa34e88b55fff1f))
+* **frontend:** Porcelain redesign of the whole UI ([8c0820c](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/8c0820cb8c88633acf11bd53e8403e5bee393e1d))
+
+
+### Bug Fixes
+
+* **docker:** cap fastapi and starlette in lite requirements ([345329c](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/345329c0769cf8bef4e599e53af4abe7e7d78072))
+* **frontend:** bump vitest to 4.1.12 for npm audit advisories ([8d55222](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/8d55222378a9a272123ea67cc58ad94a646c909a))
+
+
+### Documentation
+
+* add MCP server section to README with setup instructions and tool overview ([ec3164c](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/ec3164c2663277ac014df70813c68ded716b741a))
+* update MCP documentation for local AI agent configuration and transport details ([4ff8079](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/4ff8079abdd68416b3a096c55e204acd03a9095b))
+* update MCP Server section header with emoji for better visibility ([e1f3195](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/e1f319537e77672f5503aa417cd0eb98d6f4403f))
+
 ## [3.11.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.10.0...v3.11.0) (2026-10-15)
 
 
