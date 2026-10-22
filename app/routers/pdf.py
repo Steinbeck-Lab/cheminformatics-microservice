@@ -45,7 +45,7 @@ def _convert_upload(pdf_file: UploadFile, pages: int) -> dict:
     content = pdf_file.file.read(MAX_PDF_SIZE + 1)
     if len(content) > MAX_PDF_SIZE:
         raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
             detail=f"PDF must be {MAX_PDF_SIZE // (1024 * 1024)} MB or smaller",
         )
     if not content.startswith(b"%PDF-"):

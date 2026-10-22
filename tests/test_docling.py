@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 from importlib.util import find_spec
+from types import SimpleNamespace
 
 import pytest
 from fastapi.testclient import TestClient
 
+from app.modules import docling_wrapper
 from app.modules.docling_wrapper import combine_to_paragraph
+from app.modules.docling_wrapper import ConverterBusyError
 from app.modules.docling_wrapper import extract_paper_content
 from app.modules.docling_wrapper import extract_text
 from app.modules.docling_wrapper import first_page_text
@@ -129,3 +132,57 @@ def test_extract_text_rejects_bad_uploads(client, content, code):
         files={"pdf_file": ("paper.pdf", content, "application/pdf")},
     )
     assert response.status_code == code
+
+
+def _raise(exc):
+    def convert(content, number_of_pages):
+        raise exc
+
+    return convert
+
+
+@docling_routes
+@pytest.mark.parametrize(
+    "exc, code", [(ConverterBusyError("busy"), 503), (ValueError("bad PDF"), 422)]
+)
+def test_extract_json_maps_converter_errors(client, monkeypatch, exc, code):
+    from app.routers import pdf
+
+    monkeypatch.setattr(pdf, "get_converted_document", _raise(exc))
+    response = client.post(
+        "/latest/tools/extract_json",
+        files={"pdf_file": ("paper.pdf", b"%PDF-1.7 fake", "application/pdf")},
+    )
+    assert response.status_code == code
+
+
+@docling_routes
+def test_get_converter_sets_timeout():
+    from docling.datamodel.base_models import InputFormat
+
+    docling_wrapper._get_converter.cache_clear()
+    converter = docling_wrapper._get_converter()
+    options = converter.format_to_options[InputFormat.PDF].pipeline_options
+    assert options.document_timeout == docling_wrapper.CONVERT_TIMEOUT
+
+
+class _FakeConverter:
+    def convert(self, source, page_range):
+        self.page_range = page_range
+        return SimpleNamespace(document=SimpleNamespace(export_to_dict=lambda: DOC))
+
+
+@docling_routes
+def test_get_converted_document(monkeypatch):
+    fake = _FakeConverter()
+    monkeypatch.setattr(docling_wrapper, "_get_converter", lambda: fake)
+    assert docling_wrapper.get_converted_document(b"%PDF-", number_of_pages=2) is DOC
+    assert fake.page_range == (1, 2)
+
+
+@docling_routes
+def test_get_converted_document_when_busy(monkeypatch):
+    monkeypatch.setattr(docling_wrapper, "LOCK_TIMEOUT", 0.01)
+    with docling_wrapper._convert_lock:
+        with pytest.raises(ConverterBusyError):
+            docling_wrapper.get_converted_document(b"%PDF-")
