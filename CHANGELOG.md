@@ -1,5 +1,39 @@
 # Changelog
 
+## [3.11.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.10.0...v3.11.0) (2026-10-15)
+
+
+### Features
+
+* **api:** add opt-in structure auto-detect across endpoints ([b72fcb0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/b72fcb02e006cde58914d6283dd7a936ca913033)), closes [#384](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/384)
+* **frontend:** respect reduced motion ([63af8c7](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/63af8c77f09ef67f9dad3b3ea8fceed46694c28e))
+* **frontend:** use backend format detection in convert view ([476afc5](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/476afc50c8c92e6b7999022d02b448fee6791d04))
+* **toolkits:** add structure format auto-detection and parsing ([2a8c298](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/2a8c2986ff64879b78cf7865592c9b2b181fb259))
+
+
+### Bug Fixes
+
+* **deps:** cap fastapi &lt;0.129 and pin starlette <1.0 ([d5f3bea](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d5f3bea1891d0a4ce3a2e57213258aec5081b788))
+* **deps:** patch all open npm security advisories ([75bc898](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/75bc89850d0a6077ffd10383f121b0a048a3b6be))
+* **deps:** patch open npm security advisories in frontend ([696fdcf](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/696fdcfe28be2ab7f20b88f612cac9618f9e1f24))
+* **deps:** resolve open Dependabot alerts ([9245ff4](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/9245ff447ba3fb833baaa38ed5216d91bb94c804))
+* **frontend:** keyboard, screen reader and contrast fixes ([4c472d4](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/4c472d4db45f5553d6afb3f8d62679af9e68de44))
+* **frontend:** touch targets, mobile editor height, reliable focus ring ([851a976](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/851a9765a408563c161e63c0001d67e2e0a9818a))
+* **toolkits:** preserve explicit atoms and molblock header on auto-detect ([589e52f](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/589e52f0ba1c830bbc88d863f8b9aadb1a499bb0))
+* update deployment trigger branch from main to development ([b4dc8c5](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/b4dc8c54827245dce5f59853100ac927fc8ed007))
+* update endpoint for lite version ([#778](https://github.com/Steinbeck-Lab/cheminformatics-microservice/issues/778)) ([2d0eed4](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/2d0eed4d94216593483505aed08cafc89e4b968d))
+
+
+### Performance Improvements
+
+* **frontend:** lighter home page, fewer depiction requests, no theme flash ([6901c82](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/6901c82ac6b8fcb71c2dcbd40f4c31eb2dbceb3b))
+
+
+### Documentation
+
+* update MCP client configuration to use HTTPS with the correct hostname ([7251c58](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/7251c58fb1ecf6677cb1585c31d9cb98e360f003))
+* update navigation links and add MCP documentation ([e816aad](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/e816aad281a2cf20120ab094ee3653bb9cd14ef5))
+
 ## [3.10.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.9.0...v3.10.0) (2026-04-29)
 
 
