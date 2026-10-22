@@ -77,50 +77,45 @@ def extract_paper_content(doc: dict) -> dict:
         dict: The keys "title", "abstract" and "main_text".
     """
     texts = _body_texts(doc)
+    headers = [t["text"] for t in texts if t.get("label") == "section_header"]
 
-    title = next((t["text"] for t in texts if t.get("label") == "title"), "")
-    if not title:
-        title = next(
-            (
-                t["text"]
-                for t in texts
-                if t.get("label") == "section_header"
-                and len(t["text"]) > 10
-                and not any(h in t["text"].upper() for h in STOP_HEADERS)
-            ),
-            "",
-        )
+    title = next((t["text"] for t in texts if t.get("label") == "title"), "") or next(
+        (
+            h
+            for h in headers
+            if len(h) > 10 and not any(s in h.upper() for s in STOP_HEADERS)
+        ),
+        "",
+    )
 
-    abstract = None
-    main_text = []
-    for t in texts:
-        content = t["text"]
-        is_header = t.get("label") == "section_header"
-        if abstract is None:
-            if "abstract" in content.lower():
-                abstract = re.sub(r"^\s*abstract\s*[:.]?", "", content, flags=re.I)
-                abstract = abstract.strip()
-            continue
-        if not abstract and not is_header:
+    # Texts after the first one that mentions "abstract", up to the results section
+    start = next(
+        (i for i, t in enumerate(texts) if "abstract" in t["text"].lower()), None
+    )
+    abstract, main_text = "", []
+    if start is not None:
+        abstract = re.sub(r"^\s*abstract\s*[:.]?", "", texts[start]["text"], flags=re.I)
+        for t in texts[start + 1 :]:
+            if t.get("label") != "section_header":
+                main_text.append(t["text"])
+            elif any(s in t["text"].upper() for s in STOP_HEADERS):
+                break
+        if not abstract.strip() and main_text:
             # A bare "Abstract" heading: the abstract is the next paragraph.
-            abstract = content
-            continue
-        if is_header and any(h in content.upper() for h in STOP_HEADERS):
-            break
-        if not is_header:
-            main_text.append(content)
+            abstract = main_text.pop(0)
 
     return {
         "title": title,
-        "abstract": abstract or "",
+        "abstract": abstract.strip(),
         "main_text": " ".join(main_text),
     }
 
 
 def combine_to_paragraph(content: dict) -> str:
     """Join the title, abstract and main text into one clean paragraph."""
-    parts = (content.get(k, "").strip() for k in ("title", "abstract", "main_text"))
-    return _clean(" ".join(p for p in parts if p))
+    return _clean(
+        " ".join(content.get(k, "") for k in ("title", "abstract", "main_text"))
+    )
 
 
 def first_page_text(doc: dict) -> str:
@@ -132,3 +127,12 @@ def first_page_text(doc: dict) -> str:
             if any(p.get("page_no") == 1 for p in t.get("prov", []))
         )
     )
+
+
+def extract_text(doc: dict) -> str:
+    """Return the title, abstract and introduction as one paragraph.
+
+    Falls back to all text on the first page when 10 words or fewer are found.
+    """
+    text = combine_to_paragraph(extract_paper_content(doc))
+    return text if len(text.split()) > 10 else first_page_text(doc)

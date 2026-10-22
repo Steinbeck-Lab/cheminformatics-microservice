@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from importlib.util import find_spec
 from typing import Dict
 
 from app.limiter import limiter
@@ -29,6 +30,10 @@ from app.schemas import HealthCheck
 # Import OCSR router if necessary
 if os.getenv("INCLUDE_OCSR", "true").lower() == "true":
     from .routers import ocsr
+
+# Docling pulls in torch, so the lite image ships without it and its PDF routes
+if find_spec("docling"):
+    from .routers import pdf
 
 
 def create_app_metadata() -> Dict:
@@ -74,6 +79,9 @@ app.include_router(tools.router)
 # Import OCSR router if necessary
 if os.getenv("INCLUDE_OCSR", "true").lower() == "true":
     app.include_router(ocsr.router)
+
+if find_spec("docling"):
+    app.include_router(pdf.router)
 
 app = VersionedFastAPI(
     app,

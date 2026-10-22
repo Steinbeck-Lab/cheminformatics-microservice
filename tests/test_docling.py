@@ -7,7 +7,9 @@ from fastapi.testclient import TestClient
 
 from app.modules.docling_wrapper import combine_to_paragraph
 from app.modules.docling_wrapper import extract_paper_content
+from app.modules.docling_wrapper import extract_text
 from app.modules.docling_wrapper import first_page_text
+from app.routers.pdf import MAX_PDF_SIZE
 
 
 def _text(label, text, page=1):
@@ -71,6 +73,11 @@ def test_first_page_text_skips_headers_and_other_pages():
     assert text.startswith("Deep Learning")
 
 
+def test_extract_text_falls_back_to_first_page():
+    doc = {"texts": [_text("text", "Only a short note.")]}
+    assert extract_text(doc) == "Only a short note."
+
+
 docling_routes = pytest.mark.skipif(
     not find_spec("docling"),
     reason="docling routes are only registered when docling is installed",
@@ -80,11 +87,11 @@ docling_routes = pytest.mark.skipif(
 @pytest.fixture
 def client(monkeypatch):
     from app.main import app
-    from app.routers import tools
+    from app.routers import pdf
 
     # Skip the real model run; the wrapper functions are tested above.
     monkeypatch.setattr(
-        tools, "get_converted_document", lambda content, number_of_pages: DOC
+        pdf, "get_converted_document", lambda content, number_of_pages: DOC
     )
     return TestClient(app)
 
@@ -114,7 +121,7 @@ def test_extract_json(client):
 @docling_routes
 @pytest.mark.parametrize(
     "content, code",
-    [(b"not a pdf", 400), (b"%PDF-" + b"0" * (10 * 1024 * 1024), 413)],
+    [(b"not a pdf", 400), (b"%PDF-" + b"0" * MAX_PDF_SIZE, 413)],
 )
 def test_extract_text_rejects_bad_uploads(client, content, code):
     response = client.post(

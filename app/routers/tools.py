@@ -1,19 +1,12 @@
 from __future__ import annotations
 
 import logging
-import os
-from importlib.util import find_spec
 
 from fastapi import APIRouter
-from fastapi import File
-from fastapi import Form
 from fastapi import HTTPException
 from fastapi import Query
-from fastapi import Request
 from fastapi import status
-from fastapi import UploadFile
 
-from app.limiter import limiter
 from app.routers.params import AUTO_DETECT_PARAM
 from app.modules.toolkits.helpers import parse_structure_query
 from app.modules.tools.sugar_removal import extract_aglycone_and_sugars
@@ -1049,104 +1042,3 @@ def get_aglycone_and_sugar_indices_endpoint(
     except Exception:
         logger.exception("Error processing request")
         raise HTTPException(status_code=422, detail="Processing error")
-
-
-MAX_PDF_SIZE = 10 * 1024 * 1024
-MAX_PDF_PAGES = 20
-
-
-def _read_pdf_upload(pdf_file: UploadFile) -> bytes:
-    """Read an uploaded PDF and reject files that are too large or not PDFs."""
-    content = pdf_file.file.read(MAX_PDF_SIZE + 1)
-    if len(content) > MAX_PDF_SIZE:
-        raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail="PDF must be 10 MB or smaller",
-        )
-    if not content.startswith(b"%PDF-"):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Uploaded file must be a PDF",
-        )
-    return content
-
-
-# Docling pulls in torch, so the lite image leaves it out and skips these routes.
-if find_spec("docling"):
-    from app.modules.docling_wrapper import combine_to_paragraph
-    from app.modules.docling_wrapper import ConverterBusyError
-    from app.modules.docling_wrapper import extract_paper_content
-    from app.modules.docling_wrapper import first_page_text
-    from app.modules.docling_wrapper import get_converted_document
-
-    def _convert_pdf(content: bytes, pages: int) -> dict:
-        try:
-            return get_converted_document(content, number_of_pages=pages)
-        except ConverterBusyError:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="PDF converter is busy, please retry later",
-            )
-        except Exception:
-            logger.exception("Error converting PDF")
-            raise HTTPException(status_code=422, detail="Error processing the PDF")
-
-    @router.post(
-        "/extract_json",
-        summary="Extract the document structure of a PDF as JSON using Docling",
-        response_description="Return the Docling document as JSON",
-        status_code=status.HTTP_200_OK,
-    )
-    @limiter.limit("5/minute")
-    def extract_pdf_json(
-        request: Request,
-        pdf_file: UploadFile = File(..., description="PDF file, 10 MB or smaller"),
-        pages: int = Form(
-            1, ge=1, le=MAX_PDF_PAGES, description="Number of pages to process"
-        ),
-    ):
-        """## Extract the document structure of a PDF using Docling.
-
-        Parameters:
-        - **pdf_file**: required (File): The PDF file to process.
-        - **pages**: optional (int): Number of pages to process from the start. Defaults to 1.
-
-        Returns:
-        - JSON: The Docling document structure.
-        """
-        content = _read_pdf_upload(pdf_file)
-        return _convert_pdf(content, pages)
-
-    @router.post(
-        "/extract_text",
-        summary="Extract the title, abstract and introduction of a PDF as text",
-        response_description="Return the combined text extracted from the PDF",
-        status_code=status.HTTP_200_OK,
-    )
-    @limiter.limit("5/minute")
-    def extract_pdf_text(
-        request: Request,
-        pdf_file: UploadFile = File(..., description="PDF file, 10 MB or smaller"),
-        pages: int = Form(
-            1, ge=1, le=MAX_PDF_PAGES, description="Number of pages to process"
-        ),
-    ):
-        """## Extract the title, abstract and introduction of a PDF as one paragraph.
-
-        Falls back to all text on the first page when 10 words or fewer are found.
-
-        Parameters:
-        - **pdf_file**: required (File): The PDF file to process.
-        - **pages**: optional (int): Number of pages to process from the start. Defaults to 1.
-
-        Returns:
-        - JSON: The combined text and the name of the uploaded file.
-        """
-        content = _read_pdf_upload(pdf_file)
-        doc = _convert_pdf(content, pages)
-
-        text = combine_to_paragraph(extract_paper_content(doc))
-        if len(text.split()) <= 10:
-            text = first_page_text(doc)
-        filename = os.path.basename(pdf_file.filename or "").replace(" ", "_")
-        return {"text": text, "pdf_filename": filename}
