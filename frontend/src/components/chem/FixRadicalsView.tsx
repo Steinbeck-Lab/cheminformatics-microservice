@@ -1,45 +1,62 @@
-// Description: This component allows users to input a SMILES string containing radicals and fix them using CDK. It displays the original structure, fixed structure, and statistics about the radicals.
-import { useState, useEffect } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import DOMPurify from "dompurify";
+import { Check, CheckCircle, Clipboard, FlaskConical, Info, Loader2 } from "lucide-react";
 import SMILESInput from "../common/SMILESInput";
 import { fixRadicals } from "../../services/chemService";
 import { generate2DDepictionEnhanced, generate2DDepiction } from "../../services/depictService";
-import {
-  AlertCircle,
-  Check,
-  CheckCircle,
-  Clipboard,
-  FlaskConical,
-  Info,
-  Loader2,
-} from "lucide-react";
 import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
 import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
-import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
+import { Cell } from "@/components/common/porcelain-ui";
+import { useRevealOnResult } from "@/hooks/useRevealOnResult";
 
+/** What /chem/fixRadicals returns: counts, not the booleans the shared type declares. */
+interface FixResult {
+  fixed_smiles: string;
+  radicals_detected: number;
+  radicals_fixed: number;
+}
+
+const cleanSvg = (svg: string) => svg.replace(/ns0:/g, "").replace("xmlns:ns0=", "xmlns=");
+
+function Depiction({ svg, label }: { svg: string | null; label: string }) {
+  return svg ? (
+    <div
+      role="img"
+      aria-label={label}
+      className="flex h-80 w-full items-center justify-center rounded-xl border border-border bg-card p-4 [&>svg]:h-auto [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:max-w-full"
+      dangerouslySetInnerHTML={{
+        __html: DOMPurify.sanitize(svg, { USE_PROFILES: { svg: true, svgFilters: true } }),
+      }}
+    />
+  ) : (
+    <div className="flex h-80 w-full items-center justify-center rounded-xl border border-border bg-muted">
+      <p className="text-sm text-muted-foreground">Depiction unavailable</p>
+    </div>
+  );
+}
+
+/** Fix radicals: unpaired electrons on C, N and O are filled with implicit hydrogens (CDK). */
 const FixRadicalsView = () => {
   const [smiles, setSmiles] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [result, setResult] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<FixResult | null>(null);
   const [copied, setCopied] = useState(false);
-  const [originalDepiction, setOriginalDepiction] = useState(null);
-  const [fixedDepiction, setFixedDepiction] = useState(null);
+  const [originalDepiction, setOriginalDepiction] = useState<string | null>(null);
+  const [fixedDepiction, setFixedDepiction] = useState<string | null>(null);
   const [depictionLoading, setDepictionLoading] = useState(false);
 
-  // Generate depictions when result is available
+  // Draw both structures once there is a result.
   useEffect(() => {
     const generateDepictions = async () => {
       if (!result) return;
-
       setDepictionLoading(true);
       setOriginalDepiction(null);
       setFixedDepiction(null);
-
       try {
-        // Use enhanced depiction for original molecule with radicals (perceive_radicals enabled)
+        // The original keeps its radicals visible (perceive_radicals).
         const originalSvg = await generate2DDepictionEnhanced(smiles, {
           width: 400,
           height: 400,
@@ -47,43 +64,31 @@ const FixRadicalsView = () => {
           annotate: "none",
           style: "cow",
         });
-
-        // Remove namespace prefix to fix rendering
-        const cleanedOriginalSvg = originalSvg.replace(/ns0:/g, "").replace("xmlns:ns0=", "xmlns=");
-        setOriginalDepiction(cleanedOriginalSvg);
-
-        // Use standard depiction for fixed molecule
+        setOriginalDepiction(cleanSvg(originalSvg));
         const fixedSvg = await generate2DDepiction(result.fixed_smiles, {
           width: 400,
           height: 400,
           toolkit: "cdk",
         });
-
-        // Remove namespace prefix to fix rendering
-        const cleanedFixedSvg = fixedSvg.replace(/ns0:/g, "").replace("xmlns:ns0=", "xmlns=");
-        setFixedDepiction(cleanedFixedSvg);
+        setFixedDepiction(cleanSvg(fixedSvg));
       } catch (err) {
+        // The SMILES still show without a picture.
         console.error("Error generating depictions:", err);
-        // Don't set error state, just log it - we can still show SMILES
       } finally {
         setDepictionLoading(false);
       }
     };
-
     generateDepictions();
   }, [result, smiles]);
 
-  // Handle copy SMILES
   const handleCopySmiles = async () => {
     if (!result?.fixed_smiles) return;
-
     try {
       await navigator.clipboard.writeText(result.fixed_smiles);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy SMILES:", err);
-      // Try fallback method
       try {
         const textArea = document.createElement("textarea");
         textArea.value = result.fixed_smiles;
@@ -101,8 +106,7 @@ const FixRadicalsView = () => {
     }
   };
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const trimmedSmiles = smiles.trim();
     if (!trimmedSmiles) {
@@ -112,18 +116,15 @@ const FixRadicalsView = () => {
       setFixedDepiction(null);
       return;
     }
-
     setLoading(true);
     setError(null);
     setResult(null);
     setOriginalDepiction(null);
     setFixedDepiction(null);
-
     try {
-      const data = await fixRadicals(trimmedSmiles);
+      const data = (await fixRadicals(trimmedSmiles)) as unknown as FixResult;
       setResult(data);
-
-      // Show info message if no radicals were found
+      // Not a failure: shown as a note above the result.
       if (data.radicals_detected === 0) {
         setError("No radicals detected in the input molecule.");
       }
@@ -136,305 +137,153 @@ const FixRadicalsView = () => {
     }
   };
 
+  const done = !!result && !loading;
+  const rate =
+    result && result.radicals_detected > 0
+      ? Math.round((result.radicals_fixed / result.radicals_detected) * 100)
+      : 100;
+  const title = done
+    ? `${result.radicals_fixed} radical${result.radicals_fixed === 1 ? "" : "s"} fixed`
+    : "Results";
+
+  useRevealOnResult("fr-results", loading, !!result, !!error);
+
   return (
-    <div className="space-y-6 p-4 md:p-6">
-      {/* Input Card */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-blue-400 mb-4">
-          Fix Radicals in Molecules
-        </h2>
-
-        {/* Info Box */}
-        <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-md border border-blue-200 dark:border-blue-700">
-          <div className="flex items-start">
-            <Info className="h-5 w-5 text-blue-500 dark:text-blue-400 mr-3 mt-0.5 shrink-0" />
-            <div className="text-sm text-blue-700 dark:text-blue-200">
-              <p className="font-medium mb-1">About Radical Fixing</p>
-              <p>
-                This tool detects and fixes radical electrons (unpaired electrons) on atoms in
-                molecular structures. It supports radicals on Carbon (C), Nitrogen (N), and Oxygen
-                (O) atoms.
-              </p>
-              <p className="mt-2">
-                <strong>Examples:</strong> [CH3] (methyl radical), C[CH2] (ethyl radical), [OH]
-                (hydroxyl radical)
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="pc-bento">
+      <Cell id="fr-input" title="Structure input" className="pc-t-input">
+        <form onSubmit={handleSubmit} className="pc-tool-form">
           <SMILESInput
             value={smiles}
             onChange={setSmiles}
             required
             placeholder="Enter SMILES with radicals (e.g., [CH3], C[CH2], [OH])"
           />
-
-          {/* Submit Button */}
-          <div className="pt-2">
-            <Button
-              type="submit"
-              disabled={!smiles.trim() || loading}
-              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
-                !smiles.trim() || loading
-                  ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
-              }`}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Fixing Radicals...
-                </>
-              ) : (
-                <>
-                  <FlaskConical className="mr-2 h-5 w-5" aria-hidden="true" />
-                  Fix Radicals
-                </>
-              )}
+          <div className="pc-row pc-actions">
+            <Button type="submit" disabled={!smiles.trim() || loading}>
+              {loading ? <Loader2 className="animate-spin" /> : <FlaskConical />}
+              {loading ? "Fixing radicals…" : "Fix radicals"}
             </Button>
           </div>
         </form>
-      </div>
+      </Cell>
 
-      {/* Loading State */}
-      {loading && !result && <ToolSkeleton variant="molecule" />}
+      <Cell id="fr-about" title="About radical fixing" className="pc-t-side">
+        <p className="pc-tool-note">
+          Detects radical (unpaired) electrons on atoms and fixes them. Radicals on carbon, nitrogen
+          and oxygen are supported.
+        </p>
+        <dl className="pc-defs">
+          <div>
+            <dt>Examples</dt>
+            <dd>
+              <span className="font-mono">[CH3]</span> methyl,{" "}
+              <span className="font-mono">C[CH2]</span> ethyl,{" "}
+              <span className="font-mono">[OH]</span> hydroxyl
+            </dd>
+          </div>
+        </dl>
+      </Cell>
 
-      {/* Error/Info Display */}
-      {error && !loading && (
-        <GlassErrorCard
-          message={error}
-          onRetry={() => {
-            setError(null);
-            document.getElementById("smiles-input")?.focus();
-          }}
-        />
-      )}
-
-      {/* Results Display Section */}
-      {result && !loading && (
-        <div className="space-y-4">
-          {/* Statistics Card */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-3">
-              Radical Fixing Statistics
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Radicals Detected */}
-              <div className="bg-linear-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-blue-600 dark:text-blue-300">
-                      Radicals Detected
-                    </p>
-                    <p className="text-2xl font-bold text-blue-700 dark:text-blue-200 mt-1">
-                      {result.radicals_detected}
-                    </p>
-                  </div>
-                  <Info className="h-8 w-8 text-blue-400 dark:text-blue-500" />
-                </div>
+      <Cell id="fr-results" title={title} className="pc-t-wide">
+        {loading && <ToolSkeleton variant="molecule" />}
+        {error && !loading && !result && (
+          <GlassErrorCard
+            message={error}
+            onRetry={() => {
+              setError(null);
+              document.getElementById("smiles-input")?.focus();
+            }}
+          />
+        )}
+        {!result && !loading && !error && (
+          <p className="pc-empty">Enter a SMILES string with radicals to fix them.</p>
+        )}
+        {done && (
+          <div className="pc-tool-form">
+            {error && <p className="pc-note">{error}</p>}
+            <dl className="pc-defs sm:grid-cols-3">
+              <div>
+                <dt>Radicals detected</dt>
+                <dd className="text-2xl font-bold text-foreground">{result.radicals_detected}</dd>
               </div>
-
-              {/* Radicals Fixed */}
-              <div className="bg-linear-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 p-4 rounded-lg border border-green-200 dark:border-green-700">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-green-600 dark:text-green-300">
-                      Radicals Fixed
-                    </p>
-                    <p className="text-2xl font-bold text-green-700 dark:text-green-200 mt-1">
-                      {result.radicals_fixed}
-                    </p>
-                  </div>
-                  <CheckCircle className="h-8 w-8 text-green-400 dark:text-green-500" />
-                </div>
+              <div>
+                <dt>Radicals fixed</dt>
+                <dd className="text-2xl font-bold text-foreground">{result.radicals_fixed}</dd>
               </div>
-
-              {/* Success Rate */}
-              <div className="bg-linear-to-br from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-purple-600 dark:text-purple-300">
-                      Success Rate
-                    </p>
-                    <p className="text-2xl font-bold text-purple-700 dark:text-purple-200 mt-1">
-                      {result.radicals_detected > 0
-                        ? Math.round((result.radicals_fixed / result.radicals_detected) * 100)
-                        : 100}
-                      %
-                    </p>
-                  </div>
-                  <FlaskConical className="h-8 w-8 text-purple-400 dark:text-purple-500" />
-                </div>
+              <div>
+                <dt>Success rate</dt>
+                <dd className="text-2xl font-bold text-foreground">{rate}%</dd>
               </div>
-            </div>
-
-            {/* Note about unsupported radicals */}
+            </dl>
             {result.radicals_detected > result.radicals_fixed && (
-              <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/30 rounded-md border border-yellow-200 dark:border-yellow-700">
-                <div className="flex items-start">
-                  <Info className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mr-2 mt-0.5 shrink-0" />
-                  <p className="text-sm text-yellow-700 dark:text-yellow-200">
-                    Note: Some radicals were detected but not fixed. Currently, only radicals on
-                    Carbon (C), Nitrogen (N), and Oxygen (O) atoms are supported.
-                  </p>
-                </div>
-              </div>
+              <p className="pc-row text-sm text-saffron-ink">
+                <Info className="size-4 shrink-0" aria-hidden="true" />
+                Some radicals were detected but not fixed. Only radicals on C, N and O are
+                supported.
+              </p>
             )}
           </div>
+        )}
+      </Cell>
 
-          {/* Structures Comparison Card */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg">
-            <div className="flex items-center justify-between mb-4 border-b border-gray-200 dark:border-gray-700 pb-3">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Structure Comparison
-              </h3>
-
-              <div className="flex items-center gap-2">
-                {/* Copy Fixed SMILES Button */}
-                <Button
-                  onClick={handleCopySmiles}
-                  disabled={!result?.fixed_smiles}
-                  className={`flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
-                    copied
-                      ? "bg-green-500 text-white"
-                      : "bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-500 dark:hover:bg-blue-600"
-                  } disabled:opacity-50 disabled:cursor-not-allowed`}
-                  title="Copy fixed SMILES to clipboard"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="h-4 w-4 mr-2" />
-                      Copied!
-                    </>
-                  ) : (
-                    <>
-                      <Clipboard className="h-4 w-4 mr-2" />
-                      Copy Fixed SMILES
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
-
-            {depictionLoading && (
-              <div className="flex justify-center items-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                <span className="ml-3 text-gray-600 dark:text-gray-400">
-                  Generating depictions...
-                </span>
-              </div>
-            )}
-
-            {!depictionLoading && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Original Structure with Radicals */}
-                <div>
-                  <h4 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
-                    <span className="inline-block w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                    Original Structure (with radicals)
-                  </h4>
-
-                  {/* Depiction Container */}
-                  <div className="bg-white dark:bg-gray-900 rounded-lg border-2 border-gray-200 dark:border-gray-700 p-4 mb-3">
-                    {originalDepiction ? (
-                      <div
-                        role="img"
-                        aria-label="Original structure, with radicals"
-                        className="w-full h-80 flex items-center justify-center [&>svg]:max-w-full [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:h-auto"
-                        dangerouslySetInnerHTML={{
-                          __html: DOMPurify.sanitize(originalDepiction, {
-                            USE_PROFILES: { svg: true, svgFilters: true },
-                          }),
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-80 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-sm">
-                        <p className="text-gray-500 dark:text-gray-400 text-sm">
-                          Depiction unavailable
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* SMILES Display */}
-                  <div className="bg-gray-100 dark:bg-gray-900 p-3 rounded-md border border-gray-200 dark:border-gray-700 font-mono text-xs overflow-x-auto shadow-xs">
-                    <div className="flex items-start justify-between">
-                      <pre className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-all flex-1">
-                        {smiles}
-                      </pre>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Fixed Structure */}
-                <div>
-                  <h4 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
-                    <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                    Fixed Structure
-                  </h4>
-
-                  {/* Depiction Container */}
-                  <div className="bg-white dark:bg-gray-900 rounded-lg border-2 border-green-200 dark:border-green-700 p-4 mb-3">
-                    {fixedDepiction ? (
-                      <div
-                        role="img"
-                        aria-label="Fixed structure"
-                        className="w-full h-80 flex items-center justify-center [&>svg]:max-w-full [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:h-auto"
-                        dangerouslySetInnerHTML={{
-                          __html: DOMPurify.sanitize(fixedDepiction, {
-                            USE_PROFILES: { svg: true, svgFilters: true },
-                          }),
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-80 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-sm">
-                        <p className="text-gray-500 dark:text-gray-400 text-sm">
-                          Depiction unavailable
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* SMILES Display */}
-                  <div className="bg-gray-100 dark:bg-gray-900 p-3 rounded-md border border-gray-200 dark:border-gray-700 font-mono text-xs overflow-x-auto shadow-xs">
-                    <div className="flex items-start justify-between">
-                      <pre className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-all flex-1">
-                        {result.fixed_smiles}
-                      </pre>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Comparison Note */}
-            {smiles === result.fixed_smiles && result.radicals_detected === 0 && (
-              <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-600">
-                <p className="text-sm text-gray-600 dark:text-gray-300 text-center">
-                  The structures are identical - no radicals were detected in the input.
+      {done && (
+        <Cell
+          id="fr-compare"
+          title="Structure comparison"
+          className="pc-t-wide"
+          meta={
+            <Button
+              variant="outline"
+              onClick={handleCopySmiles}
+              disabled={!result.fixed_smiles}
+              title="Copy fixed SMILES to clipboard"
+            >
+              {copied ? <Check /> : <Clipboard />}
+              {copied ? "Copied" : "Copy fixed SMILES"}
+            </Button>
+          }
+        >
+          {depictionLoading ? (
+            <p className="pc-row justify-center py-8 text-muted-foreground">
+              <Loader2 className="size-5 animate-spin" aria-hidden="true" />
+              Generating depictions…
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="pc-tool-form gap-3">
+                <h3 className="text-sm font-semibold text-foreground">
+                  Original structure (with radicals)
+                </h3>
+                <Depiction svg={originalDepiction} label="Original structure, with radicals" />
+                <p className="rounded-xl bg-muted p-3 font-mono text-xs break-all text-foreground">
+                  {smiles}
                 </p>
               </div>
-            )}
-
-            {smiles !== result.fixed_smiles && result.radicals_fixed > 0 && (
-              <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/30 rounded-md border border-green-200 dark:border-green-700">
-                <div className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mr-2 mt-0.5 shrink-0" />
-                  <p className="text-sm text-green-700 dark:text-green-200">
-                    Successfully fixed {result.radicals_fixed} radical
-                    {result.radicals_fixed !== 1 ? "s" : ""} by adding implicit hydrogens.
-                  </p>
-                </div>
+              <div className="pc-tool-form gap-3">
+                <h3 className="text-sm font-semibold text-foreground">Fixed structure</h3>
+                <Depiction svg={fixedDepiction} label="Fixed structure" />
+                <p className="rounded-xl bg-muted p-3 font-mono text-xs break-all text-foreground">
+                  {result.fixed_smiles}
+                </p>
               </div>
-            )}
-          </div>
-        </div>
+            </div>
+          )}
+          {smiles === result.fixed_smiles && result.radicals_detected === 0 && (
+            <p className="pc-note mt-4 text-center">
+              The structures are identical: no radicals were detected in the input.
+            </p>
+          )}
+          {smiles !== result.fixed_smiles && result.radicals_fixed > 0 && (
+            <p className="pc-row mt-4 text-sm text-primary">
+              <CheckCircle className="size-4 shrink-0" aria-hidden="true" />
+              Fixed {result.radicals_fixed} radical{result.radicals_fixed !== 1 ? "s" : ""} by
+              adding implicit hydrogens.
+            </p>
+          )}
+        </Cell>
       )}
     </div>
   );
 };
+
 export default FixRadicalsView;

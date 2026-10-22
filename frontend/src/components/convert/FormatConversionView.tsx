@@ -1,41 +1,31 @@
-// Description: This component handles the format conversion between different chemical notations.
-import { useState, useRef, useEffect } from "react";
-// Ensure all used icons are imported
-// Assuming these components are correctly implemented and styled for dark/light mode
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { ArrowLeftRight, Loader2, Upload } from "lucide-react";
 import SMILESInput from "../common/SMILESInput";
 import MoleculeDepiction2D from "../depict/MoleculeDepiction2D";
 import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
 import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
-import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
-// Assuming this service is configured correctly
 import convertService from "../../services/convertService";
 import XYZGridResult from "./XYZGridResult";
 import type { XYZBatchConversionResult } from "@/types/api";
-import {
-  AlertCircle,
-  ArrowLeftRight,
-  ArrowRight,
-  Check,
-  Clipboard,
-  FileText,
-  Loader2,
-  Upload,
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Cell, CopyButton, Seg, Select, Switch } from "@/components/common/porcelain-ui";
+import { useRevealOnResult } from "@/hooks/useRevealOnResult";
 
-// Input format options configuration
-const INPUT_FORMAT_OPTIONS = [
+type InputFormat = "smiles" | "iupac" | "selfies" | "molsdf" | "cdx" | "xyz";
+type OutputFormat =
+  | "smiles"
+  | "canonicalsmiles"
+  | "inchi"
+  | "inchikey"
+  | "cxsmiles"
+  | "selfies"
+  | "smarts"
+  | "mol"
+  | "sdf";
+type Toolkit = "cdk" | "rdkit" | "openbabel";
+
+const INPUT_FORMAT_OPTIONS: { id: InputFormat; label: string }[] = [
   { id: "smiles", label: "SMILES" },
   { id: "iupac", label: "IUPAC Name" },
   { id: "selfies", label: "SELFIES" },
@@ -44,38 +34,40 @@ const INPUT_FORMAT_OPTIONS = [
   { id: "xyz", label: "XYZ Coordinates" },
 ];
 
-// Output format options configuration
-const OUTPUT_FORMAT_OPTIONS = [
-  { id: "smiles", label: "SMILES", method: null },
-  {
-    id: "canonicalsmiles",
-    label: "Canonical SMILES",
-    method: "generateCanonicalSMILES",
-  },
-  { id: "inchi", label: "InChI", method: "generateInChI" },
-  { id: "inchikey", label: "InChI Key", method: "generateInChIKey" },
-  { id: "cxsmiles", label: "CXSMILES", method: "generateCXSMILES" },
-  { id: "selfies", label: "SELFIES", method: "generateSELFIES" },
-  { id: "smarts", label: "SMARTS", method: "generateSMARTS" },
-  { id: "mol", label: "MOL Block", method: null },
-  { id: "sdf", label: "SDF", method: null },
+const OUTPUT_FORMAT_OPTIONS: { id: OutputFormat; label: string }[] = [
+  { id: "smiles", label: "SMILES" },
+  { id: "canonicalsmiles", label: "Canonical SMILES" },
+  { id: "inchi", label: "InChI" },
+  { id: "inchikey", label: "InChI Key" },
+  { id: "cxsmiles", label: "CXSMILES" },
+  { id: "selfies", label: "SELFIES" },
+  { id: "smarts", label: "SMARTS" },
+  { id: "mol", label: "MOL Block" },
+  { id: "sdf", label: "SDF" },
 ];
 
 // Output formats reachable from XYZ input.
-const XYZ_OUTPUT_FORMAT_IDS = new Set(["canonicalsmiles", "inchi", "inchikey", "mol", "sdf"]);
+const XYZ_OUTPUT_FORMAT_IDS = new Set<OutputFormat>([
+  "canonicalsmiles",
+  "inchi",
+  "inchikey",
+  "mol",
+  "sdf",
+]);
 
-// Toolkit options configuration
-const TOOLKIT_OPTIONS = [
-  { id: "cdk", label: "CDK (Chemistry Development Kit)" },
-  { id: "rdkit", label: "RDKit" },
-  { id: "openbabel", label: "OpenBabel" },
+const TOOLKIT_OPTIONS: { id: Toolkit; label: string; short: string }[] = [
+  { id: "cdk", label: "CDK (Chemistry Development Kit)", short: "CDK" },
+  { id: "rdkit", label: "RDKit", short: "RDKit" },
+  { id: "openbabel", label: "OpenBabel", short: "OpenBabel" },
 ];
 
-// Converter options for IUPAC
 const IUPAC_CONVERTER_OPTIONS = [{ id: "opsin", label: "OPSIN" }];
 
+const labelOf = <T extends string>(list: { id: T; label: string }[], id: T) =>
+  list.find((o) => o.id === id)?.label ?? id.toUpperCase();
+
 // Detect whether input text is SMILES, SELFIES, or IUPAC name (local fallback)
-const detectInputFormatLocal = (text) => {
+const detectInputFormatLocal = (text: string): string | null => {
   const trimmed = text.trim();
   if (!trimmed) return null;
 
@@ -99,25 +91,56 @@ const detectInputFormatLocal = (text) => {
   return "iupac";
 };
 
-const mapBackendDetectedFormat = (format) => {
+const mapBackendDetectedFormat = (format: string): string => {
   if (format === "molblock") return "molsdf";
   if (format === "xyz") return "xyz";
   if (format === "inchi") return "smiles";
   return format;
 };
 
+// Ensure a molblock is in the shape the backend expects
+const formatMolblockForBackend = (molblock: string) => {
+  // Normalize line endings, remove trailing spaces from each line and trim
+  let formatted = molblock.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  formatted = formatted
+    .split("\n")
+    .map((line) => line.trimEnd())
+    .join("\n")
+    .trim();
+
+  // V2000/V3000 molblocks have a 3-line header: name, program/timestamp, comment.
+  // CDK-style molblocks omit the name line (start with program line), so we
+  // prepend an empty name line.  Molblocks that already include a name line
+  // (e.g. Actelion MolfileCreator) must NOT get an extra blank line.
+  const lines = formatted.split("\n");
+  const countsIdx = lines.findIndex((l) => /V[23]000/.test(l));
+  if (countsIdx >= 0 && countsIdx <= 2) {
+    // Counts line found too early → name line is missing → add blank name
+    formatted = "\n" + formatted;
+  }
+
+  // Ensure it ends with M  END followed by a newline
+  if (!formatted.endsWith("M  END\n") && formatted.endsWith("M  END")) {
+    formatted += "\n";
+  }
+  return formatted;
+};
+
+/** Format conversion: between identifiers (SMILES, InChI, SELFIES, …) and structure files. */
 const FormatConversionView = () => {
   const [input, setInput] = useState("");
-  const [inputFormat, setInputFormat] = useState("smiles");
-  const [outputFormat, setOutputFormat] = useState("canonicalsmiles");
-  const [toolkit, setToolkit] = useState("cdk");
+  const [inputFormat, setInputFormat] = useState<InputFormat>("smiles");
+  const [outputFormat, setOutputFormat] = useState<OutputFormat>("canonicalsmiles");
+  const [toolkit, setToolkit] = useState<Toolkit>("cdk");
   const [iupacConverter, setIupacConverter] = useState("opsin");
   const [result, setResult] = useState("");
+  // Title and "converted from … to …" line, fixed when the result arrives
+  const [resultLabel, setResultLabel] = useState("");
+  const [resultSummary, setResultSummary] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [autoDetected, setAutoDetected] = useState(false);
-  const detectTimeoutRef = useRef(null);
+  const detectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     return () => {
@@ -126,66 +149,31 @@ const FormatConversionView = () => {
       }
     };
   }, []);
-  // State for molecular structure display
+  // Molecular structure display
   const [smilesForStructure, setSmilesForStructure] = useState("");
   const [showStructure, setShowStructure] = useState(false);
-  // State for file upload (MOL/SDF)
+  // MOL/SDF file upload
   const [uploadedFilename, setUploadedFilename] = useState("");
-  const fileInputRef = useRef(null);
-  // State for CDX/CDXML file upload
-  const [cdxFile, setCdxFile] = useState(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  // CDX/CDXML file upload
+  const [cdxFile, setCdxFile] = useState<File | null>(null);
   const [cdxFilename, setCdxFilename] = useState("");
-  const cdxFileInputRef = useRef(null);
-  // State for XYZ file upload + bond-perception parameters
+  const cdxFileInputRef = useRef<HTMLInputElement>(null);
+  // XYZ file upload + bond-perception parameters
   const [xyzFilename, setXyzFilename] = useState("");
   const [xyzCharge, setXyzCharge] = useState(0);
   const [xyzUseHueckel, setXyzUseHueckel] = useState(false);
-  const xyzFileInputRef = useRef(null);
+  const xyzFileInputRef = useRef<HTMLInputElement>(null);
   const [xyzBatchResult, setXyzBatchResult] = useState<XYZBatchConversionResult | null>(null);
 
-  // Helper function to ensure molblock is in proper format for backend
-  const formatMolblockForBackend = (molblock) => {
-    // Normalize line endings first
-    let formatted = molblock.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-
-    // Clean up - remove trailing spaces from each line and trim
-    formatted = formatted
-      .split("\n")
-      .map((line) => line.trimEnd())
-      .join("\n")
-      .trim();
-
-    // V2000/V3000 molblocks have a 3-line header: name, program/timestamp, comment.
-    // CDK-style molblocks omit the name line (start with program line), so we
-    // prepend an empty name line.  Molblocks that already include a name line
-    // (e.g. Actelion MolfileCreator) must NOT get an extra blank line.
-    const lines = formatted.split("\n");
-    const countsIdx = lines.findIndex((l) => /V[23]000/.test(l));
-    if (countsIdx >= 0 && countsIdx <= 2) {
-      // Counts line found too early → name line is missing → add blank name
-      formatted = "\n" + formatted;
-    }
-
-    // Ensure it ends with M  END followed by a newline
-    if (!formatted.endsWith("M  END\n")) {
-      if (formatted.endsWith("M  END")) {
-        formatted += "\n";
-      }
-    }
-
-    return formatted;
-  };
-
-  // Handle file upload for MOL/SDF files
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
+  // Read an uploaded MOL/SDF file into the input
+  const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
 
-    // Reset error and filename
     setError(null);
     setUploadedFilename("");
 
-    // Validate file extension
     const fileName = file.name.toLowerCase();
     if (!fileName.endsWith(".mol") && !fileName.endsWith(".sdf")) {
       setError("Please upload a valid .mol or .sdf file.");
@@ -195,15 +183,13 @@ const FormatConversionView = () => {
     setUploadedFilename(file.name);
 
     const reader = new FileReader();
-
     reader.onload = (event) => {
       try {
-        let fileContent = event.target.result;
+        const fileContent = String(event.target?.result ?? "")
+          .replace(/\r\n/g, "\n")
+          .replace(/\r/g, "\n")
+          .trim();
 
-        // Normalize line endings and trim
-        fileContent = fileContent.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
-
-        // Validate molblock format
         if (!fileContent.includes("M  END")) {
           setError(
             'Invalid file format: The uploaded file does not appear to be a valid MOL/SDF file (missing "M  END").'
@@ -212,7 +198,6 @@ const FormatConversionView = () => {
           return;
         }
 
-        // Check for multiple molecules
         const molBlockCount = (fileContent.match(/M {2}END/g) || []).length;
         if (molBlockCount > 1) {
           setError(
@@ -222,7 +207,6 @@ const FormatConversionView = () => {
           return;
         }
 
-        // Set the content to the input
         setInput(fileContent);
         setError(null);
       } catch (err) {
@@ -231,16 +215,13 @@ const FormatConversionView = () => {
         setInput("");
       }
     };
-
     reader.onerror = () => {
       setError("Failed to read the uploaded file. Please ensure it's a valid text file.");
       setInput("");
     };
-
     reader.readAsText(file);
   };
 
-  // Clear uploaded MOL/SDF file
   const handleClearFile = () => {
     setUploadedFilename("");
     setInput("");
@@ -249,9 +230,8 @@ const FormatConversionView = () => {
     }
   };
 
-  // Handle CDX/CDXML file selection
-  const handleCdxFileUpload = (e) => {
-    const file = e.target.files[0];
+  const handleCdxFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
     setError(null);
     const name = file.name.toLowerCase();
@@ -263,7 +243,6 @@ const FormatConversionView = () => {
     setCdxFilename(file.name);
   };
 
-  // Clear uploaded CDX file
   const handleClearCdxFile = () => {
     setCdxFile(null);
     setCdxFilename("");
@@ -272,9 +251,9 @@ const FormatConversionView = () => {
     }
   };
 
-  // Handle XYZ file selection — read as text and place in the input textarea.
-  const handleXyzFileUpload = (e) => {
-    const file = e.target.files[0];
+  // Read an XYZ file as text into the input
+  const handleXyzFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
     setError(null);
     if (!file.name.toLowerCase().endsWith(".xyz")) {
@@ -284,14 +263,13 @@ const FormatConversionView = () => {
     setXyzFilename(file.name);
     const reader = new FileReader();
     reader.onload = (event) => {
-      const content = event.target.result;
+      const content = event.target?.result;
       setInput(typeof content === "string" ? content : "");
     };
     reader.onerror = () => setError("Failed to read the uploaded XYZ file.");
     reader.readAsText(file);
   };
 
-  // Clear uploaded XYZ file
   const handleClearXyzFile = () => {
     setXyzFilename("");
     setInput("");
@@ -301,27 +279,19 @@ const FormatConversionView = () => {
     }
   };
 
-  // When input format changes, automatically update output format if needed
-  const handleInputFormatChange = (format) => {
+  // A new input format may lock the output format and narrow the toolkits
+  const handleInputFormatChange = (format: InputFormat) => {
     setInputFormat(format);
     setAutoDetected(false);
 
-    // Clear MOL/SDF file when switching away from molsdf
-    if (format !== "molsdf") {
-      handleClearFile();
-    }
-    // Clear CDX file when switching away from cdx
-    if (format !== "cdx") {
-      handleClearCdxFile();
-    }
-    // Clear XYZ file when switching away from xyz
-    if (format !== "xyz") {
-      handleClearXyzFile();
-    }
+    if (format !== "molsdf") handleClearFile();
+    if (format !== "cdx") handleClearCdxFile();
+    if (format !== "xyz") handleClearXyzFile();
 
-    // Lock output format based on input type
     if (format === "iupac" || format === "selfies" || format === "molsdf") {
       setOutputFormat("smiles");
+      // MOL/SDF supports CDK and RDKit only
+      if (format === "molsdf" && toolkit === "openbabel") setToolkit("cdk");
     } else if (format === "cdx") {
       setOutputFormat("mol");
     } else if (format === "xyz") {
@@ -331,12 +301,12 @@ const FormatConversionView = () => {
     }
   };
 
-  const applyDetectedFormat = (detected) => {
+  const applyDetectedFormat = (detected: string | null) => {
     if (!detected) {
       setAutoDetected(false);
       return;
     }
-    const mapped = mapBackendDetectedFormat(detected);
+    const mapped = mapBackendDetectedFormat(detected) as InputFormat;
     if (mapped && mapped !== inputFormat) {
       setInputFormat(mapped);
       setAutoDetected(true);
@@ -346,6 +316,7 @@ const FormatConversionView = () => {
         setOutputFormat("canonicalsmiles");
       } else if (mapped === "molsdf") {
         setOutputFormat("smiles");
+        if (toolkit === "openbabel") setToolkit("cdk");
       } else if (mapped === "xyz") {
         setOutputFormat("canonicalsmiles");
         if (toolkit === "cdk") setToolkit("rdkit");
@@ -353,8 +324,8 @@ const FormatConversionView = () => {
     }
   };
 
-  // Handle text input changes with auto-format detection
-  const handleInputChange = (value) => {
+  // Text input with auto-format detection (backend first, local fallback)
+  const handleInputChange = (value: string) => {
     setInput(value);
     if (inputFormat === "molsdf") return;
 
@@ -377,18 +348,48 @@ const FormatConversionView = () => {
     }, 300);
   };
 
-  // When output format changes, we may need to adjust toolkit availability
-  const handleOutputFormatChange = (format) => {
+  const handleOutputFormatChange = (format: OutputFormat) => {
     setOutputFormat(format);
-
     // SMARTS only supports RDKit
     if (format === "smarts") {
       setToolkit("rdkit");
     }
   };
 
-  // Handle form submission for conversion
-  const handleSubmit = async (e) => {
+  // Convert a SMILES string to the chosen output format
+  const convertSmilesTo = async (smiles: string, options: { autoDetect: boolean }) => {
+    switch (outputFormat) {
+      case "smiles":
+        return smiles;
+      case "mol":
+        // MOL Block output: generate 2D coordinates from SMILES
+        return convertService.generate2DCoordinates(smiles, toolkit, options);
+      case "canonicalsmiles":
+        return convertService.generateCanonicalSMILES(smiles, toolkit, options);
+      case "inchi":
+        return convertService.generateInChI(smiles, toolkit, options);
+      case "inchikey":
+        return convertService.generateInChIKey(smiles, toolkit, options);
+      case "cxsmiles":
+        return convertService.generateCXSMILES(smiles, toolkit, options);
+      case "selfies":
+        return convertService.generateSELFIES(smiles, options);
+      case "smarts":
+        return convertService.generateSMARTS(smiles, toolkit, options);
+      default:
+        throw new Error(`Unsupported output format: ${outputFormat}`);
+    }
+  };
+
+  // Toolkit choice applies to SMILES, MOL/SDF and XYZ input, not to SELFIES/SMARTS output
+  const showToolkitSelection =
+    (inputFormat === "smiles" || inputFormat === "molsdf" || inputFormat === "xyz") &&
+    outputFormat !== "selfies" &&
+    outputFormat !== "smarts";
+
+  const showIupacConverterSelection = inputFormat === "iupac";
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const trimmedInput = input.trim();
     if (inputFormat !== "cdx" && !trimmedInput) {
@@ -405,17 +406,18 @@ const FormatConversionView = () => {
     setLoading(true);
     setError(null);
     setResult("");
+    setXyzBatchResult(null);
     setSmilesForStructure("");
     setShowStructure(false);
 
     try {
-      let convertedResult;
+      let convertedResult: string | undefined;
       let smilesForDisplay = "";
       const convertOptions = { autoDetect: autoDetected };
 
-      // XYZ → SMILES / Canonical SMILES / InChI / InChIKey / MOL / SDF
       if (inputFormat === "xyz") {
-        const xyzToolkit = toolkit === "cdk" ? "rdkit" : (toolkit as "rdkit" | "openbabel");
+        // XYZ → SMILES / Canonical SMILES / InChI / InChIKey / MOL / SDF
+        const xyzToolkit = toolkit === "cdk" ? "rdkit" : toolkit;
         const batch = await convertService.convertXYZ(trimmedInput, {
           charge: xyzCharge,
           useHueckel: xyzUseHueckel,
@@ -432,10 +434,10 @@ const FormatConversionView = () => {
           return;
         }
 
-        // Single-frame path: pick the chosen output and reuse the existing UX.
+        // Single frame: pick the chosen output.
         const only = batch.structures[0];
-        if (!only.success) {
-          throw new Error(only.error || "XYZ conversion failed");
+        if (!only || !only.success) {
+          throw new Error(only?.error || "XYZ conversion failed");
         }
         smilesForDisplay = only.canonicalsmiles;
         switch (outputFormat) {
@@ -458,7 +460,7 @@ const FormatConversionView = () => {
           default:
             throw new Error(`Unsupported output format for XYZ input: ${outputFormat}.`);
         }
-      } else if (inputFormat === "cdx") {
+      } else if (inputFormat === "cdx" && cdxFile) {
         // CDX/CDXML → MOL Block
         const molblock = await convertService.convertCDXToMol(cdxFile);
         convertedResult = molblock;
@@ -467,107 +469,27 @@ const FormatConversionView = () => {
         } catch {
           // Structure preview is optional
         }
-      } else if (inputFormat !== "smiles") {
-        // Handle MOL/SDF to SMILES conversion
+      } else {
+        // SMILES directly; MOL/SDF, IUPAC and SELFIES via SMILES first
+        let smiles: string;
         if (inputFormat === "molsdf") {
-          // Format the MOL block properly before sending
-          const formattedMolblock = formatMolblockForBackend(trimmedInput);
-          const smiles = await convertService.molblockToSMILES(formattedMolblock, toolkit);
-          smilesForDisplay = smiles;
-
-          // If the output is SMILES, we're done
-          if (outputFormat === "smiles") {
-            convertedResult = smiles;
-          } else if (outputFormat === "mol") {
-            // MOL Block output: generate 2D coordinates from SMILES
-            convertedResult = await convertService.generate2DCoordinates(
-              smiles,
-              toolkit,
-              convertOptions
-            );
-          } else {
-            // Otherwise, convert SMILES to the target format
-            const formatOption = OUTPUT_FORMAT_OPTIONS.find((option) => option.id === outputFormat);
-            if (!formatOption || !formatOption.method) {
-              throw new Error(`Unsupported output format: ${outputFormat}`);
-            }
-
-            const method = convertService[formatOption.method];
-            if (typeof method !== "function") {
-              throw new Error(`Conversion function not available for format: ${outputFormat}`);
-            }
-
-            // Convert the SMILES to the target format
-            convertedResult = await method(smiles, toolkit, convertOptions);
-          }
-        } else if (inputFormat !== "cdx") {
-          // First convert IUPAC or SELFIES to SMILES
-          const smiles = await convertService.generateSMILES(
+          smiles = await convertService.molblockToSMILES(
+            formatMolblockForBackend(trimmedInput),
+            toolkit
+          );
+        } else if (inputFormat === "smiles") {
+          smiles = trimmedInput;
+        } else {
+          smiles = await convertService.generateSMILES(
             trimmedInput,
             inputFormat,
             inputFormat === "iupac" ? iupacConverter : undefined
           );
-
-          // Store SMILES for structure display
-          smilesForDisplay = smiles;
-
-          // If the output is SMILES, we're done
-          if (outputFormat === "smiles") {
-            convertedResult = smiles;
-          } else if (outputFormat === "mol") {
-            // MOL Block output: generate 2D coordinates from SMILES
-            convertedResult = await convertService.generate2DCoordinates(
-              smiles,
-              toolkit,
-              convertOptions
-            );
-          } else {
-            // Otherwise, convert SMILES to the target format
-            const formatOption = OUTPUT_FORMAT_OPTIONS.find((option) => option.id === outputFormat);
-            if (!formatOption || !formatOption.method) {
-              throw new Error(`Unsupported output format: ${outputFormat}`);
-            }
-
-            const method = convertService[formatOption.method];
-            if (typeof method !== "function") {
-              throw new Error(`Conversion function not available for format: ${outputFormat}`);
-            }
-
-            // Convert the SMILES to the target format
-            convertedResult = await method(smiles, toolkit, convertOptions);
-          }
         }
-      } else {
-        // Direct SMILES conversion to target format
-        // Use the input SMILES for structure display
-        smilesForDisplay = trimmedInput;
-
-        if (outputFormat === "smiles") {
-          // Just return the input if output is also SMILES
-          convertedResult = trimmedInput;
-        } else if (outputFormat === "mol") {
-          // MOL Block output: generate 2D coordinates from SMILES
-          convertedResult = await convertService.generate2DCoordinates(
-            trimmedInput,
-            toolkit,
-            convertOptions
-          );
-        } else {
-          const formatOption = OUTPUT_FORMAT_OPTIONS.find((option) => option.id === outputFormat);
-          if (!formatOption || !formatOption.method) {
-            throw new Error(`Unsupported output format: ${outputFormat}`);
-          }
-
-          const method = convertService[formatOption.method];
-          if (typeof method !== "function") {
-            throw new Error(`Conversion function not available for format: ${outputFormat}`);
-          }
-
-          convertedResult = await method(trimmedInput, toolkit, convertOptions);
-        }
+        smilesForDisplay = smiles;
+        convertedResult = await convertSmilesTo(smiles, convertOptions);
       }
 
-      // Handle cases where conversion might return null/undefined/empty
       if (!convertedResult) {
         setError(`Conversion resulted in empty output.`);
         setResult("");
@@ -582,15 +504,24 @@ const FormatConversionView = () => {
         }
 
         setResult(finalResult);
+        setResultLabel(labelOf(OUTPUT_FORMAT_OPTIONS, outputFormat));
+        setResultSummary(
+          `Converted from ${labelOf(INPUT_FORMAT_OPTIONS, inputFormat)} to ${labelOf(
+            OUTPUT_FORMAT_OPTIONS,
+            outputFormat
+          )}${showToolkitSelection ? ` using ${labelOf(TOOLKIT_OPTIONS, toolkit)}` : ""}${
+            showIupacConverterSelection
+              ? ` with ${labelOf(IUPAC_CONVERTER_OPTIONS, iupacConverter)}`
+              : ""
+          }.`
+        );
 
-        // Set SMILES for structure display if we have a valid SMILES
         if (smilesForDisplay && smilesForDisplay.trim()) {
           // Clean up SMILES string - remove quotes and trim
           let cleanedSmiles = smilesForDisplay.trim();
           if (cleanedSmiles.startsWith('"') && cleanedSmiles.endsWith('"')) {
             cleanedSmiles = cleanedSmiles.substring(1, cleanedSmiles.length - 1);
           }
-
           setSmilesForStructure(cleanedSmiles);
           setShowStructure(true);
         }
@@ -604,643 +535,391 @@ const FormatConversionView = () => {
     }
   };
 
-  // Handle copying the result to clipboard
-  const handleCopyResult = () => {
-    if (!result || !navigator.clipboard) return;
+  const outputLocked = inputFormat !== "smiles" && inputFormat !== "xyz";
+  const outputChoices = OUTPUT_FORMAT_OPTIONS.filter((option) => {
+    if (inputFormat === "xyz") return XYZ_OUTPUT_FORMAT_IDS.has(option.id);
+    // SDF output is only meaningful for XYZ input today.
+    return option.id !== "sdf";
+  });
+  const toolkitChoices = TOOLKIT_OPTIONS.filter((option) => {
+    // MOL/SDF only supports CDK and RDKit
+    if (inputFormat === "molsdf") return option.id === "cdk" || option.id === "rdkit";
+    // XYZ supports RDKit (xyz2mol) and OpenBabel; CDK lacks bond perception.
+    if (inputFormat === "xyz") return option.id === "rdkit" || option.id === "openbabel";
+    return true;
+  });
 
-    navigator.clipboard
-      .writeText(result)
-      .then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      })
-      .catch((err) => {
-        console.error("Failed to copy result:", err);
-        setError("Failed to copy result to clipboard.");
-      });
-  };
+  const xyzMulti = !!xyzBatchResult && xyzBatchResult.summary.total > 1 && !loading;
+  const done = !!result && !loading;
+  const title = done
+    ? resultLabel
+    : xyzMulti && xyzBatchResult
+      ? `${xyzBatchResult.summary.total} structures`
+      : "Results";
+  const focusId =
+    inputFormat === "molsdf"
+      ? "molsdf-input"
+      : inputFormat === "xyz"
+        ? "xyz-input"
+        : "smiles-input";
 
-  // Determine if toolkit selection should be shown based on input/output format
-  const showToolkitSelection =
-    (inputFormat === "smiles" || inputFormat === "molsdf" || inputFormat === "xyz") &&
-    outputFormat !== "selfies" &&
-    outputFormat !== "smarts" &&
-    inputFormat !== "cdx";
-
-  // Determine if IUPAC converter selection should be shown
-  const showIupacConverterSelection = inputFormat === "iupac";
+  useRevealOnResult("fc-results", loading, !!result, !!xyzBatchResult, !!error);
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
-      {/* Input and Options Card */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-blue-400 mb-4">
-          Format Conversion
-        </h2>
+    <div className="pc-bento">
+      <Cell
+        id="fc-input"
+        title="Structure input"
+        className="pc-t-input"
+        meta={autoDetected && <span className="pc-tag text-primary">Auto-detected</span>}
+      >
+        <form onSubmit={handleSubmit} className="pc-tool-form">
+          <Select
+            label="Input format"
+            value={inputFormat}
+            onChange={(v) => handleInputFormatChange(v as InputFormat)}
+            options={INPUT_FORMAT_OPTIONS.map((o) => [o.id, o.label])}
+          />
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Input Format Selection */}
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label
-                htmlFor="input-format-select"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Input Format
-              </label>
-              {autoDetected && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
-                  Auto-detected
-                </span>
-              )}
-            </div>
-            <Select value={inputFormat} onValueChange={handleInputFormatChange}>
-              <SelectTrigger id="input-format-select" className="w-full">
-                <SelectValue placeholder="Select input format" />
-              </SelectTrigger>
-              <SelectContent>
-                {INPUT_FORMAT_OPTIONS.map((option) => (
-                  <SelectItem key={option.id} value={option.id}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* IUPAC Converter Selection (conditionally shown) */}
           {showIupacConverterSelection && (
-            <div>
-              <label
-                htmlFor="iupac-converter-select"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                IUPAC Converter
-              </label>
-              <Select value={iupacConverter} onValueChange={setIupacConverter}>
-                <SelectTrigger id="iupac-converter-select" className="w-full">
-                  <SelectValue placeholder="Select converter" />
-                </SelectTrigger>
-                <SelectContent>
-                  {IUPAC_CONVERTER_OPTIONS.map((option) => (
-                    <SelectItem key={option.id} value={option.id}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                OPSIN is used to convert IUPAC names to SMILES
-              </p>
+            <div className="grid gap-2">
+              <Select
+                label="IUPAC converter"
+                value={iupacConverter}
+                onChange={setIupacConverter}
+                options={IUPAC_CONVERTER_OPTIONS.map((o) => [o.id, o.label])}
+              />
+              <p className="pc-note">OPSIN is used to convert IUPAC names to SMILES.</p>
             </div>
           )}
 
-          {/* Input Field */}
-          <div>
-            {inputFormat === "xyz" ? (
-              <>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  XYZ File Upload
-                </label>
-                <label
-                  htmlFor="xyz-file-upload"
-                  className="group relative flex items-center justify-center px-6 py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all duration-300 bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 hover:shadow-md"
-                >
-                  <input
-                    ref={xyzFileInputRef}
-                    id="xyz-file-upload"
-                    type="file"
-                    accept=".xyz,text/plain"
-                    onChange={handleXyzFileUpload}
-                    className="hidden"
-                  />
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg group-hover:bg-blue-200 dark:group-hover:bg-blue-800/40 transition-colors duration-300">
-                      <Upload className="h-6 w-6 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-300" />
-                    </div>
-                    <div className="text-left">
-                      <span className="block text-sm font-semibold text-gray-800 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
-                        {xyzFilename || "Choose XYZ File"}
-                      </span>
-                      <span className="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                        Plain-text XYZ coordinates (atom count, comment, then `element x y z`)
-                      </span>
-                    </div>
-                  </div>
-                </label>
-                {xyzFilename && (
-                  <div className="mt-3 flex items-center justify-between p-3 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg shadow-xs">
-                    <div className="flex items-center space-x-2 flex-1 min-w-0">
-                      <div className="p-1.5 bg-blue-100 dark:bg-blue-800/40 rounded-md">
-                        <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <span className="text-sm font-medium text-blue-900 dark:text-blue-100 truncate">
-                        {xyzFilename}
-                      </span>
-                      <span className="text-xs text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-800/40 px-2 py-0.5 rounded-full">
-                        Loaded
-                      </span>
-                    </div>
-                    <Button
-                      variant="outline"
-                      type="button"
-                      onClick={handleClearXyzFile}
-                      className="ml-3 px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-300 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 border-blue-300 dark:border-blue-700 rounded-md"
-                    >
-                      Clear
-                    </Button>
-                  </div>
-                )}
-                <p className="mt-2 mb-3 text-xs text-center text-gray-500 dark:text-gray-400 font-medium">
-                  Or paste XYZ content below
-                </p>
-                <Textarea
-                  id="xyz-input"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder={
-                    "Paste XYZ block here...\n\nExample (water):\n3\nwater\nO    0.0000    0.0000    0.0000\nH    0.7572    0.5860    0.0000\nH   -0.7572    0.5860    0.0000"
-                  }
-                  rows={10}
-                  required
-                  className="font-mono text-sm"
-                />
-                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label
-                      htmlFor="xyz-charge"
-                      className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >
-                      Net Charge
-                    </label>
-                    <Input
-                      id="xyz-charge"
-                      type="number"
-                      min={-10}
-                      max={10}
-                      step={1}
-                      value={xyzCharge}
-                      onChange={(e) => {
-                        const v = parseInt(e.target.value, 10);
-                        setXyzCharge(Number.isFinite(v) ? v : 0);
-                      }}
-                      disabled={toolkit === "openbabel"}
-                      className="w-full"
-                    />
-                    <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">
-                      e.g. -1 for acetate. Used by RDKit (xyz2mol). OpenBabel ignores charge.
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Bond Perception
-                    </label>
-                    <label className="inline-flex items-center gap-2 mt-1.5">
-                      <input
-                        type="checkbox"
-                        checked={xyzUseHueckel}
-                        onChange={(e) => setXyzUseHueckel(e.target.checked)}
-                        disabled={toolkit === "openbabel"}
-                        className="rounded border-gray-300"
-                      />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">
-                        Use extended Hückel (RDKit only)
-                      </span>
-                    </label>
-                    <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">
-                      Slower; better for unusual valences.
-                    </p>
-                  </div>
-                </div>
-                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Bond orders are perceived from 3D coordinates. CDK is not supported (its core
-                  distribution lacks XYZ→bond perception).
-                </p>
-              </>
-            ) : inputFormat === "cdx" ? (
-              <>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  ChemDraw File Upload
-                </label>
-                <label
-                  htmlFor="cdx-file-upload"
-                  className="group relative flex items-center justify-center px-6 py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all duration-300 bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 hover:shadow-md"
-                >
-                  <input
-                    ref={cdxFileInputRef}
-                    id="cdx-file-upload"
-                    type="file"
-                    accept=".cdx,.cdxml"
-                    onChange={handleCdxFileUpload}
-                    className="hidden"
-                  />
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg group-hover:bg-blue-200 dark:group-hover:bg-blue-800/40 transition-colors duration-300">
-                      <Upload className="h-6 w-6 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-300" />
-                    </div>
-                    <div className="text-left">
-                      <span className="block text-sm font-semibold text-gray-800 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
-                        {cdxFilename || "Choose CDX or CDXML File"}
-                      </span>
-                      <span className="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                        .cdx (binary) or .cdxml (XML) formats
-                      </span>
-                    </div>
-                  </div>
-                </label>
-                {cdxFilename && (
-                  <div className="mt-3 flex items-center justify-between p-3 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg shadow-xs">
-                    <div className="flex items-center space-x-2 flex-1 min-w-0">
-                      <div className="p-1.5 bg-blue-100 dark:bg-blue-800/40 rounded-md">
-                        <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <span className="text-sm font-medium text-blue-900 dark:text-blue-100 truncate">
-                        {cdxFilename}
-                      </span>
-                      <span className="text-xs text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-800/40 px-2 py-0.5 rounded-full">
-                        Ready
-                      </span>
-                    </div>
-                    <Button
-                      variant="outline"
-                      type="button"
-                      onClick={handleClearCdxFile}
-                      className="ml-3 px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-300 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 border-blue-300 dark:border-blue-700 rounded-md"
-                    >
-                      Clear
-                    </Button>
-                  </div>
-                )}
-                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Upload a ChemDraw binary (.cdx) or XML (.cdxml) file. The output will be a V2000
-                  MOL block.
-                </p>
-              </>
-            ) : inputFormat === "molsdf" ? (
-              <>
-                <label
-                  htmlFor="molsdf-input"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  MOL/SDF Block Input
-                </label>
-
-                {/* File Upload Button */}
-                <div className="mb-3">
-                  <label
-                    htmlFor="mol-file-upload"
-                    className="group relative flex items-center justify-center px-6 py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all duration-300 bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 hover:shadow-md"
+          {inputFormat === "xyz" ? (
+            <div className="grid gap-2">
+              <label htmlFor="xyz-input" className="pc-lbl">
+                XYZ block
+              </label>
+              <textarea
+                id="xyz-input"
+                className="pc-well resize-y"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder={
+                  "Paste XYZ block here...\n\nExample (water):\n3\nwater\nO    0.0000    0.0000    0.0000\nH    0.7572    0.5860    0.0000\nH   -0.7572    0.5860    0.0000"
+                }
+                rows={10}
+                spellCheck={false}
+                required
+                aria-required="true"
+              />
+              <p className="pc-note">
+                Paste plain-text XYZ coordinates (atom count, comment, then element x y z) or upload
+                a .xyz file.
+              </p>
+              {xyzFilename && (
+                <div className="pc-row">
+                  <span className="pc-tag">{xyzFilename}</span>
+                  <span className="pc-note">Loaded</span>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleClearXyzFile}
                   >
-                    <input
-                      ref={fileInputRef}
-                      id="mol-file-upload"
-                      type="file"
-                      accept=".mol,.sdf"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg group-hover:bg-blue-200 dark:group-hover:bg-blue-800/40 transition-colors duration-300">
-                        <Upload className="h-6 w-6 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-300" />
-                      </div>
-                      <div className="text-left">
-                        <span className="block text-sm font-semibold text-gray-800 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
-                          {uploadedFilename || "Choose MOL/SDF File"}
-                        </span>
-                        <span className="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                          .mol or .sdf formats supported
-                        </span>
-                      </div>
-                    </div>
-                  </label>
-                  <p className="mt-2 text-xs text-center text-gray-500 dark:text-gray-400 font-medium">
-                    Or paste MOL/SDF content below
-                  </p>
+                    Clear
+                  </Button>
                 </div>
-
-                {/* Display uploaded filename with clear option */}
-                {uploadedFilename && (
-                  <div className="mb-3 flex items-center justify-between p-3 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg shadow-xs animate-fadeIn">
-                    <div className="flex items-center space-x-2 flex-1 min-w-0">
-                      <div className="p-1.5 bg-blue-100 dark:bg-blue-800/40 rounded-md">
-                        <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <span className="text-sm font-medium text-blue-900 dark:text-blue-100 truncate">
-                        {uploadedFilename}
-                      </span>
-                      <span className="text-xs text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-800/40 px-2 py-0.5 rounded-full">
-                        Loaded
-                      </span>
-                    </div>
+              )}
+              <input
+                ref={xyzFileInputRef}
+                id="xyz-file-upload"
+                type="file"
+                accept=".xyz,text/plain"
+                onChange={handleXyzFileUpload}
+                className="sr-only"
+                tabIndex={-1}
+                aria-hidden="true"
+              />
+            </div>
+          ) : inputFormat === "cdx" ? (
+            <div className="grid gap-2">
+              <span className="pc-lbl">ChemDraw file</span>
+              <div className="pc-row">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => cdxFileInputRef.current?.click()}
+                >
+                  <Upload />
+                  {cdxFilename ? "Choose another file" : "Choose CDX or CDXML file"}
+                </Button>
+                {cdxFilename && (
+                  <>
+                    <span className="pc-tag">{cdxFilename}</span>
+                    <span className="pc-note">Ready</span>
                     <Button
-                      variant="outline"
                       type="button"
-                      onClick={handleClearFile}
-                      className="ml-3 px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-300 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 border-blue-300 dark:border-blue-700 rounded-md"
+                      variant="destructive"
+                      size="sm"
+                      onClick={handleClearCdxFile}
                     >
                       Clear
                     </Button>
-                  </div>
+                  </>
                 )}
-
-                <Textarea
-                  id="molsdf-input"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Paste MOL or SDF block here...&#10;&#10;Example:&#10;  CDK     09012308392D&#10;&#10;  2  1  0  0  0  0  0  0  0  0999 V2000&#10;    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0&#10;    1.5000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0&#10;  1  2  1  0  0  0  0&#10;M  END"
-                  rows={12}
-                  required
-                  className="font-mono text-sm"
-                />
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Upload a file or paste a MOL or SDF block. If SDF format is detected (contains
-                  $$$$), only the first molecule will be processed.
-                </p>
-              </>
-            ) : inputFormat !== "cdx" ? (
-              <>
-                <SMILESInput
-                  value={input}
-                  onChange={handleInputChange}
-                  label={
-                    inputFormat === "smiles"
-                      ? "SMILES Input"
-                      : inputFormat === "iupac"
-                        ? "IUPAC Name"
-                        : "SELFIES Input"
-                  }
-                  placeholder={
-                    inputFormat === "smiles"
-                      ? "Enter SMILES notation..."
-                      : inputFormat === "iupac"
-                        ? "Enter IUPAC chemical name..."
-                        : "Enter SELFIES notation..."
-                  }
-                  required
-                />
-
-                {inputFormat === "iupac" && (
-                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Example: 1,3,7-trimethylpurine-2,6-dione (caffeine)
-                  </p>
-                )}
-                {inputFormat === "selfies" && (
-                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Example:
-                    [C][N][C][=Branch1][C][=O][N][=Branch2][C][=Branch1][C][=O][N][Ring1][C]
-                  </p>
-                )}
-              </>
-            ) : null}
-          </div>
-
-          {/* Conversion Direction Indicator */}
-          <div className="flex items-center justify-center py-4">
-            <div className="grow h-px bg-gray-200 dark:bg-gray-700"></div>
-            <div className="mx-4 bg-gray-100 dark:bg-gray-700 p-2 rounded-full ring-1 ring-gray-300 dark:ring-gray-600">
-              <ArrowRight className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <p className="pc-note">
+                A ChemDraw binary (.cdx) or XML (.cdxml) file; the output is a V2000 MOL block.
+              </p>
+              <input
+                ref={cdxFileInputRef}
+                id="cdx-file-upload"
+                type="file"
+                accept=".cdx,.cdxml"
+                onChange={handleCdxFileUpload}
+                className="sr-only"
+                tabIndex={-1}
+                aria-hidden="true"
+              />
             </div>
-            <div className="grow h-px bg-gray-200 dark:bg-gray-700"></div>
-          </div>
+          ) : inputFormat === "molsdf" ? (
+            <div className="grid gap-2">
+              <label htmlFor="molsdf-input" className="pc-lbl">
+                MOL/SDF block
+              </label>
+              <textarea
+                id="molsdf-input"
+                className="pc-well resize-y"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Paste MOL or SDF block here...&#10;&#10;Example:&#10;  CDK     09012308392D&#10;&#10;  2  1  0  0  0  0  0  0  0  0999 V2000&#10;    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0&#10;    1.5000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0&#10;  1  2  1  0  0  0  0&#10;M  END"
+                rows={12}
+                spellCheck={false}
+                required
+                aria-required="true"
+              />
+              <p className="pc-note">
+                Paste or upload a MOL or SDF block; for SDF (contains $$$$) only the first molecule
+                is processed.
+              </p>
+              {uploadedFilename && (
+                <div className="pc-row">
+                  <span className="pc-tag">{uploadedFilename}</span>
+                  <span className="pc-note">Loaded</span>
+                  <Button type="button" variant="destructive" size="sm" onClick={handleClearFile}>
+                    Clear
+                  </Button>
+                </div>
+              )}
+              <input
+                ref={fileInputRef}
+                id="mol-file-upload"
+                type="file"
+                accept=".mol,.sdf"
+                onChange={handleFileUpload}
+                className="sr-only"
+                tabIndex={-1}
+                aria-hidden="true"
+              />
+            </div>
+          ) : (
+            <>
+              <SMILESInput
+                value={input}
+                onChange={handleInputChange}
+                label={
+                  inputFormat === "smiles"
+                    ? "SMILES"
+                    : inputFormat === "iupac"
+                      ? "IUPAC name"
+                      : "SELFIES"
+                }
+                placeholder={
+                  inputFormat === "smiles"
+                    ? "Enter SMILES notation..."
+                    : inputFormat === "iupac"
+                      ? "Enter IUPAC chemical name..."
+                      : "Enter SELFIES notation..."
+                }
+                required
+              />
+              {inputFormat === "iupac" && (
+                <p className="pc-note">Example: 1,3,7-trimethylpurine-2,6-dione (caffeine)</p>
+              )}
+              {inputFormat === "selfies" && (
+                <p className="pc-note break-all">
+                  Example: [C][N][C][=Branch1][C][=O][N][=Branch2][C][=Branch1][C][=O][N][Ring1][C]
+                </p>
+              )}
+            </>
+          )}
 
-          {/* Output Format Selection */}
-          <div>
-            <label
-              htmlFor="output-format-select"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          <div className="pc-row pc-actions">
+            <Button
+              type="submit"
+              disabled={(inputFormat === "cdx" ? !cdxFile : !input.trim()) || loading}
             >
-              Output Format
-            </label>
-            <Select
-              value={outputFormat}
-              onValueChange={handleOutputFormatChange}
-              disabled={inputFormat !== "smiles" && inputFormat !== "xyz"}
-            >
-              <SelectTrigger
-                id="output-format-select"
-                className={cn(
-                  "w-full",
-                  inputFormat !== "smiles" &&
-                    inputFormat !== "xyz" &&
-                    "opacity-50 cursor-not-allowed"
-                )}
+              {loading ? <Loader2 className="animate-spin" /> : <ArrowLeftRight />}
+              {loading ? "Converting…" : "Convert format"}
+            </Button>
+            {inputFormat === "molsdf" && (
+              <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
+                <Upload />
+                Upload MOL/SDF file
+              </Button>
+            )}
+            {inputFormat === "xyz" && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => xyzFileInputRef.current?.click()}
               >
-                <SelectValue placeholder="Select output format" />
-              </SelectTrigger>
-              <SelectContent>
-                {OUTPUT_FORMAT_OPTIONS.filter((option) => {
-                  if (inputFormat === "xyz") return XYZ_OUTPUT_FORMAT_IDS.has(option.id);
-                  // SDF output is only meaningful for XYZ input today.
-                  if (option.id === "sdf") return false;
-                  return true;
-                }).map((option) => (
-                  <SelectItem key={option.id} value={option.id}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                <Upload />
+                Upload XYZ file
+              </Button>
+            )}
+          </div>
+        </form>
+      </Cell>
+
+      <Cell id="fc-opts" title="Options" className="pc-t-side">
+        <div className="pc-tool-form">
+          <div className="grid gap-2">
+            <Select
+              label="Output format"
+              value={outputFormat}
+              disabled={outputLocked}
+              onChange={(v) => handleOutputFormatChange(v as OutputFormat)}
+              options={outputChoices.map((o) => [o.id, o.label])}
+            />
             {(inputFormat === "iupac" || inputFormat === "selfies" || inputFormat === "molsdf") && (
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p className="pc-note">
                 {inputFormat === "iupac"
                   ? "IUPAC names"
                   : inputFormat === "selfies"
                     ? "SELFIES"
                     : "MOL/SDF blocks"}{" "}
-                can only be converted to SMILES format
+                can only be converted to SMILES.
               </p>
             )}
             {inputFormat === "cdx" && (
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p className="pc-note">
                 ChemDraw CDX/CDXML files are converted to a V2000 MOL block.
               </p>
             )}
             {outputFormat === "smarts" && (
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                SMARTS (SMiles ARbitrary Target Specification) is an extension of SMILES for
-                describing molecular patterns and properties. It's used for substructure searching
-                and matching.
+              <p className="pc-note">
+                SMARTS describes molecular patterns for substructure searching; it is only available
+                with RDKit.
               </p>
             )}
           </div>
 
-          {/* Toolkit Selection (conditionally shown) */}
           {showToolkitSelection && (
-            <div>
-              <label
-                htmlFor="toolkit-select-convert"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
+            <div className="pc-opt-group">
+              <span className="pc-lbl" id="fc-toolkit">
                 Toolkit
-              </label>
-              <Select value={toolkit} onValueChange={setToolkit}>
-                <SelectTrigger id="toolkit-select-convert" className="w-full">
-                  <SelectValue placeholder="Select toolkit" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TOOLKIT_OPTIONS.filter((option) => {
-                    // MOL/SDF only supports CDK and RDKit
-                    if (inputFormat === "molsdf") {
-                      return option.id === "cdk" || option.id === "rdkit";
-                    }
-                    // XYZ supports RDKit (xyz2mol) and OpenBabel; CDK lacks bond perception.
-                    if (inputFormat === "xyz") {
-                      return option.id === "rdkit" || option.id === "openbabel";
-                    }
-                    return true;
-                  }).map((option) => (
-                    <SelectItem key={option.id} value={option.id}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              </span>
+              <Seg
+                labelId="fc-toolkit"
+                full
+                value={toolkit}
+                onChange={setToolkit}
+                options={toolkitChoices.map((o) => ({ value: o.id, label: o.short }))}
+              />
+              <p className="pc-note">
                 {inputFormat === "molsdf"
-                  ? "MOL/SDF conversion supports CDK and RDKit toolkits."
-                  : "Note: Toolkit support may vary for different format conversions."}
+                  ? "MOL/SDF conversion supports CDK and RDKit."
+                  : "Toolkit support may vary for different format conversions."}
               </p>
             </div>
           )}
 
-          {/* Information about toolkit for SMARTS (when relevant) */}
-          {outputFormat === "smarts" && (
-            <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 rounded-sm text-xs text-blue-600 dark:text-blue-300">
-              <p>SMARTS conversion is only available using RDKit.</p>
+          {inputFormat === "xyz" && (
+            <div className="pc-opt-group">
+              <span className="pc-lbl">Bond perception</span>
+              <label className="pc-field">
+                <span>Net charge</span>
+                <input
+                  id="xyz-charge"
+                  type="number"
+                  className="pc-input disabled:cursor-not-allowed disabled:opacity-50"
+                  min={-10}
+                  max={10}
+                  step={1}
+                  value={xyzCharge}
+                  onChange={(e) => {
+                    const v = parseInt(e.target.value, 10);
+                    setXyzCharge(Number.isFinite(v) ? v : 0);
+                  }}
+                  disabled={toolkit === "openbabel"}
+                />
+              </label>
+              <p className="pc-note">
+                e.g. -1 for acetate. Used by RDKit (xyz2mol); OpenBabel ignores charge.
+              </p>
+              <Switch
+                checked={xyzUseHueckel}
+                onChange={setXyzUseHueckel}
+                disabled={toolkit === "openbabel"}
+                label="Use extended Hückel (RDKit only)"
+                hint="Slower; better for unusual valences"
+              />
+              <p className="pc-note">
+                Bond orders are perceived from 3D coordinates. CDK is not supported (its core
+                distribution lacks XYZ→bond perception).
+              </p>
             </div>
           )}
+        </div>
+      </Cell>
 
-          {/* Submit Button */}
-          <div className="pt-2">
-            <Button
-              type="submit"
-              disabled={(inputFormat === "cdx" ? !cdxFile : !input.trim()) || loading}
-              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
-                (inputFormat === "cdx" ? !cdxFile : !input.trim()) || loading
-                  ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
-              }`}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Converting...
-                </>
-              ) : (
-                <>
-                  <ArrowLeftRight className="mr-2 h-5 w-5" aria-hidden="true" />
-                  Convert Format
-                </>
-              )}
-            </Button>
-          </div>
-        </form>
-      </div>
-
-      {/* Loading State */}
-      {loading && !result && <ToolSkeleton variant="conversion" />}
-
-      {/* Error Display */}
-      {error && !loading && (
-        <GlassErrorCard
-          message={error}
-          onRetry={() => {
-            setError(null);
-            document.getElementById("smiles-input")?.focus();
-          }}
-        />
-      )}
-
-      {/* XYZ Multi-frame Grid */}
-      {xyzBatchResult && xyzBatchResult.summary.total > 1 && !loading && (
-        <XYZGridResult result={xyzBatchResult} />
-      )}
-
-      {/* Results Display Section */}
-      {result && !loading && (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700">
-          {/* Results Header */}
-          <div className="flex justify-between items-center mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Results</h3>
-            {/* Copy Button */}
-            <Button
-              onClick={handleCopyResult}
-              className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
-                copied
-                  ? "text-green-500 dark:text-green-500"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
-              title={copied ? "Copied!" : "Copy result to clipboard"}
-              aria-label={copied ? "Result Copied" : "Copy Result"}
-            >
-              {copied ? <Check className="h-5 w-5" /> : <Clipboard className="h-5 w-5" />}
-            </Button>
-          </div>
-
-          {/* Results Grid Layout */}
-          <div className={`grid gap-6 ${showStructure ? "lg:grid-cols-2" : "grid-cols-1"}`}>
-            {/* Conversion Result */}
-            <div className="space-y-3">
-              <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
-                Conversion Result
-              </h4>
-              {/* Result Display Box */}
-              <div className="p-3 bg-gray-100 dark:bg-gray-900 rounded-md font-mono text-sm overflow-x-auto border border-gray-200 dark:border-gray-700 shadow-xs">
-                <pre className="whitespace-pre-wrap break-all text-gray-700 dark:text-gray-300">
-                  {result}
-                </pre>
-              </div>
-              {/* Conversion Info Text */}
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                Converted from{" "}
-                {INPUT_FORMAT_OPTIONS.find((o) => o.id === inputFormat)?.label ||
-                  inputFormat.toUpperCase()}{" "}
-                to{" "}
-                {OUTPUT_FORMAT_OPTIONS.find((o) => o.id === outputFormat)?.label ||
-                  outputFormat.toUpperCase()}
-                {showToolkitSelection &&
-                  ` using ${TOOLKIT_OPTIONS.find((o) => o.id === toolkit)?.label || toolkit}`}
-                {showIupacConverterSelection &&
-                  ` with ${IUPAC_CONVERTER_OPTIONS.find((o) => o.id === iupacConverter)?.label || iupacConverter}`}
-                .
-              </div>
+      <Cell
+        id="fc-results"
+        title={title}
+        className="pc-t-wide"
+        meta={done && <CopyButton text={result} label="Copy result" />}
+      >
+        {loading && <ToolSkeleton variant="conversion" />}
+        {error && !loading && (
+          <GlassErrorCard
+            message={error}
+            onRetry={() => {
+              setError(null);
+              document.getElementById(focusId)?.focus();
+            }}
+          />
+        )}
+        {!result && !loading && !error && !xyzMulti && (
+          <p className="pc-empty">Enter a structure and choose the formats to convert it.</p>
+        )}
+        {xyzMulti && xyzBatchResult && <XYZGridResult result={xyzBatchResult} />}
+        {done && (
+          <div className={`grid gap-4 ${showStructure ? "lg:grid-cols-2" : ""}`}>
+            <div className="grid content-start gap-2">
+              <pre className="max-h-96 overflow-auto rounded-xl border border-border bg-muted p-3 font-mono text-sm break-all whitespace-pre-wrap text-foreground">
+                {result}
+              </pre>
+              <p className="pc-note">{resultSummary}</p>
             </div>
-
-            {/* Molecular Structure */}
             {showStructure && smilesForStructure && (
-              <div className="space-y-3">
-                <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
-                  Molecular Structure
-                </h4>
-                <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
-                  <MoleculeDepiction2D
-                    smiles={smilesForStructure}
-                    title="Generated Structure"
-                    toolkit="cdk"
-                    showCIP={true}
-                  />
-                </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
+              <div className="grid content-start gap-2">
+                <MoleculeDepiction2D
+                  smiles={smilesForStructure}
+                  title="Generated Structure"
+                  toolkit="cdk"
+                  showCIP={true}
+                />
+                <p className="pc-note">
                   Structure generated from SMILES:{" "}
-                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded-sm text-xs">
-                    {smilesForStructure}
-                  </code>
-                </div>
+                  <code className="pc-mono break-all">{smilesForStructure}</code>
+                </p>
               </div>
             )}
           </div>
-        </div>
-      )}
-
-      {/* Initial State Message */}
-      {!result && !loading && !error && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center shadow-sm">
-          <p className="text-gray-600 dark:text-gray-300">
-            Enter input data and select options to perform format conversion.
-          </p>
-        </div>
-      )}
+        )}
+      </Cell>
     </div>
   );
 };
+
 export default FormatConversionView;

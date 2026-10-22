@@ -11,10 +11,9 @@ export function Toaster() {
       toastOptions={{
         duration: 3000,
         classNames: {
-          toast:
-            "!backdrop-blur-xl !bg-white/70 dark:!bg-slate-800/70 !border !border-white/20 dark:!border-slate-600/30 !shadow-lg",
-          error: "!border-l-4 !border-l-red-500",
-          success: "!border-l-4 !border-l-green-500",
+          toast: "glass !rounded-2xl !text-foreground",
+          error: "!border-destructive/50 [&_[data-icon]]:!text-madder-ink",
+          success: "[&_[data-icon]]:!text-primary",
           description: "!text-muted-foreground",
         },
       }}

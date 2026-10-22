@@ -145,6 +145,13 @@ For detailed instructions, please refer to:
 - [Kubernetes Cluster Deployment Guide](https://docs.api.naturalproducts.net/cluster-deployment.html)
 - [Standalone Installation Guide](https://docs.api.naturalproducts.net/standalone.html)
 
+## 🤖 MCP Server
+
+Cheminformatics Microservice also supports the Model Context Protocol (MCP),
+enabling AI agents to discover and invoke its REST operations as tools for
+molecular analysis, format conversion, depiction, structure generation, and sugar
+removal. See the [MCP guide](docs/mcp.md) for setup instructions and available tools.
+
 ## 📈 Load Ramping Test Results
 
 View the latest load ramping test results from September 29, 2023: [Test Results Discussion](https://github.com/Steinbeck-Lab/cheminformatics-microservice/discussions/413)
@@ -156,10 +163,12 @@ This project is licensed under the MIT License. See the [LICENSE](https://github
 ## 📰 Citation
 
 ### Paper
+
 1. Chandrasekhar, V., Sharma, N., Schaub, J. et al. Cheminformatics Microservice: unifying access to open cheminformatics toolkits. J Cheminform 15, 98 (2023). [https://doi.org/10.1186/s13321-023-00762-4](https://doi.org/10.1186/s13321-023-00762-4)
 2. Rajan, K., Chandrasekhar, V., Sharma, N. et al. Cheminformatics Microservice V3: a web portal for chemical structure manipulation and analysis. J Cheminform 17, 142 (2025). [https://doi.org/10.1186/s13321-025-01094-1](https://doi.org/10.1186/s13321-025-01094-1)
 
 ### Software
+
 - Venkata, C., Sharma, N., Schaub, J., Steinbeck, C., & Rajan, K. (2025). cheminformatics-microservice (Version v3.5.0) [Computer software]. https://doi.org/10.5281/zenodo.16890410
 
 ## 🔧 Maintenance

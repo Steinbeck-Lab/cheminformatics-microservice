@@ -1,9 +1,18 @@
 // Description: A reusable React component for uploading and converting MOL/SDF files to SMILES
-import { useState, useRef } from "react";
+import { useState, useRef, useId, type ChangeEvent, type DragEvent } from "react";
 import convertService from "../../services/convertService";
 import { AlertCircle, CheckCircle, FileText, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+
+interface MolFileUploadProps {
+  onConversionSuccess?: (smiles: string, molblock: string, filename: string) => void;
+  onConversionError?: (error: string) => void;
+  toolkit?: string;
+  className?: string;
+  showMolblock?: boolean;
+  allowMultipleMolecules?: boolean;
+}
 
 /**
  * MolFileUpload Component
@@ -25,23 +34,25 @@ const MolFileUpload = ({
   className = "",
   showMolblock = false,
   allowMultipleMolecules = false,
-}) => {
+}: MolFileUploadProps) => {
   const [molblock, setMolblock] = useState("");
   const [filename, setFilename] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [smiles, setSmiles] = useState("");
-  const fileInputRef = useRef(null);
+  const [dragging, setDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const inputId = useId();
 
   // Helper function to format molblock for backend
-  const formatMolblockForBackend = (molblock) => {
+  const formatMolblockForBackend = (molblock: string) => {
     // Normalize line endings first
     let formatted = molblock.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
 
     // Clean up - remove trailing spaces from each line and trim
     formatted = formatted
       .split("\n")
-      .map((line) => line.trimEnd())
+      .map((line: string) => line.trimEnd())
       .join("\n")
       .trim();
 
@@ -60,9 +71,8 @@ const MolFileUpload = ({
     return formatted;
   };
 
-  // Handle file upload and read content
-  const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
+  // Read, validate and convert one file (from the picker or a drop)
+  const processFile = (file: File | undefined) => {
     if (!file) return;
 
     // Reset state
@@ -87,7 +97,7 @@ const MolFileUpload = ({
 
     reader.onload = async (event) => {
       try {
-        let fileContent = event.target.result;
+        let fileContent = String(event.target?.result ?? "");
 
         // Normalize line endings and trim
         fileContent = fileContent.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
@@ -111,7 +121,7 @@ const MolFileUpload = ({
 
         // Handle SDF terminator - extract first molecule
         if (fileContent.includes("$$$$")) {
-          fileContent = fileContent.split("$$$$")[0].trim();
+          fileContent = (fileContent.split("$$$$")[0] ?? "").trim();
         }
 
         setMolblock(fileContent);
@@ -132,7 +142,8 @@ const MolFileUpload = ({
         }
       } catch (err) {
         console.error("File conversion error:", err);
-        const errorMsg = err.message || "Failed to convert MOL/SDF file to SMILES.";
+        const errorMsg =
+          (err instanceof Error && err.message) || "Failed to convert MOL/SDF file to SMILES.";
         setError(errorMsg);
         if (onConversionError) onConversionError(errorMsg);
       } finally {
@@ -150,6 +161,21 @@ const MolFileUpload = ({
     reader.readAsText(file);
   };
 
+  const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    processFile(e.target.files?.[0]);
+  };
+
+  const handleDragOver = (e: DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    if (!loading) setDragging(true);
+  };
+
+  const handleDrop = (e: DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    setDragging(false);
+    if (!loading) processFile(e.dataTransfer.files?.[0]);
+  };
+
   // Clear/reset the component
   const handleClear = () => {
     setMolblock("");
@@ -162,112 +188,95 @@ const MolFileUpload = ({
   };
 
   return (
-    <div className={`space-y-4 ${className}`}>
-      {/* File Upload Button */}
-      <div>
-        <label
-          htmlFor="mol-file-upload"
-          className="flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 transition-colors duration-200 bg-gray-50 dark:bg-gray-800/50"
-        >
-          <input
-            ref={fileInputRef}
-            id="mol-file-upload"
-            type="file"
-            accept=".mol,.sdf"
-            onChange={handleFileUpload}
-            className="hidden"
-            disabled={loading}
-          />
-          <Upload className="h-5 w-5 text-gray-500 dark:text-gray-400 mr-2" />
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            {filename || "Upload MOL/SDF File"}
-          </span>
-        </label>
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          Supports .mol and .sdf file formats
-        </p>
-      </div>
+    <div className={cn("grid gap-3", className)}>
+      {/* Dropzone */}
+      <label
+        htmlFor={inputId}
+        onDragOver={handleDragOver}
+        onDragLeave={() => setDragging(false)}
+        onDrop={handleDrop}
+        className={cn(
+          "flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl border border-dashed border-[var(--line-2)] px-4 py-6 text-center transition-colors",
+          "hover:border-primary/45 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring",
+          dragging && "border-primary bg-[var(--inset)]",
+          loading && "cursor-not-allowed opacity-60"
+        )}
+      >
+        <input
+          ref={fileInputRef}
+          id={inputId}
+          type="file"
+          accept=".mol,.sdf"
+          onChange={handleFileUpload}
+          className="sr-only"
+          disabled={loading}
+        />
+        <Upload className="size-5 text-muted-foreground" aria-hidden="true" />
+        <span className="text-sm font-medium text-foreground">
+          {filename || "Drop a MOL/SDF file here or click to browse"}
+        </span>
+        <span className="pc-note">Accepts .mol and .sdf</span>
+      </label>
 
-      {/* Loading Indicator */}
       {loading && (
-        <div className="flex items-center justify-center py-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"></div>
-          <span className="ml-3 text-sm text-gray-600 dark:text-gray-400">
-            Converting to SMILES...
-          </span>
-        </div>
+        <p className="pc-note" role="status">
+          Converting to SMILES...
+        </p>
       )}
 
-      {/* Error Display */}
       {error && !loading && (
-        <div
-          role="alert"
-          className="flex items-start p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
-        >
-          <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
-          <div className="ml-3 flex-1">
-            <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
-          </div>
+        <div role="alert" className="pc-err on m-0 items-center">
+          <AlertCircle className="pc-i size-4 shrink-0" aria-hidden="true" />
+          <span className="flex-1">{error}</span>
           <Button
             variant="ghost"
+            size="icon-xs"
             onClick={() => setError(null)}
             aria-label="Dismiss error"
-            className="ml-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
           >
-            <X className="h-4 w-4" />
+            <X aria-hidden="true" />
           </Button>
         </div>
       )}
 
-      {/* Success Display with SMILES */}
       {smiles && !loading && !error && (
-        <div className="space-y-3">
-          <div className="flex items-start p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-            <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
-            <div className="ml-3 flex-1">
-              <p className="text-sm font-medium text-green-800 dark:text-green-200 mb-1">
-                Conversion Successful
+        <div className="grid gap-3">
+          <div className="grid gap-2 rounded-2xl border border-[var(--line)] bg-[var(--inset)] p-3">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="size-4 shrink-0 text-primary" aria-hidden="true" />
+              <p className="m-0 flex-1 text-sm font-semibold text-foreground">
+                Conversion successful
               </p>
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-sm border border-green-200 dark:border-green-700">
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">SMILES:</p>
-                <p className="text-sm font-mono text-gray-900 dark:text-gray-100 break-all">
-                  {smiles}
-                </p>
-              </div>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={handleClear}
+                title="Clear and upload new file"
+                aria-label="Clear and upload new file"
+              >
+                <X aria-hidden="true" />
+              </Button>
             </div>
-            <Button
-              variant="ghost"
-              onClick={handleClear}
-              className="ml-2 text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
-              title="Clear and upload new file"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <p className="pc-well pc-mono m-0 min-h-0 py-2 text-sm break-all">{smiles}</p>
           </div>
 
-          {/* Optional MOL Block Display */}
           {showMolblock && molblock && (
-            <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center mb-2">
-                <FileText className="h-4 w-4 text-gray-500 dark:text-gray-400 mr-2" />
-                <p className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                  MOL Block Content
-                </p>
-              </div>
-              <pre className="text-xs font-mono text-gray-700 dark:text-gray-300 overflow-x-auto max-h-60 overflow-y-auto bg-white dark:bg-gray-900 p-3 rounded-sm border border-gray-200 dark:border-gray-700">
-                {molblock}
-              </pre>
+            <div className="grid gap-2">
+              <p className="m-0 flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+                <FileText className="size-4" aria-hidden="true" />
+                MOL block content
+              </p>
+              <pre className="pc-well pc-mono m-0 max-h-60 overflow-auto text-xs">{molblock}</pre>
             </div>
           )}
         </div>
       )}
 
-      {/* Filename Display */}
       {filename && !loading && (
-        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-          <FileText className="h-4 w-4 mr-2" />
+        <p className="m-0 flex items-center gap-2 text-sm text-muted-foreground">
+          <FileText className="size-4 shrink-0" aria-hidden="true" />
           <span className="truncate">{filename}</span>
-        </div>
+        </p>
       )}
     </div>
   );

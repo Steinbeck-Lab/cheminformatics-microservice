@@ -144,3 +144,6 @@ grafana_data/
 
 #gsd
 .planning/
+#design notes (local only)
+DESIGN.md
+PRODUCT.md

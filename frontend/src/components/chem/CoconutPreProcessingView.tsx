@@ -1,28 +1,58 @@
-// Description: This component handles the COCONUT pre-processing view, including SMILES input, processing options, and displaying results.
-import { useState } from "react";
-// Ensure all used icons are imported, including HiOutlineExclamationCircle for errors
-// Assuming these components are correctly implemented and styled for dark/light mode
+import { useState, type FormEvent } from "react";
+import { FlaskConical, Loader2 } from "lucide-react";
 import SMILESInput from "../common/SMILESInput";
-import { coconutPreprocessing } from "../../services/chemService"; // Assuming this service exists
-import { AlertCircle, FileBarChart, FlaskConical, Info, Loader2 } from "lucide-react";
+import { coconutPreprocessing } from "../../services/chemService";
 import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
 import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
-import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Cell, Seg, Switch } from "@/components/common/porcelain-ui";
+import { useRevealOnResult } from "@/hooks/useRevealOnResult";
 
+/** One structure version (original, standardized, parent) from /chem/coconut/pre-processing. */
+interface StructureVersion {
+  representations?: Record<string, string>;
+  has_stereo?: boolean;
+  has_stereo_defined?: boolean;
+  has_stereogenic_elements?: boolean;
+  descriptors?: Record<string, unknown>;
+  errors?: unknown;
+}
+type PreprocessData = Record<string, StructureVersion | undefined>;
+
+/** 'some_key' -> 'Some Key' */
+const formatKey = (key: string) => key.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+
+const formatValue = (value: unknown) => {
+  if (typeof value === "boolean") return value ? "Yes" : "No";
+  if (typeof value === "number") return parseFloat(value.toFixed(4)).toString();
+  if (typeof value === "object" && value !== null) return JSON.stringify(value);
+  return String(value);
+};
+
+const subhead = "text-sm font-medium text-muted-foreground";
+
+/** Yes/No property row. */
+function Flag({ label, value }: { label: string; value?: boolean }) {
+  return (
+    <div>
+      <dt>{label}</dt>
+      <dd className={value ? "text-primary" : "text-madder-ink"}>{value ? "Yes" : "No"}</dd>
+    </div>
+  );
+}
+
+/** COCONUT pre-processing: original, standardized and parent structure for COCONUT submission. */
 const CoconutPreProcessingView = () => {
   const [smiles, setSmiles] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [preprocessData, setPreprocessData] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [preprocessData, setPreprocessData] = useState<PreprocessData | null>(null);
   const [generate3D, setGenerate3D] = useState(false);
   const [generateDescriptors, setGenerateDescriptors] = useState(false);
-  const [activeTab, setActiveTab] = useState("original"); // Default tab
+  const [activeTab, setActiveTab] = useState("original");
 
-  // Handle form submission to preprocess the molecule
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const trimmedSmiles = smiles.trim();
     if (!trimmedSmiles) {
@@ -32,216 +62,128 @@ const CoconutPreProcessingView = () => {
 
     setLoading(true);
     setError(null);
-    setPreprocessData(null); // Clear previous results
-    setActiveTab("original"); // Reset to default tab on new submission
+    setPreprocessData(null);
+    setActiveTab("original");
 
     try {
-      // Call the service function (ensure it handles errors appropriately)
       const data = await coconutPreprocessing(trimmedSmiles, generate3D, generateDescriptors);
-      setPreprocessData(data);
+      setPreprocessData(data as PreprocessData);
     } catch (err) {
-      console.error("Preprocessing error:", err); // Log the error
-      // Set a user-friendly error message
+      console.error("Preprocessing error:", err);
       setError(getErrorMessage("chem", err));
     } finally {
       setLoading(false);
     }
   };
 
-  // Helper function to format keys (e.g., 'some_key' -> 'Some Key')
-  const formatKey = (key) => {
-    if (typeof key !== "string") return key;
-    return key
-      .replace(/_/g, " ") // Replace underscores with spaces
-      .replace(/\b\w/g, (l) => l.toUpperCase()); // Capitalize first letter of each word
-  };
+  const renderTabContent = (tabData?: StructureVersion) => {
+    if (!tabData) return <p className="pc-empty">No data available for this structure.</p>;
 
-  // Helper function to format values for display
-  const formatValue = (value) => {
-    if (typeof value === "boolean") {
-      return value ? "Yes" : "No";
-    }
-    if (typeof value === "number") {
-      // Format numbers to a reasonable precision
-      return parseFloat(value.toFixed(4)).toString(); // Avoid trailing zeros like 1.2300
-    }
-    // Return other types as is (or handle strings specifically if needed)
-    return value;
-  };
-
-  // Renders the content for the active tab
-  const renderTabContent = (tabData) => {
-    if (!tabData)
-      return (
-        <p className="text-gray-500 dark:text-gray-400 p-4">No data available for this tab.</p>
-      );
-
-    // Separate molblocks from other representations for distinct display
-    const molblocks = {};
-    const otherReps = {};
-
-    if (tabData.representations) {
-      Object.entries(tabData.representations).forEach(([key, value]) => {
-        // Assuming keys for molblocks contain 'MOL'
-        if (key.includes("MOL")) {
-          molblocks[key] = value;
-        } else {
-          otherReps[key] = value;
-        }
-      });
-    }
+    const reps = Object.entries(tabData.representations ?? {});
+    const molblocks = reps.filter(([key]) => key.includes("MOL"));
+    const otherReps = reps.filter(([key]) => !key.includes("MOL"));
+    const descriptors =
+      typeof tabData.descriptors === "object" && tabData.descriptors !== null
+        ? Object.entries(tabData.descriptors)
+        : [];
 
     return (
-      <div className="space-y-6 py-4">
-        {/* Molblocks Section */}
-        {Object.keys(molblocks).length > 0 && (
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-xs">
-            <h4 className="text-lg font-medium text-gray-800 dark:text-blue-300 mb-4">
-              Molecular Structures
-            </h4>
-            <div className="space-y-4">
-              {Object.entries(molblocks).map(([key, value]) => (
-                <div key={key} className="space-y-1">
-                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    {formatKey(key)}
+      <div className="pc-tool-form">
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid content-start gap-2">
+            <h3 className={subhead}>Representations</h3>
+            {otherReps.length > 0 ? (
+              <dl className="pc-ids">
+                {otherReps.map(([key, value]) => (
+                  <div className="pc-id" key={key}>
+                    <dt>{formatKey(key)}</dt>
+                    <dd>{value}</dd>
                   </div>
-                  {/* Preformatted block for MOL data */}
-                  <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-sm overflow-x-auto max-h-80 border border-gray-200 dark:border-gray-700">
-                    <pre className="text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-mono whitespace-pre">
-                      {value}
-                    </pre>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </dl>
+            ) : (
+              <p className="pc-note">No other representations available.</p>
+            )}
           </div>
-        )}
 
-        {/* Representations and Properties Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Other Representations Card */}
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-xs">
-            <h4 className="text-lg font-medium text-gray-800 dark:text-blue-300 mb-3">
-              Representations
-            </h4>
-            <div className="space-y-3">
-              {Object.keys(otherReps).length > 0 ? (
-                Object.entries(otherReps).map(([key, value]) => (
-                  <div key={key} className="space-y-1">
-                    <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                      {formatKey(key)}
-                    </div>
-                    {/* Preformatted block for SMILES, InChI, etc. */}
-                    <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded-sm overflow-x-auto border border-gray-200 dark:border-gray-700">
-                      <pre className="text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-mono wrap-break-word whitespace-pre-wrap">
-                        {value}
-                      </pre>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  No other representations available.
-                </p>
+          <div className="grid content-start gap-2">
+            <h3 className={subhead}>Properties</h3>
+            <dl className="pc-defs">
+              <Flag label="Has stereo" value={tabData.has_stereo} />
+              {tabData.has_stereo_defined !== undefined && (
+                <Flag label="Has stereo defined" value={tabData.has_stereo_defined} />
               )}
-            </div>
-          </div>
-
-          {/* Properties and Errors Column */}
-          <div className="space-y-6">
-            {/* Properties Card */}
-            <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-xs">
-              <h4 className="text-lg font-medium text-gray-800 dark:text-blue-300 mb-3">
-                Properties
-              </h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">Has Stereo</span>
-                  {/* Conditional styling for boolean properties */}
-                  <span
-                    className={`font-medium ${tabData.has_stereo ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
-                  >
-                    {tabData.has_stereo ? "Yes" : "No"}
-                  </span>
-                </div>
-                {/* Only show 'Has Stereo Defined' if the property exists */}
-                {tabData.has_stereo_defined !== undefined && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Has Stereo Defined</span>
-                    <span
-                      className={`font-medium ${tabData.has_stereo_defined ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
-                    >
-                      {tabData.has_stereo_defined ? "Yes" : "No"}
-                    </span>
-                  </div>
-                )}
-                {/* Only show 'Has Stereogenic Elements' if the property exists */}
-                {tabData.has_stereogenic_elements !== undefined && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Has Stereogenic Elements
-                    </span>
-                    <span
-                      className={`font-medium ${tabData.has_stereogenic_elements ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
-                    >
-                      {tabData.has_stereogenic_elements ? "Yes" : "No"}
-                    </span>
-                  </div>
-                )}
-                {/* Add more properties here if available in tabData */}
-              </div>
-            </div>
-
-            {/* Validation Errors Card (only if errors exist) */}
-            {tabData.errors && (
-              <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-700 shadow-xs">
-                <h4 className="text-lg font-medium text-red-700 dark:text-red-300 mb-3">
-                  Validation Errors
-                </h4>
+              {tabData.has_stereogenic_elements !== undefined && (
+                <Flag label="Has stereogenic elements" value={tabData.has_stereogenic_elements} />
+              )}
+            </dl>
+            {tabData.errors != null && (
+              <>
+                <h3 className={subhead}>Validation errors</h3>
                 {Array.isArray(tabData.errors) && tabData.errors.length > 0 ? (
-                  <ul className="list-disc list-inside space-y-1 text-sm text-red-600 dark:text-red-400">
-                    {tabData.errors.map((error, idx) => (
-                      <li key={idx}>{error}</li>
+                  <ul className="list-disc space-y-1 pl-5 text-sm text-madder-ink">
+                    {tabData.errors.map((err, idx) => (
+                      <li key={idx}>{formatValue(err)}</li>
                     ))}
                   </ul>
                 ) : (
-                  // This case might not happen if the card only renders when errors exist,
-                  // but included for completeness.
-                  <p className="text-sm text-green-600 dark:text-green-400">
-                    No errors found for this structure.
-                  </p>
+                  <p className="text-sm text-primary">No errors found for this structure.</p>
                 )}
-              </div>
+              </>
             )}
           </div>
         </div>
 
-        {/* Descriptors Section (only if requested and available) */}
+        {molblocks.length > 0 && (
+          <div className="grid gap-3">
+            <h3 className={subhead}>Molecular structures</h3>
+            {molblocks.map(([key, value]) => (
+              <div key={key} className="grid gap-1">
+                <span className="pc-lbl">{formatKey(key)}</span>
+                <pre className="max-h-80 overflow-auto rounded-xl border border-border bg-muted p-3 font-mono text-xs whitespace-pre text-foreground">
+                  {value}
+                </pre>
+              </div>
+            ))}
+          </div>
+        )}
+
         {generateDescriptors && tabData.descriptors && (
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-xs mt-6">
-            <h4 className="text-lg font-medium text-gray-800 dark:text-blue-300 mb-3">
-              Descriptors
-            </h4>
-            {typeof tabData.descriptors === "object" &&
-            Object.keys(tabData.descriptors).length > 0 ? (
-              // Grid layout for descriptors
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2 text-sm">
-                {Object.entries(tabData.descriptors).map(([key, value]) => (
-                  <div
-                    key={key}
-                    className="flex justify-between border-b border-gray-100 dark:border-gray-700 py-1"
-                  >
-                    <span className="text-gray-600 dark:text-gray-400 mr-2">{formatKey(key)}</span>
-                    <span className="text-gray-800 dark:text-gray-300 font-mono text-right">
-                      {formatValue(value)}
-                    </span>
-                  </div>
-                ))}
+          <div className="grid gap-2">
+            <h3 className={subhead}>Descriptors</h3>
+            {descriptors.length > 0 ? (
+              <div className="overflow-x-auto rounded-xl border border-border">
+                <table className="w-full min-w-[400px] border-collapse">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th
+                        scope="col"
+                        className="px-4 py-2 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                      >
+                        Descriptor
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-4 py-2 text-right text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                      >
+                        Value
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {descriptors.map(([key, value]) => (
+                      <tr key={key}>
+                        <td className="px-4 py-2 text-sm text-foreground">{formatKey(key)}</td>
+                        <td className="px-4 py-2 text-right font-mono text-sm text-foreground tabular-nums">
+                          {formatValue(value)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             ) : (
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                No descriptors were calculated or available.
-              </p>
+              <p className="pc-note">No descriptors were calculated or available.</p>
             )}
           </div>
         )}
@@ -249,192 +191,84 @@ const CoconutPreProcessingView = () => {
     );
   };
 
-  // Renders the main results section including tabs
-  const renderResults = (data) => {
-    if (!data) return null;
+  const done = !!preprocessData && !loading;
+  const tabs = preprocessData ? Object.keys(preprocessData) : [];
 
-    return (
-      <div className="space-y-6">
-        {/* Tab Navigation */}
-        <div className="border-b border-gray-200 dark:border-gray-700">
-          <nav className="-mb-px flex space-x-6" aria-label="Tabs">
-            {/* Map over available keys in preprocessData to create tabs */}
-            {Object.keys(data).map((key) => (
-              <Button
-                key={key}
-                variant="ghost"
-                onClick={() => setActiveTab(key)}
-                className={`h-auto whitespace-nowrap py-3 px-1 border-b-2 rounded-none font-medium text-sm focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring ${
-                  activeTab === key
-                    ? "border-sky-600 dark:border-sky-400 text-sky-700 dark:text-sky-400"
-                    : "bg-transparent border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600"
-                }`}
-                aria-current={activeTab === key ? "page" : undefined}
-              >
-                {formatKey(key)} {/* Format tab titles */}
-              </Button>
-            ))}
-          </nav>
-        </div>
-
-        {/* Render content for the active tab */}
-        {renderTabContent(data[activeTab])}
-      </div>
-    );
-  };
+  useRevealOnResult("cp-results", loading, !!preprocessData, !!error);
 
   return (
-    // Main container
-    <div className="space-y-6 p-4 md:p-6">
-      {/* Input Card */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-blue-400 mb-4">
-          COCONUT Pre-processing
-        </h2>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* SMILES Input Component */}
-          <SMILESInput
-            value={smiles}
-            onChange={setSmiles}
-            required
-            // Pass theme props if SMILESInput needs them
-          />
-
-          {/* Options Checkboxes */}
-          <div className="flex flex-col sm:flex-row sm:space-x-6 space-y-3 sm:space-y-0 pt-2">
-            <div className="flex items-center">
-              <input
-                id="generate-3d"
-                type="checkbox"
-                checked={generate3D}
-                onChange={(e) => setGenerate3D(e.target.checked)}
-                // Checkbox styling for light/dark mode
-                className="h-4 w-4 rounded-sm bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-offset-gray-800 shadow-xs"
-              />
-              <label
-                htmlFor="generate-3d"
-                className="ml-3 block text-sm text-gray-700 dark:text-gray-300"
-              >
-                Generate 3D Coordinates
-              </label>
-            </div>
-            <div className="flex items-center">
-              <input
-                id="generate-descriptors"
-                type="checkbox"
-                checked={generateDescriptors}
-                onChange={(e) => setGenerateDescriptors(e.target.checked)}
-                // Checkbox styling for light/dark mode
-                className="h-4 w-4 rounded-sm bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-offset-gray-800 shadow-xs"
-              />
-              <label
-                htmlFor="generate-descriptors"
-                className="ml-3 block text-sm text-gray-700 dark:text-gray-300"
-              >
-                Calculate Descriptors
-              </label>
-            </div>
+    <div className="pc-bento">
+      <Cell id="cp-input" title="Structure input" className="pc-t-input">
+        <form onSubmit={handleSubmit} className="pc-tool-form">
+          <SMILESInput value={smiles} onChange={setSmiles} required />
+          <div className="pc-opt-list">
+            <Switch checked={generate3D} onChange={setGenerate3D} label="Generate 3D coordinates" />
+            <Switch
+              checked={generateDescriptors}
+              onChange={setGenerateDescriptors}
+              label="Calculate descriptors"
+            />
           </div>
-
-          {/* Submit Button */}
-          <div className="pt-2">
-            <Button
-              type="submit"
-              disabled={!smiles.trim() || loading}
-              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
-                !smiles.trim() || loading
-                  ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
-              }`}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <FlaskConical className="mr-2 h-5 w-5" aria-hidden="true" />
-                  Process for COCONUT
-                </>
-              )}
+          <div className="pc-row pc-actions">
+            <Button type="submit" disabled={!smiles.trim() || loading}>
+              {loading ? <Loader2 className="animate-spin" /> : <FlaskConical />}
+              {loading ? "Processing…" : "Process for COCONUT"}
             </Button>
           </div>
         </form>
-      </div>
+      </Cell>
 
-      {/* Loading State */}
-      {loading && !preprocessData && <ToolSkeleton variant="descriptors" />}
-
-      {/* Error Display */}
-      {error && !loading && (
-        <GlassErrorCard
-          message={error}
-          onRetry={() => {
-            setError(null);
-            document.getElementById("smiles-input")?.focus();
-          }}
-        />
-      )}
-
-      {/* Results Display Section */}
-      {/* Show only if data exists and not loading */}
-      {preprocessData && !loading && (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg">
-          {/* Results Header */}
-          <div className="flex items-center justify-between mb-4 border-b border-gray-200 dark:border-gray-700 pb-3">
-            <div className="flex items-center">
-              <FileBarChart
-                className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-3 shrink-0"
-                aria-hidden="true"
-              />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                COCONUT Pre-processing Results
-              </h3>
-            </div>
-          </div>
-          {/* Render Tabs and Content */}
-          {renderResults(preprocessData)}
-        </div>
-      )}
-
-      {/* Initial State / About Box */}
-      {/* Show only if no data, not loading, and no error */}
-      {!preprocessData && !loading && !error && (
-        <div
-          className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow-sm"
-          role="complementary"
-        >
-          <Info
-            className="h-6 w-6 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"
-            aria-hidden="true"
-          />
+      <Cell id="cp-about" title="About COCONUT pre-processing" className="pc-t-side">
+        <p className="pc-tool-note">
+          Prepares a molecule for submission to COCONUT, the COlleCtion of Open Natural prodUcTs.
+          Returns the original, the ChEMBL-standardized and the parent (salt and solvent stripped)
+          structure.
+        </p>
+        <dl className="pc-defs">
           <div>
-            <h3 className="text-lg font-medium text-blue-800 dark:text-blue-300 mb-2">
-              About COCONUT Pre-processing
-            </h3>
-            <p className="text-gray-700 dark:text-gray-300">
-              This tool prepares molecule data for submission to the COCONUT database (COlleCtion of
-              Open Natural prodUcTs), a collection of natural products and natural product-like
-              structures.
-            </p>
-            <p className="mt-3 text-gray-700 dark:text-gray-300">
-              The pre-processing pipeline provides:
-            </p>
-            {/* List styling */}
-            <ul className="list-disc list-inside mt-1 space-y-1 text-gray-600 dark:text-gray-400 marker:text-blue-500 dark:marker:text-blue-400">
-              <li>Original molecule information</li>
-              <li>Standardized molecule using ChEMBL curation pipeline</li>
-              <li>Parent structure (salt and solvent stripped)</li>
-              <li>Various chemical representations (SMILES, InChI, etc.)</li>
-              <li>Optional 3D coordinates and molecular descriptors</li>
-            </ul>
+            <dt>Representations</dt>
+            <dd>SMILES, InChI and others for each structure.</dd>
           </div>
-        </div>
-      )}
+          <div>
+            <dt>Optional</dt>
+            <dd>3D coordinates and molecular descriptors.</dd>
+          </div>
+        </dl>
+      </Cell>
+
+      <Cell
+        id="cp-results"
+        title={done ? `${formatKey(activeTab)} structure` : "Results"}
+        className="pc-t-wide"
+        meta={
+          done &&
+          tabs.length > 0 && (
+            <Seg
+              label="Structure version"
+              value={activeTab}
+              onChange={setActiveTab}
+              options={tabs.map((key) => ({ value: key, label: formatKey(key) }))}
+            />
+          )
+        }
+      >
+        {loading && <ToolSkeleton variant="descriptors" />}
+        {error && !loading && (
+          <GlassErrorCard
+            message={error}
+            onRetry={() => {
+              setError(null);
+              document.getElementById("smiles-input")?.focus();
+            }}
+          />
+        )}
+        {!preprocessData && !loading && !error && (
+          <p className="pc-empty">Enter a SMILES string to pre-process it for COCONUT.</p>
+        )}
+        {done && preprocessData && renderTabContent(preprocessData[activeTab])}
+      </Cell>
     </div>
   );
 };
+
 export default CoconutPreProcessingView;

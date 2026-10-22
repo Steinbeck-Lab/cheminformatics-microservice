@@ -1,16 +1,26 @@
-import { useState, useRef, useMemo, useEffect } from "react";
+import { useState, useRef, useMemo, useEffect, type KeyboardEvent, type MouseEvent } from "react";
 import { useAppContext } from "../../context/AppContext";
-import { CheckCircle, ChevronDown, Clipboard, Download, X } from "lucide-react";
+import { Check, ChevronDown, Copy, Download, X } from "lucide-react";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 
-// Default fallback SVG
+// Fallback shown on the white stage when the depiction fails: "Error loading structure" in #4a4650
 const FALLBACK_SVG_BASE64 =
-  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGV4dCB4PSI1MCIgeT0iNTAiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiM4ODg4ODg4Ij5FcnJvciBsb2FkaW5nIHN0cnVjdHVyZTwvdGV4dD48L3N2Zz4=";
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGV4dCB4PSI1MCIgeT0iNTAiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiM0YTQ2NTAiPkVycm9yIGxvYWRpbmcgc3RydWN0dXJlPC90ZXh0Pjwvc3ZnPg==";
+
+// An Ertl functional group as the API returns it; a bare string carries no highlight data.
+type FunctionalGroup =
+  | string
+  | {
+      None?: unknown;
+      description?: string;
+      type?: string;
+      atoms?: string;
+      atomIds?: number[];
+    };
 
 const HighlightedMoleculeCard = ({
   smiles,
@@ -22,21 +32,26 @@ const HighlightedMoleculeCard = ({
   size = "xl",
   onClick = null,
   isExpandable = false, // Enable expand/collapse for SMILES details
+}: {
+  smiles: string;
+  title?: string;
+  description?: string;
+  functionalGroups?: FunctionalGroup[];
+  highlightedGroupIndex?: number | null;
+  showActions?: boolean;
+  size?: "sm" | "md" | "lg" | "xl";
+  onClick?: ((smiles: string) => void) | null;
+  isExpandable?: boolean;
 }) => {
   const [copied, setCopied] = useState(false);
   const [showFullSmiles, setShowFullSmiles] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const copyTextRef = useRef(null);
+  const copyTextRef = useRef<HTMLInputElement>(null);
 
-  // Context handling
-  const appContext = useAppContext();
-  let addRecentMolecule = () => {};
-  if (appContext && typeof appContext.addRecentMolecule === "function") {
-    addRecentMolecule = appContext.addRecentMolecule;
-  }
+  const { addRecentMolecule } = useAppContext();
 
-  // Configuration for image container height based on size
+  // Height of the depiction stage for each size
   const sizeClasses = {
     sm: "h-32",
     md: "h-48",
@@ -48,14 +63,16 @@ const HighlightedMoleculeCard = ({
     import.meta.env.VITE_API_URL || "https://dev.api.naturalproducts.net/latest"
   ).replace(/\/latest$/, "");
 
-  // Generate highlighting information from functional groups
-  const highlightInfo = useMemo(() => {
-    if (highlightedGroupIndex === null || !functionalGroups[highlightedGroupIndex]) {
-      return { atomIds: null, pattern: "" };
-    }
+  const rawGroup =
+    highlightedGroupIndex !== null ? functionalGroups[highlightedGroupIndex] : undefined;
+  const selectedGroup = rawGroup && typeof rawGroup === "object" ? rawGroup : null;
+  // A bare string group still counts as selected (it has no highlight data)
+  const hasSelection = !!rawGroup && !selectedGroup?.None;
 
-    const group = functionalGroups[highlightedGroupIndex];
-    if (group.None) return { atomIds: null, pattern: "" };
+  // Generate highlighting information from functional groups
+  const highlightInfo = useMemo((): { atomIds: number[] | null; pattern: string } => {
+    const group = selectedGroup;
+    if (!group || group.None) return { atomIds: null, pattern: "" };
 
     // Priority 1: Use the type field as SMARTS pattern - this contains the actual substructure pattern
     if (group.type) {
@@ -145,7 +162,7 @@ const HighlightedMoleculeCard = ({
       const desc = group.description.toLowerCase();
 
       // Common functional group patterns
-      const patterns = {
+      const patterns: Record<string, string> = {
         hydroxyl: "[OH]",
         alcohol: "[OH]",
         carbonyl: "[C]=[O]",
@@ -174,7 +191,7 @@ const HighlightedMoleculeCard = ({
     }
 
     return { atomIds: null, pattern: "" };
-  }, [functionalGroups, highlightedGroupIndex]);
+  }, [selectedGroup]);
 
   // Generate image URL with highlighting
   const imageUrl = useMemo(() => {
@@ -201,7 +218,7 @@ const HighlightedMoleculeCard = ({
   }, [smiles, highlightInfo, baseUrl]);
 
   // Copy functionality
-  const handleCopy = (e) => {
+  const handleCopy = (e: MouseEvent) => {
     e.stopPropagation();
 
     const smilesToCopy = typeof smiles === "string" ? smiles : "";
@@ -259,15 +276,14 @@ const HighlightedMoleculeCard = ({
 
   // Auto-select text in copy modal
   useEffect(() => {
-    if (showCopyModal && copyTextRef.current) {
-      setTimeout(() => {
-        copyTextRef.current.select();
-      }, 100);
+    if (showCopyModal) {
+      const timer = setTimeout(() => copyTextRef.current?.select(), 100);
+      return () => clearTimeout(timer);
     }
   }, [showCopyModal]);
 
   // Handle downloading the structure
-  const handleDownload = (e) => {
+  const handleDownload = (e: MouseEvent) => {
     e.stopPropagation();
     if (typeof smiles !== "string" || !smiles.trim()) {
       console.error("Cannot download: Invalid SMILES string provided.");
@@ -309,230 +325,183 @@ const HighlightedMoleculeCard = ({
     }
     addRecentMolecule({
       smiles,
-      name: title !== "Molecule" ? title : null,
+      name: title !== "Molecule" ? title : undefined,
       timestamp: new Date().toISOString(),
     });
   };
 
+  // Only keys pressed on the card itself, not on the buttons inside it
+  const handleCardKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.target !== e.currentTarget) return;
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleCardClick();
+    }
+  };
+
   // Format SMILES for display
   const MAX_SMILES_LENGTH = 35;
-  const formattedSmiles = showFullSmiles
-    ? smiles
-    : smiles && smiles.length > MAX_SMILES_LENGTH
-      ? `${smiles.substring(0, MAX_SMILES_LENGTH)}...`
-      : smiles;
+  const isLong = !!smiles && smiles.length > MAX_SMILES_LENGTH;
+  const formattedSmiles =
+    !showFullSmiles && isLong ? `${smiles.substring(0, MAX_SMILES_LENGTH)}...` : smiles;
 
   return (
     <>
       <div
         className={cn(
-          "glass-bold rounded-2xl overflow-hidden",
-          "hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20 transition-all duration-200",
-          "group",
+          "grid content-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--inset)] p-3 transition-colors",
           onClick &&
-            "cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+            "cursor-pointer hover:border-primary/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         )}
         onClick={onClick ? handleCardClick : undefined}
-        onKeyPress={
-          onClick
-            ? (e) => {
-                if (e.key === "Enter" || e.key === " ") handleCardClick();
-              }
-            : undefined
-        }
+        onKeyDown={onClick ? handleCardKey : undefined}
         role={onClick ? "button" : "figure"}
         tabIndex={onClick ? 0 : undefined}
         aria-label={title}
       >
-        {/* Title bar */}
-        <div className="px-4 py-2 border-b border-white/10 flex justify-between items-center">
-          <h3 className="font-medium text-sm text-foreground truncate" title={title}>
+        {/* Title row */}
+        <div className="flex min-h-8 items-center justify-between gap-2">
+          <h3 className="m-0 truncate text-sm font-semibold text-[var(--head)]" title={title}>
             {title}
           </h3>
           <div className="flex items-center gap-2">
-            {highlightedGroupIndex !== null &&
-              functionalGroups[highlightedGroupIndex] &&
-              !functionalGroups[highlightedGroupIndex].None && (
-                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                  Highlighted
-                </span>
-              )}
+            {hasSelection && <span className="pc-tag">Highlighted</span>}
             {isExpandable && (
               <Button
                 variant="ghost"
-                size="icon"
-                className="h-6 w-6 shrink-0"
+                size="icon-sm"
                 onClick={(e) => {
                   e.stopPropagation();
                   setExpanded((prev) => !prev);
                 }}
                 aria-label={expanded ? "Collapse details" : "Expand details"}
+                aria-expanded={expanded}
               >
                 <ChevronDown
-                  className={cn(
-                    "h-4 w-4 transition-transform duration-200",
-                    expanded && "rotate-180"
-                  )}
+                  aria-hidden="true"
+                  className={cn("transition-transform", expanded && "rotate-180")}
                 />
               </Button>
             )}
           </div>
         </div>
 
-        {/* Molecule visualization area */}
-        <div
-          className={`relative p-2 flex justify-center items-center bg-background/30 ${sizeClasses[size] || "h-60"}`}
-        >
+        {/* Depiction on the white stage */}
+        <div className={cn("pc-stage p-2", sizeClasses[size] || "h-60")}>
           {smiles ? (
             <img
               key={imageUrl}
               src={imageUrl}
               alt={`Chemical structure of ${title}`}
-              className="max-h-full max-w-full object-contain"
               onError={(e) => {
                 console.error(`Error loading image for ${title} from ${imageUrl}:`, e);
-                e.target.onerror = null;
-                e.target.src = FALLBACK_SVG_BASE64;
-                e.target.classList.add("p-4");
+                const img = e.currentTarget;
+                if (img.src === FALLBACK_SVG_BASE64) return;
+                img.src = FALLBACK_SVG_BASE64;
+                img.classList.add("p-4");
               }}
             />
           ) : (
-            <div className="text-center text-gray-500 dark:text-gray-400 text-xs p-4">
-              No structure to display.
-            </div>
+            <p className="pc-stage-empty">No structure to display.</p>
           )}
         </div>
 
-        {/* SMILES information section */}
-        <div className="px-4 py-3 border-t border-white/10 text-sm">
-          <div className="flex items-start">
-            <span className="font-medium text-gray-500 dark:text-gray-400 mr-2 shrink-0">
-              SMILES:
-            </span>
-            <div className="text-gray-700 dark:text-gray-300 flex-1 min-w-0">
-              <div
-                className="inline-block cursor-pointer group/smiles"
+        {/* SMILES line */}
+        <div className="grid gap-1 text-sm">
+          <div className="flex items-start gap-2">
+            <span className="shrink-0 text-xs font-semibold text-muted-foreground">SMILES</span>
+            {isLong ? (
+              <button
+                type="button"
+                className="min-w-0 flex-1 cursor-pointer border-0 bg-transparent p-0 text-left text-foreground hover:text-primary"
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowFullSmiles(!showFullSmiles);
                 }}
+                aria-expanded={showFullSmiles}
                 title={showFullSmiles ? "Click to shorten" : "Click to expand"}
               >
-                <span className="font-mono text-xs break-all group-hover/smiles:text-blue-600 dark:group-hover/smiles:text-blue-400">
-                  {formattedSmiles || "-"}
+                <span className="pc-mono font-mono text-xs break-all">{formattedSmiles}</span>
+                <span className="ml-1 text-xs font-medium text-primary">
+                  {showFullSmiles ? "less" : "more"}
                 </span>
-                {smiles && !showFullSmiles && smiles.length > MAX_SMILES_LENGTH && (
-                  <span className="ml-1 text-blue-500 dark:text-blue-400 text-xs font-medium opacity-70 group-hover/smiles:opacity-100">
-                    more
-                  </span>
-                )}
-                {smiles && showFullSmiles && smiles.length > MAX_SMILES_LENGTH && (
-                  <span className="ml-1 text-blue-500 dark:text-blue-400 text-xs font-medium opacity-70 group-hover/smiles:opacity-100">
-                    less
-                  </span>
-                )}
-              </div>
-            </div>
+              </button>
+            ) : (
+              <span className="pc-mono min-w-0 flex-1 font-mono text-xs break-all text-foreground">
+                {formattedSmiles || "-"}
+              </span>
+            )}
           </div>
+          {description && <p className="pc-note">{description}</p>}
         </div>
 
-        {/* Optional description */}
-        {description && (
-          <div className="px-4 pb-3 text-gray-500 dark:text-gray-400 text-xs">{description}</div>
+        {/* Expandable details */}
+        {isExpandable && expanded && (
+          <div className="grid gap-2 border-t border-[var(--line)] pt-3 text-sm">
+            <div>
+              <span className="text-xs text-muted-foreground">Full SMILES</span>
+              <div className="pc-mono mt-0.5 rounded-lg border border-[var(--line)] p-1.5 font-mono text-xs break-all text-foreground">
+                {smiles || "N/A"}
+              </div>
+            </div>
+            {rawGroup && (
+              <div>
+                <span className="text-xs text-muted-foreground">Highlighted group</span>
+                <div className="mt-0.5 text-xs text-foreground">
+                  {selectedGroup?.description || selectedGroup?.type || "Unknown group"}
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
-        {/* Expandable details section */}
-        <AnimatePresence>
-          {isExpandable && expanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="overflow-hidden"
-            >
-              <div className="px-4 py-3 border-t border-white/10 text-sm space-y-1">
-                <div className="pt-1">
-                  <span className="text-muted-foreground text-xs">Full SMILES</span>
-                  <div className="font-mono text-xs break-all text-foreground mt-0.5 bg-background/50 rounded p-1.5">
-                    {smiles || "N/A"}
-                  </div>
-                </div>
-                {highlightedGroupIndex !== null && functionalGroups[highlightedGroupIndex] && (
-                  <div className="pt-1">
-                    <span className="text-muted-foreground text-xs">Highlighted group</span>
-                    <div className="text-xs text-foreground mt-0.5">
-                      {functionalGroups[highlightedGroupIndex].description ||
-                        functionalGroups[highlightedGroupIndex].type ||
-                        "Unknown group"}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Action buttons */}
+        {/* Actions */}
         {showActions && (
-          <div className="px-3 py-1.5 border-t border-white/10 flex justify-end space-x-1">
-            {/* Copy Button */}
+          <div className="flex justify-end gap-1 border-t border-[var(--line)] pt-2">
             <Button
               variant="ghost"
+              size="icon-sm"
               onClick={handleCopy}
               disabled={!smiles}
-              className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
-                !smiles
-                  ? "text-gray-300 dark:text-gray-600 cursor-not-allowed"
-                  : copied
-                    ? "text-green-500 dark:text-green-500"
-                    : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
               title={copied ? "Copied!" : "Copy SMILES to clipboard"}
-              aria-label={copied ? "SMILES Copied" : "Copy SMILES"}
+              aria-label={copied ? "SMILES copied" : "Copy SMILES"}
             >
-              {copied ? <CheckCircle className="h-5 w-5" /> : <Clipboard className="h-5 w-5" />}
+              {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
             </Button>
-
-            {/* Download Button */}
             <Button
               variant="ghost"
+              size="icon-sm"
               onClick={handleDownload}
               disabled={!smiles}
-              className={`p-1.5 rounded-md transition-colors focus:outline-hidden focus:ring-1 focus:ring-blue-500 ${
-                !smiles
-                  ? "text-gray-300 dark:text-gray-600 cursor-not-allowed"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
               title="Download structure as SDF"
               aria-label="Download structure as SDF"
             >
-              <Download className="h-5 w-5" />
+              <Download aria-hidden="true" />
             </Button>
           </div>
         )}
       </div>
 
-      {/* Manual Copy Modal */}
+      {/* Manual copy dialog (shown when automatic copy fails) */}
       <Dialog open={showCopyModal} onOpenChange={setShowCopyModal}>
         <DialogContent
           showCloseButton={false}
-          className="block gap-0 border-0 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full"
+          className="block w-full max-w-lg gap-0 rounded-xl border-0 bg-card p-6"
         >
-          <div className="flex justify-between items-center mb-4">
-            <DialogTitle className="text-lg font-bold text-gray-900 dark:text-white">
+          <div className="mb-4 flex items-center justify-between">
+            <DialogTitle className="text-lg font-semibold text-[var(--head)]">
               Copy SMILES
             </DialogTitle>
             <Button
               variant="ghost"
+              size="icon-sm"
               onClick={() => setShowCopyModal(false)}
               aria-label="Close"
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             >
-              <X className="w-5 h-5" />
+              <X aria-hidden="true" />
             </Button>
           </div>
-          <p className="mb-4 text-gray-700 dark:text-gray-300">
+          <p className="mb-4 text-foreground">
             Automatic copying failed. Please select and copy this text manually:
           </p>
           <div className="mb-4">
@@ -546,11 +515,7 @@ const HighlightedMoleculeCard = ({
             />
           </div>
           <div className="flex justify-end gap-3">
-            <Button
-              variant="secondary"
-              onClick={() => setShowCopyModal(false)}
-              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600"
-            >
+            <Button variant="outline" onClick={() => setShowCopyModal(false)}>
               Close
             </Button>
           </div>

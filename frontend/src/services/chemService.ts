@@ -1,4 +1,5 @@
 // This file contains functions to interact with the chemical structure API
+import { failed } from "@/lib/error-messages";
 import api from "./api";
 import type {
   StructureErrorResult,
@@ -22,8 +23,7 @@ const generateStereoisomers = async (smiles: string): Promise<string[]> => {
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to generate stereoisomers: ${message}`);
+    throw failed("Failed to generate stereoisomers", error);
   }
 };
 
@@ -41,8 +41,7 @@ const calculateDescriptors = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to calculate descriptors: ${message}`);
+    throw failed("Failed to calculate descriptors", error);
   }
 };
 
@@ -59,8 +58,7 @@ const calculateMultipleDescriptors = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to calculate multiple descriptors: ${message}`);
+    throw failed("Failed to calculate multiple descriptors", error);
   }
 };
 
@@ -79,8 +77,7 @@ const generateHOSECodes = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to generate HOSE codes: ${message}`);
+    throw failed("Failed to generate HOSE codes", error);
   }
 };
 
@@ -94,8 +91,7 @@ const checkStructureErrors = async (smiles: string, fix = false): Promise<Struct
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to check structure errors: ${message}`);
+    throw failed("Failed to check structure errors", error);
   }
 };
 
@@ -109,8 +105,7 @@ const calculateNPLikeness = async (smiles: string): Promise<number> => {
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to calculate NP likeness score: ${message}`);
+    throw failed("Failed to calculate NP likeness score", error);
   }
 };
 
@@ -130,8 +125,7 @@ const calculateTanimotoSimilarity = async (
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to calculate Tanimoto similarity: ${message}`);
+    throw failed("Failed to calculate Tanimoto similarity", error);
   }
 };
 
@@ -152,8 +146,7 @@ const coconutPreprocessing = async (
     );
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to preprocess for COCONUT: ${message}`);
+    throw failed("Failed to preprocess for COCONUT", error);
   }
 };
 
@@ -167,8 +160,7 @@ const generateFunctionalGroups = async (smiles: string): Promise<unknown[]> => {
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to generate functional groups: ${message}`);
+    throw failed("Failed to generate functional groups", error);
   }
 };
 
@@ -182,8 +174,7 @@ const generateStandardizedTautomer = async (smiles: string): Promise<string> => 
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to generate standardized tautomer: ${message}`);
+    throw failed("Failed to generate standardized tautomer", error);
   }
 };
 
@@ -197,8 +188,7 @@ const fixRadicals = async (smiles: string): Promise<FixRadicalsResult> => {
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to fix radicals: ${message}`);
+    throw failed("Failed to fix radicals", error);
   }
 };
 
@@ -214,8 +204,7 @@ const standardizeMolblock = async (molblock: string): Promise<StandardizeResult>
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to standardize molblock: ${message}`);
+    throw failed("Failed to standardize molblock", error);
   }
 };
 
@@ -229,8 +218,7 @@ const lookupPubChem = async (identifier: string): Promise<PubChemLookupResult> =
     });
     return response.data;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to look up structure in PubChem: ${message}`);
+    throw failed("Failed to look up structure in PubChem", error);
   }
 };
 

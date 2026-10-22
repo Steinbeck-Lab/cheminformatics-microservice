@@ -1,318 +1,203 @@
-// Description: This component allows users to input a SMILES string and detects functional groups using the Ertl algorithm.
-import { useState } from "react";
-// Assuming these components are correctly implemented and styled for dark/light mode
+import { useState, type FormEvent } from "react";
+import { Loader2, Search } from "lucide-react";
 import SMILESInput from "../common/SMILESInput";
 import HighlightedMoleculeCard from "../common/HighlightedMoleculeCard";
-// Assuming this service is configured correctly
 import { generateFunctionalGroups } from "../../services/chemService";
-import { AlertCircle, Info, Search, Loader2 } from "lucide-react";
 import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
 import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
-import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
+import { Cell } from "@/components/common/porcelain-ui";
+import { useRevealOnResult } from "@/hooks/useRevealOnResult";
 
+/** One group as the /chem/ertlfunctionalgroup endpoint may return it. */
+type Group =
+  | string
+  | {
+      None?: unknown;
+      description?: string;
+      type?: string;
+      atoms?: string;
+      atomIds?: number[];
+      [key: string]: unknown;
+    };
+
+const isNone = (fg: Group) => typeof fg === "object" && !!fg?.None;
+
+/** A readable label for one group, whatever shape the API sent. */
+const formatFunctionalGroup = (fg: Group): string => {
+  if (typeof fg === "string") return fg;
+  if (!fg || typeof fg !== "object") return "Invalid group data";
+  if (fg.None) return "No functional groups found";
+  if (fg.description) return fg.description;
+  if (fg.type && fg.atoms) return `${fg.type} (atoms: ${fg.atoms})`;
+  if (fg.type && fg.atomIds) return `${fg.type} (atom IDs: ${fg.atomIds.join(", ")})`;
+  if (fg.type) return fg.type;
+  const props = Object.entries(fg)
+    .filter(([key]) => key !== "None")
+    .map(([key, value]) => `${key}: ${value}`)
+    .join(", ");
+  return props || JSON.stringify(fg);
+};
+
+/** Functional groups: Ertl's algorithm, with each group highlighted on the structure on click. */
 const ErtlFunctionalGroupView = () => {
   const [smiles, setSmiles] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [functionalGroups, setFunctionalGroups] = useState([]); // Initialize as empty array
-  const [selectedGroupIndex, setSelectedGroupIndex] = useState(null); // Track which group is selected for highlighting
+  const [error, setError] = useState<string | null>(null);
+  const [functionalGroups, setFunctionalGroups] = useState<Group[]>([]);
+  const [selectedGroupIndex, setSelectedGroupIndex] = useState<number | null>(null);
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const trimmedSmiles = smiles.trim();
     if (!trimmedSmiles) {
       setError("Please enter a SMILES string");
-      setFunctionalGroups([]); // Clear previous results
+      setFunctionalGroups([]);
       return;
     }
-
     setLoading(true);
     setError(null);
-    setFunctionalGroups([]); // Clear previous results before fetching
-
+    setFunctionalGroups([]);
     try {
       const result = await generateFunctionalGroups(trimmedSmiles);
-      // Ensure result is always an array
-      const groupsArray = Array.isArray(result) ? result : [];
-      setFunctionalGroups(groupsArray);
-
-      // Check if the result indicates no groups found
-      if (groupsArray.length === 0 || (groupsArray.length === 1 && groupsArray[0]?.None)) {
-        // Don't set an error, just let the results section handle the display
-        // setError('No functional groups found in this molecule.');
-      }
+      setFunctionalGroups(Array.isArray(result) ? (result as Group[]) : []);
     } catch (err) {
-      console.error("Functional group detection error:", err); // Log the error
+      console.error("Functional group detection error:", err);
       setError(getErrorMessage("chem", err));
-      setFunctionalGroups([]); // Ensure groups are empty on error
+      setFunctionalGroups([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Function to format an IFG object (or string) to a readable string
-  const formatFunctionalGroup = (fg) => {
-    // Handle simple cases first
-    if (typeof fg === "string") return fg;
-    if (!fg || typeof fg !== "object") return "Invalid group data"; // Handle null/undefined/non-object
-    if (fg.None) return "No functional groups found"; // Specific check for 'None' object
-
-    // Handle new structured format from backend
-    if (fg.description) {
-      return fg.description; // Use the full description for display
-    }
-
-    // Try to extract standard properties (adjust based on actual API response)
-    if (fg.type && fg.atoms) {
-      return `${fg.type} (atoms: ${fg.atoms})`; // Example format
-    }
-    if (fg.type && fg.atomIds) {
-      return `${fg.type} (atom IDs: ${fg.atomIds.join(", ")})`;
-    }
-    if (fg.type) {
-      return fg.type; // Fallback if only type is present
-    }
-
-    // Fallback: Construct a string from available properties, excluding 'None'
-    const props = Object.entries(fg)
-      .filter(([key]) => key !== "None")
-      .map(([key, value]) => `${key}: ${value}`)
-      .join(", ");
-
-    return props || JSON.stringify(fg); // Return formatted props or raw JSON stringify
-  };
-
-  // Determine if the results indicate "no groups found"
+  const first = functionalGroups[0];
   const noGroupsFound =
-    functionalGroups.length === 0 || (functionalGroups.length === 1 && functionalGroups[0]?.None);
+    functionalGroups.length === 0 ||
+    (functionalGroups.length === 1 && first !== undefined && isNone(first));
+  const done = functionalGroups.length > 0 && !loading && !error;
+  const selected = selectedGroupIndex !== null ? functionalGroups[selectedGroupIndex] : undefined;
+  const title = !done
+    ? "Results"
+    : noGroupsFound
+      ? "No functional groups found"
+      : `${functionalGroups.length} functional group${functionalGroups.length !== 1 ? "s" : ""}`;
+
+  useRevealOnResult("fg-results", loading, functionalGroups.length > 0, !!error);
 
   return (
-    // Main container
-    <div className="space-y-6 p-4 md:p-6">
-      {/* Input Card */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-blue-400 mb-4">
-          Functional Group Detection (Ertl)
-        </h2>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* SMILES Input */}
-          <SMILESInput
-            value={smiles}
-            onChange={setSmiles}
-            required
-            // Pass theme props if needed
-          />
-
-          {/* Submit Button */}
-          <div className="pt-2">
-            <Button
-              type="submit"
-              disabled={!smiles.trim() || loading}
-              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
-                !smiles.trim() || loading
-                  ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
-              }`}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Detecting...
-                </>
-              ) : (
-                <>
-                  <Search className="mr-2 h-5 w-5" aria-hidden="true" />
-                  Detect Functional Groups
-                </>
-              )}
+    <div className="pc-bento">
+      <Cell id="fg-input" title="Structure input" className="pc-t-input">
+        <form onSubmit={handleSubmit} className="pc-tool-form">
+          <SMILESInput value={smiles} onChange={setSmiles} required />
+          <div className="pc-row pc-actions">
+            <Button type="submit" disabled={!smiles.trim() || loading}>
+              {loading ? <Loader2 className="animate-spin" /> : <Search />}
+              {loading ? "Detecting…" : "Detect functional groups"}
             </Button>
           </div>
         </form>
-      </div>
+      </Cell>
 
-      {/* Loading State */}
-      {loading && functionalGroups.length === 0 && <ToolSkeleton variant="general" />}
-
-      {/* Error Display */}
-      {error && !loading && (
-        <GlassErrorCard
-          message={error}
-          onRetry={() => {
-            setError(null);
-            document.getElementById("smiles-input")?.focus();
-          }}
-        />
-      )}
-
-      {/* Results Display Section */}
-      {/* Show only if results exist (even if empty/None) and not loading and no error */}
-      {functionalGroups.length > 0 && !loading && !error && (
-        <div className="space-y-4">
-          {/* Main Results Card */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg">
-            {/* Results Summary Header */}
-            <div className="flex items-center justify-between mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {noGroupsFound
-                  ? "No Functional Groups Found"
-                  : `Found ${functionalGroups.length} Functional Group${functionalGroups.length !== 1 ? "s" : ""}`}
-              </h3>
-            </div>
-
-            {/* Grid for Molecule Card and List */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Molecule Card Column */}
-              <div>
-                <div className="mb-4">
-                  {/* Use highlighted molecule card for better visualization */}
-                  <HighlightedMoleculeCard
-                    smiles={smiles}
-                    title="Input Molecule"
-                    size="md"
-                    functionalGroups={functionalGroups}
-                    highlightedGroupIndex={selectedGroupIndex}
-                    showActions={true}
-                  />
-                </div>
-                {selectedGroupIndex !== null &&
-                  functionalGroups[selectedGroupIndex] &&
-                  !functionalGroups[selectedGroupIndex].None && (
-                    <div className="text-center">
-                      <Button
-                        variant="ghost"
-                        onClick={() => setSelectedGroupIndex(null)}
-                        className="px-3 py-1 text-xs bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                      >
-                        Clear Highlighting
-                      </Button>
-                    </div>
-                  )}
-              </div>
-
-              {/* Functional Groups List Column */}
-              <div>
-                <h4 className="text-md font-medium text-gray-800 dark:text-blue-300 mb-2">
-                  Identified Groups
-                </h4>
-                {/* Container for the list */}
-                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-xs min-h-[100px]">
-                  {noGroupsFound ? (
-                    <p className="text-gray-500 dark:text-gray-400 italic">
-                      No functional groups detected.
-                    </p>
-                  ) : (
-                    // List of functional groups
-                    <ul className="space-y-2">
-                      {functionalGroups.map((fg, index) => (
-                        <li
-                          key={index}
-                          // List item styling with clickable highlighting
-                          className={`p-2 border rounded-md text-sm cursor-pointer transition-all duration-200 ${
-                            selectedGroupIndex === index
-                              ? "bg-blue-100 dark:bg-blue-900 border-blue-300 dark:border-blue-700 text-blue-800 dark:text-blue-200"
-                              : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-750"
-                          }`}
-                          onClick={() => {
-                            if (fg.None) return; // Don't allow selecting "None" groups
-                            setSelectedGroupIndex(selectedGroupIndex === index ? null : index);
-                          }}
-                          title={
-                            fg.None
-                              ? undefined
-                              : "Click to highlight this functional group in the structure"
-                          }
-                        >
-                          <div className="flex items-center justify-between">
-                            <span>{formatFunctionalGroup(fg)}</span>
-                            {!fg.None && (
-                              <div className="flex items-center space-x-2">
-                                {fg.atomIds && fg.atomIds.length > 0 && (
-                                  <span className="text-xs opacity-70">
-                                    {fg.atomIds.length} atom
-                                    {fg.atomIds.length !== 1 ? "s" : ""}
-                                  </span>
-                                )}
-                                {selectedGroupIndex === index && (
-                                  <span className="text-xs font-medium">Highlighted</span>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                          {/* Show additional details for structured groups */}
-                          {fg.atoms && fg.type && !fg.None && (
-                            <div className="mt-1 text-xs opacity-70">
-                              Type: {fg.type} | Atoms: {fg.atoms}
-                            </div>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Informational Note about Ertl */}
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm text-gray-700 dark:text-gray-300 shadow-sm">
-            <p>
-              Functional groups are identified using the algorithm proposed by Peter Ertl, analyzing
-              molecular structure for common chemical groups.
-            </p>
-            {!noGroupsFound && (
-              <p className="mt-2 text-xs text-blue-700 dark:text-blue-300">
-                💡 <strong>Tip:</strong> Click on any functional group in the list to highlight it
-                in the molecular structure above.
-              </p>
-            )}
-            {/* Optionally add reference back here if desired */}
-            {/* <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Ref: Ertl, P. J Cheminform 9, 36 (2017).</p> */}
-          </div>
-        </div>
-      )}
-
-      {/* Initial State / About Box */}
-      {/* Show only if no results, not loading, and no error */}
-      {!functionalGroups.length && !loading && !error && (
-        <div
-          className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 flex items-start space-x-4 shadow-sm"
-          role="complementary"
-        >
-          <Info
-            className="h-6 w-6 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"
-            aria-hidden="true"
-          />
+      <Cell id="fg-about" title="About functional groups" className="pc-t-side">
+        <p className="pc-tool-note">
+          Functional groups are arrangements of atoms that give a molecule its characteristic
+          chemical properties. This tool finds them with the algorithm proposed by Peter Ertl.
+        </p>
+        <dl className="pc-defs">
           <div>
-            <h3 className="text-lg font-medium text-blue-800 dark:text-blue-300 mb-2">
-              About Functional Group Detection (Ertl)
-            </h3>
-            <p className="text-gray-700 dark:text-gray-300">
-              This tool identifies functional groups in organic molecules using the algorithm
-              proposed by Peter Ertl. Functional groups are specific arrangements of atoms that give
-              a molecule its characteristic chemical properties.
-            </p>
-            <p className="mt-3 text-gray-700 dark:text-gray-300">Examples include:</p>
-            {/* List styling */}
-            <ul className="list-disc list-inside mt-1 space-y-1 text-gray-600 dark:text-gray-400 marker:text-blue-500 dark:marker:text-blue-400">
-              <li>Hydroxyl groups (-OH)</li>
-              <li>Carbonyl groups (C=O)</li>
-              <li>Carboxyl groups (-COOH)</li>
-              <li>Amino groups (-NH₂)</li>
-              <li>And many others</li>
-            </ul>
-            <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-              Reference: Ertl, Peter. "An algorithm to identify functional groups in organic
-              molecules." Journal of Cheminformatics 9.1 (2017): 36.
-            </p>
+            <dt>Examples</dt>
+            <dd>Hydroxyl (-OH), carbonyl (C=O), carboxyl (-COOH), amino (-NH₂) and many others.</dd>
           </div>
-        </div>
-      )}
+        </dl>
+        <p className="pc-note">Ertl, P. J. Cheminform. 9, 36 (2017).</p>
+      </Cell>
+
+      <Cell id="fg-results" title={title} className="pc-t-wide">
+        {loading && <ToolSkeleton variant="general" />}
+        {error && !loading && (
+          <GlassErrorCard
+            message={error}
+            onRetry={() => {
+              setError(null);
+              document.getElementById("smiles-input")?.focus();
+            }}
+          />
+        )}
+        {!functionalGroups.length && !loading && !error && (
+          <p className="pc-empty">Enter a SMILES string to detect its functional groups.</p>
+        )}
+        {done && (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="pc-tool-form">
+              <HighlightedMoleculeCard
+                smiles={smiles}
+                title="Input Molecule"
+                size="md"
+                functionalGroups={functionalGroups}
+                highlightedGroupIndex={selectedGroupIndex}
+                showActions={true}
+              />
+              {selected !== undefined && !isNone(selected) && (
+                <div className="pc-row justify-center">
+                  <Button variant="outline" onClick={() => setSelectedGroupIndex(null)}>
+                    Clear highlighting
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div className="pc-tool-form content-start">
+              {noGroupsFound ? (
+                <p className="pc-empty">No functional groups detected.</p>
+              ) : (
+                <>
+                  <p className="pc-note">Select a group to highlight it in the structure.</p>
+                  <ul className="grid gap-2">
+                    {functionalGroups.map((fg, index) => {
+                      const on = selectedGroupIndex === index;
+                      const obj = typeof fg === "object" ? fg : null;
+                      return (
+                        <li key={index}>
+                          <button
+                            type="button"
+                            aria-pressed={on}
+                            disabled={isNone(fg)}
+                            onClick={() => setSelectedGroupIndex(on ? null : index)}
+                            className={`w-full rounded-xl border p-2 text-left text-sm transition-colors ${
+                              on
+                                ? "border-primary bg-accent text-primary"
+                                : "border-border bg-card text-foreground hover:bg-muted"
+                            }`}
+                          >
+                            <span className="flex items-center justify-between gap-2">
+                              <span>{formatFunctionalGroup(fg)}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {obj?.atomIds && obj.atomIds.length > 0 && (
+                                  <>
+                                    {obj.atomIds.length} atom{obj.atomIds.length !== 1 ? "s" : ""}
+                                  </>
+                                )}
+                                {on && <span className="ml-2 font-medium">Highlighted</span>}
+                              </span>
+                            </span>
+                            {obj?.atoms && obj.type && !obj.None && (
+                              <span className="mt-1 block text-xs text-muted-foreground">
+                                Type: {obj.type} | Atoms: {obj.atoms}
+                              </span>
+                            )}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </Cell>
     </div>
   );
 };
+
 export default ErtlFunctionalGroupView;

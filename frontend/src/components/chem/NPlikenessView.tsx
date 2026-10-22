@@ -1,270 +1,183 @@
-// Description : This component allows users to calculate molecular descriptors from a SMILES string.
-import { useState } from "react";
-// Ensure all used icons are imported
-// Assuming these components are correctly implemented and styled for dark/light mode
+import { useState, type FormEvent } from "react";
+import { Calculator, Info, Loader2 } from "lucide-react";
 import SMILESInput from "../common/SMILESInput";
-import { calculateNPLikeness } from "../../services/chemService"; // Assuming this service exists
-import { AlertCircle, Calculator, Info, Loader2 } from "lucide-react";
+import { calculateNPLikeness } from "../../services/chemService";
 import { ToolSkeleton } from "@/components/feedback/ToolSkeleton";
 import { GlassErrorCard } from "@/components/feedback/GlassErrorCard";
-import { EmptyState } from "@/components/feedback/EmptyState";
 import { getErrorMessage } from "@/lib/error-messages";
 import { Button } from "@/components/ui/button";
+import { Cell } from "@/components/common/porcelain-ui";
+import { useRevealOnResult } from "@/hooks/useRevealOnResult";
 
+const getNpScoreColor = (score: number | null) => {
+  if (score === null || isNaN(score)) return "text-muted-foreground";
+  if (score >= 0) return "text-primary";
+  if (score >= -2) return "text-saffron-ink";
+  return "text-madder-ink";
+};
+
+const getNpScoreInterpretation = (score: number | null) => {
+  if (score === null || isNaN(score)) return "Enter a SMILES string to calculate the score.";
+  if (score >= 1) return "Very high natural product likeness - likely to be a natural product";
+  if (score >= 0) return "High natural product likeness";
+  if (score >= -1) return "Moderate natural product likeness";
+  if (score >= -2) return "Low natural product likeness";
+  return "Very low natural product likeness - likely to be synthetic";
+};
+
+/** NP-likeness: how close a structure is to known natural products, on a −5 to +5 scale. */
 const NPlikenessView = () => {
   const [smiles, setSmiles] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [npScore, setNpScore] = useState(null); // Store the score (null initially)
+  const [error, setError] = useState<string | null>(null);
+  const [npScore, setNpScore] = useState<number | null>(null);
   const [showInfo, setShowInfo] = useState(false);
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const trimmedSmiles = smiles.trim();
     if (!trimmedSmiles) {
       setError("Please enter a SMILES string.");
-      setNpScore(null); // Clear previous score
+      setNpScore(null);
       return;
     }
-
     setLoading(true);
     setError(null);
-    setNpScore(null); // Clear previous score before calculation
-
+    setNpScore(null);
     try {
-      // Call the service function
       const score = await calculateNPLikeness(trimmedSmiles);
-      // Ensure score is a number before setting state
       if (typeof score === "number" && !isNaN(score)) {
         setNpScore(score);
       } else {
-        // Handle cases where API might not return a valid number
         console.warn("Received non-numeric score:", score);
         throw new Error("Received an invalid score format from the server.");
       }
     } catch (err) {
-      console.error("NP-likeness calculation error:", err); // Log the error
+      console.error("NP-likeness calculation error:", err);
       setError(getErrorMessage("chem", err));
-      setNpScore(null); // Ensure score is null on error
+      setNpScore(null);
     } finally {
       setLoading(false);
     }
   };
 
-  // Determine the Tailwind CSS color class based on the NP-likeness score
-  // Adjusted colors for better light/dark mode contrast
-  const getNpScoreColor = (score) => {
-    if (score === null || isNaN(score)) return "text-gray-500 dark:text-gray-400"; // Default/invalid color
-    if (score >= 1) return "text-green-600 dark:text-green-400";
-    if (score >= 0) return "text-blue-600 dark:text-blue-400";
-    if (score >= -1) return "text-amber-600 dark:text-yellow-400"; // Using amber for light mode yellow contrast
-    if (score >= -2) return "text-orange-600 dark:text-orange-400";
-    return "text-red-600 dark:text-red-400"; // Score < -2
-  };
+  const hasScore = typeof npScore === "number" && !isNaN(npScore) && !loading && !error;
 
-  // Get a textual interpretation of the score
-  const getNpScoreInterpretation = (score) => {
-    if (score === null || isNaN(score)) return "Enter a SMILES string to calculate the score.";
-    if (score >= 1) return "Very high natural product likeness - likely to be a natural product";
-    if (score >= 0) return "High natural product likeness";
-    if (score >= -1) return "Moderate natural product likeness";
-    if (score >= -2) return "Low natural product likeness";
-    return "Very low natural product likeness - likely to be synthetic";
-  };
+  useRevealOnResult("np-results", loading, npScore !== null, !!error);
 
   return (
-    // Main container
-    <div className="space-y-6 p-4 md:p-6">
-      {/* Input Card */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-blue-400 mb-4">
-          Natural Product Likeness Score
-        </h2>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* SMILES Input */}
-          <SMILESInput
-            value={smiles}
-            onChange={setSmiles}
-            required
-            // Pass theme props if needed
-          />
-
-          {/* Submit Button */}
-          <div className="pt-2">
-            <Button
-              type="submit"
-              disabled={!smiles.trim() || loading}
-              className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white font-medium flex items-center justify-center transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 ${
-                !smiles.trim() || loading
-                  ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xs"
-              }`}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Calculating...
-                </>
-              ) : (
-                <>
-                  <Calculator className="mr-2 h-5 w-5" aria-hidden="true" />
-                  Calculate NP Score
-                </>
-              )}
+    <div className="pc-bento">
+      <Cell id="np-input" title="Structure input" className="pc-t-input">
+        <form onSubmit={handleSubmit} className="pc-tool-form">
+          <SMILESInput value={smiles} onChange={setSmiles} required />
+          <div className="pc-row pc-actions">
+            <Button type="submit" disabled={!smiles.trim() || loading}>
+              {loading ? <Loader2 className="animate-spin" /> : <Calculator />}
+              {loading ? "Calculating…" : "Calculate NP score"}
             </Button>
           </div>
         </form>
-      </div>
+      </Cell>
 
-      {/* Loading State */}
-      {loading && !npScore && <ToolSkeleton variant="descriptors" />}
+      <Cell id="np-about" title="About NP-likeness" className="pc-t-side">
+        <p className="pc-tool-note">
+          Measures how similar a molecule is to known natural products. Scores run from −5
+          (synthetic-like) to +5 (natural-product-like).
+        </p>
+        <p className="pc-note">
+          RDKit implementation of the method by Ertl et al., J. Cheminform. 1:8 (2008).
+        </p>
+      </Cell>
 
-      {/* Error Display */}
-      {error && !loading && (
-        <GlassErrorCard
-          message={error}
-          onRetry={() => {
-            setError(null);
-            document.getElementById("smiles-input")?.focus();
-          }}
-        />
-      )}
-
-      {/* Results Display Section */}
-      {/* Show only if score exists (is a number) and not loading and no error */}
-      {typeof npScore === "number" && !isNaN(npScore) && !loading && !error && (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-lg">
-          {/* Results Header */}
-          <div className="flex items-center justify-between mb-4 border-b border-gray-200 dark:border-gray-700 pb-3">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              NP-likeness Results
-            </h3>
-            <div className="flex items-center gap-2">
-              {/* Info Button (Consider adding tooltip/modal functionality) */}
-              <Button
-                variant="ghost"
-                className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-full focus:outline-hidden focus:ring-2 focus:ring-blue-500"
-                title="About NP-likeness scores"
-                onClick={() => setShowInfo(!showInfo)}
-              >
-                <Info className="h-6 w-6" aria-hidden="true" />
-              </Button>
-            </div>
-          </div>
-          {showInfo && (
-            <div className="mt-3 glass-bold rounded-xl p-4 text-sm text-foreground space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
-              <p className="font-semibold">NP-likeness Score Ranges:</p>
-              <ul className="space-y-1 text-muted-foreground">
-                <li>
-                  <span className="font-medium text-green-600 dark:text-green-400">&gt; 1:</span>{" "}
-                  Very High NP-like
-                </li>
-                <li>
-                  <span className="font-medium text-blue-600 dark:text-blue-400">0 to 1:</span> High
-                  NP-like
-                </li>
-                <li>
-                  <span className="font-medium text-amber-600 dark:text-yellow-400">-1 to 0:</span>{" "}
-                  Moderate NP-like
-                </li>
-                <li>
-                  <span className="font-medium text-orange-600 dark:text-orange-400">
-                    -2 to -1:
-                  </span>{" "}
-                  Low NP-like
-                </li>
-                <li>
-                  <span className="font-medium text-red-600 dark:text-red-400">&lt; -2:</span> Very
-                  Low NP-like (Synthetic)
-                </li>
-              </ul>
-            </div>
-          )}
-
-          {/* Results Content */}
-          <div className="space-y-8">
-            {" "}
-            {/* Increased spacing */}
-            {/* Score Display */}
+      <Cell
+        id="np-results"
+        title={hasScore ? "NP-likeness score" : "Results"}
+        className="pc-t-wide"
+        meta={
+          hasScore && (
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Score ranges"
+              aria-expanded={showInfo}
+              onClick={() => setShowInfo(!showInfo)}
+            >
+              <Info />
+            </Button>
+          )
+        }
+      >
+        {loading && <ToolSkeleton variant="descriptors" />}
+        {error && !loading && (
+          <GlassErrorCard
+            message={error}
+            onRetry={() => {
+              setError(null);
+              document.getElementById("smiles-input")?.focus();
+            }}
+          />
+        )}
+        {npScore === null && !loading && !error && (
+          <p className="pc-empty">Enter a SMILES string to calculate its NP-likeness score.</p>
+        )}
+        {hasScore && npScore !== null && (
+          <div className="pc-tool-form">
+            {showInfo && (
+              <dl className="pc-defs">
+                <div>
+                  <dt>Above 1</dt>
+                  <dd>Very high NP-likeness</dd>
+                </div>
+                <div>
+                  <dt>0 to 1</dt>
+                  <dd>High NP-likeness</dd>
+                </div>
+                <div>
+                  <dt>−1 to 0</dt>
+                  <dd>Moderate NP-likeness</dd>
+                </div>
+                <div>
+                  <dt>−2 to −1</dt>
+                  <dd>Low NP-likeness</dd>
+                </div>
+                <div>
+                  <dt>Below −2</dt>
+                  <dd>Very low NP-likeness (synthetic)</dd>
+                </div>
+              </dl>
+            )}
             <div className="text-center">
-              <div className={`text-5xl font-bold mb-2 ${getNpScoreColor(npScore)}`}>
-                {/* Format score to 2 decimal places */}
+              <div className={`mb-2 text-5xl font-bold ${getNpScoreColor(npScore)}`}>
                 {npScore.toFixed(2)}
               </div>
-              {/* Interpretation Text */}
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {getNpScoreInterpretation(npScore)}
-              </p>
+              <p className="text-sm text-muted-foreground">{getNpScoreInterpretation(npScore)}</p>
             </div>
-            {/* Score Gauge Visualization */}
-            <div className="relative pt-6 px-2">
-              {" "}
-              {/* Added padding */}
-              {/* Gauge Background Bar */}
-              <div className="overflow-hidden h-2.5 mb-4 flex rounded-full bg-gray-200 dark:bg-gray-700 shadow-inner">
-                {/* Gradient Segments */}
-                {/* These gradients provide a visual representation */}
-                <div className="h-full w-[30%] bg-linear-to-r from-red-500 to-orange-500"></div>{" "}
-                {/* -5 to -2 */}
-                <div className="h-full w-[10%] bg-linear-to-r from-orange-500 to-amber-500"></div>{" "}
-                {/* -2 to -1 */}
-                <div className="h-full w-[10%] bg-linear-to-r from-amber-500 to-blue-500"></div>{" "}
-                {/* -1 to 0 */}
-                <div className="h-full w-[10%] bg-linear-to-r from-blue-500 to-green-400"></div>{" "}
-                {/* 0 to 1 */}
-                <div className="h-full w-[40%] bg-linear-to-r from-green-400 to-green-600"></div>{" "}
-                {/* 1 to 5 */}
+            <div className="relative px-2 pt-6">
+              <div className="mb-4 flex h-2.5 overflow-hidden rounded-full bg-accent">
+                <div className="h-full w-[30%] bg-linear-to-r from-destructive to-saffron" />
+                <div className="h-full w-[10%] bg-saffron" />
+                <div className="h-full w-[10%] bg-linear-to-r from-saffron to-primary" />
+                <div className="h-full w-[50%] bg-primary" />
               </div>
-              {/* Marker for the current score */}
-              {/* Calculate position based on -5 to 5 range (total range of 10) */}
               <div
-                className="absolute bottom-4 w-4 h-4 bg-white dark:bg-gray-200 rounded-full ring-2 ring-gray-500 dark:ring-gray-400 transform -translate-x-1/2 shadow-lg transition-all duration-500 ease-out"
-                style={{
-                  // Normalize score to 0-1 range, then scale to 100%
-                  left: `${Math.max(0, Math.min(100, ((npScore + 5) / 10) * 100))}%`,
-                }}
-                title={`Score: ${npScore.toFixed(2)}`} // Tooltip for exact score
-              ></div>
-              {/* Labels for Gauge */}
-              {/* Positioned below the gauge */}
-              <div className="flex justify-between text-xs mt-1">
-                <span className="text-red-600 dark:text-red-400">-5</span>
-                <span className="text-orange-600 dark:text-orange-400">-2</span>
-                <span className="text-amber-600 dark:text-yellow-400">-1</span>
-                <span className="text-blue-600 dark:text-blue-400">0</span>
-                <span className="text-green-600 dark:text-green-400">1</span>
-                <span className="text-green-700 dark:text-green-300">5</span>
+                className="absolute bottom-4 h-4 w-4 -translate-x-1/2 rounded-full bg-card ring-2 ring-border transition-all duration-500 ease-out"
+                style={{ left: `${Math.max(0, Math.min(100, ((npScore + 5) / 10) * 100))}%` }}
+                title={`Score: ${npScore.toFixed(2)}`}
+              />
+              <div className="mt-1 flex justify-between text-xs">
+                <span className="text-madder-ink">−5</span>
+                <span className="text-saffron-ink">−2</span>
+                <span className="text-saffron-ink">−1</span>
+                <span className="text-primary">0</span>
+                <span className="text-primary">1</span>
+                <span className="text-primary">5</span>
               </div>
-            </div>
-            {/* Informational Box about the score */}
-            <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg text-sm text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 shadow-xs">
-              <p>
-                <strong>About NP-likeness Score:</strong> This score measures molecular similarity
-                to known natural products, ranging from -5 (synthetic-like) to +5 (natural
-                product-like).
-              </p>
-              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                Calculation based on RDKit implementation of the method by Ertl et al., J.
-                Cheminform. 1:8 (2008).
-              </p>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Initial State Message (Optional) */}
-      {/* Show only if no score, not loading, and no error */}
-      {npScore === null && !loading && !error && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center shadow-sm">
-          <p className="text-gray-600 dark:text-gray-300">
-            Enter a SMILES string to calculate its Natural Product-likeness score.
-          </p>
-        </div>
-      )}
+        )}
+      </Cell>
     </div>
   );
 };
+
 export default NPlikenessView;

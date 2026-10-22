@@ -228,15 +228,6 @@ export const tools: NavEntry[] = [
 
   // Depiction (4 tools)
   {
-    id: "structureexplorer",
-    name: "Structure Explorer",
-    path: "/depict/structureexplorer",
-    section: "Depiction",
-    sectionPath: "/depict",
-    icon: Search,
-    keywords: ["visualize", "explore", "identifier", "name", "search"],
-  },
-  {
     id: "2ddepiction",
     name: "2D Depiction",
     path: "/depict/2ddepiction",
@@ -262,6 +253,15 @@ export const tools: NavEntry[] = [
     sectionPath: "/depict",
     icon: Pencil,
     keywords: ["draw", "editor", "sketch", "JSME", "ketcher"],
+  },
+  {
+    id: "structureexplorer",
+    name: "Structure Explorer",
+    path: "/depict/structureexplorer",
+    section: "Depiction",
+    sectionPath: "/depict",
+    icon: Search,
+    keywords: ["visualize", "explore", "identifier", "name", "search"],
   },
 
   // Tools (4 tools)

@@ -54,35 +54,13 @@ The client must support MCP tool use; merely opening the endpoint in a browser
 does not provide an assistant or chat interface. Scientific interpretation and
 validation of the results remain the responsibility of the user.
 
-## Transport and endpoints
-
-The current lite deployment pins `fastapi-mcp==0.3.4`. It uses **HTTP SSE**, not
-Streamable HTTP or stdio.
-
-| Endpoint              | Purpose                                                                        |
-| --------------------- | ------------------------------------------------------------------------------ |
-| `GET /mcp`            | Persistent SSE connection for MCP clients                                      |
-| `POST /mcp/messages/` | Client messages; use the session-specific URL advertised by the SSE connection |
-| `GET /docs`           | Interactive REST API documentation                                             |
-| `GET /openapi.json`   | REST OpenAPI schema                                                            |
-| `GET /health`         | Application health check                                                       |
-
-Configure an SSE-capable MCP client with `https://mcp.naturalproducts.net:8002/mcp`
-once DNS and TLS are configured. HTTPS requires a valid certificate and a
-TLS-enabled listener on port 8002; DNS mapping alone does not enable it.
-Client configuration formats vary; select the SSE transport explicitly where
-required. Clients supporting only Streamable HTTP cannot use this adapter as-is.
-
-MCP requests initialize a session, send the initialized notification, and then
-use operations such as `tools/list` and `tools/call`. A normal HTTP GET to `/mcp`
-opens the event stream; it does not list tools.
-
 ## Quick guide: connect a local AI agent
 
 Your agent runs locally, while chemistry calculations run on the MCP server.
-Use an agent that supports **remote SSE MCP servers** and a model capable of
-tool use. A local model alone is not enough: the agent application must handle
-MCP discovery, tool calls, and returning results to the model.
+Use an agent that supports **stdio MCP servers** and a model capable of tool use.
+The local bridge handles remote SSE connectivity. A local model alone is not
+enough: the agent application must handle MCP discovery, tool calls, and returning
+results to the model.
 
 ### 1. Check network access
 
@@ -92,43 +70,91 @@ From the computer running your agent:
 curl --fail https://mcp.naturalproducts.net:8002/health
 ```
 
-The planned hostname is `mcp.naturalproducts.net`. This example will work after
-its DNS record and TLS listener are configured and your computer can reach port 8002.
-
 ### 2. Add the server to your agent
 
-In an agent with a remote MCP connection form, enter:
+For **VS Code with GitHub Copilot agent mode**, configure a local
+[`mcp-remote`](https://github.com/geelen/mcp-remote) bridge. VS Code communicates
+with it over stdio, and the bridge connects to the server using SSE:
 
-| Setting        | Value                            |
-| -------------- | -------------------------------- |
-| Name           | `cheminformatics`                |
-| Transport      | `SSE`                            |
-| Server URL     | `https://mcp.naturalproducts.net:8002/mcp` |
-| Authentication | None in the current deployment   |
+```text
+VS Code agent -> local stdio bridge -> remote SSE MCP server
+```
 
-For example, in **VS Code with GitHub Copilot agent mode**, add this workspace
-configuration to `.vscode/mcp.json`:
+The bridge was verified on macOS with initialization, discovery of 34 tools, and
+successful RDKit canonical SMILES and InChI calls. The Windows configuration
+below follows the same approach but has not been tested on Windows.
+
+Install a supported Node.js LTS release, then verify `node --version` and
+`npm --version` in a VS Code terminal. The examples pin `mcp-remote` to the
+verified version. `npx -y` downloads and executes that third-party package on
+first use, so review and trust it before starting the connection.
+
+Create `.vscode/mcp.json` in your project folder using the configuration for your
+operating system below. If the file already exists, add or replace only the
+`cheminformatics` entry in its `servers` object, preserving other connections.
+
+**macOS/Linux: `.vscode/mcp.json`**
 
 ```json
 {
   "servers": {
     "cheminformatics": {
-      "type": "sse",
-      "url": "https://mcp.naturalproducts.net:8002/mcp"
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote@0.15.1",
+        "https://mcp.naturalproducts.net:8002/mcp",
+        "--transport",
+        "sse-only"
+      ]
     }
   }
 }
 ```
 
-If the file already exists, add the `cheminformatics` entry to its existing
-`servers` object instead of replacing other connections. Start the server
-connection using VS Code's MCP controls, review any trust prompt, and enable
-its tools in the agent chat tool picker. Model access and subscription
-requirements depend on your client.
+If VS Code cannot find `npx`, run `command -v npx` in a terminal and use the
+resulting absolute path for `command`. For example, Apple Silicon Homebrew
+commonly installs it at `/opt/homebrew/bin/npx`. Restart VS Code after installing
+Node.js so it inherits the updated environment.
 
-Other agents use different configuration formats; do not assume this VS Code
-JSON can be copied into every client. If an agent supports only stdio or
-Streamable HTTP, it needs a compatible bridge or a different server transport.
+**Windows: `.vscode/mcp.json`**
+
+Use `cmd.exe` to launch the Windows `npx` command:
+
+```json
+{
+  "servers": {
+    "cheminformatics": {
+      "type": "stdio",
+      "command": "cmd.exe",
+      "args": [
+        "/d",
+        "/c",
+        "npx",
+        "-y",
+        "mcp-remote@0.15.1",
+        "https://mcp.naturalproducts.net:8002/mcp",
+        "--transport",
+        "sse-only"
+      ]
+    }
+  }
+}
+```
+
+#### Start the connection and enable Copilot tools
+
+1. Open the project folder containing `.vscode/mcp.json` and save the file.
+2. Run **MCP: List Servers** from the Command Palette, select
+   **cheminformatics**, and choose **Start Server** or **Restart Server**.
+   The editor's inline Start button is not required.
+3. Review any trust prompt. If the old connection remains cached, run
+   **Developer: Reload Window** and start the connection again.
+4. Open GitHub Copilot Chat, select **Agent** mode, and enable the
+   **cheminformatics** tools through **Configure Tools**.
+
+Model access and subscription requirements depend on your client. Other agents use different configuration formats; do not assume this VS Code JSON can be copied into every client. Configure the same stdio command and arguments in the format your agent supports.
 
 ### 3. Ask the agent to use chemistry tools
 
@@ -153,24 +179,6 @@ InChI: InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3
 
 Approve tool execution if prompted. Check the agent's tool-call trace to confirm
 it contacted the server rather than answering from model knowledge.
-
-### 4. Troubleshoot the connection
-
-- **Cannot connect:** check the address, VPN/routing, and inbound TCP port 8002.
-  `localhost` means the agent's own computer, not the remote server.
-- **Health works but tools do not appear:** confirm SSE support, the `/mcp` URL,
-  and `ENABLE_MCP=true` on the server. Review the client's MCP connection logs.
-- **Connected but tools are not called:** enable the server's tools, select a
-  tool-capable agent/model, and explicitly request tool use.
-- **A tool fails:** inspect its discovered input schema and server logs. A
-  successful connection does not guarantee external-service or upload support.
-
-::: warning Local agent does not mean local data processing
-Molecules, documents, and tool results are sent to the remote chemistry server.
-If your agent uses a cloud model, it may also send prompts and results to that
-provider. The current HTTP deployment is unencrypted and unauthenticated;
-use trusted-network access and avoid sensitive data.
-:::
 
 ## Exposed tools
 
@@ -263,27 +271,3 @@ See also the [Tools module](./tools.md).
 - **Input details:** use the discovered input schemas for parameter names,
   defaults, and types. Tool registration alone does not prove successful
   execution for every input, especially file uploads and request bodies.
-
-## Execute a tool
-
-Within an initialized SDK session, call a tool by its discovered name:
-
-```python
-result = await session.call_tool(
-    "generate_canonical_smiles",
-    arguments={"smiles": "CCO", "toolkit": "rdkit"},
-)
-if result.isError:
-    raise RuntimeError(f"Tool execution failed: {result}")
-for content in result.content:
-    if content.type == "text":
-        print(content.text)
-```
-
-Place this code inside the `ClientSession` block in the previous example, after
-`await session.initialize()`. For this input, the text content is the JSON string
-`"CCO"`; use `json.loads(content.text)` to decode that particular response.
-
-This verifies a real chemistry operation rather than only a health check.
-Different operations can return strings, objects, or other response content;
-inspect each tool's description and response before consuming it in a workflow.
