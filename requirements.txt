@@ -18,7 +18,7 @@ matplotlib>=3.4.3
 opencv-python==4.8.1.78
 pandas
 pdf2image==1.16.2
-pillow==12.3.0
+pillow==13.0.0
 pillow-heif==1.3.0
 pre-commit
 flake8
@@ -37,6 +37,8 @@ slowapi
 imantics==0.1.12
 rdkit
 openbabel-wheel
+# docling left out until a release allows pillow>=13 (docling-project/docling#4968).
+# app/main.py skips the /tools/extract_* PDF routes while it is not installed.
 uvicorn[standard]
 pytest
 pytest-asyncio
