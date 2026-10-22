@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.12.1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.12.0...v3.12.1) (2026-10-22)
+
+
+### Bug Fixes
+
+* **deps:** bump Pillow to 13.0.0 and run CI on Python 3.11 ([2af4703](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/2af4703c07a5aa3f6e26062f8280dd3c9b975ae0))
+* **deps:** drop docling until it supports Pillow 13 ([d4e4527](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/d4e45275f8bdf81f4b0a5ce43928c2f55ff744b6))
+* **deps:** re-add docling now that 2.142.0 supports Pillow 13 ([c9569ff](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/c9569ff9d613ce13e148a698be1d05f92321bfc8))
+
 ## [3.12.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.11.0...v3.12.0) (2026-10-22)
 
 
