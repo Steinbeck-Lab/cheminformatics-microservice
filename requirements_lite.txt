@@ -1,7 +1,10 @@
 chembl_structure_pipeline
-fastapi>=0.110.3
+# Same caps as requirements.txt: fastapi-versioning 0.10.0 crashes on
+# Starlette 1.0's _IncludedRouter objects. Keep both files in sync.
+fastapi>=0.110.3,<0.129
 fastapi-pagination==0.10.0
 fastapi-versioning>=0.10.0
+starlette<1.0
 HOSE_code_generator @ git+https://github.com/Ratsemaat/HOSE_code_generator
 httpx>=0.24.1
 IPython
