@@ -37,7 +37,8 @@ slowapi
 imantics==0.1.12
 rdkit
 openbabel-wheel
-docling
+# docling left out until a release allows pillow>=13 (docling-project/docling#4968).
+# app/main.py skips the /tools/extract_* PDF routes while it is not installed.
 uvicorn[standard]
 pytest
 pytest-asyncio
