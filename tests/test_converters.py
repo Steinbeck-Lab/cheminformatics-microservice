@@ -1258,3 +1258,15 @@ def test_smiles_to_iupac(smiles, tier, name, response_code):
     assert response.status_code == response_code
     if name:
         assert response.json()["name"] == name
+
+
+def test_smiles_to_iupac_engine_error(monkeypatch):
+    # e.g. a missing OPSIN jar: any non-ValueError from Orthonym is a 422, not a crash
+    class BrokenOrthonym:
+        def __init__(self, **flags):
+            raise RuntimeError("jar unavailable")
+
+    monkeypatch.setattr("app.routers.converters.Orthonym", BrokenOrthonym)
+    response = client.get("/latest/convert/iupac", params={"smiles": "CCO"})
+    assert response.status_code == 422
+    assert response.json()["detail"] == "Processing error"
