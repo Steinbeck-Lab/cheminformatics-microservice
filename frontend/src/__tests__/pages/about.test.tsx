@@ -75,9 +75,12 @@ describe("About page", () => {
     expect(screen.getByText(/239748522/)).toBeInTheDocument();
   });
 
-  it("does not offer IUPAC naming (STOUT is unavailable)", () => {
+  it("credits Orthonym for IUPAC naming, not STOUT", () => {
     renderAbout();
-    expect(document.body).not.toHaveTextContent(/IUPAC name/i);
+    expect(screen.getByRole("link", { name: /Orthonym/ })).toHaveAttribute(
+      "href",
+      "https://github.com/Steinbeck-Lab/Orthonym"
+    );
     expect(document.body).not.toHaveTextContent(/STOUT/);
   });
 });
