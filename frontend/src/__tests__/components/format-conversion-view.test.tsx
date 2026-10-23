@@ -51,6 +51,12 @@ vi.mock("@/services/convertService", () => {
     generateInChIKey: vi.fn(async () => '"LFQSCWFLJHTTHZ-UHFFFAOYSA-N"'),
     generateSELFIES: vi.fn(async () => "[C][C][O]"),
     generateSMARTS: vi.fn(async () => "[#6][#6][#8]"),
+    generateIUPACName: vi.fn(async () => ({
+      name: "ethanol",
+      tier: "pin_verified",
+      is_pin: true,
+      verified: "opsin",
+    })),
     molblockToSMILES: vi.fn(async () => "CO"),
     convertCDXToMol: vi.fn(async () => "MOL"),
     convertXYZ: vi.fn(async () => XYZ_BATCH),
@@ -100,6 +106,23 @@ describe("FormatConversionView (bento)", () => {
     expect(within(results).getByText("LFQSCWFLJHTTHZ-UHFFFAOYSA-N")).toBeInTheDocument();
     expect(within(results).getByRole("button", { name: /Copy result/i })).toBeInTheDocument();
     expect(within(results).getByTestId("depiction")).toHaveTextContent("CCO");
+  });
+
+  it("names SMILES with Orthonym at the chosen tier and shows the tier", async () => {
+    renderView();
+    fireEvent.change(screen.getByLabelText(/^SMILES/), { target: { value: "CCO" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Output format" }), {
+      target: { value: "iupac" },
+    });
+    expect(screen.queryByRole("radiogroup", { name: "Toolkit" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("radio", { name: "Valid" }));
+    fireEvent.click(screen.getByRole("button", { name: /Convert format/i }));
+    const results = await screen.findByRole("region", { name: "IUPAC Name" });
+    expect(convertService.generateIUPACName).toHaveBeenCalledWith("CCO", "valid", {
+      autoDetect: false,
+    });
+    expect(within(results).getByText("ethanol", { selector: "pre" })).toBeInTheDocument();
+    expect(results).toHaveTextContent("with Orthonym (pin verified)");
   });
 
   it("converts a pasted MOL block to SMILES, keeping the two-space terminator", async () => {

@@ -35,6 +35,9 @@ ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk/
 ARG RELEASE_VERSION=1.0
 ENV RELEASE_VERSION=${RELEASE_VERSION}
 
+# Orthonym's OPSIN and centres jars: fetched at build time, outside /code so chown -R does not copy them; made world-readable for appuser
+ENV ORTHONYM_JAR_DIR=/opt/orthonym_jars
+
 # Combine conda and pip operations to reduce layers
 WORKDIR /code
 COPY requirements.txt .
@@ -45,7 +48,8 @@ RUN conda install -c conda-forge python=${PYTHON_VERSION} sqlite --force-reinsta
     pip3 install --no-cache-dir --no-deps \
         git+https://github.com/Kohulan/DECIMER-Image-Segmentation.git \
         decimer==2.7.1 \
-        chembl_structure_pipeline
+        chembl_structure_pipeline && \
+    python3 -m orthonym --fetch-jars && chmod -R a+rX "$ORTHONYM_JAR_DIR"
 
 
 COPY ./app ./app
