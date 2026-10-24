@@ -8,6 +8,7 @@ import type {
   XYZBatchConversionResult,
   XYZConversionOptions,
   DetectFormatResult,
+  IUPACNameResult,
 } from "../types/api";
 
 const CONVERT_URL = "/convert";
@@ -199,6 +200,24 @@ export const generateSMARTS = async (
   }
 };
 
+/**
+ * Generate an IUPAC name from SMILES with Orthonym
+ */
+export const generateIUPACName = async (
+  smiles: string,
+  tier = "pin",
+  options: ConvertParams = {}
+): Promise<IUPACNameResult> => {
+  try {
+    const response = await api.get<IUPACNameResult>(`${CONVERT_URL}/iupac`, {
+      params: withAutoDetect({ smiles, tier }, options.autoDetect),
+    });
+    return response.data;
+  } catch (error) {
+    throw failed("Failed to generate IUPAC name", error);
+  }
+};
+
 /** The `detail` of a JSON error response; undefined when the body is not JSON. */
 async function detailOf(response: Response): Promise<string | undefined> {
   try {
@@ -339,6 +358,7 @@ const convertService = {
   generateInChIKey,
   generateSELFIES,
   generateSMARTS,
+  generateIUPACName,
   molblockToSMILES,
   generateMultipleFormats,
   convertCDXToMol,

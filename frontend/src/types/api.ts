@@ -47,6 +47,14 @@ export interface DetectFormatResult {
   confidence: "high" | "medium" | "low";
 }
 
+/** An IUPAC name from Orthonym, with how it was built and checked. */
+export interface IUPACNameResult {
+  name: string;
+  tier: string;
+  is_pin: boolean;
+  verified: string;
+}
+
 export interface MultipleFormatsResult {
   [format: string]: string;
 }

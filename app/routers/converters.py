@@ -5,6 +5,8 @@ from typing import Annotated
 from typing import Literal
 
 import selfies as sf
+from orthonym import Orthonym
+from orthonym.cli import _emit_tier_flags
 
 from fastapi import APIRouter
 from fastapi import File
@@ -31,6 +33,7 @@ from app.schemas.converters_schema import GenerateCXSMILESResponse
 from app.schemas.converters_schema import GenerateFormatsResponse
 from app.schemas.converters_schema import GenerateInChIKeyResponse
 from app.schemas.converters_schema import GenerateInChIResponse
+from app.schemas.converters_schema import GenerateIUPACResponse
 from app.schemas.converters_schema import GenerateSELFIESResponse
 from app.schemas.converters_schema import GenerateSMILESResponse
 from app.schemas.converters_schema import ThreeDCoordinatesResponse
@@ -356,6 +359,83 @@ def iupac_name_or_selfies_to_smiles(
     except Exception:
         logger.exception("Error in conversion")
         raise HTTPException(status_code=422, detail="Processing error")
+
+
+@router.get(
+    "/iupac",
+    summary="Generate IUPAC name from a given SMILES using Orthonym",
+    response_model=GenerateIUPACResponse,
+    responses={
+        200: {
+            "description": "Successful response",
+            "model": GenerateIUPACResponse,
+        },
+        400: {"description": "Bad Request", "model": BadRequestModel},
+        404: {"description": "Not Found", "model": NotFoundModel},
+        422: {"description": "Unprocessable Entity", "model": ErrorResponse},
+    },
+)
+@limiter.limit("10/minute")
+def smiles_to_iupac_name(
+    request: Request,
+    smiles: str = Query(
+        title="SMILES",
+        max_length=5000,
+        description="SMILES representation of the molecule",
+        openapi_examples={
+            "example1": {
+                "summary": "Example: Caffeine",
+                "value": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            },
+            "example2": {
+                "summary": "Example: Ibuprofen",
+                "value": "CC(C)Cc1ccc(cc1)[C@@H](C)C(=O)O",
+            },
+        },
+    ),
+    tier: Literal["pin", "valid", "best-effort"] = Query(
+        default="pin",
+        description="Naming tier. pin (default) returns only verified Preferred IUPAC Names; valid and best-effort also return other checked names.",
+    ),
+    auto_detect: bool = AUTO_DETECT_PARAM,
+):
+    """Generate an IUPAC name from SMILES using Orthonym.
+
+    Orthonym builds names from the IUPAC 2013 recommendations. OPSIN reads each name back, and the name is returned only when it describes the input structure. When no name passes, Orthonym declines instead of guessing.
+
+    For more information:
+    - https://github.com/Steinbeck-Lab/Orthonym
+
+    Parameters:
+    - **SMILES**: required (str): The input SMILES string to name.
+    - **tier**: optional (str): The naming tier.
+        - Supported values: "pin" (default), "valid" & "best-effort".
+
+    Returns:
+    - name (str): The IUPAC name.
+    - tier (str): How the name was built, for example "pin_verified".
+    - is_pin (bool): True only for a certified Preferred IUPAC Name.
+    - verified (str): How the name was checked, for example "opsin".
+
+    Raises:
+    - 422: If the SMILES string is invalid or Orthonym cannot name the molecule.
+    """
+    try:
+        # ponytail: fresh engine per call (about 10 ms); name_tiered keeps per-call state on the instance, so a shared one is not thread-safe. Use one per thread if this cost matters.
+        # _emit_tier_flags is the tier contract Orthonym's own CLI uses; private, so recheck it when bumping the pin.
+        engine = Orthonym(**_emit_tier_flags(tier))
+        row = engine.name_tiered(resolve_input_smiles(smiles, auto_detect))
+    except ValueError:
+        raise HTTPException(status_code=422, detail="Invalid SMILES")
+    except Exception:
+        logger.exception("Error in Orthonym naming")
+        raise HTTPException(status_code=422, detail="Processing error")
+    if row["tier"] == "abstain":
+        raise HTTPException(
+            status_code=422,
+            detail=f"Orthonym could not name this molecule ({row['limit_code']}): {row['name']}",
+        )
+    return row
 
 
 @router.get(

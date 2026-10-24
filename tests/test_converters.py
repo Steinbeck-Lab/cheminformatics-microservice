@@ -1229,3 +1229,44 @@ def test_cdx_to_mol_wrong_extension():
     )
     assert response.status_code == 400
     assert "cdx" in response.json()["detail"].lower()
+
+
+@pytest.mark.parametrize(
+    "smiles, tier, name, response_code",
+    [
+        (
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+            "pin",
+            "1,3,7-trimethyl-3,7-dihydro-1H-purine-2,6-dione",
+            200,
+        ),
+        ("CCO", "pin", "ethanol", 200),
+        (
+            "CCCCCCCCCCCCC/C=C/[C@@H](O)[C@@H](N)CO",
+            "valid",
+            "(2S,3R,4E)-2-aminooctadec-4-ene-1,3-diol",
+            200,
+        ),
+        ("O=[U](=O)=O", "pin", None, 422),
+        ("INVALID_INPUT", "pin", None, 422),
+    ],
+)
+def test_smiles_to_iupac(smiles, tier, name, response_code):
+    response = client.get(
+        "/latest/convert/iupac", params={"smiles": smiles, "tier": tier}
+    )
+    assert response.status_code == response_code
+    if name:
+        assert response.json()["name"] == name
+
+
+def test_smiles_to_iupac_engine_error(monkeypatch):
+    # e.g. a missing OPSIN jar: any non-ValueError from Orthonym is a 422, not a crash
+    class BrokenOrthonym:
+        def __init__(self, **flags):
+            raise RuntimeError("jar unavailable")
+
+    monkeypatch.setattr("app.routers.converters.Orthonym", BrokenOrthonym)
+    response = client.get("/latest/convert/iupac", params={"smiles": "CCO"})
+    assert response.status_code == 422
+    assert response.json()["detail"] == "Processing error"

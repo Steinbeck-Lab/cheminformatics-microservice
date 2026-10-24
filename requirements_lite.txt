@@ -6,10 +6,11 @@ fastapi-pagination==0.10.0
 fastapi-versioning>=0.10.0
 starlette<1.0
 HOSE_code_generator @ git+https://github.com/Ratsemaat/HOSE_code_generator
+orthonym @ git+https://github.com/Steinbeck-Lab/Orthonym.git@v1.0.9
 httpx>=0.24.1
 IPython
 jinja2
-jpype1==1.4.1
+jpype1==1.7.1
 keras_preprocessing==1.1.2
 pandas
 pre-commit

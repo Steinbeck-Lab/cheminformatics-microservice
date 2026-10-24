@@ -53,7 +53,7 @@ const SECTIONS = [
   {
     to: "/convert",
     name: "Convert",
-    what: "SMILES, InChI, molfile, 2D and 3D coordinates",
+    what: "SMILES, InChI, IUPAC names, molfile, 2D and 3D coordinates",
     icon: RefreshCw,
   },
   { to: "/depict", name: "Depict", what: "2D and 3D depictions, Ketcher drawing", icon: LineChart },
@@ -92,6 +92,12 @@ const TOOLKITS = [
     href: "https://decimer.ai/",
     logo: "https://github.com/Steinbeck-Lab/cheminf-jena-logos/blob/main/DECIMER/DECIMER-1.png?raw=true",
     what: "Deep learning for chemical image recognition, from the same lab.",
+  },
+  {
+    name: "Orthonym",
+    href: "https://github.com/Steinbeck-Lab/Orthonym",
+    logo: "/orthonym-icon.png",
+    what: "Rule-based IUPAC names, checked by OPSIN, from the same lab.",
   },
 ];
 
@@ -268,7 +274,7 @@ const AboutPage = () => {
           <Layer
             id="l-kits"
             name="Open toolkits"
-            lead="The same input goes to CDK, RDKit or Open Babel, so you can compare their answers side by side. DECIMER reads structures from images."
+            lead="The same input goes to CDK, RDKit or Open Babel, so you can compare their answers side by side. DECIMER reads structures from images. Orthonym gives structures their IUPAC names."
           >
             <ul className="pc-kits">
               {TOOLKITS.map((k) => (

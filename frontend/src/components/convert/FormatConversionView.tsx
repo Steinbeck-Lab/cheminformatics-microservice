@@ -21,6 +21,7 @@ type OutputFormat =
   | "cxsmiles"
   | "selfies"
   | "smarts"
+  | "iupac"
   | "mol"
   | "sdf";
 type Toolkit = "cdk" | "rdkit" | "openbabel";
@@ -42,6 +43,7 @@ const OUTPUT_FORMAT_OPTIONS: { id: OutputFormat; label: string }[] = [
   { id: "cxsmiles", label: "CXSMILES" },
   { id: "selfies", label: "SELFIES" },
   { id: "smarts", label: "SMARTS" },
+  { id: "iupac", label: "IUPAC Name" },
   { id: "mol", label: "MOL Block" },
   { id: "sdf", label: "SDF" },
 ];
@@ -62,6 +64,16 @@ const TOOLKIT_OPTIONS: { id: Toolkit; label: string; short: string }[] = [
 ];
 
 const IUPAC_CONVERTER_OPTIONS = [{ id: "opsin", label: "OPSIN" }];
+
+// Outputs with no toolkit choice
+const NO_TOOLKIT_OUTPUTS = new Set<OutputFormat>(["selfies", "smarts", "iupac"]);
+
+// Orthonym naming tiers, strictest first
+const IUPAC_TIER_OPTIONS = [
+  { value: "pin", label: "PIN" },
+  { value: "valid", label: "Valid" },
+  { value: "best-effort", label: "Best effort" },
+];
 
 const labelOf = <T extends string>(list: { id: T; label: string }[], id: T) =>
   list.find((o) => o.id === id)?.label ?? id.toUpperCase();
@@ -133,6 +145,7 @@ const FormatConversionView = () => {
   const [outputFormat, setOutputFormat] = useState<OutputFormat>("canonicalsmiles");
   const [toolkit, setToolkit] = useState<Toolkit>("cdk");
   const [iupacConverter, setIupacConverter] = useState("opsin");
+  const [iupacTier, setIupacTier] = useState("pin");
   const [result, setResult] = useState("");
   // Title and "converted from … to …" line, fixed when the result arrives
   const [resultLabel, setResultLabel] = useState("");
@@ -381,11 +394,10 @@ const FormatConversionView = () => {
     }
   };
 
-  // Toolkit choice applies to SMILES, MOL/SDF and XYZ input, not to SELFIES/SMARTS output
+  // Toolkit choice applies to SMILES, MOL/SDF and XYZ input, not to SELFIES/SMARTS/IUPAC output
   const showToolkitSelection =
     (inputFormat === "smiles" || inputFormat === "molsdf" || inputFormat === "xyz") &&
-    outputFormat !== "selfies" &&
-    outputFormat !== "smarts";
+    !NO_TOOLKIT_OUTPUTS.has(outputFormat);
 
   const showIupacConverterSelection = inputFormat === "iupac";
 
@@ -412,6 +424,7 @@ const FormatConversionView = () => {
 
     try {
       let convertedResult: string | undefined;
+      let iupacTierNote = "";
       let smilesForDisplay = "";
       const convertOptions = { autoDetect: autoDetected };
 
@@ -487,7 +500,13 @@ const FormatConversionView = () => {
           );
         }
         smilesForDisplay = smiles;
-        convertedResult = await convertSmilesTo(smiles, convertOptions);
+        if (outputFormat === "iupac") {
+          const named = await convertService.generateIUPACName(smiles, iupacTier, convertOptions);
+          convertedResult = named.name;
+          iupacTierNote = ` with Orthonym (${named.tier.replace(/_/g, " ")})`;
+        } else {
+          convertedResult = await convertSmilesTo(smiles, convertOptions);
+        }
       }
 
       if (!convertedResult) {
@@ -513,7 +532,7 @@ const FormatConversionView = () => {
             showIupacConverterSelection
               ? ` with ${labelOf(IUPAC_CONVERTER_OPTIONS, iupacConverter)}`
               : ""
-          }.`
+          }${iupacTierNote}.`
         );
 
         if (smilesForDisplay && smilesForDisplay.trim()) {
@@ -813,6 +832,24 @@ const FormatConversionView = () => {
               </p>
             )}
           </div>
+
+          {outputFormat === "iupac" && (
+            <div className="pc-opt-group">
+              <span className="pc-lbl" id="fc-iupac-tier">
+                Naming tier
+              </span>
+              <Seg
+                labelId="fc-iupac-tier"
+                full
+                value={iupacTier}
+                onChange={setIupacTier}
+                options={IUPAC_TIER_OPTIONS}
+              />
+              <p className="pc-note">
+                Orthonym names are checked by OPSIN. PIN gives only preferred IUPAC names.
+              </p>
+            </div>
+          )}
 
           {showToolkitSelection && (
             <div className="pc-opt-group">
