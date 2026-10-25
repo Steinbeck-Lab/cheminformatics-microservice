@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.13.0](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.12.1...v3.13.0) (2026-10-24)
+
+
+### Features
+
+* **about:** credit Orthonym for IUPAC naming ([6b6f534](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/6b6f534fd741b3a09c547a9374b1664f7b368331))
+* **convert:** add Orthonym SMILES to IUPAC naming ([e19a65a](https://github.com/Steinbeck-Lab/cheminformatics-microservice/commit/e19a65a4088b62e983f3e457bb0d82e9875b6307))
+
 ## [3.12.1](https://github.com/Steinbeck-Lab/cheminformatics-microservice/compare/v3.12.0...v3.12.1) (2026-10-22)
 
 
